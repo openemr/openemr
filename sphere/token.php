@@ -19,15 +19,11 @@ require_once(__DIR__ . "/../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], $session, 'sphere_revert_token')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', subject: 'sphere_revert_token', dieOnFail: true);
 
 if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));

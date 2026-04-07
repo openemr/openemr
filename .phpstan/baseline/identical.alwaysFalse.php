@@ -72,11 +72,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-empty\\-array\\<mixed, mixed\\> and array\\{\\} will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',

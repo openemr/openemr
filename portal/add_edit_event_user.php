@@ -161,9 +161,7 @@ if ($eid !== 0) {
 //
 // Verify CSRF token for all form actions
 if ($form_action !== '') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session, 'portal-appointment')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-appointment', dieOnFail: true);
 }
 
 if ($form_action === "save") {

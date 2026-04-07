@@ -383,10 +383,7 @@ if (isset($_POST['new_login_session_management'])) {
         $_POST["clearPass"] = '';
     }
 } else {
-    // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->migrate(false);
 }
 // Set up the csrf private_key

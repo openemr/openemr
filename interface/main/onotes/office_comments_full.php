@@ -38,9 +38,7 @@ $active = $_REQUEST['active'] ?? 1; // Default: Active Only
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Process form submissions
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {

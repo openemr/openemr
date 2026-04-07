@@ -22,9 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     EventAuditLogger::getInstance()->newEvent("authorize", $session->get('authUser'), $session->get('authProvider'), 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);

@@ -50,7 +50,7 @@ class QrdaReportController
             return '';
         }
         if ($type === 'html') {
-            $xml = simplexml_load_string($document);
+            $xml = simplexml_load_string($document, 'SimpleXMLElement', LIBXML_NONET);
             $xsl = new DOMDocument();
             $xsl->load(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl');
             $proc = new XSLTProcessor();

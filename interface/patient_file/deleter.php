@@ -20,6 +20,7 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -33,9 +34,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"] ?? '', session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 $patient     = filter_input(INPUT_GET, 'patient', FILTER_VALIDATE_INT) ?: 0;
@@ -64,7 +63,7 @@ function deleter_row_delete(string $table, string $where, array $binds = []): vo
     while ($trow = QueryUtils::fetchArrayFromResultSet($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') {
+            if (Utilities::isDateEmpty($value)) {
                 continue;
             }
 
@@ -214,9 +213,7 @@ function popup_close() {
         // If the delete is confirmed...
         //
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             if ($patient) {
                 if (!AclMain::aclCheckCore('admin', 'super') || !OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete')) {

@@ -35,9 +35,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //this part download the CSV file after the click on the href link
 if (!empty($_GET['download_file']) && ($_GET['download_file'] == 1)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $target_file = $holidays_controller->get_target_file();
     if (! file_exists($target_file)) {
@@ -61,9 +59,7 @@ if (!empty($_GET['download_file']) && ($_GET['download_file'] == 1)) {
 // Handle uploads.
 
 if (!empty($_POST['bn_upload'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //Upload and save the csv
     $saved = $holidays_controller->upload_csv($_FILES);
@@ -75,9 +71,7 @@ if (!empty($_POST['bn_upload'])) {
 }
 
 if (!empty($_POST['import_holidays'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //Import from the csv file to the calendar external table
     $saved = $holidays_controller->import_holidays_from_csv();
@@ -87,9 +81,7 @@ if (!empty($_POST['import_holidays'])) {
 }
 
 if (!empty($_POST['sync'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //Upload and save the csv
     $saved = $holidays_controller->create_holiday_event();

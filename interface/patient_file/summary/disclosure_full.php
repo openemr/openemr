@@ -36,9 +36,7 @@ $res = sqlQuery("select username from users where username=?", [$session->get("a
 $uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $dates = trim((string) $_POST['dates']);
     $event = trim((string) $_POST['form_disclosure_type']);
@@ -65,9 +63,7 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
 }
 
 if (isset($_GET['deletelid'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if (!$authWrite) {
         echo xlt('Not Authorized');

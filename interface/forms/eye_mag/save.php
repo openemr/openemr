@@ -42,6 +42,7 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -1310,7 +1311,7 @@ function eye_mag_row_delete(string $table, string $where): void
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (!$value || $value == '0000-00-00 00:00:00') {
+            if (Utilities::isDateEmpty($value)) {
                 continue;
             }
 

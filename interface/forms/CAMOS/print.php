@@ -32,12 +32,12 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 </head>
 
 <body class='ml-1'>
-    <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+    <form method=post action="<?php echo OEGlobalsBag::getInstance()->getString('rootdir');?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>
         <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />
-        <?php echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
+        <?php echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
         <table>
         </table>
         <h3><?php echo xlt('Computer Aided Medical Ordering System'); ?></h3>
@@ -60,7 +60,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             </tr>
         </table><input type="submit" name="submit form" value="submit form" />
         <?php
-        echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" .
+        echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" .
         xlt('do not save') . "]</a>";
         ?>
 

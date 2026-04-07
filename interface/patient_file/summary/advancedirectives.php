@@ -35,9 +35,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $pid = $session->get('pid');
     }
     if ($_POST['form_yesno']) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $form_yesno = filter_input(INPUT_POST, 'form_yesno');
         $form_adreviewed = DateTimeToYYYYMMDDHHMMSS(filter_input(INPUT_POST, 'form_adreviewed'));

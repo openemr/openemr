@@ -348,7 +348,7 @@ class EhiExporter
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents);
+        $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NONET);
         return $xml;
     }
 

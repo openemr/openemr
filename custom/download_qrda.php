@@ -23,9 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id']) : "";

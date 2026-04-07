@@ -320,9 +320,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <?php
                 if (!empty($_POST['form_refresh'])) {
-                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                        CsrfUtils::csrfNotVerified();
-                    }
+                    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                     ?>
                 <div id="report_results">

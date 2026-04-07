@@ -32,9 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid ??= $session->get('pid') ?? null;
 
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     /*
      * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
@@ -226,18 +224,14 @@ if (!empty($entered_by_id)) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria = getImmunizationObservationLists('1');
     echo json_encode($observation_criteria);
     exit;
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria_value = getImmunizationObservationLists('2');
     echo json_encode($observation_criteria_value);
     exit;

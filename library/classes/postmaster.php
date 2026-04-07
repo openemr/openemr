@@ -46,7 +46,7 @@ class MyMailer extends PHPMailer
     {
         $requiredKeys = [];
         if (OEGlobalsBag::getInstance()->get('EMAIL_METHOD') === "SMTP") {
-            $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
+            $requiredKeys = ['SMTP_HOST', 'SMTP_PORT'];
             if (!empty(OEGlobalsBag::getInstance()->get('SMTP_Auth'))) {
                 $requiredKeys[] = 'SMTP_USER';
                 $requiredKeys[] = 'SMTP_PASS';

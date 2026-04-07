@@ -72,9 +72,7 @@ $form_facility  = $_POST['form_facility'] ?? null;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_csvexport'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -178,9 +176,7 @@ if (!empty($_POST['form_csvexport'])) {
 // If generating a report.
 //
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sqlBindArray = [];
     $query = "SELECT po.patient_id, po.date_ordered, " .

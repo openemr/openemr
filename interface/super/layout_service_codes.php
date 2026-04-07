@@ -67,10 +67,7 @@ function applyCode($layoutid, $codetype, $code, $description): void
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thecodes = [];
     $tmp_name = $_FILES['form_file']['tmp_name'];

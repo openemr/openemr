@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -169,11 +170,11 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $locationResource->setStatus("active");
 
         if (!empty($dataRecord['name'])) {
-            $name = $dataRecord['name'];
+            $name = is_string($dataRecord['name']) ? $dataRecord['name'] : '';
             if ($dataRecord['type'] != 'facility') {
-                $name = xlt($name);
+                $name = xl_list_label($name);
             }
-            $locationResource->setName($name);
+            $locationResource->setName(new FHIRString($name));
         } else {
             $locationResource->setName(UtilsService::createDataMissingExtension());
         }

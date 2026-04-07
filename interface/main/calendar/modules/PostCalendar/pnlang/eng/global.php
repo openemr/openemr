@@ -26,6 +26,9 @@
  *
  */
 
+use OpenEMR\Common\Calendar\DayOfWeek;
+use OpenEMR\Common\Calendar\Month;
+
 //=========================================================================
 //  The following define is necessary for the date and time functions
 //  set it to the locale for this language
@@ -44,18 +47,18 @@ define('_USER_BUSY_TITLE', xl('Busy'));
 define('_USER_BUSY_MESSAGE', xl('I am busy during this time.'));
 define('_PC_JUMP_MENU_SUBMIT', xl('Save'));
 define('_PC_TPL_VIEW_SUBMIT', xl('change'));
-define('_CALJAN', xl('January'));
-define('_CALFEB', xl('February'));
-define('_CALMAR', xl('March'));
-define('_CALAPR', xl('April'));
-define('_CALMAY', xl('May'));
-define('_CALJUN', xl('June'));
-define('_CALJUL', xl('July'));
-define('_CALAUG', xl('August'));
-define('_CALSEP', xl('September'));
-define('_CALOCT', xl('October'));
-define('_CALNOV', xl('November'));
-define('_CALDEC', xl('December'));
+define('_CALJAN', Month::January->label());
+define('_CALFEB', Month::February->label());
+define('_CALMAR', Month::March->label());
+define('_CALAPR', Month::April->label());
+define('_CALMAY', Month::May->label());
+define('_CALJUN', Month::June->label());
+define('_CALJUL', Month::July->label());
+define('_CALAUG', Month::August->label());
+define('_CALSEP', Month::September->label());
+define('_CALOCT', Month::October->label());
+define('_CALNOV', Month::November->label());
+define('_CALDEC', Month::December->label());
 define('_CALMONDAYSHORT', xl('M{{Monday}}'));
 define('_CALTUESDAYSHORT', xl('T{{Tuesday}}'));
 define('_CALWEDNESDAYSHORT', xl('W{{Wednesday}}'));
@@ -63,13 +66,13 @@ define('_CALTHURSDAYSHORT', xl('T{{Thursday}}'));
 define('_CALFRIDAYSHORT', xl('F{{Friday}}'));
 define('_CALSATURDAYSHORT', xl('S{{Saturday}}'));
 define('_CALSUNDAYSHORT', xl('S{{Sunday}}'));
-define('_CALSUNDAY', xl('Sunday'));
-define('_CALMONDAY', xl('Monday'));
-define('_CALTUESDAY', xl('Tuesday'));
-define('_CALWEDNESDAY', xl('Wednesday'));
-define('_CALTHURSDAY', xl('Thursday'));
-define('_CALFRIDAY', xl('Friday'));
-define('_CALSATURDAY', xl('Saturday'));
+define('_CALSUNDAY', DayOfWeek::Sunday->label());
+define('_CALMONDAY', DayOfWeek::Monday->label());
+define('_CALTUESDAY', DayOfWeek::Tuesday->label());
+define('_CALWEDNESDAY', DayOfWeek::Wednesday->label());
+define('_CALTHURSDAY', DayOfWeek::Thursday->label());
+define('_CALFRIDAY', DayOfWeek::Friday->label());
+define('_CALSATURDAY', DayOfWeek::Saturday->label());
 define('_CAL_DAYVIEW', xl('Day'));
 define('_CAL_WEEKVIEW', xl('Week'));
 define('_CAL_MONTHVIEW', xl('Month'));

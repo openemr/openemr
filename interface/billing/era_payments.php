@@ -79,9 +79,7 @@ $validEraName = $pending_eraname !== '' && preg_match('/^[0-9]{8}_[0-9]+_[0-9]+$
 
 // Handle confirmed overwrite from pending upload
 if ($confirm_overwrite === 'yes' && $validEraName) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
     // basename() strips path components; realpath() resolves symlinks and verifies existence
     $safeName = basename($pending_eraname);
@@ -116,9 +114,7 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
 //===============================================================================
   // Handle X12 835 file upload.
 elseif (!empty($_FILES['form_erafile']['size'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
     if (!is_string($tmp_name)) {

@@ -102,9 +102,7 @@ function get_related() {
 <?php
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_submit']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($group_id) {
         $sets =

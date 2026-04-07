@@ -12,6 +12,7 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -27,9 +28,7 @@ function isValid($date, $format = 'Y-m-d'): bool
 }
 
 if (!empty($_POST['token'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["token"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, key: 'token', dieOnFail: true);
 
     $postStartDate = DateToYYYYMMDD($_POST['start_date']);
     $startDate = isValid($postStartDate) === true ? $postStartDate : $_POST['start_date'];
@@ -153,7 +152,7 @@ const TABLE_TD = "</td><td>";
                         print TABLE_TD . text($iter['init_units']);
                         print TABLE_TD . text($remaining);
                         print TABLE_TD . text($iter['start_date']);
-                        if ($iter['end_date'] == '0000-00-00') {
+                        if (Utilities::isDateEmpty($iter['end_date'])) {
                             print TABLE_TD;
                         } else {
                             print TABLE_TD . text($iter['end_date']);

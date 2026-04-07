@@ -22,6 +22,7 @@
 
 namespace OpenEMR\Forms\NewPatient;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -670,7 +671,7 @@ class C_EncounterVisitForm
         $posOptions = $this->getPosOptionsForTemplate($facilityPosCode);
 // END AI GENERATED CODE
 
-        if (empty($encounter['onset_date']) || $encounter['onset_date'] == '0000-00-00 00:00:00') {
+        if (Utilities::isDateEmpty($encounter['onset_date'])) {
             $encounter['onset_date'] = null;
         }
 
