@@ -39,7 +39,7 @@ foreach ($claim_files as $claim_file) {
     $element->x12_partner_id = text($claim_file['x12_partner_id']);
     $element->x12_partner_name = text($claim_file['name']);
     $element->x12_filename = text($claim_file['x12_filename']);
-    $element->status = xl($claim_file['status']);
+    $element->status = xl_list_label(is_string($claim_file['status'] ?? null) ? $claim_file['status'] : '');
     $element->created_at = $claim_file['created_at'];
     $element->updated_at = $claim_file['updated_at'];
     $element->claims = json_decode((string) $claim_file['claims']);
