@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption\Keys;
 
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class KeyMaterialTest extends TestCase
@@ -40,12 +41,26 @@ final class KeyMaterialTest extends TestCase
         self::assertStringNotContainsString('secret', print_r($debugInfo, true));
     }
 
-    public function testIsReadonly(): void
+    /**
+     * @return array{int}[]
+     */
+    public static function byteLengths(): array
     {
-        $material = new KeyMaterial('test');
+        return [
+            '2' => [2],
+            '32' => [22],
+            '48' => [48],
+            '64' => [64],
+        ];
+    }
 
-        $reflection = new \ReflectionClass($material);
-
-        self::assertTrue($reflection->isReadOnly());
+    /**
+     * @param int<1, max> $bytes
+     */
+    #[DataProvider('byteLengths')]
+    public function testGenerate(int $bytes): void
+    {
+        $km = KeyMaterial::generate($bytes);
+        self::assertSame($bytes, strlen($km->key), 'Wrong number of bytes');
     }
 }

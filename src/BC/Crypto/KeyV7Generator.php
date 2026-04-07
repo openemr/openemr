@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\BC\Crypto;
@@ -23,9 +31,9 @@ class KeyV7Generator
         $dbKey = KeyMaterial::generate(Aes256CbcHmacSha384::KEY_LENGTH);
         $dbHmacKey = KeyMaterial::generate(32);
         // This doesn't locally check for existence since the interface
-        // promises it won't ovewrite data.
-        $storage->storeKey('sevena', $dbKey);
-        $storage->storeKey('sevenb', $dbHmacKey);
+        // promises it won't overwrite data.
+        $storage->storeKey(new Storage\KeyMaterialId('sevena'), $dbKey);
+        $storage->storeKey(new Storage\KeyMaterialId('sevenb'), $dbHmacKey);
         return new Aes256CbcHmacSha384(
             key: $dbKey,
             hmacKey: $dbHmacKey,

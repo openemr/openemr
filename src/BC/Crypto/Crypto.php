@@ -25,9 +25,19 @@ use OpenEMR\Encryption\{
     MessageFormat,
     Plaintext,
 };
+use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
+ * CryptoInterface implementation that uses the modern tooling in the
+ * `OpenEMR\Encryption` namespace to manage keys and perform cryptographic
+ * operations.
+ *
+ * CRITICALLY IMPORTANT: This relies on a KeychainInterface with remapped keys
+ * for backwards compatibility. One is provided through `LegacyKeychainLoader`.
+ * It will not be able to look up keys using the historic `00x` names alone.
+ *
  * @deprecated
  */
 final readonly class Crypto implements CryptoInterface
@@ -42,14 +52,14 @@ final readonly class Crypto implements CryptoInterface
     {
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
-        $keychain = Keychain::load(createKeyIfNeeded: KeyVersion::CURRENT);
+        $keychain = LegacyKeychainLoader::load(createKeyIfNeeded: KeyVersion::CURRENT);
         return new Crypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
         if ($value === null || $value === '') {
-            // Should this warn?
+            $this->logger->warning('Encrypting a null or empty value');
             return '';
         }
 
@@ -76,7 +86,7 @@ final readonly class Crypto implements CryptoInterface
     public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
         if ($value === null || $value === '') {
-            // Should this warn?
+            $this->logger->info('Decrypting a null or empty value');
             return '';
         }
 
@@ -90,7 +100,7 @@ final readonly class Crypto implements CryptoInterface
             $keyVersion = KeyVersion::fromPrefix($value);
 
             if ($minimumVersion !== null && $keyVersion->value < $minimumVersion) {
-                throw new \Exception('Data is below minimum allowed version');
+                throw new OutOfBoundsException('Data is below minimum allowed version');
             }
 
             $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
@@ -101,7 +111,7 @@ final readonly class Crypto implements CryptoInterface
             $cipher = $this->keychain->getCipher($keyId);
 
             return $cipher->decrypt($message->ciphertext)->bytes;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Decrypting data failed', ['exception' => $e]);
             return false;
         }
@@ -115,7 +125,7 @@ final readonly class Crypto implements CryptoInterface
         try {
             Message::parse($value);
             return true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

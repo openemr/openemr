@@ -30,11 +30,16 @@ use OpenEMR\Encryption\{
 use Throwable;
 
 /**
- * Implements v1-v7 keys in a way that matches key names from Crypto
+ * Loads v1-v7 keys from legacy storage locations and maps them to the new
+ * KeychainInterface.
+ *
+ * CRITICALLY IMPORTANT: This loader registers keys under names defined by the
+ * `Key` enum (e.g., 'seven-drive'), NOT the numeric prefixes used by CryptoGen
+ * (e.g., '007'). Use only with `Crypto` in this namespace.
  *
  * @deprecated
  */
-class Keychain
+class LegacyKeychainLoader
 {
     public static function load(KeyVersion $createKeyIfNeeded): KeychainInterface
     {
