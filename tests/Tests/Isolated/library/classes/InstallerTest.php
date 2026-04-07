@@ -3450,9 +3450,11 @@ class InstallerTest extends TestCase
                 "AND list_id IS NOT NULL;"               // Another continuation
             );
 
-        // Capture the actual SQL statements executed
+        // Capture the actual SQL statements executed.
+        // Five calls total: SET autocommit=0, START TRANSACTION, the assembled
+        // UPDATE statement, COMMIT, SET autocommit=1.
         $executedSql = [];
-        $mockInstaller->expects($this->exactly(9))
+        $mockInstaller->expects($this->exactly(5))
             ->method('execute_sql')
             ->willReturnCallback(function ($sql) use (&$executedSql) {
                 $executedSql[] = $sql;
