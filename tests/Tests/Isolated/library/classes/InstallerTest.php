@@ -3395,36 +3395,26 @@ class InstallerTest extends TestCase
     }
 
     /**
-     * Test that load_file() properly preserves whitespace between SQL lines.
      * Regression test for #10935.
      *
-     * Before the fix, rtrim() removed trailing whitespace from each line,
-     * and concatenation happened with no separator. A continuation line
-     * starting at column 0 (no indentation) would fuse with the previous
-     * token, creating syntax errors.
+     * load_file() reads the dump file with fgets() and rtrim()s each result.
+     * Before the fix, the rtrim()'d lines were concatenated with no
+     * separator, so a continuation line starting at column 0 would fuse
+     * with the previous token:
      *
-     * E.g.:
      *   UPDATE layout_options SET uor = 0
      *   WHERE form_id = 'DEM'
      *
-     * Was becoming:
+     * became:
+     *
      *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
+     *
+     * The fix inserts a single space between concatenated lines at real
+     * line boundaries, restoring valid token separation.
      */
-    public function testLoadFilePreservesWhitespaceBetweenLines(): void
+    public function testLoadFileInsertsSpaceSeparatorBetweenSqlLines(): void
     {
-        $mockInstaller = $this->getMockBuilder(Installer::class)
-            ->setConstructorArgs([[
-                'server' => 'localhost',
-                'root' => 'root',
-                'rootpass' => 'password',
-                'port' => '3306',
-                'login' => 'openemr',
-                'pass' => 'openemr',
-                'dbname' => 'openemr'
-            ], new NullLogger()])
-            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
-            ->getMock();
-
+        $mockInstaller = $this->buildLoadFileMock();
         $mockResource = fopen('php://memory', 'w+');
 
         $mockInstaller->expects($this->once())
@@ -3440,14 +3430,16 @@ class InstallerTest extends TestCase
                 return $eofCallCount > 3;
             });
 
-        // Simulate SQL lines with no leading whitespace on continuation
+        // Each fgets() result includes the trailing newline that signals a
+        // complete line; load_file() relies on this to know it can safely
+        // insert a separator.
         $mockInstaller->expects($this->exactly(3))
             ->method('getLine')
             ->with($mockResource, 1024)
             ->willReturnOnConsecutiveCalls(
-                "UPDATE layout_options SET uor = 0",      // Line ends, no trailing whitespace after rtrim
-                "WHERE form_id = 'DEM' AND seq > 10",   // Continuation at column 0
-                "AND list_id IS NOT NULL;"               // Another continuation
+                "UPDATE layout_options SET uor = 0\n",
+                "WHERE form_id = 'DEM' AND seq > 10\n",
+                "AND list_id IS NOT NULL;\n"
             );
 
         // Capture the actual SQL statements executed.
@@ -3471,7 +3463,6 @@ class InstallerTest extends TestCase
         $this->assertIsString($result);
         $this->assertStringContainsString('OK', $result);
 
-        // Verify that the complete SQL statement was assembled with proper spacing
         // The third execute_sql call should be the complete UPDATE statement
         $completeUpdateStatement = $executedSql[2] ?? '';
         $this->assertIsString($completeUpdateStatement);
@@ -3483,5 +3474,79 @@ class InstallerTest extends TestCase
         // Must contain "10 AND" (with space), not "10AND" (fused)
         $this->assertStringContainsString('10 AND', $completeUpdateStatement);
         $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
+    }
+
+    /**
+     * Regression test: a single SQL line longer than the 1024-byte fgets()
+     * buffer is read as multiple chunks. load_file() must NOT insert a
+     * separator between those chunks — doing so would corrupt tokens that
+     * span chunk boundaries (e.g. hex literals like 0x3c68746d6c...).
+     */
+    public function testLoadFileDoesNotInsertSeparatorBetweenChunksOfSameLine(): void
+    {
+        $mockInstaller = $this->buildLoadFileMock();
+        $mockResource = fopen('php://memory', 'w+');
+
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->willReturn($mockResource);
+
+        $eofCallCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('atEndOfFile')
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
+                $eofCallCount++;
+                return $eofCallCount > 3;
+            });
+
+        // Three chunks of one logical line — only the final chunk ends in
+        // "\n". The first two simulate fgets() returning a partial chunk
+        // because the buffer filled up before the newline.
+        $mockInstaller->expects($this->exactly(3))
+            ->method('getLine')
+            ->willReturnOnConsecutiveCalls(
+                "INSERT INTO t VALUES (0x3c68746d6c",
+                "3e0d0a3c2f68746d6c3e",
+                ");\n"
+            );
+
+        $executedSql = [];
+        $mockInstaller->expects($this->exactly(5))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$executedSql) {
+                $executedSql[] = $sql;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())->method('closeFile')->willReturn(true);
+
+        $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
+
+        // The assembled INSERT must contain the unbroken hex literal.
+        $this->assertSame(
+            'INSERT INTO t VALUES (0x3c68746d6c3e0d0a3c2f68746d6c3e)',
+            $executedSql[2]
+        );
+    }
+
+    /**
+     * Build a partially-mocked Installer for load_file() tests.
+     *
+     * @return Installer&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function buildLoadFileMock(): Installer
+    {
+        return $this->getMockBuilder(Installer::class)
+            ->setConstructorArgs([[
+                'server' => 'localhost',
+                'root' => 'root',
+                'rootpass' => 'password',
+                'port' => '3306',
+                'login' => 'openemr',
+                'pass' => 'openemr',
+                'dbname' => 'openemr'
+            ], new NullLogger()])
+            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
+            ->getMock();
     }
 }
