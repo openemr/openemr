@@ -11062,11 +11062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\TranslatorViewHelper\\:\\:xl\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Listener\\\\Listener\\:\\:detach\\(\\) has parameter \\$priority with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
@@ -24572,11 +24567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sftp_status\\(\\) has parameter \\$msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sftp_status\\(\\) has parameter \\$val with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
@@ -25205,11 +25195,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getUserNameById\\(\\) has parameter \\$uid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function hsc_private_xl_or_warn\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function issue_ippf_con_form\\(\\) has parameter \\$issue with no type specified\\.$#',
@@ -27650,16 +27635,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_xlt\\(\\) has parameter \\$smarty with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xla\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xlt\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:get_key\\(\\) has parameter \\$config_key with no type specified\\.$#',

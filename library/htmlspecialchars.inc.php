@@ -292,18 +292,18 @@ function attr($text): string
  * documentation and clean up the name.
  * @return string
  */
-function hsc_private_xl_or_warn($key)
+function hsc_private_xl_or_warn(?string $key): string
 {
-    if (function_exists('xl')) {
-        return xl($key ?? '');
-    } else {
-        trigger_error(
-            'Translation via xl() was requested, but the xl()'
-            . ' function is not defined, yet.',
-            E_USER_WARNING
-        );
-        return $key;
+    if ($key === null) {
+        return '';
     }
+    if (!function_exists('xl')) {
+        throw new \LogicException(
+            'Translation via xl() was requested, but the xl() function is not defined yet.'
+        );
+    }
+    // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
+    return xl($key);
 }
 
 /**
