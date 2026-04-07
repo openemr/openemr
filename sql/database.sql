@@ -13870,7 +13870,7 @@ CREATE TABLE `form_eye_antseg` (
   `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
   `ODTBUT`               varchar(25) DEFAULT NULL,
   `OSTBUT`               varchar(25) DEFAULT NULL,
-  `OSCONJ`               varchar(25) DEFAULT NULL,
+  `OSCONJ`               text,
   `ODCONJ`               text,
   `ODCORNEA`             text,
   `OSCORNEA`             text,
