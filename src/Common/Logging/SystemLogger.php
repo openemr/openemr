@@ -2,10 +2,14 @@
 
 namespace OpenEMR\Common\Logging;
 
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
+use Stringable;
 
 /**
  * Class SystemLogger logs information out to the syslog and is a compatible PSR3 logger.
@@ -25,12 +29,12 @@ use Psr\Log\LoggerInterface;
  */
 class SystemLogger implements LoggerInterface
 {
-    /**
-     * @var LoggerInterface;
-     */
-    private $logger;
+    use LoggerTrait;
+
+    private LoggerInterface $logger;
 
     const LOG_LEVEL_DEBUG = "DEBUG";
+
     public function __construct($logLevel = null)
     {
         /**
@@ -55,154 +59,20 @@ class SystemLogger implements LoggerInterface
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php
 //        // Change the logger level to see what logs you want to log
 //        $this->logger->pushHandler(new Monolog\Handler\ErrorLogHandler('OpenEMR - ', $facility, $logLevel));
-        $this->logger->pushHandler(new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel));
-    }
-
-    /**
-     * System is unusable.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function emergency($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->emergency($message, $context);
-    }
-
-    /**
-     * Action must be taken immediately.
-     *
-     * Example: Entire website down, database unavailable, etc. This should
-     * trigger the SMS alerts and wake you up.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function alert($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->alert($message, $context);
-    }
-
-    /**
-     * Critical conditions.
-     *
-     * Example: Application component unavailable, unexpected exception.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function critical($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->critical($message, $context);
-    }
-
-    /**
-     * Runtime errors that do not require immediate action but should typically
-     * be logged and monitored.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function error($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->error($message, $context);
-    }
-
-    /**
-     * Runtime errors that do not require immediate action but should typically
-     * be logged and monitored.  This function automatically logs the class and function method that invoked the
-     * error log.
-     * @param $message
-     * @param array $context
-     */
-    public function errorLogCaller($message, array $context = []): void
-    {
-        // we skip over arguments and go 2 stack traces to get the current call and the caller function into this one.
-        $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        $callerContext = $dbt[1] ?? [];
-        $callerClass = $callerContext['class'] ?? "";
-        $callerType = $callerContext['type'] ?? "";
-        $callerFunction = $callerContext['function'] ?? "";
-        $caller = $callerClass . $callerType . $callerFunction;
-        if ($caller != "") {
-            // make it look like a method signature
-            $caller .= "() ";
-        }
-        $this->error($caller . $message, $context);
-    }
-
-    /**
-     * Exceptional occurrences that are not errors.
-     *
-     * Example: Use of deprecated APIs, poor use of an API, undesirable things
-     * that are not necessarily wrong.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function warning($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->warning($message, $context);
-    }
-
-    /**
-     * Normal but significant events.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function notice($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->notice($message, $context);
-    }
-
-    /**
-     * Interesting events.
-     *
-     * Example: User logs in, SQL logs.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function info($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->info($message, $context);
-    }
-
-    /**
-     * Detailed debug information.
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
-     */
-    public function debug($message, array $context = []): void
-    {
-        $context = $this->escapeVariables($context);
-        $this->logger->debug($message, $context);
+        $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel);
+        $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%");
+        $formatter->includeStacktraces(true);
+        $handler->setFormatter($formatter);
+        $this->logger->pushHandler($handler);
+        $this->logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true));
     }
 
     /**
      * Logs with an arbitrary level.
      *
      * @param mixed $level
-     * @param string $message
+     * @param string|Stringable $message
      * @param array $context
-     * @return void
      */
     public function log($level, $message, array $context = []): void
     {
@@ -225,6 +95,9 @@ class SystemLogger implements LoggerInterface
             $escapedKey = $this->escapeValue($key);
             if (is_array($value)) {
                 $escapedDict[$key] = $this->escapeVariables($value, $recurseLimit + 1);
+            } elseif ($key === 'exception' && $value instanceof \Throwable) {
+                // Pass through for Monolog's stack trace formatting
+                $escapedDict[$key] = $value;
             } elseif (is_object($value)) {
                 try {
                     $object = json_encode($value);

@@ -52,11 +52,15 @@ require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $versions = [];
 $sqldir = "$webserver_root/sql";
@@ -79,7 +83,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->get('language_default') ?? '']);
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -94,10 +98,11 @@ if (count($result2 ?? []) == 1) {
     $defaultLangName = "English";
 }
 
-$_SESSION['language_choice'] = $defaultLangID;
-$_SESSION['language_direction'] = $direction ?? '';
-CsrfUtils::setupCsrfKey();
-session_write_close();
+SessionUtil::setSession([
+    'language_choice' => $defaultLangID,
+    'language_direction' => $direction ?? '',
+]);
+CsrfUtils::setupCsrfKey($session);
 
 $sqlUpgradeService = new SQLUpgradeService();
 
@@ -131,7 +136,7 @@ header('Content-type: text/html; charset=utf-8');
             // start polling
             let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
             let data = new FormData;
-            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('sqlupgrade')); ?>);
+            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
             data.append("poll", currentVersion);
 
             let response = await fetch(url, {

@@ -16,12 +16,12 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $twigContainer = new TwigContainer(null, $kernel);
 $t = $twigContainer->getTwig();
@@ -292,7 +292,7 @@ if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlob
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode((string) CsrfUtils::collectCsrfToken()));
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken(session: $session)));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";

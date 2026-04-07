@@ -66,7 +66,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         CsrfUtils::setupCsrfKey($session);
         $session->set("authUserID", $userId);
         $request->setSession($session);
-        $request->headers->set("APICSRFTOKEN", CsrfUtils::collectCsrfToken('api', $session));
+        $request->headers->set("APICSRFTOKEN", CsrfUtils::collectCsrfToken($session, 'api') ?: '');
 
         $this->assertTrue($controller->authorizeRequest($request), "Expected authorizeRequest to return true for valid local API request");
         $this->assertTrue($request->attributes->has('userId'), "Expected request to have userId attribute set");

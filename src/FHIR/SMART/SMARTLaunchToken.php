@@ -129,7 +129,7 @@ class SMARTLaunchToken
         $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
         ServiceContainer::getLogger()->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
-        $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
+        $launchParams = $cryptoGen->encryptStandard($jsonEncoded !== false ? $jsonEncoded : null);
         return base64_encode($launchParams); // make it URL safe
     }
 

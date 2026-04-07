@@ -22,6 +22,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 class Encounter_Controller extends Abstract_Controller
@@ -36,15 +37,16 @@ class Encounter_Controller extends Abstract_Controller
 
     public function esign_form_view()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $form = new \stdClass();
         $form->table = 'form_encounter';
         $form->encounterId = $this->getRequest()->getParam('encounterid', 0);
-        $form->userId = $_SESSION['authUserID'];
+        $form->userId = $session->get('authUserID');
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) ? true : false;
-        $form->googleSigninClientID = OEGlobalsBag::getInstance()->get('google_signin_client_id');
+        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) ? true : false;
+        $form->googleSigninClientID = OEGlobalsBag::getInstance()->getString('google_signin_client_id');
 
         if (
             $signable->isLocked() === false &&
@@ -75,6 +77,7 @@ class Encounter_Controller extends Abstract_Controller
      */
     public function esign_form_submit()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $message = '';
         $status = self::STATUS_FAILURE;
         $password = $this->getRequest()->getParam('password', '');
@@ -85,7 +88,7 @@ class Encounter_Controller extends Abstract_Controller
         $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
         $force_google = (
             OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
-            !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) &&
+            !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
             !empty($usedGoogleSignin) &&
             !empty($googleSigninToken)
         ) ? 1 : 0;
@@ -106,17 +109,17 @@ class Encounter_Controller extends Abstract_Controller
         if ($force_google ===  1) {
             $valid = false;
             $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken);
-            if (!empty($uPayload) && isset($uPayload['id']) && $uPayload['id'] == $_SESSION['authUserID']) {
+            if (!empty($uPayload) && isset($uPayload['id']) && $uPayload['id'] == $session->get('authUserID')) {
                 $valid = true;
             }
             $gMessage = xlt("Invalid google log in");
         } else {
-            $valid = (new AuthUtils())->confirmPassword($_SESSION['authUser'], $password);
+            $valid = (new AuthUtils())->confirmPassword($session->get('authUser'), $password);
         }
 
         if ($valid) {
             $signable = new Encounter_Signable($encounterId);
-            if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
+            if ($signable->sign($session->get('authUserID'), $lock, $amendment)) {
                 $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {

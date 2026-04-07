@@ -87,7 +87,7 @@ trait AuthenticateTrait
     {
         if (file_exists($authBack)) {
             $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth), true);
+            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth !== false ? $cachedAuth : null), true);
 
             // Don't delete cache immediately - validate first
             if ($this->isValidCachedAuth($cachedAuth)) {
@@ -148,7 +148,8 @@ trait AuthenticateTrait
     private function cacheAuthData($platform): void
     {
         $data = $platform->auth()->data();
-        $encryptedData = $this->crypto->encryptStandard(json_encode($data));
+        $jsonData = json_encode($data);
+        $encryptedData = $this->crypto->encryptStandard($jsonData !== false ? $jsonData : null);
         file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
     }
 

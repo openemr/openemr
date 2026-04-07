@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Tabs;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class TabsWrapper
 {
     public $tabs = [];
@@ -64,7 +66,8 @@ EOD;
           padding: .1em .4em;
         }
 EOD;
-            if ($_SESSION['language_direction'] == 'rtl') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if ($session->get('language_direction') === 'rtl') {
                 $s .= <<<EOD
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }

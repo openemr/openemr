@@ -41,3 +41,5 @@ parameters:
   scanFiles:
   - library/sql.inc.php
   - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php
+  # For reasons I can't sort out, using scanDirectories or stubFiles doesn't work here.
+  - .phpstan/stubs/pdo_mysql.stub

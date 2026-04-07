@@ -18,14 +18,14 @@ require_once('../../globals.php');
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for editing selected patients
 if (isset($_GET['patients'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
@@ -179,7 +179,7 @@ $('#by-id, #by-name').select2({
             var query = {
                 search: params.term,
                 type: $(this).attr('id'),
-                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
             }
             return query;
         },
@@ -196,7 +196,7 @@ $('#by-id').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-id').val(),
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
         },
         dataType: 'json'
     }).done(function(data){
@@ -216,7 +216,7 @@ $('#by-name').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-name').val(),
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
         },
         dataType: 'json'
     }).done(function(data){

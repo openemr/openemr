@@ -168,11 +168,12 @@ class EncountermanagerTable
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
+                $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
                 } else {
-                    $content = base64_decode((string) $resp->data);
+                    $content = base64_decode(is_string($respData) ? $respData : '');
                 }
             } elseif (!$row['couch_docid']) {
                 if (!filesize($row['ccda_data'])) {
@@ -202,9 +203,22 @@ class EncountermanagerTable
         return $dompdf->output();
     }
 
+    private function getCcdaAsXml(string $ccda): string
+    {
+        $xml = simplexml_load_string($ccda, 'SimpleXMLElement', LIBXML_NONET);
+        if ($xml === false) {
+            throw new \RuntimeException("Failed to parse CCDA as XML");
+        }
+        $output = $xml->asXML();
+        if ($output === false) {
+            throw new \RuntimeException("Failed to serialize CCDA as XML");
+        }
+        return $output;
+    }
+
     public function getCcdaAsHTML($ccda)
     {
-        $xml = simplexml_load_string((string) $ccda);
+        $xml = simplexml_load_string((string) $ccda, 'SimpleXMLElement', LIBXML_NONET);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -272,14 +286,12 @@ class EncountermanagerTable
                             . $document->get_id());
                     }
 
-                    if ($xml_type == 'html') {
-                        $ccda_file = $this->getCcdaAsHTML($ccda);
-                    } elseif ($xml_type == 'pdf') {
-                        $ccda_file = $this->getCcdaAsPdf($ccda);
-                    } elseif ($xml_type == 'xml') {
-                        $xml = simplexml_load_string($ccda);
-                        $ccda_file = $xml->saveXML();
-                    }
+                    $ccda_file = match ($xml_type) {
+                        'html' => $this->getCcdaAsHTML($ccda),
+                        'pdf' => $this->getCcdaAsPdf($ccda),
+                        'xml' => $this->getCcdaAsXml($ccda),
+                        default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
+                    };
                     $replaceExt = "." . $xml_type;
                     $extpos = strrpos($fileName, ".xml");
                     if ($extpos !== false) {

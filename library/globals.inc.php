@@ -76,6 +76,7 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
@@ -837,11 +838,11 @@ $GLOBALS_METADATA = [
         'weekend_days' => [
             xl('Your weekend days'),
             [
-                '6,0' => xl('Saturday') . ' - ' . xl('Sunday'),
-                '0' => xl('Sunday'),
-                '5' => xl('Friday'),
-                '6' => xl('Saturday'),
-                '5,6' => xl('Friday') . ' - ' . xl('Saturday'),
+                '6,0' => DayOfWeek::Saturday->label() . ' - ' . DayOfWeek::Sunday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '5' => DayOfWeek::Friday->label(),
+                '6' => DayOfWeek::Saturday->label(),
+                '5,6' => DayOfWeek::Friday->label() . ' - ' . DayOfWeek::Saturday->label(),
             ],
             '6,0'
             , xl('which days are your weekend days?')
@@ -1784,9 +1785,9 @@ $GLOBALS_METADATA = [
         'first_day_week' => [
             xl('First day in the week'),
             [
-                '1' => xl('Monday'),
-                '0' => xl('Sunday'),
-                '6' => xl('Saturday')
+                '1' => DayOfWeek::Monday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '6' => DayOfWeek::Saturday->label()
             ],
             '1',
             xl('Your first day of the week.')

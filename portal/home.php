@@ -44,16 +44,16 @@ require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 if ($session->has('register') && $session->get('register') === true) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
 if (!$session->has('portal_init')) {
-    $session->set('portal_init', true);
+    SessionUtil::setSession('portal_init', true);
 }
 
 // Example https://localhost/openemr/portal/index.php?site=default&landOn=BillingSummary
@@ -76,12 +76,12 @@ $landOnHref = [
 // TODO sjp - qualify if redirect feature is enabled!
 $whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirected card.
-$session->set('landOn', $_REQUEST['landOn'] ?? null);
+SessionUtil::setSession('landOn', $_REQUEST['landOn'] ?? null);
 $landWhere = $_REQUEST['landOn'] ?? null;
 // Set the landOn href query from lookup.
 $where = $landOnHref[$landWhere] ?? null;
 if (!empty($where)) {
-    $session->set('whereto', $where);
+    SessionUtil::setSession('whereto', $where);
 }
 
 $logoService = new LogoService();
@@ -101,13 +101,9 @@ foreach ($msgs as $i) {
     }
 }
 
-// force to message page if new messages.
-/*if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
-}*/
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
-$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
+$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->getString('easipro_server')) && !empty($globalsBag->getString('easipro_name'));
 
 $current_date2 = date('Y-m-d');
 $apptLimit = 10;
@@ -372,12 +368,12 @@ try {
         'images_static_relative' => $globalsBag->get('images_static_relative'),
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
-        'primaryMenuLogoHeight' => $globalsBag->get('portal_primary_menu_logo_height') ?? '30',
-        'pagetitle' => $globalsBag->get('openemr_name') . ' ' . xl('Portal'),
+        'primaryMenuLogoHeight' => $globalsBag->getString('portal_primary_menu_logo_height') ?? '30',
+        'pagetitle' => $globalsBag->getString('openemr_name') . ' ' . xl('Portal'),
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),
-        'csrfUtils' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
+        'csrfUtils' => CsrfUtils::collectCsrfToken(session: $session),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,

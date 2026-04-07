@@ -17,13 +17,12 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Utils;
 
 use OpenEMR\Common\Utils\MeasurementUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class MeasurementUtilsTest extends TestCase
 {
-    /**
-     * @dataProvider kgToLbProvider
-     */
+    #[DataProvider('kgToLbProvider')]
     public function testKgToLb(float $kg, string $expectedLb): void
     {
         $this->assertSame($expectedLb, MeasurementUtils::kgToLb($kg));
@@ -44,9 +43,7 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider lbToKgProvider
-     */
+    #[DataProvider('lbToKgProvider')]
     public function testLbToKg(float $lb, string $expectedKg): void
     {
         $this->assertSame($expectedKg, MeasurementUtils::lbToKg($lb));
@@ -66,9 +63,7 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider cmToInchesProvider
-     */
+    #[DataProvider('cmToInchesProvider')]
     public function testCmToInches(float $cm, string $expectedInches): void
     {
         $this->assertSame($expectedInches, MeasurementUtils::cmToInches($cm));
@@ -88,9 +83,7 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider inchesToCmProvider
-     */
+    #[DataProvider('inchesToCmProvider')]
     public function testInchesToCm(float $inches, string $expectedCm): void
     {
         $this->assertSame($expectedCm, MeasurementUtils::inchesToCm($inches));
@@ -110,9 +103,7 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider fhToCelsiusProvider
-     */
+    #[DataProvider('fhToCelsiusProvider')]
     public function testFhToCelsius(float $fahrenheit, string $expectedCelsius): void
     {
         $this->assertSame($expectedCelsius, MeasurementUtils::fhToCelsius($fahrenheit));
@@ -133,9 +124,7 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider celsiusToFhProvider
-     */
+    #[DataProvider('celsiusToFhProvider')]
     public function testCelsiusToFh(float $celsius, string $expectedFahrenheit): void
     {
         $this->assertSame($expectedFahrenheit, MeasurementUtils::celsiusToFh($celsius));

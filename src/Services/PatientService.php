@@ -151,7 +151,9 @@ class PatientService extends BaseService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-        return $pid['pid'] === null ? 1 : intval($pid['pid']);
+        /** @var int|string|null $pidValue */
+        $pidValue = $pid['pid'];
+        return $pidValue === null ? 1 : (int) $pidValue;
     }
 
     /**
@@ -165,7 +167,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -248,7 +250,7 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
         /** @var int $pid */
         $pid = $data['pid'];
@@ -275,6 +277,15 @@ class PatientService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if ($sqlResult) {
+            // If portal access is enabled, ensure the portal login username exists
+            if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
+                $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+                $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
+                if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
+                    $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
+                    QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
+                }
+            }
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
             OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
@@ -667,7 +678,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->get('patient_photo_category_name'), $pid]);
+        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -935,7 +946,7 @@ class PatientService extends BaseService
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $row = sqlQuery($query, $curUser['id']);
+        $row = sqlQuery($query, [$curUser['id']]);
         $rp = ($row) ? unserialize($row['patients']) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position

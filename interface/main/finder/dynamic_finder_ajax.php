@@ -78,7 +78,7 @@ if (isset($_GET['iSortCol_0'])) {
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             } else {
-                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . "` $sSortDir";
+                $orderby .= escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . " $sSortDir";
             }
         }
     }
@@ -150,13 +150,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
-            $where .= " `" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ?"; // any search
+            $where .= " " . escape_sql_column_name($colname, ['patient_data']) . " LIKE ?"; // any search
             array_push($srch_bind, ('%' . $sSearch . '%'));
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -186,13 +186,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($colname == 'DOB') {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -223,7 +223,7 @@ foreach ($aColumns as $colname) {
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, ['patient_data']) . "`";
+        $sellist .= escape_sql_column_name($colname, ['patient_data']);
     }
 }
 

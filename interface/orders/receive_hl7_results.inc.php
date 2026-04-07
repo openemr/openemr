@@ -30,6 +30,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use phpseclib3\Net\SFTP;
 
@@ -75,10 +76,11 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         EventAuditLogger::getInstance()->newEvent(
             "lab-results-error",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             0,
             $msg
         );
@@ -593,7 +595,9 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
         return;
     }
 
-    $message_sender = $_SESSION['authUser'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUser = $session->get('authUser');
+    $message_sender = $authUser;
     $message_group = 'Default';
     $authorized = '0';
     $activity = '1';
@@ -604,7 +608,7 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
     }
 
     if (!$assigned_to) {
-        $assigned_to = $_SESSION['authUser'];
+        $assigned_to = $authUser;
     }
     $notify = $assigned_to; //@todo get user lookup
 
@@ -788,17 +792,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     // We'll need the document category IDs for any embedded documents.
     $catrow = sqlQuery(
         "SELECT id FROM categories WHERE name = ?",
-        [OEGlobalsBag::getInstance()->get('lab_results_category_name')]
+        [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]
     );
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
-            ': ' . OEGlobalsBag::getInstance()->get('lab_results_category_name'), true);
+            ': ' . OEGlobalsBag::getInstance()->getString('lab_results_category_name'), true);
     } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [OEGlobalsBag::getInstance()->get('gbl_mdm_category_name')]
+            [OEGlobalsBag::getInstance()->getString('gbl_mdm_category_name')]
         );
         if (!empty($catrow['id'])) {
             $mdm_category_id = $catrow['id'];

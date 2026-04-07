@@ -7,6 +7,7 @@ require_once dirname(__DIR__, 4) . "/globals.php";
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -53,14 +54,16 @@ $fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&dat
 $storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
 $path_to_extract = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $comment = "User Initiated Unscheduled Daily Pharmacy Import";
 if ($data['Daily'] == 'N') {
     $comment = "User Initiated Unscheduled Weekly Pharmacy Import";
 }
 EventAuditLogger::getInstance()->newEvent(
     "pharmacy_log",
-    $_SESSION['authUser'],
-    $_SESSION['authProvider'],
+    $session->get('authUser'),
+    $session->get('authProvider'),
     1,
     $comment
 );
@@ -96,7 +99,7 @@ if ($zip->open($storeLocation) === true) {
             $wenoLog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
             die(js_escape($isError['messageText']));
         }
-        EventAuditLogger::getInstance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($isError['messageText']));
+        EventAuditLogger::getInstance()->newEvent("pharmacy_log", $session->get('authUser'), $session->get('authProvider'), 0, ($isError['messageText']));
         $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
         // no need to continue so send error to UI alert and die.
         die(js_escape('Pharmacy download failed.'));
@@ -119,8 +122,8 @@ if ($zip->open($storeLocation) === true) {
     if ($count !== false) {
         EventAuditLogger::getInstance()->newEvent(
             "pharmacy_log",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "User Initiated Pharmacy Download was Imported Successfully."
         );
@@ -129,8 +132,8 @@ if ($zip->open($storeLocation) === true) {
     } else {
         EventAuditLogger::getInstance()->newEvent(
             "pharmacy_log",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             0,
             "Pharmacy Import download failed."
         );
@@ -138,7 +141,7 @@ if ($zip->open($storeLocation) === true) {
         error_log("User Initialed Pharmacy Import Failed");
     }
 } else {
-    EventAuditLogger::getInstance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy download zip open failed.");
+    EventAuditLogger::getInstance()->newEvent("pharmacy_log", $session->get('authUser'), $session->get('authProvider'), 0, "Pharmacy download zip open failed.");
     error_log('Pharmacy download zip open failed.');
     $wenoLog->insertWenoLog("Pharmacy Directory", "Pharmacy download zip open failed.");
     // no need to continue so send error to UI alert and die.

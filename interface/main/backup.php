@@ -25,9 +25,11 @@
  * @author    Bill Cernansky (www.mi-squared.com)
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2008-2014, 2016, 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,6 +38,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -46,10 +49,10 @@ assert($globalsBag instanceof OEGlobalsBag);
 require_once("$srcdir/layout.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!extension_loaded('zlib')) {
@@ -92,7 +95,7 @@ $BTN_TEXT_LOG = xl('Backup/Delete Log Data');
 $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 
 $form_step   = isset($_POST['form_step']) ? trim((string) $_POST['form_step']) : '0';
-$form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
+$form_status = isset($_POST['form_status' ]) ? trim((string) $_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_export'])) {
     $form_step = 101;
@@ -117,12 +120,12 @@ $auto_continue = false;
 # set up main paths
 $backup_file_prefix = "emr_backup";
 $backup_file_suffix = ".tar";
-$TMP_BASE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_web_backup";
+$TMP_BASE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_web_backup";
 $BACKUP_DIR = $TMP_BASE . "/emr_backup";
 $TAR_FILE_PATH = $TMP_BASE . DIRECTORY_SEPARATOR . $backup_file_prefix . $backup_file_suffix;
-$EXPORT_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_config.sql";
-$MYSQL_PATH = realpath(OEGlobalsBag::getInstance()->get('mysql_bin_dir'));
-$PERL_PATH = realpath(OEGlobalsBag::getInstance()->get('perl_bin_dir'));
+$EXPORT_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_config.sql";
+$MYSQL_PATH = realpath(OEGlobalsBag::getInstance()->getString('mysql_bin_dir'));
+$PERL_PATH = realpath(OEGlobalsBag::getInstance()->getString('perl_bin_dir'));
 
 if ($form_step == 6) {
     header("Pragma: public");
@@ -308,9 +311,9 @@ if ($form_step == 402) {
         // This is the "filename" for the Content-Disposition header.
         $filename = "log_archive_{$end_date}.csv";
 
-        $outfile = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OET');
+        $outfile = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OET');
         if ($outfile === false) {
-            die("tempnam('" . text(OEGlobalsBag::getInstance()->get('temporary_files_dir')) . "','OET') failed.\n");
+            die("tempnam('" . text(OEGlobalsBag::getInstance()->getString('temporary_files_dir')) . "','OET') failed.\n");
         }
         $hout = fopen($outfile, "w");
         $wcount = 0;
@@ -370,9 +373,9 @@ if ($form_step == 402) {
         // Do compression if requested (it is!)
         if (true) {
             $zip = new ZipArchive();
-            $zippedoutfile = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OEZ');
+            $zippedoutfile = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OEZ');
             if ($zippedoutfile === false) {
-                die("tempnam('" . text(OEGlobalsBag::getInstance()->get('temporary_files_dir')) . "','OEZ') failed.\n");
+                die("tempnam('" . text(OEGlobalsBag::getInstance()->getString('temporary_files_dir')) . "','OEZ') failed.\n");
             }
             if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== true) {
                 die(xlt('Cannot create file') . " '$zipname'\n");
@@ -442,7 +445,7 @@ function export_submit(step) {
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table<?php echo ($form_step != 101) ? " style='width:50em'" : ""; ?>>
  <tr>
@@ -494,7 +497,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder') . ": " . text(OEGlobalsBag::getInstance()->get('backup_log_dir')) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
+    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder') . ": " . text(OEGlobalsBag::getInstance()->getString('backup_log_dir')) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -561,7 +564,7 @@ if ($form_step == 3) {
 
         if ($filename == 'sites') {
             // Omit other sites.
-            $file_list[] = "$filename/" . $_SESSION['site_id'];
+            $file_list[] = "$filename/" . $session->get('site_id');
         } else {
             $file_list[] = $filename;
         }
@@ -595,7 +598,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     chdir($cur_dir);
     /* To log the backup event */
     if (OEGlobalsBag::getInstance()->getBoolean('audit_events_backup')) {
-        EventAuditLogger::getInstance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
+        EventAuditLogger::getInstance()->newEvent("backup", $session->get('authUser'), $session->get('authProvider'), 0, "Backup is completed");
     }
 
     $auto_continue = true;
@@ -658,6 +661,19 @@ if ($form_step == 101) {
 }
 
 if ($form_step == 102) {
+    // Escape a string for safe use inside shell single quotes (Unix/Linux).
+    // In bash, single quotes preserve everything literally except you cannot include
+    // a single quote. The standard technique is to end the quoted string, add an
+    // escaped single quote, and start a new quoted string: 'foo'\''bar' = foo'bar
+    $escapeShellSingleQuotes = (fn(string $str): string => str_replace("'", "'\\''", $str));
+
+    // Escape a string for safe use in Windows cmd.exe commands.
+    // In cmd.exe: " is escaped as "", and metacharacters &|<>^ are escaped with ^
+    $escapeForWindowsCmd = function (string $str): string {
+        $str = str_replace('"', '""', $str);
+        return preg_replace('/([&|<>^])/', '^$1', $str) ?? $str;
+    };
+
     $tables = '';
     if (!empty($_POST['form_cb_services'  ])) {
         $tables .= ' codes';
@@ -775,22 +791,28 @@ if ($form_step == 102) {
                     continue;
                 }
                 if (IS_WINDOWS) {
+                    // Use $escapeForWindowsCmd() to prevent command injection when
+                    // the value is embedded inside Windows cmd.exe commands.
+                    $safeListIdWin = $escapeForWindowsCmd(add_escape_custom($listid));
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . $safeListIdWin . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . $safeListIdWin . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
                     # windows uses the & to join statements.
-                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
+                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '" . $safeListIdWin . "' OR list_id = '" . $safeListIdWin . "' " .
                         "ORDER BY list_id != 'lists', seq, title\" " .
                         escapeshellarg($dbOptions->dbname) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
+                    // Use $escapeShellSingleQuotes() to prevent command injection when
+                    // the value is embedded inside single-quoted shell strings.
+                    $safeListId = $escapeShellSingleQuotes(add_escape_custom($listid));
                     $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        $safeListId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
                         "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        $safeListId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
                         $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\" OR list_id = \"" .
-                        add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
+                        $safeListId . "\" OR list_id = \"" .
+                        $safeListId . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
                         escapeshellarg($dbOptions->dbname) . " list_options" .
                         " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
@@ -814,32 +836,37 @@ if ($form_step == 102) {
                     echo xlt("Skipping missing layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }
+                // Use escaping functions to prevent command injection when
+                // values are embedded inside shell commands.
+                $safeLayoutId = $escapeShellSingleQuotes(add_escape_custom($layoutid));
+                $safeLayoutIdWin = $escapeForWindowsCmd(add_escape_custom($layoutid));
+
                 // Beware and keep in mind that Windows requires double quotes around arguments.
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = \"" . $safeLayoutIdWin . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . $safeLayoutId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= "echo DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " &;";
+                    $cmd .= "echo DELETE FROM layout_group_properties WHERE grp_form_id = \"" . $safeLayoutIdWin . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . $safeLayoutId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
-                    $cmd .= $dumppfx . ' --where="grp_form_id = \'' . add_escape_custom($layoutid) . "'\" " .
+                    $cmd .= $dumppfx . ' --where="grp_form_id = \'' . $safeLayoutIdWin . "'\" " .
                         escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= $dumppfx . ' --where="form_id = \'' . add_escape_custom($layoutid) . '\' ORDER BY group_id, seq, title" '  .
+                    $cmd .= $dumppfx . ' --where="form_id = \'' . $safeLayoutIdWin . '\' ORDER BY group_id, seq, title" '  .
                         escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
+                    $cmd .= $dumppfx . " --where='grp_form_id = \"" . $safeLayoutId . "\"' " .
                         escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
-                    $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
+                    $cmd .= $dumppfx . " --where='form_id = \"" . $safeLayoutId . "\" ORDER BY group_id, seq, title' " .
                         escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
@@ -974,7 +1001,7 @@ if ($form_step == 301) {
 # Get the Current Timestamp, to attach with the log backup file
     $backuptime = date("Ymd_His");
 # Eventlog backup directory
-    $BACKUP_EVENTLOG_DIR = OEGlobalsBag::getInstance()->get('backup_log_dir');
+    $BACKUP_EVENTLOG_DIR = OEGlobalsBag::getInstance()->getString('backup_log_dir');
 
 # Check if Eventlog Backup directory exists, if not create it with Write permission
     if (!file_exists($BACKUP_EVENTLOG_DIR)) {

@@ -5,6 +5,7 @@ require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
@@ -13,7 +14,8 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

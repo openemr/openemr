@@ -15,7 +15,13 @@
  require_once("../interface/globals.php");
  require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Acl\AccessDeniedHelper;
+ use OpenEMR\Common\Acl\AclMain;
  use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Export Patient Demographics XML", xl("Export Patient Demographics XML"));
+}
 
  $out = "";
  $indent = 0;

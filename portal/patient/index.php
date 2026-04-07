@@ -13,7 +13,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */
@@ -41,7 +41,7 @@ try {
         $globalsBag->set('bootstrap_register', false);
     }
     if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
-        // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
+        // Need to bootstrap all requests to only allow the pid in the session's 'pid'
         //  and to only allow access to api calls applicable to that pid (or patientId).
         // Also need to collect the id of the patient to verify the correct id is used
         //  in the uri check in GenericRouter.php .
