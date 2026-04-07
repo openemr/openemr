@@ -182,7 +182,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                     $coding->setCode($cleanCode);
                     if (!empty($codeText)) {
                         // FIXED: Fix apostrophes in display text
-                        $cleanDisplay = str_replace('`', "'", xlt($codeText));
+                        $cleanDisplay = str_replace('`', "'", xl_list_label($codeText));
                         $coding->setDisplay($cleanDisplay);
                     }
                     $coding->setSystem($codeSystem);
@@ -236,7 +236,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                             $coding->setDisplay(UtilsService::createDataMissingExtension());
                         } else {
                             // FIXED: Fix apostrophes in target display text
-                            $cleanCodeText = str_replace('`', "'", xlt($codeText));
+                            $cleanCodeText = str_replace('`', "'", xl_list_label($codeText));
                             $coding->setDisplay($cleanCodeText);
                         }
                         $coding->setSystem($codeSystem);

@@ -44,6 +44,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Pdf\Config_Mpdf;
+use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
 
@@ -628,7 +629,7 @@ if (
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
         } else {
-            exec(escapeshellcmd(OPENEMR_PRINT_COMMAND) . " " . escapeshellarg((string) $STMT_TEMP_FILE));
+            (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
             if ($_REQUEST['form_without']) {
                 $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
             } else {

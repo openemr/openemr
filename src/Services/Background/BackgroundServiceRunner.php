@@ -37,6 +37,13 @@ class BackgroundServiceRunner
      * @param string|null $serviceName Specific service name, or null for all
      * @param bool $force Bypass interval check
      * @return list<array{name: string, status: string}> Results per service
+     *   Possible status values:
+     *   - 'executed'        — service ran successfully
+     *   - 'skipped'         — inactive, already running (in-memory check), or manual-mode without --force
+     *   - 'already_running' — another process holds the DB lock (running = 1)
+     *   - 'not_due'         — interval has not elapsed yet (NOW() <= next_run)
+     *   - 'error'           — exception during lock acquisition or execution
+     *   - 'not_found'       — requested service name does not exist
      */
     public function run(?string $serviceName = null, bool $force = false): array
     {
@@ -69,14 +76,14 @@ class BackgroundServiceRunner
             }
 
             try {
-                $locked = $this->acquireLock($service, $force);
+                $lockFailureReason = $this->acquireLock($service, $force);
             } catch (\Throwable) {
                 $results[] = ['name' => $name, 'status' => 'error'];
                 continue;
             }
 
-            if (!$locked) {
-                $results[] = ['name' => $name, 'status' => 'locked'];
+            if ($lockFailureReason !== null) {
+                $results[] = ['name' => $name, 'status' => $lockFailureReason];
                 continue;
             }
 
@@ -137,16 +144,44 @@ class BackgroundServiceRunner
     }
 
     /**
+     * Attempt to acquire the running lock for a service.
+     *
+     * Returns null on success (lock acquired), or a reason string when the
+     * lock could not be acquired:
+     *   - 'already_running' — another process holds the lock (running = 1)
+     *   - 'not_due'         — the service interval has not elapsed yet
+     *
      * @param BackgroundServicesRow $service
+     * @return string|null Null on success, reason string on failure
      */
-    protected function acquireLock(array $service, bool $force): bool
+    protected function acquireLock(array $service, bool $force): ?string
     {
         $sql = 'UPDATE background_services SET running = 1, next_run = NOW() + INTERVAL ?'
             . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
 
         QueryUtils::sqlStatementThrowException($sql, [$service['execute_interval'], $service['name']], true);
 
-        return QueryUtils::affectedRows() >= 1;
+        if (QueryUtils::affectedRows() >= 1) {
+            return null;
+        }
+
+        // Distinguish why the lock was not acquired: is the service already
+        // running (another process holds the lock) or is it simply not yet due?
+        $row = QueryUtils::querySingleRow(
+            'SELECT running FROM background_services WHERE name = ?',
+            [$service['name']],
+            false,
+        );
+
+        if ($row === false) {
+            return 'error';
+        }
+
+        if (($row['running'] ?? '0') === '1') {
+            return 'already_running';
+        }
+
+        return $force ? 'already_running' : 'not_due';
     }
 
     protected function releaseLock(string $serviceName): void

@@ -419,7 +419,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     private function parseOpenEMRRaceRecord(FHIRPatient $patientResource, $race)
     {
         $code = 'UNK';
-        $display = xlt("Unknown");
+        $display = xl("Unknown");
         $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
@@ -434,16 +434,17 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if ($race === 'decline_to_specify' || $race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
-                $display = xlt("Asked but no answer");
+                $display = xl("Asked but no answer");
             } elseif (!empty($record)) {
                 $code = $record['notes'];
-                $display = $record['title'];
+                $title = is_string($record['title']) ? $record['title'] : '';
+                $display = xl_list_label($title);
                 $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
             }
         }
         $ombCategoryCoding->setSystem(new FHIRUri($system));
         $ombCategoryCoding->setCode($code);
-        $ombCategoryCoding->setDisplay(xlt($display));
+        $ombCategoryCoding->setDisplay($display);
         $ombCategory->setValueCoding($ombCategoryCoding);
         $raceExtension->addExtension($ombCategory);
 
@@ -572,9 +573,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $language = new FHIRCoding();
             $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
-            $language->setDisplay(xlt($record['title']));
+            $languageTitle = is_string($record['title']) ? $record['title'] : '';
+            $translatedTitle = xl_list_label($languageTitle);
+            $language->setDisplay($translatedTitle);
             $languageConcept->addCoding($language);
-            $languageConcept->setText(xlt($record['title']));
+            $languageConcept->setText($translatedTitle);
             $communication->setLanguage($languageConcept);
             $patientResource->addCommunication($communication);
         }
