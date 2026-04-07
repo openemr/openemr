@@ -30,11 +30,12 @@ use OpenEMR\Encryption\{
 use Throwable;
 
 /**
- * Implements v1-v7 keys in a way that matches key names from Crypto
+ * Loads v1-v7 keys from legacy storage locations and maps them to the new
+ * KeychainInterface.
  *
  * @deprecated
  */
-class Keychain
+class LegacyKeychainLoader
 {
     public static function load(KeyVersion $createKeyIfNeeded): KeychainInterface
     {

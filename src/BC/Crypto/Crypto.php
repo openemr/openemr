@@ -42,7 +42,7 @@ final readonly class Crypto implements CryptoInterface
     {
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
-        $keychain = Keychain::load(createKeyIfNeeded: KeyVersion::CURRENT);
+        $keychain = LegacyKeychainLoader::load(createKeyIfNeeded: KeyVersion::CURRENT);
         return new Crypto($keychain, $logger);
     }
 
