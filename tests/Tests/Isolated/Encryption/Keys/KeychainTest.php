@@ -68,7 +68,7 @@ class KeychainTest extends TestCase
         $keychain = new Keychain();
         try {
             $_ = $keychain->getCurrentKeyId();
-            $this->fail('getCurrentKeyId before registring ciphers should be an error');
+            $this->fail('getCurrentKeyId before registering ciphers should be an error');
         } catch (\Error) {
             $this->addToAssertionCount(1);
         }
