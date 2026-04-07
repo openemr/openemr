@@ -53,7 +53,7 @@ final class Aes256CbcHmacSha384Test extends TestCase
 
         $result = $cipher->decrypt($rawCiphertext);
 
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
     public function testThrowsOnTamperedHmac(): void
@@ -64,7 +64,7 @@ final class Aes256CbcHmacSha384Test extends TestCase
         );
 
         $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(7))
-            ->wrapped;
+            ->value;
 
         // Tamper with HMAC (first 48 bytes)
         $tampered = chr(ord($rawCiphertext[0]) ^ 0xFF) . substr($rawCiphertext, 1);
@@ -82,7 +82,7 @@ final class Aes256CbcHmacSha384Test extends TestCase
         );
 
         $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(7))
-            ->wrapped;
+            ->value;
 
         // Tamper with ciphertext (after HMAC + IV = 48 + 16 = 64 bytes)
         $tampered = substr($rawCiphertext, 0, 64)
@@ -149,7 +149,7 @@ final class Aes256CbcHmacSha384Test extends TestCase
 
         $decrypted = $cipher->decrypt($ciphertext);
 
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $decrypted->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $decrypted->bytes);
     }
 
     #[DataProvider('versionProvider')]
@@ -172,8 +172,8 @@ final class Aes256CbcHmacSha384Test extends TestCase
         $newDecrypted = $cipher->decrypt($newCiphertext);
 
         // Both should produce the same plaintext
-        self::assertSame($fixtureDecrypted->wrapped, $newDecrypted->wrapped);
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $newDecrypted->wrapped);
+        self::assertSame($fixtureDecrypted->bytes, $newDecrypted->bytes);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $newDecrypted->bytes);
     }
 
     public function testEncryptProducesDifferentCiphertextEachCall(): void
@@ -189,11 +189,11 @@ final class Aes256CbcHmacSha384Test extends TestCase
         $ciphertext2 = $cipher->encrypt($plaintext);
 
         // Different IVs should produce different ciphertexts
-        self::assertNotSame($ciphertext1->wrapped, $ciphertext2->wrapped);
+        self::assertNotSame($ciphertext1->value, $ciphertext2->value);
 
         // But both should decrypt to the same plaintext
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext1)->wrapped);
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext2)->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext1)->bytes);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext2)->bytes);
     }
 
     public function testEncryptedDataCannotBeDecryptedWithWrongKey(): void

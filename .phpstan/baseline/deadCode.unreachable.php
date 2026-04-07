@@ -48,6 +48,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/payment_pat_sel.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
