@@ -187,7 +187,7 @@ class EtherFaxActions extends AppDispatch
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
-        $isDocuments = (int)$this->getRequest('isDocuments');
+        $isDocuments = (bool)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_PASS') ?? null) && !empty(OEGlobalsBag::getInstance()->getString('SMTP_USER') ?? null);

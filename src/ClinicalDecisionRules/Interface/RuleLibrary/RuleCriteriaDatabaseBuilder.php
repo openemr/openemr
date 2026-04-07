@@ -27,7 +27,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
     }
 
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
@@ -49,7 +49,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {
