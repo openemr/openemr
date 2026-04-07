@@ -33,6 +33,10 @@ use Throwable;
  * Loads v1-v7 keys from legacy storage locations and maps them to the new
  * KeychainInterface.
  *
+ * CRITICALLY IMPORTANT: This loader registers keys under names defined by the
+ * `Key` enum (e.g., 'seven-drive'), NOT the numeric prefixes used by CryptoGen
+ * (e.g., '007'). Use only with `Crypto` in this namespace.
+ *
  * @deprecated
  */
 class LegacyKeychainLoader

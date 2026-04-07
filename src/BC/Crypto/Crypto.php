@@ -30,6 +30,14 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
+ * CryptoInterface implementation that uses the modern tooling in the
+ * `OpenEMR\Encryption` namespace to manage keys and perform cryptographic
+ * operations.
+ *
+ * CRITICALLY IMPORTANT: This relies on a KeychainInterface with remapped keys
+ * for backwards compatibility. One is provided through `LegacyKeychainLoader`.
+ * It will not be able to look up keys using the historic `00x` names alone.
+ *
  * @deprecated
  */
 final readonly class Crypto implements CryptoInterface
