@@ -23,8 +23,9 @@ trait LoginTrait
 {
     use BaseTrait;
 
-    private string $mainScreenUrl = "/interface/main/tabs/main.php";
-    private string $loginScreenUrl = "/interface/login/login.php";
+    private string $mainScreenUrl = "main.php";
+    private string $loginScreenUrl = "login.php";
+    private string $adminScreenUrl = "admin.php";
 
     public function testLoginAuthorized(): void
     {
