@@ -3838,7 +3838,8 @@ try {
             'practice_id' => $practiceId,
             'session_token' => $sessionToken,
             'timestamp' => time(),
-            'nonce' => bin2hex(random_bytes(16))
+            'nonce' => bin2hex(random_bytes(16)),
+            'site' => (string)($_SESSION['site_id'] ?? 'default')
         ];
         $ssoToken = base64_encode(json_encode($ssoPayload));
     } else {

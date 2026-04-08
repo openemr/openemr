@@ -104,7 +104,8 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
                 'timestamp' => time(),
                 'nonce' => bin2hex(random_bytes(16)),
                 'source' => 'openemr_dashboard',
-                'openemr_base_url' => $openEmrBaseUrl
+                'openemr_base_url' => $openEmrBaseUrl,
+                'site' => (string)$siteId
             ];
             $ssoToken = base64_encode(json_encode($ssoPayload));
             $tab = (string)($_GET['tab'] ?? 'overview');

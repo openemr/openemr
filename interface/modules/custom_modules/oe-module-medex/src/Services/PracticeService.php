@@ -90,7 +90,11 @@ class PracticeService
         // Callback URL for MedEx to send data back to OpenEMR
         $callback_token = QueryUtils::fetchSingleValue("SELECT gl_value FROM globals WHERE gl_name = ?", 'gl_value', ['medex_callback_token']) ?? '';
         $site_addr = $GLOBALS['site_addr_oath'] ?? $GLOBALS['webroot'] ?? '';
-        $callback_url = $site_addr . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token;
+        $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
+        if ($siteId === '') {
+            $siteId = 'default';
+        }
+        $callback_url = $site_addr . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token . '&site=' . rawurlencode($siteId);
         $data['callback_url'] = $callback_url;
 
         // Get enabled providers

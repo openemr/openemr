@@ -95,11 +95,15 @@ function medexBuildCallbackUrl(string $openEmrBaseUrl): array
             [$token]
         );
     }
+    $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['site'] ?? 'default'));
+    if ($siteId === '') {
+        $siteId = 'default';
+    }
 
     $callbackUrl = rtrim($baseUrl, '/') .
         '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' .
         rawurlencode($token) .
-        '&site=default';
+        '&site=' . rawurlencode($siteId);
     return [true, $baseUrl, $callbackUrl, 'ok'];
 }
 
