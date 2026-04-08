@@ -57,11 +57,13 @@ class KeyV7Generator
             throw new RuntimeException('Could not fopen key file for creation.');
         }
 
-        $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
-        $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
-
-        fclose($fhKey);
-        fclose($fhHmac);
+        try {
+            $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
+            $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
+        } finally {
+            fclose($fhKey);
+            fclose($fhHmac);
+        }
 
         return new Aes256CbcHmacSha384(
             key: $driveKey,
