@@ -43,6 +43,8 @@ final class KeyMaterialTest extends TestCase
 
     /**
      * @return array{int}[]
+     *
+     * @codeCoverageIgnore
      */
     public static function byteLengths(): array
     {
