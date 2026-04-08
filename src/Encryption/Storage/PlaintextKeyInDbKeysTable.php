@@ -13,20 +13,25 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption\Storage;
 
 use Doctrine\DBAL\Connection;
+use OpenEMR\Common\Database\{ConnectionManager, ConnectionType};
 use OpenEMR\Encryption\Keys\KeyMaterial;
 
 readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
 {
+    private Connection $conn;
     public function __construct(
-        private Connection $conn,
+        ConnectionManager $manager,
     ) {
+        // This needs the non-audited connection since the audit tooling can
+        // encrypt data which would create a dependency loop.
+        $this->conn = $manager->get(ConnectionType::NonAudited);
     }
 
-    public function getKey(string $identifier): KeyMaterial
+    public function getKey(KeyMaterialId $identifier): KeyMaterial
     {
         $result = $this->conn->fetchOne(
             'SELECT value FROM `keys` WHERE name = ?',
-            [$identifier],
+            [$identifier->id],
         );
 
         if (!is_string($result)) {
@@ -41,7 +46,7 @@ readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
         return new KeyMaterial($key);
     }
 
-    public function storeKey(string $identifier, KeyMaterial $key): void
+    public function storeKey(KeyMaterialId $identifier, KeyMaterial $key): void
     {
         throw new \BadMethodCallException('Not implemented');
     }
