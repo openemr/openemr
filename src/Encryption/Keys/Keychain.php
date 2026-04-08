@@ -20,9 +20,15 @@ use function array_key_exists;
 
 /**
  * An eager-loaded keychain, which holds all of the keys/ciphers for active use.
+ *
+ * This will use the most-recently-registered KeyId as the current one.
  */
 class Keychain implements KeychainInterface
 {
+    // This is intentionally not initialized in a constructor; trying to get
+    // the current key id before anything is registered is an error.
+    private KeyId $currentKeyId;
+
     /**
      * @var array<string, CipherInterface>
      */
@@ -36,6 +42,11 @@ class Keychain implements KeychainInterface
         throw new OutOfBoundsException('Key id not registered');
     }
 
+    public function getCurrentKeyId(): KeyId
+    {
+        return $this->currentKeyId;
+    }
+
     public function hasKey(KeyId $keyId): bool
     {
         return array_key_exists($keyId->id, $this->mappings);
@@ -46,5 +57,6 @@ class Keychain implements KeychainInterface
         CipherInterface $cipher,
     ): void {
         $this->mappings[$id->id] = $cipher;
+        $this->currentKeyId = $id;
     }
 }

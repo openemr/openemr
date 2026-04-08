@@ -3391,11 +3391,11 @@ class MedEx
         'key'       => $info['ME_api_key'],
         'UID'       => $info['MedEx_id'],
         'MedEx'     => 'OpenEMR',
-        'major'     => attr($version['v_major']),
-        'minor'     => attr($version['v_minor']),
-        'patch'     => attr(is_string($version['v_patch']) ? $version['v_patch'] : ''),
-        'database'  => attr(is_string($version['v_database']) ? $version['v_database'] : ''),
-        'acl'       => attr(is_string($version['v_acl']) ? $version['v_acl'] : ''),
+        'major'     => (string) $version['v_major'],
+        'minor'     => (string) $version['v_minor'],
+        'patch'     => (string) $version['v_patch'],
+        'database'  => (string) $version['v_database'],
+        'acl'       => (string) $version['v_acl'],
         'callback_key' => $info['callback_key']
         ]);
 
