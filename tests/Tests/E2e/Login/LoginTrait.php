@@ -107,12 +107,17 @@ trait LoginTrait
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);
-        $url = $this->client->getCurrentURL();
         if ($goalPass) {
-            $this->assertTrue(str_contains($url, $this->mainScreenUrl), 'Login FAILED');
+            $this->assertLogin($this->mainScreenUrl, 'Login FAILED');
         } else {
-            $this->assertFalse(str_contains($url, $this->loginScreenUrl), 'Login was successful, but should have FAILED');
+            $this->assertLogin($this->loginScreenUrl, 'Login was successful, but should have FAILED');
         }
+    }
+
+    private function assertLogin(string $testPattern, string $msg): void {
+        $url = $this->client->getCurrentURL();
+        $hasPattern = str_contains($url, $testPattern);
+        $this->assertTrue($hasPattern, $msg);
     }
 
     private function logOut(): void
