@@ -1632,32 +1632,29 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
         }
 
         function initBraintree() {
-            if (!window.braintree || !window.braintreeToken) {
+            if (!window.braintreeToken) {
                 console.error('[Subscriptions] Braintree not loaded or no token available');
                 return;
             }
-
-            braintree.dropin.create({
-                authorization: window.braintreeToken,
-                container: '#braintree-dropin-container',
-                locale: 'en_US'
-            }, function (err, instance) {
-                if (err) {
-                    console.error('[Subscriptions] Braintree error:', err);
-                    showToast('Payment system error', 'error');
-                    return;
-                }
-                braintreeInstance = instance;
-            });
+            // New flow uses Hosted Fields + Apple Pay helpers defined in get_subscriptions.php.
+            if (typeof window._initMedexPaymentComponents === 'function') {
+                window._medexBraintreeToken = window.braintreeToken;
+                window._initMedexPaymentComponents();
+                return;
+            }
+            console.error('[Subscriptions] Payment helpers not available yet');
         }
 
         function processPayment() {
-            // Prefer the drop-in instance from get_subscriptions.php (window._medexDropinInstance),
-            // fall back to the legacy local braintreeInstance.
-            const instance = window._medexDropinInstance || braintreeInstance;
-            if (!instance) {
+            if (typeof window.processPayment === 'function' && window.processPayment !== processPayment) {
+                window.processPayment();
+                return;
+            }
+            // Legacy fallback path only.
+            const instance = braintreeInstance;
+            if (!instance || typeof instance.requestPaymentMethod !== 'function') {
                 showToast('Payment system not initialized. Please reload and try again.', 'error');
-                console.error('[MedEx] processPayment: no Braintree instance. _medexDropinInstance:', window._medexDropinInstance, 'braintreeInstance:', braintreeInstance);
+                console.error('[MedEx] processPayment: payment helpers unavailable');
                 return;
             }
 
@@ -1770,7 +1767,5 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
             window.medexSetContext(tabContextMap[currentTab] || tabContextMap.overview);
         });
     </script>
-    <!-- Braintree Drop-in SDK -->
-    <script src="https://js.braintreegateway.com/web/dropin/1.43.0/js/dropin.min.js"></script>
 </body>
 </html>
