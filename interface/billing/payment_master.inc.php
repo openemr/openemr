@@ -27,7 +27,8 @@ function generate_list_payment_category(string $tag_name, string $list_id, strin
     }
     $s .= " title='" . attr($title) . "'>";
     if ($empty_name !== '') {
-        $s .= "<option value=''>" . text(xl_list_label($empty_name)) . "</option>";
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+        $s .= "<option value=''>" . xlt($empty_name) . "</option>";
     }
     $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
     $got_selected = false;

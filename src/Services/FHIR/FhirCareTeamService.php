@@ -214,11 +214,10 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         if (!empty($dataRecordProvider['role'])) {
             $role = strtolower((string)$dataRecordProvider['role']);
             if (isset($roleMapping[$role])) {
-                $roleLabel = is_string($dataRecordProvider['role']) ? $dataRecordProvider['role'] : '';
                 $codes = [
                     'code' => $roleMapping[$role],
                     'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                    'description' => $dataRecordProvider['role_title'] ?? xl_list_label($roleLabel)
+                    'description' => $dataRecordProvider['role_title'] ?? '',
                 ];
                 return UtilsService::createCodeableConcept([$codes['code'] => $codes]);
             }
@@ -414,11 +413,10 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 if (!empty($person['role'])) {
                     $role = strtolower((string)$person['role']);
                     if (isset($roleMapping[$role])) {
-                        $roleLabel = is_string($person['role']) ? $person['role'] : '';
                         $codes = [
                             'code' => $roleMapping[$role],
                             'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                            'description' => $person['role_title'] ?? xl_list_label($roleLabel)
+                            'description' => $person['role_title'] ?? '',
                         ];
                         $participant->addRole(UtilsService::createCodeableConcept([$codes['code'] => $codes]));
                     }
