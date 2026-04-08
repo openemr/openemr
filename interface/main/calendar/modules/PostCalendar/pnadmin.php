@@ -823,24 +823,8 @@ function postcalendar_admin_testSystem()
         $error .= '</div>';
     }
     array_push($infos, ['Module version', $version . " $error"]);
-    array_push($infos, ['smarty version', $tpl->_version]);
-    array_push($infos, ['smarty location',  SMARTY_DIR]);
-    array_push($infos, ['smarty template dir', $tpl->template_dir]);
-
-    $info = $tpl->compile_dir;
-    $error = '';
-    if (!file_exists($tpl->compile_dir)) {
-        $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
-    } else {
-        // dir exists -> check if it's writeable
-        if (!is_writable($tpl->compile_dir)) {
-            $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
-        }
-    }
-    if (strlen($error) > 0) {
-        $info .= "<br /><div class='text-danger'>$error</div>";
-    }
-    array_push($infos, ['smarty compile dir',  $info]);
+    array_push($infos, ['Template engine', $tpl->_version]);
+    array_push($infos, ['Template dir', $tpl->template_dir]);
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
