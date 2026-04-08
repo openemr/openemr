@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -634,27 +635,32 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
         }
 
         foreach ($data as $datum) {
-            sqlBeginTrans();
-            $answer_seq = sqlQuery(
-                "SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment
-                 FROM procedure_answers
-                 WHERE procedure_order_id = ?
-                   AND procedure_order_seq = ?
-                   AND question_code = ?",
-                [$formid, $poseq, $qcode]
-            );
+            QueryUtils::inTransaction(function () use ($formid, $poseq, $qcode, $datum, $pcode): void {
+                $answerSeq = QueryUtils::fetchSingleValue(
+                    <<<'SQL'
+                    SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment
+                    FROM procedure_answers
+                    WHERE procedure_order_id = ?
+                      AND procedure_order_seq = ?
+                      AND question_code = ?
+                    SQL,
+                    'increment',
+                    [$formid, $poseq, $qcode]
+                );
 
-            sqlStatement(
-                "INSERT INTO procedure_answers SET
-                 procedure_order_id = ?,
-                 procedure_order_seq = ?,
-                 question_code = ?,
-                 answer_seq = ?,
-                 answer = ?,
-                 procedure_code = ?",
-                [$formid, $poseq, $qcode, $answer_seq['increment'], trim((string) $datum), $pcode]
-            );
-            sqlCommitTrans();
+                QueryUtils::sqlStatementThrowException(
+                    <<<'SQL'
+                    INSERT INTO procedure_answers SET
+                        procedure_order_id = ?,
+                        procedure_order_seq = ?,
+                        question_code = ?,
+                        answer_seq = ?,
+                        answer = ?,
+                        procedure_code = ?
+                    SQL,
+                    [$formid, $poseq, $qcode, $answerSeq, trim((string) $datum), $pcode]
+                );
+            });
         }
     }
 }

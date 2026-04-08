@@ -61,7 +61,7 @@ class DocumentTemplateRender
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
-        $this->version = (new VersionService())->asString();
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }

@@ -61,7 +61,7 @@ $mysms = match ($db_email_msg['sms_gateway_type']) {
 };
 
 
-$db_patient = cron_getAlertpatientData();
+$db_patient = cron_getAlertpatientData($TYPE);
 echo "\n<br />Total " . text(count($db_patient)) . " Records Found";
 
 // for every event found

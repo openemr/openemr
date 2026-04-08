@@ -627,36 +627,29 @@ foreach (explode(',', $given) as $item) {
                         $checked = " checked='checked' ";
                     }
 
-                    $key_short_title = $key;
-                    if ($key == "Medication") {
-                        $key_short_title = "Meds";
-                        $title = "Medications";
-                    }
-
-                    if ($key == "Problem") {
-                        $key_short_title = "PMH";
-                        $title = "Past Medical History";
-                    }
-
-                    if ($key == "Surgery") {
-                        $key_short_title = "Surg";
-                        $title = "Past Surgical History";
-                    }
-
-                    if ($key == "SOCH") {
-                        $key_short_title = "Soc";
-                        $title = "Social History";
-                    }
-                    if ($key == "Allergy") {
-                        $key_short_title = "All";
-                        $title = "Allergies";
-                    }
-                    if ($key == "Eye Meds") {
-                        $key_short_title = "EyeM";
-                        $title = "Eye Medications";
-                    }
-
-                    $HELLO[attr($key) ] = '<input type="radio" name="form_type" id="PMSFH_' . attr($key) . '" value="' . attr($key) . '" ' . $checked . ' onclick="top.restoreSession();newtype(\'' . attr($key) . '\');" /><span>' . '<label class="input-helper input-helper--checkbox" for="PMSFH_' . attr($key) . '" title="' . xla($title ?? '') . '" />' . xlt($key_short_title) . '</label></span>&nbsp;';
+                    // Translate fixed section labels with literal xla()/xlt() so
+                    // translation does not depend on the translate_lists global.
+                    [$titleAttr, $shortTitleText] = match ($key) {
+                        "Medication" => [xla("Medications"), xlt("Meds")],
+                        "Surgery"    => [xla("Past Surgical History"), xlt("Surg")],
+                        "SOCH"       => [xla("Social History"), xlt("Soc")],
+                        "Allergy"    => [xla("Allergies"), xlt("All")],
+                        "Eye Meds"   => [xla("Eye Medications"), xlt("EyeM")],
+                        "PMH"        => [xla("Past Medical History"), xlt("PMH")],
+                        "POH"        => ['', xlt("POH")],
+                        "POS"        => ['', xlt("POS")],
+                        "FH"         => ['', xlt("FH")],
+                        "ROS"        => ['', xlt("ROS")],
+                        default      => ['', is_string($key) ? text($key) : ''],
+                    };
+                    $keyAttr = attr($key);
+                    $inputId = "PMSFH_{$keyAttr}";
+                    $HELLO[$keyAttr] = <<<HTML
+                        <input type="radio" name="form_type" id="{$inputId}" value="{$keyAttr}" {$checked} onclick="top.restoreSession();newtype('{$keyAttr}');" />
+                        <span>
+                            <label class="input-helper input-helper--checkbox" for="{$inputId}" title="{$titleAttr}">{$shortTitleText}</label>
+                        </span>&nbsp;
+                        HTML;
                 }
 
 //put them in the desired display order

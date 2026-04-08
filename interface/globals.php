@@ -13,16 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Set up autoloader as early as possible
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
-// Checks if the server's PHP version is compatible with OpenEMR:
-$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
-if ($response !== true) {
-    http_response_code(500);
-    die(htmlspecialchars($response));
-}
-
 use Dotenv\Dotenv;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -34,7 +24,51 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 
+// Set up autoloader as early as possible
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+// Checks if the server's PHP version is compatible with OpenEMR:
+$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
+if ($response !== true) {
+    http_response_code(500);
+    die(htmlspecialchars($response));
+}
+// Is this windows or non-windows? Create a boolean definition.
+if (!defined('IS_WINDOWS')) {
+    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
+}
+
+// The webserver_root and web_root are now automatically collected.
+// If not working, can set manually below.
+// Auto collect the full absolute directory path for openemr.
+$webserver_root = dirname(__FILE__, 2);
+
+/**
+ * Allow a `.env` file to be read in and applied as $_SERVER variables.
+ *
+ * This allows to define a "development" environment which can then load up
+ * different variables and reporting/debugging functionality. Should be used in
+ * development only, not for production
+ *
+ * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
+ */
+if (file_exists("{$webserver_root}/.env")) {
+    Dotenv::createImmutable($webserver_root)->load();
+}
+
 $logger = ServiceContainer::getLogger();
+
+// Set up exception handling: ensure that any uncaught exceptions have some
+// guaranteed way of reaching the logs, regardless of other settings.
+$handler = new \OpenEMR\Core\ErrorHandler(
+    logger: $logger,
+    shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
+);
+$handler->installExceptionHandler();
+// Note: installErrorHandler() is intentionally NOT called, too much would
+// break today. As we gain confidence in error handling, we can call it with
+// a high-severity level and incrementally move it to cover more.
+
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -122,20 +156,6 @@ if (!isset($ignoreAuth)) {
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal)) {
     $ignoreAuth_onsite_portal = false;
-}
-
-// Is this windows or non-windows? Create a boolean definition.
-if (!defined('IS_WINDOWS')) {
-    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
-}
-
-// The webserver_root and web_root are now automatically collected.
-// If not working, can set manually below.
-// Auto collect the full absolute directory path for openemr.
-$webserver_root = dirname(__FILE__, 2);
-if (IS_WINDOWS) {
- //convert windows path separators
-    $webserver_root = str_replace("\\", "/", $webserver_root);
 }
 
 // Collect the apache server document root (and convert to windows slashes, if needed)
@@ -344,20 +364,6 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
     if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
         throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
     }
-}
-
-/**
- * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
- *
- * This allows to define a "development" environment which can then load up
- * different variables and reporting/debugging functionality. Should be used in
- * development only, not for production
- *
- * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
- */
-if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = Dotenv::createImmutable($webserver_root);
-    $dotenv->load();
 }
 
 // The logging level for common/logging/logger.php

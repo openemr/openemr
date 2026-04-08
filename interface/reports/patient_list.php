@@ -280,15 +280,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $age = intval($ageInMonths / 12);
         }
 
+        $street = is_string($row['street'] ?? null) ? $row['street'] : '';
+        $city = is_string($row['city'] ?? null) ? $row['city'] : '';
+        $state = is_string($row['state'] ?? null) ? $row['state'] : '';
+
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr((string) $row['edate'], 0, 10))) . ',';
             echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($row['mname']) . ',';
             echo csvEscape($row['pubpid']) . ',';
-            echo csvEscape(xl($row['street'])) . ',';
-            echo csvEscape(xl($row['city'])) . ',';
-            echo csvEscape(xl($row['state'])) . ',';
+            echo csvEscape($street) . ',';
+            echo csvEscape($city) . ',';
+            echo csvEscape($state) . ',';
             echo csvEscape($row['postal_code']) . ',';
             echo csvEscape($row['phone_home']) . ',';
             echo csvEscape($row['phone_biz']) . "\n";
@@ -305,13 +309,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-            <?php echo xlt($row['street']); ?>
+            <?php echo text($street); ?>
    </td>
    <td>
-            <?php echo xlt($row['city']); ?>
+            <?php echo text($city); ?>
    </td>
    <td>
-            <?php echo xlt($row['state']); ?>
+            <?php echo text($state); ?>
    </td>
    <td>
             <?php echo text($row['postal_code']); ?>

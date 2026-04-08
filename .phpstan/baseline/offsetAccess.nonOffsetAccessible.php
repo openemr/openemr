@@ -7443,7 +7443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'rowid\' on mixed\\.$#',
-    'count' => 45,
+    'count' => 39,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -7474,11 +7474,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'suffix\' on mixed\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'surg_date\' on array\\|false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -8223,7 +8218,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 7,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
@@ -9513,11 +9508,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'form_proc_specimen_volume_value\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'increment\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
 ];
@@ -15372,11 +15362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/phone-services/voice_webhook.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'email_message\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
@@ -15389,16 +15374,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'email_subject\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
@@ -15417,38 +15392,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_recurrspec\' on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_recurrtype\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_cell\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
@@ -15468,21 +15413,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'ufname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'ulname\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'utitle\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
@@ -38037,32 +37967,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'message\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
 ];
@@ -38178,31 +38083,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'message\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_cell\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
 ];
@@ -42437,7 +42317,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervals.php',
 ];
@@ -44463,7 +44343,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'category\' on mixed\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [

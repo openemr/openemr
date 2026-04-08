@@ -215,7 +215,10 @@ function cron_SendSMS(sms_interface $mysms, $to, $subject, $vBody, $from)
 // Function:    cron_getAlertpatientData
 // Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
-function cron_getAlertpatientData($type)
+/**
+ * @return list<array<mixed>>
+ */
+function cron_getAlertpatientData($type): array
 {
     // larry :: move this at the top - not in the function body
     global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
@@ -256,10 +259,8 @@ function cron_getAlertpatientData($type)
 
     $db_patient = (sqlStatement($query));
     $patient_array = [];
-    $cnt = 0;
     while ($prow = sqlFetchArray($db_patient)) {
-        $patient_array[$cnt] = $prow;
-        $cnt++;
+        $patient_array[] = $prow;
     }
 
     return $patient_array;
