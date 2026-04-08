@@ -48,7 +48,7 @@ final class KeyMaterialTest extends TestCase
     {
         return [
             '2' => [2],
-            '32' => [22],
+            '32' => [32],
             '48' => [48],
             '64' => [64],
         ];
