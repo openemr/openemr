@@ -20,7 +20,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[CoversClass(FallbackRouter::class)]
@@ -139,7 +138,10 @@ class FallbackRouterTest extends TestCase
 
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $this->expectException(AccessDeniedHttpException::class);
+        $this->expectException(
+            NotFoundHttpException::class,
+            'Blocked paths should 404 (NOT 403)'
+        );
         $router->performLegacyRouting($this->createRequest($requestUri));
     }
 
@@ -179,7 +181,6 @@ class FallbackRouterTest extends TestCase
         $router = new FallbackRouter($installRoot, new NullLogger());
 
         // Path traversal to non-existent file throws NotFoundHttpException
-        // If the target existed, it would throw AccessDeniedHttpException
         $this->expectException(NotFoundHttpException::class);
         $router->performLegacyRouting($this->createRequest('/interface/../../../etc/passwd'));
     }
