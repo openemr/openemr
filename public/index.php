@@ -27,12 +27,14 @@ $logger->debug('Request routed through front-controller');
 // primaryRouter = $container->get(Router::class)
 // if router would 404/405, fall back to below?
 
-// Turn off strict-mode error handler for fallback code (see bootstrap addition
-// and #11411)
-restore_error_handler();
-
 $router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($request);
+if ($fileToInclude === null) {
+    // PHP shouldn't handle static assets, etc. Returning false allows the
+    // built-in webserver (`php -S`) to handle it. With a properly-configured
+    // normal server, this won't be reached.
+    return false;
+}
 
 $logger->debug('Routed to {file}', ['file' => $fileToInclude]);
 
@@ -64,4 +66,8 @@ register_shutdown_function(function ()  use ($logger) {
 //
 // But at minimum, clean up the vars from _this_ file.
 unset($container, $request, $logger, $router);
+// Turn off strict-mode error handler for fallback code (see bootstrap addition
+// and #11411)
+restore_error_handler();
+
 require $fileToInclude;

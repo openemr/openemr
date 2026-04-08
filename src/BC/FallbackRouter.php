@@ -46,6 +46,20 @@ use function str_starts_with;
  */
 readonly class FallbackRouter
 {
+    private const STATIC_ASSET_EXTENSIONS = [
+        // Images
+        'ico',
+        'png',
+        'svg',
+        // Styles
+        'css',
+        // Scripts
+        'js',
+        // Fonts
+        'woff2',
+        'ttf',
+    ];
+
     /**
      * @param string $installRoot The absolute path to the root of the
      * installation (e.g. where composer.json and .git exist)
@@ -63,18 +77,20 @@ readonly class FallbackRouter
      * modifies superglobals in such a way that requests relying on that path
      * won't know the difference.
      *
-     * @return string The absolute path to the legacy file to include
+     * Returns the absolute path to the legacy file to include, or null if it's
+     * a static asset that should be handled by the webserver.
      *
      * @throws NotFoundHttpException if the path cannot be resolved
      * @throws AccessDeniedHttpException if the path is blocked
      */
-    public function performLegacyRouting(ServerRequestInterface $request): string
+    public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
         $requestUri = $request->getUri()->getPath();
         if (str_ends_with($requestUri, '/')) {
             // Special-case the "index" requests
             $requestUri .= 'index.php';
         }
+        $this->logger->debug("Routing $requestUri");
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         // Order matters: more specific paths must come before general prefixes
@@ -101,6 +117,12 @@ readonly class FallbackRouter
 
         if (!$this->isPathAllowed($path)) {
             throw new AccessDeniedHttpException();
+        }
+
+        $this->logger->debug("Check allowed $path");
+        if (self::isAllowedStaticAsset($path)) {
+            $this->logger->debug("is static");
+            return null;
         }
 
         $this->prepareRuntime($path);
@@ -188,5 +210,12 @@ readonly class FallbackRouter
 
             default => true, // Future: default deny instead?
         };
+    }
+
+
+    private static function isAllowedStaticAsset(string $path): bool
+    {
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        return in_array($ext, self::STATIC_ASSET_EXTENSIONS, strict: true);
     }
 }
