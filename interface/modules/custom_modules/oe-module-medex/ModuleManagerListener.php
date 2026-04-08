@@ -100,8 +100,12 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $modUiActive = (int)($row['mod_ui_active'] ?? 0);
 
         $webroot = $GLOBALS['webroot'] ?? '';
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=default';
-        $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=default';
+        $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
+        if ($siteId === '') {
+            $siteId = 'default';
+        }
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=' . urlencode($siteId);
+        $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId);
 
         // Always open guided setup/help in-tab modal from Module Manager.
         $target = json_encode($setupHelpUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);

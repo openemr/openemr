@@ -11,7 +11,11 @@ require_once(dirname(__FILE__, 6) . '/globals.php');
 
 // Ensure site_id is set for standalone calls
 if (empty($_SESSION['site_id'])) {
-    $_SESSION['site_id'] = 'default';
+    $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['site'] ?? ($_POST['site'] ?? 'default')));
+    if ($siteId === '') {
+        $siteId = 'default';
+    }
+    $_SESSION['site_id'] = $siteId;
 }
 
 header("Content-Type: application/json");

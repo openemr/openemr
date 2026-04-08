@@ -12,7 +12,11 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$_SESSION['site_id'] = 'default';
+$siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['site'] ?? ($_POST['site'] ?? ($_SESSION['site_id'] ?? 'default'))));
+if ($siteId === '') {
+    $siteId = 'default';
+}
+$_SESSION['site_id'] = $siteId;
 
 $ignoreAuth = true;
 require_once(dirname(__FILE__, 6) . '/globals.php');

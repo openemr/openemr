@@ -417,7 +417,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
         }
         // Fallback once if row is not found.
         try {
-            const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store', credentials: 'same-origin' });
+            const siteParam = new URLSearchParams(window.location.search).get('site') || 'default';
+            const r = await fetch('show_help_setup.php?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
             if (r.status === 401) {
                 return;
             }

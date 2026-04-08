@@ -203,7 +203,11 @@ class ModuleManagerListener
         }
 
         $webroot = $GLOBALS['webroot'] ?? '';
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=default';
+        $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
+        if ($siteId === '') {
+            $siteId = 'default';
+        }
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId);
         $stateLabel = 'Pre-Install';
         if ($modActive === 1) {
             $stateLabel = 'Active Module';
