@@ -61,6 +61,7 @@ class UuidRegistry
         'patient_care_experience_preferences' => ['table_name' => 'patient_care_experience_preferences'],
         'patient_data' => ['table_name' => 'patient_data'],
         'patient_history' => ['table_name' => 'patient_history'],
+        'patient_relationships' => ['table_name' => 'patient_relationships'],
         'patient_treatment_intervention_preferences' => ['table_name' => 'patient_treatment_intervention_preferences'],
         'person' => ['table_name' => 'person'],
         'prescriptions' => ['table_name' => 'prescriptions'],
