@@ -2350,7 +2350,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                 <div id="medex-card-fields-wrap" style="border: 1px solid #d0d7de; border-radius: 6px; padding: 12px;">
                     <div style="margin-bottom: 10px;">
                         <label for="medex-cardholder-name" style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 4px;"><?php echo xlt('Cardholder Name'); ?></label>
-                        <input type="text" id="medex-cardholder-name" style="width: 100%; height: 36px; border: 1px solid #c6cbd1; border-radius: 4px; padding: 6px 10px;">
+                        <input type="text" id="medex-cardholder-name" autocomplete="cc-name" autocapitalize="words" style="width: 100%; height: 36px; border: 1px solid #c6cbd1; border-radius: 4px; padding: 6px 10px;">
                     </div>
                     <div style="margin-bottom: 10px;">
                         <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 4px;"><?php echo xlt('Card Number'); ?></label>
@@ -2366,6 +2366,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             <div id="medex-card-cvv" style="height: 36px; border: 1px solid #c6cbd1; border-radius: 4px; padding: 8px 10px; background: #fff;"></div>
                         </div>
                     </div>
+                    <div style="margin-top:8px; color:#4b5563; font-size:12px;"><?php echo xlt('Card number may autofill. Expiration and CVV may require manual entry in secure fields.'); ?></div>
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
