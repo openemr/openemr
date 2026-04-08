@@ -14,6 +14,8 @@ namespace OpenEMR\BC;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use function str_starts_with;
 
@@ -61,10 +63,12 @@ readonly class FallbackRouter
      * modifies superglobals in such a way that requests relying on that path
      * won't know the difference.
      *
-     * @return ?string The absolute path to the legacy file to include, or null
-     * if not routable.
+     * @return string The absolute path to the legacy file to include
+     *
+     * @throws NotFoundHttpException if the path cannot be resolved
+     * @throws AccessDeniedHttpException if the path is blocked
      */
-    public function performLegacyRouting(ServerRequestInterface $request): ?string
+    public function performLegacyRouting(ServerRequestInterface $request): string
     {
         $requestUri = $request->getUri()->getPath();
         if (str_ends_with($requestUri, '/')) {
@@ -88,18 +92,15 @@ readonly class FallbackRouter
         // Normalize the included file to the webroot
         $path = realpath(sprintf('%s%s', $this->installRoot, $path));
         if ($path === false) {
-            // Future: 400/404
-            return null;
+            throw new NotFoundHttpException();
         }
         if (!is_file($path)) {
             // Might have been a directory
-            // Future: 404
-            return null;
+            throw new NotFoundHttpException();
         }
 
         if (!$this->isPathAllowed($path)) {
-            // Future: 403
-            return null;
+            throw new AccessDeniedHttpException();
         }
 
         $this->prepareRuntime($path);

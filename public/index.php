@@ -6,6 +6,7 @@ use Firehed\Container\TypedContainerInterface;
 use GuzzleHttp\Psr7\ServerRequest;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 assert($container instanceof TypedContainerInterface);
@@ -31,11 +32,13 @@ $logger->debug('Request routed through front-controller');
 restore_error_handler();
 
 $router = $container->get(FallbackRouter::class);
-$fileToInclude = $router->performLegacyRouting($request);
-if ($fileToInclude === null) {
-    http_response_code(404);
-    $logger->info('Front controller cannot find or blocked URI {uri}', [
+try {
+    $fileToInclude = $router->performLegacyRouting($request);
+} catch (HttpExceptionInterface $e) {
+    http_response_code($e->getStatusCode());
+    $logger->info('Front controller cannot route URI {uri}: {status}', [
         'uri' => $request->getUri(),
+        'status' => $e->getStatusCode(),
     ]);
     exit(1);
 }

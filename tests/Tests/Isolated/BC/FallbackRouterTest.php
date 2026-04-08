@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[CoversClass(FallbackRouter::class)]
 #[Small]
@@ -126,9 +128,9 @@ class FallbackRouterTest extends TestCase
         }
 
         $router = new FallbackRouter($installRoot, new NullLogger());
-        $result = $router->performLegacyRouting($this->createRequest($requestUri));
 
-        self::assertNull($result, "Path $requestUri should be blocked");
+        $this->expectException(AccessDeniedHttpException::class);
+        $router->performLegacyRouting($this->createRequest($requestUri));
     }
 
     #[DataProvider('allowedPathProvider')]
@@ -151,19 +153,19 @@ class FallbackRouterTest extends TestCase
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $result = $router->performLegacyRouting($this->createRequest('/interface/../../../etc/passwd'));
-
-        self::assertNull($result);
+        // Path traversal to non-existent file throws NotFoundHttpException
+        // If the target existed, it would throw AccessDeniedHttpException
+        $this->expectException(NotFoundHttpException::class);
+        $router->performLegacyRouting($this->createRequest('/interface/../../../etc/passwd'));
     }
 
-    public function testNonexistentPathReturnsNull(): void
+    public function testNonexistentPathThrowsNotFound(): void
     {
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $result = $router->performLegacyRouting($this->createRequest('/does/not/exist.php'));
-
-        self::assertNull($result);
+        $this->expectException(NotFoundHttpException::class);
+        $router->performLegacyRouting($this->createRequest('/does/not/exist.php'));
     }
 
     /**
