@@ -338,9 +338,9 @@ trait BaseTrait
      * This is a basic convenience method.
      *
      * @param string $xpath
-     * @return mixed
+     * @return WebDriverBy
      */
-    private function createXpath(string $xpath) {
+    private function createXpath(string $xpath): WebDriverBy {
         return WebDriverBy::xpath($xpath);
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Login;
 
+use Closure;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 
 trait LoginTrait
@@ -83,7 +84,7 @@ trait LoginTrait
      * @return void
      * @throws \Throwable
      */
-    private function runTest($testFunction): void {
+    private function runTest(Closure $testFunction): void {
         $this->base();
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
@@ -117,7 +118,7 @@ trait LoginTrait
 
     private function assertLogin(string $testPattern, string $msg): void {
         $url = $this->client->getCurrentURL();
-        $hasPattern = str_contains($url, $testPattern);
+        $hasPattern = str_contains((string) $url, $testPattern);
         $this->assertTrue($hasPattern, $msg);
     }
 
@@ -127,6 +128,6 @@ trait LoginTrait
         $this->goToUserMenuLink('fa-sign-out-alt');
         $this->client->waitFor('//input[@id="authUser"]');
         $url = $this->client->getCurrentURL();
-        $this->assertFalse(str_contains($url, $this->loginScreenUrl), 'Logout FAILED');
+        $this->assertFalse(str_contains((string) $url, $this->loginScreenUrl), 'Logout FAILED');
     }
 }
