@@ -2366,7 +2366,11 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             <div id="medex-card-cvv" style="height: 36px; border: 1px solid #c6cbd1; border-radius: 4px; padding: 8px 10px; background: #fff;"></div>
                         </div>
                     </div>
-                    <div style="margin-top:8px; color:#4b5563; font-size:12px;"><?php echo xlt('Card number may autofill. Expiration and CVV may require manual entry in secure fields.'); ?></div>
+                    <div style="margin-top: 10px;">
+                        <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 4px;"><?php echo xlt('Postal Code'); ?></label>
+                        <div id="medex-card-postal" style="height: 36px; border: 1px solid #c6cbd1; border-radius: 4px; padding: 8px 10px; background: #fff;"></div>
+                    </div>
+                    <div style="margin-top:8px; color:#4b5563; font-size:12px;"><?php echo xlt('Card number may autofill. Expiration, CVV, and postal code may require manual entry in secure fields.'); ?></div>
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
@@ -3429,7 +3433,8 @@ window._medexInvalidHostedFields = function(instance) {
     const labels = {
         number: 'card number',
         expirationDate: 'expiration',
-        cvv: 'CVV'
+        cvv: 'CVV',
+        postalCode: 'postal code'
     };
     return Object.keys(labels)
         .filter(key => !(state.fields && state.fields[key] && state.fields[key].isValid))
@@ -3495,7 +3500,8 @@ window._initMedexPaymentComponents = function() {
                 fields: {
                     number: { selector: '#medex-card-number', placeholder: '4111 1111 1111 1111' },
                     expirationDate: { selector: '#medex-card-expiration', placeholder: 'MM/YY' },
-                    cvv: { selector: '#medex-card-cvv', placeholder: '123' }
+                    cvv: { selector: '#medex-card-cvv', placeholder: '123' },
+                    postalCode: { selector: '#medex-card-postal', placeholder: 'ZIP / Postal' }
                 }
             }, function(hfErr, hostedFieldsInstance) {
                 if (hfErr) {
