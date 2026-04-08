@@ -118,7 +118,7 @@ readonly class ErrorHandler
         // Future scope: create a body based on request context (e.g. accept
         // headers, etc).
         if ($e instanceof HttpExceptionInterface) {
-            $response = $this->rf->createResponse($e->getCode());
+            $response = $this->rf->createResponse($e->getStatusCode());
             foreach ($e->getHeaders() as $header => $value) {
                 assert(is_string($value) || is_int($value));
                 $response = $response->withAddedHeader($header, (string)$value);
