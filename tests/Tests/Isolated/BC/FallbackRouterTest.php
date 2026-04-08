@@ -138,10 +138,8 @@ class FallbackRouterTest extends TestCase
 
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $this->expectException(
-            NotFoundHttpException::class,
-            'Blocked paths should 404 (NOT 403)'
-        );
+        // Blocked paths should 404 (NOT 403)
+        $this->expectException(NotFoundHttpException::class);
         $router->performLegacyRouting($this->createRequest($requestUri));
     }
 
