@@ -22,13 +22,17 @@ use Psr\Log\{LoggerInterface, LogLevel};
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
+use function assert;
 use function defined;
 use function error_reporting;
+use function get_class;
+use function header;
 use function http_response_code;
 use function is_int;
 use function is_string;
 use function set_error_handler;
 use function set_exception_handler;
+use function sprintf;
 
 use const E_DEPRECATED;
 use const E_USER_DEPRECATED;
