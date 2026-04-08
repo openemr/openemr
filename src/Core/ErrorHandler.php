@@ -41,7 +41,7 @@ readonly class ErrorHandler
         private LoggerInterface $logger,
         private ResponseFactoryInterface $rf,
         private StreamFactoryInterface $sf,
-        private bool $shouldDisplayErrors = false,
+        private bool $shouldDisplayErrors,
     ) {
         $this->isCli = (PHP_SAPI === 'cli');
     }
@@ -126,12 +126,12 @@ readonly class ErrorHandler
             return $response;
         }
 
+        // Default: nondescript 500 error.
         $message = 'An error has occurred.';
         if ($this->shouldDisplayErrors) {
             $message .= "\n$e";
         }
 
-        // Default: nondescript 500 error.
         return $this->rf->createResponse(500)
             ->withBody($this->sf->createStream($message));
     }
