@@ -229,7 +229,7 @@ function todocument(docid) {
     patient_id: <?php echo js_escape($pid); ?>,
     doc_id: docid
   });
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&' + params;
+  const h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&' + params;
   top.restoreSession();
   location.href = h;
 }
