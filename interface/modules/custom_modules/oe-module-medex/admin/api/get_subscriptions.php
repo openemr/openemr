@@ -3298,6 +3298,7 @@ function processSubscriptionChanges() {
     // If adding services, total > 0, and no payment on file, show Braintree drop-in
     // Skip payment form for $0.00 totals (demo/free subscriptions)
     if (hasAdditions && estimatedTotal > 0 && !hasPaymentOnFile && !devBypass) {
+        window._medexPendingTotal = Number(estimatedTotal || 0);
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-check"></i> Process Changes';
@@ -3397,9 +3398,21 @@ window._initMedexDropin = function() {
     const container = document.getElementById('braintree-dropin-container');
     if (!container || !window._medexBraintreeToken) { return; }
     container.innerHTML = ''; // clear any previous instance
+    const pendingTotal = Number(window._medexPendingTotal || 0);
+    const applePayAmount = (pendingTotal > 0 ? pendingTotal : 0.01).toFixed(2);
     braintree.dropin.create({
         authorization: window._medexBraintreeToken,
-        container: '#braintree-dropin-container'
+        container: '#braintree-dropin-container',
+        applePay: {
+            displayName: 'MedEx',
+            paymentRequest: {
+                total: {
+                    label: 'MedEx',
+                    amount: applePayAmount
+                },
+                requiredBillingContactFields: ['postalAddress']
+            }
+        }
     }, function(createErr, instance) {
         if (createErr) {
             showToast('Payment form error: ' + createErr.message, 'error');
