@@ -1287,51 +1287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$PaymentType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$class with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$empty_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$list_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$onchange with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$screen with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$tag_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$title with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function SavePatientAudit\\(\\) has parameter \\$invs with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -11060,11 +11015,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Helper\\\\SendToHieHelper\\:\\:__invoke\\(\\) has parameter \\$send_via with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\TranslatorViewHelper\\:\\:xl\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Listener\\\\Listener\\:\\:detach\\(\\) has parameter \\$priority with no type specified\\.$#',
@@ -24572,11 +24522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sftp_status\\(\\) has parameter \\$msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sftp_status\\(\\) has parameter \\$val with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
@@ -25205,11 +25150,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getUserNameById\\(\\) has parameter \\$uid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function hsc_private_xl_or_warn\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function issue_ippf_con_form\\(\\) has parameter \\$issue with no type specified\\.$#',
@@ -27650,16 +27590,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_xlt\\(\\) has parameter \\$smarty with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xla\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xlt\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:get_key\\(\\) has parameter \\$config_key with no type specified\\.$#',
@@ -32862,29 +32792,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Option.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalType.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -33085,36 +32995,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseBuilder\\:\\:resolveRuleCriteriaType\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$column with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$frequency with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$frequencyComparator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$valueComparator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDbView\\:\\:set\\(\\) has parameter \\$i with no type specified\\.$#',
@@ -33407,46 +33287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleAction\\(\\) has parameter \\$guid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleAction\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleFilterCriteria\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteriaByGroupId\\(\\) has parameter \\$groupId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteriaByGroupId\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteria\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRule\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRule\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:labelExists\\(\\) has parameter \\$listId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
@@ -33480,16 +33320,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleType\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/TimeUnit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/TimeUnit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',

@@ -227,23 +227,26 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     private function updateSNOMEDCTMappingsForList($mappings, $list_id, $logger = null)
     {
         // update our list options
+        $sql = null;
+        $values = null;
         try {
-            \sqlBeginTrans();
-            foreach ($mappings as $option_id => $code_id) {
-                $sql = "UPDATE list_options SET codes=CONCAT('SNOMED-CT:', ?) WHERE list_id=? AND option_id=?";
-                $values = [$code_id, $list_id, $option_id];
-                QueryUtils::sqlStatementThrowException($sql, $values);
-                if (!empty($logger) && is_callable($logger)) {
-                    $logger(xl('Success') . ' - (sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
+            QueryUtils::inTransaction(function () use ($mappings, $list_id, $logger, &$sql, &$values): void {
+                foreach ($mappings as $option_id => $code_id) {
+                    $sql = <<<'SQL'
+                    UPDATE list_options SET codes = CONCAT('SNOMED-CT:', ?) WHERE list_id = ? AND option_id = ?
+                    SQL;
+                    $values = [$code_id, $list_id, $option_id];
+                    QueryUtils::sqlStatementThrowException($sql, $values);
+                    if (is_callable($logger)) {
+                        $logger(xl('Success') . ' - (sql=`' . $sql . '`, values=`' . var_export($values, true) . '`)');
+                    }
                 }
-            }
-            \sqlCommitTrans();
+            });
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
-            if (!empty($logger) && is_callable($logger)) {
-                $logger(xl('Failed') . ' - (sql=`"' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . "`)");
+            if (is_callable($logger)) {
+                $logger(xl('Failed') . ' - (sql=`' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . '`)');
             }
-            \sqlRollbackTrans();
         }
     }
 
@@ -251,27 +254,35 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     {
         // update our list options
         try {
-            \sqlBeginTrans();
-            foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_text) {
-                $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =? "
-                    . " AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')", 'code', [$code_text]);
-                if (empty($code_id)) {
-                    ServiceContainer::getLogger()->debug(
-                        "Failed to find cpt4 code in codes with code_text. Skipping option_id",
-                        ['code_text' => $code_text, 'option_id' => $option_id]
+            QueryUtils::inTransaction(function () use ($logger): void {
+                foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_text) {
+                    $code_id = QueryUtils::fetchSingleValue(
+                        <<<'SQL'
+                        SELECT `code` FROM codes
+                        WHERE code_text = ?
+                          AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')
+                        SQL,
+                        'code',
+                        [$code_text]
                     );
+                    if ($code_id === null || $code_id === '') {
+                        ServiceContainer::getLogger()->debug(
+                            'Failed to find cpt4 code in codes with code_text. Skipping option_id',
+                            ['code_text' => $code_text, 'option_id' => $option_id]
+                        );
+                    }
+                    $sql = <<<'SQL'
+                    UPDATE list_options SET codes = CONCAT('CPT4:', ?) WHERE list_id = ? AND option_id = ?
+                    SQL;
+                    $values = [$code_id, self::LIST_ID_ENCOUNTER_TYPES, $option_id];
+                    if (is_callable($logger)) {
+                        $logger('(sql=`' . $sql . '`, values=`' . var_export($values, true) . '`)');
+                    }
+                    QueryUtils::sqlStatementThrowException($sql, $values);
                 }
-                $sql = "UPDATE list_options SET codes=CONCAT('CPT4:', ?) WHERE list_id=? AND option_id=?";
-                $values = [$code_id, self::LIST_ID_ENCOUNTER_TYPES, $option_id];
-                if (!empty($logger) && is_callable($logger)) {
-                    $logger('(sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
-                }
-                QueryUtils::sqlStatementThrowException($sql, $values);
-            }
-            \sqlCommitTrans();
+            });
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
-            \sqlRollbackTrans();
         }
     }
 }

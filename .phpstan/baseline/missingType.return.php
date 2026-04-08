@@ -732,11 +732,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function SavePatientAudit\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -4552,11 +4547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isThirdPartyConfigurationSetup\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isThirdPartyInvitationsEnabled\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
@@ -5960,11 +5950,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Helper\\\\Javascript\\:\\:__invoke\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/Javascript.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\TranslatorViewHelper\\:\\:xl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Listener\\\\ModuleMenuSubscriber\\:\\:onMenuRestrict\\(\\) has no return type specified\\.$#',
@@ -16832,16 +16817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xla\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xlt\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:_set_config_var\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
@@ -17323,11 +17298,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_SendSMS\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getAlertpatientData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];

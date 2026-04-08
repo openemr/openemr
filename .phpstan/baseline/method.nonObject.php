@@ -5717,6 +5717,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getView\\(\\) on OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria\\|null\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method search\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
@@ -8570,41 +8575,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method isAscending\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method asString\\(\\) on OpenEMR\\\\Services\\\\VersionServiceInterface\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method clearTelemetryData\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchActiveModuleCounts\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchEnabledEncounterForms\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchSitePopulationData\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchUsageRecords\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method saveTelemetryEvent\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',

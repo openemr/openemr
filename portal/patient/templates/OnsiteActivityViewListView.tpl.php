@@ -73,7 +73,7 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
                 <th id="header_Lname"><?php echo xlt('Last{{Name}}') ?><% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Narrative"><?php echo xlt('Narrative') ?><% if (actpage.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Activity"><?php echo xlt('Activity') ?><% if (actpage.orderBy == 'Activity') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_TableArgs"><?php echo xlt('RecId') ?><% if (actpage.orderBy == 'TableArgs') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_TableArgs"><?php echo xlt('Amount') ?><% if (actpage.orderBy == 'TableArgs') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_PendingAction"><?php echo xlt('Pending Action') ?><% if (actpage.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Status"><?php echo xlt('Status')?><% if (actpage.orderBy == 'Status') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th><?php echo xlt('Action') ?></th>
@@ -122,7 +122,11 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
                 <td><%= _.escape(item.get('lname') || '') %></td>
                 <td><%= _.escape(item.get('narrative') || '') %></td>
                 <td><%= _.escape(item.get('activity') || '') %></td>
-                <td><%= _.escape(item.get('tableArgs') || '') %></td>
+                <td><%try {
+                        var args = JSON.parse(item.get('tableArgs') || '{}');
+                        if (args.form_paytotal) { %>$<%= _.escape(args.form_paytotal) %><% } else { %><%= _.escape(item.get('tableArgs') || '') %><% }
+                    } catch(e) { %><%= _.escape(item.get('tableArgs') || '') %><% }%>
+                </td>
                 <td><%= _.escape(item.get('pendingAction') || '') %></td>
                 <td><%= _.escape(item.get('status') || '') %></td>
                 <td><button class="delete-button btn btn-sm btn-link" data-update-id=<%= _.escape(item.get('id') || '') %> data-delete-id=<%= _.escape(item.get('tableArgs') || '') %>><i class="fa fa-trash text-danger"></i></button></td>

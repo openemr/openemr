@@ -472,13 +472,25 @@ class Installer
         }
 
         while (!$this->atEndOfFile($fd)) {
-            $line = $this->getLine($fd, 1024);
-            $line = rtrim($line);
+            $rawLine = $this->getLine($fd);
+            if ($rawLine === false) {
+                continue;
+            }
+            $line = rtrim($rawLine);
             if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
                 continue;
             }
 
-            $query .= $line;          // Check for full query
+            // Insert a single space separator between concatenated lines.
+            // Without it, a continuation line starting at column 0 would
+            // fuse with the previous token (e.g. "= 0" + "WHERE" → "0WHERE",
+            // see #10935). getLine() is unbounded, so every call returns a
+            // complete logical line and the separator is always safe to
+            // insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
+            $query .= $line;
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                 $query = rtrim($query, ";");
@@ -2116,12 +2128,11 @@ SETHLP;
      * @codeCoverageIgnore
      *
      * @param resource $stream
-     * @param int $length
      * @return string|false
      */
-    protected function getLine($stream, int $length): string|false
+    protected function getLine($stream): string|false
     {
-        return fgets($stream, $length);
+        return fgets($stream);
     }
 
     /**
