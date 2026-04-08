@@ -3421,6 +3421,21 @@ window._medexShowPaymentError = function(msg) {
     el.style.display = msg ? 'block' : 'none';
 };
 
+window._medexInvalidHostedFields = function(instance) {
+    if (!instance || typeof instance.getState !== 'function') {
+        return [];
+    }
+    const state = instance.getState();
+    const labels = {
+        number: 'card number',
+        expirationDate: 'expiration',
+        cvv: 'CVV'
+    };
+    return Object.keys(labels)
+        .filter(key => !(state.fields && state.fields[key] && state.fields[key].isValid))
+        .map(key => labels[key]);
+};
+
 window._medexUpdateSubmitState = function() {
     const baa = document.getElementById('agree-baa');
     const terms = document.getElementById('agree-terms');
@@ -3560,11 +3575,23 @@ window.processPayment = function processPayment() {
     };
 
     const cardholderName = (document.getElementById('medex-cardholder-name')?.value || '').trim();
+    const invalidFields = window._medexInvalidHostedFields(payment.hostedFieldsInstance);
+    if (invalidFields.length > 0) {
+        const msg = 'Please verify: ' + invalidFields.join(', ') + '.';
+        window._medexShowPaymentError(msg);
+        showToast('Payment error: ' + msg, 'error');
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-check"></i> Complete Subscription Changes'; }
+        return;
+    }
     payment.hostedFieldsInstance.tokenize({
         cardholderName: cardholderName || undefined
     }, function(err, payload) {
         if (err) {
-            const msg = err.message || 'Unable to process card details.';
+            let msg = err.message || 'Unable to process card details.';
+            const detailFields = window._medexInvalidHostedFields(payment.hostedFieldsInstance);
+            if (detailFields.length > 0) {
+                msg += ' Please verify: ' + detailFields.join(', ') + '.';
+            }
             window._medexShowPaymentError(msg);
             showToast('Payment error: ' + msg, 'error');
             if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-check"></i> Complete Subscription Changes'; }
