@@ -32,16 +32,7 @@ $logger->debug('Request routed through front-controller');
 restore_error_handler();
 
 $router = $container->get(FallbackRouter::class);
-try {
-    $fileToInclude = $router->performLegacyRouting($request);
-} catch (HttpExceptionInterface $e) {
-    http_response_code($e->getStatusCode());
-    $logger->info('Front controller cannot route URI {uri}: {status}', [
-        'uri' => $request->getUri(),
-        'status' => $e->getStatusCode(),
-    ]);
-    exit(1);
-}
+$fileToInclude = $router->performLegacyRouting($request);
 
 $logger->debug('Routed to {file}', ['file' => $fileToInclude]);
 
