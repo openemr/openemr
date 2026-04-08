@@ -34,6 +34,11 @@ $innerUrl = ($GLOBALS['webroot'] ?? '')
     </style>
 </head>
 <body>
-<iframe id="medex-cloud-frame" src="<?php echo attr($innerUrl); ?>" title="MedEx Admin"></iframe>
+<iframe
+    id="medex-cloud-frame"
+    src="<?php echo attr($innerUrl); ?>"
+    title="MedEx Admin"
+    allow="payment *; clipboard-read *; clipboard-write *"
+></iframe>
 </body>
 </html>
