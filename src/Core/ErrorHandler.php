@@ -13,30 +13,40 @@ declare(strict_types=1);
 namespace OpenEMR\Core;
 
 use ErrorException;
-use OpenEMR\BC\ServiceContainer;
-use Psr\Log\LoggerInterface;
+use Psr\Http\Message\{
+    ResponseFactoryInterface,
+    ResponseInterface,
+    StreamFactoryInterface,
+};
+use Psr\Log\{LoggerInterface, LogLevel};
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
+use function assert;
 use function defined;
 use function error_reporting;
+use function header;
 use function http_response_code;
+use function is_int;
+use function is_string;
 use function set_error_handler;
 use function set_exception_handler;
+use function sprintf;
 
 use const E_DEPRECATED;
 use const E_USER_DEPRECATED;
 
 readonly class ErrorHandler
 {
-    private LoggerInterface $logger;
     private bool $isCli;
 
     public function __construct(
-        ?LoggerInterface $logger,
-        private bool $shouldDisplayErrors = false,
+        private LoggerInterface $logger,
+        private ResponseFactoryInterface $rf,
+        private StreamFactoryInterface $sf,
+        private bool $shouldDisplayErrors,
     ) {
         $this->isCli = (PHP_SAPI === 'cli');
-        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -84,30 +94,73 @@ readonly class ErrorHandler
      */
     public function handleException(Throwable $e): never
     {
-        $this->logger->critical('Uncaught exception!', [
-            'exception' => $e,
-        ]);
+        $this->logUncaughtException($e);
 
         // CLI scripts simply exit nonzero
         if ($this->isCli) {
             exit(1);
         }
 
-        // For now, just crash out with minimal detail as before.
-        // In the future, this can be smarter about request context (accept
-        // headers), switching on exception type to yield the correct http
-        // code, etc.
-        // Note: under rare circumstances, this could trigger a secondary error
-        // if headers are already sent. The default deployment seems to turn on
-        // output_buffering in php.ini automatically so it's unlikely to occur
-        http_response_code(500);
-        header('Content-type: text/plain');
-        echo 'An error has occurred.';
+        $response = $this->buildResponse($e);
 
-        if ($this->shouldDisplayErrors) {
-            echo $e;
+        if (!headers_sent()) {
+            http_response_code($response->getStatusCode());
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
         }
+
+        echo (string)$response->getBody();
         exit();
+    }
+
+    private function buildResponse(Throwable $e): ResponseInterface
+    {
+        // Future scope: create a body based on request context (e.g. accept
+        // headers, etc).
+        if ($e instanceof HttpExceptionInterface) {
+            $response = $this->rf->createResponse($e->getStatusCode());
+            foreach ($e->getHeaders() as $header => $value) {
+                assert(is_string($value) || is_int($value));
+                $response = $response->withAddedHeader($header, (string)$value);
+            }
+            return $response;
+        }
+
+        // Default: nondescript 500 error.
+        $message = 'An error has occurred.';
+        if ($this->shouldDisplayErrors) {
+            $message .= "\n$e";
+        }
+
+        return $this->rf->createResponse(500)
+            ->withBody($this->sf->createStream($message));
+    }
+
+    private function logUncaughtException(Throwable $e): void
+    {
+        if ($e instanceof HttpExceptionInterface) {
+            $code = $e->getStatusCode();
+            $logLevel = match (true) {
+                $code < 300 => LogLevel::DEBUG,
+                $code < 400 => LogLevel::INFO,
+                $code < 500 => LogLevel::NOTICE,
+                default => LogLevel::WARNING,
+            };
+            $this->logger->log($logLevel, 'Caught {type} with code {code}', [
+                'type' => $e::class,
+                'code' => $code,
+            ]);
+            return;
+        }
+
+        // Fallback: log everything else at a high severity. This will very
+        // likely get toned down over time.
+        $this->logger->critical('Uncaught exception!', [
+            'exception' => $e,
+        ]);
     }
 
     /**

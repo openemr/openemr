@@ -16,6 +16,8 @@ use ErrorException;
 use OpenEMR\Core\ErrorHandler;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\NullLogger;
 
 use const E_DEPRECATED;
@@ -25,9 +27,19 @@ use const E_USER_WARNING;
 #[Group('core')]
 class ErrorHandlerTest extends TestCase
 {
+    private function createHandler(bool $shouldDisplayErrors = false): ErrorHandler
+    {
+        return new ErrorHandler(
+            new NullLogger(),
+            $this->createStub(ResponseFactoryInterface::class),
+            $this->createStub(StreamFactoryInterface::class),
+            $shouldDisplayErrors,
+        );
+    }
+
     public function testHandleErrorThrowsWhenErrorReportingMatches(): void
     {
-        $handler = new ErrorHandler(new NullLogger());
+        $handler = $this->createHandler();
 
         // Ensure E_USER_WARNING is in error_reporting
         $originalLevel = error_reporting(E_ALL);
@@ -43,7 +55,7 @@ class ErrorHandlerTest extends TestCase
 
     public function testHandleErrorReturnsFalseWhenSuppressed(): void
     {
-        $handler = new ErrorHandler(new NullLogger());
+        $handler = $this->createHandler();
 
         // The @ operator sets error_reporting to 0 for the duration of the expression
         $result = @$handler->handleError(E_USER_WARNING, 'Suppressed error', '/path/to/file.php', 42);
@@ -55,7 +67,7 @@ class ErrorHandlerTest extends TestCase
     {
         // PHPUNIT_COMPOSER_INSTALL is defined during test runs, so deprecations
         // always throw regardless of error_reporting level
-        $handler = new ErrorHandler(new NullLogger());
+        $handler = $this->createHandler();
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage('Deprecated function');
@@ -65,7 +77,7 @@ class ErrorHandlerTest extends TestCase
 
     public function testErrorHandlerInstallation(): void
     {
-        $handler = new ErrorHandler(new NullLogger());
+        $handler = $this->createHandler();
         $handler->installErrorHandler(E_ALL);
         $old = error_reporting(E_ALL);
 
