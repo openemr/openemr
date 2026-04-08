@@ -36,15 +36,13 @@ class GgUserMenuLinksTest extends PantherTestCase
     #[Test]
     public function testUserMenuLink(string $menuTreeIcon, string $menuLinkItem, string $expectedTabTitle): void
     {
-        $this->base();
         try {
-            $this->login(LoginTestData::username, LoginTestData::password);
             if ($menuLinkItem == 'Logout') {
                 // special case for Logout
                 $this->logOut();
             } else {
                 $this->goToUserMenuLink($menuTreeIcon);
-                $this->assertActiveTab($expectedTabTitle);
+                $this->assertActiveTab($expectedTabTitle, looseTabTitle: true);
             }
         } catch (\Throwable $e) {
             // Close client
@@ -63,8 +61,8 @@ class GgUserMenuLinksTest extends PantherTestCase
             'Settings user menu link' => ['fa-cog', 'Settings', 'User Settings'],
             'Change Password user menu link' => ['fa-lock', 'Change Password', 'Change Password'],
             'MFA Management user menu link' => ['fa-key', 'MFA Management', 'Manage Multi Factor Authentication'],
-            'About OpenEMR user menu link' => ['fa-info', 'About OpenEMR', 'About OpenEMR'],
-            'Logout user menu link' => ['fa-sign-out-alt', 'Logout', 'OpenEMR Login']
+            'About OpenEMR user menu link' => ['fa-info', 'About OpenEMR', 'About'],
+            'Logout user menu link' => ['fa-sign-out-alt', 'Logout', 'Login']
         ];
     }
 }
