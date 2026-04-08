@@ -25,7 +25,6 @@ use Throwable;
 use function assert;
 use function defined;
 use function error_reporting;
-use function get_class;
 use function header;
 use function http_response_code;
 use function is_int;
@@ -151,7 +150,7 @@ readonly class ErrorHandler
                 default => LogLevel::WARNING,
             };
             $this->logger->log($logLevel, 'Caught {type} with code {code}', [
-                'type' => get_class($e),
+                'type' => $e::class,
                 'code' => $code,
             ]);
             return;
