@@ -39,7 +39,7 @@ use Throwable;
  *
  * @deprecated
  */
-class LegacyKeychainLoader
+final class LegacyKeychainLoader
 {
     public static function load(): KeychainInterface
     {

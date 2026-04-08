@@ -104,8 +104,6 @@ final readonly class Crypto implements CryptoInterface
             }
 
             $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
-
-            // Delegate back to the "real" version? This is duplicative
             $keyId = $bcKey->getId();
 
             $cipher = $this->keychain->getCipher($keyId);

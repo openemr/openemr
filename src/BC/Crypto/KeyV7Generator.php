@@ -82,6 +82,7 @@ class KeyV7Generator
     ): KeyMaterial {
         $key = KeyMaterial::generate($length);
         $encKey = $cipher->encrypt(new Plaintext($key->key));
+        // '007' is the legacy v7 prefix format, retained for compatibility
         $keyMessage = new Message(keyId: new KeyId('007'), ciphertext: $encKey);
         $result = fwrite($fh, $keyMessage->encode());
         if ($result === false) {
