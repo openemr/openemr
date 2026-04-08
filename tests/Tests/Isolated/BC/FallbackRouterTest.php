@@ -113,8 +113,18 @@ class FallbackRouterTest extends TestCase
             'interface globals' => ['/interface/globals.php'],
             'interface logout' => ['/interface/logout.php'],
             'portal index' => ['/portal/index.php'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function staticAssetPathProvider(): array
+    {
+        return [
             'static css' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.css'],
             'static js' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.js'],
+            'image' => ['/public/images/login-logo-svg'],
         ];
     }
 
@@ -146,6 +156,21 @@ class FallbackRouterTest extends TestCase
         $result = $router->performLegacyRouting($this->createRequest($requestUri));
 
         self::assertSame($fullPath, $result, "Path $requestUri should be allowed");
+    }
+
+    #[DataProvider('staticAssetPathProvider')]
+    public function testStaticAssetPaths(string $requestUri): void
+    {
+        $installRoot = self::getInstallRoot();
+        $fullPath = $installRoot . $requestUri;
+        if (!file_exists($fullPath)) {
+            self::markTestSkipped("Test file does not exist: $requestUri");
+        }
+
+        $router = new FallbackRouter($installRoot, new NullLogger());
+        $result = $router->performLegacyRouting($this->createRequest($requestUri));
+
+        self::assertNull($result, "Path $requestUri should be route to null");
     }
 
     public function testPathTraversalIsBlocked(): void
