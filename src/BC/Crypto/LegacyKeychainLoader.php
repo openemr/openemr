@@ -41,7 +41,7 @@ use Throwable;
  */
 class LegacyKeychainLoader
 {
-    public static function load(KeyVersion $createKeyIfNeeded): KeychainInterface
+    public static function load(): KeychainInterface
     {
         $bag = OEGlobalsBag::getInstance();
         $storageDir = sprintf(
@@ -84,8 +84,6 @@ class LegacyKeychainLoader
         self::tryLoadDbKey(new Storage\KeyMaterialId('seven'), $pkidb, $storageDir, $keychain);
 
         // CryptoGen had a create-keys-on-first-use logic, recreate for now.
-        assert($createKeyIfNeeded === KeyVersion::SEVEN);
-        // TODO: extract this out into a reusable service
         // DB Key
         if (!$keychain->hasKey(Key::v7Db->getId())) {
             $dbCipher = KeyV7Generator::generateDbKey($pkidb);
