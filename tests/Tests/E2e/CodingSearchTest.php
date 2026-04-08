@@ -17,12 +17,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
-
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\NavBar\NavBarTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsCodesScreenTrait;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
@@ -32,8 +30,6 @@ class CodingSearchTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
     use NavBarTrait;
-
-    private $crawler;
 
     private string $loading = "Loading";
     private string $menuLink = "Admin||Coding||Codes";
@@ -60,35 +56,32 @@ class CodingSearchTest extends PantherTestCase
     }
 
 
-    #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
     #[Test]
     public function testOpenSearch(): void
     {
-        $this->runTest(function () {
+        $this->runTest(function (): void {
             $this->goToMainMenuLink($this->menuLink);
             $this->assertActiveTab($this->expectedTabTitle, $this->loading);
         });
     }
 
-    #[DataProvider('menuLinkProvider')]
     #[Depends('testOpenSearch')]
     #[Test]
     public function testPushCodes(): void
     {
-        $this->runTest(function () {
+        $this->runTest(function (): void {
             $this->goToMainMenuLink($this->menuLink);
             $this->assertActiveTab($this->expectedTabTitle, $this->loading);
         });
     }
 
-    #[DataProvider('menuLinkProvider')]
     #[Depends('testPushCodes')]
     #[Test]
     public function testSearchICD10(): void
     {
         $this->runTest(
-            function () {
+            function (): void {
                 # Select ICD10 only
                 $icd10 = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_ICD10_TRAIT);
                 $icd10->click();
@@ -110,13 +103,12 @@ class CodingSearchTest extends PantherTestCase
         );
     }
 
-    #[DataProvider('menuLinkProvider')]
     #[Depends('testPushCodes')]
     #[Test]
     public function testSearchHandleNavigationNextPage(): void
     {
         $this->runTest(
-            function () {
+            function (): void {
                 # Select ICD10 only
                 $icd10 = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_ICD10_TRAIT);
                 $icd10->click();
@@ -141,13 +133,12 @@ class CodingSearchTest extends PantherTestCase
         );
     }
 
-    #[DataProvider('menuLinkProvider')]
     #[Depends('testPushCodes')]
     #[Test]
     public function testSearchHandleNavigationTenPagesAndTHenNewSearch(): void
     {
         $this->runTest(
-            function () {
+            function (): void {
                 # Select ICD10 only
                 $icd10 = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_ICD10_TRAIT);
                 $icd10->click();
@@ -189,7 +180,7 @@ class CodingSearchTest extends PantherTestCase
     public function testSearchICD10AndCQM(): void
     {
         $this->runTest(
-            function () {
+            function (): void {
                 # Select ICD10
                 $icd10 = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_ICD10_TRAIT);
                 $icd10->setAttribute("selected", true);
