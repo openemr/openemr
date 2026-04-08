@@ -6,7 +6,6 @@ use Firehed\Container\TypedContainerInterface;
 use GuzzleHttp\Psr7\ServerRequest;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 assert($container instanceof TypedContainerInterface);
