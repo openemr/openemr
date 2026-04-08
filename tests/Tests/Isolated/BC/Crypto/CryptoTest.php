@@ -136,6 +136,8 @@ final class CryptoTest extends TestCase
 
     /**
      * @return iterable<string, array{version: int}>
+     *
+     * @codeCoverageIgnore
      */
     public static function versionProvider(): iterable
     {

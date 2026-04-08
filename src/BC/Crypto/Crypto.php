@@ -52,7 +52,7 @@ final readonly class Crypto implements CryptoInterface
     {
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
-        $keychain = LegacyKeychainLoader::load(createKeyIfNeeded: KeyVersion::CURRENT);
+        $keychain = LegacyKeychainLoader::load();
         return new Crypto($keychain, $logger);
     }
 
@@ -104,8 +104,6 @@ final readonly class Crypto implements CryptoInterface
             }
 
             $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
-
-            // Delegate back to the "real" version? This is duplicative
             $keyId = $bcKey->getId();
 
             $cipher = $this->keychain->getCipher($keyId);

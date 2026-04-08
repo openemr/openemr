@@ -27,6 +27,8 @@ class KeyTest extends TestCase
 {
     /**
      * @return array<string, array{KeyVersion, KeySource, Key}>
+     *
+     * @codeCoverageIgnore
      */
     public static function fromCryptoGenProvider(): array
     {

@@ -57,11 +57,13 @@ class KeyV7Generator
             throw new RuntimeException('Could not fopen key file for creation.');
         }
 
-        $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
-        $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
-
-        fclose($fhKey);
-        fclose($fhHmac);
+        try {
+            $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
+            $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
+        } finally {
+            fclose($fhKey);
+            fclose($fhHmac);
+        }
 
         return new Aes256CbcHmacSha384(
             key: $driveKey,
@@ -80,6 +82,7 @@ class KeyV7Generator
     ): KeyMaterial {
         $key = KeyMaterial::generate($length);
         $encKey = $cipher->encrypt(new Plaintext($key->key));
+        // '007' is the legacy v7 prefix format, retained for compatibility
         $keyMessage = new Message(keyId: new KeyId('007'), ciphertext: $encKey);
         $result = fwrite($fh, $keyMessage->encode());
         if ($result === false) {
