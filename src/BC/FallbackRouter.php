@@ -14,7 +14,6 @@ namespace OpenEMR\BC;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use function str_starts_with;
@@ -80,8 +79,7 @@ readonly class FallbackRouter
      * Returns the absolute path to the legacy file to include, or null if it's
      * a static asset that should be handled by the webserver.
      *
-     * @throws NotFoundHttpException if the path cannot be resolved
-     * @throws AccessDeniedHttpException if the path is blocked
+     * @throws NotFoundHttpException if the path cannot be resolved or is blocked
      */
     public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
@@ -116,7 +114,10 @@ readonly class FallbackRouter
         }
 
         if (!$this->isPathAllowed($path)) {
-            throw new AccessDeniedHttpException();
+            // This sends a 404 instead of a 403 to avoid disclosing what files
+            // exist. It's of marginal value for source code since this is open
+            // source software, but it's good for documents and such.
+            throw new NotFoundHttpException();
         }
 
         $this->logger->debug("Check allowed $path");
