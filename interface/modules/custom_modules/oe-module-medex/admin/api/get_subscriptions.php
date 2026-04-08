@@ -2347,16 +2347,6 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
             <div id="payment-section" style="display: none;">
                 <div id="medex-payment-errors" style="display:none; margin-bottom: 12px; color: #b42318; font-weight: 600;"></div>
 
-                <div id="medex-applepay-wrap" style="display:none; margin-bottom: 14px;">
-                    <button type="button" id="medex-applepay-btn" class="btn btn-dark" style="width: 100%;">
-                        <i class="fab fa-apple"></i> <?php echo xlt('Pay with Apple Pay'); ?>
-                    </button>
-                    <div id="medex-applepay-selected" style="display:none; margin-top: 8px; color: #155724; font-size: 13px; font-weight: 600;">
-                        <?php echo xlt('Apple Pay selected.'); ?>
-                        <a href="#" id="medex-clear-applepay" style="margin-left:8px;"><?php echo xlt('Use card instead'); ?></a>
-                    </div>
-                </div>
-
                 <div id="medex-card-fields-wrap" style="border: 1px solid #d0d7de; border-radius: 6px; padding: 12px;">
                     <div style="margin-bottom: 10px;">
                         <label for="medex-cardholder-name" style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 4px;"><?php echo xlt('Cardholder Name'); ?></label>
@@ -3415,13 +3405,11 @@ function processSubscriptionChanges() {
     });
 }
 
-// ========== Braintree Hosted Fields + Apple Pay helpers ==========
+// ========== Braintree Hosted Fields helpers ==========
 window._medexPayment = window._medexPayment || {
     token: null,
     clientInstance: null,
     hostedFieldsInstance: null,
-    applePayInstance: null,
-    applePayNonce: null,
     ready: false
 };
 
@@ -3436,10 +3424,8 @@ window._medexUpdateSubmitState = function() {
     const baa = document.getElementById('agree-baa');
     const terms = document.getElementById('agree-terms');
     const submitBtn = document.getElementById('payment-submit-btn');
-    const appleBtn = document.getElementById('medex-applepay-btn');
     const enabled = !!(baa && baa.checked && terms && terms.checked);
     if (submitBtn) { submitBtn.disabled = !enabled; }
-    if (appleBtn) { appleBtn.disabled = !enabled; }
 };
 
 window._medexLoadScript = function(src) {
@@ -3463,72 +3449,6 @@ window._medexLoadScript = function(src) {
     });
 };
 
-window._medexInitApplePay = function() {
-    const payment = window._medexPayment;
-    const wrap = document.getElementById('medex-applepay-wrap');
-    const btn = document.getElementById('medex-applepay-btn');
-    const selected = document.getElementById('medex-applepay-selected');
-    const clear = document.getElementById('medex-clear-applepay');
-    if (!wrap || !btn || !selected || !clear) { return; }
-    wrap.style.display = 'none';
-    selected.style.display = 'none';
-    clear.onclick = function(e) {
-        e.preventDefault();
-        payment.applePayNonce = null;
-        selected.style.display = 'none';
-        document.getElementById('medex-card-fields-wrap').style.opacity = '1';
-    };
-
-    const canUseApplePay = !!(payment.applePayInstance && window.ApplePaySession && typeof window.ApplePaySession.canMakePayments === 'function' && window.ApplePaySession.canMakePayments());
-    if (!canUseApplePay) { return; }
-    wrap.style.display = 'block';
-
-    btn.onclick = function() {
-        if (btn.disabled) { return; }
-        window._medexShowPaymentError('');
-        const amount = (Number(window._medexPendingTotal || 0) > 0 ? Number(window._medexPendingTotal) : 0.01).toFixed(2);
-        let req = null;
-        try {
-            req = payment.applePayInstance.createPaymentRequest({
-                total: { label: 'MedEx', amount: amount },
-                requiredBillingContactFields: ['postalAddress']
-            });
-        } catch (e) {
-            window._medexShowPaymentError('Apple Pay is not available for this browser/session.');
-            return;
-        }
-        const session = new ApplePaySession(3, req);
-        session.onvalidatemerchant = function(event) {
-            payment.applePayInstance.performValidation({
-                validationURL: event.validationURL,
-                displayName: 'MedEx'
-            }).then(function(merchantSession) {
-                session.completeMerchantValidation(merchantSession);
-            }).catch(function(err) {
-                window._medexShowPaymentError('Apple Pay validation failed: ' + (err && err.message ? err.message : 'unknown error'));
-                try { session.abort(); } catch (_e) {}
-            });
-        };
-        session.onpaymentauthorized = function(event) {
-            payment.applePayInstance.tokenize({ token: event.payment.token }).then(function(payload) {
-                payment.applePayNonce = payload.nonce;
-                selected.style.display = 'block';
-                document.getElementById('medex-card-fields-wrap').style.opacity = '0.55';
-                session.completePayment(ApplePaySession.STATUS_SUCCESS);
-            }).catch(function(err) {
-                window._medexShowPaymentError('Apple Pay failed: ' + (err && err.message ? err.message : 'unknown error'));
-                session.completePayment(ApplePaySession.STATUS_FAILURE);
-            });
-        };
-        session.oncancel = function() {
-            payment.applePayNonce = null;
-            selected.style.display = 'none';
-            document.getElementById('medex-card-fields-wrap').style.opacity = '1';
-        };
-        session.begin();
-    };
-};
-
 window._initMedexPaymentComponents = function() {
     const payment = window._medexPayment;
     if (!window._medexBraintreeToken) { return; }
@@ -3538,13 +3458,11 @@ window._initMedexPaymentComponents = function() {
     }
     payment.ready = false;
     payment.token = window._medexBraintreeToken;
-    payment.applePayNonce = null;
     window._medexShowPaymentError('');
 
     Promise.all([
         window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/client.min.js'),
-        window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/hosted-fields.min.js'),
-        window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/apple-pay.min.js')
+        window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/hosted-fields.min.js')
     ]).then(function() {
         braintree.client.create({ authorization: payment.token }, function(clientErr, clientInstance) {
             if (clientErr) {
@@ -3569,12 +3487,8 @@ window._initMedexPaymentComponents = function() {
                     return;
                 }
                 payment.hostedFieldsInstance = hostedFieldsInstance;
-                braintree.applePay.create({ client: clientInstance }, function(apErr, applePayInstance) {
-                    payment.applePayInstance = apErr ? null : applePayInstance;
-                    payment.ready = true;
-                    window._medexInitApplePay();
-                    window._medexUpdateSubmitState();
-                });
+                payment.ready = true;
+                window._medexUpdateSubmitState();
             });
         });
     }).catch(function(err) {
@@ -3644,10 +3558,6 @@ window.processPayment = function processPayment() {
         });
     };
 
-    if (payment.applePayNonce) {
-        submitWithNonce(payment.applePayNonce);
-        return;
-    }
     const cardholderName = (document.getElementById('medex-cardholder-name')?.value || '').trim();
     payment.hostedFieldsInstance.tokenize({
         cardholderName: cardholderName || undefined
