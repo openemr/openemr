@@ -20,7 +20,7 @@ abstract class AbstractType implements \JsonSerializable
             if ($this->propertyExists($property)) {
                 $this->{$property} = $value;
             } else {
-                throw new Exception("Property {${$property}} does not exist on " . static::class);
+                throw new Exception("Property {$property} does not exist on " . static::class);
             }
         }
     }
@@ -34,6 +34,6 @@ abstract class AbstractType implements \JsonSerializable
     public function propertyExists($property)
     {
         $vars = get_object_vars($this);
-        return property_exists($this, $property) || $vars[$property] ?? false;
+        return property_exists($this, $property) || array_key_exists($property, $vars);
     }
 }
