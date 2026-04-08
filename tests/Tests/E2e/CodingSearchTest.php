@@ -19,7 +19,6 @@ namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
-use OpenEMR\Tests\E2e\NavBar\NavBarTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsCodesScreenTrait;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
@@ -29,7 +28,6 @@ class CodingSearchTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
-    use NavBarTrait;
 
     private string $loading = "Loading";
     private string $menuLink = "Admin||Coding||Codes";
