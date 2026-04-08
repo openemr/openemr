@@ -62,6 +62,8 @@ $logger = ServiceContainer::getLogger();
 // guaranteed way of reaching the logs, regardless of other settings.
 $handler = new \OpenEMR\Core\ErrorHandler(
     logger: $logger,
+    rf: ServiceContainer::getResponseFactory(),
+    sf: ServiceContainer::getStreamFactory(),
     shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
 );
 $handler->installExceptionHandler();
