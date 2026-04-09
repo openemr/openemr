@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Cqm\Qdm\BaseTypes;
 
+use Exception;
+
 abstract class AbstractType implements \JsonSerializable
 {
     /**
@@ -22,6 +24,8 @@ abstract class AbstractType implements \JsonSerializable
         foreach ($properties as $property => $value) {
             if (property_exists($this, $property)) {
                 $this->{$property} = $value;
+            } else {
+                throw new Exception("Property {$property} does not exist on " . static::class);
             }
         }
     }

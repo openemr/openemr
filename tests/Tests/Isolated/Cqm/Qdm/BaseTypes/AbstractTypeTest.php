@@ -14,11 +14,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Cqm\Qdm\BaseTypes;
 
+use Exception;
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
+use OpenEMR\Services\Qdm\Measure;
 use PHPUnit\Framework\TestCase;
 
 class AbstractTypeTest extends TestCase
@@ -185,5 +187,14 @@ class AbstractTypeTest extends TestCase
         self::assertSame('New York', $address->city);
         self::assertSame('HP', $address->use);
         self::assertSame([], $address->street);
+    }
+
+    public function testAbstractTypeThrowsOnUnknownProperty(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('nonexistent_property');
+
+        // Measure extends AbstractType and uses array-based construction
+        new Measure(['nonexistent_property' => 'value']);
     }
 }
