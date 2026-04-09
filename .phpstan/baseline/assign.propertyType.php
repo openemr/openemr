@@ -1937,6 +1937,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/PopulationSet.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:\\$_id \\(OpenEMR\\\\Cqm\\\\Qdm\\\\Identifier\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/Services/PatientService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:\\$id \\(OpenEMR\\\\Cqm\\\\Qdm\\\\Identifier\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/Services/PatientService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:\\$_measures \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',

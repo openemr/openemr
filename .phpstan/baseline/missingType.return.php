@@ -23147,16 +23147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:propertyExists\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:addCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:addAddress\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',

@@ -5077,11 +5077,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$\\{\\$property\\} \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$meta\\[\'fname\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',

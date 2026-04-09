@@ -36192,11 +36192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:propertyExists\\(\\) has parameter \\$property with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:add_data_element\\(\\) has parameter \\$dataElement with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',
