@@ -132,8 +132,8 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     //  get the current view
     //=================================================================
-    if (!isset($viewtype)) {
-        $viewtype = 'month';
+    if (empty($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW ?: 'month';
     }
 
     //=================================================================
