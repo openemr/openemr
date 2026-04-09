@@ -21,6 +21,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\FhirValidationService;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Validators\ProcessingResult;
@@ -178,10 +179,10 @@ class FhirGenericRestController implements IGlobalsAware {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
-        $resourceType = $fhirJson['resourceType'] ?? '';
-        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
-        unset($fhirJson['resourceType']);
-        $fhirResource = new $className($fhirJson);
+        $fhirResource = $this->deserializeFhirResource($fhirJson);
+        if ($fhirResource instanceof Response) {
+            return $fhirResource;
+        }
 
         $processingResult = $this->getFhirService()->insert($fhirResource);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
@@ -214,12 +215,43 @@ class FhirGenericRestController implements IGlobalsAware {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
-        $resourceType = $fhirJson['resourceType'] ?? '';
-        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
-        unset($fhirJson['resourceType']);
-        $fhirResource = new $className($fhirJson);
+        $fhirResource = $this->deserializeFhirResource($fhirJson);
+        if ($fhirResource instanceof Response) {
+            return $fhirResource;
+        }
 
         $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Deserializes a FHIR JSON array into a FHIRDomainResource, validating that the
+     * resourceType is non-empty and resolves to a known FHIR class.
+     *
+     * @param array $fhirJson The FHIR resource as a JSON-decoded array
+     * @return FHIRDomainResource|Response The deserialized resource, or a 400 Response on error
+     */
+    private function deserializeFhirResource(array $fhirJson): FHIRDomainResource|Response
+    {
+        $resourceType = $fhirJson['resourceType'] ?? '';
+        if (empty($resourceType)) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', 'resourceType is required'),
+                null,
+                400
+            );
+        }
+
+        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
+        if (!class_exists($className)) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', 'Unknown resourceType: ' . $resourceType),
+                null,
+                400
+            );
+        }
+
+        unset($fhirJson['resourceType']);
+        return new $className($fhirJson);
     }
 }

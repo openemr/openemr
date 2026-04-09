@@ -128,6 +128,12 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      */
     public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
+        if (!($fhirResource instanceof FHIRCondition)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCondition resource, got ' . get_class($fhirResource)
+            );
+        }
+
         $data = [];
 
         if ($fhirResource->getId()) {
