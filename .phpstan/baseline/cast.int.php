@@ -728,6 +728,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
 ];

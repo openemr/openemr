@@ -4258,7 +4258,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
 ];
 $ignoreErrors[] = [
@@ -4533,7 +4533,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 9,
+    'count' => 24,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
@@ -4553,7 +4553,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
+    'count' => 15,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
@@ -4583,7 +4583,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 12,
+    'count' => 28,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];
 $ignoreErrors[] = [

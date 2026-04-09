@@ -292,11 +292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/ClinicalNoteParser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\:\\:\\$conditionService is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:\\$organizationService is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',

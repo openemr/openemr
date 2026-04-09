@@ -68,6 +68,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Left side of && is always true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Left side of && is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationRequestServiceUSCore8Test.php',
 ];

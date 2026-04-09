@@ -404,6 +404,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/ProfileMappers/FhirConditionProfileMapper.php',
 ];
 $ignoreErrors[] = [
@@ -420,6 +425,21 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
