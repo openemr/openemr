@@ -712,6 +712,56 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method getAbatementDateTime\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getCategory\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getClinicalStatus\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getCode\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getId\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getNote\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getOnsetDateTime\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getSubject\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getVerificationStatus\\(\\) on an unknown class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Class OpenEMR\\\\Services\\\\FHIR\\\\FHIRCondition not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',

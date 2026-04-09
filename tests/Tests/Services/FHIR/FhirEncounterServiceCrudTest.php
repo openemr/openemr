@@ -9,8 +9,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Encounter Service CRUD Tests

@@ -8642,6 +8642,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGenericRestController\\:\\:deserializeFhirResource\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|Symfony\\\\Component\\\\HttpFoundation\\\\Response but returns object\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGroupRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR but returns Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',

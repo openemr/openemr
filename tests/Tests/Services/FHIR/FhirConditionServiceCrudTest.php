@@ -8,8 +8,8 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Condition Service CRUD Tests

@@ -15242,6 +15242,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'OpenEMR\\\\\\\\FHIR\\\\\\\\R4…\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'Unknown…\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
