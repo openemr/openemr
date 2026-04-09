@@ -217,7 +217,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 $codes = [
                     'code' => $roleMapping[$role],
                     'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                    'description' => $dataRecordProvider['role_title'] ?? xlt($dataRecordProvider['role'])
+                    'description' => $dataRecordProvider['role_title'] ?? '',
                 ];
                 return UtilsService::createCodeableConcept([$codes['code'] => $codes]);
             }
@@ -416,7 +416,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                         $codes = [
                             'code' => $roleMapping[$role],
                             'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                            'description' => $person['role_title'] ?? xlt($person['role'])
+                            'description' => $person['role_title'] ?? '',
                         ];
                         $participant->addRole(UtilsService::createCodeableConcept([$codes['code'] => $codes]));
                     }

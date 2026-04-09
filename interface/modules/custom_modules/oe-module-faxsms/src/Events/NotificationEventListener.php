@@ -44,9 +44,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
         $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;

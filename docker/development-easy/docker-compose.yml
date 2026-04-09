@@ -4,7 +4,7 @@ services:
     image: mariadb:11.8
     command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
-    - 8320:3306
+    - "${WT_MYSQL_PORT:-8320}:3306"
     volumes:
     - ../library/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
@@ -28,17 +28,18 @@ services:
     restart: always
     image: openemr/openemr:flex
     ports:
-    - 8300:80
-    - 9300:443
+    - "${WT_HTTP_PORT:-8300}:80"
+    - "${WT_HTTPS_PORT:-9300}:443"
     volumes:
-    - ../..:/openemr:ro
-    - ../..:/var/www/localhost/htdocs/openemr:rw
+    - ${OPENEMR_DIR:-../..}:/openemr:ro
+    - ${OPENEMR_DIR:-../..}:/var/www/localhost/htdocs/openemr:rw
     - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
     - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
+    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
@@ -66,7 +67,7 @@ services:
       SELENIUM_FORCE_HEADLESS: "false"
       SELENIUM_BASE_URL: "http://openemr"
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -113,8 +114,8 @@ services:
     restart: always
     image: selenium/standalone-chromium:4.41.0
     ports:
-    - 4444:4444    # Selenium WebDriver interface
-    - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
+    - "${WT_SELENIUM_PORT:-4444}:4444"
+    - "${WT_VNC_PORT:-7900}:7900"
     environment:
       SE_VNC_PASSWORD: openemr123
       SE_SCREEN_WIDTH: 1920
@@ -133,7 +134,7 @@ services:
     restart: always
     image: phpmyadmin
     ports:
-    - 8310:80
+    - "${WT_PMA_PORT:-8310}:80"
     environment:
       PMA_HOSTS: mysql
     depends_on:
@@ -143,8 +144,8 @@ services:
     restart: always
     image: couchdb
     ports:
-    - 5984:5984
-    - 6984:6984
+    - "${WT_COUCHDB_PORT:-5984}:5984"
+    - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
     volumes:
     - ../library/couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
     - ../library/couchdb-config-ssl-cert-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
@@ -166,8 +167,8 @@ services:
     restart: unless-stopped
     image: axllent/mailpit:latest
     ports:
-    - 8025:8025    # Web UI and API
-    - 1025:1025    # SMTP server
+    - "${WT_MAILPIT_UI_PORT:-8025}:8025"
+    - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
@@ -189,6 +190,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   ccdanodemodules: {}
+  ccdanodemodules2: {}
   logvolume: {}
   couchdbvolume: {}
   mailpitvolume: {}

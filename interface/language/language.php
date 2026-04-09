@@ -85,9 +85,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <?php
                         if (!empty($_GET['m'])) {
-                            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
                             // Set a variable, so below scripts can
                             // not be run on their own

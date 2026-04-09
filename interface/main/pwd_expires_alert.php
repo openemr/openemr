@@ -27,9 +27,7 @@ if (AuthUtils::useActiveDirectory()) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$session->get('authUserID')]);
 $current_date = date("Y-m-d");

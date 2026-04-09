@@ -108,18 +108,16 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
             if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
-                    reappearPnote($id);
+                    reappearPnote($id, $patient_id);
                 } else {
-                    disappearPnote($id);
+                    disappearPnote($id, $patient_id);
                 }
 
                 if ($docid) {
@@ -134,7 +132,7 @@ if (isset($mode)) {
     } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
-            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '');
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '', $patient_id);
         } else {
             $noteid = addPnote(
                 $patient_id,
@@ -158,7 +156,7 @@ if (isset($mode)) {
         $noteid = '';
     } elseif ($mode == "delete") {
         if ($noteid) {
-            deletePnote($noteid);
+            deletePnote($noteid, $patient_id);
             EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $noteid);
         }
 

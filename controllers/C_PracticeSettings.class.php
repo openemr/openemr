@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
 class C_PracticeSettings extends Controller
@@ -15,10 +13,6 @@ class C_PracticeSettings extends Controller
         $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
         $this->direction = (OEGlobalsBag::getInstance()->get('_SESSION')['language_direction'] == 'rtl') ? 'right' : 'left';
-
-        if (!AclMain::aclCheckCore('admin', 'practice')) {
-            AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Practice Settings", xl("Practice Settings"));
-        }
     }
 
     function default_action($display = "")

@@ -33,9 +33,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_choice = $session->get('language_choice');
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Below allows the list to default to the first item on the list
@@ -385,7 +383,7 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
+function writeOptionLine($option_id, string $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
 {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
@@ -412,7 +410,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $session->get('language_choice') > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($title) . "</td>\n";
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($title)) . "</td>\n";
     }
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][seq]' value='" .
@@ -521,7 +519,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "</td>\n";
     } elseif ($list_id == 'ptlistcols') {
         echo "  <td>";
-        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', null, 'option');
+        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', '', 'option');
         echo "</td>\n";
     }
 
@@ -718,7 +716,8 @@ function writeCTLine($ct_array): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $session->get('language_choice') > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
+        $ctLabelStr = is_string($ct_array['ct_label'] ?? null) ? $ct_array['ct_label'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($ctLabelStr)) . "</td>\n";
     }
     echo ctGenCell(
         $opt_line_no,
@@ -835,17 +834,20 @@ function writeITLine($it_array): void
     $language_choice = $session->get('language_choice');
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
+        $pluralStr = is_string($it_array['plural'] ?? null) ? $it_array['plural'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($pluralStr)) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'singular', 15, 75, xl('Singular'));
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
+        $singularStr = is_string($it_array['singular'] ?? null) ? $it_array['singular'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($singularStr)) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'abbreviation', 5, 10, xl('Abbreviation'));
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
+        $abbrStr = is_string($it_array['abbreviation'] ?? null) ? $it_array['abbreviation'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($abbrStr)) . "</td>\n";
     }
     echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
     echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
@@ -1452,7 +1454,7 @@ function writeITLine($it_array): void
                     while ($row = sqlFetchArray($res)) {
                         writeOptionLine(
                             $row['option_id'],
-                            $row['title'],
+                            is_string($row['title'] ?? null) ? $row['title'] : '',
                             $row['seq'],
                             $row['is_default'],
                             $row['option_value'],

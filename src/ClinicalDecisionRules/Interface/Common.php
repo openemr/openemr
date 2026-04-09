@@ -68,6 +68,17 @@ class Common
         return isset($val) && $val !== '' ? $val : $default;
     }
 
+    /**
+     * Like {@see self::post()} but always returns a string. Array values are
+     * discarded and replaced with the default. Use this when a caller needs a
+     * guaranteed scalar string (e.g., assigning to a typed string property).
+     */
+    public static function postString(string $var, string $default = ''): string
+    {
+        $val = self::post($var, $default);
+        return is_string($val) ? $val : $default;
+    }
+
     public static function base_url(): string
     {
         return OEGlobalsBag::getInstance()->get('webroot') . '/interface/super/rules';

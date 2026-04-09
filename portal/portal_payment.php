@@ -84,7 +84,7 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
+$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = [];
 $invdata = [];
 if ($edata) {
@@ -323,10 +323,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 // "MAX(user) AS user " .
         "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
     ]);
-
-// Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);

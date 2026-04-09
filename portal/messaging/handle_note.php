@@ -85,10 +85,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'messages-portal')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'messages-portal', dieOnFail: true);
 
 if (empty($owner)) {
     echo xlt('Critical error, so exiting');

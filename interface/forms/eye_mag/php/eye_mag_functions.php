@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -253,11 +254,9 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </div>
                 <span style="font-weight:bold;">
                     <?php
-                    if ($report == '0') {
-                        echo xlt('Prior Exam');
-                    } else {
-                        echo xlt($zone);
-                    } ?>: </span>
+                    // Reachable only inside the elseif ($zone == "EXT") branch above.
+                    echo ($report == '0' ? xlt('Prior Exam') : xlt('EXT'));
+                    ?>: </span>
                 <br />
                 <div id="PRIORS_EXT_left_1">
                     <table>
@@ -2130,10 +2129,20 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
         $table = '';
         $header = '';
+        $sectionTitle = match ($key) {
+            "Medication" => xlt("Medications"),
+            "Eye Meds"   => xlt("Eye Medications"),
+            "Surgery"    => xlt("Past Surgical History"),
+            "Allergy"    => xlt("Allergies"),
+            "POH"        => xlt("POH"),
+            "POS"        => xlt("POS"),
+            "PMH"        => xlt("Past Medical History"),
+            default      => is_string($key) ? text($key) : '',
+        };
         $header .= '    <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
-                        <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt($key) . '</span>
+                        <span class="left" style="font-weight:800;font-size:0.9em;">' . $sectionTitle . '</span>
                     </td>
                     <td>
                         <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',' . attr_js($key) . ',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
@@ -2274,8 +2283,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
                 if ($item['display'] > '') {
                     $counter++;
-                    echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
-                            onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
+                    $rawRowId = $item['rowid'] ?? '';
+                    $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+                    $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+                    $displayHtml = text($item['display']);
+                    echo <<<HTML
+                        <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','FH','');">{$shortTitle}: {$displayHtml}</span><br />
+                        HTML;
                     $mention_FH++;
                 }
             }
@@ -2316,8 +2330,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     }
 
                     if (($item['display'] > '') && ($item['display'] != 'not_applicable')) {
-                        echo "<span name='QP_PMH_" . ($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . ($item['rowid'] ?? '') . "'
-                                onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
+                        $rawRowId = $item['rowid'] ?? '';
+                        $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+                        $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+                        $displayHtml = text($item['display']);
+                        echo <<<HTML
+                            <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','SOCH','');">{$shortTitle}: {$displayHtml}</span><br />
+                            HTML;
                         $counter++;
                         $mention_SOCH++;
                     }
@@ -2361,9 +2380,14 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         $row_count++;
                     }
 
-                    //xlt($item['short_title']) - for a list of short_titles, see the predefined ROS categories
-                    echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
-                             onclick=\"alter_issue2('0','ROS','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
+                    // For the list of ROS short_titles, see the predefined ROS categories.
+                    $rawRowId = $item['rowid'] ?? '';
+                    $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+                    $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+                    $displayHtml = text($item['display']);
+                    echo <<<HTML
+                        <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','ROS','');">{$shortTitle}: {$displayHtml}</span><br />
+                        HTML;
                     $mention++;
                     $counter++;
                 }
@@ -2555,8 +2579,13 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     $mention_SOCH = 0;
     foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
-            echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
-        onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
+            $rawRowId = $item['rowid'] ?? '';
+            $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+            $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+            $displayHtml = text($item['display']);
+            echo <<<HTML
+                <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','SOCH','');">{$shortTitle}: {$displayHtml}<br /></span>
+                HTML;
             $mention_SOCH++;
         }
     }
@@ -2578,8 +2607,13 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if (count($PMSFH[0]['FH']) > 0) {
         foreach ($PMSFH[0]['FH'] as $item) {
             if ($item['display'] > '') {
-                echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
-                onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
+                $rawRowId = $item['rowid'] ?? '';
+                $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+                $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+                $displayHtml = text($item['display']);
+                echo <<<HTML
+                    <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','FH','');">{$shortTitle}: {$displayHtml}<br /></span>
+                    HTML;
                 $mention_FH++;
             }
         }
@@ -2600,8 +2634,13 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     $mention_ROS = 0;
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display'] ?? '') {
-            echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
-            onclick=\"alter_issue2('0','ROS','');\">" . text($item['short_title']) . ": " . text($item['display']) . "</span><br />";
+            $rawRowId = $item['rowid'] ?? '';
+            $rowId = attr(is_scalar($rawRowId) ? (string) $rawRowId : '');
+            $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+            $displayHtml = text($item['display']);
+            echo <<<HTML
+                <span name="QP_PMH_{$rowId}" href="#PMH_anchor" id="QP_PMH_{$rowId}" onclick="alter_issue2('0','ROS','');">{$shortTitle}: {$displayHtml}</span><br />
+                HTML;
             $mention_ROS++;
         }
     }
@@ -2854,7 +2893,8 @@ function show_PMSFH_report($PMSFH): void
     $mention_PSOCH = 0;
     foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
-            echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
+            $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+            echo $shortTitle . ": " . text($item['display']) . "<br />";
             $mention_PSOCH++;
             $counter++;
         }
@@ -2883,7 +2923,8 @@ function show_PMSFH_report($PMSFH): void
     $mention_FH = 0;
     foreach ($PMSFH[0]['FH'] as $item) {
         if ($item['display']) {
-            echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
+            $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+            echo $shortTitle . ": " . text($item['display']) . "<br />";
             $mention_FH++;
             $counter++;
         }
@@ -2911,7 +2952,8 @@ function show_PMSFH_report($PMSFH): void
     $mention_ROS = 0;
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display'] ?? '') {
-            echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
+            $shortTitle = is_string($item['short_title'] ?? null) ? $item['short_title'] : '';
+            echo $shortTitle . ": " . text($item['display']) . "<br />";
             $mention_ROS++;
             $counter++;
         }
@@ -4630,13 +4672,13 @@ function start_your_engines($FIELDS)
                             //are they within 3 months of cataract surgery on this eye?  Yag?
                             //search the same side Lens field for term IOL, ? procedure this eye in last 3 months?
                             //search surgery_issue_list or even search the billng engine
-                            $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like '%" . xlt($side1) . "%')";
-                            $surg = sqlQuery($query, [$pid]);
-                            if ($surg['surg_date'] > '') {
+                            $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like ?)";
+                            $surgDate = QueryUtils::fetchSingleValue($query, 'surg_date', [$pid, "%" . $side1 . "%"]);
+                            if ($surgDate > '') {
                                 $date1 = date('Y-m-d');
-                                //$date2 = (DateTime($surg['surg_date']));
+                                //$date2 = (DateTime($surgDate));
                                 //echo $term."\n".$date."\n";continue;
-                                $date_diff = strtotime($date1) - strtotime((string) $surg['surg_date']);
+                                $date_diff = strtotime($date1) - strtotime((string) $surgDate);
                                 $interval = $date_diff / (60 * 60 * 24);
                                 //$interval was 180, now = 90;
                                 if (($interval < '90') && ($term == "CSME")) {

@@ -110,6 +110,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'selectList',
                 function ($name, $list, $value, $title, $opts = []) {
                     $empty_name = array_key_exists('empty_name', $opts) ? $opts['empty_name'] : '';
+                    $empty_name = is_string($empty_name) ? $empty_name : '';
                     $class = array_key_exists('class', $opts) ? $opts['class'] : '';
                     $onchange = array_key_exists('onchange', $opts) ? $opts['onchange'] : '';
                     $tag_id = array_key_exists('tag_id', $opts) ? $opts['tag_id'] : '';

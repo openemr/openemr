@@ -59,18 +59,14 @@ $code_type = $_GET['type'];
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     echo "<div id='resultsummary bg-success'>";
     echo "Enter search criteria above</div>";
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
   //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .

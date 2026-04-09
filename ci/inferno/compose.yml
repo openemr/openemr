@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8
     command:
     - mariadbd
     - --character-set-server=utf8mb4
@@ -21,7 +21,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.5
     ports:
     - 8080:80
     - 8523:443

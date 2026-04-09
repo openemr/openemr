@@ -33,9 +33,7 @@ $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
 $addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
 
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $currentUser = $session->get('authUserID');
     $created_time = date('Y-m-d H:i');

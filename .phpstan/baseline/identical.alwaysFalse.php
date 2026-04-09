@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between false\\|null and true will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/welcome.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
@@ -70,11 +65,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between int and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-empty\\-array\\<mixed, mixed\\> and array\\{\\} will always evaluate to false\\.$#',
@@ -190,11 +180,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod and null will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between OpenEMR\\\\Services\\\\Globals\\\\Effective and string will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-empty\\-array and false will always evaluate to false\\.$#',

@@ -86,7 +86,10 @@ function nextGroupOrder($order)
 // Included also are parent groups containing only sub-groups.  Groups are listed
 // in the same order as they appear in the layout.
 //
-function genGroupSelector($name, $layout_id, $default = '')
+/**
+ * @param literal-string $name
+ */
+function genGroupSelector(string $name, $layout_id, $default = '')
 {
     $res = sqlStatement(
         "SELECT grp_group_id, grp_title " .
@@ -301,7 +304,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if ($add && !$column_exists) {
-        $addQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
+        $addQuery = "ALTER TABLE " . escape_table_name($tablename) . " ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
         sqlStatement($addQuery);
         EventAuditLogger::getInstance()->newEvent(
             "alter_table",
@@ -313,10 +316,10 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     } elseif (!$add && $column_exists) {
         // Do not drop a column that has any data.
         $tmp = sqlQuery(
-            "SELECT `" . escape_sql_column_name($field_id, [$tablename]) .
-            "` AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
-            "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `"
-            . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1"
+            "SELECT " . escape_sql_column_name($field_id, [$tablename]) .
+            " AS field_id FROM " . escape_table_name($tablename) . " WHERE " .
+            escape_sql_column_name($field_id, [$tablename]) . " IS NOT NULL AND "
+            . escape_sql_column_name($field_id, [$tablename]) . " != '' LIMIT 1"
         );
         if (!isset($tmp['field_id']) && !isColumnReserved($tablename, $field_id)) {
             $lotmp = [];
@@ -330,8 +333,8 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                 );
             }
             if (empty($lotmp['count'])) {
-                $dropQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` " .
-                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`";
+                $dropQuery = "ALTER TABLE " . escape_table_name($tablename) . " " .
+                    "DROP " . escape_sql_column_name($field_id, [$tablename]);
                 sqlStatement($dropQuery);
                 EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
@@ -363,13 +366,13 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
         return 4;
     }
     // Make sure old column exists.
-    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($old_field_id) . "'");
+    $colarr = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($tablename) . " LIKE '" . add_escape_custom($old_field_id) . "'");
     if (empty($colarr)) {
         // Error, old name does not exist.
         return 2;
     }
     // Make sure new column does not exist.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($new_field_id) . "'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($tablename) . " LIKE '" . add_escape_custom($new_field_id) . "'");
     if (!empty($tmp)) {
         // Error, new name already in use.
         return 3;
@@ -385,7 +388,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     if ($colarr['Extra']) {
         $colstr .= " " . add_escape_custom($colarr['Extra']);
     }
-    $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
+    $query = "ALTER TABLE " . escape_table_name($tablename) . " CHANGE " . escape_sql_column_name($old_field_id, [$tablename]) . " `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(
@@ -429,9 +432,7 @@ $lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;
 // Handle the Form actions
 
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // If we are saving, then save.
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
@@ -506,9 +507,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Add a new field to a specific group
     $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
@@ -546,9 +545,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Move field(s) to a new group in the layout
     // AI/Claude Code change: refactored to use query parameters
     $fields = explode(" ", (string) $_POST['selectedfields']);
@@ -601,9 +598,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($tlayout);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Delete a field from a specific group
     // AI/Claude Code change: refactored to use query parameters
     $fieldsToDelete = [];
@@ -626,9 +621,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     }
     // End of AI/Claude Code changes
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Generate new value for layout_items.group_id.
     $newgroupid = genGroupId($_POST['newgroupparent']);
     sqlStatement(
@@ -640,9 +633,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // drop the fields from the related table (this is critical)
     $res = sqlStatement(
         "SELECT field_id FROM layout_options WHERE " .
@@ -665,9 +656,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Note that in some cases below the swapGroups() call will do nothing.
     $res = sqlStatement(
         "SELECT DISTINCT group_id " .
@@ -694,9 +683,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
     // Renaming a group. This might include moving to a different parent group.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $newparent = $_POST['renamegroupparent'];  // this is an ID
     $oldid     = $_POST['renameoldgroupname']; // this is an ID
     $oldparent = substr((string) $oldid, 0, -1);
@@ -799,7 +786,8 @@ function writeFieldLine($linedata): void
 
     // if not english and set to translate layout labels, then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-        echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
+        $titleStr = is_string($linedata['title'] ?? null) ? $linedata['title'] : '';
+        echo "<td class='text-center translation'>" . text(xl_layout_label($titleStr)) . "</td>\n";
     }
 
     echo "  <td class='text-center optcell'>";
@@ -954,7 +942,8 @@ function writeFieldLine($linedata): void
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
         if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-            echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
+            $descStr = is_string($linedata['description'] ?? null) ? $linedata['description'] : '';
+            echo "<td class='text-center translation'>" . text(xl_layout_label($descStr)) . "</td>\n";
         }
     }
     echo "  <td class='text-center optcell'>";
@@ -1625,7 +1614,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? xlt($gdispname) : "",
+                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? text(xl_layout_label($gdispname)) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML

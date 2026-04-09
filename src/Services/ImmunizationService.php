@@ -49,7 +49,7 @@ class ImmunizationService extends BaseService
 
         foreach ($dates as $date) {
             if (isset($record[$date])) {
-                $record[$date] = date('c', strtotime($record[$date]));
+                $record[$date] = date('c', strtotime((string) $record[$date]));
             }
         }
         return $record;

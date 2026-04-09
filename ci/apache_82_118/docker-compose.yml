@@ -1,4 +1,5 @@
 x-includes:
+  node-version: "22"
   selenium-template: "compose-shared-selenium/docker-compose.yml"
   webserver-template: "compose-shared-apache.yml"
   database-template: "compose-shared-mariadb.yml"
