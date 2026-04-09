@@ -20,7 +20,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 abstract class QDMBaseType implements JsonSerializable
 {
     /** @var string (tons of concrete classes need updating to use native type */
-    public  $_type = 'QDM::QDMBaseType';
+    public $_type = 'QDM::QDMBaseType';
     public ?string $bundleId = null;
     /** @var list<Code> */
     public array $dataElementCodes = [];
