@@ -1879,7 +1879,7 @@ class AuthorizationController
 
     protected function convertPostParamsToGet(HttpRestRequest $request): HttpRestRequest
     {
-        /** @var array<string, array|bool|float|int|string|null> $parsedBody */
+        /** @var array<string, array<mixed>|bool|float|int|string|null> $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!empty($parsedBody)) {
             foreach ($parsedBody as $key => $value) {
