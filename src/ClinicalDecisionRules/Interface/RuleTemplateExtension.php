@@ -21,7 +21,7 @@ class RuleTemplateExtension
                 <option id="<?php echo attr($option['id']); ?>"
                         value="<?php echo attr($option['id']); ?>"
                     <?php echo $args['value'] == $option['id'] ? "SELECTED" : "" ?>>
-                    <?php echo text($option['label']); ?>
+                    <?php echo text((string)($option['label'] ?? '')); ?>
                 </option>
             <?php } ?>
 
