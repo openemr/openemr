@@ -2648,7 +2648,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 16,
+    'count' => 14,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [

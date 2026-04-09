@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;

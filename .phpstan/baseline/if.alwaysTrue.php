@@ -428,7 +428,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [

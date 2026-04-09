@@ -6878,37 +6878,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getCoding\\(\\) on mixed\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getDisplay\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getReference\\(\\) on mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getSupportedSearchParams\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getSystem\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getText\\(\\) on mixed\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
