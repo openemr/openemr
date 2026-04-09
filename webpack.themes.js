@@ -20,11 +20,11 @@ const fs = require("fs");
  * Docker cache:
  *   The filesystem cache writes to .webpack-cache/ (mapped by the Dockerfile's
  *   --mount=type=cache,id=webpack-openemr,target=…/.webpack-cache mount).
- *   Add openemr-internal/.webpack-cache to .dockerignore.
  */
 
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 // webpack --mode production sets NODE_ENV=production via DefinePlugin for
 // bundled code; also check argv so the config itself sees the right mode.
@@ -135,8 +135,6 @@ function sharedCacheConfig() {
 // Variants use the ?variant= resource query so sass-bsimport-loader can apply
 // the same prepend/append/replace transformations Gulp used.
 //
-// JS shim files (e.g. style_light.js) are emitted alongside the CSS — they
-// are valid empty modules (~600 B each) and are harmless when served by nginx.
 // ---------------------------------------------------------------------------
 
 // Helper to build an absolute entry path with an optional resource query.
@@ -220,7 +218,11 @@ const themesConfig = {
     path: outputThemes,
     filename: "[name].js",
     chunkFilename: "[name].chunk.js",
-    clean: false,
+    // Only clean webpack-generated files; preserve static CSS copied by
+    // build:sync (ajax_calendar_ie.css, jquery.autocomplete.css, rtl_style_pdf.css).
+    clean: {
+      keep: /^(?:ajax_calendar_ie|jquery\.autocomplete|rtl_style_pdf)\.css/,
+    },
   },
   resolve: {
     alias: {
@@ -245,11 +247,34 @@ const themesConfig = {
     },
   },
   module: { rules: [sassRule()] },
+  optimization: {
+    minimizer: ["...", new CssMinimizerPlugin()],
+  },
   plugins: [
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[id].css",
     }),
+    // CSS-only entries still emit an empty JS shim per entry. Remove them
+    // after compilation so the output directory only contains CSS and maps.
+    {
+      apply(compiler) {
+        compiler.hooks.afterEmit.tap("RemoveEmptyJsPlugin", (compilation) => {
+          for (const [name, entry] of compilation.entrypoints) {
+            for (const chunk of entry.chunks) {
+              for (const file of chunk.files) {
+                if (file.endsWith(".js") || file.endsWith(".js.map")) {
+                  const filePath = path.join(outputThemes, file);
+                  if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                  }
+                }
+              }
+            }
+          }
+        });
+      },
+    },
   ],
   devtool: isProduction ? "source-map" : "eval-source-map",
   stats: { colors: true },
