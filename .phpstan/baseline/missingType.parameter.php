@@ -45947,11 +45947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:value_or_null_flavor\\(\\) has parameter \\$time with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:__construct\\(\\) has parameter \\$aggregate_results with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
@@ -45993,11 +45988,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:to_formatted_s_number\\(\\) has parameter \\$dateTime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:value_or_null_flavor\\(\\) has parameter \\$time with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
@@ -46165,21 +46155,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Stratification\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Stratification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_date\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_datetime\\(\\) has parameter \\$datetime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_datetime_cqm\\(\\) has parameter \\$datetime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:__construct\\(\\) has parameter \\$questionnaire with no type specified\\.$#',

@@ -28517,11 +28517,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:value_or_null_flavor\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:active_date_time\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
@@ -28802,11 +28797,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:value_or_null_flavor\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\ExportCat3Service\\:\\:CqmExecutionCalcExecute\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
@@ -28895,11 +28885,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:performance_rate_denominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:setName\\(\\) has no return type specified\\.$#',

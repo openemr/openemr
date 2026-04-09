@@ -104,6 +104,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Util/DateHelperTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/GeoTelemetryTest.php',
 ];
 $ignoreErrors[] = [

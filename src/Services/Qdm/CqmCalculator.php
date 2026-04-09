@@ -66,7 +66,10 @@ class CqmCalculator
         $valueSetArray = json_decode(file_get_contents($measureFiles['valueSets']), true);
         // Fix somethings that the cqm calculator needs before we create JSON out of the patient models.
         foreach ($patients as $patient) {
-            $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
+            $birthDatetime = $patient->birthDatetime;
+            $patient->birthDatetime = DateHelper::format_datetime_cqm(
+                is_string($birthDatetime) ? $birthDatetime : null
+            );
             $data_elements_to_add = [];
             foreach ($patient->dataElements as $dataElement) {
                 // We need to look up OIDs and add the first code concept from the value set.

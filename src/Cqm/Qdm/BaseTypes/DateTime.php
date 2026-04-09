@@ -24,7 +24,6 @@ class DateTime implements JsonSerializable
 
     public function jsonSerialize(): ?string
     {
-        $formatted = DateHelper::format_datetime_cqm($this->date);
-        return $formatted === false ? null : $formatted;
+        return DateHelper::format_datetime_cqm($this->date);
     }
 }

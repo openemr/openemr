@@ -3834,27 +3834,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

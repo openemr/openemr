@@ -20977,47 +20977,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/Services/AbstractQdmService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<birthTime \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<doseQuantity value…\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime \' and mixed results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime xsi…\' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime\\>\\<low \' and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<high \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<id root\\="\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<low \' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<time \' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
@@ -21043,43 +21008,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 17,
+    'count' => 11,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<birthTime \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime \' and mixed results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime xsi…\' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime\\>\\<low \' and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<high \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<low \' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<time \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
@@ -21088,7 +21018,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 7,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
 $ignoreErrors[] = [
