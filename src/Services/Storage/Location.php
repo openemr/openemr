@@ -17,4 +17,14 @@ enum Location
     case Documents;
 
     // More values to come: config, certificates, etc.
+
+    /**
+     * Returns the default path for this location, relative to the site directory.
+     */
+    public function getDefaultPath(): string
+    {
+        return match ($this) {
+            self::Documents => 'documents',
+        };
+    }
 }
