@@ -139,8 +139,8 @@ function twSetup(tabsid) {
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
     const self = $(this);
+    const panelId = self.parent().attr("href").substring(1);
     const closeTab = function() {
-        const panelId = self.parent().attr("href").substring(1);
         top.restoreSession();
         twCloseTab(tabsid, panelId);
     }
@@ -150,7 +150,7 @@ function twSetup(tabsid) {
         closeTab();
     }
 
-    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+    if (panelId === 'SOAP' && top.isSoapEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
             html: '<p>$modalContent</p>',
