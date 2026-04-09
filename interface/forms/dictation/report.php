@@ -34,8 +34,8 @@ function dictation_report($pid, $encounter, $cols, $id): void
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<h3>" . xlt($key) . ": </h3>" .
-                "<p>" . nl2br(text($value)) . "</p>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<h3>%s: </h3><p>%s</p>', xlt($key), nl2br(text($value)));
             $count++;
         }
     }

@@ -28037,11 +28037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 3 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_layout_props.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'abbreviation\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
@@ -42563,7 +42558,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 20,
+    'count' => 18,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [
@@ -42578,7 +42573,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 3 on mixed\\.$#',
-    'count' => 16,
+    'count' => 12,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [

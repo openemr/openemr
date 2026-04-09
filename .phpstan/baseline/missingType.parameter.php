@@ -15142,11 +15142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genGroupSelector\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_layout.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function genLayoutOptions\\(\\) has parameter \\$default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
@@ -15358,11 +15353,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function writeOptionLine\\(\\) has parameter \\$subtype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function writeOptionLine\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
@@ -25638,11 +25628,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_select_list\\(\\) has parameter \\$custom_attributes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_select_list\\(\\) has parameter \\$empty_name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];

@@ -86,7 +86,10 @@ function nextGroupOrder($order)
 // Included also are parent groups containing only sub-groups.  Groups are listed
 // in the same order as they appear in the layout.
 //
-function genGroupSelector($name, $layout_id, $default = '')
+/**
+ * @param literal-string $name
+ */
+function genGroupSelector(string $name, $layout_id, $default = '')
 {
     $res = sqlStatement(
         "SELECT grp_group_id, grp_title " .
@@ -783,7 +786,8 @@ function writeFieldLine($linedata): void
 
     // if not english and set to translate layout labels, then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-        echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
+        $titleStr = is_string($linedata['title'] ?? null) ? $linedata['title'] : '';
+        echo "<td class='text-center translation'>" . text(xl_layout_label($titleStr)) . "</td>\n";
     }
 
     echo "  <td class='text-center optcell'>";
@@ -938,7 +942,8 @@ function writeFieldLine($linedata): void
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
         if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-            echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
+            $descStr = is_string($linedata['description'] ?? null) ? $linedata['description'] : '';
+            echo "<td class='text-center translation'>" . text(xl_layout_label($descStr)) . "</td>\n";
         }
     }
     echo "  <td class='text-center optcell'>";
@@ -1609,7 +1614,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? xlt($gdispname) : "",
+                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? text(xl_layout_label($gdispname)) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
