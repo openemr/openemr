@@ -135,117 +135,92 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             );
         }
 
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if ($fhirResource->getId()) {
-            $data['uuid'] = (string) $fhirResource->getId();
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
         }
 
-        // Category -> subtype (problem-list-item, encounter-diagnosis, health-concern)
-        // OpenEMR stores all conditions as type='medical_problem' in the lists table,
-        // but the category field helps distinguish subtypes
-        $categories = $fhirResource->getCategory();
-        if (!empty($categories)) {
-            foreach ($categories as $category) {
-                $codings = $category->getCoding();
-                if (!empty($codings)) {
-                    $categoryCode = (string) $codings[0]->getCode();
-                    $data['subtype'] = $categoryCode;
-                    break;
-                }
-            }
+        // Category -> subtype
+        if (!empty($json['category'][0]['coding'][0]['code'])) {
+            $data['subtype'] = $json['category'][0]['coding'][0]['code'];
         }
 
         // Subject -> puuid
-        $subject = $fhirResource->getSubject();
-        if ($subject && $subject->getReference()) {
-            $reference = (string) $subject->getReference();
-            $data['puuid'] = str_replace('Patient/', '', $reference);
+        if (!empty($json['subject']['reference'])) {
+            $data['puuid'] = str_replace('Patient/', '', $json['subject']['reference']);
         }
 
         // Code -> title and diagnosis
-        $code = $fhirResource->getCode();
-        if ($code) {
-            $codings = $code->getCoding();
-            if (!empty($codings)) {
-                $diagnosisParts = [];
-                foreach ($codings as $coding) {
-                    $system = (string) $coding->getSystem();
-                    $codeValue = (string) $coding->getCode();
-                    $display = (string) $coding->getDisplay();
-                    if (!empty($codeValue)) {
-                        $prefix = match ($system) {
-                            'http://snomed.info/sct' => 'SNOMED-CT',
-                            'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
-                            'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9',
-                            default => $system,
-                        };
-                        $diagnosisParts[] = $prefix . ':' . $codeValue;
-                    }
-                    if (!empty($display) && empty($data['title'])) {
-                        $data['title'] = $display;
-                    }
+        if (!empty($json['code']['coding'])) {
+            $diagnosisParts = [];
+            foreach ($json['code']['coding'] as $coding) {
+                $system = $coding['system'] ?? '';
+                $codeValue = $coding['code'] ?? '';
+                $display = $coding['display'] ?? '';
+                if (!empty($codeValue)) {
+                    $prefix = match ($system) {
+                        'http://snomed.info/sct' => 'SNOMED-CT',
+                        'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
+                        'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9',
+                        default => $system,
+                    };
+                    $diagnosisParts[] = $prefix . ':' . $codeValue;
                 }
-                if (!empty($diagnosisParts)) {
-                    $data['diagnosis'] = implode(';', $diagnosisParts);
+                if (!empty($display) && empty($data['title'])) {
+                    $data['title'] = $display;
                 }
             }
-            if (empty($data['title']) && $code->getText()) {
-                $data['title'] = (string) $code->getText();
+            if (!empty($diagnosisParts)) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
             }
+        }
+        if (empty($data['title']) && !empty($json['code']['text'])) {
+            $data['title'] = $json['code']['text'];
         }
 
         // ClinicalStatus -> outcome and occurrence
-        $clinicalStatus = $fhirResource->getClinicalStatus();
-        if ($clinicalStatus) {
-            $codings = $clinicalStatus->getCoding();
-            if (!empty($codings)) {
-                $statusCode = (string) $codings[0]->getCode();
-                $data['outcome'] = match ($statusCode) {
-                    'resolved' => '1',
-                    'recurrence' => '0',
-                    default => '0',
-                };
-                if ($statusCode === 'recurrence') {
-                    $data['occurrence'] = '2';
-                }
+        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
+            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
+            $data['outcome'] = match ($statusCode) {
+                'resolved' => '1',
+                'recurrence' => '0',
+                default => '0',
+            };
+            if ($statusCode === 'recurrence') {
+                $data['occurrence'] = '2';
             }
         }
 
         // VerificationStatus -> verification
-        $verificationStatus = $fhirResource->getVerificationStatus();
-        if ($verificationStatus) {
-            $codings = $verificationStatus->getCoding();
-            if (!empty($codings)) {
-                $data['verification'] = (string) $codings[0]->getCode();
-            }
+        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
+            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
         }
 
-        // OnsetDateTime -> begdate
-        $onset = $fhirResource->getOnsetDateTime();
-        if ($onset) {
-            $dateValue = (string) $onset;
-            // ConditionValidator expects Y-m-d format
-            if (strlen($dateValue) > 10) {
-                $dateValue = substr($dateValue, 0, 10);
+        // OnsetDateTime -> begdate (ConditionValidator expects Y-m-d)
+        if (!empty($json['onsetDateTime'])) {
+            $dateValue = $json['onsetDateTime'];
+            if (strlen((string) $dateValue) > 10) {
+                $dateValue = substr((string) $dateValue, 0, 10);
             }
             $data['begdate'] = $dateValue;
         }
 
         // AbatementDateTime -> enddate
-        $abatement = $fhirResource->getAbatementDateTime();
-        if ($abatement) {
-            $dateValue = (string) $abatement;
-            if (strlen($dateValue) > 10) {
-                $dateValue = substr($dateValue, 0, 10);
+        if (!empty($json['abatementDateTime'])) {
+            $dateValue = $json['abatementDateTime'];
+            if (strlen((string) $dateValue) > 10) {
+                $dateValue = substr((string) $dateValue, 0, 10);
             }
             $data['enddate'] = $dateValue;
         }
 
         // Note -> comments
-        $notes = $fhirResource->getNote();
-        if (!empty($notes)) {
-            $data['comments'] = (string) $notes[0]->getText();
+        if (!empty($json['note'][0]['text'])) {
+            $data['comments'] = $json['note'][0]['text'];
         }
 
         return $data;

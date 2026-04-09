@@ -304,94 +304,77 @@ class FhirEncounterService extends FhirServiceBase implements
             );
         }
 
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if ($fhirResource->getId()) {
-            $data['uuid'] = (string) $fhirResource->getId();
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
         }
 
         // Subject -> puuid (required in US Core)
-        $subject = $fhirResource->getSubject();
-        if ($subject && $subject->getReference()) {
-            $reference = (string) $subject->getReference();
-            $data['puuid'] = str_replace('Patient/', '', $reference);
+        if (!empty($json['subject']['reference'])) {
+            $data['puuid'] = str_replace('Patient/', '', $json['subject']['reference']);
         }
 
         // Class -> class_code (required in FHIR R4)
-        $class = $fhirResource->getClass();
-        if ($class && $class->getCode()) {
-            $data['class_code'] = (string) $class->getCode();
+        if (!empty($json['class']['code'])) {
+            $data['class_code'] = $json['class']['code'];
         }
 
         // Period -> date (normalize to Y-m-d H:i:s for database)
-        $period = $fhirResource->getPeriod();
-        if ($period) {
-            $start = $period->getStart();
-            if ($start) {
-                try {
-                    $startDt = new \DateTimeImmutable((string) $start);
-                    $data['date'] = $startDt->format('Y-m-d H:i:s');
-                } catch (\Throwable) {
-                    $data['date'] = (string) $start;
-                }
+        if (!empty($json['period']['start'])) {
+            try {
+                $startDt = new \DateTimeImmutable($json['period']['start']);
+                $data['date'] = $startDt->format('Y-m-d H:i:s');
+            } catch (\Throwable) {
+                $data['date'] = $json['period']['start'];
             }
         }
 
         // Participant -> provider_uuid and referrer_uuid
-        $participants = $fhirResource->getParticipant();
-        if (!empty($participants)) {
-            foreach ($participants as $participant) {
-                $individual = $participant->getIndividual();
-                if (!$individual || !$individual->getReference()) {
+        if (!empty($json['participant'])) {
+            foreach ($json['participant'] as $participant) {
+                $reference = $participant['individual']['reference'] ?? null;
+                if (empty($reference)) {
                     continue;
                 }
-                $reference = (string) $individual->getReference();
                 $practitionerUuid = str_replace('Practitioner/', '', $reference);
 
                 // Determine participant type from type codings
-                $participantTypes = $participant->getType();
                 $isPrimaryPerformer = false;
                 $isReferrer = false;
-                if (!empty($participantTypes)) {
-                    foreach ($participantTypes as $pType) {
-                        $codings = $pType->getCoding();
-                        if (!empty($codings)) {
-                            $code = (string) $codings[0]->getCode();
-                            if ($code === self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER) {
-                                $isPrimaryPerformer = true;
-                            } elseif ($code === self::ENCOUNTER_PARTICIPANT_TYPE_REFERRER) {
-                                $isReferrer = true;
-                            }
-                        }
+                foreach (($participant['type'] ?? []) as $pType) {
+                    $code = $pType['coding'][0]['code'] ?? null;
+                    if ($code === self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER) {
+                        $isPrimaryPerformer = true;
+                    } elseif ($code === self::ENCOUNTER_PARTICIPANT_TYPE_REFERRER) {
+                        $isReferrer = true;
                     }
                 }
 
                 if ($isReferrer) {
                     $data['referrer_uuid'] = $practitionerUuid;
                 } elseif ($isPrimaryPerformer || !isset($data['provider_uuid'])) {
-                    // Primary performer, or first participant if no type specified
                     $data['provider_uuid'] = $practitionerUuid;
                 }
             }
         }
 
         // ReasonCode -> reason
-        $reasonCodes = $fhirResource->getReasonCode();
-        if (!empty($reasonCodes)) {
-            $reason = $reasonCodes[0];
-            if ($reason->getText()) {
-                $data['reason'] = (string) $reason->getText();
-            } elseif (!empty($reason->getCoding())) {
-                $data['reason'] = (string) $reason->getCoding()[0]->getDisplay();
+        if (!empty($json['reasonCode'][0])) {
+            $reason = $json['reasonCode'][0];
+            if (!empty($reason['text'])) {
+                $data['reason'] = $reason['text'];
+            } elseif (!empty($reason['coding'][0]['display'])) {
+                $data['reason'] = $reason['coding'][0]['display'];
             }
         }
 
         // ServiceProvider -> facility_id (via Organization uuid)
-        $serviceProvider = $fhirResource->getServiceProvider();
-        if ($serviceProvider && $serviceProvider->getReference()) {
-            $reference = (string) $serviceProvider->getReference();
-            $facilityUuid = str_replace('Organization/', '', $reference);
-            // Look up facility_id from uuid
+        if (!empty($json['serviceProvider']['reference'])) {
+            $facilityUuid = str_replace('Organization/', '', $json['serviceProvider']['reference']);
             $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($facilityUuid);
             $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
             if ($facilityId) {
@@ -400,15 +383,8 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Hospitalization -> discharge_disposition
-        $hospitalization = $fhirResource->getHospitalization();
-        if ($hospitalization) {
-            $dischargeDisposition = $hospitalization->getDischargeDisposition();
-            if ($dischargeDisposition) {
-                $codings = $dischargeDisposition->getCoding();
-                if (!empty($codings)) {
-                    $data['discharge_disposition'] = (string) $codings[0]->getCode();
-                }
-            }
+        if (!empty($json['hospitalization']['dischargeDisposition']['coding'][0]['code'])) {
+            $data['discharge_disposition'] = $json['hospitalization']['dischargeDisposition']['coding'][0]['code'];
         }
 
         // Default pc_catid for new encounters (required by EncounterValidator)
