@@ -3409,10 +3409,10 @@ class InstallerTest extends TestCase
      *
      *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
      *
-     * The fix inserts a single space between concatenated lines, restoring
-     * valid token separation.
+     * The fix inserts a newline between concatenated lines, restoring
+     * valid token separation and ensuring SQL comments terminate correctly.
      */
-    public function testLoadFileInsertsSpaceSeparatorBetweenSqlLines(): void
+    public function testLoadFileInsertsNewlineSeparatorBetweenSqlLines(): void
     {
         $mockInstaller = $this->buildLoadFileMock();
         $mockResource = fopen('php://memory', 'w+');
@@ -3464,12 +3464,12 @@ class InstallerTest extends TestCase
         $completeUpdateStatement = $executedSql[2] ?? '';
         $this->assertIsString($completeUpdateStatement);
 
-        // Must contain "0 WHERE" (with space), not "0WHERE" (fused)
-        $this->assertStringContainsString('0 WHERE', $completeUpdateStatement);
+        // Must contain "0\nWHERE" (with newline), not "0WHERE" (fused)
+        $this->assertStringContainsString("0\nWHERE", $completeUpdateStatement);
         $this->assertStringNotContainsString('0WHERE', $completeUpdateStatement);
 
-        // Must contain "10 AND" (with space), not "10AND" (fused)
-        $this->assertStringContainsString('10 AND', $completeUpdateStatement);
+        // Must contain "10\nAND" (with newline), not "10AND" (fused)
+        $this->assertStringContainsString("10\nAND", $completeUpdateStatement);
         $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
     }
 
