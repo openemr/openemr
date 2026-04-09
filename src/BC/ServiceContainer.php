@@ -173,7 +173,7 @@ class ServiceContainer
         );
     }
 
-    public static function getStorage(): ManagerInterface
+    public static function getStorageManager(): ManagerInterface
     {
         return self::resolveOrCreate(
             ManagerInterface::class,
