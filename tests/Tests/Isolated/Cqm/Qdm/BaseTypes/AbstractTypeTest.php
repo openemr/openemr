@@ -138,7 +138,10 @@ class AbstractTypeTest extends TestCase
     {
         $quantity = new Quantity(value: 50, unit: 'kg');
 
-        $decoded = json_decode(json_encode($quantity), true);
+        $json = json_encode($quantity);
+        self::assertIsString($json);
+        $decoded = json_decode($json, true);
+        self::assertIsArray($decoded);
         self::assertSame('QDM::Quantity', $decoded['_type']);
     }
 
@@ -147,8 +150,10 @@ class AbstractTypeTest extends TestCase
         $dateTime = new DateTime(date: '2024-06-15 10:30:00');
 
         $json = json_encode($dateTime);
+        self::assertIsString($json);
         // DateTime serializes to a formatted string, not an object
-        self::assertIsString(json_decode($json));
+        $decoded = json_decode($json);
+        self::assertIsString($decoded);
     }
 
     public function testIntervalJsonSerializeNestsDateTimes(): void
@@ -160,7 +165,10 @@ class AbstractTypeTest extends TestCase
             highClosed: false,
         );
 
-        $decoded = json_decode(json_encode($interval), true);
+        $json = json_encode($interval);
+        self::assertIsString($json);
+        $decoded = json_decode($json, true);
+        self::assertIsArray($decoded);
 
         // DateTime values are serialized as strings within the interval
         self::assertIsString($decoded['low']);

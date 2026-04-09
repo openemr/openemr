@@ -40,10 +40,10 @@ class CqmCalculator
         foreach ($valueSetArray as $component) {
             if ($component['oid'] == $oid_code) {
                 $first_concept = $component['concepts'][0];
-                $code = new Code([
-                    "code" => $first_concept['code'],
-                    "system" => $first_concept['code_system_oid']
-                ]);
+                $code = new Code(
+                    code: $first_concept['code'],
+                    system: $first_concept['code_system_oid'],
+                );
                 break;
             }
         }

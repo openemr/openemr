@@ -64,40 +64,36 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         $modelClass = $this->getModelClass();
 
         $qdmModel = new $modelClass([
-            'relevantPeriod' => new Interval([
-                'low' =>  new DateTime([
-                    'date' => $start_date
-                ]),
-                'high' => new DateTime([
-                    'date' => $end_date
-                ]),
-                'lowClosed' => $start_date ? true : false,
-                'highClosed' => $this->validDateOrNull($end_date) ? true : false
-            ]),
+            'relevantPeriod' => new Interval(
+                low: new DateTime(date: $start_date),
+                high: new DateTime(date: $end_date),
+                lowClosed: $start_date ? true : false,
+                highClosed: $this->validDateOrNull($end_date) !== null,
+            ),
             'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);
 
         if ($record['dosage']) {
-            $qdmModel->dosage = new Quantity([
-                'value' => (int)$record['dosage'],
-                'unit' => $record['drug_unit'] ?? null,
-            ]);
+            $qdmModel->dosage = new Quantity(
+                value: (int) $record['dosage'],
+                unit: $record['drug_unit'] ?? null,
+            );
         }
 
         if ($record['drug_interval']) {
-            $qdmModel->frequency = new Code([
+            $qdmModel->frequency = new Code(
                 // TODO codes in list_options for frequency may not match exactly and do not have the actual SNOMED codes loaded
                 // https://browser.ihtsdotools.org/?perspective=full&conceptId1=396125000&edition=MAIN/2021-07-31&release=&languages=en
-                'code' => '396125000', // $record['interval'],
-                'system' => '2.16.840.1.113883.6.96' // $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
-            ]);
+                code: '396125000', // $record['interval'],
+                system: '2.16.840.1.113883.6.96', // $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
+            );
         }
 
         $qdmModel->addCode(
-            new Code([
-                'code' => $record['rxnorm_drugcode'],
-                'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM)
-            ])
+            new Code(
+                code: $record['rxnorm_drugcode'],
+                system: $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM),
+            )
         );
 
         return $qdmModel;

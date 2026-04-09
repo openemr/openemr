@@ -70,22 +70,14 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
         $qdmModel = new $modelClass([
             '_id' => $id,
             'id' => $id,
-            'relevantDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
-            'relevantPeriod' => new Interval([
-                'low' => new DateTime([
-                    'date' => $record['date']
-                ]),
-                'high' => new DateTime([
-                    'date' => $record['date_end'] ?: null
-                ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
-            ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
+            'relevantDatetime' => new DateTime(date: $record['date']),
+            'relevantPeriod' => new Interval(
+                low: new DateTime(date: $record['date']),
+                high: new DateTime(date: $record['date_end'] ?: null),
+                lowClosed: $record['date'] ? true : false,
+                highClosed: $this->validDateOrNull($record['date_end']) !== null,
+            ),
+            'authorDatetime' => new DateTime(date: $record['date']),
         ]);
 
         $qdmModel->result = $this->makeResult($record);

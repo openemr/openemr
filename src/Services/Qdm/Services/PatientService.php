@@ -69,12 +69,10 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
 
     public static function makeQdmIdentifier($namingSystem, $value)
     {
-        return new Identifier(
-            [
-                'namingSystem' => $namingSystem,
-                'value' => $value
-            ]
-        );
+        $identifier = new Identifier();
+        $identifier->namingSystem = $namingSystem;
+        $identifier->value = $value;
+        return $identifier;
     }
 
     public function makeQdmModel(QdmRecord $recordObj)
@@ -90,16 +88,15 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         $formatted_id = self::convertIdFromBSONObjectIdFormat($_id);
         $id = self::makeQdmIdentifier('OpenEMR BSON', $formatted_id);
 
-        $qdmPatient = new Patient([
-            'patientName' => [
-                'given' => $record['fname'],
-                'middle' => $record['mname'] ?? '',
-                'family' => $record['lname']
-            ],
-            'birthDatetime' => $record['DOB'],
-            'id' => $id, // From PatientExtension trait
-            '_id' => $_id //
-        ]);
+        $qdmPatient = new Patient();
+        $qdmPatient->patientName = [
+            'given' => $record['fname'],
+            'middle' => $record['mname'] ?? '',
+            'family' => $record['lname'],
+        ];
+        $qdmPatient->birthDatetime = $record['DOB'];
+        $qdmPatient->id = $id; // From PatientExtension trait
+        $qdmPatient->_id = $_id;
 
         $qdmPatient->extendedData = [
             'pid' => $record['pid']
@@ -107,47 +104,31 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
 
         // Create the address and add to model (for QRDA Cat 1 Export)
         $address = new Address(
-            [
-                'street' => [
-                    $record['street']
-                ],
-                'city' => $record['city'],
-                'state' => $record['state'],
-                'zip' => $record['postal_code'],
-                'country' => $record['country_code']
-            ]
+            street: [$record['street']],
+            city: $record['city'],
+            state: $record['state'],
+            zip: $record['postal_code'],
+            country: $record['country_code'],
         );
         $qdmPatient->addAddress($address);
 
         // Create the telcom and add to model (for QRDA Cat 1 Export)
-        $telcom = new Telcom(
-            [
-                'value' => $record['phone_home']
-            ]
-        );
+        $telcom = new Telcom(value: $record['phone_home']);
         $qdmPatient->addTelcom($telcom);
 
         $qdmPatient->extendedData = [
             'pid' => $record['pid']
         ];
 
-        $pcdob = new PatientCharacteristicBirthdate(
-            [
-                'birthDatetime' => new DateTime(
-                    [
-                        'date' => $record['DOB']
-                    ]
+        $pcdob = new PatientCharacteristicBirthdate([
+            'birthDatetime' => new DateTime(date: $record['DOB']),
+            'dataElementCodes' => [
+                new Code(
+                    code: '21112-8',
+                    system: '2.16.840.1.113883.6.1',
                 ),
-                'dataElementCodes' => [
-                    new Code(
-                        [
-                            'code' => '21112-8',
-                            'system' => '2.16.840.1.113883.6.1'
-                        ]
-                    )
-                ]
-            ]
-        );
+            ],
+        ]);
         $qdmPatient->add_data_element($pcdob);
 
         // If th patient is deceased/expired, then add the Patient Characteristic Expired
@@ -160,52 +141,40 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         }
 
         $payer = new PatientCharacteristicPayer([
-            'relevantPeriod' => new Interval([
-                'low' => new DateTime([
-                    'date' => $record['payer_eff_date']
-                ]),
-                'high' => null, // TODO We don't have an end-date for insurance?,
-                'lowClosed' => $record['payer_eff_date'] ? true : false,
-                'highClosed' => false
-            ]),
+            'relevantPeriod' => new Interval(
+                low: new DateTime(date: $record['payer_eff_date']),
+                high: null, // TODO We don't have an end-date for insurance?
+                lowClosed: $record['payer_eff_date'] ? true : false,
+                highClosed: false,
+            ),
             'dataElementCodes' => [
                 new Code(
-                    [
-                        'code' => $record['payer_code'],
-                        'system' => '2.16.840.1.113883.3.221.5'
-                    ]
-                )
-            ]
+                    code: $record['payer_code'],
+                    system: '2.16.840.1.113883.3.221.5',
+                ),
+            ],
         ]);
         $qdmPatient->add_data_element($payer);
 
         // Reference: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238
-        $pcr = new PatientCharacteristicRace(
-            [
-                'dataElementCodes' => [
-                    new Code(
-                        [
-                            'code' => $record['race_code'],
-                            'system' => '2.16.840.1.113883.6.238'
-                        ]
-                    )
-                ]
-            ]
-        );
+        $pcr = new PatientCharacteristicRace([
+            'dataElementCodes' => [
+                new Code(
+                    code: $record['race_code'],
+                    system: '2.16.840.1.113883.6.238',
+                ),
+            ],
+        ]);
         $qdmPatient->add_data_element($pcr);
 
-        $pce = new PatientCharacteristicEthnicity(
-            [
-                'dataElementCodes' => [
-                    new Code(
-                        [
-                            'code' => $record['ethnicity_code'],
-                            'system' => '2.16.840.1.113883.6.238'
-                        ]
-                    )
-                ]
-            ]
-        );
+        $pce = new PatientCharacteristicEthnicity([
+            'dataElementCodes' => [
+                new Code(
+                    code: $record['ethnicity_code'],
+                    system: '2.16.840.1.113883.6.238',
+                ),
+            ],
+        ]);
         $qdmPatient->add_data_element($pce);
 
         $pcs = new PatientCharacteristicSex();

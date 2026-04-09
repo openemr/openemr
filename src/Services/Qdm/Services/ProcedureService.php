@@ -54,19 +54,15 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
         $qdmModel = new ProcedurePerformed([
             '_id' => $id,
             'id' => $id,
-            'relevantDatetime' => new DateTime([
-                'date' => $record['date_ordered']
-            ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['date_ordered']
-            ])
+            'relevantDatetime' => new DateTime(date: $record['date_ordered']),
+            'authorDatetime' => new DateTime(date: $record['date_ordered'])
         ]);
 
         if (!empty($record['result_value']) && !empty($record['result_units'])) {
-            $qdmModel->result = new Quantity([
-                'value' => (int)$record['result_value'],
-                'unit' => $record['result_units']
-            ]);
+            $qdmModel->result = new Quantity(
+                value: (int) $record['result_value'],
+                unit: $record['result_units'],
+            );
         }
 
         if (!empty($record['reason_code'])) {

@@ -14,6 +14,18 @@ namespace OpenEMR\Cqm\Qdm\BaseTypes;
 
 abstract class AbstractType implements \JsonSerializable
 {
+    /**
+     * @param array<string, mixed> $properties
+     */
+    public function __construct(array $properties = [])
+    {
+        foreach ($properties as $property => $value) {
+            if (property_exists($this, $property)) {
+                $this->{$property} = $value;
+            }
+        }
+    }
+
     public function jsonSerialize(): mixed
     {
         return get_object_vars($this);
