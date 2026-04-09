@@ -21,24 +21,20 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
-use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
-use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEncounterOpenTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientOpenTrait;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
 
 class KkEncounterFormNavbarUrlTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
-    private $crawler;
 
     /**
      * Verify that form navbar dropdown links include pid and encounter URL params.

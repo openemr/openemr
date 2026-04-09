@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
-use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -29,7 +28,6 @@ class GgUserMenuLinksTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $crawler;
 
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
