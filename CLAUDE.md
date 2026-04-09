@@ -251,10 +251,12 @@ npm run stylelint         # CSS/SCSS lint
 ## Build Commands
 
 ```bash
-npm run build           # Production build (webpack + CSS sync)
-npm run build:webpack   # Webpack theme compilation only
-npm run build:sync      # Sync static CSS to public/themes/
-npm run dev             # Dev theme build, static CSS sync, then webpack watch
+npm run build             # Production build (webpack + CSS sync)
+npm run build:webpack     # Webpack theme compilation (caller provides --mode)
+npm run build:webpack:prod  # Webpack production build
+npm run build:webpack:dev   # Webpack development build
+npm run build:sync        # Sync static CSS to public/themes/
+npm run dev               # Dev theme build, static CSS sync, then webpack watch
 ```
 
 ## Coding Standards

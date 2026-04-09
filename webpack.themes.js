@@ -8,9 +8,10 @@ const fs = require("fs");
  * Invoked by `npm run build` and `npm run build:webpack`.
  *
  * Usage:
- *   npm run build             # Themes webpack + static CSS sync (scripts/sync-css.js)
- *   npm run build:webpack     # Webpack only (dev/CI iteration)
- *   npm run watch             # Webpack dev build with file watching
+ *   npm run build               # Themes webpack (prod) + static CSS sync
+ *   npm run build:webpack:prod  # Webpack production build only
+ *   npm run build:webpack:dev   # Webpack development build only
+ *   npm run watch               # Webpack dev build with file watching
  *
  * Outputs:
  *   public/themes/            ← BS4 SCSS base theme CSS (same paths as Gulp)

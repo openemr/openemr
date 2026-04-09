@@ -6,5 +6,6 @@
  */
 module.exports = function (source) {
   if (typeof source !== "string") return source;
-  return source.replace(/\uFEFF/g, "");
+  if (source.charCodeAt(0) === 0xfeff) return source.slice(1);
+  return source;
 };
