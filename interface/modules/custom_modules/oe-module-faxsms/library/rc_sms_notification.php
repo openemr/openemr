@@ -120,7 +120,7 @@ if (!empty($runtime['testrun'])) {
 
 $curr_date = date("Y-m-d");
 $curr_time = time();
-$check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
+$check_date = date("Y-m-d", mktime((date("H") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
 $db_sms_msg['type'] = $TYPE;
 $db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
