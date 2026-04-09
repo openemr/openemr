@@ -253,7 +253,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     {
         if (!($fhirResource instanceof FHIRAllergyIntolerance)) {
             throw new \InvalidArgumentException(
-                'Expected FHIRAllergyIntolerance resource, got ' . get_class($fhirResource)
+                'Expected FHIRAllergyIntolerance resource, got ' . $fhirResource::class
             );
         }
 
@@ -362,7 +362,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 try {
                     $onsetDt = new \DateTimeImmutable($onsetValue);
                     $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
-                } catch (\Exception) {
+                } catch (\Throwable) {
                     // Skip invalid date values
                 }
             }

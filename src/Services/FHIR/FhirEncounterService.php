@@ -300,7 +300,7 @@ class FhirEncounterService extends FhirServiceBase implements
     {
         if (!($fhirResource instanceof FHIREncounter)) {
             throw new \InvalidArgumentException(
-                'Expected FHIREncounter resource, got ' . get_class($fhirResource)
+                'Expected FHIREncounter resource, got ' . $fhirResource::class
             );
         }
 
@@ -331,7 +331,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 try {
                     $startDt = new \DateTimeImmutable((string) $start);
                     $data['date'] = $startDt->format('Y-m-d H:i:s');
-                } catch (\Exception) {
+                } catch (\Throwable) {
                     $data['date'] = (string) $start;
                 }
             }

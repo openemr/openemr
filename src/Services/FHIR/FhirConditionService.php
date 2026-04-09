@@ -130,7 +130,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     {
         if (!($fhirResource instanceof FHIRCondition)) {
             throw new \InvalidArgumentException(
-                'Expected FHIRCondition resource, got ' . get_class($fhirResource)
+                'Expected FHIRCondition resource, got ' . $fhirResource::class
             );
         }
 
