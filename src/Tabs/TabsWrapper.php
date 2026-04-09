@@ -150,7 +150,7 @@ function twSetup(tabsid) {
         closeTab();
     }
 
-    if (panelId === 'SOAP' && top.isSoapEdit === true) {
+    if (self.data('tab-label') === 'SOAP' && top.isSoapEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
             html: '<p>$modalContent</p>',
@@ -186,7 +186,7 @@ function twAddTab(tabsid, label, content) {
   var li = $("<li class='tabs-tabs'></li>");
   var anchor = $("<a data-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
   anchor.append(document.createTextNode(label));
-  anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId));
+  anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId).attr('data-tab-label', label));
   li.append(anchor);
   twObject[tabsid].nav.append(li);
   top.restoreSession();
