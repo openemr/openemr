@@ -17,9 +17,10 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Code;
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
  */
-class QDMBaseType implements JsonSerializable
+abstract class QDMBaseType implements JsonSerializable
 {
-    public mixed $_type = 'QDM::QDMBaseType';
+    /** @var string (tons of concrete classes need updating to use native type */
+    public  $_type = 'QDM::QDMBaseType';
     public ?string $bundleId = null;
     /** @var list<Code> */
     public array $dataElementCodes = [];
