@@ -57,8 +57,8 @@ function postcalendar_user_view()
 
     $Date = postcalendar_getDate();
 
-    if (!isset($viewtype)) {
-        $viewtype = _SETTING_DEFAULT_VIEW;
+    if (empty($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW ?: 'day';
     }
 
     // added to allow the view & providers to remain as the user last saw it -- JRM

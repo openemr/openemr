@@ -2107,6 +2107,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_next_month may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_previous_month may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_setup_vars may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function postcalendar_userapi_pcGetEvents may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -2118,6 +2143,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function postcalendar_userapi_pcQueryEventsFA may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_selector_provider_vars may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -7600,6 +7630,51 @@ $ignoreErrors[] = [
     'message' => '#^Function report_header_2 may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr_js may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_holiday may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_weekend_day may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function js_escape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function text may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xla may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlt may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function oe_module_custom_patient_menu may not be defined in the global namespace\\.$#',

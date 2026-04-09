@@ -8777,6 +8777,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:getDatetimepickerJsConfig\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Reports\\\\AMC\\\\Trackers\\\\AMCItemTracker\\:\\:getResults\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Reports/AMC/Trackers/AMCItemTracker.php',

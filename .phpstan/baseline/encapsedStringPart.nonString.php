@@ -1778,7 +1778,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$template_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -1788,12 +1788,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$template_view_load \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$viewtype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -5425,6 +5425,31 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'subscriber_lname\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/InsuranceViewCard.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$pcDir \\(list\\<string\\>\\|string\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$comment \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$patient_age \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$patient_dob \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$params\\[\\$key\\] \\(array\\|bool\\|float\\|int\\|string\\|null\\) of encapsed string cannot be cast to string\\.$#',

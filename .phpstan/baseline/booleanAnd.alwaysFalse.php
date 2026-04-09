@@ -84,6 +84,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of && is always false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [

@@ -19,6 +19,7 @@
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\PostCalendar\PostCalendarTwigExtensions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -162,6 +163,10 @@ class TwigTemplateCompilationTest extends TestCase
         // C_EncounterVisitForm registers displayOptionClass dynamically;
         // the stub lets those templates compile without the full form controller.
         $twig->addFunction(new TwigFunction('displayOptionClass', fn () => ''));
+
+        // PostCalendar templates use calendar-specific Twig functions
+        // registered at runtime by pcSmarty/PostCalendarRenderer.
+        $twig->addExtension(new PostCalendarTwigExtensions());
 
         self::$twig = $twig;
         return $twig;

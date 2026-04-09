@@ -1227,6 +1227,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property pcSmarty\\:\\:\\$twigVars has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property Holidays_Controller\\:\\:\\$last_error has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',

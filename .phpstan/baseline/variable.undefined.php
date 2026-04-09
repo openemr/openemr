@@ -11512,11 +11512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ending_date might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$etime might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -11539,11 +11534,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$provider_id might not be defined\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$starting_date might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -16995,6 +16985,16 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$zip might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$Date$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$eventPositions might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$exportWriter might not be defined\\.$#',

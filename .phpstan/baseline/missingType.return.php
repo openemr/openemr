@@ -3522,6 +3522,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:assign\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:assign_by_ref\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:display\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:fetch\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:getVar\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_modifier_pc_date_format\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/modifier.pc_date_format.php',
@@ -3618,6 +3643,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getBlockTime\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_next_month\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_previous_month\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -23892,6 +23927,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:PrintDatePicker\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:monthSelector\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Reminder\\\\BirthdayReminder\\:\\:birthdayAlertResponse\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Reminder/BirthdayReminder.php',
@@ -29920,6 +29980,51 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\NumberToTextTest\\:\\:cases\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/NumberToTextTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr_js\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_holiday\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_weekend_day\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function js_escape\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function text\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xla\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlt\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method RestApiEventHookExample\\\\Module\\:\\:addRestAPIRouteToMap\\(\\) has no return type specified\\.$#',

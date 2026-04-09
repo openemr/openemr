@@ -1747,6 +1747,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\PostCalendar\\\\PostCalendarRenderer\\:\\:\\$templateName \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\PostCalendar\\\\PostCalendarRenderer\\:\\:\\$templateView \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:\\$authRequestSerial \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',

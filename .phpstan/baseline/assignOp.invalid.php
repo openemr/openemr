@@ -547,6 +547,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\-\\=" between mixed and 1 results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and "\\\\n\\\\n\\<\\!\\-\\- START…" results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -2350,6 +2355,11 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and \' \\(\\)\\: \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between mixed and \' groups \' results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO lists…\' and mixed results in an error\\.$#',
