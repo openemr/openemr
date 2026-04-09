@@ -14,6 +14,14 @@ declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface as TC;
 use Lcobucci\Clock\SystemClock;
+use League\Flysystem\{
+    Filesystem,
+    FilesystemAdapter,
+    FilesystemOperator,
+    FilesystemReader,
+    FilesystemWriter,
+    Local\LocalFilesystemAdapter,
+};
 use Monolog\{
     Formatter\LineFormatter,
     Handler\ErrorLogHandler,
@@ -30,6 +38,7 @@ use Psr\Http\Message\{
 };
 
 return [
+    // Error handling
     ErrorHandler::class => fn (TC $c) => new ErrorHandler(
         logger: $c->get(LoggerInterface::class),
         rf: $c->get(ResponseFactoryInterface::class),
@@ -37,6 +46,20 @@ return [
         // Once there are more well-defined environments, set this using them
         shouldDisplayErrors: false,
     ),
+
+    // Filesystem abstraction
+    Filesystem::class,
+    FilesystemAdapter::class => LocalFilesystemAdapter::class,
+    FilesystemOperator::class => Filesystem::class,
+    FilesystemReader::class => Filesystem::class,
+    FilesystemWriter::class => Filesystem::class,
+    LocalFilesystemAdapter::class => fn (TC $c) => new LocalFilesystemAdapter(
+        location: $c->getString('installRoot'),
+    ),
+    // (will arrive from elsewhere)
+    'installRoot' => fn () => dirname(__DIR__),
+
+    // Logging
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
         // Duplicated from setup in SystemLogger (for now)
