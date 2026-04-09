@@ -190,8 +190,9 @@ class RouteController
 
         $fields = $service->getFields();
         foreach ($fields as $field) {
-            $value = $request->request->get($field['name'], '');
-            $service->setFieldValue($field['name'], $value);
+            $fieldName = (string) $field['name'];
+            $value = $request->request->get($fieldName, '');
+            $service->setFieldValue($fieldName, $value);
         }
         try {
             $fields = $service->getFields();
