@@ -58,6 +58,7 @@ use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\Clover;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -65,15 +66,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'convert',
+    description: 'Convert raw coverage files to PHPUnit format',
+)]
 class ConvertCoverageCommand extends Command
 {
-    protected static $defaultName = 'convert';
-    protected static $defaultDescription = 'Convert raw coverage files to PHPUnit format';
-
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->setHelp('This command merges raw Xdebug coverage arrays (from E2E or API tests) into a CodeCoverage object and optionally generates a Clover report.')
             ->addArgument(
                 'input',
@@ -248,6 +249,6 @@ class ConvertCoverageCommand extends Command
 
 // Create and run the application
 $application = new Application('Coverage Converter', '1.0.0');
-$application->add(new ConvertCoverageCommand());
+$application->addCommand(new ConvertCoverageCommand());
 $application->setDefaultCommand('convert', true);
 $application->run();
