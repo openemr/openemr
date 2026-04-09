@@ -47,7 +47,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pc_catid\' on non\\-empty\\-array\\<\'class_code\'\\|\'date\'\\|\'discharge…\'\\|\'facility_id\'\\|\'provider_uuid\'\\|\'puuid\'\\|\'reason\'\\|\'referrer_uuid\'\\|\'uuid\', string\\> in isset\\(\\) does not exist\\.$#',
+    'message' => '#^Offset \'pc_catid\' on array\\{\\}\\|array\\{uuid\\?\\: mixed, puuid\\?\\: \\(array\\<string\\>\\|string\\), class_code\\?\\: mixed, date\\?\\: mixed, provider_uuid\\?\\: \\(array\\<string\\>\\|string\\), referrer_uuid\\?\\: \\(array\\<string\\>\\|string\\), reason\\?\\: mixed, facility_id\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];

@@ -257,79 +257,57 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             );
         }
 
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if ($fhirResource->getId()) {
-            $data['uuid'] = (string) $fhirResource->getId();
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
         }
 
-        // Category is always 'medication' in OpenEMR (US Core requires it)
-        // We accept it from the FHIR resource but don't need to store it since
-        // OpenEMR allergy type is always 'allergy' in the lists table
-
         // Patient reference -> puuid (required in US Core)
-        $patient = $fhirResource->getPatient();
-        if ($patient && $patient->getReference()) {
-            $reference = (string) $patient->getReference();
-            $data['puuid'] = str_replace('Patient/', '', $reference);
+        if (!empty($json['patient']['reference'])) {
+            $data['puuid'] = str_replace('Patient/', '', $json['patient']['reference']);
         }
 
         // Code -> title and diagnosis
-        $code = $fhirResource->getCode();
-        if ($code) {
-            $codings = $code->getCoding();
-            if (!empty($codings)) {
-                $diagnosisParts = [];
-                foreach ($codings as $coding) {
-                    $system = (string) $coding->getSystem();
-                    $codeValue = (string) $coding->getCode();
-                    $display = (string) $coding->getDisplay();
-                    if (!empty($codeValue)) {
-                        // Map FHIR system URIs to OpenEMR code type prefixes
-                        $prefix = match ($system) {
-                            'http://snomed.info/sct' => 'SNOMED-CT',
-                            'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
-                            'http://hl7.org/fhir/ndc' => 'NDC',
-                            default => $system,
-                        };
-                        $diagnosisParts[] = $prefix . ':' . $codeValue;
-                    }
-                    if (!empty($display) && empty($data['title'])) {
-                        $data['title'] = $display;
-                    }
+        if (!empty($json['code']['coding'])) {
+            $diagnosisParts = [];
+            foreach ($json['code']['coding'] as $coding) {
+                $system = $coding['system'] ?? '';
+                $codeValue = $coding['code'] ?? '';
+                $display = $coding['display'] ?? '';
+                if (!empty($codeValue)) {
+                    $prefix = match ($system) {
+                        'http://snomed.info/sct' => 'SNOMED-CT',
+                        'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
+                        'http://hl7.org/fhir/ndc' => 'NDC',
+                        default => $system,
+                    };
+                    $diagnosisParts[] = $prefix . ':' . $codeValue;
                 }
-                if (!empty($diagnosisParts)) {
-                    $data['diagnosis'] = implode(';', $diagnosisParts);
+                if (!empty($display) && empty($data['title'])) {
+                    $data['title'] = $display;
                 }
             }
-            // Fall back to text if no display
-            if (empty($data['title']) && $code->getText()) {
-                $data['title'] = (string) $code->getText();
+            if (!empty($diagnosisParts)) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
             }
         }
+        if (empty($data['title']) && !empty($json['code']['text'])) {
+            $data['title'] = $json['code']['text'];
+        }
 
-        // ClinicalStatus -> outcome and enddate
-        $clinicalStatus = $fhirResource->getClinicalStatus();
-        if ($clinicalStatus) {
-            $codings = $clinicalStatus->getCoding();
-            if (!empty($codings)) {
-                $statusCode = (string) $codings[0]->getCode();
-                if ($statusCode === 'resolved') {
-                    $data['outcome'] = '1';
-                } elseif ($statusCode === 'active') {
-                    // no enddate for active allergies
-                    $data['outcome'] = '0';
-                } elseif ($statusCode === 'inactive') {
-                    $data['outcome'] = '0';
-                }
-            }
+        // ClinicalStatus -> outcome
+        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
+            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
+            $data['outcome'] = ($statusCode === 'resolved') ? '1' : '0';
         }
 
         // Criticality -> severity_al
-        $criticality = $fhirResource->getCriticality();
-        if ($criticality) {
-            $criticalityValue = (string) $criticality->getValue();
-            $data['severity_al'] = match ($criticalityValue) {
+        if (!empty($json['criticality'])) {
+            $data['severity_al'] = match ($json['criticality']) {
                 'low' => 'mild',
                 'high' => 'severe',
                 'unable-to-assess' => 'unassigned',
@@ -338,75 +316,52 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // VerificationStatus -> verification
-        $verificationStatus = $fhirResource->getVerificationStatus();
-        if ($verificationStatus) {
-            $codings = $verificationStatus->getCoding();
-            if (!empty($codings)) {
-                $data['verification'] = (string) $codings[0]->getCode();
-            }
+        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
+            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
         }
 
-        // Recorder -> user (practitioner reference)
-        $recorder = $fhirResource->getRecorder();
-        if ($recorder && $recorder->getReference()) {
-            $reference = (string) $recorder->getReference();
-            // Store the practitioner UUID; the underlying service handles mapping
-            $data['practitioner_uuid'] = str_replace('Practitioner/', '', $reference);
+        // Recorder -> practitioner reference
+        if (!empty($json['recorder']['reference'])) {
+            $data['practitioner_uuid'] = str_replace('Practitioner/', '', $json['recorder']['reference']);
         }
 
         // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
-        $onset = $fhirResource->getOnsetDateTime();
-        if ($onset) {
-            $onsetValue = trim((string) $onset);
-            if ($onsetValue !== '') {
-                try {
-                    $onsetDt = new \DateTimeImmutable($onsetValue);
-                    $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
-                } catch (\Throwable) {
-                    // Skip invalid date values
-                }
+        if (!empty($json['onsetDateTime'])) {
+            try {
+                $onsetDt = new \DateTimeImmutable($json['onsetDateTime']);
+                $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
+            } catch (\Throwable) {
+                // Skip invalid date values
             }
         }
 
         // Note -> comments
-        $notes = $fhirResource->getNote();
-        if (!empty($notes)) {
-            $data['comments'] = (string) $notes[0]->getText();
+        if (!empty($json['note'][0]['text'])) {
+            $data['comments'] = $json['note'][0]['text'];
         }
 
         // Reaction -> reaction code
-        $reactions = $fhirResource->getReaction();
-        if (!empty($reactions)) {
-            $manifestations = $reactions[0]->getManifestation();
-            if (!empty($manifestations)) {
-                $codings = $manifestations[0]->getCoding();
-                if (!empty($codings)) {
-                    $reactionParts = [];
-                    foreach ($codings as $coding) {
-                        $codeValue = (string) $coding->getCode();
-                        if (!empty($codeValue)) {
-                            $system = (string) $coding->getSystem();
-                            $prefix = match ($system) {
-                                'http://snomed.info/sct' => 'SNOMED-CT',
-                                default => $system,
-                            };
-                            $reactionParts[] = $prefix . ':' . $codeValue;
-                        }
-                    }
-                    if (!empty($reactionParts)) {
-                        $data['reaction'] = implode(';', $reactionParts);
-                    }
+        if (!empty($json['reaction'][0]['manifestation'][0]['coding'])) {
+            $reactionParts = [];
+            foreach ($json['reaction'][0]['manifestation'][0]['coding'] as $coding) {
+                $codeValue = $coding['code'] ?? '';
+                if (!empty($codeValue)) {
+                    $system = $coding['system'] ?? '';
+                    $prefix = match ($system) {
+                        'http://snomed.info/sct' => 'SNOMED-CT',
+                        default => $system,
+                    };
+                    $reactionParts[] = $prefix . ':' . $codeValue;
                 }
+            }
+            if (!empty($reactionParts)) {
+                $data['reaction'] = implode(';', $reactionParts);
             }
         }
 
-        // Final title fallback from narrative text element
-        if (empty($data['title'])) {
-            $text = $fhirResource->getText();
-            if ($text && $text->getDiv()) {
-                // Strip HTML tags from the narrative div
-                $data['title'] = strip_tags((string) $text->getDiv());
-            }
+        // Final title fallback from narrative text
+        if (empty($data['title']) && !empty($json['text']['div'])) {
+            $data['title'] = strip_tags((string) $json['text']['div']);
         }
 
         return $data;
