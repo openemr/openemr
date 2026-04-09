@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
@@ -117,6 +118,153 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
+    }
+
+    /**
+     * Parses a FHIR Condition resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        $data = [];
+
+        if ($fhirResource->getId()) {
+            $data['uuid'] = (string) $fhirResource->getId();
+        }
+
+        // Category -> subtype (problem-list-item, encounter-diagnosis, health-concern)
+        // OpenEMR stores all conditions as type='medical_problem' in the lists table,
+        // but the category field helps distinguish subtypes
+        $categories = $fhirResource->getCategory();
+        if (!empty($categories)) {
+            foreach ($categories as $category) {
+                $codings = $category->getCoding();
+                if (!empty($codings)) {
+                    $categoryCode = (string) $codings[0]->getCode();
+                    $data['subtype'] = $categoryCode;
+                    break;
+                }
+            }
+        }
+
+        // Subject -> puuid
+        $subject = $fhirResource->getSubject();
+        if ($subject && $subject->getReference()) {
+            $reference = (string) $subject->getReference();
+            $data['puuid'] = str_replace('Patient/', '', $reference);
+        }
+
+        // Code -> title and diagnosis
+        $code = $fhirResource->getCode();
+        if ($code) {
+            $codings = $code->getCoding();
+            if (!empty($codings)) {
+                $diagnosisParts = [];
+                foreach ($codings as $coding) {
+                    $system = (string) $coding->getSystem();
+                    $codeValue = (string) $coding->getCode();
+                    $display = (string) $coding->getDisplay();
+                    if (!empty($codeValue)) {
+                        $prefix = match ($system) {
+                            'http://snomed.info/sct' => 'SNOMED-CT',
+                            'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
+                            'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9',
+                            default => $system,
+                        };
+                        $diagnosisParts[] = $prefix . ':' . $codeValue;
+                    }
+                    if (!empty($display) && empty($data['title'])) {
+                        $data['title'] = $display;
+                    }
+                }
+                if (!empty($diagnosisParts)) {
+                    $data['diagnosis'] = implode(';', $diagnosisParts);
+                }
+            }
+            if (empty($data['title']) && $code->getText()) {
+                $data['title'] = (string) $code->getText();
+            }
+        }
+
+        // ClinicalStatus -> outcome and occurrence
+        $clinicalStatus = $fhirResource->getClinicalStatus();
+        if ($clinicalStatus) {
+            $codings = $clinicalStatus->getCoding();
+            if (!empty($codings)) {
+                $statusCode = (string) $codings[0]->getCode();
+                $data['outcome'] = match ($statusCode) {
+                    'resolved' => '1',
+                    'recurrence' => '0',
+                    default => '0',
+                };
+                if ($statusCode === 'recurrence') {
+                    $data['occurrence'] = '2';
+                }
+            }
+        }
+
+        // VerificationStatus -> verification
+        $verificationStatus = $fhirResource->getVerificationStatus();
+        if ($verificationStatus) {
+            $codings = $verificationStatus->getCoding();
+            if (!empty($codings)) {
+                $data['verification'] = (string) $codings[0]->getCode();
+            }
+        }
+
+        // OnsetDateTime -> begdate
+        $onset = $fhirResource->getOnsetDateTime();
+        if ($onset) {
+            $dateValue = (string) $onset;
+            // ConditionValidator expects Y-m-d format
+            if (strlen($dateValue) > 10) {
+                $dateValue = substr($dateValue, 0, 10);
+            }
+            $data['begdate'] = $dateValue;
+        }
+
+        // AbatementDateTime -> enddate
+        $abatement = $fhirResource->getAbatementDateTime();
+        if ($abatement) {
+            $dateValue = (string) $abatement;
+            if (strlen($dateValue) > 10) {
+                $dateValue = substr($dateValue, 0, 10);
+            }
+            $data['enddate'] = $dateValue;
+        }
+
+        // Note -> comments
+        $notes = $fhirResource->getNote();
+        if (!empty($notes)) {
+            $data['comments'] = (string) $notes[0]->getText();
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->conditionService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        return $this->conditionService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**
