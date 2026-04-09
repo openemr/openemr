@@ -11,8 +11,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AllergyIntoleranceService;
-use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -241,6 +241,184 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         } else {
             return $allergyIntoleranceResource;
         }
+    }
+
+    /**
+     * Parses a FHIR AllergyIntolerance resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        $data = [];
+
+        if ($fhirResource->getId()) {
+            $data['uuid'] = (string) $fhirResource->getId();
+        }
+
+        // Category is always 'medication' in OpenEMR (US Core requires it)
+        // We accept it from the FHIR resource but don't need to store it since
+        // OpenEMR allergy type is always 'allergy' in the lists table
+
+        // Patient reference -> puuid (required in US Core)
+        $patient = $fhirResource->getPatient();
+        if ($patient && $patient->getReference()) {
+            $reference = (string) $patient->getReference();
+            $data['puuid'] = str_replace('Patient/', '', $reference);
+        }
+
+        // Code -> title and diagnosis
+        $code = $fhirResource->getCode();
+        if ($code) {
+            $codings = $code->getCoding();
+            if (!empty($codings)) {
+                $diagnosisParts = [];
+                foreach ($codings as $coding) {
+                    $system = (string) $coding->getSystem();
+                    $codeValue = (string) $coding->getCode();
+                    $display = (string) $coding->getDisplay();
+                    if (!empty($codeValue)) {
+                        // Map FHIR system URIs to OpenEMR code type prefixes
+                        $prefix = match ($system) {
+                            'http://snomed.info/sct' => 'SNOMED-CT',
+                            'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
+                            'http://hl7.org/fhir/ndc' => 'NDC',
+                            default => $system,
+                        };
+                        $diagnosisParts[] = $prefix . ':' . $codeValue;
+                    }
+                    if (!empty($display) && empty($data['title'])) {
+                        $data['title'] = $display;
+                    }
+                }
+                if (!empty($diagnosisParts)) {
+                    $data['diagnosis'] = implode(';', $diagnosisParts);
+                }
+            }
+            // Fall back to text if no display
+            if (empty($data['title']) && $code->getText()) {
+                $data['title'] = (string) $code->getText();
+            }
+        }
+
+        // ClinicalStatus -> outcome and enddate
+        $clinicalStatus = $fhirResource->getClinicalStatus();
+        if ($clinicalStatus) {
+            $codings = $clinicalStatus->getCoding();
+            if (!empty($codings)) {
+                $statusCode = (string) $codings[0]->getCode();
+                if ($statusCode === 'resolved') {
+                    $data['outcome'] = '1';
+                } elseif ($statusCode === 'active') {
+                    // no enddate for active allergies
+                    $data['outcome'] = '0';
+                } elseif ($statusCode === 'inactive') {
+                    $data['outcome'] = '0';
+                }
+            }
+        }
+
+        // Criticality -> severity_al
+        $criticality = $fhirResource->getCriticality();
+        if ($criticality) {
+            $criticalityValue = (string) $criticality->getValue();
+            $data['severity_al'] = match ($criticalityValue) {
+                'low' => 'mild',
+                'high' => 'severe',
+                'unable-to-assess' => 'unassigned',
+                default => 'unassigned',
+            };
+        }
+
+        // VerificationStatus -> verification
+        $verificationStatus = $fhirResource->getVerificationStatus();
+        if ($verificationStatus) {
+            $codings = $verificationStatus->getCoding();
+            if (!empty($codings)) {
+                $data['verification'] = (string) $codings[0]->getCode();
+            }
+        }
+
+        // Recorder -> user (practitioner reference)
+        $recorder = $fhirResource->getRecorder();
+        if ($recorder && $recorder->getReference()) {
+            $reference = (string) $recorder->getReference();
+            // Store the practitioner UUID; the underlying service handles mapping
+            $data['practitioner_uuid'] = str_replace('Practitioner/', '', $reference);
+        }
+
+        // OnsetDateTime -> begdate
+        $onset = $fhirResource->getOnsetDateTime();
+        if ($onset) {
+            $data['begdate'] = (string) $onset;
+        }
+
+        // Note -> comments
+        $notes = $fhirResource->getNote();
+        if (!empty($notes)) {
+            $data['comments'] = (string) $notes[0]->getText();
+        }
+
+        // Reaction -> reaction code
+        $reactions = $fhirResource->getReaction();
+        if (!empty($reactions)) {
+            $manifestations = $reactions[0]->getManifestation();
+            if (!empty($manifestations)) {
+                $codings = $manifestations[0]->getCoding();
+                if (!empty($codings)) {
+                    $reactionParts = [];
+                    foreach ($codings as $coding) {
+                        $codeValue = (string) $coding->getCode();
+                        if (!empty($codeValue)) {
+                            $system = (string) $coding->getSystem();
+                            $prefix = match ($system) {
+                                'http://snomed.info/sct' => 'SNOMED-CT',
+                                default => $system,
+                            };
+                            $reactionParts[] = $prefix . ':' . $codeValue;
+                        }
+                    }
+                    if (!empty($reactionParts)) {
+                        $data['reaction'] = implode(';', $reactionParts);
+                    }
+                }
+            }
+        }
+
+        // Final title fallback from narrative text element
+        if (empty($data['title'])) {
+            $text = $fhirResource->getText();
+            if ($text && $text->getDiv()) {
+                // Strip HTML tags from the narrative div
+                $data['title'] = strip_tags((string) $text->getDiv());
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->allergyIntoleranceService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        return $this->allergyIntoleranceService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

@@ -35,6 +35,8 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -287,6 +289,193 @@ class FhirEncounterService extends FhirServiceBase implements
         } else {
             return $encounterResource;
         }
+    }
+
+    /**
+     * Parses a FHIR Encounter resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        $data = [];
+
+        if ($fhirResource->getId()) {
+            $data['uuid'] = (string) $fhirResource->getId();
+        }
+
+        // Subject -> puuid (required in US Core)
+        $subject = $fhirResource->getSubject();
+        if ($subject && $subject->getReference()) {
+            $reference = (string) $subject->getReference();
+            $data['puuid'] = str_replace('Patient/', '', $reference);
+        }
+
+        // Class -> class_code (required in FHIR R4)
+        $class = $fhirResource->getClass();
+        if ($class && $class->getCode()) {
+            $data['class_code'] = (string) $class->getCode();
+        }
+
+        // Period -> date
+        $period = $fhirResource->getPeriod();
+        if ($period) {
+            $start = $period->getStart();
+            if ($start) {
+                $data['date'] = (string) $start;
+            }
+        }
+
+        // Participant -> provider_uuid and referrer_uuid
+        $participants = $fhirResource->getParticipant();
+        if (!empty($participants)) {
+            foreach ($participants as $participant) {
+                $individual = $participant->getIndividual();
+                if (!$individual || !$individual->getReference()) {
+                    continue;
+                }
+                $reference = (string) $individual->getReference();
+                $practitionerUuid = str_replace('Practitioner/', '', $reference);
+
+                // Determine participant type from type codings
+                $participantTypes = $participant->getType();
+                $isPrimaryPerformer = false;
+                $isReferrer = false;
+                if (!empty($participantTypes)) {
+                    foreach ($participantTypes as $pType) {
+                        $codings = $pType->getCoding();
+                        if (!empty($codings)) {
+                            $code = (string) $codings[0]->getCode();
+                            if ($code === self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER) {
+                                $isPrimaryPerformer = true;
+                            } elseif ($code === self::ENCOUNTER_PARTICIPANT_TYPE_REFERRER) {
+                                $isReferrer = true;
+                            }
+                        }
+                    }
+                }
+
+                if ($isReferrer) {
+                    $data['referrer_uuid'] = $practitionerUuid;
+                } elseif ($isPrimaryPerformer || !isset($data['provider_uuid'])) {
+                    // Primary performer, or first participant if no type specified
+                    $data['provider_uuid'] = $practitionerUuid;
+                }
+            }
+        }
+
+        // ReasonCode -> reason
+        $reasonCodes = $fhirResource->getReasonCode();
+        if (!empty($reasonCodes)) {
+            $reason = $reasonCodes[0];
+            if ($reason->getText()) {
+                $data['reason'] = (string) $reason->getText();
+            } elseif (!empty($reason->getCoding())) {
+                $data['reason'] = (string) $reason->getCoding()[0]->getDisplay();
+            }
+        }
+
+        // ServiceProvider -> facility_id (via Organization uuid)
+        $serviceProvider = $fhirResource->getServiceProvider();
+        if ($serviceProvider && $serviceProvider->getReference()) {
+            $reference = (string) $serviceProvider->getReference();
+            $facilityUuid = str_replace('Organization/', '', $reference);
+            // Look up facility_id from uuid
+            $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($facilityUuid);
+            $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
+            if ($facilityId) {
+                $data['facility_id'] = $facilityId;
+            }
+        }
+
+        // Hospitalization -> discharge_disposition
+        $hospitalization = $fhirResource->getHospitalization();
+        if ($hospitalization) {
+            $dischargeDisposition = $hospitalization->getDischargeDisposition();
+            if ($dischargeDisposition) {
+                $codings = $dischargeDisposition->getCoding();
+                if (!empty($codings)) {
+                    $data['discharge_disposition'] = (string) $codings[0]->getCode();
+                }
+            }
+        }
+
+        // Default pc_catid for new encounters (required by EncounterValidator)
+        if (!isset($data['pc_catid'])) {
+            $data['pc_catid'] = 10; // Default: Office Visit
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        $puuid = $openEmrRecord['puuid'] ?? '';
+        unset($openEmrRecord['puuid']);
+
+        // user and group are required by EncounterService::insertEncounter for addForm()
+        $session = $this->getSession();
+        if ($session && empty($openEmrRecord['user'])) {
+            $openEmrRecord['user'] = $session->get('authUser') ?? '';
+        }
+        if ($session && empty($openEmrRecord['group'])) {
+            $openEmrRecord['group'] = $session->get('authProvider') ?? '';
+        }
+
+        // Resolve provider_uuid to provider_id if needed
+        if (!empty($openEmrRecord['provider_uuid']) && empty($openEmrRecord['provider_id'])) {
+            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($openEmrRecord['provider_uuid']);
+            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
+            if ($providerId) {
+                $openEmrRecord['provider_id'] = $providerId;
+            }
+        }
+        unset($openEmrRecord['provider_uuid']);
+        unset($openEmrRecord['referrer_uuid']);
+
+        return $this->encounterService->insertEncounter($puuid, $openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? '';
+        unset($updatedOpenEMRRecord['puuid']);
+
+        // user and group are required by EncounterValidator for updates
+        $session = $this->getSession();
+        if ($session && empty($updatedOpenEMRRecord['user'])) {
+            $updatedOpenEMRRecord['user'] = $session->get('authUser') ?? '';
+        }
+        if ($session && empty($updatedOpenEMRRecord['group'])) {
+            $updatedOpenEMRRecord['group'] = $session->get('authProvider') ?? '';
+        }
+
+        // Resolve provider_uuid to provider_id if needed
+        if (!empty($updatedOpenEMRRecord['provider_uuid']) && empty($updatedOpenEMRRecord['provider_id'])) {
+            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($updatedOpenEMRRecord['provider_uuid']);
+            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
+            if ($providerId) {
+                $updatedOpenEMRRecord['provider_id'] = $providerId;
+            }
+        }
+        unset($updatedOpenEMRRecord['provider_uuid']);
+        unset($updatedOpenEMRRecord['referrer_uuid']);
+
+        return $this->encounterService->updateEncounter($puuid, $fhirResourceId, $updatedOpenEMRRecord);
     }
 
     public function createProvenanceResource($dataRecord = [], $encode = false)

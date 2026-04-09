@@ -177,6 +177,22 @@ class FixtureManager
     }
 
     /**
+     * @return array of FHIR AllergyIntolerance fixtures.
+     */
+    public function getFhirAllergyIntoleranceFixtures()
+    {
+        return $this->loadJsonFile("FHIR/allergy-intolerance.json");
+    }
+
+    /**
+     * @return single/random fhir allergy intolerance fixture
+     */
+    public function getSingleFhirAllergyIntoleranceFixture()
+    {
+        return $this->getSingleEntry($this->getFhirAllergyIntoleranceFixtures());
+    }
+
+    /**
      * @template T
      * @param T[] $array
      * @return T

@@ -20,6 +20,7 @@ use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Validators\ProcessingResult;
@@ -38,6 +39,9 @@ class FhirGenericRestController implements IGlobalsAware {
     public function __construct(protected HttpRestRequest $request, protected FhirServiceBase $fhirService, OEGlobalsBag $globalsBag)
     {
         $this->setGlobalsBag($globalsBag);
+        if ($request->getSession()) {
+            $this->fhirService->setSession($request->getSession());
+        }
     }
 
     public function getResourcePolicyEnforcementDecisionChecker(): ResourceConstraintFilterer {
@@ -146,5 +150,76 @@ class FhirGenericRestController implements IGlobalsAware {
 
     public function canAccessResource(FHIRDomainResource $resource): bool {
         return $this->getResourcePolicyEnforcementDecisionChecker()->canAccessResource($resource, $this->getHttpRestRequest());
+    }
+
+    /**
+     * Creates a new FHIR resource
+     * @param array $fhirJson The FHIR resource as a JSON-decoded array
+     * @return Response 201 if the resource is created, 400 if invalid
+     */
+    public function post(array $fhirJson): Response
+    {
+        if ($this->getHttpRestRequest()->isPatientRequest()) {
+            return RestControllerHelper::responseHandler(null, null, 403);
+        }
+
+        foreach ($this->aclChecks as $aclCheck) {
+            RestConfig::request_authorization_check(
+                $this->getHttpRestRequest(),
+                $aclCheck['section'],
+                $aclCheck['subSection'],
+                $aclCheck['aclPermission']
+            );
+        }
+
+        $fhirValidationService = new FhirValidationService();
+        $validationResult = $fhirValidationService->validate($fhirJson);
+        if (!empty($validationResult)) {
+            return RestControllerHelper::responseHandler($validationResult, null, 400);
+        }
+
+        $resourceType = $fhirJson['resourceType'] ?? '';
+        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
+        unset($fhirJson['resourceType']);
+        $fhirResource = new $className($fhirJson);
+
+        $processingResult = $this->getFhirService()->insert($fhirResource);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+    }
+
+    /**
+     * Updates an existing FHIR resource
+     * @param string $fhirId The FHIR resource id (uuid)
+     * @param array $fhirJson The updated FHIR resource (complete resource)
+     * @return Response 200 if the resource is updated, 400 if invalid
+     */
+    public function put(string $fhirId, array $fhirJson): Response
+    {
+        if ($this->getHttpRestRequest()->isPatientRequest()) {
+            return RestControllerHelper::responseHandler(null, null, 403);
+        }
+
+        foreach ($this->aclChecks as $aclCheck) {
+            RestConfig::request_authorization_check(
+                $this->getHttpRestRequest(),
+                $aclCheck['section'],
+                $aclCheck['subSection'],
+                $aclCheck['aclPermission']
+            );
+        }
+
+        $fhirValidationService = new FhirValidationService();
+        $validationResult = $fhirValidationService->validate($fhirJson);
+        if (!empty($validationResult)) {
+            return RestControllerHelper::responseHandler($validationResult, null, 400);
+        }
+
+        $resourceType = $fhirJson['resourceType'] ?? '';
+        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
+        unset($fhirJson['resourceType']);
+        $fhirResource = new $className($fhirJson);
+
+        $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 }
