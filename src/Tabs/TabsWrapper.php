@@ -182,7 +182,12 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' id='" + label + "' role='close'>&times;</span></a> </li>";
+  var closeId = panelId + '-close';
+  var li = $("<li class='tabs-tabs'></li>");
+  var anchor = $("<a data-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
+  anchor.append(document.createTextNode(label));
+  anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId));
+  li.append(anchor);
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
