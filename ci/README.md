@@ -79,9 +79,10 @@ The CI system uses Docker Compose's multi-file composition (otherwise known as c
 1. **Shared Configuration Files**:
    - `compose-shared-selenium/docker-compose.yml`: Contains the Selenium Grid configuration for running E2E tests. It is always included.
    - `compose-shared-apache.yml`: Contains the base configuration for Apache-based setups with database specific items not included.
-   - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
+   - `compose-shared-nginx/compose.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
    - `compose-shared-mariadb.yml`: Contains MariaDB specific items.
    - `compose-shared-mysql.yml`: Contains MySQL specific items.
+   - `compose-shared-mailpit/compose.yml`: Contains the Mailpit configuration for email testing.
 
 2. **Individual Test Environment Setup**:
    Each test directory (e.g., `apache_83_116`) has its own `docker-compose.yml` that:
@@ -110,7 +111,7 @@ To add a new test configuration:
 
 1. Decide if your new environment needs Apache or Nginx:
    - For Apache-based environments, will use `compose-shared-apache.yml`
-   - For Nginx-based environments, will use `compose-shared-nginx.yml`
+   - For Nginx-based environments, will use `compose-shared-nginx/compose.yml`
 
 2. Decide if your new environment needs MariaDB or MySQL:
    - For MariaDB, will use `compose-shared-mariadb.yml`
@@ -161,7 +162,7 @@ To add a new test configuration:
    #  multi-file composition command line commands.
    x-includes:
      selenium-template: "compose-shared-selenium/docker-compose.yml"  # Show the Selenium Grid template
-     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
+     webserver-template: "compose-shared-nginx/compose.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
    services:
@@ -177,7 +178,7 @@ To add a new test configuration:
    #  multi-file composition command line commands.
    x-includes:
      selenium-template: "compose-shared-selenium/docker-compose.yml"  # Show the Selenium Grid template
-     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
+     webserver-template: "compose-shared-nginx/compose.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
    services:
@@ -192,7 +193,7 @@ To add a new test configuration:
 #### Modifying Shared Configurations
 
 When updating the shared configuration files:
-- Changes to `compose-shared-selenium/docker-compose.yml`, ```compose-shared-apache.yml`, `compose-shared-nginx.yml`, `compose-shared-mariadb.yml`, and  `compose-shared-mysql.yml` will affect all test environments that use them
+- Changes to `compose-shared-selenium/docker-compose.yml`, `compose-shared-apache.yml`, `compose-shared-nginx/compose.yml`, `compose-shared-mariadb.yml`, and `compose-shared-mysql.yml` will affect all test environments that use them
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 

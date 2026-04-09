@@ -3,10 +3,10 @@ x-includes:
   selenium-template: "compose-shared-selenium/docker-compose.yml"
   webserver-template: "compose-shared-apache.yml"
   database-template: "compose-shared-mariadb.yml"
-  mailpit-template: "compose-shared-mailpit.yml"
+  mailpit-template: "compose-shared-mailpit/compose.yml"
 
 services:
   mysql:
-    image: mariadb:11.8
+    image: mariadb:11.8@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c

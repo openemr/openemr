@@ -128,19 +128,65 @@ updates:
   - docker/development-easy-redis/
   - docker/development-insane/
   schedule:
-    interval: weekly
+    interval: daily
   allow:
   - dependency-name: selenium/standalone-chromium
+  - dependency-name: selenium/video
   ignore:
   - dependency-name: selenium/standalone-chromium
     versions: ['>=50']
   groups:
     selenium-updates:
       patterns:
-      - selenium/standalone-chromium
+      - selenium/*
   labels:
   - dependencies
   - selenium
+  - docker
+
+  # Docker CI images (database + openemr/dev-php-fpm + openemr/openemr + shared services)
+- package-ecosystem: docker-compose
+  directories:
+  - ci/apache_82_118/
+  - ci/apache_83_118/
+  - ci/apache_84_118/
+  - ci/apache_85_1011/
+  - ci/apache_85_106/
+  - ci/apache_85_114/
+  - ci/apache_85_118/
+  - ci/apache_85_120/
+  - ci/apache_85_57/
+  - ci/apache_85_80/
+  - ci/apache_85_84/
+  - ci/apache_85_93/
+  - ci/compose-shared-mailpit/
+  - ci/compose-shared-nginx/
+  - ci/inferno/
+  - ci/nginx_82/
+  - ci/nginx_83/
+  - ci/nginx_84/
+  - ci/nginx_85/
+  - ci/nginx_86/
+  schedule:
+    interval: daily
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    mailpit:
+      patterns:
+      - axllent/mailpit
+  labels:
+  - dependencies
   - docker
 
   # JavaScript dependencies (ccdaservice)
