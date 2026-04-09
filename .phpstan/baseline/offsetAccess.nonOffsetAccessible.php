@@ -45842,11 +45842,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'insureruuid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',

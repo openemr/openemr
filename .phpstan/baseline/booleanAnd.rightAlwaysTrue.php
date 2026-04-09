@@ -63,6 +63,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Right side of && is always true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];
