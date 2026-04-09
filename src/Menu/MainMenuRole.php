@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -50,7 +51,7 @@ class MainMenuRole extends MenuRole
 
         // Validate that the menu role filename is a basename only (no path traversal)
         if ($mainMenuRole !== basename($mainMenuRole) || str_contains($mainMenuRole, '..')) {
-            error_log("OpenEMR: invalid main menu role filename rejected: " . $mainMenuRole);
+            (new SystemLogger())->error("Invalid menu role filename rejected", ['filename' => $mainMenuRole]);
             die("\nInvalid menu role filename.");
         }
 

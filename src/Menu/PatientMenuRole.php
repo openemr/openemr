@@ -15,6 +15,7 @@
 namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuEvent;
@@ -54,7 +55,7 @@ class PatientMenuRole extends MenuRole
 
         // Validate that the menu role filename is a basename only (no path traversal)
         if ($patientMenuRole !== basename($patientMenuRole) || str_contains($patientMenuRole, '..')) {
-            error_log("OpenEMR: invalid patient menu role filename rejected: " . $patientMenuRole);
+            (new SystemLogger())->error("Invalid menu role filename rejected", ['filename' => $patientMenuRole]);
             die("\nInvalid menu role filename.");
         }
 
