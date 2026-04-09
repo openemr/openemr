@@ -251,6 +251,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      */
     public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
+        if (!($fhirResource instanceof FHIRAllergyIntolerance)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRAllergyIntolerance resource, got ' . get_class($fhirResource)
+            );
+        }
+
         $data = [];
 
         if ($fhirResource->getId()) {
@@ -348,10 +354,18 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             $data['practitioner_uuid'] = str_replace('Practitioner/', '', $reference);
         }
 
-        // OnsetDateTime -> begdate
+        // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
         $onset = $fhirResource->getOnsetDateTime();
         if ($onset) {
-            $data['begdate'] = (string) $onset;
+            $onsetValue = trim((string) $onset);
+            if ($onsetValue !== '') {
+                try {
+                    $onsetDt = new \DateTimeImmutable($onsetValue);
+                    $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
+                } catch (\Exception) {
+                    // Skip invalid date values
+                }
+            }
         }
 
         // Note -> comments

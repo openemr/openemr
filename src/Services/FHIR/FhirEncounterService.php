@@ -20,6 +20,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -28,15 +29,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterHospitalization;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterLocation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\Services\EncounterService;
-use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -299,6 +298,12 @@ class FhirEncounterService extends FhirServiceBase implements
      */
     public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
+        if (!($fhirResource instanceof FHIREncounter)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIREncounter resource, got ' . get_class($fhirResource)
+            );
+        }
+
         $data = [];
 
         if ($fhirResource->getId()) {
@@ -318,12 +323,17 @@ class FhirEncounterService extends FhirServiceBase implements
             $data['class_code'] = (string) $class->getCode();
         }
 
-        // Period -> date
+        // Period -> date (normalize to Y-m-d H:i:s for database)
         $period = $fhirResource->getPeriod();
         if ($period) {
             $start = $period->getStart();
             if ($start) {
-                $data['date'] = (string) $start;
+                try {
+                    $startDt = new \DateTimeImmutable((string) $start);
+                    $data['date'] = $startDt->format('Y-m-d H:i:s');
+                } catch (\Exception) {
+                    $data['date'] = (string) $start;
+                }
             }
         }
 
@@ -403,10 +413,40 @@ class FhirEncounterService extends FhirServiceBase implements
 
         // Default pc_catid for new encounters (required by EncounterValidator)
         if (!isset($data['pc_catid'])) {
-            $data['pc_catid'] = 10; // Default: Office Visit
+            $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
         }
 
         return $data;
+    }
+
+    /**
+     * Resolves the default encounter category id from the database rather than
+     * hardcoding a site-specific numeric value.
+     *
+     * @return int
+     */
+    private function getDefaultEncounterCategoryId(): int
+    {
+        // Try the standard 'office_visit' constant first
+        $category = QueryUtils::querySingleRow(
+            "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? LIMIT 1",
+            ['office_visit']
+        );
+        if (!empty($category['pc_catid'])) {
+            return (int) $category['pc_catid'];
+        }
+
+        // Fall back to first active category
+        $category = QueryUtils::querySingleRow(
+            "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_active = 1 ORDER BY pc_catid ASC LIMIT 1",
+            []
+        );
+        if (!empty($category['pc_catid'])) {
+            return (int) $category['pc_catid'];
+        }
+
+        // Last resort: schema default is 5
+        return 5;
     }
 
     /**
@@ -429,16 +469,7 @@ class FhirEncounterService extends FhirServiceBase implements
             $openEmrRecord['group'] = $session->get('authProvider') ?? '';
         }
 
-        // Resolve provider_uuid to provider_id if needed
-        if (!empty($openEmrRecord['provider_uuid']) && empty($openEmrRecord['provider_id'])) {
-            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($openEmrRecord['provider_uuid']);
-            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
-            if ($providerId) {
-                $openEmrRecord['provider_id'] = $providerId;
-            }
-        }
-        unset($openEmrRecord['provider_uuid']);
-        unset($openEmrRecord['referrer_uuid']);
+        $this->resolveProviderUuids($openEmrRecord);
 
         return $this->encounterService->insertEncounter($puuid, $openEmrRecord);
     }
@@ -464,18 +495,35 @@ class FhirEncounterService extends FhirServiceBase implements
             $updatedOpenEMRRecord['group'] = $session->get('authProvider') ?? '';
         }
 
-        // Resolve provider_uuid to provider_id if needed
-        if (!empty($updatedOpenEMRRecord['provider_uuid']) && empty($updatedOpenEMRRecord['provider_id'])) {
-            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($updatedOpenEMRRecord['provider_uuid']);
-            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
-            if ($providerId) {
-                $updatedOpenEMRRecord['provider_id'] = $providerId;
-            }
-        }
-        unset($updatedOpenEMRRecord['provider_uuid']);
-        unset($updatedOpenEMRRecord['referrer_uuid']);
+        $this->resolveProviderUuids($updatedOpenEMRRecord);
 
         return $this->encounterService->updateEncounter($puuid, $fhirResourceId, $updatedOpenEMRRecord);
+    }
+
+    /**
+     * Resolves provider and referrer UUIDs to their numeric IDs.
+     *
+     * @param array &$record The OpenEMR record to modify in place
+     */
+    private function resolveProviderUuids(array &$record): void
+    {
+        if (!empty($record['provider_uuid']) && empty($record['provider_id'])) {
+            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['provider_uuid']);
+            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
+            if ($providerId) {
+                $record['provider_id'] = $providerId;
+            }
+        }
+        unset($record['provider_uuid']);
+
+        if (!empty($record['referrer_uuid']) && empty($record['referring_provider_id'])) {
+            $referrerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['referrer_uuid']);
+            $referrerId = $this->encounterService->getIdByUuid($referrerUuidBytes, 'users', 'id');
+            if ($referrerId) {
+                $record['referring_provider_id'] = $referrerId;
+            }
+        }
+        unset($record['referrer_uuid']);
     }
 
     public function createProvenanceResource($dataRecord = [], $encode = false)
