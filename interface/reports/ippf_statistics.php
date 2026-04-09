@@ -26,9 +26,7 @@ use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Might want something different here.
@@ -789,7 +787,8 @@ function process_ma_code($row): void
   // One row for each service category.
   //
     if ($form_by === '101') {
-        if (!empty($row['lo_title'])) {
+        if (is_string($row['lo_title'] ?? null) && $row['lo_title'] !== '') {
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             $key = xl($row['lo_title']);
         }
     } elseif ($form_by === '102') { // Specific Services. One row for each MA code.

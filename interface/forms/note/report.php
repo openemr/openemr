@@ -14,6 +14,7 @@
 
 
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -28,8 +29,7 @@ function note_report($pid, $encounter, $cols, $id): void
         foreach ($data as $key => $value) {
             if (
                 in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
-                $value == "" ||
-                $value == "0000-00-00 00:00:00"
+                Utilities::isDateEmpty($value)
             ) {
                 continue;
             }
@@ -39,15 +39,21 @@ function note_report($pid, $encounter, $cols, $id): void
             }
 
             $key = ucwords(str_replace("_", " ", $key));
+            $valueText = is_string($value) ? $value : '';
             print("<tr>\n");
             print("<tr>\n");
-            if ($key == "Note Type") {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
-            } elseif ($key == "Date Of Signature") {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . oeFormatShortDate($value) . "</span></td>";
-            } else {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
-            }
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $keyLabel = xlt($key);
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $valueLabel = xlt($valueText);
+            $dateResult = oeFormatShortDate($valueText);
+            $dateLabel = is_string($dateResult) ? text($dateResult) : '';
+            $valueOutput = match ($key) {
+                'Note Type' => $valueLabel,
+                'Date Of Signature' => $dateLabel,
+                default => text($valueText),
+            };
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', $keyLabel, $valueOutput);
 
             $count++;
             if ($count == $cols) {

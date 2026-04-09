@@ -61,13 +61,13 @@ class ConnectionManagerTest extends TestCase
         $auditConn = $this->createMock(Connection::class);
 
         $manager->register(ConnectionType::Main, fn() => $mainConn);
-        $manager->register(ConnectionType::Audit, fn() => $auditConn);
+        $manager->register(ConnectionType::NonAudited, fn() => $auditConn);
 
         self::assertSame($mainConn, $manager->get(ConnectionType::Main));
-        self::assertSame($auditConn, $manager->get(ConnectionType::Audit));
+        self::assertSame($auditConn, $manager->get(ConnectionType::NonAudited));
         self::assertNotSame(
             $manager->get(ConnectionType::Main),
-            $manager->get(ConnectionType::Audit)
+            $manager->get(ConnectionType::NonAudited)
         );
     }
 
@@ -78,10 +78,10 @@ class ConnectionManagerTest extends TestCase
         $mainConn = $this->createMock(Connection::class);
         $auditWasFetched = false;
 
-        $manager->register(ConnectionType::Audit, fn() => $auditConn);
+        $manager->register(ConnectionType::NonAudited, fn() => $auditConn);
         $manager->register(ConnectionType::Main, function () use ($manager, $mainConn, &$auditWasFetched) {
             // Simulate middleware setup that needs the audit connection
-            $manager->get(ConnectionType::Audit);
+            $manager->get(ConnectionType::NonAudited);
             $auditWasFetched = true;
             return $mainConn;
         });

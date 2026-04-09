@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -26,7 +27,7 @@ function ankleinjury_report($pid, $encounter, $cols, $id): void
         foreach ($data as $key => $value) {
             if (
                 in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
-                $value == "" || $value == "0000-00-00 00:00:00"
+                Utilities::isDateEmpty($value)
             ) {
                 continue;
             }
@@ -38,7 +39,8 @@ function ankleinjury_report($pid, $encounter, $cols, $id): void
             $key = ucwords(str_replace("_", " ", $key));
             $key = str_replace("Ankle ", "", $key);
             $key = str_replace("Injuary", "Injury", $key);
-            print "<td valign='top'><span class='bold'>" . xlt($key) . ": </span><span class='text'>" . text($value) . "</span></td>\n";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td valign="top"><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
             if ($count == $cols) {
                 $count = 0;

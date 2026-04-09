@@ -186,6 +186,8 @@ function submitform() {
         } else {
             dlgclose('reload', false);
         }
+    }).fail(function (xhr, status, error) {
+        alert(<?php echo xlj('Error creating user'); ?> + ': ' + status);
     });
 
     return false;

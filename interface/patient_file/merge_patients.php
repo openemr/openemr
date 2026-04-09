@@ -19,6 +19,7 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -393,9 +394,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
@@ -443,10 +442,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 if ($tprow['ss'] != $sprow['ss']) {
                     die(xlt('Target and source SSN do not match'));
                 }
-                if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($tprow['DOB'])) {
                     die(xlt('Target patient has no DOB'));
                 }
-                if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($sprow['DOB'])) {
                     die(xlt('Source patient has no DOB'));
                 }
                 if ($tprow['DOB'] != $sprow['DOB']) {
@@ -547,7 +546,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     // Don't mess with log data.
                 } else {
                     $crow = sqlQuery(
-                        "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                        "SHOW COLUMNS FROM " . escape_table_name($tblname) . " WHERE " .
                         "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                     );
                     if (!empty($crow['Field'])) {

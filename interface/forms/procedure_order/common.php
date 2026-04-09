@@ -154,9 +154,7 @@ $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {

@@ -138,9 +138,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //
     // === log user access on POST requests ===========
@@ -186,9 +184,7 @@ if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     //
     if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {

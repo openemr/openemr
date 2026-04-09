@@ -439,7 +439,7 @@ class ClientAdminController
             $skipAuthorizationFlow = false; // globals overrides this setting
         }
 
-        $requestMessage = $request->get('message', '');
+        $requestMessage = $request->query->get('message', '');
 
         $formValues = [
             'id' => [

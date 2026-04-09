@@ -18,6 +18,7 @@
 require_once(__DIR__ . "/encounter_events.inc.php");
 require_once(__DIR__ . "/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -74,15 +75,10 @@ $REPEAT_ON_NUM = [
     '5' => xl('Last')
 ];
 
-$REPEAT_ON_DAY = [
-    '0' => xl('Sunday'),
-    '1' => xl('Monday'),
-    '2' => xl('Tuesday'),
-    '3' => xl('Wednesday'),
-    '4' => xl('Thursday'),
-    '5' => xl('Friday'),
-    '6' => xl('Saturday')
-];
+$REPEAT_ON_DAY = array_map(
+    static fn(DayOfWeek $d): string => $d->label(),
+    DayOfWeek::cases(),
+);
 
 function checkEvent($recurrtype, $recurrspec)
 {

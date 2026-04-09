@@ -345,9 +345,7 @@ if (!$drug_id) {
     // If we are saving, then save and close the window.
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $form_quantity = is_numeric($_POST['form_quantity']) ? intval($_POST['form_quantity']) : 0;
         $form_cost = sprintf('%0.2f', $_POST['form_cost']);

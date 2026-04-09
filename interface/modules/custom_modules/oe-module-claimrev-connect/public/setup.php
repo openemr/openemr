@@ -27,9 +27,7 @@ if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, "ClaimRevModule")) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: "ClaimRevModule", dieOnFail: true);
 }
 
 $services = ClaimRevModuleSetup::getBackgroundServices();

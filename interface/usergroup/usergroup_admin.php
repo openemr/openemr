@@ -552,10 +552,11 @@ if (isset($_GET["mode"])) {
         }
     }
 }
-// added for form submits from usergroup_admin_add and user_admin.php
-// sjp 12/29/17
+// AJAX form submits from usergroup_admin_add and user_admin.php
+// return the alert message (empty on success) and stop rendering the page
 if (isset($_REQUEST["mode"])) {
-    exit(text(trim($alertmsg)));
+    echo text(trim($alertmsg));
+    return;
 }
 
 $form_inactive = !empty($_POST['form_inactive']);

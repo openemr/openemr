@@ -1502,9 +1502,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // On a save, do the following:
     // Flag this form's drug_sales and billing items as billed.

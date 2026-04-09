@@ -22,6 +22,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
+use OpenEMR\RestControllers\BackgroundServiceRestController;
 use OpenEMR\RestControllers\ConditionRestController;
 // TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
 use OpenEMR\RestControllers\Config\RestConfig;
@@ -460,28 +461,33 @@ return [
         return $return;
     },
     "GET /api/insurance_company" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getAll();
 
         return $return;
     },
     "GET /api/insurance_company/:iid" => function ($iid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getOne($iid);
 
         return $return;
     },
     "GET /api/insurance_type" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getInsuranceTypes();
 
         return $return;
     },
 
     "POST /api/insurance_company" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceCompanyRestController())->post($data);
 
         return $return;
     },
     "PUT /api/insurance_company/:iid" => function ($iid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceCompanyRestController())->put($iid, $data);
 
@@ -671,5 +677,29 @@ return [
     "DELETE /api/prescription/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
         return (new PrescriptionRestController())->delete($uuid, $request);
-    }
+    },
+    "GET /api/background_service" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        return (new BackgroundServiceRestController())->listAll();
+    },
+    "GET /api/background_service/:name" => function (string $name, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        return (new BackgroundServiceRestController())->getOne($name);
+    },
+    "POST /api/background_service/:name/run" => function (string $name, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $body = file_get_contents("php://input");
+        $data = [];
+        if (is_string($body) && $body !== '') {
+            $decoded = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(
+                    ['error' => 'Invalid JSON payload'],
+                    \Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST,
+                );
+            }
+            $data = is_array($decoded) ? $decoded : [];
+        }
+        return (new BackgroundServiceRestController())->runService($name, $data);
+    },
 ];

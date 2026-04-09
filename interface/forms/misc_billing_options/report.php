@@ -14,6 +14,7 @@
  */
 
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -28,8 +29,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" ||
-                $value == "0" || $value == "0000-00-00 00:00:00" || $value == "0000-00-00" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
+                Utilities::isDateEmpty($value) || $value == "0" ||
                 ($key == "box_14_date_qual" && ($data['onset_date'] == 0)) ||
                 ($key == "box_15_date_qual" && ($data['date_initial_treatment'] == 0))
             ) {
@@ -77,7 +78,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
 
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
 
             if ($count == $cols) {

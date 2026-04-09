@@ -123,7 +123,6 @@ class Practice extends Base
 {
     public function sync($token)
     {
-        global $GLOBALS;
         $fields2 = [];
         $fields3 = [];
         $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
@@ -352,8 +351,11 @@ class Events extends Base
                 //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                 //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
                 if ($event['T_appt_stats'] > '') {
-                    $list = implode('|', $event['T_appt_stats']);
-                    $appt_status = " and pc_appstatus in (" . $list . ")";
+                    $statPlaceholders = implode(',', array_fill(0, count($event['T_appt_stats']), '?'));
+                    $appt_status = " and pc_appstatus in (" . $statPlaceholders . ")";
+                    foreach ($event['T_appt_stats'] as $stat) {
+                        $escapedArr[] = $stat;
+                    }
                 }
 
                 $timing = (int)$event['E_fire_time'] - 1;
@@ -364,7 +366,14 @@ class Events extends Base
                 $timing2 = $today == "Friday" ? ($timing + 3) . ":0:1" : ($timing + 1) . ":1:1";
 
                 if (!empty($prefs['ME_facilities'])) {
-                    $places = str_replace("|", ",", $prefs['ME_facilities']);
+                    $facilityIds = array_filter(
+                        array_map(fn($id) => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
+                        fn($id) => $id !== false
+                    );
+                    if ($facilityIds === []) {
+                        continue;
+                    }
+                    $places = implode(',', $facilityIds);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                 LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                 WHERE
@@ -440,7 +449,10 @@ class Events extends Base
                 }
             } elseif ($event['M_group'] == 'RECALL') {
                 $interval = $event['time_order'] > '0' ? "+" : '-';
-                $timing = $event['E_fire_time'];
+                $timing = filter_var($event['E_fire_time'], FILTER_VALIDATE_INT);
+                if ($timing === false) {
+                    continue;
+                }
 
                 $query  = "SELECT * FROM medex_recalls AS recall
                             LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
@@ -676,7 +688,7 @@ class Events extends Base
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                     LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                     WHERE (
-                                        cal.pc_eventDate > CURDATE() - INTERVAL " . $event['timing'] . " DAY AND
+                                        cal.pc_eventDate > CURDATE() - INTERVAL " . filter_var($event['timing'], FILTER_VALIDATE_INT, ['options' => ['default' => 180]]) . " DAY AND
                                         cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
                                         pat.pid=cal.pc_pid AND
                                         pc_apptstatus !='%' AND
@@ -686,7 +698,7 @@ class Events extends Base
                                         AND cal.pc_aid IN (?)
                                     GROUP BY pc_pid
                                     ORDER BY pc_eventDate,pc_startTime
-                                    LIMIT " . $v;
+                                    LIMIT " . filter_var($v, FILTER_VALIDATE_INT, ['options' => ['default' => 0, 'min_range' => 0]]);
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
                         [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
@@ -3342,8 +3354,6 @@ class MedEx
 
     public function __construct($url, $sessionFile = 'cookiejar_MedExAPI')
     {
-        global $GLOBALS;
-
         if ($sessionFile == 'cookiejar_MedExAPI') {
             $sessionFile = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
@@ -3381,11 +3391,11 @@ class MedEx
         'key'       => $info['ME_api_key'],
         'UID'       => $info['MedEx_id'],
         'MedEx'     => 'OpenEMR',
-        'major'     => attr($version['v_major']),
-        'minor'     => attr($version['v_minor']),
-        'patch'     => attr(is_string($version['v_patch']) ? $version['v_patch'] : ''),
-        'database'  => attr(is_string($version['v_database']) ? $version['v_database'] : ''),
-        'acl'       => attr(is_string($version['v_acl']) ? $version['v_acl'] : ''),
+        'major'     => (string) $version['v_major'],
+        'minor'     => (string) $version['v_minor'],
+        'patch'     => (string) $version['v_patch'],
+        'database'  => (string) $version['v_database'],
+        'acl'       => (string) $version['v_acl'],
         'callback_key' => $info['callback_key']
         ]);
 

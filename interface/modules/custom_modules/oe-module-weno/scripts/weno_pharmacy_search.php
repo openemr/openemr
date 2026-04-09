@@ -24,9 +24,7 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $params = [];
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\SoftwareVersion;
 use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
 use OpenEMR\Telemetry\TelemetryRepository;
@@ -398,8 +399,8 @@ class TelemetryServiceTest extends TestCase
 
         // Mock version service
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response
         $telemetryService->expects($this->once())
@@ -463,8 +464,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response despite geo error
         $telemetryService->expects($this->once())
@@ -524,8 +525,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock HTTP error response
         $telemetryService->expects($this->once())
@@ -776,8 +777,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock cURL response with error
         $curlError = 'Connection timeout';
@@ -859,8 +860,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock HTTP error response (404 Not Found)
         $telemetryService->expects($this->once())
@@ -920,8 +921,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response but with invalid JSON
         $telemetryService->expects($this->once())

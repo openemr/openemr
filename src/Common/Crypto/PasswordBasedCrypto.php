@@ -75,7 +75,7 @@ readonly class PasswordBasedCrypto
     ): string {
         $version = KeyVersion::fromPrefix($ciphertextWithVersion);
 
-        $ciphertext = mb_substr($ciphertextWithVersion, KeyVersion::PREFIX_LENGTH, null, '8bit');
+        $ciphertext = substr($ciphertextWithVersion, KeyVersion::PREFIX_LENGTH);
 
         $payload = base64_decode($ciphertext, true);
         if ($payload === false) {
@@ -88,7 +88,7 @@ readonly class PasswordBasedCrypto
             default => self::SALT_LENGTH + self::HMAC_LENGTH + self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH,
         };
 
-        if (mb_strlen($payload, '8bit') < $minLength) {
+        if (strlen($payload) < $minLength) {
             throw new CryptoGenException('Ciphertext too short');
         }
 
@@ -106,8 +106,8 @@ readonly class PasswordBasedCrypto
         string $payload,
         #[SensitiveParameter] string $password,
     ): string {
-        $iv = mb_substr($payload, 0, self::IV_LENGTH, '8bit');
-        $encrypted = mb_substr($payload, self::IV_LENGTH, null, '8bit');
+        $iv = substr($payload, 0, self::IV_LENGTH);
+        $encrypted = substr($payload, self::IV_LENGTH);
 
         // V1 used sha256 hex as key (64 chars, OpenSSL truncates to 32 bytes)
         $key = hash('sha256', $password);
@@ -127,9 +127,9 @@ readonly class PasswordBasedCrypto
         string $payload,
         #[SensitiveParameter] string $password,
     ): string {
-        $hmac = mb_substr($payload, 0, self::V2_HMAC_LENGTH, '8bit');
-        $iv = mb_substr($payload, self::V2_HMAC_LENGTH, self::IV_LENGTH, '8bit');
-        $encrypted = mb_substr($payload, self::V2_HMAC_LENGTH + self::IV_LENGTH, null, '8bit');
+        $hmac = substr($payload, 0, self::V2_HMAC_LENGTH);
+        $iv = substr($payload, self::V2_HMAC_LENGTH, self::IV_LENGTH);
+        $encrypted = substr($payload, self::V2_HMAC_LENGTH + self::IV_LENGTH);
 
         $key = hash('sha256', $password, true);
 
@@ -155,14 +155,14 @@ readonly class PasswordBasedCrypto
         string $payload,
         #[SensitiveParameter] string $password,
     ): string {
-        $salt = mb_substr($payload, 0, self::SALT_LENGTH, '8bit');
-        $rest = mb_substr($payload, self::SALT_LENGTH, null, '8bit');
+        $salt = substr($payload, 0, self::SALT_LENGTH);
+        $rest = substr($payload, self::SALT_LENGTH);
 
         [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
-        $hmac = mb_substr($rest, 0, self::HMAC_LENGTH, '8bit');
-        $iv = mb_substr($rest, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
-        $encrypted = mb_substr($rest, self::HMAC_LENGTH + self::IV_LENGTH, null, '8bit');
+        $hmac = substr($rest, 0, self::HMAC_LENGTH);
+        $iv = substr($rest, self::HMAC_LENGTH, self::IV_LENGTH);
+        $encrypted = substr($rest, self::HMAC_LENGTH + self::IV_LENGTH);
 
         $expectedHmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {

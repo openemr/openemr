@@ -42,9 +42,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Following hidden field received in the form will be used to ensure integrity of form values
     // 'issue', 'thispid', 'thisenc'
@@ -198,9 +196,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $i = 0;
     $text_type = "unknown";

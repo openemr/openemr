@@ -30,9 +30,7 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 // process form
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (! is_numeric($_POST['notification_id'])) {  // shouldn't happen
         $form_err .= xl('Missing/invalid notification id') . '<br />';

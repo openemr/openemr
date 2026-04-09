@@ -37,9 +37,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $returnurl = 'forms.php';
 
 if (!empty($_POST['confirm'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form

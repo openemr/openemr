@@ -38,6 +38,7 @@ class OEGlobalsBag extends ParameterBag
 
     protected static function createInstance(): static
     {
+        /** @var array<string, mixed> $GLOBALS */
         return new self($GLOBALS);
     }
 

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\AuditConfig;
@@ -22,6 +23,7 @@ use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -58,6 +60,8 @@ final class EventAuditLoggerTest extends TestCase
     private AuditConfig $config;
 
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
+
+    private ClockInterface $clock;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -106,6 +110,7 @@ final class EventAuditLoggerTest extends TestCase
             eventTypeFlags: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
+        $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
 
         // Backup original superglobals
         /**
@@ -135,6 +140,7 @@ final class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         // Setup default test environment
@@ -253,7 +259,7 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker
+        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker, clock
         return [
             [],                                         // sinks
             $this->createMock(CryptoGen::class),        // cryptoGen
@@ -261,6 +267,7 @@ final class EventAuditLoggerTest extends TestCase
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
+            $this->clock,
         ];
     }
 
@@ -515,6 +522,7 @@ final class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -556,7 +564,15 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
+        $eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            cryptoGen: $cryptoMock,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -654,7 +670,15 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
+        $eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            cryptoGen: $cryptoMock,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';

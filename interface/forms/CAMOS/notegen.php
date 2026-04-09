@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Mark Leeds <drleeds@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +19,7 @@ require_once($depth . 'interface/globals.php');
 require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -24,7 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <?php
-if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
+if (!(filter_input(INPUT_POST, 'submit_pdf') || filter_input(INPUT_POST, 'submit_html')) && (filter_input(INPUT_GET, 'pid') && filter_input(INPUT_GET, 'encounter'))) {
     ?>
 <html>
 <head>
@@ -45,7 +48,7 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
     exit;
 }
 
-if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['encounter'])) {
+if (!filter_input(INPUT_POST, 'submit_pdf') && !filter_input(INPUT_POST, 'submit_html') && !(filter_input(INPUT_GET, 'pid') && filter_input(INPUT_GET, 'encounter'))) {
     ?>
 <html>
 <head>
@@ -62,7 +65,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -79,14 +82,14 @@ $(function () {
 <tr><td>
 <span class='text'><?php echo xlt('Start (yyyy-mm-dd): ') ?></span>
 </td><td>
-<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? attr($_POST['end']) : date('Y-m-d') ?>'
+<input type='text' size='10' name='start' id='start' value='<?php echo ($postStart = filter_input(INPUT_POST, 'start')) ? attr($postStart) : date('Y-m-d') ?>'
 class='datepicker'
 title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 </td></tr>
 <tr><td>
 <span class='text'><?php echo xlt('End (yyyy-mm-dd): ') ?></span>
 </td><td>
-<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? attr($_POST['end']) : date('Y-m-d') ?>'
+<input type='text' size='10' name='end' id='end' value ='<?php echo ($postEnd = filter_input(INPUT_POST, 'end')) ? attr($postEnd) : date('Y-m-d') ?>'
 class='datepicker'
 title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 </td></tr>
@@ -109,15 +112,16 @@ title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
     <?php
 }
 
-if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
+if (filter_input(INPUT_POST, 'submit_pdf') || filter_input(INPUT_POST, 'submit_html') || (filter_input(INPUT_GET, 'pid') && filter_input(INPUT_GET, 'encounter'))) {
+    if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?: '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
     // note we are trimming variables before sending through this function
-    $output = getFormData(trim((string) $_POST["start"]), trim((string) $_POST["end"]), trim((string) $_POST["lname"]), trim((string) $_POST["fname"]));
+    $output = getFormData(trim(filter_input(INPUT_POST, 'start') ?: ''), trim(filter_input(INPUT_POST, 'end') ?: ''), trim(filter_input(INPUT_POST, 'lname') ?: ''), trim(filter_input(INPUT_POST, 'fname') ?: ''));
     ksort($output);
-    if ($_POST['submit_html']) { //print as html
+
+    if (filter_input(INPUT_POST, 'submit_html')) { //print as html
         ?>
         <html>
         <head>
@@ -158,9 +162,10 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         <?php
         foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
-                preg_match('/(\d+)_(\d+)/', (string) $note_id, $matches); //the unique note id contains the pid and encounter
-                $pid = $matches[1];
-                $enc = $matches[2];
+                $noteIdStr = (string) $note_id;
+                preg_match('/(\d+)_(\d+)/', $noteIdStr, $matches); //the unique note id contains the pid and encounter
+                $pid = (int) ($matches[1] ?? 0);
+                $enc = (int) ($matches[2] ?? 0);
 
                 //new page code here
                 print "<DIV class='page'>";
@@ -210,16 +215,14 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                 if (count($notecontents['billing']) > 0) {
                     $tmp = [];
                     foreach ($notecontents['billing'] as $code) {
-                        $tmp[$code]++;
+                        $tmp[$code] = ($tmp[$code] ?? 0) + 1;
                     }
 
-                    if (count($tmp) > 0) {
-                        print "<br/>";
-                        print "<span class='heading'>" . xlt("Coding") . "</span><br/>";
-                        print "<br/>";
-                        foreach ($tmp as $code => $val) {
-                            print nl2br(text($code)) . "<br/>";
-                        }
+                    print "<br/>";
+                    print "<span class='heading'>" . xlt("Coding") . "</span><br/>";
+                    print "<br/>";
+                    foreach ($tmp as $code => $val) {
+                        print nl2br(text($code)) . "<br/>";
                     }
                 }
 
@@ -229,27 +232,39 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                     print "<span class='heading'>" . xlt("Calories") . "</span><br/>";
                     print "<br/>";
                     foreach ($notecontents['calories'] as $value) {
+                        /** @var array{subcategory: string, item: string, content: string, date: string} $value */
                         print text($value['content']) . ' - ' . text($value['item']) . ' - ' . text($value['date']) . "<br/>";
-                        $sum += $value['content'];
+                        $sum += (int) $value['content'];
                     }
 
                     print "--------" . "<br/>";
-                    print text($sum) . "<br/>";
+                    print text((string) $sum) . "<br/>";
                 }
 
                 print "<br/>";
                 print "<br/>";
                 print "<span class='heading'>" . xlt("Digitally Signed") . "</span><br/>";
 
-                $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-                    "(t1.user like t2.username) where t1.pid=? and t1.encounter=?", [$pid, $encounter]);
-                if ($results = sqlFetchArray($query)) {
+                $query = QueryUtils::sqlStatementThrowException(
+                    "SELECT t2.id, t2.fname, t2.lname, t2.title
+                        FROM forms AS t1
+                        JOIN users AS t2 ON (t1.user LIKE t2.username)
+                        WHERE t1.pid = ?
+                            AND t1.encounter = ?",
+                    [$pid, $enc]
+                );
+                $name = '';
+                $user_id = 0;
+                /** @var array{id: int, fname: string, lname: string, title: string}|false $results */
+                $results = QueryUtils::fetchArrayFromResultSet($query);
+                if ($results) {
                     $name = $results['fname'] . " " . $results['lname'] . ", " . $results['title'];
                     $user_id = $results['id'];
                 }
 
-                $path = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/CAMOS";
-                if (file_exists($path . "/sig" . convert_safe_file_dir_name($user_id) . ".jpg")) {
+                $path = OEGlobalsBag::getInstance()->getString('fileroot') . "/interface/forms/CAMOS";
+                $safeName = convert_safe_file_dir_name($user_id);
+                if (is_string($safeName) && file_exists($path . "/sig" . $safeName . ".jpg")) {
                 //show the image here
                 }
 
@@ -274,9 +289,10 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         $first = 1;
         foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
-                preg_match('/(\d+)_(\d+)/', (string) $note_id, $matches); //the unique note id contains the pid and encounter
-                $pid = $matches[1];
-                $enc = $matches[2];
+                $noteIdStr = (string) $note_id;
+                preg_match('/(\d+)_(\d+)/', $noteIdStr, $matches); //the unique note id contains the pid and encounter
+                $pid = (int) ($matches[1] ?? 0);
+                $enc = (int) ($matches[2] ?? 0);
                 if (!$first) { //generate a new page each time except first iteration when nothing has been printed yet
                     $pdf->ezNewPage();
                 } else {
@@ -328,16 +344,14 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                 if (count($notecontents['billing']) > 0) {
                     $tmp = [];
                     foreach ($notecontents['billing'] as $code) {
-                        $tmp[$code]++;
+                        $tmp[$code] = ($tmp[$code] ?? 0) + 1;
                     }
 
-                    if (count($tmp) > 0) {
-                        $pdf->ezText("", 8);
-                        $pdf->ezText(xl("Coding"), 12);
-                        $pdf->ezText("", 8);
-                        foreach ($tmp as $code => $val) {
-                            $pdf->ezText($code, 8);
-                        }
+                    $pdf->ezText("", 8);
+                    $pdf->ezText(xl("Coding"), 12);
+                    $pdf->ezText("", 8);
+                    foreach ($tmp as $code => $val) {
+                        $pdf->ezText($code, 8);
                     }
                 }
 
@@ -347,28 +361,40 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                     $pdf->ezText(xl("Calories"), 12);
                     $pdf->ezText("", 8);
                     foreach ($notecontents['calories'] as $value) {
+                        /** @var array{subcategory: string, item: string, content: string, date: string} $value */
                         $pdf->ezText($value['content'] . ' - ' . $value['item'] . ' - ' . $value['date'], 8);
-                        $sum += $value['content'];
+                        $sum += (int) $value['content'];
                     }
 
                     $pdf->ezText("--------", 8);
-                    $pdf->ezText($sum, 8);
+                    $pdf->ezText((string) $sum, 8);
                 }
 
                 $pdf->ezText("", 12);
                 $pdf->ezText("", 12);
                 $pdf->ezText(xl("Digitally Signed"), 12);
 
-                $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-                "(t1.user like t2.username) where t1.pid = ? and t1.encounter = ?", [$pid, $encounter]);
-                if ($results = sqlFetchArray($query)) {
+                $query = QueryUtils::sqlStatementThrowException(
+                    "SELECT t2.id, t2.fname, t2.lname, t2.title
+                        FROM forms AS t1
+                        JOIN users AS t2 ON (t1.user LIKE t2.username)
+                        WHERE t1.pid = ?
+                            AND t1.encounter = ?",
+                    [$pid, $enc]
+                );
+                $name = '';
+                $user_id = 0;
+                /** @var array{id: int, fname: string, lname: string, title: string}|false $results */
+                $results = QueryUtils::fetchArrayFromResultSet($query);
+                if ($results) {
                         $name = $results['fname'] . " " . $results['lname'] . ", " . $results['title'];
                         $user_id = $results['id'];
                 }
 
-                $path = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/CAMOS";
-                if (file_exists($path . "/sig" . $user_id . ".jpg")) {
-                        $pdf->ezImage($path . "/sig" . convert_safe_file_dir_name($user_id) . ".jpg", '', '72', '', 'left', '');
+                $path = OEGlobalsBag::getInstance()->getString('fileroot') . "/interface/forms/CAMOS";
+                $safeName = convert_safe_file_dir_name($user_id);
+                if (is_string($safeName) && file_exists($path . "/sig" . $safeName . ".jpg")) {
+                        $pdf->ezImage($path . "/sig" . $safeName . ".jpg", 0.0, 72.0, '', 'left', '');
                 }
 
                 $pdf->ezText($name, 12);
@@ -379,99 +405,138 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     }
 }
 
-function getFormData($start_date, $end_date, $lname, $fname)
+/**
+ * @return array<string, array<string, array{name: string, date: string, pubpid: string, dob: string, reason: string, vitals: string, exam: list<string>, prescriptions: list<string>, other: array<string, list<string>>, billing: list<string>, calories: list<array{subcategory: string, item: string, content: string, date: string}>}>>
+ */
+function getFormData(string $start_date, string $end_date, string $lname, string $fname): array
 {
  //dates in sql format
 
         // All 4 parameters have previously been trimmed
 
-    $name_clause = '';
-    $date_clause = "date(t2.date) >= '" . add_escape_custom($start_date) . "' and date(t2.date) <= '" . add_escape_custom($end_date) . "' ";
-    if ($lname || $fname) {
-        $name_clause = "and t3.lname like '%" . add_escape_custom($lname) . "%' and t3.fname like '%" . add_escape_custom($fname) . "%' ";
+    $binds = [];
+    $where_clauses = [];
+    $getPid = filter_input(INPUT_GET, 'pid', FILTER_VALIDATE_INT);
+    $getEncounter = filter_input(INPUT_GET, 'encounter', FILTER_VALIDATE_INT);
+    if ($getPid !== null && $getPid !== false && $getEncounter !== null && $getEncounter !== false) {
+        $where_clauses[] = "t2.pid = ?";
+        $binds[] = $getPid;
+        $where_clauses[] = "t2.encounter = ?";
+        $binds[] = $getEncounter;
+    } else {
+        $where_clauses[] = "DATE(t2.date) >= ?";
+        $binds[] = $start_date;
+        $where_clauses[] = "DATE(t2.date) <= ?";
+        $binds[] = $end_date;
+        if ($lname || $fname) {
+            $where_clauses[] = "t3.lname LIKE ?";
+            $binds[] = '%' . $lname . '%';
+            $where_clauses[] = "t3.fname LIKE ?";
+            $binds[] = '%' . $fname . '%';
+        }
     }
 
     $dates = [];
-    if ($_GET['pid'] && $_GET['encounter']) {
-        $date_clause = '';
-        $name_clause = "t2.pid='" . add_escape_custom($_GET['pid']) . "' and t2.encounter='" . add_escape_custom($_GET['encounter']) . "' ";
-    }
-
-    $query1 = sqlStatement(
-        "select t1.form_id, t1.form_name, t1.pid, date_format(t2.date,'%m-%d-%Y') as date, " .
-        "date_format(t2.date,'%Y%m%d') as datekey, " .
-        "t3.lname, t3.fname, t3.pubpid, date_format(t3.DOB,'%m-%d-%Y') as dob, " .
-        "t2.encounter as enc, " .
-            "t2.reason from " .
-        "forms as t1 join " .
-        "form_encounter as t2 on " .
-        "(t1.pid = t2.pid and t1.encounter = t2.encounter) " .
-        "join patient_data as t3 on " .
-        "(t1.pid = t3.pid) where " .
-        $date_clause .
-        $name_clause .
-        "order by date,pid"
+    $query1 = QueryUtils::sqlStatementThrowException(
+        "SELECT t1.form_id, t1.form_name, t1.pid,
+                DATE_FORMAT(t2.date, '%m-%d-%Y') AS date,
+                DATE_FORMAT(t2.date, '%Y%m%d') AS datekey,
+                t3.lname, t3.fname, t3.pubpid,
+                DATE_FORMAT(t3.DOB, '%m-%d-%Y') AS dob,
+                t2.encounter AS enc,
+                t2.reason
+            FROM forms AS t1
+            JOIN form_encounter AS t2
+                ON (t1.pid = t2.pid AND t1.encounter = t2.encounter)
+            JOIN patient_data AS t3
+                ON (t1.pid = t3.pid)
+            WHERE " . implode(" AND ", $where_clauses) . "
+            ORDER BY date, pid",
+        $binds
     );
-    while ($results1 = sqlFetchArray($query1)) {
-        if (!$dates[$results1['datekey']]) {
-            $dates[$results1['datekey']] = [];
+    while ($results1 = QueryUtils::fetchArrayFromResultSet($query1)) {
+        /** @var array{form_id: int, form_name: ?string, pid: int, date: string, datekey: string, lname: string, fname: string, pubpid: string, dob: string, enc: int, reason: ?string} $results1 */
+        $datekey = $results1['datekey'];
+        $pidEnc = $results1['pid'] . '_' . $results1['enc'];
+        if (!isset($dates[$datekey])) {
+            $dates[$datekey] = [];
         }
 
-        if (!$dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]) {
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']] = [];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['name'] = $results1['fname'] . ' ' . $results1['lname'];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['date'] = $results1['date'];
-                $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['pubpid'] = $results1['pubpid'];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['dob'] = $results1['dob'];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['vitals'] = '';
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['reason'] = $results1['reason'];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['exam'] = [];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['prescriptions'] = [];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['other'] = [];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['billing'] = [];
-            $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['calories'] = [];
+        if (!isset($dates[$datekey][$pidEnc])) {
+            $dates[$datekey][$pidEnc] = [];
+            $dates[$datekey][$pidEnc]['name'] = $results1['fname'] . ' ' . $results1['lname'];
+            $dates[$datekey][$pidEnc]['date'] = $results1['date'];
+            $dates[$datekey][$pidEnc]['pubpid'] = $results1['pubpid'];
+            $dates[$datekey][$pidEnc]['dob'] = $results1['dob'];
+            $dates[$datekey][$pidEnc]['vitals'] = '';
+            $dates[$datekey][$pidEnc]['reason'] = $results1['reason'] ?? '';
+            $dates[$datekey][$pidEnc]['exam'] = [];
+            $dates[$datekey][$pidEnc]['prescriptions'] = [];
+            $dates[$datekey][$pidEnc]['other'] = [];
+            $dates[$datekey][$pidEnc]['billing'] = [];
+            $dates[$datekey][$pidEnc]['calories'] = [];
         }
 
         // get ICD10 codes for this encounter
-        $query2 = sqlStatement("select * from billing where encounter = ?" .
-            " and pid = ? and code_type like 'ICD10' and activity=1", [$results1['enc'], $results1['pid']]);
-        while ($results2 = sqlFetchArray($query2)) {
+        $query2 = QueryUtils::sqlStatementThrowException(
+            "SELECT *
+                FROM billing
+                WHERE encounter = ?
+                    AND pid = ?
+                    AND code_type LIKE 'ICD10'
+                    AND activity = 1",
+            [$results1['enc'], $results1['pid']]
+        );
+        /** @var array{code: string, code_text: string}|false $results2 */
+        while ($results2 = QueryUtils::fetchArrayFromResultSet($query2)) {
             array_push(
-                $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['billing'],
+                $dates[$datekey][$pidEnc]['billing'],
                 $results2['code'] . ' ' . $results2['code_text']
             );
         }
 
-        if (strtolower((string) $results1['form_name']) == 'vitals') { // deal with Vitals
-            $query2 = sqlStatement("select * from form_vitals where id = ?", [$results1['form_id']]);
-            if ($results2 = sqlFetchArray($query2)) {
-                $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['vitals'] = formatVitals($results2);
+        if (strtolower($results1['form_name'] ?? '') == 'vitals') { // deal with Vitals
+            $query2 = QueryUtils::sqlStatementThrowException(
+                "SELECT * FROM form_vitals WHERE id = ?",
+                [$results1['form_id']]
+            );
+            /** @var array{height: ?string, weight: ?string, BMI: ?string, temperature: ?string, bps: ?string, bpd: ?string, pulse: ?string, respiration: ?string, oxygen_saturation: ?string}|false $results2 */
+            if ($results2 = QueryUtils::fetchArrayFromResultSet($query2)) {
+                $dates[$datekey][$pidEnc]['vitals'] = formatVitals($results2);
             }
         }
 
-        if (str_starts_with(strtolower((string) $results1['form_name']), 'camos')) { // deal with camos
-            $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id = ?", [$results1['form_id']]);
-            if ($results2 = sqlFetchArray($query2)) {
+        if (str_starts_with(strtolower($results1['form_name'] ?? ''), 'camos')) { // deal with camos
+            // escape_table_name() on a literal handles case-insensitive table name matching.
+            $query2 = QueryUtils::sqlStatementThrowException(
+                "SELECT category, subcategory, item, content,
+                        DATE_FORMAT(date, '%h:%i %p') AS date
+                    FROM " . escape_table_name("form_CAMOS") . "
+                    WHERE id = ?",
+                [$results1['form_id']]
+            );
+            /** @var array{category: string, subcategory: string, item: string, content: ?string, date: string}|false $results2 */
+            if ($results2 = QueryUtils::fetchArrayFromResultSet($query2)) {
                 if ($results2['category'] == 'exam') {
-                    array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['exam'], $results2['content']);
+                    array_push($dates[$datekey][$pidEnc]['exam'], ($results2['content'] ?? ''));
                 } elseif ($results2['category'] == 'prescriptions') {
-                    array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['prescriptions'], preg_replace("/\n+/", ' ', (string) $results2['content']));
+                    array_push($dates[$datekey][$pidEnc]['prescriptions'], (string) preg_replace("/\n+/", ' ', ($results2['content'] ?? '')));
                 } elseif ($results2['category'] == 'communications') {
                     //do nothing
                 } elseif ($results2['category'] == 'calorie intake') {
                     $values = ['subcategory' => $results2['subcategory'],
                         'item' => $results2['item'],
-                        'content' => $results2['content'],
+                        'content' => ($results2['content'] ?? ''),
                         'date' => $results2['date']];
-                    array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['calories'], $values);
+                    array_push($dates[$datekey][$pidEnc]['calories'], $values);
                 } else {
-                    if (!$dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['other'][$results2['category']]) {
-                        $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['other'][$results2['category']] = [];
+                    if (!isset($dates[$datekey][$pidEnc]['other'][$results2['category']])) {
+                        $dates[$datekey][$pidEnc]['other'][$results2['category']] = [];
                     }
 
                     array_push(
-                        $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['other'][$results2['category']],
-                        preg_replace(["/\n+/","/patientname/i"], [' ',$results1['fname'] . ' ' . $results1['lname']], (string) $results2['content'])
+                        $dates[$datekey][$pidEnc]['other'][$results2['category']],
+                        (string) preg_replace(["/\n+/","/patientname/i"], [' ',$results1['fname'] . ' ' . $results1['lname']], ($results2['content'] ?? ''))
                     );
                 }
             }
@@ -480,7 +545,10 @@ function getFormData($start_date, $end_date, $lname, $fname)
 
     return $dates;
 }
-function formatVitals($raw)
+/**
+ * @param array{height: ?string, weight: ?string, BMI: ?string, temperature: ?string, bps: ?string, bpd: ?string, pulse: ?string, respiration: ?string, oxygen_saturation: ?string} $raw
+ */
+function formatVitals(array $raw): string
 {
  //pass raw vitals array, format and return as string
     $height = '';
