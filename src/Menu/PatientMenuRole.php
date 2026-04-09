@@ -52,6 +52,12 @@ class PatientMenuRole extends MenuRole
         // Collect the selected menu of user
         $patientMenuRole = $this->getMenuRole();
 
+        // Validate that the menu role filename is a basename only (no path traversal)
+        if ($patientMenuRole !== basename($patientMenuRole) || str_contains($patientMenuRole, '..')) {
+            error_log("OpenEMR: invalid patient menu role filename rejected: " . $patientMenuRole);
+            die("\nInvalid menu role filename.");
+        }
+
         // Load the selected menu
         if (str_ends_with($patientMenuRole, '.json')) {
             // load custom menu (includes .json in id)

@@ -48,6 +48,12 @@ class MainMenuRole extends MenuRole
         // Collect the selected menu of user
         $mainMenuRole = $this->getMenuRole();
 
+        // Validate that the menu role filename is a basename only (no path traversal)
+        if ($mainMenuRole !== basename($mainMenuRole) || str_contains($mainMenuRole, '..')) {
+            error_log("OpenEMR: invalid main menu role filename rejected: " . $mainMenuRole);
+            die("\nInvalid menu role filename.");
+        }
+
         // Load the selected menu
         if (str_ends_with($mainMenuRole, '.json')) {
             // load custom menu (includes .json in id)
