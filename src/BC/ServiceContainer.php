@@ -115,6 +115,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ClockInterface::class,
+            // @phpstan-ignore openemr.deprecatedSqlFunction
             static fn() => SystemClock::fromSystemTimezone(),
         );
     }
@@ -172,22 +173,6 @@ class ServiceContainer
         );
     }
 
-    public static function getUploadedFileFactory(): UploadedFileFactoryInterface
-    {
-        return self::resolveOrCreate(
-            UploadedFileFactoryInterface::class,
-            static fn() => new Psr17Factory(),
-        );
-    }
-
-    public static function getUriFactory(): UriFactoryInterface
-    {
-        return self::resolveOrCreate(
-            UriFactoryInterface::class,
-            static fn() => new Psr17Factory(),
-        );
-    }
-
     public static function getStorage(): ManagerInterface
     {
         return self::resolveOrCreate(
@@ -204,6 +189,22 @@ class ServiceContainer
                 }
                 return $manager;
             },
+        );
+    }
+
+    public static function getUploadedFileFactory(): UploadedFileFactoryInterface
+    {
+        return self::resolveOrCreate(
+            UploadedFileFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
+    }
+
+    public static function getUriFactory(): UriFactoryInterface
+    {
+        return self::resolveOrCreate(
+            UriFactoryInterface::class,
+            static fn() => new Psr17Factory(),
         );
     }
 }
