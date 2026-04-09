@@ -1,14 +1,12 @@
 <?php
 
 /**
- * Isolated AbstractType Test
+ * Isolated QDM Base Types Test
  *
- * Tests QDM AbstractType base class functionality through concrete implementations.
+ * Tests QDM base type classes (Code, DateTime, Interval, etc.)
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,154 +16,166 @@ namespace OpenEMR\Tests\Isolated\Cqm\Qdm\BaseTypes;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use PHPUnit\Framework\TestCase;
 
 class AbstractTypeTest extends TestCase
 {
-    public function testConstructorWithEmptyArray(): void
-    {
-        $code = new Code([]);
-        $this->assertNull($code->code);
-        $this->assertNull($code->system);
-    }
-
-    public function testConstructorSetsProperties(): void
-    {
-        $code = new Code([
-            'code' => '12345',
-            'system' => 'http://example.com/codes',
-            'display' => 'Test Code'
-        ]);
-
-        $this->assertSame('12345', $code->code);
-        $this->assertSame('http://example.com/codes', $code->system);
-        $this->assertSame('Test Code', $code->display);
-    }
-
-    public function testConstructorThrowsOnInvalidProperty(): void
-    {
-        $this->expectException(\Exception::class);
-        new Code(['nonexistent_property' => 'value']);
-    }
-
-    public function testPropertyExistsReturnsTrueForExistingProperty(): void
+    public function testCodeWithDefaults(): void
     {
         $code = new Code();
-        $this->assertTrue($code->propertyExists('code'));
-        $this->assertTrue($code->propertyExists('system'));
-        $this->assertTrue($code->propertyExists('display'));
-        $this->assertTrue($code->propertyExists('version'));
+        self::assertNull($code->code);
+        self::assertNull($code->system);
+        self::assertNull($code->display);
+        self::assertNull($code->version);
     }
 
-    public function testPropertyExistsReturnsFalseForNonExistingProperty(): void
+    public function testCodeWithNamedParameters(): void
     {
-        $code = new Code();
-        $this->assertFalse($code->propertyExists('nonexistent'));
-        $this->assertFalse($code->propertyExists(''));
+        $code = new Code(
+            code: '12345',
+            system: 'http://example.com/codes',
+            display: 'Test Code',
+        );
+
+        self::assertSame('12345', $code->code);
+        self::assertSame('http://example.com/codes', $code->system);
+        self::assertSame('Test Code', $code->display);
+        self::assertNull($code->version);
     }
 
-    public function testJsonSerializeReturnsAllProperties(): void
+    public function testCodeJsonSerialize(): void
     {
-        $code = new Code([
-            'code' => '12345',
-            'system' => 'http://example.com'
-        ]);
+        $code = new Code(
+            code: '12345',
+            system: 'http://example.com',
+        );
 
         $json = json_encode($code);
-        $this->assertIsString($json);
+        self::assertIsString($json);
 
         $decoded = json_decode($json, true);
-        $this->assertIsArray($decoded);
-        $this->assertArrayHasKey('code', $decoded);
-        $this->assertArrayHasKey('system', $decoded);
-        $this->assertArrayHasKey('_type', $decoded);
-        $this->assertSame('12345', $decoded['code']);
+        self::assertIsArray($decoded);
+        self::assertArrayHasKey('code', $decoded);
+        self::assertArrayHasKey('system', $decoded);
+        self::assertArrayHasKey('_type', $decoded);
+        self::assertSame('12345', $decoded['code']);
+        self::assertSame('QDM::Code', $decoded['_type']);
     }
 
-    public function testAddressDefaultValues(): void
+    public function testAddressDefaults(): void
     {
         $address = new Address();
-        $this->assertSame('HP', $address->use);
-        $this->assertSame([], $address->street);
-        $this->assertNull($address->city);
-        $this->assertNull($address->state);
-        $this->assertNull($address->zip);
-        $this->assertNull($address->country);
+        self::assertSame('HP', $address->use);
+        self::assertSame([], $address->street);
+        self::assertNull($address->city);
+        self::assertNull($address->state);
+        self::assertNull($address->zip);
+        self::assertNull($address->country);
     }
 
-    public function testAddressConstructorSetsValues(): void
+    public function testAddressWithNamedParameters(): void
     {
-        $address = new Address([
-            'use' => 'WP',
-            'street' => ['123 Main St', 'Suite 100'],
-            'city' => 'Boston',
-            'state' => 'MA',
-            'zip' => '02101',
-            'country' => 'US'
-        ]);
+        $address = new Address(
+            use: 'WP',
+            street: ['123 Main St', 'Suite 100'],
+            city: 'Boston',
+            state: 'MA',
+            zip: '02101',
+            country: 'US',
+        );
 
-        $this->assertSame('WP', $address->use);
-        $this->assertSame(['123 Main St', 'Suite 100'], $address->street);
-        $this->assertSame('Boston', $address->city);
-        $this->assertSame('MA', $address->state);
-        $this->assertSame('02101', $address->zip);
-        $this->assertSame('US', $address->country);
+        self::assertSame('WP', $address->use);
+        self::assertSame(['123 Main St', 'Suite 100'], $address->street);
+        self::assertSame('Boston', $address->city);
+        self::assertSame('MA', $address->state);
+        self::assertSame('02101', $address->zip);
+        self::assertSame('US', $address->country);
     }
 
-    public function testIntervalProperties(): void
+    public function testIntervalWithNamedParameters(): void
     {
-        $interval = new Interval([
-            'lowClosed' => true,
-            'highClosed' => false
-        ]);
+        $interval = new Interval(
+            lowClosed: true,
+            highClosed: false,
+        );
 
-        $this->assertTrue($interval->lowClosed);
-        $this->assertFalse($interval->highClosed);
-        $this->assertNull($interval->low);
-        $this->assertNull($interval->high);
+        self::assertTrue($interval->lowClosed);
+        self::assertFalse($interval->highClosed);
+        self::assertNull($interval->low);
+        self::assertNull($interval->high);
     }
 
-    public function testQuantityProperties(): void
+    public function testIntervalWithDateTimes(): void
     {
-        $quantity = new Quantity([
-            'value' => 100.5,
-            'unit' => 'mg'
-        ]);
+        $interval = new Interval(
+            low: new DateTime(date: '2024-01-01'),
+            high: new DateTime(date: '2024-12-31'),
+            lowClosed: true,
+            highClosed: true,
+        );
 
-        $this->assertSame(100.5, $quantity->value);
-        $this->assertSame('mg', $quantity->unit);
+        self::assertInstanceOf(DateTime::class, $interval->low);
+        self::assertInstanceOf(DateTime::class, $interval->high);
+        self::assertSame('2024-01-01', $interval->low->date);
+        self::assertSame('2024-12-31', $interval->high->date);
     }
 
-    public function testCodeTypeProperty(): void
+    public function testQuantityWithNamedParameters(): void
     {
-        $code = new Code();
-        $this->assertSame('QDM::Code', $code->_type);
+        $quantity = new Quantity(
+            value: 100.5,
+            unit: 'mg',
+        );
+
+        self::assertSame(100.5, $quantity->value);
+        self::assertSame('mg', $quantity->unit);
     }
 
-    public function testJsonSerializeIncludesNullValues(): void
+    public function testQuantityJsonSerializeIncludesType(): void
     {
-        $code = new Code(['code' => '123']);
+        $quantity = new Quantity(value: 50, unit: 'kg');
 
-        $json = json_encode($code);
-        $this->assertIsString($json);
-
-        $decoded = json_decode($json, true);
-        $this->assertIsArray($decoded);
-        $this->assertArrayHasKey('display', $decoded);
-        $this->assertNull($decoded['display']);
+        $decoded = json_decode(json_encode($quantity), true);
+        self::assertSame('QDM::Quantity', $decoded['_type']);
     }
 
-    public function testPartialPropertyAssignment(): void
+    public function testDateTimeJsonSerializesToFormattedString(): void
     {
-        $address = new Address([
-            'city' => 'New York'
-        ]);
+        $dateTime = new DateTime(date: '2024-06-15 10:30:00');
+
+        $json = json_encode($dateTime);
+        // DateTime serializes to a formatted string, not an object
+        self::assertIsString(json_decode($json));
+    }
+
+    public function testIntervalJsonSerializeNestsDateTimes(): void
+    {
+        $interval = new Interval(
+            low: new DateTime(date: '2024-01-01'),
+            high: new DateTime(date: '2024-12-31'),
+            lowClosed: true,
+            highClosed: false,
+        );
+
+        $decoded = json_decode(json_encode($interval), true);
+
+        // DateTime values are serialized as strings within the interval
+        self::assertIsString($decoded['low']);
+        self::assertIsString($decoded['high']);
+        self::assertTrue($decoded['lowClosed']);
+        self::assertFalse($decoded['highClosed']);
+    }
+
+    public function testAddressPartialParameters(): void
+    {
+        $address = new Address(city: 'New York');
 
         // Only city should change, others keep defaults
-        $this->assertSame('New York', $address->city);
-        $this->assertSame('HP', $address->use);
-        $this->assertSame([], $address->street);
+        self::assertSame('New York', $address->city);
+        self::assertSame('HP', $address->use);
+        self::assertSame([], $address->street);
     }
 }
