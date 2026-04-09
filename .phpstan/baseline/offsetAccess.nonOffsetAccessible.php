@@ -44003,7 +44003,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
@@ -45260,21 +45260,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'username\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/SMART/PatientContextSearchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',

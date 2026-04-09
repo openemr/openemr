@@ -35082,17 +35082,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:getQueryParam\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setPatientRequest\\(\\) has parameter \\$isPatientRequest with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setQueryParams\\(\\) has parameter \\$queryParams with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
@@ -35133,11 +35123,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:withMethod\\(\\) has parameter \\$method with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:withParsedBody\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
