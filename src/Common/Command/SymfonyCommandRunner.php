@@ -62,7 +62,7 @@ class SymfonyCommandRunner
         $commands = $this->findCommands();
         $app = new Application();
         foreach ($commands as $command) {
-            $app->add($command);
+            $app->addCommand($command);
         }
         $app->run();
     }
