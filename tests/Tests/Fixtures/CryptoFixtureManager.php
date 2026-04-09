@@ -192,6 +192,17 @@ class CryptoFixtureManager
     }
 
     /**
+     * Get a database key by identifier.
+     */
+    public function getDbKey(string $identifier): string
+    {
+        if (!isset(self::DB_KEYS[$identifier])) {
+            throw new \InvalidArgumentException("Unknown database key: $identifier");
+        }
+        return self::DB_KEYS[$identifier];
+    }
+
+    /**
      * Get known ciphertext for a specific version using drive keys.
      *
      * @param int $version Key version (1-7)
