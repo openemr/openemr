@@ -264,7 +264,7 @@ class SMARTAuthorizationController
 
         try {
             // we've got a user by their UUID... we need to grab the db user id
-            $searchParams = $request->get('search', []);
+            $searchParams = $request->query->all('search');
 
             // grab our list of patients to select from.
             $searchController = $this->getPatientContextSearchController();
