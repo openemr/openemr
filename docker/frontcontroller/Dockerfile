@@ -77,3 +77,12 @@ COPY --from=dependencies /usr/bin/composer /usr/bin/composer
 # RUN composer check-platform-reqs
 # RUN composer dump-autoload
 
+FROM nginx:alpine AS http
+COPY config/nginx/frontcontroller-fpm.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=assets /build/public/assets /app/public/assets
+COPY --from=assets /build/public/themes /app/public/themes
+COPY public/images /app/public/images
+COPY public/certs /app/public/certs
+COPY public/smart-styles /app/public/smart-styles
+ENV FASTCGI_HOST=php-fpm
+ENV FASTCGI_PORT=9000
