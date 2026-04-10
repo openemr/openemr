@@ -1,0 +1,19 @@
+log_format local '[$time_iso8601] $status "$request" body=$body_bytes_sent rt=$request_time urt=$upstream_response_time ua="$http_user_agent" sdk="$http_x_sdk"';
+server {
+    listen 80;
+
+    access_log  /var/log/nginx/access.log  local;
+
+    location @php {
+        include fastcgi_params;
+        # fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME /app/public/index.php;
+        # helps access log %r value get set correctly
+        fastcgi_param SCRIPT_NAME $request_uri;
+        fastcgi_pass $FASTCGI_HOST:$FASTCGI_PORT;
+    }
+    location / {
+        try_files /dev/null @php;
+    }
+}
+# vim: ft=nginx
