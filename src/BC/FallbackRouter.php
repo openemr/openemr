@@ -213,7 +213,6 @@ readonly class FallbackRouter
         };
     }
 
-
     private static function isAllowedStaticAsset(string $path): bool
     {
         $ext = pathinfo($path, PATHINFO_EXTENSION);
