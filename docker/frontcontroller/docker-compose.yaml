@@ -1,0 +1,42 @@
+# vim: ft=docker-compose
+services:
+  http:
+    depends_on:
+      - php-fpm
+    image: nginx:alpine
+    environment:
+      FASTCGI_HOST: php-fpm
+      FASTCGI_PORT: 9000
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../config/nginx/frontcontroller-fpm.conf.template:/etc/nginx/templates/default.conf.template
+
+  php-fpm:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+    depends_on:
+      - mysql
+    environment:
+      ENVIRONMENT: development
+      # In dev, nginx+fpm access logs are redundant, disable the latter
+      PHP_FPM_ACCESS_LOG: "/dev/null"
+      PHP_ZEND_ASSERTIONS: 1
+    restart: always
+    volumes:
+      - ./:/app
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    image: mysql:8
+    ports:
+      # Expose to the host on a generated port
+      - 3306
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql: # intentionally empty
