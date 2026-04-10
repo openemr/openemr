@@ -86,3 +86,37 @@ COPY public/certs /app/public/certs
 COPY public/smart-styles /app/public/smart-styles
 ENV FASTCGI_HOST=php-fpm
 ENV FASTCGI_PORT=9000
+
+# Apache + mod_php (Debian-based)
+FROM php:${PHP_VERSION}-apache AS apache-modphp-base
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libpng-dev \
+  libicu-dev \
+  libldap2-dev \
+  libxslt1-dev \
+  libzip-dev \
+  libmagickwand-dev \
+  && rm -rf /var/lib/apt/lists/*
+RUN docker-php-ext-install \
+  bcmath \
+  calendar \
+  ctype \
+  gd \
+  intl \
+  ldap \
+  mysqli \
+  pdo \
+  pdo_mysql \
+  soap \
+  sockets \
+  xsl \
+  zip
+RUN pecl install imagick && docker-php-ext-enable imagick
+RUN a2enmod rewrite
+
+FROM apache-modphp-base AS apache-modphp
+WORKDIR /app
+COPY config/apache/frontcontroller-modphp.conf /etc/apache2/sites-available/000-default.conf
+COPY config/php/ $PHP_INI_DIR/conf.d/
+COPY --from=dependencies /app/vendor ./vendor
+COPY . .

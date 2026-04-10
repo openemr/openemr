@@ -1,6 +1,17 @@
 # vim: ft=docker-compose
+#
+# Web server options (pick one):
+#   nginx        - nginx + php-fpm (recommended)
+#   apache-fpm   - Apache + php-fpm
+#   apache-modphp - Apache + mod_php (legacy style)
+#
+# Examples:
+#   docker compose up -d nginx php-fpm mysql
+#   docker compose up -d apache-fpm php-fpm mysql
+#   docker compose up -d apache-modphp mysql
+#
 services:
-  http:
+  nginx:
     build:
       context: ../../
       dockerfile: docker/frontcontroller/Dockerfile
@@ -16,6 +27,38 @@ services:
     volumes:
       - ../../config/nginx/frontcontroller-fpm.conf.template:/etc/nginx/templates/default.conf.template
       - ../../:/app:ro
+
+  apache-fpm:
+    image: httpd:alpine
+    depends_on:
+      - php-fpm
+    environment:
+      FASTCGI_HOST: php-fpm
+      FASTCGI_PORT: 9000
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../config/apache/frontcontroller-fpm.conf:/usr/local/apache2/conf/extra/openemr.conf:ro
+      - ../../:/app:ro
+    command: >
+      sh -c "echo 'Include conf/extra/openemr.conf' >> /usr/local/apache2/conf/httpd.conf && httpd-foreground"
+
+  apache-modphp:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: apache-modphp
+    depends_on:
+      - mysql
+    environment:
+      ENVIRONMENT: development
+      PHP_ZEND_ASSERTIONS: 1
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../:/app
 
   php-fpm:
     build:
