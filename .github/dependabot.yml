@@ -200,6 +200,87 @@ updates:
   - dependencies
   - docker
 
+  # Docker dev environments (easy, easy-light, easy-redis, production)
+  # These use a single database version for convenience, not to test a
+  # specific version matrix. Major bumps are blocked (e.g., mariadb 11→12)
+  # but minor and patch updates are welcome.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-easy/
+  - docker/development-easy-light/
+  - docker/development-easy-redis/
+  - docker/production/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
+  - docker
+
+  # Docker insane (version-testing matrix)
+  # Like CI, insane intentionally runs specific database + PHP versions.
+  # Block major/minor bumps for version-pinned images.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-insane/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
+  - docker
+
   # JavaScript dependencies (ccdaservice)
 - package-ecosystem: npm
   directory: /ccdaservice

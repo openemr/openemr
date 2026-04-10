@@ -1,65 +1,51 @@
 services:
   redis-master:
-    image: redis:7.2
+    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
     container_name: redis-master
     command: ["redis-server", "/etc/redis/redis.conf"]
     volumes:
-      - ./redis/redis.conf:/etc/redis/redis.conf
+    - ./redis/redis.conf:/etc/redis/redis.conf
     ports:
-      - "${WT_REDIS_PORT:-6379}:6379"
+    - "${WT_REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "strongpassword", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:7.2
+    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
     container_name: redis-replica-1
-    command:
-      [
-        "redis-server",
-        "/etc/redis/redis.conf",
-        "--replicaof",
-        "redis-master",
-        "6379"
-      ]
+    command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
     volumes:
-      - ./redis/redis.conf:/etc/redis/redis.conf
+    - ./redis/redis.conf:/etc/redis/redis.conf
   redis-replica-2:
-    image: redis:7.2
+    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
     container_name: redis-replica-2
-    command:
-      [
-        "redis-server",
-        "/etc/redis/redis.conf",
-        "--replicaof",
-        "redis-master",
-        "6379"
-      ]
+    command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
     volumes:
-      - ./redis/redis.conf:/etc/redis/redis.conf
+    - ./redis/redis.conf:/etc/redis/redis.conf
   sentinel-1:
-    image: redis:7.2
+    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
     container_name: sentinel-1
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     volumes:
-      - ./sentinel/sentinel-1.conf:/etc/redis/sentinel.conf
+    - ./sentinel/sentinel-1.conf:/etc/redis/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:7.2
+    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
     container_name: sentinel-2
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     volumes:
-      - ./sentinel/sentinel-2.conf:/etc/redis/sentinel.conf
+    - ./sentinel/sentinel-2.conf:/etc/redis/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   mysql:
     restart: always
-    image: mariadb:11.8
-    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    image: mariadb:11.8.6@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
+    command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
     volumes:
@@ -83,7 +69,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -178,7 +164,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:145.0.7632.109
+    image: selenium/standalone-chromium:145.0.7632.109@sha256:36474a4c56765ec3d04dc4cbac57a021e0d88e89fdb5dca297a50f1100279c1a
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"
@@ -198,7 +184,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin
+    image: phpmyadmin:latest@sha256:b5a8ef9cc40df3724699c1cd738b9cfad4b87b8f7e0ddbdec73528b5b0a8260d
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -208,7 +194,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb
+    image: couchdb:3.4.3@sha256:625be8e930f8fce9f7be31e353aae789462590d62b87577322d8ea2be79911c0
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -223,7 +209,7 @@ services:
       COUCHDB_PASSWORD: password
   openldap:
     restart: always
-    image: openemr/dev-ldap:easy
+    image: openemr/dev-ldap:easy@sha256:b1dbb4b1f1074b6a298dabd256b80d766bccbfca99aa89d023cf894d6f4c57aa
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
@@ -231,7 +217,7 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:latest
+    image: axllent/mailpit:v1.29.6@sha256:0b5c5f7ffd3c93474baa7fd3869c1462e5a3d03256ed0933dfc0e7d81d794036
     ports:
     - "${WT_MAILPIT_UI_PORT:-8025}:8025"
     - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
