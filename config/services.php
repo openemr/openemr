@@ -16,10 +16,6 @@ use Firehed\Container\TypedContainerInterface as TC;
 use Lcobucci\Clock\SystemClock;
 use League\Flysystem\{
     Filesystem,
-    FilesystemAdapter,
-    FilesystemOperator,
-    FilesystemReader,
-    FilesystemWriter,
     Local\LocalFilesystemAdapter,
 };
 use Monolog\{
@@ -65,16 +61,6 @@ return [
         }
         return $m;
     },
-    /* Filesystem::class, */
-    /* FilesystemAdapter::class => LocalFilesystemAdapter::class, */
-    /* FilesystemOperator::class => Filesystem::class, */
-    /* FilesystemReader::class => Filesystem::class, */
-    /* FilesystemWriter::class => Filesystem::class, */
-    /* LocalFilesystemAdapter::class => fn (TC $c) => new LocalFilesystemAdapter( */
-    /*     location: $c->getString('installRoot'), */
-    /* ), */
-    // (will arrive from elsewhere)
-    'installRoot' => fn () => dirname(__DIR__),
 
     // Logging
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
