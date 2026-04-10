@@ -16,7 +16,6 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
-use OpenEMR\Services\Storage\ManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
