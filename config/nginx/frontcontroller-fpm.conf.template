@@ -15,6 +15,12 @@ server {
         fastcgi_param SCRIPT_NAME $request_uri;
         fastcgi_pass $FASTCGI_HOST:$FASTCGI_PORT;
     }
+
+    # OpenEMR generates URLs with /public/ prefix expecting non-front-controller setup
+    location /public/ {
+        alias /app/public/;
+    }
+
     location / {
         try_files $uri @php;
     }
