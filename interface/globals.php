@@ -789,8 +789,9 @@ $globalsBag->set('groupname', $groupname);
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-// user debug mode — only controls display_errors; the error reporting
-// level is left to php.ini so administrators can decide what to log.
+// Report all errors so nothing is silently suppressed.
+error_reporting(E_ALL);
+// user debug mode — controls display_errors
 if ($globalsBag->getInt('user_debug', 0) > 1) {
     ini_set('display_errors', 1);
 }
