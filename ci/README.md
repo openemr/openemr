@@ -68,7 +68,7 @@ The CI process uses several important environment variables:
 - `DOCKER_DIR`: The directory containing the Docker Compose configuration
 - `ENABLE_COVERAGE`: Whether to enable code coverage reporting (true/false)
 - `OPENEMR_DIR`: The directory containing OpenEMR inside the Docker container
-- `COMPOSE_FILE`: The Docker Compose COMPOSE_FILE environment variable is set to store the templates for the multi-file composition. The first file is the template for the web server configuration (Apache or Nginx). The second file is the template for the database configuration (MariaDB or MySQL). The third file is the template for the PHP version and MariaDB/MySQL version.
+- `COMPOSE_FILE`: The Docker Compose COMPOSE_FILE environment variable is set to store the templates for the multi-file composition. The first file is the template for the database configuration (MariaDB or MySQL) — it must be directly in `ci/` (not a subdirectory) because Docker Compose resolves all relative paths from the first file's directory. The remaining files are the webserver template, Selenium Grid template, Mailpit template, and the per-configuration `docker-compose.yml`.
 
 ### Docker Compose Extension System
 
@@ -210,26 +210,26 @@ If tests are failing in CI but passing locally, check:
 
 -For below commands:
   - Replace `apache_84_114` with the configuration directory you want to test.
-  - Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the main docker-compose.yml file.
+  - Replace `compose-shared-mariadb.yml` and `compose-shared-apache.yml` with the database and webserver `x-includes` values from the configuration's docker-compose.yml file.
   - Run the below commands from the base openemr directory.
   - Note that for future: the first entry (-f) in the command needs to be in ci/ (if it has a subdirectory then it breaks things)
 
 You can view the fully merged configuration file with the following `config` command:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" config
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" config
 ```
 
 You can also run the same Docker Compose setup locally:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
 ```
 
 You can go directly into the OpenEMR testing container:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
 ```
 
 You can shut down the Docker Compose setup:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
 ```
