@@ -119,9 +119,9 @@ function getAuthPortalUsers()
     <meta charset="utf-8" />
     <?php
     if (IS_PORTAL) {
-        Header::setupHeader(['no_main-theme',  'portal-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model', 'dompurify']);
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'summernote', 'dompurify']);
     } else {
-        Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model', 'dompurify']);
+        Header::setupHeader(['summernote', 'dompurify']);
     }
     ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
@@ -130,687 +130,856 @@ function getAuthPortalUsers()
 <body class="body_top">
     <script>
         (function () {
-            var app = angular.module("emrMessageApp", ['ngSanitize', 'summernote', "checklist-model"]);
-            app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', '$q', function ($scope, $filter, $http, $window, $q) {
-                $scope.date = new Date;
-                $scope.sortingOrder = 'id';
-                $scope.pageSizes = [5, 10, 20, 50, 100];
-                $scope.reverse = false;
-                $scope.filteredItems = [];
-                $scope.groupedItems = [];
-                $scope.itemsPerPage = 20;
-                $scope.pagedItems = [];
-                $scope.compose = [];
-                $scope.selrecip = [];
-                $scope.currentPage = 0;
-                $scope.sentItems = [];
-                $scope.allItems = [];
-                $scope.deletedItems = [];
-                $scope.inboxItems = [];
-                $scope.inboxItems = <?php echo json_encode($theresult);?>;
-                $scope.userproper = <?php echo !empty($session->get('ptName', null)) ? js_escape($session->get('ptName')) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
-                $scope.isPortal = "<?php echo IS_PORTAL;?>";
-                $scope.isDashboard = "<?php echo IS_DASHBOARD ?: 0;?>";
-                $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
-                $scope.authrecips = <?php echo json_encode(getAuthPortalUsers());?>;
-                $scope.compose.task = 'add';
-                $scope.xLate = [];
-                $scope.xLate.confirm = [];
-                $scope.xLate.fwd = <?php echo xlj('Forwarded Portal Message Re: '); ?>;
-                $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
-                $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
-                $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>;
-                $scope.isInit = false;
+            'use strict';
 
-                $scope.init = function () {
-                    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                    let promises = [];
-                    promises.push($scope.getSentMessages());
-                    promises.push($scope.getAllMessages());
-                    promises.push($scope.getDeletedMessages());
-                    $scope.isInboxSelected();
-                    $scope.search();
-                    $scope.errorLoadingMessages = false;
-                    $q.all(promises)
-                    .then(() => {
-                        $scope.isInit = true;
-                    })
-                    .catch(error => {
-                            $scope.errorLoadingMessages = true;
-                            $scope.isInit = true;
-                    });
-                }
-
-                const searchMatch = function (haystack, needle) {
-                    if (!needle) {
-                        return true;
+            // --- State ---
+            const state = {
+                sortingOrder: 'id',
+                reverse: false,
+                filteredItems: [],
+                itemsPerPage: 20,
+                pagedItems: [],
+                compose: { task: 'add' },
+                selrecip: [],
+                currentPage: 0,
+                sentItems: [],
+                allItems: [],
+                deletedItems: [],
+                inboxItems: <?php echo json_encode($theresult);?>,
+                items: [],
+                selected: null,
+                userproper: <?php echo !empty($session->get('ptName', null)) ? js_escape($session->get('ptName')) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>,
+                isPortal: <?php echo IS_PORTAL ? js_escape(IS_PORTAL) : '""'; ?>,
+                isDashboard: <?php echo IS_DASHBOARD ? js_escape(IS_DASHBOARD) : '""'; ?>,
+                authrecips: <?php echo json_encode(getAuthPortalUsers());?>,
+                xLate: {
+                    fwd: <?php echo xlj('Forwarded Portal Message Re: '); ?>,
+                    confirm: {
+                        one: <?php echo xlj('Confirm to Archive Current Thread?'); ?>,
+                        all: <?php echo xlj('Confirm to Archive Selected Messages?'); ?>,
+                        err: <?php echo xlj('You are sending to yourself!'); ?>
                     }
-                    return haystack.toLowerCase().indexOf(needle.toLowerCase()) !== -1;
-                };
+                },
+                csrf: <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
+                isInit: false,
+                isInbox: true,
+                isSent: false,
+                isAll: false,
+                isTrash: false,
+                errorLoadingMessages: false
+            };
 
-                // filter the items
-                $scope.search = function () {
-                    $scope.filteredItems = $filter('filter')($scope.items, function (item) {
-                        for (var attr in item) {
-                            if (searchMatch(item[attr], $scope.query))
-                                return true;
+            state.cUserId = state.isPortal || state.isDashboard;
+            state.items = state.inboxItems;
+
+            // --- Helpers ---
+
+            function escapeHtml(text) {
+                if (text === null || text === undefined) return '';
+                const div = document.createElement('div');
+                div.textContent = String(text);
+                return div.innerHTML;
+            }
+
+            function searchMatch(haystack, needle) {
+                if (!needle) return true;
+                return String(haystack).toLowerCase().indexOf(needle.toLowerCase()) !== -1;
+            }
+
+            function renderMessageBody(html) {
+                return DOMPurify.sanitize(html, {
+                    USE_PROFILES: { html: true },
+                    FORBID_TAGS: ['a', 'img']
+                });
+            }
+
+            function htmlToText(html) {
+                const hold = document.createElement('DIV');
+                hold.innerHTML = DOMPurify.sanitize(html, {
+                    USE_PROFILES: { html: true },
+                    FORBID_TAGS: ['a', 'img']
+                });
+                return jsText(hold.textContent || hold.innerText || '');
+            }
+
+            function limitTo(str, limit) {
+                if (!str) return '';
+                return str.length > limit ? str.substring(0, limit) : str;
+            }
+
+            async function postForm(url, params) {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params
+                });
+                return response.json();
+            }
+
+            // --- Filtering & Paging ---
+
+            function search(query) {
+                if (!query) {
+                    state.filteredItems = state.items.slice();
+                } else {
+                    state.filteredItems = state.items.filter(item => {
+                        for (const attr in item) {
+                            if (searchMatch(item[attr], query)) return true;
                         }
                         return false;
                     });
-                    $scope.currentPage = 0;
-                    // now group by pages
-                    $scope.groupToPages();
-                };
-
-                // calculate page in place
-                $scope.groupToPages = function () {
-                    $scope.selected = null;
-                    $scope.pagedItems = [];
-                    for (let i = 0; i < $scope.filteredItems.length; i++) {
-                        if (i % $scope.itemsPerPage === 0) {
-                            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]];
-                        } else {
-                            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
-                        }
-                    }
-                };
-
-                $scope.range = function (start, end) {
-                    const ret = [];
-                    if (!end) {
-                        end = start;
-                        start = 0;
-                    }
-                    for (var i = start; i < end; i++) {
-                        ret.push(i);
-                    }
-                    return ret;
-                };
-
-                $scope.prevPage = function () {
-                    if ($scope.currentPage > 0) {
-                        $scope.currentPage--;
-                    }
-                    return false;
-                };
-
-                $scope.nextPage = function () {
-                    if ($scope.currentPage < $scope.pagedItems.length - 1) {
-                        $scope.currentPage++;
-                    }
-                    return false;
-                };
-
-                $scope.setPage = function () {
-                    $scope.currentPage = this.n;
-                };
-
-                $scope.deleteItem = function (item) {
-                    if (!item) return false;
-                    if (!confirm($scope.xLate.confirm.one)) return false;
-                    const removeFromList = function (list) {
-                        if (!Array.isArray(list)) return;
-                        for (let i = list.length - 1; i >= 0; i--) {
-                            if (list[i] && list[i].mail_chain === item.mail_chain) {
-                                list.splice(i, 1);
-                            }
-                        }
-                    };
-                    $scope.deleteMessage(item.mail_chain).then(function () {
-                        removeFromList($scope.items);
-                        removeFromList($scope.inboxItems);
-                        removeFromList($scope.sentItems);
-                        removeFromList($scope.allItems);
-                        if ($scope.selected && $scope.selected.mail_chain === item.mail_chain) {
-                            $scope.selected = null;
-                        }
-                        $scope.search();
-                        $scope.getDeletedMessages();
-                    });
-                    return false;
-                };
-
-                $scope.batchDelete = function (i) {
-                    if (!confirm($scope.xLate.confirm.all)) return false;
-                    var itemToDelete = [];
-                    angular.forEach(i, function (o, key) {
-                        if (o.hasOwnProperty('deleted')) {
-                            itemToDelete.push($scope.items[i.indexOf(o)].id);
-                        }
-                    })
-                    $http.post('handle_note.php', $.param({'task': 'massdelete', 'notejson': JSON.stringify(itemToDelete), 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        $window.location.reload();
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                    });
-                    return false;
-                };
-
-                $scope.deleteMessage = function (id) {
-                    return $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        return true;
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                        return $q.reject(response);
-                    });
-                };
-
-                $scope.isMessageSelected = function () {
-                    return typeof $scope.selected !== "undefined" && $scope.selected !== null;
-                };
-
-                $scope.isSentSelected = function () {
-                    $scope.isSent = true;
-                    $scope.isTrash = $scope.isAll = $scope.isInbox = false;
-                    $scope.items = [];
-                    $scope.items = $scope.sentItems;
-                    $scope.search();
-                    return true;
                 }
+                state.currentPage = 0;
+                groupToPages();
+            }
 
-                $scope.isTrashSelected = function () {
-                    $scope.isTrash = true;
-                    $scope.isSent = $scope.isAll = $scope.isInbox = false;
-                    $scope.items = [];
-                    $scope.items = $scope.deletedItems;
-                    $scope.search();
-                    return true;
-                }
-
-                $scope.isInboxSelected = function () {
-                    $scope.isInbox = true;
-                    $scope.isTrash = $scope.isAll = $scope.isSent = false;
-                    $scope.items = $scope.inboxItems;
-                    $scope.search();
-                    return true;
-                }
-
-                $scope.isAllSelected = function () {
-                    $scope.isAll = true;
-                    $scope.isTrash = $scope.isSent = $scope.isInbox = false;
-                    $scope.items = $scope.allItems;
-                    $scope.search();
-                    return true;
-                }
-
-                $scope.readMessage = function (item) {
-                    if (!item) return;
-                    if (item.message_status == 'New') {
-                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': item.id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                            const markReadById = function (list, id) {
-                                if (!Array.isArray(list)) return;
-                                for (let i = 0; i < list.length; i++) {
-                                    if (list[i] && list[i].id === id) {
-                                        list[i].message_status = 'Read';
-                                    }
-                                }
-                            };
-                            markReadById($scope.items, item.id);
-                            markReadById($scope.inboxItems, item.id);
-                            markReadById($scope.sentItems, item.id);
-                            markReadById($scope.allItems, item.id);
-                        }, function errorCallback(response) {
-                            alert(response.data);
-                        });
-                    }
-                    $scope.selected = item;
-                };
-
-                $scope.selMessage = function (idx) {
-                    $scope.selected = $scope.allItems[idx];
-
-                };
-
-                $scope.readAll = function () {
-                    for (var i in $scope.items) {
-                        $scope.items[i].message_status = 'Read';
-                    }
-                };
-
-                $scope.closeMessage = function () {
-                    $scope.selected = null;
-                };
-
-                $scope.renderMessageBody = function (html) {
-                    html = DOMPurify.sanitize(html, {
-                        USE_PROFILES: { html: true },
-                        FORBID_TAGS: ['a', 'img']
-                    });
-                    return html;
-                };
-
-                $scope.htmlToText = function (html) {
-                    const hold = document.createElement('DIV');
-                    hold.innerHTML = DOMPurify.sanitize(html, {
-                        USE_PROFILES: { html: true },
-                        FORBID_TAGS: ['a', 'img']
-                    });
-                    return jsText(hold.textContent || hold.innerText || '');
-                };
-
-                // note backend supports a task of getinbox but we prefetch this on server so we don't have that here.
-                $scope.getAllMessages = function () {
-                    return $http.post('handle_note.php', $.param({'task': 'getall', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        if (response.data) {
-                            $scope.allItems = angular.copy(response.data);
-                        } else alert(response.data);
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                    });
-                };
-
-                $scope.getDeletedMessages = function () {
-                    return $http.post('handle_note.php', $.param({'task': 'getdeleted', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        if (response.data) {
-                            $scope.deletedItems = [];
-                            $scope.deletedItems = angular.copy(response.data);
-                        } else alert(response.data);
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                    });
-                };
-
-                $scope.getSentMessages = function () {
-                    return $http.post('handle_note.php', $.param({'task': 'getsent', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        $scope.sentItems = [];
-                        $scope.sentItems = angular.copy(response.data);
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                    });
-                };
-
-                $scope.submitForm = function (compose) {
-                    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                    // re-enable title for submit
-                    $("#title").prop("disabled", false);
-                    $("#selSendto").prop("disabled", false);
-
-                    compose.csrf_token_form = $scope.csrf;
-                    compose.sender_id = $scope.cUserId;
-                    compose.sender_name = $scope.userproper;
-                    if ($scope.selrecip == $scope.cUserId) {
-                        if (!confirm($scope.xLate.confirm.err))
-                            return false;
-                    }
-                    if (compose.task == 'add') {
-                        compose.recipient_name = $("#selSendto option:selected").text();
-                    }
-                    if (compose.task == 'forward') { // Just overwrite default reply but send to pnotes.
-                        compose.sender_id = $("#selForwardto option:selected").val();
-                        compose.sender_name = $("#selForwardto option:selected").text();
-                        compose.selrecip = compose.recipient_id;
+            function groupToPages() {
+                state.selected = null;
+                state.pagedItems = [];
+                for (let i = 0; i < state.filteredItems.length; i++) {
+                    const pageIdx = Math.floor(i / state.itemsPerPage);
+                    if (i % state.itemsPerPage === 0) {
+                        state.pagedItems[pageIdx] = [state.filteredItems[i]];
                     } else {
-                        compose.inputBody = $("#inputBody").summernote('code');
+                        state.pagedItems[pageIdx].push(state.filteredItems[i]);
                     }
-                    return true; // okay to submit
+                }
+                renderAll();
+            }
+
+            function prevPage() {
+                if (state.currentPage > 0) {
+                    state.currentPage--;
+                    renderAll();
+                }
+            }
+
+            function nextPage() {
+                if (state.currentPage < state.pagedItems.length - 1) {
+                    state.currentPage++;
+                    renderAll();
+                }
+            }
+
+            // --- Folder selection ---
+
+            function selectInbox() {
+                state.isInbox = true;
+                state.isTrash = state.isAll = state.isSent = false;
+                state.items = state.inboxItems;
+                search();
+            }
+
+            function selectSent() {
+                state.isSent = true;
+                state.isTrash = state.isAll = state.isInbox = false;
+                state.items = state.sentItems;
+                search();
+            }
+
+            function selectAll() {
+                state.isAll = true;
+                state.isTrash = state.isSent = state.isInbox = false;
+                state.items = state.allItems;
+                search();
+            }
+
+            function selectTrash() {
+                state.isTrash = true;
+                state.isSent = state.isAll = state.isInbox = false;
+                state.items = state.deletedItems;
+                search();
+            }
+
+            // --- API calls ---
+
+            async function getAllMessages() {
+                try {
+                    const data = await postForm('handle_note.php', $.param({ task: 'getall', csrf_token_form: state.csrf }));
+                    if (data) {
+                        state.allItems = Array.isArray(data) ? data.slice() : [];
+                    }
+                } catch (e) {
+                    console.error('Error getting all messages:', e);
+                }
+            }
+
+            async function getDeletedMessages() {
+                try {
+                    const data = await postForm('handle_note.php', $.param({ task: 'getdeleted', csrf_token_form: state.csrf }));
+                    if (data) {
+                        state.deletedItems = Array.isArray(data) ? data.slice() : [];
+                    }
+                } catch (e) {
+                    console.error('Error getting deleted messages:', e);
+                }
+            }
+
+            async function getSentMessages() {
+                try {
+                    const data = await postForm('handle_note.php', $.param({ task: 'getsent', csrf_token_form: state.csrf }));
+                    state.sentItems = Array.isArray(data) ? data.slice() : [];
+                } catch (e) {
+                    console.error('Error getting sent messages:', e);
+                }
+            }
+
+            async function deleteMessage(id) {
+                try {
+                    await postForm('handle_note.php', $.param({ task: 'delete', noteid: id, csrf_token_form: state.csrf }));
+                } catch (e) {
+                    alert(e.message);
+                }
+            }
+
+            function deleteItem(idx) {
+                if (!confirm(state.xLate.confirm.one)) return;
+                const itemToDelete = state.allItems[idx];
+                const idxInItems = state.items.indexOf(itemToDelete);
+                deleteMessage(itemToDelete.mail_chain);
+                if (idxInItems !== -1) {
+                    state.items.splice(idxInItems, 1);
+                }
+                search();
+                initData();
+            }
+
+            function batchDelete() {
+                if (!confirm(state.xLate.confirm.all)) return;
+                const itemToDelete = [];
+                state.items.forEach((item, idx) => {
+                    if (item._deleted) {
+                        itemToDelete.push(item.id);
+                    }
+                });
+                postForm('handle_note.php', $.param({
+                    task: 'massdelete',
+                    notejson: JSON.stringify(itemToDelete),
+                    csrf_token_form: state.csrf
+                })).then(() => {
+                    window.location.reload();
+                }).catch(e => {
+                    alert(e.message);
+                });
+            }
+
+            function readMessage(idx) {
+                const item = state.pagedItems[state.currentPage][idx];
+                if (item.message_status === 'New') {
+                    postForm('handle_note.php', $.param({
+                        task: 'setread',
+                        noteid: item.id,
+                        csrf_token_form: state.csrf
+                    })).then(() => {
+                        item.message_status = 'Read';
+                    });
+                }
+                // Find in allItems by id
+                const allIdx = state.allItems.findIndex(a => +a.id === +item.id);
+                state.isAll = true;
+                state.isTrash = state.isSent = state.isInbox = false;
+                state.items = state.allItems;
+                state.selected = allIdx !== -1 ? state.allItems[allIdx] : item;
+                renderAll();
+            }
+
+            function closeMessage() {
+                state.selected = null;
+                groupToPages();
+            }
+
+            function readAll() {
+                state.items.forEach(item => { item.message_status = 'Read'; });
+                renderAll();
+            }
+
+            // --- Rendering ---
+
+            function renderAll() {
+                renderNav();
+                renderToolbar();
+                renderMessageList();
+                renderMessageDetail();
+                renderPaging();
+                renderLoadingState();
+            }
+
+            function renderLoadingState() {
+                const loadingRow = document.getElementById('loadingRow');
+                const contentRow = document.getElementById('contentRow');
+                if (loadingRow && contentRow) {
+                    if (state.isInit) {
+                        loadingRow.classList.add('d-none');
+                        contentRow.classList.remove('d-none');
+                    } else {
+                        loadingRow.classList.remove('d-none');
+                        contentRow.classList.add('d-none');
+                    }
+                }
+            }
+
+            function renderNav() {
+                document.querySelectorAll('#navInbox, #navSent, #navAll, #navTrash').forEach(el => {
+                    el.classList.remove('active');
+                });
+                if (state.isInbox) document.getElementById('navInbox').classList.add('active');
+                if (state.isSent) document.getElementById('navSent').classList.add('active');
+                if (state.isAll) document.getElementById('navAll').classList.add('active');
+                if (state.isTrash) document.getElementById('navTrash').classList.add('active');
+
+                const inboxBadge = document.getElementById('badgeInbox');
+                const sentBadge = document.getElementById('badgeSent');
+                const allBadge = document.getElementById('badgeAll');
+                const trashBadge = document.getElementById('badgeTrash');
+                if (inboxBadge) inboxBadge.textContent = state.inboxItems.length;
+                if (sentBadge) sentBadge.textContent = state.sentItems.length;
+                if (allBadge) allBadge.textContent = state.allItems.length;
+                if (trashBadge) trashBadge.textContent = state.deletedItems.length;
+            }
+
+            function renderToolbar() {
+                const toolbar = document.getElementById('inboxToolbar');
+                if (toolbar) {
+                    toolbar.style.display = state.selected ? 'none' : '';
+                }
+            }
+
+            function renderMessageList() {
+                const container = document.getElementById('messageListTable');
+                if (!container) return;
+                container.style.display = state.selected ? 'none' : '';
+
+                const tbody = container.querySelector('tbody');
+                if (!tbody) return;
+
+                const currentPageItems = state.pagedItems[state.currentPage] || [];
+                let html = '';
+                currentPageItems.forEach((item, idx) => {
+                    const strong = item.message_status === 'New' ? 'font-weight: bold;' : '';
+                    const bodyPreview = limitTo(htmlToText(item.body), 35);
+                    const dateStr = item.date || '';
+                    html += `<tr role="button">
+                        <td class="message-row">
+                            <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" data-item-idx="${idx}" class="item-checkbox"></span>
+                            <span class="col-sm-1 px-1 msg-click" data-idx="${idx}"><span style="${strong}">${escapeHtml(item.message_status)}</span></span>
+                            <span class="col-sm-2 px-1 msg-click" data-idx="${idx}"><span style="${strong}">${escapeHtml(dateStr)}</span></span>
+                            <span class="col-sm-3 px-1 msg-click" data-idx="${idx}">
+                                <a class="btn-link"><span style="${strong}">${escapeHtml(item.sender_name)} to ${escapeHtml(item.recipient_name)}</span></a>
+                            </span>
+                            <span class="col-sm-1 msg-click" data-idx="${idx}">
+                                <a class="btn-link"><span style="${strong}">${escapeHtml(item.title)}</span></a>
+                            </span>
+                            <span class="col-sm-4 px-1 msg-click" data-idx="${idx}"><span style="${strong}">${escapeHtml(bodyPreview)}</span></span>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+
+                // Bind click handlers
+                tbody.querySelectorAll('.msg-click').forEach(el => {
+                    el.addEventListener('click', () => readMessage(parseInt(el.dataset.idx)));
+                });
+                tbody.querySelectorAll('.item-checkbox').forEach(cb => {
+                    cb.addEventListener('change', function () {
+                        const idx = parseInt(this.dataset.itemIdx);
+                        const pageItems = state.pagedItems[state.currentPage] || [];
+                        if (pageItems[idx]) {
+                            pageItems[idx]._deleted = this.checked;
+                        }
+                    });
+                });
+            }
+
+            function renderMessageDetail() {
+                const container = document.getElementById('messageDetail');
+                if (!container) return;
+                container.style.display = state.selected ? '' : 'none';
+                if (!state.selected) return;
+
+                const sel = state.selected;
+                const headerEl = document.getElementById('detailHeader');
+                if (headerEl) {
+                    headerEl.innerHTML = `<h5 class="pt-2">
+                        <a href="javascript:;" id="btnCloseDetail"><?php echo xlt('Conversation from'); ?></a>
+                        <strong>${escapeHtml(sel.sender_name)}</strong> <?php echo xlt('regarding'); ?> <strong>${escapeHtml(sel.title)}</strong> <?php echo xlt('on'); ?> &lt;${escapeHtml(sel.date)}&gt;
+                    </h5>`;
+                    document.getElementById('btnCloseDetail').addEventListener('click', closeMessage);
                 }
 
-                $('#modalCompose').on('hidden.bs.modal', function (e) {
+                // Render chained messages
+                const chainTbody = document.getElementById('chainTbody');
+                if (!chainTbody) return;
+                const chainId = sel.mail_chain;
+                const chained = isNaN(chainId) ? state.allItems : state.allItems.filter(item => item.mail_chain == chainId);
+
+                let html = '';
+                chained.forEach(item => {
+                    const isSelected = sel.id === item.id;
+                    const showReply = sel.sender_id !== state.cUserId && isSelected;
+                    const showForward = isSelected && sel.sender_id !== state.cUserId && !state.isPortal;
+                    const showDelete = !state.isTrash && isSelected;
+
+                    html += `<tr>
+                        <td role="button">
+                            <span class="col-sm px-1"><span>${escapeHtml(item.date)}</span></span>
+                            <span class="col-sm"><span>${escapeHtml(item.message_status)}</span></span>
+                            <span class="col-sm px-1"><span>${escapeHtml(item.sender_name)} to ${escapeHtml(item.recipient_name)}</span></span>
+                            <span class="col-sm-1"><span>${escapeHtml(item.title)}</span></span>`;
+
+                    if (!isSelected) {
+                        html += `<span class="col-sm px-1"><span>${limitTo(htmlToText(item.body), 35)}</span></span>`;
+                    }
+
+                    html += `<span class='btn-group float-right m-0'>`;
+                    if (showReply) {
+                        html += `<button class="btn btn-primary btn-small btn-compose-reply" data-toggle="modal" data-mode="reply" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-target="#modalCompose"><i class="fa fa-reply"></i></button>`;
+                    }
+                    if (showForward) {
+                        html += `<button class="btn btn-primary btn-small btn-compose-fwd" data-toggle="modal" data-mode="forward" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-target="#modalCompose"><i class="fa fa-share"></i></button>`;
+                    }
+                    if (showDelete) {
+                        html += `<button class="btn btn-small btn-primary btn-delete-item" data-item-id="${escapeHtml(sel.id)}" title="<?php echo xla('Archive this message'); ?>"><i class="fa fa-trash fa-1x"></i></button>`;
+                    }
+                    html += `</span>`;
+
+                    if (isSelected) {
+                        html += `<div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info'><span>${renderMessageBody(sel.body)}</span></div>`;
+                    }
+                    html += `</td></tr>`;
+                });
+                chainTbody.innerHTML = html;
+
+                // Bind reply/forward buttons to open modal
+                chainTbody.querySelectorAll('.btn-compose-reply, .btn-compose-fwd').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        $('#modalCompose').data('relatedTarget', this);
+                        $('#modalCompose').modal('show');
+                    });
+                });
+                // Bind delete
+                chainTbody.querySelectorAll('.btn-delete-item').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const itemIdx = state.items.indexOf(state.selected);
+                        if (itemIdx !== -1) {
+                            deleteItem(itemIdx);
+                        }
+                    });
+                });
+            }
+
+            function renderPaging() {
+                const pagingEl = document.getElementById('pagingControls');
+                if (!pagingEl) return;
+                pagingEl.style.display = state.selected ? 'none' : '';
+
+                const currentPageItems = state.pagedItems[state.currentPage] || [];
+                const startNum = (state.itemsPerPage * state.currentPage) + 1;
+                const endNum = (state.itemsPerPage * state.currentPage) + currentPageItems.length;
+
+                const infoEl = document.getElementById('pagingInfo');
+                if (infoEl) {
+                    infoEl.innerHTML = `<strong>${startNum}</strong>~<strong>${endNum}</strong> of <strong>${state.items.length}</strong>`;
+                }
+
+                const btnGroup = document.getElementById('pagingButtons');
+                if (btnGroup) {
+                    btnGroup.style.display = state.items.length > state.itemsPerPage ? '' : 'none';
+                }
+            }
+
+            // --- Compose modal setup ---
+
+            function setupComposeModal(e) {
+                state.compose = { task: 'add' };
+                $('#inputBody').summernote('destroy');
+
+                // Get mode from data-mode attribute
+                const relatedTarget = $(e.currentTarget).data('relatedTarget') || e.relatedTarget;
+                const mode = relatedTarget ? $(relatedTarget).attr('data-mode') : 'add';
+                state.compose.task = mode;
+
+                if (mode === 'forward') {
+                    $('#modalCompose .modal-header .modal-title').html("Forward Message");
+                    const recipId = $(relatedTarget).attr('data-whoto');
+                    const title = $(relatedTarget).attr('data-mtitle');
+                    const uname = $(relatedTarget).attr('data-username');
+                    $('#selForwardto').prop('disabled', false).show();
+                    $('#selSendto').hide();
+                    $('#title').prop('disabled', false);
+                    state.compose.title = title;
+                    state.compose.selrecip = recipId;
+                    state.compose.recipient_name = uname;
+                    state.compose.recipient_id = recipId;
+
+                    state.authrecips.forEach(o => {
+                        if (o.userid === recipId) {
+                            state.compose.pid = o.pid;
+                        }
+                    });
+                    const fmsg = '\n\n\n> ' + state.xLate.fwd + title + ' by ' + uname + '\n> ' + $('#referMsg').text();
+                    $('#finputBody').text(fmsg).show();
+                    $('#inputBody').hide();
+                    state.compose.noteid = $(relatedTarget).attr('data-noteid');
+                    updateComposeForm();
+                } else if (mode === 'reply') {
+                    $('#inputBody').show().summernote({
+                        focus: true,
+                        height: '225px',
+                        width: '100%',
+                        tabsize: 4,
+                        disableDragAndDrop: true,
+                        dialogsInBody: true,
+                        dialogsFade: true
+                    });
+                    $('#finputBody').hide();
+                    $('#selForwardto').hide();
+                    $('#selSendto').show();
+                    $('#modalCompose .modal-header .modal-title').html(<?php echo xlj("Compose Reply Message"); ?>);
+                    let chain = $(relatedTarget).attr('data-mailchain');
+                    if (chain === '0') {
+                        chain = $(relatedTarget).attr('data-noteid');
+                    }
+                    const recipId = $(relatedTarget).attr('data-whoto');
+                    const title = $(relatedTarget).attr('data-mtitle');
+                    const uname = $(relatedTarget).attr('data-username');
+                    $('#selSendto').val(recipId);
+                    $('#title').val(title);
+                    state.compose.title = title;
+                    state.compose.selrecip = recipId;
+                    state.compose.recipient_name = uname;
+                    state.compose.recipient_id = recipId;
+                    state.compose.noteid = chain;
+                    updateComposeForm();
+                } else {
+                    $('#inputBody').show().summernote({
+                        width: '100%',
+                        focus: true,
+                        height: '375px',
+                        tabsize: 4,
+                        disableDragAndDrop: true,
+                        dialogsInBody: true,
+                        dialogsFade: true,
+                        popover: {
+                            image: [],
+                            link: [],
+                            air: []
+                        }
+                    });
+                    $('#finputBody').hide();
+                    $('#selForwardto').hide();
+                    $('#selSendto').show().prop('disabled', false);
+                    $('#modalCompose .modal-header .modal-title').html(<?php echo xlj("Compose New Message"); ?>);
+                    state.compose.task = 'add';
+                    $('#selSendto').prop('disabled', false);
+                    $('#title').prop('disabled', false);
+                    updateComposeForm();
+                }
+            }
+
+            function updateComposeForm() {
+                // Sync hidden fields with compose state
+                $('#hiddenTask').val(state.compose.task || 'add');
+                $('#hiddenNoteid').val(state.compose.noteid || '');
+                if (state.compose.title) {
+                    $('#title').val(state.compose.title);
+                }
+                if (state.compose.selrecip) {
+                    $('#selSendto').val(state.compose.selrecip);
+                    $('#selForwardto').val(state.compose.selrecip);
+                }
+            }
+
+            function submitForm(e) {
+                // Re-enable title for submit
+                $('#title').prop('disabled', false);
+                $('#selSendto').prop('disabled', false);
+
+                const form = document.getElementById('fcompose');
+                const formData = new FormData(form);
+
+                // Set dynamic values
+                formData.set('csrf_token_form', state.csrf);
+                formData.set('sender_id', state.cUserId);
+                formData.set('sender_name', state.userproper);
+                formData.set('task', state.compose.task || 'add');
+
+                const selrecip = $('#selSendto').val() || state.compose.selrecip;
+                if (selrecip === state.cUserId) {
+                    if (!confirm(state.xLate.confirm.err)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+
+                if (state.compose.task === 'add') {
+                    formData.set('recipient_name', $('#selSendto option:selected').text());
+                }
+
+                if (state.compose.task === 'forward') {
+                    formData.set('sender_id', $('#selForwardto option:selected').val());
+                    formData.set('sender_name', $('#selForwardto option:selected').text());
+                    formData.set('selrecip', state.compose.recipient_id);
+                } else {
+                    formData.set('inputBody', $('#inputBody').summernote('code'));
+                }
+
+                // Let the form submit naturally
+                return true;
+            }
+
+            // --- Data init ---
+
+            async function initData() {
+                try {
+                    await Promise.all([
+                        getSentMessages(),
+                        getAllMessages(),
+                        getDeletedMessages()
+                    ]);
+                    state.isInit = true;
+                    state.errorLoadingMessages = false;
+                } catch (e) {
+                    state.errorLoadingMessages = true;
+                    state.isInit = true;
+                }
+                selectInbox();
+            }
+
+            // --- DOM Ready ---
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Nav bindings
+                document.getElementById('navInbox').addEventListener('click', e => { e.preventDefault(); selectInbox(); });
+                document.getElementById('navSent').addEventListener('click', e => { e.preventDefault(); selectSent(); });
+                document.getElementById('navAll').addEventListener('click', e => { e.preventDefault(); selectAll(); });
+                document.getElementById('navTrash').addEventListener('click', e => { e.preventDefault(); selectTrash(); });
+
+                // Toolbar bindings
+                document.getElementById('btnReadAll').addEventListener('click', e => { e.preventDefault(); readAll(); });
+                document.getElementById('btnBatchDelete').addEventListener('click', e => { e.preventDefault(); batchDelete(); });
+
+                // Paging
+                document.getElementById('btnPrev').addEventListener('click', e => { e.preventDefault(); prevPage(); });
+                document.getElementById('btnNext').addEventListener('click', e => { e.preventDefault(); nextPage(); });
+
+                // Compose modal
+                $('#modalCompose').on('hidden.bs.modal', function () {
                     window.location.reload();
                 });
+                $('#modalCompose').on('show.bs.modal', setupComposeModal);
 
-                $('#modalCompose').on('show.bs.modal', function (e) {
-                    // Sets up the compose modal before we show it
-                    $scope.compose = [];
-                    $('#inputBody').summernote('destroy');
-                    var mode = $(e.relatedTarget).attr('data-mode');
-                    $scope.compose.task = mode;
-                    if (mode == 'forward') {
-                        $('#modalCompose .modal-header .modal-title').html("Forward Message");
-                        $scope.compose.task = mode;
-                        var recipId = $(e.relatedTarget).attr('data-whoto');
-                        var title = $(e.relatedTarget).attr('data-mtitle');
-                        var uname = $(e.relatedTarget).attr('data-username');
-                        $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
-                        $(e.currentTarget).find('input[name="title"]').prop("disabled", false);
-                        $scope.compose.title = title;
-                        $scope.compose.selrecip = recipId;
-                        $scope.compose.selrecip.username = uname;
-                        $scope.compose.recipient_name = uname;
-                        $scope.compose.recipient_id = recipId;
-                        angular.forEach($scope.authrecips, function (o, key) {// Need the pid of patient for pnotes.
-                            if (o.userid == recipId) {
-                                $scope.compose.pid = o.pid;
-                            }
-                        })
-                        const fmsg = '\n\n\n> ' + $scope.xLate.fwd + title + ' by ' + uname + '\n> ' + $("#referMsg").text();
-                        $("textarea#finputBody").text(fmsg)
-                        $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
-                    } else if (mode == 'reply') {
-                        $('#inputBody').summernote({
-                            focus: true,
-                            height: '225px',
-                            width: '100%',
-                            tabsize: 4,
-                            disableDragAndDrop: true,
-                            dialogsInBody: true,
-                            dialogsFade: true
-                        });
-                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
-                        $scope.compose.task = mode;
-                        //get data attributes of the clicked element (selected recipient) for replies only
-                        var chain = $(e.relatedTarget).attr('data-mailchain');
-                        if (chain == '0') {
-                            chain = $(e.relatedTarget).attr('data-noteid');
-                        }
-                        let recipId = $(e.relatedTarget).attr('data-whoto');
-                        let title = $(e.relatedTarget).attr('data-mtitle');
-                        let uname = $(e.relatedTarget).attr('data-username');
-                        $(e.currentTarget).find('select[id="selSendto"]').val(recipId)
-                        $(e.currentTarget).find('input[name="title"]').val(title);
-                        // Set the modal var's
-                        $scope.compose.title = title;
-                        $scope.compose.selrecip = recipId;
-                        $scope.compose.selrecip.username = uname;
-                        $scope.compose.recipient_name = uname;
-                        $scope.compose.recipient_id = recipId;
-                        $scope.compose.noteid = chain;
-                    } else {
-                        $('#inputBody').summernote({
-                            width: '100%',
-                            focus: true,
-                            height: '375px',
-                            tabsize: 4,
-                            disableDragAndDrop: true,
-                            dialogsInBody: true,
-                            dialogsFade: true,
-                            popover: {
-                                image: [],
-                                link: [],
-                                air: []
-                            }
-                        });
-                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>)
-                        $scope.compose.task = 'add';
-                        $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
-                        $(e.currentTarget).find('input[name="title"]').prop("disabled", false);
-                    }
-                    if ($scope.compose.task != 'reply') {
-                        $scope.$apply();
-                    }
-                }); // on modal
-                // initialize application
-                if (!$scope.isInit) {
-                    $scope.init();
+                // Form submit
+                const form = document.getElementById('fcompose');
+                if (form) {
+                    form.addEventListener('submit', submitForm);
                 }
-            }])  /* end inbox functions */
-            .filter('Chained', function () {
-                return function (input, id) {
-                    var output = [];
-                    if (isNaN(id)) {
-                        output = input;
-                    } else {
-                        angular.forEach(input, function (item) {
-                            if (item.mail_chain == id) {
-                                output.push(item)
-                            }
-                        });
-                    }
-                    return output;
-                }
-            }).filter('getById', function () {
-                return function (input, id) {
-                    var i = 0, len = input.length;
-                    for (; i < len; i++) {
-                        if (+input[i].id == +id) {
-                            return i;
-                        }
-                    }
-                    return null;
-                }
-            }).controller('messageCtrl', ['$scope', function ($scope) {
-                $scope.message = function (idx) {
-                    return items(idx);
-                };
-            }]);   // end messageCtrl
-        })(); // application end
 
-        <?php
-        if ($showSMS) {
-            $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
-        }
-        ?>
+                // Populate recipient selects
+                const selSendto = document.getElementById('selSendto');
+                const selForwardto = document.getElementById('selForwardto');
+                state.authrecips.forEach(recip => {
+                    const opt = document.createElement('option');
+                    opt.value = recip.userid;
+                    opt.textContent = recip.username;
+                    selSendto.appendChild(opt);
+
+                    if (recip.type === 'user') {
+                        const opt2 = document.createElement('option');
+                        opt2.value = recip.userid;
+                        opt2.textContent = recip.username;
+                        selForwardto.appendChild(opt2);
+                    }
+                });
+
+                // Portal-only visibility
+                if (state.isPortal) {
+                    document.querySelectorAll('[data-show-dashboard]').forEach(el => el.style.display = 'none');
+                }
+
+                // Initialize data
+                initData();
+            });
+
+            <?php
+            if ($showSMS) {
+                $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
+            }
+            ?>
+        })();
     </script>
-    <ng ng-app="emrMessageApp">
-        <div class="container-fluid" id='main'  ng-controller="inboxCtrl">
-            <div class='my-3'>
-                <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
-            </div>
-            <div class="row" ng-class="{'d-none': isInit}">
-                <div class="col-12">
-                    <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
-                </div>
-            </div>
-            <div class="row d-none"  ng-class="{'d-none': !isInit}">
-                <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
-                    <div class="sticky-top">
-                        <ul class="nav nav-pills nav-stacked flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isAllSelected()"><span class="badge float-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-10">
-                    <!--inbox toolbar-->
-                    <div class="row" ng-show="!isMessageSelected()">
-                        <div class="col-12 mb-2">
-                            <button class="btn btn-primary" title="<?php echo xla("Compose Message"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
-                                <span class="fa fa-edit fa-lg"></span> <?php echo xlt("Compose Message"); ?>
-                            </button>
-                            <?php
-                            if ($showSMS) {
-                                $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
-                            }
-                            ?>
-                            <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
-                            </a>
-                            <div class="btn-group btn-group float-right">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li>
-                                        <a class="dropdown-item" href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a>
-                                    </li>
-                                    <li class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
-                                    </li>
-                                    <li ng-show='!isTrash'>
-                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
-                                    <li>
-                                        <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i> <?php echo xlt('Refresh'); ?></a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i> <?php echo xlt('Return Home'); ?></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!--/col-->
-                        <div class="col-12"></div>
-                    </div>
-                    <!--/row-->
-                    <!--/inbox toolbar-->
-                    <div class="inbox" id="inboxPanel">
-                        <!--message list-->
-                        <div class="table-responsive" ng-show="!isMessageSelected()">
-                            <table class="table table-striped table-bordered table-hover refresh-container pull-down">
-                                <thead class="bg-info d-none"></thead>
-                                <tbody>
-                                <tr ng-repeat="item in pagedItems[currentPage]" role='button'>
-                                    <!--  | orderBy:sortingOrder:reverse -->
-                                    <td role = "button" class="message-row">
-                                        <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
-
-                                        <span class="col-sm-1 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1" ng-click="readMessage(item)">
-                                            <a ng-click="$event.stopPropagation(); readMessage(item)" class="btn-link">
-                                                <span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span>
-                                            </a>
-                                        </span>
-                                        <span class="col-sm-1" ng-click="readMessage(item)">
-                                            <a ng-click="$event.stopPropagation(); readMessage(item)" class="btn-link">
-                                                <span ng-class="{strong: !item.read}">{{item.title}}</span>
-                                            </a>
-                                        </span>
-                                        <span class="col-sm-4 px-1"  ng-click="readMessage(item)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
-                                        <!-- below for attachments, eventually -->
-                                        <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
-                                    class="glyphicon glyphicon-paperclip float-right"></span> <span ng-show="item.priority==1"
-                                    class="float-right glyphicon glyphicon-warning-sign text-danger"></span></span> -->
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!--message detail-->
-                        <div class="container-fluid" ng-show="isMessageSelected()">
-                            <div class="row" ng-controller="messageCtrl">
-                                <div class="w-100 pl-1 mb-1 bg-light text-dark">
-                                    <h5 class="pt-2">
-                                        <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation from'); ?></a>
-                                        <strong>{{selected.sender_name}}</strong> <?php echo xlt('regarding'); ?> <strong>{{selected.title}}</strong> <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
-                                    </h5>
-                                    <!-- Leave below for future menu items -->
-                                    <!--<span class="btn-group float-right">
-                                        <button ng-show="selected.sender_id != cUserId" class="btn btn-primary" title="<?php /*echo xla('Reply to this message'); */?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose">
-                                            <i class="fa fa-reply"></i> <?php /*echo xlt('Reply'); */?></button>
-                                        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="<?php /*echo xla("More options"); */?>"></button>
-                                        <ul class="dropdown-menu float-right">
-                                            <li ng-show='!isTrash'><a href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i> <?php /*echo xlt('Send to Archive'); */?></a></li>
-                                        </ul>
-                                        <button ng-show='!isTrash' class="btn btn-md btn-primary float-right" ng-click="deleteItem(items.indexOf(selected))" title="<?php /*echo xla('Delete this message'); */?>" data-toggle="tooltip">
-                                            <i class="fa fa-trash fa-1x"></i>
-                                        </button>
-                                    </span>-->
-                                </div>
-                                <div class="table-responsive row ml-1">
-                                    <table class="table table-hover table-striped table-bordered refresh-container pull-down">
-                                        <thead><?php echo xlt('Associated Messages in thread.');?></thead>
-                                        <tbody>
-                                        <tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
-                                            <td role = "button" ng-click="readMessage(item)">
-                                                <span class="col-sm px-1"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                                <span class="col-sm"><span>{{item.message_status}}</span></span>
-                                                <span class="col-sm px-1"><span>{{item.sender_name}}
-                                                        to {{item.recipient_name}}</span></span> <span class="col-sm-1"><span>{{item.title}}</span></span>
-                                                <span class="col-sm px-1" ng-hide="selected.id == item.id"><span ng-bind-html='(htmlToText(item.body) | limitTo:35)'></span></span>
-                                                <span class='btn-group float-right m-0'>
-                                                    <button ng-show="selected.sender_id != cUserId && selected.id == item.id" class="btn btn-primary btn-small" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-reply"></i></button>
-                                                    <button ng-show="selected.id == item.id && selected.sender_id != cUserId && !isPortal" class="btn btn-primary btn-small" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i></button>
-                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(selected)" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
-                                                    </button>
-                                                </span>
-                                                <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
-                                                    <span ng-bind-html=renderMessageBody(selected.body)></span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <!--/message body-->
-                            </div>
-                            <!--/row-->
-                        </div>
-                    </div>
-                    <!--/inbox panel-->
-                    <!--paging-->
-                    <div class="float-right my-2" ng-hide="selected">
-                    <span class="text-muted"><strong>{{(itemsPerPage * currentPage) + 1}}</strong>~<strong>{{(itemsPerPage
-                                * currentPage) + pagedItems[currentPage].length}}</strong> of <strong>{{items.length}}</strong></span>
-                        <div class="btn-group" ng-show="items.length > itemsPerPage">
-                            <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == 0}" ng-click="prevPage()"><i class="fa fa-chevron-left"></i></button>
-                            <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == pagedItems.length - 1}" ng-click="nextPage()"><i class="fa fa-chevron-right"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.modal compose message -->
-                <div class="modal fade" id="modalCompose">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body ">
-                                <div class="col-12">
-                                    <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # '; ?>{{selected.id}}</label>
-                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
-
-                                    <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
-                                        <fieldset class="row">
-                                            <div class="col-lg-6 input-group my-2">
-                                                <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
-                                                <select class="form-control ml-2 to-select-forward" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:'user' track by recip.userid"></select>
-                                                <select class="form-control ml-2 to-select-send" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
-                                            </div>
-                                            <div class="input-group col-lg-6 my-2">
-                                                <label for="title"><?php echo xlt('Subject'); ?></label>
-                                                <input type='text' list='listid' name='title' id='title' class="form-control ml-2" ng-model='compose.title' value="<?php echo xla('General'); ?>">
-                                                <datalist id='listid'>
-                                                    <option label='<?php echo xlt('General'); ?>'
-                                                        value='<?php echo xla('General'); ?>'></option>
-                                                    <option label='<?php echo xlt('Insurance'); ?>'
-                                                        value='<?php echo xla('Insurance'); ?>'></option>
-                                                    <option label='<?php echo xlt('Prior Auth'); ?>'
-                                                        value='<?php echo xla('Prior Auth'); ?>'></option>
-                                                    <option label='<?php echo xlt('Bill/Collect'); ?>'
-                                                        value='<?php echo xla('Bill/Collect'); ?>'></option>
-                                                    <option label='<?php echo xlt('Referral'); ?>'
-                                                        value='<?php echo xla('Referral'); ?>'></option>
-                                                    <option label='<?php echo xlt('Pharmacy'); ?>'
-                                                        value='<?php echo xla('Pharmacy'); ?>'></option>
-                                                </datalist>
-                                            </div>
-                                            <div class="col-12" id="inputBody" ng-hide="compose.task == 'forward'" ng-model="compose.inputBody"></div>
-                                            <textarea class="col-12" id="finputBody" rows="8" ng-hide="compose.task != 'forward'" ng-model="compose.inputBody"></textarea>
-                                        </fieldset>
-                                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" ng-value="compose.csrf_token_form" />
-                                        <input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" />
-                                        <input type='hidden' name='replyid' id='replyid' ng-value='selected.reply_mail_chain' />
-                                        <input type='hidden' name='recipient_id' ng-value='compose.selrecip' />
-                                        <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' />
-                                        <input type='hidden' name='sender_id' ng-value='compose.sender_id' />
-                                        <input type='hidden' name='sender_name' ng-value='compose.sender_name' />
-                                        <input type='hidden' name='task' ng-value='compose.task' />
-                                        <input type='hidden' name='inputBody' ng-value='compose.inputBody' />
-                                        <input type='hidden' name='pid' ng-value='compose.pid' />
-                                        <div class='modal-footer'>
-                                            <button type="button" class="btn btn-secondary"
-                                                data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary float-right" value="messages.php"><?php echo xlt('Send'); ?> <i
-                                                    class="fa fa-arrow-circle-right fa-lg"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.modal-content -->
-                    </div>
-                    <!-- /.modal-dialog -->
-                </div>
-                <!-- /.modal compose message -->
-            </div>
-            <!--/row ng-controller-->
+    <div class="container-fluid" id='main'>
+        <div class='my-3'>
+            <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
         </div>
-        <!--/container--> </ng>
+        <div class="row" id="loadingRow">
+            <div class="col-12">
+                <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
+            </div>
+        </div>
+        <div class="row d-none" id="contentRow">
+            <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
+                <div class="sticky-top">
+                    <ul class="nav nav-pills nav-stacked flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="navInbox" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeInbox">0</span><?php echo xlt('Inbox'); ?></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="navSent" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeSent">0</span><?php echo xlt('Sent{{Mails}}'); ?></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="navAll" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeAll">0</span><?php echo xlt('All{{Mails}}'); ?></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="navTrash" data-toggle="pill" href="javascript:;"><span class="badge float-right" id="badgeTrash">0</span><?php echo xlt('Archive'); ?></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" data-show-dashboard><?php echo xlt('Exit Mail'); ?></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <!--inbox toolbar-->
+                <div class="row" id="inboxToolbar">
+                    <div class="col-12 mb-2">
+                        <button class="btn btn-primary" title="<?php echo xla("Compose Message"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
+                            <span class="fa fa-edit fa-lg"></span> <?php echo xlt("Compose Message"); ?>
+                        </button>
+                        <?php
+                        if ($showSMS) {
+                            $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                        }
+                        ?>
+                        <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
+                        </a>
+                        <div class="btn-group btn-group float-right">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:;" id="btnReadAll"><?php echo xlt('Mark all as read'); ?></a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:;" id="btnBatchDelete"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
+                                <li>
+                                    <a href="javascript:;" onclick='window.location.replace("./messages.php")' class="dropdown-item"><i class="fa fa-sync"></i> <?php echo xlt('Refresh'); ?></a>
+                                </li>
+                                <li>
+                                    <a href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" data-show-dashboard class="dropdown-item"><i class="fa fa-home"></i> <?php echo xlt('Return Home'); ?></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-12"></div>
+                </div>
+                <!--/inbox toolbar-->
+                <div class="inbox" id="inboxPanel">
+                    <!--message list-->
+                    <div class="table-responsive" id="messageListTable">
+                        <table class="table table-striped table-bordered table-hover refresh-container pull-down">
+                            <thead class="bg-info d-none"></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <!--message detail-->
+                    <div class="container-fluid" id="messageDetail" style="display:none;">
+                        <div class="row">
+                            <div class="w-100 pl-1 mb-1 bg-light text-dark" id="detailHeader">
+                            </div>
+                            <div class="table-responsive row ml-1">
+                                <table class="table table-hover table-striped table-bordered refresh-container pull-down">
+                                    <thead><?php echo xlt('Associated Messages in thread.');?></thead>
+                                    <tbody id="chainTbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--/inbox panel-->
+                <!--paging-->
+                <div class="float-right my-2" id="pagingControls">
+                    <span class="text-muted" id="pagingInfo"></span>
+                    <div class="btn-group" id="pagingButtons">
+                        <button type="button" class="btn btn-secondary btn-lg" id="btnPrev"><i class="fa fa-chevron-left"></i></button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="btnNext"><i class="fa fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal compose message -->
+            <div class="modal fade" id="modalCompose">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body ">
+                            <div class="col-12">
+                                <label id="referLabel" style="display:none;"><?php echo xlt('Refer to Message') . ' # '; ?><span id="referMsgId"></span></label>
+                                <div class="jumbotron col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" style="display:none;"></div>
+
+                                <form role="form" class="form-horizontal" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
+                                    <fieldset class="row">
+                                        <div class="col-lg-6 input-group my-2">
+                                            <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
+                                            <select class="form-control ml-2 to-select-forward" id="selForwardto" name="selForwardto" style="display:none;"></select>
+                                            <select class="form-control ml-2 to-select-send" id="selSendto" name="selrecip"></select>
+                                        </div>
+                                        <div class="input-group col-lg-6 my-2">
+                                            <label for="title"><?php echo xlt('Subject'); ?></label>
+                                            <input type='text' list='listid' name='title' id='title' class="form-control ml-2" value="<?php echo xla('General'); ?>">
+                                            <datalist id='listid'>
+                                                <option label='<?php echo xlt('General'); ?>'
+                                                    value='<?php echo xla('General'); ?>'></option>
+                                                <option label='<?php echo xlt('Insurance'); ?>'
+                                                    value='<?php echo xla('Insurance'); ?>'></option>
+                                                <option label='<?php echo xlt('Prior Auth'); ?>'
+                                                    value='<?php echo xla('Prior Auth'); ?>'></option>
+                                                <option label='<?php echo xlt('Bill/Collect'); ?>'
+                                                    value='<?php echo xla('Bill/Collect'); ?>'></option>
+                                                <option label='<?php echo xlt('Referral'); ?>'
+                                                    value='<?php echo xla('Referral'); ?>'></option>
+                                                <option label='<?php echo xlt('Pharmacy'); ?>'
+                                                    value='<?php echo xla('Pharmacy'); ?>'></option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-12" id="inputBody"></div>
+                                        <textarea class="col-12" id="finputBody" name="inputBody" rows="8" style="display:none;"></textarea>
+                                    </fieldset>
+                                    <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="" />
+                                    <input type='hidden' name='noteid' id='hiddenNoteid' value='' />
+                                    <input type='hidden' name='replyid' id='replyid' value='' />
+                                    <input type='hidden' name='recipient_id' id='hiddenRecipientId' value='' />
+                                    <input type='hidden' name='recipient_name' id='hiddenRecipientName' value='' />
+                                    <input type='hidden' name='sender_id' id='hiddenSenderId' value='' />
+                                    <input type='hidden' name='sender_name' id='hiddenSenderName' value='' />
+                                    <input type='hidden' name='task' id='hiddenTask' value='add' />
+                                    <input type='hidden' name='pid' id='hiddenPid' value='' />
+                                    <div class='modal-footer'>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                                        <button type="submit" id="submit" name="submit"
+                                            class="btn btn-primary float-right" value="messages.php"><?php echo xlt('Send'); ?> <i
+                                                class="fa fa-arrow-circle-right fa-lg"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal compose message -->
+        </div>
+        <!--/row-->
+    </div>
+    <!--/container-->
 
 </body>
 </html>
