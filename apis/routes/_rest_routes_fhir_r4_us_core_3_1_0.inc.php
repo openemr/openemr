@@ -35,6 +35,7 @@ use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
+use OpenEMR\RestControllers\FHIR\FhirDocumentRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
@@ -472,7 +473,7 @@ return [
         return $return;
     },
     'GET /fhir/Binary/:id' => function ($documentId, HttpRestRequest $request) {
-        $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
+        $docController = new FhirDocumentRestController($request);
 
         if ($request->isPatientRequest()) {
             $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
