@@ -125,4 +125,25 @@ class FrontControllerRoutingTest extends TestCase
             $decoded,
         );
     }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function trailingSlashRedirectProvider(): array
+    {
+        return [
+            'portal' => ['/portal', '/portal/'],
+        ];
+    }
+
+    #[DataProvider('trailingSlashRedirectProvider')]
+    public function testDirectoryWithoutSlashRedirects(string $path, string $expectedLocation): void
+    {
+        $response = self::$http->get($path, ['allow_redirects' => false]);
+
+        self::assertSame(301, $response->getStatusCode());
+        self::assertSame($expectedLocation, $response->getHeader('Location')[0]);
+    }
 }
