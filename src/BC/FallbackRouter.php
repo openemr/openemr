@@ -14,6 +14,7 @@ namespace OpenEMR\BC;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use function str_starts_with;
@@ -96,8 +97,20 @@ readonly class FallbackRouter
         if ($path === false) {
             throw new NotFoundHttpException();
         }
+        if (is_dir($path)) {
+            // Verify index.php exists before redirecting
+            if (realpath($path . '/index.php') === false) {
+                throw new NotFoundHttpException();
+            }
+            // Redirect to add trailing slash so relative URLs work correctly
+            $uri = $request->getUri();
+            $redirectUrl = $uri->getPath() . '/';
+            if ($uri->getQuery() !== '') {
+                $redirectUrl .= '?' . $uri->getQuery();
+            }
+            throw new HttpException(301, '', null, ['Location' => $redirectUrl]);
+        }
         if (!is_file($path)) {
-            // Might have been a directory
             throw new NotFoundHttpException();
         }
 

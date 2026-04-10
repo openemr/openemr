@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[CoversClass(FallbackRouter::class)]
@@ -31,10 +32,11 @@ class FallbackRouterTest extends TestCase
         return dirname(__DIR__, 4);
     }
 
-    private function createRequest(string $path): ServerRequestInterface
+    private function createRequest(string $path, string $query = ''): ServerRequestInterface
     {
         $uri = $this->createMock(UriInterface::class);
         $uri->method('getPath')->willReturn($path);
+        $uri->method('getQuery')->willReturn($query);
 
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getUri')->willReturn($uri);
@@ -116,6 +118,7 @@ class FallbackRouterTest extends TestCase
             'interface globals' => ['/interface/globals.php'],
             'interface logout' => ['/interface/logout.php'],
             'portal index' => ['/portal/index.php'],
+            'portal get_patient_info' => ['/portal/get_patient_info.php'],
         ];
     }
 
@@ -196,6 +199,44 @@ class FallbackRouterTest extends TestCase
 
         $this->expectException(NotFoundHttpException::class);
         $router->performLegacyRouting($this->createRequest('/does/not/exist.php'));
+    }
+
+    public function testDirectoryWithoutTrailingSlashRedirects(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        try {
+            $router->performLegacyRouting($this->createRequest('/portal'));
+            self::fail('Expected HttpException for redirect');
+        } catch (HttpException $e) {
+            self::assertSame(301, $e->getStatusCode());
+            self::assertSame('/portal/', $e->getHeaders()['Location']);
+        }
+    }
+
+    public function testDirectoryRedirectPreservesQueryString(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        try {
+            $router->performLegacyRouting($this->createRequest('/portal', 'foo=bar'));
+            self::fail('Expected HttpException for redirect');
+        } catch (HttpException $e) {
+            self::assertSame(301, $e->getStatusCode());
+            self::assertSame('/portal/?foo=bar', $e->getHeaders()['Location']);
+        }
+    }
+
+    public function testDirectoryWithoutIndexPhpThrowsNotFound(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // /src exists but has no index.php
+        $this->expectException(NotFoundHttpException::class);
+        $router->performLegacyRouting($this->createRequest('/ci'));
     }
 
     /**
