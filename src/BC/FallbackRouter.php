@@ -27,24 +27,12 @@ use function str_starts_with;
  * getting a functional front-controller in place ASAP and support approaches
  * less reliant on global state, minimizing the number of requests flowing
  * through this path.
- *
- * .htaccess files:
- *
- * Deny rules:
- * - [x] ./bin/.htaccess
- * - [x] ./portal/patient/fwk/libs/.htaccess
- * - [x] ./sites/default/documents/.htaccess
- *
- * Rewrites:
- * - [x] ./apis/.htaccess
- * - [x] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess (no path rewrite needed; only adds query param)
- * - [x] ./interface/modules/zend_modules/public/.htaccess
- * - [x] ./meta/health/.htaccess
- * - [x] ./oauth2/.htaccess
- * - [x] ./portal/patient/.htaccess
  */
 readonly class FallbackRouter
 {
+    // This is a limited subset of assets to start. It only exists to support
+    // `php -S` and shouldn't be relevant with a traditional webserver. The
+    // list may still be expanded to ease development.
     private const STATIC_ASSET_EXTENSIONS = [
         // Images
         'ico',
