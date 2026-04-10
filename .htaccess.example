@@ -12,7 +12,7 @@
 
 RewriteEngine On
 
-# Apache can strip Authoriation headers by deafult... restore them.
+# Apache can strip Authorization headers by default... restore them.
 # Equivalent: `CGIPassAuth On`
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 
