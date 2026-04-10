@@ -147,8 +147,8 @@ updates:
   # Docker CI images (database + openemr/dev-php-fpm + openemr/openemr + shared services)
   # Each ci/ directory tests a specific database + PHP version combination.
   # Image tags encode the version under test (e.g., mysql:8.4, openemr/dev-php-fpm:8.5),
-  # so Dependabot must only update digests, not change tags. Changing a tag would
-  # silently alter which version is being tested.
+  # so Dependabot must not change the major or minor version. Patch updates
+  # within the same minor are allowed (e.g., couchdb 3.4.3 → 3.4.4).
 - package-ecosystem: docker-compose
   directories:
   - ci/apache_82_118/
@@ -174,16 +174,16 @@ updates:
   schedule:
     interval: daily
   ignore:
-    # Only allow digest updates for version-pinned images — changing the tag
-    # would switch which database or PHP version the CI directory tests.
+    # Block major/minor bumps — each CI directory intentionally tests a
+    # specific major.minor version. Patch and digest updates are allowed.
   - dependency-name: mariadb
-    update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
+    update-types: [version-update:semver-major, version-update:semver-minor]
   - dependency-name: mysql
-    update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
+    update-types: [version-update:semver-major, version-update:semver-minor]
   - dependency-name: openemr/*
-    update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
+    update-types: [version-update:semver-major, version-update:semver-minor]
   - dependency-name: couchdb
-    update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
+    update-types: [version-update:semver-major, version-update:semver-minor]
   groups:
     mariadb:
       patterns:
