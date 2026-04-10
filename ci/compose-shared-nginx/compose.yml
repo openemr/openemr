@@ -9,7 +9,7 @@ services:
     - ../:/usr/share/nginx/html/openemr
     - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
   nginx:
-    image: openemr/dev-nginx
+    image: openemr/dev-nginx:latest@sha256:cd70ec94ddce2956b6acbc5f873c6bbfffda5129cc5fbf6f3f76979ae7afdb80
     ports:
     - 80:80
     - 443:443

@@ -178,7 +178,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:4.41.0
+    image: selenium/standalone-chromium:145.0.7632.109
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"

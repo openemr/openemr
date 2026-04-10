@@ -128,19 +128,76 @@ updates:
   - docker/development-easy-redis/
   - docker/development-insane/
   schedule:
-    interval: weekly
+    interval: daily
   allow:
   - dependency-name: selenium/standalone-chromium
-  ignore:
-  - dependency-name: selenium/standalone-chromium
-    versions: ['>=50']
+  - dependency-name: selenium/video
   groups:
     selenium-updates:
       patterns:
-      - selenium/standalone-chromium
+      - selenium/*
   labels:
   - dependencies
   - selenium
+  - docker
+
+  # Docker CI images (database + PHP + shared services)
+  # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
+  # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
+  # Tooling images (mailpit, dev-nginx, couchdb) are unconstrained.
+- package-ecosystem: docker-compose
+  directories:
+  - ci/apache_82_118/
+  - ci/apache_83_118/
+  - ci/apache_84_118/
+  - ci/apache_85_1011/
+  - ci/apache_85_106/
+  - ci/apache_85_114/
+  - ci/apache_85_118/
+  - ci/apache_85_122/
+  - ci/apache_85_57/
+  - ci/apache_85_80/
+  - ci/apache_85_84/
+  - ci/apache_85_93/
+  - ci/compose-shared-mailpit/
+  - ci/compose-shared-nginx/
+  - ci/inferno/
+  - ci/nginx_82/
+  - ci/nginx_83/
+  - ci/nginx_84/
+  - ci/nginx_85/
+  - ci/nginx_86/
+  schedule:
+    interval: daily
+  ignore:
+    # Block major/minor bumps for version-pinned images only — each CI
+    # directory intentionally tests a specific database + PHP version.
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    mailpit:
+      patterns:
+      - axllent/mailpit
+  labels:
+  - dependencies
   - docker
 
   # JavaScript dependencies (ccdaservice)
