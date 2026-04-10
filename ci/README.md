@@ -193,7 +193,7 @@ To add a new test configuration:
 #### Modifying Shared Configurations
 
 When updating the shared configuration files:
-- Changes to `compose-shared-selenium/docker-compose.yml`, `compose-shared-apache.yml`, `compose-shared-nginx/compose.yml`, `compose-shared-mariadb.yml`, and `compose-shared-mysql.yml` will affect all test environments that use them
+- Changes to `compose-shared-selenium/docker-compose.yml`, `compose-shared-apache.yml`, `compose-shared-nginx/compose.yml`, `compose-shared-mariadb.yml`, `compose-shared-mysql.yml`, and `compose-shared-mailpit/compose.yml` will affect all test environments that use them
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 
@@ -208,7 +208,7 @@ If tests are failing in CI but passing locally, check:
 
 ### Debugging Configurations
 
--For below commands:
+- For below commands:
   - Replace `apache_84_114` with the configuration directory you want to test.
   - Replace `compose-shared-mariadb.yml` and `compose-shared-apache.yml` with the database and webserver `x-includes` values from the configuration's docker-compose.yml file.
   - Run the below commands from the base openemr directory.
