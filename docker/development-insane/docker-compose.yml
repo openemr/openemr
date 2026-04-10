@@ -626,7 +626,7 @@ services:
       PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-old-old,mariadb-ssl
   couchdb:
     restart: always
-    image: couchdb:3.4.3@sha256:625be8e930f8fce9f7be31e353aae789462590d62b87577322d8ea2be79911c0
+    image: couchdb:3.5.1@sha256:297cd556c7ba358a408fd009e7b8e3b91318ccfc4d57c9b0264a2fb051ad9ef7
     ports:
     - 5984:5984
     - 6984:6984
