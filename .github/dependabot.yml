@@ -132,9 +132,6 @@ updates:
   allow:
   - dependency-name: selenium/standalone-chromium
   - dependency-name: selenium/video
-  ignore:
-  - dependency-name: selenium/standalone-chromium
-    versions: ['>=50']
   groups:
     selenium-updates:
       patterns:
@@ -144,11 +141,10 @@ updates:
   - selenium
   - docker
 
-  # Docker CI images (database + openemr/dev-php-fpm + openemr/openemr + shared services)
-  # Each ci/ directory tests a specific database + PHP version combination.
-  # Image tags encode the version under test (e.g., mysql:8.4, openemr/dev-php-fpm:8.5),
-  # so Dependabot must not change the major or minor version. Patch updates
-  # within the same minor are allowed (e.g., couchdb 3.4.3 → 3.4.4).
+  # Docker CI images (database + PHP + shared services)
+  # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
+  # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
+  # Tooling images (mailpit, dev-nginx, couchdb) are unconstrained.
 - package-ecosystem: docker-compose
   directories:
   - ci/apache_82_118/
@@ -174,15 +170,15 @@ updates:
   schedule:
     interval: daily
   ignore:
-    # Block major/minor bumps — each CI directory intentionally tests a
-    # specific major.minor version. Patch and digest updates are allowed.
+    # Block major/minor bumps for version-pinned images only — each CI
+    # directory intentionally tests a specific database + PHP version.
   - dependency-name: mariadb
     update-types: [version-update:semver-major, version-update:semver-minor]
   - dependency-name: mysql
     update-types: [version-update:semver-major, version-update:semver-minor]
-  - dependency-name: openemr/*
+  - dependency-name: openemr/openemr
     update-types: [version-update:semver-major, version-update:semver-minor]
-  - dependency-name: couchdb
+  - dependency-name: openemr/dev-php-fpm
     update-types: [version-update:semver-major, version-update:semver-minor]
   groups:
     mariadb:

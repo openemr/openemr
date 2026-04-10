@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
+    image: mariadb:11.8.6@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
     command:
     - mariadbd
     - --character-set-server=utf8mb4
