@@ -4,11 +4,13 @@
 #   nginx        - nginx + php-fpm (recommended)
 #   apache-fpm   - Apache + php-fpm
 #   apache-modphp - Apache + mod_php (legacy style)
+#   php-builtin   - PHP built-in server (development only)
 #
 # Examples:
 #   docker compose up -d nginx php-fpm mysql
 #   docker compose up -d apache-fpm php-fpm mysql
 #   docker compose up -d apache-modphp mysql
+#   docker compose up -d php-builtin mysql
 #
 services:
   nginx:
@@ -59,6 +61,24 @@ services:
       - 80
     volumes:
       - ../../:/app
+
+  php-builtin:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: server
+    depends_on:
+      - mysql
+    environment:
+      ENVIRONMENT: development
+      PHP_CLI_SERVER_WORKERS: 8
+      PHP_ZEND_ASSERTIONS: 1
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../:/app
+    command: ["php", "-S", "0.0.0.0:80", "-t", ".", "public/index.php"]
 
   php-fpm:
     build:
