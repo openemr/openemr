@@ -17,7 +17,7 @@ services:
     build:
       context: ../../
       dockerfile: docker/frontcontroller/Dockerfile
-      target: http
+      target: nginx
     depends_on:
       - php-fpm
     environment:

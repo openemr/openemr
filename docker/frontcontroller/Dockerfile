@@ -1,7 +1,9 @@
-ARG PHP_VERSION=8.5
-ARG NODE_VERSION=24
+ARG ALPINE_VERSION=3.23
+ARG NGINX_VERSION=1.29.8
+ARG PHP_VERSION=8.5.5
+ARG NODE_VERSION=24.14.1
 
-FROM node:${NODE_VERSION}-alpine AS assets
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS assets
 WORKDIR /build
 COPY package.json package-lock.json gulpfile.js ./
 # gulp -i needs these directories to exist for the copy targets
@@ -18,7 +20,7 @@ FROM composer:2 AS dependencies
 COPY composer.json composer.lock ./
 RUN composer install --ignore-platform-reqs --no-dev --no-interaction --no-autoloader
 
-FROM php:${PHP_VERSION}-fpm-alpine AS env
+FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} AS env
 RUN apk add --no-cache \
   # gd \
   libpng-dev \
@@ -77,7 +79,7 @@ COPY --from=dependencies /usr/bin/composer /usr/bin/composer
 # RUN composer check-platform-reqs
 # RUN composer dump-autoload
 
-FROM nginx:alpine AS http
+FROM nginx:${NGINX_VERSION}-alpine${ALPINE_VERSION} AS nginx
 COPY config/nginx/frontcontroller-fpm.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=assets /build/public/assets /app/public/assets
 COPY --from=assets /build/public/themes /app/public/themes
