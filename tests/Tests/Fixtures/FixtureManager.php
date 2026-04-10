@@ -193,6 +193,38 @@ class FixtureManager
     }
 
     /**
+     * @return array of FHIR Immunization fixtures.
+     */
+    public function getFhirImmunizationFixtures()
+    {
+        return $this->loadJsonFile("FHIR/immunization.json");
+    }
+
+    /**
+     * @return single/random fhir immunization fixture
+     */
+    public function getSingleFhirImmunizationFixture()
+    {
+        return $this->getSingleEntry($this->getFhirImmunizationFixtures());
+    }
+
+    /**
+     * @return array of FHIR Appointment fixtures.
+     */
+    public function getFhirAppointmentFixtures()
+    {
+        return $this->loadJsonFile("FHIR/appointment.json");
+    }
+
+    /**
+     * @return single/random fhir appointment fixture
+     */
+    public function getSingleFhirAppointmentFixture()
+    {
+        return $this->getSingleEntry($this->getFhirAppointmentFixtures());
+    }
+
+    /**
      * @template T
      * @param T[] $array
      * @return T

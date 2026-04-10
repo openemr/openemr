@@ -2327,6 +2327,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/GroupService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO…\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between \' UPDATE…\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-\\=" between mixed and 1 results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',

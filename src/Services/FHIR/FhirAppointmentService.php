@@ -12,6 +12,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAppointmentStatus;
@@ -22,7 +24,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAppointment\FHIRAppointmentParticipant;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -260,6 +264,196 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         return $appt;
     }
 
+
+    /**
+     * Parses a FHIR Appointment resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRAppointment)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRAppointment resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        // status -> pc_apptstatus (reverse the status mapping from parseOpenEMRRecord)
+        if (!empty($json['status'])) {
+            $data['pc_apptstatus'] = $this->mapFhirStatusToOpenEmr($json['status']);
+        } else {
+            $data['pc_apptstatus'] = '-'; // default to pending/proposed
+        }
+
+        // appointmentType[0].coding[0].code -> pc_catid (look up by pc_constant_id)
+        if (!empty($json['appointmentType']['coding'][0]['code'])) {
+            $constantId = $json['appointmentType']['coding'][0]['code'];
+            $catId = $this->lookupCategoryByConstantId($constantId);
+            if ($catId !== false) {
+                $data['pc_catid'] = $catId;
+            }
+        }
+
+        // Default pc_title from appointmentType display or "Office Visit"
+        if (!empty($json['appointmentType']['coding'][0]['display'])) {
+            $data['pc_title'] = $json['appointmentType']['coding'][0]['display'];
+        } else {
+            $data['pc_title'] = 'Office Visit';
+        }
+
+        // Parse participants - Patient, Practitioner, Location
+        if (!empty($json['participant']) && is_array($json['participant'])) {
+            foreach ($json['participant'] as $participant) {
+                if (empty($participant['actor']['reference'])) {
+                    continue;
+                }
+                $reference = $participant['actor']['reference'];
+
+                if (str_starts_with((string) $reference, 'Patient/')) {
+                    $puuid = str_replace('Patient/', '', $reference);
+                    $data['puuid'] = $puuid;
+                    // Resolve patient uuid to pid
+                    $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+                    $pid = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
+                    if ($pid !== false) {
+                        $data['pid'] = $pid;
+                    }
+                } elseif (
+                    str_starts_with((string) $reference, 'Practitioner/')
+                    || str_starts_with((string) $reference, 'Person/')
+                ) {
+                    $providerUuid = preg_replace('#^(Practitioner|Person)/#', '', (string) $reference);
+                    $providerUuidBytes = UuidRegistry::uuidToBytes($providerUuid);
+                    $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
+                    if ($providerId !== false) {
+                        $data['pc_aid'] = $providerId;
+                    }
+                } elseif (str_starts_with((string) $reference, 'Location/')) {
+                    $facilityUuid = str_replace('Location/', '', $reference);
+                    $facilityUuidBytes = UuidRegistry::uuidToBytes($facilityUuid);
+                    $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
+                    if ($facilityId !== false) {
+                        $data['pc_facility'] = $facilityId;
+                    }
+                }
+            }
+        }
+
+        // start -> pc_eventDate (Y-m-d) + pc_startTime (H:i)
+        if (!empty($json['start'])) {
+            try {
+                $startDt = new \DateTimeImmutable($json['start']);
+                $data['pc_eventDate'] = $startDt->format('Y-m-d');
+                $data['pc_startTime'] = $startDt->format('H:i');
+            } catch (\Throwable) {
+                // Skip invalid date values
+            }
+        }
+
+        // end -> calculate pc_duration from start/end difference (in seconds)
+        if (!empty($json['start']) && !empty($json['end'])) {
+            try {
+                $startDt = new \DateTimeImmutable($json['start']);
+                $endDt = new \DateTimeImmutable($json['end']);
+                $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
+            } catch (\Throwable) {
+                // Skip invalid date values
+            }
+        }
+
+        // comment -> pc_hometext
+        $data['pc_hometext'] = !empty($json['comment']) ? $json['comment'] : '';
+
+        // Default pc_billing_location to pc_facility if not set
+        if (!isset($data['pc_billing_location']) && isset($data['pc_facility'])) {
+            $data['pc_billing_location'] = $data['pc_facility'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Maps a FHIR Appointment status code to an OpenEMR appointment status code.
+     *
+     * @param string $fhirStatus The FHIR status code
+     * @return string The OpenEMR appointment status code
+     */
+    private function mapFhirStatusToOpenEmr(string $fhirStatus): string
+    {
+        return match ($fhirStatus) {
+            'proposed' => '-',
+            'pending' => '^',
+            'booked' => '*',
+            'arrived' => '@',
+            'fulfilled' => '>',
+            'cancelled' => 'x',
+            'noshow' => '?',
+            'checked-in' => '<',
+            'waitlist' => 'CALL',
+            default => '-',
+        };
+    }
+
+    /**
+     * Looks up a calendar category ID by its constant_id value.
+     *
+     * @param string $constantId The pc_constant_id to look up
+     * @return int|false The pc_catid or false if not found
+     */
+    private function lookupCategoryByConstantId(string $constantId)
+    {
+        $result = QueryUtils::querySingleRow(
+            "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? AND pc_active = 1",
+            [$constantId]
+        );
+        if (!empty($result['pc_catid'])) {
+            return (int) $result['pc_catid'];
+        }
+        return false;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        $processingResult = new ProcessingResult();
+
+        $pid = $openEmrRecord['pid'] ?? 0;
+        unset($openEmrRecord['pid']);
+        unset($openEmrRecord['puuid']);
+
+        // Validate that required fields are present
+        $validationResult = $this->appointmentService->validate($openEmrRecord);
+        if (!$validationResult->isValid()) {
+            $processingResult->setValidationMessages($validationResult->getMessages());
+            return $processingResult;
+        }
+
+        $insertId = $this->appointmentService->insert($pid, $openEmrRecord);
+        if ($insertId) {
+            // Fetch the created appointment to return full data
+            $appointment = $this->appointmentService->getAppointment($insertId);
+            if (!empty($appointment)) {
+                $processingResult->addData($appointment[0]);
+            } else {
+                $processingResult->addData(['pc_eid' => $insertId]);
+            }
+        } else {
+            $processingResult->addInternalError("Failed to insert appointment record");
+        }
+
+        return $processingResult;
+    }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
