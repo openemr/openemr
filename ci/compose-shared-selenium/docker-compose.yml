@@ -25,7 +25,7 @@ services:
       timeout: 5s
       retries: 3
   video:
-    image: selenium/video:ffmpeg-7.1-20250707@sha256:0fdf34adbb2eae696ee08bad7c118c7d90b58fb33a86bbb5034c9198d43e6b55
+    image: selenium/video:ffmpeg-7.1-20250808@sha256:c418f6e20e3496c393ad501a0f599813e08d50dc8b88ffb00fb6727bc7bd8aa3
     # Services with profiles don't start by default.
     profiles:
     - video-recording
