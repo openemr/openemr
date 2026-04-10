@@ -170,7 +170,7 @@ class FallbackRouterTest extends TestCase
         $router = new FallbackRouter($installRoot, new NullLogger());
         $result = $router->performLegacyRouting($this->createRequest($requestUri));
 
-        self::assertNull($result, "Path $requestUri should be route to null");
+        self::assertNull($result, "Path $requestUri should route to null");
     }
 
     public function testPathTraversalIsBlocked(): void
