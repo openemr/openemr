@@ -57,7 +57,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
-        flags: isolated
+        flags: isolated-php${{ matrix.php-version }}
         report_type: test_results
 
     - name: Upload JUnit test results to GitHub
@@ -79,4 +79,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
-        flags: isolated
+        flags: isolated-php${{ matrix.php-version }}
