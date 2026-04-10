@@ -1,4 +1,18 @@
 ARG PHP_VERSION=8.5
+ARG NODE_VERSION=24
+
+FROM node:${NODE_VERSION}-alpine AS assets
+WORKDIR /build
+COPY package.json package-lock.json gulpfile.js ./
+# gulp -i needs these directories to exist for the copy targets
+RUN mkdir -p public/assets interface/themes
+RUN npm ci
+# Copy source SCSS files for theme compilation
+COPY interface/themes interface/themes
+# SCSS imports from public/assets/modified (tracked in git, not generated)
+COPY public/assets/modified public/assets/modified
+# Build production themes
+RUN npm run build
 
 FROM composer:2 AS dependencies
 COPY composer.json composer.lock ./
