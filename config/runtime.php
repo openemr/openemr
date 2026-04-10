@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Dervived values based on the runtime.
+ * Derived values based on the runtime.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -14,6 +14,6 @@ declare(strict_types=1);
 
 return [
     // This needs to be defined as a closure so if a build process compiles the
-    // conatiner, it resolves correctly.
+    // container, it resolves correctly.
     'installRoot' => fn () => dirname(__DIR__),
 ];

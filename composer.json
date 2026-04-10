@@ -79,6 +79,7 @@
         "lcobucci/jwt": "^4.3.0",
         "league/csv": "^9.28.0",
         "league/flysystem": "^3.33",
+        "league/flysystem-local": "^3.31",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "^3.2.1",
         "moneyphp/money": "^4.8",
