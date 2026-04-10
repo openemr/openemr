@@ -132,9 +132,6 @@ updates:
   allow:
   - dependency-name: selenium/standalone-chromium
   - dependency-name: selenium/video
-  ignore:
-  - dependency-name: selenium/standalone-chromium
-    versions: ['>=50']
   groups:
     selenium-updates:
       patterns:
@@ -144,7 +141,10 @@ updates:
   - selenium
   - docker
 
-  # Docker CI images (database + openemr/dev-php-fpm + openemr/openemr + shared services)
+  # Docker CI images (database + PHP + shared services)
+  # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
+  # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
+  # Tooling images (mailpit, dev-nginx, couchdb) are unconstrained.
 - package-ecosystem: docker-compose
   directories:
   - ci/apache_82_118/
@@ -169,6 +169,17 @@ updates:
   - ci/nginx_86/
   schedule:
     interval: daily
+  ignore:
+    # Block major/minor bumps for version-pinned images only — each CI
+    # directory intentionally tests a specific database + PHP version.
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
   groups:
     mariadb:
       patterns:
