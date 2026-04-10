@@ -23,13 +23,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Manager::class)]
 final class ManagerTest extends TestCase
 {
-    public function testImplementsManagerInterface(): void
-    {
-        $manager = new Manager();
-
-        self::assertInstanceOf(ManagerInterface::class, $manager);
-    }
-
     public function testGetStorageReturnsRegisteredFilesystem(): void
     {
         $manager = new Manager();

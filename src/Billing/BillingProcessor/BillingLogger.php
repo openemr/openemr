@@ -71,7 +71,7 @@ class BillingLogger
 
     private const LOG_PATH = 'edi/process_bills.log';
 
-    private FilesystemOperator $filesystem;
+    private readonly FilesystemOperator $filesystem;
 
     public function __construct(
         ?ManagerInterface $storageManager = null,
