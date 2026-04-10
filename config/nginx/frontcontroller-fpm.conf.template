@@ -21,6 +21,13 @@ server {
         alias /app/public/;
     }
 
+    # Static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map)$ {
+        root /app;
+        # Try public first, then fall back to root-relative assets
+        try_files /public$uri $uri =404;
+    }
+
     location / {
         try_files $uri @php;
     }
