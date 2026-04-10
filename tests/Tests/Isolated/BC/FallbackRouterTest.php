@@ -46,6 +46,8 @@ class FallbackRouterTest extends TestCase
      * Paths that MUST be blocked. Uses real files from the repo.
      *
      * @return array<string, array{0: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function blockedPathProvider(): array
     {
@@ -105,6 +107,8 @@ class FallbackRouterTest extends TestCase
      * Paths that MUST be allowed. Uses real files from the repo.
      *
      * @return array<string, array{0: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function allowedPathProvider(): array
     {
@@ -117,6 +121,8 @@ class FallbackRouterTest extends TestCase
 
     /**
      * @return array<string, array{0: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function staticAssetPathProvider(): array
     {
@@ -196,6 +202,8 @@ class FallbackRouterTest extends TestCase
      * Tests that requests are rewritten to the correct entry point.
      *
      * @return array<string, array{0: string, 1: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function rewriteRuleProvider(): array
     {

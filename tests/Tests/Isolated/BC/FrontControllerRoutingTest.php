@@ -65,6 +65,8 @@ class FrontControllerRoutingTest extends TestCase
 
     /**
      * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function blockedPathProvider(): array
     {
@@ -93,6 +95,8 @@ class FrontControllerRoutingTest extends TestCase
      * the request reached the correct entry point file.
      *
      * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function routingTestProvider(): array
     {
