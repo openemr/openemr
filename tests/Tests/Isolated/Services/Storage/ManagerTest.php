@@ -12,9 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Storage;
 
-use League\Flysystem\FilesystemOperator;
-use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
 use OpenEMR\Services\Storage\ManagerInterface;
