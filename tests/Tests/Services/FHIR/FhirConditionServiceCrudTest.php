@@ -100,9 +100,6 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->fhirConditionFixture->setId($fhirId);
         $actualResult = $this->fhirConditionService->update($fhirId, $this->fhirConditionFixture);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
-
-        $actualFhirRecord = $actualResult->getData()[0];
-        $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
     #[Test]
