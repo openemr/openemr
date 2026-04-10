@@ -12,7 +12,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
-use Psr\Http\Message\ServerRequestInterface;
+use OutOfRangeException;
+use Psr\Http\Message\{
+    ServerRequestInterface,
+    UriInterface,
+};
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -72,63 +76,91 @@ readonly class FallbackRouter
      */
     public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
-        $requestUri = $request->getUri()->getPath();
-        if (str_ends_with($requestUri, '/')) {
-            // Special-case the "index" requests
-            $requestUri .= 'index.php';
-        }
-        $this->logger->debug("Routing $requestUri");
+        $uri = $request->getUri();
+        $path = $uri->getPath();
+        $this->logger->debug("Routing $path");
 
-        // PHP-equivalent to `.htaccess` mod_rewrite rules
-        // Order matters: more specific paths must come before general prefixes
-        $path = match (true) {
-            str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
-            str_starts_with($requestUri, '/oauth2') => '/oauth2/authorize.php',
-            str_starts_with($requestUri, '/meta/health') => '/meta/health/index.php',
-            // fwk/libs has deny-all in its .htaccess, so don't rewrite (let isPathAllowed block it)
-            str_starts_with($requestUri, '/portal/patient/fwk/libs') => parse_url($requestUri, PHP_URL_PATH),
-            str_starts_with($requestUri, '/portal/patient') => '/portal/patient/index.php',
-            str_starts_with($requestUri, '/interface/modules/zend_modules/public') => '/interface/modules/zend_modules/public/index.php',
-            default => parse_url($requestUri, PHP_URL_PATH),
-        };
+        // Rewrite rules: prefix → handler
+        $handler = $this->getRewriteHandler($path);
+        if ($handler !== null) {
+            $file = realpath($this->installRoot . $handler);
+            if ($file === false) {
+                throw new OutOfRangeException('Rewrote to a non-existant file');
+            }
+            $this->logger->debug('Resolved to rewriter {file}', ['file' => $file]);
+            $this->prepareRuntime($file);
+            return $file;
+        }
 
-        // Normalize the included file to the webroot
-        $path = realpath(sprintf('%s%s', $this->installRoot, $path));
-        if ($path === false) {
-            throw new NotFoundHttpException();
-        }
-        if (is_dir($path)) {
-            // Verify index.php exists before redirecting
-            if (realpath($path . '/index.php') === false) {
-                throw new NotFoundHttpException();
-            }
-            // Redirect to add trailing slash so relative URLs work correctly
-            $uri = $request->getUri();
-            $redirectUrl = $uri->getPath() . '/';
-            if ($uri->getQuery() !== '') {
-                $redirectUrl .= '?' . $uri->getQuery();
-            }
-            throw new HttpException(301, '', null, ['Location' => $redirectUrl]);
-        }
-        if (!is_file($path)) {
+        // Literal path resolution
+        $file = realpath($this->installRoot . $path);
+        if ($file === false) {
             throw new NotFoundHttpException();
         }
 
-        if (!$this->isPathAllowed($path)) {
+        if (is_dir($file)) {
+            $file = $this->handleDirectory($uri, $file);
+        } elseif (!is_file($file)) {
+            throw new NotFoundHttpException();
+        }
+
+        if (!$this->isPathAllowed($file)) {
             // This sends a 404 instead of a 403 to avoid disclosing what files
             // exist. It's of marginal value for source code since this is open
             // source software, but it's good for documents and such.
             throw new NotFoundHttpException();
         }
 
-        $this->logger->debug("Check allowed $path");
-        if (self::isAllowedStaticAsset($path)) {
-            $this->logger->debug("is static");
+        if (self::isAllowedStaticAsset($file)) {
             return null;
         }
 
-        $this->prepareRuntime($path);
-        return $path;
+        $this->prepareRuntime($file);
+        return $file;
+    }
+
+    /**
+     * Mimic historic `.htaccess` front-controller-likes by mapping requests to
+     * their intended entrypoint file.
+     *
+     * Returns null if no internal rewrite is required.
+     */
+    private function getRewriteHandler(string $path): ?string
+    {
+        // Order matters: specific prefixes before general ones
+        return match (true) {
+            str_starts_with($path, '/apis') => '/apis/dispatch.php',
+            str_starts_with($path, '/oauth2') => '/oauth2/authorize.php',
+            str_starts_with($path, '/meta/health') => '/meta/health/index.php',
+            str_starts_with($path, '/portal/patient/fwk/libs') => null,
+            str_starts_with($path, '/portal/patient') => '/portal/patient/index.php',
+            str_starts_with($path, '/interface/modules/zend_modules/public') => '/interface/modules/zend_modules/public/index.php',
+            default => null,
+        };
+    }
+
+    /**
+     * @throws HttpException 301 redirect if missing trailing slash
+     * @throws NotFoundHttpException if no index.php
+     */
+    private function handleDirectory(UriInterface $uri, string $dir): string
+    {
+        $index = $dir . '/index.php';
+        if (!file_exists($index)) {
+            throw new NotFoundHttpException();
+        }
+
+        // If the request included the trailing slash, internally rewrite to
+        // the index.php file.
+        if (str_ends_with($uri->getPath(), '/')) {
+            return $index;
+        }
+
+        // Redirect to add trailing slash. This ensures that forms (etc)
+        // relying on relative paths will resolve to the correct place. Mimics
+        // the default Apache DirectorySlash=On behavior.
+        $redirectUri = $uri->withPath($uri->getPath() . '/');
+        throw new HttpException(301, '', null, ['Location' => (string) $redirectUri]);
     }
 
     /**
