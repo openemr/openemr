@@ -9,7 +9,6 @@ server {
 
     location @php {
         include fastcgi_params;
-        # fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME /app/public/index.php;
         # helps access log %r value get set correctly
         fastcgi_param SCRIPT_NAME $request_uri;
