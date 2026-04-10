@@ -1,0 +1,16 @@
+# Docker-specific
+.git
+.github
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose.yaml
+docker/
+
+# Gitignore-style
+tmp-phpstan/
+.phpstan/
+node_modules/
+vendor/
+# not sure about this?
+Documentation/
