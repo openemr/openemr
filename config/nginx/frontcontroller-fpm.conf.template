@@ -2,6 +2,7 @@
 log_format local '[$time_iso8601] $status "$request" body=$body_bytes_sent rt=$request_time urt=$upstream_response_time ua="$http_user_agent" sdk="$http_x_sdk"';
 server {
     listen 80;
+    server_tokens off;
     root /app/public;
 
     include mime.types;
