@@ -85,7 +85,7 @@ readonly class FallbackRouter
         if ($handler !== null) {
             $file = realpath($this->installRoot . $handler);
             if ($file === false) {
-                throw new OutOfRangeException('Rewrote to a non-existant file');
+                throw new OutOfRangeException('Rewrote to a non-existent file');
             }
             $this->logger->debug('Resolved to rewriter {file}', ['file' => $file]);
             $this->prepareRuntime($file);
