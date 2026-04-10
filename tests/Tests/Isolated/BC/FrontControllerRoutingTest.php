@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\BC;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\FallbackRouter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -135,6 +136,7 @@ class FrontControllerRoutingTest extends TestCase
     {
         return [
             'portal' => ['/portal', '/portal/'],
+            'portal with qs' => ['/portal?foo=bar', '/portal/?foo=bar'],
         ];
     }
 
@@ -144,6 +146,11 @@ class FrontControllerRoutingTest extends TestCase
         $response = self::$http->get($path, ['allow_redirects' => false]);
 
         self::assertSame(301, $response->getStatusCode());
-        self::assertSame($expectedLocation, $response->getHeader('Location')[0]);
+        // The redirect may or may not include the host; not part of the
+        // testing spec.
+        $uri = new Uri($response->getHeaderLine('Location'));
+        $expectedUri = new Uri($expectedLocation);
+        self::assertSame($expectedUri->getPath(), $uri->getPath());
+        self::assertSame($expectedUri->getQuery(), $uri->getQuery());
     }
 }
