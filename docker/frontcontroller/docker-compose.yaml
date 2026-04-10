@@ -1,9 +1,12 @@
 # vim: ft=docker-compose
 services:
   http:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: http
     depends_on:
       - php-fpm
-    image: nginx:alpine
     environment:
       FASTCGI_HOST: php-fpm
       FASTCGI_PORT: 9000
@@ -12,11 +15,13 @@ services:
       - 80
     volumes:
       - ../../config/nginx/frontcontroller-fpm.conf.template:/etc/nginx/templates/default.conf.template
+      - ../../:/app:ro
 
   php-fpm:
     build:
       context: ../../
       dockerfile: docker/frontcontroller/Dockerfile
+      target: server
     depends_on:
       - mysql
     environment:
