@@ -1,4 +1,4 @@
-# vim: ft=docker-compose
+# vim: ft=docker-compose sw=2
 #
 # Web server options (pick one):
 #   nginx        - nginx + php-fpm (recommended)
@@ -12,6 +12,11 @@
 #   docker compose up -d apache-modphp mysql
 #   docker compose up -d php-builtin mysql
 #
+
+x-fastcgi: &x-fastcgi
+  FASTCGI_HOST: php-fpm
+  FASTCGI_PORT: 9000
+
 services:
   nginx:
     build:
@@ -21,8 +26,7 @@ services:
     depends_on:
       - php-fpm
     environment:
-      FASTCGI_HOST: php-fpm
-      FASTCGI_PORT: 9000
+      <<: *x-fastcgi
     restart: always
     ports:
       - 80
@@ -35,8 +39,7 @@ services:
     depends_on:
       - php-fpm
     environment:
-      FASTCGI_HOST: php-fpm
-      FASTCGI_PORT: 9000
+      <<: *x-fastcgi
     restart: always
     ports:
       - 80
