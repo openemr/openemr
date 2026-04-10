@@ -262,8 +262,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($patient_id) . ',';
             echo csvEscape($patient_dob) . ',';
-            echo csvEscape(xl_list_label($msg_type)) . ',';
-            echo csvEscape(xl_list_label($msg_status)) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            echo csvEscape(xl($msg_type)) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            echo csvEscape(xl($msg_status)) . ',';
             echo csvEscape($update_by) . ',';
             echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";
         } else {

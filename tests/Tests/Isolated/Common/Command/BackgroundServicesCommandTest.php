@@ -32,7 +32,7 @@ class BackgroundServicesCommandTest extends TestCase
     private function createTester(BackgroundServicesCommandStub $command): CommandTester
     {
         $app = new Application();
-        $app->add($command);
+        $app->addCommand($command);
         return new CommandTester($app->find('background:services'));
     }
 

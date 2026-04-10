@@ -112,3 +112,8 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+#IfNotColumnType form_eye_antseg OSCONJ text
+ALTER TABLE `form_eye_antseg`
+  MODIFY COLUMN OSCONJ text;
+#EndIf

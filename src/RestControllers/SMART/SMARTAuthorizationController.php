@@ -27,11 +27,11 @@ use OpenEMR\Services\PatientService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class SMARTAuthorizationController
@@ -264,7 +264,7 @@ class SMARTAuthorizationController
 
         try {
             // we've got a user by their UUID... we need to grab the db user id
-            $searchParams = $request->get('search', []);
+            $searchParams = $request->query->all('search');
 
             // grab our list of patients to select from.
             $searchController = $this->getPatientContextSearchController();

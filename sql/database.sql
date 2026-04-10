@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 535
+-- v_database: 536
 --
 
 --
@@ -13870,7 +13870,7 @@ CREATE TABLE `form_eye_antseg` (
   `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
   `ODTBUT`               varchar(25) DEFAULT NULL,
   `OSTBUT`               varchar(25) DEFAULT NULL,
-  `OSCONJ`               varchar(25) DEFAULT NULL,
+  `OSCONJ`               text,
   `ODCONJ`               text,
   `ODCORNEA`             text,
   `OSCORNEA`             text,

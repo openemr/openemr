@@ -117,7 +117,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with array will always evaluate to false\\.$#',
+    'message' => '#^Call to function is_string\\(\\) with array\\<mixed\\> will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];

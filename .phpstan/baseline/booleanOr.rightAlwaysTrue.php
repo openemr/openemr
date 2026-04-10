@@ -4,11 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of \\|\\| is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [

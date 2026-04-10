@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
@@ -19,6 +27,8 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
     private const HMAC_LENGTH = 48; // 384/8
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
+
+    public const KEY_LENGTH = 32; // openssl_cipher_key_length('aes-256-cbc')
 
     public function __construct(
         private KeyMaterial $key,

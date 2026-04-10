@@ -10,14 +10,16 @@
 #   3. Choose one of any of the following links:
 #        http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 #        http://localhost:8084 (with Alpine 3.22 (Apache and PHP 8.2))
-#        http://localhost:8085 (with Alpine 3.22 (Apache and PHP 8.3))
-#        http://localhost:8086 (with Alpine 3.22 (Apache and PHP 8.4))
-#        http://localhost:8087 (with Alpine Edge (Apache and now PHP 8.4))
+#        http://localhost:8085 (with Alpine 3.23 (Apache and PHP 8.3))
+#        http://localhost:8086 (with Alpine 3.23 (Apache and PHP 8.4))
+#        http://localhost:8087 (with Alpine 3.23 (Apache and PHP 8.5))
+#        http://localhost:8088 (with Alpine Edge (Apache and now PHP 8.5))
 #        http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 #        http://localhost:8094 (with Alpine 3.22 (Apache and PHP 8.2) with redis)
-#        http://localhost:8095 (with Alpine 3.22 (Apache and PHP 8.3) with redis)
-#        http://localhost:8096 (with Alpine 3.22 (Apache and PHP 8.4) with redis)
-#        http://localhost:8097 (with Alpine Edge (Apache and now PHP 8.4) with redis)
+#        http://localhost:8095 (with Alpine 3.23 (Apache and PHP 8.3) with redis)
+#        http://localhost:8096 (with Alpine 3.23 (Apache and PHP 8.4) with redis)
+#        http://localhost:8097 (with Alpine 3.23 (Apache and PHP 8.5) with redis)
+#        http://localhost:8098 (with Alpine Edge (Apache and now PHP 8.5) with redis)
 #        http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 #        http://localhost:8104 (with Nginx and PHP-FPM 8.2)
 #        http://localhost:8105 (with Nginx and PHP-FPM 8.3)
@@ -32,14 +34,16 @@
 #        http://localhost:8158 (with Nginx and PHP-FPM 8.6 with redis)
 #        https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 #        https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
-#        https://localhost:9085 with SSL and Alpine 3.22 (with Apache and PHP 8.3)
-#        https://localhost:9086 with SSL and Alpine 3.22 (with Apache and PHP 8.4)
-#        https://localhost:9087 with SSL and Alpine Edge (with Apache and now PHP 8.4)
+#        https://localhost:9085 with SSL and Alpine 3.23 (with Apache and PHP 8.3)
+#        https://localhost:9086 with SSL and Alpine 3.23 (with Apache and PHP 8.4)
+#        https://localhost:9087 with SSL and Alpine 3.23 (with Apache and PHP 8.5)
+#        https://localhost:9088 with SSL and Alpine Edge (with Apache and now PHP 8.5)
 #        https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 #        https://localhost:9094 with SSL and Alpine 3.22 (with Apache and PHP 8.2 with redis)
-#        https://localhost:9095 with SSL and Alpine 3.22 (with Apache and PHP 8.3 with redis)
-#        https://localhost:9096 with SSL and Alpine 3.22 (with Apache and PHP 8.4 with redis)
-#        https://localhost:9097 with SSL and Alpine Edge (with Apache and now PHP 8.4 with redis)
+#        https://localhost:9095 with SSL and Alpine 3.23 (with Apache and PHP 8.3 with redis)
+#        https://localhost:9096 with SSL and Alpine 3.23 (with Apache and PHP 8.4 with redis)
+#        https://localhost:9097 with SSL and Alpine 3.23 (with Apache and PHP 8.5 with redis)
+#        https://localhost:9098 with SSL and Alpine Edge (with Apache and now PHP 8.5 with redis)
 #        https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 #        https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
 #        https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
@@ -126,7 +130,7 @@ services:
       timeout: 5s
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.3
+    image: openemr/openemr:flex-3.23-php-8.3
     ports:
     - 8085:80
     - 9085:443
@@ -156,10 +160,40 @@ services:
       timeout: 5s
   openemr-8-4:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.4
     ports:
     - 8086:80
     - 9086:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: 'true'
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: yes
+      EMPTY: yes
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/meta/health/readyz
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
+  openemr-8-5:
+    restart: always
+    image: openemr/openemr:flex-3.23-php-8.5
+    ports:
+    - 8087:80
+    - 9087:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
@@ -183,8 +217,8 @@ services:
       SELENIUM_USE_GRID: 'true'
       SELENIUM_HOST: selenium
       SELENIUM_FORCE_HEADLESS: 'false'
-      SELENIUM_BASE_URL: http://openemr-8-4    # NOTE THIS NEEDS TO BE MODIFIED WHEN SERVICE NAME CHANGES!
-      OPENEMR_SETTING_site_addr_oath: https://localhost:9085
+      SELENIUM_BASE_URL: http://openemr-8-5    # NOTE THIS NEEDS TO BE MODIFIED WHEN SERVICE NAME CHANGES!
+      OPENEMR_SETTING_site_addr_oath: https://localhost:9087 # NOTE THIS NEEDS TO BE MODIFIED WHEN ABOVE SERVICE PORT CHANGES!
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -228,8 +262,8 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8087:80
-    - 9087:443
+    - 8088:80
+    - 9088:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -318,7 +352,7 @@ services:
       timeout: 5s
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.3
+    image: openemr/openemr:flex-3.23-php-8.3
     ports:
     - 8095:80
     - 9095:443
@@ -349,10 +383,41 @@ services:
       timeout: 5s
   openemr-8-4-redis:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.4
     ports:
     - 8096:80
     - 9096:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: 'true'
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: yes
+      REDIS_SERVER: redis
+      EMPTY: yes
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/meta/health/readyz
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
+  openemr-8-5-redis:
+    restart: always
+    image: openemr/openemr:flex-3.23-php-8.5
+    ports:
+    - 8097:80
+    - 9097:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -382,8 +447,8 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8097:80
-    - 9097:443
+    - 8098:80
+    - 9098:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:

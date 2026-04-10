@@ -438,7 +438,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             } elseif (!empty($record)) {
                 $code = $record['notes'];
                 $title = is_string($record['title']) ? $record['title'] : '';
-                $display = xl_list_label($title);
+                // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                $display = xl($title);
                 $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
             }
         }
@@ -574,7 +575,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
             $languageTitle = is_string($record['title']) ? $record['title'] : '';
-            $translatedTitle = xl_list_label($languageTitle);
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $translatedTitle = xl($languageTitle);
             $language->setDisplay($translatedTitle);
             $languageConcept->addCoding($language);
             $languageConcept->setText($translatedTitle);

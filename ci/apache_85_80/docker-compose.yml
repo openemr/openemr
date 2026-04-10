@@ -1,4 +1,5 @@
 x-includes:
+  node-version: "24"
   selenium-template: "compose-shared-selenium/docker-compose.yml"
   webserver-template: "compose-shared-apache.yml"
   database-template: "compose-shared-mysql.yml"
@@ -6,6 +7,6 @@ x-includes:
 
 services:
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0
   openemr:
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.5

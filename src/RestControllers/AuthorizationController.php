@@ -881,7 +881,7 @@ class AuthorizationController
             }
             //Check the validity of the authentication token
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
-                if (!$mfaToken || !$mfa->check($mfaToken, $request->get('mfa_type'))) {
+                if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
@@ -1433,7 +1433,7 @@ class AuthorizationController
                 throw new OAuthServerException('Id token missing from request', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
-            $state = $request->get('state', '');
+            $state = $request->query->get('state', '');
             $token_parts = explode('.', $id_token);
             $id_payload = $this->decodeToken($token_parts[1]);
 
@@ -1879,6 +1879,7 @@ class AuthorizationController
 
     protected function convertPostParamsToGet(HttpRestRequest $request): HttpRestRequest
     {
+        /** @var array<string, array<mixed>|bool|float|int|string|null> $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!empty($parsedBody)) {
             foreach ($parsedBody as $key => $value) {

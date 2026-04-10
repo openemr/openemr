@@ -181,7 +181,7 @@ jobs:
             echo 'Add the corresponding migration statements to the appropriate upgrade file:'
             echo
             echo '```'
-            echo 'sql/8_0_0-to-8_0_1_upgrade.sql  (or the current version range)'
+            echo 'sql/8_1_0-to-8_1_1_upgrade.sql  (or the current version range)'
             echo '```'
             echo
             echo 'Use the `#IfMissingColumn`, `#IfNotTable`, or similar conditional'

@@ -16,7 +16,7 @@ on:
       docker_dir:
         required: true
         type: string
-        description: Docker directory name (e.g., apache_84_114)
+        description: Docker directory name (e.g., apache_85_118)
       display_name:
         required: false
         type: string
@@ -46,21 +46,22 @@ on:
         options:
         - apache_82_118
         - apache_83_118
-        - apache_84_1011
-        - apache_84_106
-        - apache_84_114
         - apache_84_118
-        - apache_84_120
-        - apache_84_57
-        - apache_84_80
-        - apache_84_84
-        - apache_84_93
+        - apache_85_1011
+        - apache_85_106
+        - apache_85_114
+        - apache_85_118
+        - apache_85_120
+        - apache_85_57
+        - apache_85_80
+        - apache_85_84
+        - apache_85_93
         - nginx_82
         - nginx_83
         - nginx_84
         - nginx_85
         - nginx_86
-        default: apache_84_114
+        default: apache_85_118
       enable_coverage:
         description: Enable coverage collection and reporting
         required: false

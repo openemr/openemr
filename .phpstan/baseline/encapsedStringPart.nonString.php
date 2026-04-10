@@ -5427,13 +5427,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Patient/Cards/InsuranceViewCard.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$params\\[\\$key\\] \\(array\\|bool\\|float\\|int\\|string\\|null\\) of encapsed string cannot be cast to string\\.$#',
+    'message' => '#^Part \\$params\\[\\$key\\] \\(array\\<mixed\\>\\|bool\\|float\\|int\\|string\\|null\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$state \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
