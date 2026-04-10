@@ -120,13 +120,12 @@ updates:
     include: scope
   open-pull-requests-limit: 5
 
-  # Docker selenium docker updates in 4 places in the repo as a group
+  # Docker selenium updates for CI (shared compose file)
+  # Docker dev directories are covered by their own entries below,
+  # which handle selenium alongside all other images.
 - package-ecosystem: docker-compose
   directories:
   - ci/compose-shared-selenium/
-  - docker/development-easy/
-  - docker/development-easy-redis/
-  - docker/development-insane/
   schedule:
     interval: daily
   allow:
@@ -228,6 +227,9 @@ updates:
     redis:
       patterns:
       - redis
+    selenium:
+      patterns:
+      - selenium/*
     mailpit:
       patterns:
       - axllent/mailpit
@@ -271,6 +273,9 @@ updates:
     redis:
       patterns:
       - redis
+    selenium:
+      patterns:
+      - selenium/*
     mailpit:
       patterns:
       - axllent/mailpit
