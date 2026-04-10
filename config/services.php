@@ -31,6 +31,11 @@ use Monolog\{
 };
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Services\Storage\{
+    Location,
+    Manager,
+    ManagerInterface,
+};
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\{
     ResponseFactoryInterface,
@@ -48,14 +53,26 @@ return [
     ),
 
     // Filesystem abstraction
-    Filesystem::class,
-    FilesystemAdapter::class => LocalFilesystemAdapter::class,
-    FilesystemOperator::class => Filesystem::class,
-    FilesystemReader::class => Filesystem::class,
-    FilesystemWriter::class => Filesystem::class,
-    LocalFilesystemAdapter::class => fn (TC $c) => new LocalFilesystemAdapter(
-        location: $c->getString('installRoot'),
-    ),
+    ManagerInterface::class => Manager::class,
+    Manager::class => function (TC $c): Manager {
+        $siteDir = sprintf('%s/sites/%s', $c->getString('installRoot'), $c->getString('OPENEMR_SITE'));
+        $m = new Manager();
+        // For now, use the default paths on the local FS. Eventually this will
+        // support more customization.
+        foreach (Location::cases() as $location) {
+            $path = sprintf('%s/%s', $siteDir, $location->getDefaultPath());
+            $m->register($location, new Filesystem(new LocalFilesystemAdapter($path)));
+        }
+        return $m;
+    },
+    /* Filesystem::class, */
+    /* FilesystemAdapter::class => LocalFilesystemAdapter::class, */
+    /* FilesystemOperator::class => Filesystem::class, */
+    /* FilesystemReader::class => Filesystem::class, */
+    /* FilesystemWriter::class => Filesystem::class, */
+    /* LocalFilesystemAdapter::class => fn (TC $c) => new LocalFilesystemAdapter( */
+    /*     location: $c->getString('installRoot'), */
+    /* ), */
     // (will arrive from elsewhere)
     'installRoot' => fn () => dirname(__DIR__),
 
