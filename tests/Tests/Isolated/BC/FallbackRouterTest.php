@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\BC;
 
+use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\FallbackRouter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,11 +35,9 @@ class FallbackRouterTest extends TestCase
 
     private function createRequest(string $path, string $query = ''): ServerRequestInterface
     {
-        $uri = $this->createMock(UriInterface::class);
-        $uri->method('getPath')->willReturn($path);
-        $uri->method('getQuery')->willReturn($query);
+        $uri = (new Uri($path))->withQuery($query);
 
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $request->method('getUri')->willReturn($uri);
 
         return $request;
@@ -268,5 +267,68 @@ class FallbackRouterTest extends TestCase
         $result = $router->performLegacyRouting($this->createRequest($requestUri));
 
         self::assertSame($installRoot . $expectedTarget, $result);
+    }
+
+    public function testRootPathRoutesToIndexPhp(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        $result = $router->performLegacyRouting($this->createRequest('/'));
+
+        self::assertSame($installRoot . '/index.php', $result);
+    }
+
+    public function testDoubleSlashesNormalized(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // Double slashes should be normalized by realpath
+        $result = $router->performLegacyRouting($this->createRequest('/portal//index.php'));
+
+        self::assertSame($installRoot . '/portal/index.php', $result);
+    }
+
+    public function testPathTraversalWithinBoundsWorks(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // Traversal that stays within install root should resolve
+        $result = $router->performLegacyRouting($this->createRequest('/portal/../interface/globals.php'));
+
+        self::assertSame($installRoot . '/interface/globals.php', $result);
+    }
+
+    public function testBlockedDirectoryWithoutIndexPhpThrowsNotFound(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // /portal/patient/fwk/libs is blocked AND has no index.php
+        $this->expectException(NotFoundHttpException::class);
+        $router->performLegacyRouting($this->createRequest('/portal/patient/fwk/libs'));
+    }
+
+    public function testRewriteRulePathWithoutSlashRoutesCorrectly(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // /apis is a rewrite rule, not a directory check
+        $result = $router->performLegacyRouting($this->createRequest('/apis'));
+
+        self::assertSame($installRoot . '/apis/dispatch.php', $result);
+    }
+
+    public function testDirectoryWithoutIndexPhpAndNoRewriteThrowsNotFound(): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        // /interface exists but has no index.php and no rewrite rule
+        $this->expectException(NotFoundHttpException::class);
+        $router->performLegacyRouting($this->createRequest('/interface'));
     }
 }
