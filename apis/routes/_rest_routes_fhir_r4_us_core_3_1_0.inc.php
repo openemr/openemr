@@ -59,8 +59,10 @@ use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
+use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
+use OpenEMR\Services\FHIR\FhirImmunizationService;
 use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
@@ -173,6 +175,41 @@ return [
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
+    },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Appointment",
+     *      description="Creates a new Appointment resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Appointment resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "appt");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $controller = new FhirGenericRestController($request, new FhirAppointmentService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->addAclRestrictions("patients", "appt");
+        return $controller->post($data);
     },
 
     /**
@@ -864,6 +901,86 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Immunization",
+     *      description="Creates a new Immunization resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/FHIRImmunization")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Immunization resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Immunization/{uuid}",
+     *      description="Modifies an Immunization resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Immunization resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/FHIRImmunization")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Immunization resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Location" => function (HttpRestRequest $request) {
         $return = (new FhirLocationRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
 

@@ -29382,6 +29382,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleFhirAppointmentFixture\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleFhirImmunizationFixture\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleFhirPatientFixture\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
