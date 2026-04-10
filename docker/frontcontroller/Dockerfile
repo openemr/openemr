@@ -71,13 +71,14 @@ ENV \
 # set other ini-related values
 COPY config/php-fpm/ $PHP_FPM_INI_DIR
 
+COPY --from=dependencies /usr/bin/composer /usr/bin/composer
 COPY --chown=php:php-users --from=dependencies /app/vendor ./vendor
 COPY --chown=php:php-users . .
 # preflight scripts in CLI
 
-COPY --from=dependencies /usr/bin/composer /usr/bin/composer
+# Disabled, laminas gives false-positive warning
 # RUN composer check-platform-reqs
-# RUN composer dump-autoload
+RUN composer dump-autoload --optimize
 
 FROM nginx:${NGINX_VERSION}-alpine${ALPINE_VERSION} AS nginx
 COPY config/nginx/frontcontroller-fpm.conf.template /etc/nginx/templates/default.conf.template
@@ -120,5 +121,9 @@ FROM apache-modphp-base AS apache-modphp
 WORKDIR /app
 COPY config/apache/frontcontroller-modphp.conf /etc/apache2/sites-available/000-default.conf
 COPY config/php/ $PHP_INI_DIR/conf.d/
+COPY --from=dependencies /usr/bin/composer /usr/bin/composer
 COPY --from=dependencies /app/vendor ./vendor
 COPY . .
+# Laminas; see above.
+# RUN composer check-platform-reqs
+RUN composer dump-autoload --optimize
