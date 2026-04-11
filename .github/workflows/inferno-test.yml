@@ -55,8 +55,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
-        node-version: ['22']
+        php-version: ['8.5']
+        node-version: ['24']
     steps:
     - uses: actions/checkout@v6
       with:

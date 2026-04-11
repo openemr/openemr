@@ -37,9 +37,7 @@ $imauthorized = $session->get('userauthorized') || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $retVal = getProviderId($session->get('authUser'));
     EventAuditLogger::getInstance()->newEvent("authorize", $session->get("authUser"), $session->get("authProvider"), 1, $_GET["pid"]);

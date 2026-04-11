@@ -112,7 +112,9 @@ function ros_report($pid, $encounter, $cols, $id): void
                 $value = "yes";
             }
 
-            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xlt($key), xlt($value));
+            $valueStr = is_string($value) ? $value : '';
+            // @phpstan-ignore argument.type, argument.type (legacy on-the-fly translation of dynamic values; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), xlt($valueStr));
             $count++;
 
             if ($count == $cols) {

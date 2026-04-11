@@ -26,9 +26,7 @@ $wenoLog = new WenoLogService();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
     unset($_POST['csrf_token']);
     foreach ($_POST as $location) {
         sqlQuery("update facility set weno_id = ? where id = ?", [$location[1], $location[0]]);

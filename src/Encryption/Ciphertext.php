@@ -17,7 +17,7 @@ namespace OpenEMR\Encryption;
  */
 final readonly class Ciphertext
 {
-    public function __construct(public string $wrapped)
+    public function __construct(public string $value)
     {
     }
 }

@@ -38,9 +38,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 <body>
     <?php
     if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $fenote = trim((string) $_POST['form_note']);
         if ($_POST['form_submit']) {

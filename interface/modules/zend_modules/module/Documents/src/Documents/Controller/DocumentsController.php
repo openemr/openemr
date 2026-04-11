@@ -161,20 +161,15 @@ class DocumentsController extends AbstractActionController
         $document = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds = $this->getDocumentsTable()->getCategoryIDs(['CCD', 'CCR', 'CCDA']);
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
-            $xml = simplexml_load_string((string) $document);
+            $xml = simplexml_load_string((string) $document, 'SimpleXMLElement', LIBXML_NONET);
             $xsl = new DomDocument();
             $qrda = $xml->templateId[2]['root'];
-            switch ($result['category_id']) {
-                case $categoryIds['CCD']:
-                    $style = "ccd.xsl";
-                    break;
-                case $categoryIds['CCR']:
-                    $style = "ccr.xsl";
-                    break;
-                case $categoryIds['CCDA']:
-                    $style = "cda.xsl";
-                    break;
-            }
+            $style = match ($result['category_id']) {
+                $categoryIds['CCD'] => 'ccd.xsl',
+                $categoryIds['CCR'] => 'ccr.xsl',
+                $categoryIds['CCDA'] => 'cda.xsl',
+                default => throw new \RuntimeException("Unsupported category for XSL transform"),
+            };
 
             if ($qrda == '2.16.840.1.113883.10.20.24.1.2') {
                 // a QRDA QDM CAT I document

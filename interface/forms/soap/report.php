@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -24,7 +25,7 @@ function soap_report($pid, $encounter, $cols, $id): void
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value)) {
                 continue;
             }
 
@@ -34,7 +35,8 @@ function soap_report($pid, $encounter, $cols, $id): void
 
             $key = ucwords(str_replace("_", " ", $key));
                                                                               //Updated by Sherwin 10/24/2016
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . nl2br(text($value)) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), nl2br(text($value)));
             $count++;
             if ($count == $cols) {
                 $count = 0;

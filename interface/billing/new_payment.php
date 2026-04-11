@@ -50,9 +50,7 @@ $payment_id = filter_input(INPUT_GET, 'payment_id', FILTER_VALIDATE_INT)
 
 // Verify CSRF token for all POST actions
 if ($mode !== '') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 $request_payment_id      = $payment_id ;
 $hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';

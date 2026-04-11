@@ -3930,9 +3930,8 @@ class EncounterccdadispatchTable
 
         $mimeType = "text/xml";
 
-        try {
-            \sqlBeginTrans();
-
+        // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
+        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer) {
             // set the foreign key so we can track documents connected to a specific export
             $result = $document->createDocument(
                 $pid,
@@ -3969,12 +3968,9 @@ class EncounterccdadispatchTable
                 $document->set_encounter_id($encounter);
             }
             $document->persist(); // save the updated references here.
-            \sqlCommitTrans();
-        } catch (\Throwable $exception) {
-            \sqlRollbackTrans();
-            // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
-            throw $exception;
-        }
+
+            return $moduleInsertId;
+        });
         return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $file_name, $content);
     }
 

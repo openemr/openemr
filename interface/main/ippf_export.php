@@ -396,9 +396,7 @@ function endFacility(): void
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($form_submit)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];

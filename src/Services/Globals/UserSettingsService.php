@@ -33,9 +33,9 @@ class UserSettingsService
      * Return user setting(s) from the 'users' table
      *
      * @param string $label - Setting key
-     * @param int $user - user id number from users table
+     * @param ?int $user - user id number from users table
      * @param int $defaultUser - user id to check as alternative/default
-     * @return Effective user setting for $label (NULL if does not exist)
+     * @return ?string Effective user setting for $label (NULL if it does not exist)
      */
     public static function getUserSetting($label, $user = null, $defaultUser = 0)
     {

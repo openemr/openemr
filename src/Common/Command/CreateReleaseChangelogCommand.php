@@ -48,7 +48,7 @@ class CreateReleaseChangelogCommand extends Command
      * Execute the command and spit any output to STDOUT and errors to STDERR
      * @param CommandContext $context All the context information needed for the CLI Command to execute
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         // going to hit the github api endpoint for the milestone given in the api
         $milestoneName = $input->getOption('milestone');

@@ -53,7 +53,7 @@ class PatientMenuRole extends MenuRole
         $patientMenuRole = $this->getMenuRole();
 
         // Load the selected menu
-        if (preg_match("/.json$/", $patientMenuRole)) {
+        if (str_ends_with($patientMenuRole, '.json')) {
             // load custom menu (includes .json in id)
             $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
         } else {
@@ -97,10 +97,12 @@ class PatientMenuRole extends MenuRole
             $dHandle = opendir($customMenuDir);
             while (false !== ($menuCustom = readdir($dHandle))) {
                 // Only process files that contain *.json
-                if (preg_match("/.json$/", $menuCustom)) {
+                if (str_ends_with($menuCustom, '.json')) {
                     $selectedTag = ($selected == $menuCustom) ? "selected" : "";
                     $output .= "<option value='" . attr($menuCustom) . "' " . $selectedTag . ">";
-                    // Drop the .json and translate the name
+                    // Drop the .json suffix and translate the name. Custom
+                    // menu filenames are dynamic, hence the @phpstan-ignore.
+                    // @phpstan-ignore argument.type (custom menu filenames are dynamic)
                     $output .= xlt(substr($menuCustom, 0, -5));
                     $output .= "</option>";
                 }
@@ -159,13 +161,22 @@ class PatientMenuRole extends MenuRole
                 }
 
                 $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
+                // Preserve the old `?:` semantics: '' AND '0' both fall through
+                // to 'NoName'. (The previous code used `$hookrow['menu_name'] ?: 'NoName'`,
+                // and `'0' ?: 'NoName'` returns 'NoName'.)
+                $menuName = $hookrow['menu_name'] ?? null;
+                $mod_nick_name = is_string($menuName) && $menuName !== '' && $menuName !== '0'
+                    ? $menuName
+                    : 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;
                 $subEntry->target = 'main';
                 $subEntry->menu_id = $hookrow['mod_id'];
-                $subEntry->label = xlt($mod_nick_name);
+                // Assign the raw module menu name; MenuRole::menuUpdateEntries()
+                // will translate and HTML-escape it via xlt() during the
+                // recursive pass over children.
+                $subEntry->label = $mod_nick_name;
                 $subEntry->url = $relative_link;
                 $subEntry->on_click = 'top.restoreSession()';
                 $subEntry->pid = 'false';
