@@ -45,7 +45,6 @@ class PatientAllergyConditionApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeAllergyIntoleranceFixtures();
-        $this->fixtureManager->removePatientFixtures();
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }

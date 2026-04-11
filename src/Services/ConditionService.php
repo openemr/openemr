@@ -122,6 +122,19 @@ class ConditionService extends BaseService
     {
         $newSearch = [];
 
+        // Validate puuid before converting to TokenSearchField
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
+            $isValidPatient = $this->conditionValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['puuid'],
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
+
         // Validate condition_uuid before converting to TokenSearchField
         if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
             $isValidCondition = $this->conditionValidator->validateId(
