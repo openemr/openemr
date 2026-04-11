@@ -14,6 +14,7 @@
  * @copyright Copyright (c) 2008 Larry Lart
  * @copyright Copyright (c) 2018-2024 Jerry Padgett
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
 //hack add for command line version
@@ -117,10 +118,6 @@ $bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
 if (!empty($runtime['testrun'])) {
     $bTestRun = 1;
 }
-
-$curr_date = date("Y-m-d");
-$curr_time = time();
-$check_date = date("Y-m-d", mktime((date("H") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
 $db_sms_msg['type'] = $TYPE;
 $db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
