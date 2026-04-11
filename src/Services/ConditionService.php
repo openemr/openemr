@@ -122,6 +122,19 @@ class ConditionService extends BaseService
     {
         $newSearch = [];
 
+        // Validate condition_uuid before converting to TokenSearchField
+        if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
+            $isValidCondition = $this->conditionValidator->validateId(
+                'uuid',
+                self::CONDITION_TABLE,
+                $search['condition_uuid'],
+                true
+            );
+            if ($isValidCondition !== true) {
+                return $isValidCondition;
+            }
+        }
+
         // override puuid with the token search field
         // standard api will send a string which needs to be a token to be converted to the binary field value
         // FHIR api will send an already populated TokenSearchField
