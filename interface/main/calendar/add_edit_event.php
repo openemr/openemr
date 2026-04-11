@@ -52,8 +52,10 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/h
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -73,7 +75,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eid           = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0; // only for existing events
 $date          = $_GET['date'] ?? null;        // this and below only for new events
 $userid        = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
-$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->get('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->get('default_visit_category') : '5');
+$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->getString('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->getString('default_visit_category') : '5');
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
@@ -902,7 +904,7 @@ if ($eid) {
         $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
     }
 
-    $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
+    $recurrence_end_date = ($row['pc_endDate'] && !Utilities::isDateEmpty($row['pc_endDate'])) ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
     if (str_starts_with((string) $hometext, ':text:')) {
@@ -960,7 +962,7 @@ if ($groupid) {
     $group_data = getGroup($groupid);
     $groupname = $group_data['group_name'];
     $group_end_date = $group_data['group_end_date'];
-    if (!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00') {
+    if (!$recurrence_end_date && $group_end_date && !Utilities::isDateEmpty($group_end_date)) {
         $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
     }
 }
@@ -1070,21 +1072,16 @@ $addEditEventConfig = [
             xl('3rd{{nth}}'),
             xl('4th{{nth}}'),
         ],
-        'weekDays' => [
-            xl('Sunday'),
-            xl('Monday'),
-            xl('Tuesday'),
-            xl('Wednesday'),
-            xl('Thursday'),
-            xl('Friday'),
-            xl('Saturday'),
-        ],
+        'weekDays' => array_map(
+            static fn(DayOfWeek $d): string => $d->label(),
+            DayOfWeek::cases(),
+        ),
     ],
 ];
 ?>
 window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
-</script>
 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+</script>
 
 <!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
      so that RENDER_JAVASCRIPT listeners can call these functions immediately -->

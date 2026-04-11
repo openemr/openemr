@@ -35,9 +35,7 @@ use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -95,7 +93,7 @@ function submitform() {
 
     top.restoreSession();
     var flag=0;
-<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
@@ -287,7 +285,7 @@ function toggle_password() {
 
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->get('Emergency_Login_email')); ?>" >
-<input type=hidden name="admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->get('Emergency_Login_email_id')); ?>" >
+<input type=hidden name="admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->getString('Emergency_Login_email_id')); ?>" >
 <input type=hidden name="check_acl" value="">
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
@@ -306,12 +304,12 @@ function toggle_password() {
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
     <TD style="width:270px;"><input type="text" name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
-<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
         <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
 <?php } ?>
 </TR>
-<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>

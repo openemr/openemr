@@ -51,7 +51,7 @@ class Generator
         $hqmfOid_to_datatype_map = [];
         $oids_file = __DIR__ . '/oids_qdm_5.6.json';
         $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.6.xml';
-        $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file));
+        $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file), 'SimpleXMLElement', LIBXML_NONET);
         $oids = json_decode(file_get_contents($oids_file), true);
 
         // Grab QDM version as defined in the modelinfo file

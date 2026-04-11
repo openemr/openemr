@@ -227,7 +227,7 @@ class WenoValidate extends ModuleService
                 $xmlContent = html_entity_decode($result);
                 $xmlContent = preg_replace('/<string[^>]*>/', '', $xmlContent);
                 $xmlContent = preg_replace('/<\/string>/', '', (string) $xmlContent);
-                $result = simplexml_load_string((string) $xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
+                $result = simplexml_load_string((string) $xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NONET);
                 $result = json_decode(json_encode($result), true); // make associative array.
                 return $result ?: [];
             } else {

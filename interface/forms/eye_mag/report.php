@@ -422,11 +422,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         <span style="font-weight:bold;"><?php echo xlt('Chronic or Inactive Problems'); ?>:</span> <br/>
                                         &nbsp;<?php echo text($CHRONIC1) . "<br />";
                                         if ($CHRONIC2) {
-                                            echo "&nbsp;" . $CHRONIC2 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC2) . "<br />";
                                         }
 
                                         if ($CHRONIC3) {
-                                            echo "&nbsp;" . $CHRONIC3 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC3) . "<br />";
                                         }
                                 } ?>
                             </div>
@@ -453,7 +453,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->get('patient_photo_category_name'), $pid]);
+                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
                 if (empty($result) || empty($result['id'])) {
                     //echo "no photo";

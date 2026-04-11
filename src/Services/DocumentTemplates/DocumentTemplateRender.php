@@ -61,7 +61,7 @@ class DocumentTemplateRender
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
-        $this->version = (new VersionService())->asString();
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
@@ -115,7 +115,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
             !is_dir($purifyTempDir)
         ) {

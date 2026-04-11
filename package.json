@@ -24,7 +24,7 @@
   "author": "d3sandoval",
   "license": "GNU GPL",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "browserslist": [
     "> 1%",
@@ -61,7 +61,7 @@
     "jest": "29.7.0",
     "minimist": "1.2.8",
     "napa": "3.0.0",
-    "postcss": "8.5.8",
+    "postcss": "8.5.9",
     "replace-in-file": "7.2.0",
     "stylelint": "16.26.1",
     "stylelint-config-sass-guidelines": "12.1.0",
@@ -81,7 +81,7 @@
     "chart.js": "4.5.1",
     "chartjs-adapter-date-fns": "3.0.0",
     "checklist-model": "1.0.0",
-    "ckeditor5": "47.6.1",
+    "ckeditor5": "47.6.2",
     "datatables.net": "1.13.11",
     "datatables.net-bs4": "1.13.11",
     "datatables.net-colreorder": "1.7.2",
@@ -104,7 +104,7 @@
     "jquery-validation": "1.22.1",
     "jspdf": "4.2.1",
     "jszip": "3.10.1",
-    "knockout": "3.5.2",
+    "knockout": "3.5.3",
     "konva": "9.3.22",
     "magic-wand-js": "1.0.0",
     "moment": "2.30.1",

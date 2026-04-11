@@ -334,7 +334,6 @@ build_test_e2e() {
     _exec php "${php_args[@]}" ./vendor/bin/phpunit \
         --log-junit junit-e2e.xml \
         --testsuite e2e \
-        --testdox \
         "${e2e_coverage_args[@]}"
     status=$?
     set -e
@@ -410,7 +409,7 @@ phpunit() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         php_args+=( -d xdebug.mode=coverage )
     fi
-    _exec php "${php_args[@]}" ./vendor/bin/phpunit --testdox "${args[@]}"
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit "${args[@]}"
 }
 
 ##

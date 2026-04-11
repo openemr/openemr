@@ -44,9 +44,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
         $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
@@ -366,7 +364,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
-            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+            $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
             $mail->addReplyTo($from, $from_name);
             $mail->setFrom($from, $from);
             $to = $email;

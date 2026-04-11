@@ -59,9 +59,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $forwarding = true;
     $this_message = getReminderById($_GET['mID']);
@@ -73,9 +71,7 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 // --- add reminders
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // --- initialize $output as blank
     $output = '';

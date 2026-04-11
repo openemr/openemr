@@ -348,7 +348,7 @@ class EhiExporter
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents);
+        $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NONET);
         return $xml;
     }
 
@@ -479,7 +479,7 @@ class EhiExporter
     {
         $zip = new \ZipArchive();
 
-        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         if (!file_exists($tempDir)) {
             throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }

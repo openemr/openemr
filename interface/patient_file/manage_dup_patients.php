@@ -188,9 +188,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -207,7 +205,7 @@ if ($is_csv) {
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
     $today = date('YmdHi');
-    $instance_name = (string) OEGlobalsBag::getInstance()->get('openemr_name');
+    $instance_name = OEGlobalsBag::getInstance()->getString('openemr_name');
     $filename = "duplicate_patients_" . $instance_name . "_" . $today . ".csv";
     header("Content-Disposition: attachment; filename=" . $filename);
     header("Content-Description: File Transfer");

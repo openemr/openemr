@@ -48,10 +48,11 @@ class AuthorizationControllerTest extends TestCase
         $coreKernel = $this->createMock(Kernel::class);
         $coreKernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
-        $globalsBag = new OEGlobalsBag(
-            array_merge([
+        /** @var array<string, mixed> $globalParams */
+        $globalParams = array_merge([
             'kernel' => $coreKernel,
-            ], $globalValues));
+        ], $globalValues);
+        $globalsBag = new OEGlobalsBag($globalParams);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method("getEventDispatcher")
             ->willReturn(new EventDispatcher());

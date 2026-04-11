@@ -611,7 +611,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
-            <?php if (OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>

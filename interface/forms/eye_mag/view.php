@@ -1997,9 +1997,11 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     <?php
                   // output is defined above and if there are old visits, check for orders in eye_mag_functions:
                   // $output = priors_select("ALL",$id,$id,$pid);
-                    ($output_priors == '') ? ($title = "There are no prior visits documented to display for this patient.") : ($title = "Display old exam findings and copy forward if desired");?>
+                    $title = ($output_priors == '')
+                        ? xla("There are no prior visits documented to display for this patient.")
+                        : xla("Display old exam findings and copy forward if desired");?>
                   <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text"
-                  class="btn btn-secondary"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
+                  class="btn btn-secondary"><i class="fa fa-paste" title="<?php echo $title; ?>"></i>
                     <?php
                     if ($output_priors != '') {
                         echo $output_priors;
@@ -3692,10 +3694,10 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                     $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
-                                                $k = xla($k);
-                                                $v['title'] = xlt($v['title']);
+                                                $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                 $insert_code = text($insert_code);
-                                                echo "<li class='ui-widget-content'> <span id='DX_POH_" . $k . "' name='DX_POH_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                echo "<li class='ui-widget-content'> <span id='DX_POH_" . $k . "' name='DX_POH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
@@ -3704,23 +3706,23 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                     $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
-                                                $k = xla($k);
-                                                $v['title'] = xlt($v['title']);
+                                                $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                 $insert_code = text($insert_code);
-                                                echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
-                                            if (!empty($PMSFH[0]['medical_problem'])) {
-                                                foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
+                                            if (!empty($PMSFH[0]['PMH'])) {
+                                                foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
                                                         $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                     }
 
-                                                    $k = xla($k);
-                                                    $v['title'] = xlt($v['title']);
+                                                    $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                    $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                     $insert_code = text($insert_code);
-                                                    echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                    echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                                 }
                                             }
                                         } else {
@@ -3747,7 +3749,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                    */
                                 ?>
                               <script>
-                                  var default_search_type = '<?php echo text(OEGlobalsBag::getInstance()->get('default_search_code_type')); ?>';
+                                  var default_search_type = '<?php echo text(OEGlobalsBag::getInstance()->getString('default_search_code_type')); ?>';
                               </script>
 
                               <dt class="borderShadow"><span><?php echo xlt('Coding Engine'); ?></span></dt>
@@ -4087,7 +4089,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                           "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
                                                           "ORDER BY lname, fname");
                                                       echo "<select name='form_PCP' id='form_PCP' title='" . xla('Primary Care Provider') . "'>";
-                                                      echo "<option value=''>" . xlt($empty_title ?? '') . "</option>";
+                                                      echo "<option value=''>" . xlt('Unassigned') . "</option>";
                                                       $got_selected = false;
                                                       while ($urow = sqlFetchArray($ures)) {
                                                           $uname = text($urow['lname'] . ' ' . $urow['fname']);
@@ -4117,7 +4119,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                       "AND ( authorized = 1 OR ( username = '') ) " .
                                                       "ORDER BY lname, fname");
                                                   echo "<select name='form_rDOC' id='form_rDOC' title='" . xla('Every name in the address book appears here, not only physicians.') . "'>";
-                                                  echo "<option value=''>" . xlt($empty_title ?? '') . "</option>";
+                                                  echo "<option value=''>" . xlt('Unassigned') . "</option>";
                                                   $got_selected = false;
                                                   while ($urow = sqlFetchArray($ures)) {
                                                       $uname = text($urow['lname'] . ' ' . $urow['fname']);

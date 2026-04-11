@@ -29,6 +29,34 @@ use Symfony\Component\HttpFoundation\Response;
 class AccessDeniedHelper
 {
     /**
+     * Write standard access-denied logs and audit event.
+     *
+     * @param string $comment    Audit log comment describing what was attempted
+     * @param string $auditEvent Event name for EventAuditLogger
+     */
+    public static function logDenial(
+        string $comment,
+        string $auditEvent = 'security-access-denied'
+    ): void {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUser', 'unknown');
+        $group = $session->get('authProvider', '');
+
+        ServiceContainer::getLogger()->warning("Access denied: {comment}", [
+            'comment' => $comment,
+            'user' => $user,
+        ]);
+
+        EventAuditLogger::getInstance()->newEvent(
+            $auditEvent,
+            $user,
+            $group,
+            0,
+            $comment,
+        );
+    }
+
+    /**
      * Log an access denial and terminate the request.
      *
      * @param string                     $comment     Audit log comment describing what was attempted
@@ -45,21 +73,7 @@ class AccessDeniedHelper
         AccessDeniedResponseFormat $format = AccessDeniedResponseFormat::Text,
         ?callable $beforeExit = null,
     ): never {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $user = $session->get('authUser', 'unknown');
-        $group = $session->get('authProvider', '');
-
-        ServiceContainer::getLogger()->warning("Access denied: $comment", [
-            'user' => $user,
-        ]);
-
-        EventAuditLogger::getInstance()->newEvent(
-            $auditEvent,
-            $user,
-            $group,
-            0,
-            $comment,
-        );
+        self::logDenial($comment, $auditEvent);
 
         http_response_code($httpStatus);
 
@@ -79,6 +93,18 @@ class AccessDeniedHelper
         }
 
         exit;
+    }
+
+    /**
+     * Render the standard unauthorized HTML page (Twig) without logging or exiting.
+     *
+     * @param string $pageTitle  Title to display on the unauthorized page
+     */
+    public static function renderUnauthorizedTemplate(string $pageTitle): string
+    {
+        return (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+            ->getTwig()
+            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     }
 
     /**
@@ -102,9 +128,7 @@ class AccessDeniedHelper
             Response::HTTP_FORBIDDEN,
             AccessDeniedResponseFormat::None,
             static function () use ($pageTitle): void {
-                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-                    ->getTwig()
-                    ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+                echo self::renderUnauthorizedTemplate($pageTitle);
             },
         );
     }
@@ -127,25 +151,9 @@ class AccessDeniedHelper
         string $auditEvent = 'security-access-denied',
         int $httpStatus = Response::HTTP_FORBIDDEN,
     ): Response {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $user = $session->get('authUser', 'unknown');
-        $group = $session->get('authProvider', '');
+        self::logDenial($comment, $auditEvent);
 
-        ServiceContainer::getLogger()->warning("Access denied: $comment", [
-            'user' => $user,
-        ]);
-
-        EventAuditLogger::getInstance()->newEvent(
-            $auditEvent,
-            $user,
-            $group,
-            0,
-            $comment,
-        );
-
-        $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-            ->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        $contents = self::renderUnauthorizedTemplate($pageTitle);
 
         return new Response($contents, $httpStatus);
     }

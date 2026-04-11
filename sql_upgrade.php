@@ -83,7 +83,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->get('language_default') ?? '']);
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }

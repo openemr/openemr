@@ -52,9 +52,7 @@ $posts['weno_admin_password'] = 'Privileged';
 $posts['weno_provider_password'] = 'Privileged';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (($_POST['form_save'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $isValidKey = $wenoValidate->verifyEncryptionKey();
@@ -64,9 +62,7 @@ if (($_POST['form_save'] ?? null)) {
     $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin verify Encryption Key", text($msg));
 }
 if (($_POST['form_save_top'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $saveActionPersist = true;
@@ -74,9 +70,7 @@ if (($_POST['form_save_top'] ?? null)) {
     $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin Auto Save", $posted);
 }
 if (isset($_REQUEST['form_reset_key'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_GET['form_reset_key']);
     // if we are here then we need to reset the key.
     $newKey = $wenoValidate->requestEncryptionKeyReset();

@@ -161,7 +161,7 @@ class AllergyIntoleranceService extends BaseService
             unset($search['lists.id']);
         }
         // Validating and Converting Patient UUID to PID
-        if (isset($search['puuid'])) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
@@ -174,7 +174,7 @@ class AllergyIntoleranceService extends BaseService
         }
 
         // Validating and Converting UUID to ID
-        if (isset($search['allergy_uuid'])) {
+        if (isset($search['allergy_uuid']) && !($search['allergy_uuid'] instanceof ISearchField)) {
             $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
@@ -201,9 +201,15 @@ class AllergyIntoleranceService extends BaseService
 
         $newSearch = [];
         // override puuid with the token search field for binary search
-        if (isset($search['puuid'])) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
             unset($search['puuid']);
+        }
+
+        // override allergy_uuid with token search field for binary comparison
+        if (isset($search['allergy_uuid']) && !($search['allergy_uuid'] instanceof ISearchField)) {
+            $newSearch['allergy_uuid'] = new TokenSearchField('allergy_uuid', $search['allergy_uuid'], true);
+            unset($search['allergy_uuid']);
         }
 
         foreach ($search as $key => $value) {

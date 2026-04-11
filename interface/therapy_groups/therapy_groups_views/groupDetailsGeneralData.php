@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -128,7 +129,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                                 <span class="font-weight-bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="form-control datepicker" value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_end_date" class="form-control datepicker" value="<?php echo Utilities::isDateEmpty($groupData['group_end_date']) ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>

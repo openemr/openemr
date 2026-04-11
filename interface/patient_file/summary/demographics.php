@@ -1079,8 +1079,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
-        if (OEGlobalsBag::getInstance()->get('patient_id_category_name')) {
-            $idcard_doc_id = get_document_by_catg($pid, OEGlobalsBag::getInstance()->get('patient_id_category_name'), 3);
+        if (OEGlobalsBag::getInstance()->getString('patient_id_category_name')) {
+            $idcard_doc_id = get_document_by_catg($pid, OEGlobalsBag::getInstance()->getString('patient_id_category_name'), 3);
         }
         ?>
         <div class="main mb-1">
@@ -1631,7 +1631,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     // If there is an ID Card or any Photos show the widget
-                    $photos = pic_array($pid, OEGlobalsBag::getInstance()->get('patient_photo_category_name'));
+                    $photos = pic_array($pid, OEGlobalsBag::getInstance()->getString('patient_photo_category_name'));
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('patient_photo'), CardRenderEvent::EVENT_HANDLE);
@@ -1643,8 +1643,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => "javascript",
                             'bodyClass' => 'collapse show',
                             'auth' => false,
-                            'patientIDCategoryID' => OEGlobalsBag::getInstance()->get('patient_id_category_name'),
-                            'patientPhotoCategoryName' => OEGlobalsBag::getInstance()->get('patient_photo_category_name'),
+                            'patientIDCategoryID' => OEGlobalsBag::getInstance()->getString('patient_id_category_name'),
+                            'patientPhotoCategoryName' => OEGlobalsBag::getInstance()->getString('patient_photo_category_name'),
                             'photos' => $photos,
                             'idCardDocID' => $idcard_doc_id,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
@@ -1753,10 +1753,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
                         $mode1 = !OEGlobalsBag::getInstance()->getBoolean('appt_display_sets_option');
-                        $colorSet1 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_1');
-                        $colorSet2 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_2');
-                        $colorSet3 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_3');
-                        $colorSet4 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_4');
+                        $colorSet1 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_1');
+                        $colorSet2 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_2');
+                        $colorSet3 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_3');
+                        $colorSet4 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_4');
                         $extraAppts = ($mode1) ? 1 : 6;
                         $extraApptDate = '';
 

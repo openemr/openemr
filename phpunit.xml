@@ -11,6 +11,7 @@ This file configures the kind that requires initialization.
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd" backupGlobals="false" bootstrap="tests/bootstrap.php" colors="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerErrors="true" displayDetailsOnTestsThatTriggerWarnings="true" displayDetailsOnTestsThatTriggerNotices="true" displayDetailsOnPhpunitDeprecations="true" testdox="false">
   <coverage> </coverage>
   <php>
+    <env name="ENV" value="test" />
     <ini name="error_reporting" value="-1"/>
     <server name="PANTHER_WEB_SERVER_DIR" value="interface"/>
     <!-- ATTENTION use only on local machine you can not activate chrome visual mode on travis. -->
@@ -27,6 +28,7 @@ This file configures the kind that requires initialization.
     <testsuite name="e2e">
       <directory>tests/Tests/E2e</directory>
       <exclude>tests/Tests/E2e/EmailSendTest.php</exclude>
+      <exclude>tests/Tests/E2e/EmailTestServiceTest.php</exclude>
       <exclude>tests/Tests/E2e/FaxSmsEmailTest.php</exclude>
     </testsuite>
     <testsuite name="api">
@@ -52,6 +54,7 @@ This file configures the kind that requires initialization.
     </testsuite>
     <testsuite name="email">
       <file>tests/Tests/E2e/EmailSendTest.php</file>
+      <file>tests/Tests/E2e/EmailTestServiceTest.php</file>
       <file>tests/Tests/E2e/FaxSmsEmailTest.php</file>
     </testsuite>
   </testsuites>

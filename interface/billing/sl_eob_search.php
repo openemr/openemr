@@ -44,15 +44,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Pdf\Config_Mpdf;
+use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
 
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
-// statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
+// statement.inc.php sets $STMT_TEMP_FILE
 assert(isset($STMT_TEMP_FILE));
-assert(isset($STMT_PRINT_CMD));
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -204,7 +204,7 @@ function emailLogin(int $patient_id, string $message): void
     }
 
     $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (OEGlobalsBag::getInstance()->get('patient_reminder_sender_email') ?? '') === '') {
+    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email') ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
 
@@ -212,7 +212,7 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Patient email address is invalid'));
     }
 
-    if (!(ValidationUtils::isValidEmail(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
+    if (!(ValidationUtils::isValidEmail(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')))) {
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
@@ -228,7 +228,7 @@ function emailLogin(int $patient_id, string $message): void
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
     $email_subject = ($facility['name'] . ' ' . xl('Patient Statement Bill'));
-    $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
+    $email_sender = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
@@ -273,7 +273,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
-        $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+        $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
     } else {
         global $STMT_TEMP_FILE_PDF;
     }
@@ -629,7 +629,7 @@ if (
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
         } else {
-            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg((string) $STMT_TEMP_FILE));
+            (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
             if ($_REQUEST['form_without']) {
                 $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
             } else {

@@ -136,9 +136,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             // Redirect back to step 1 if user password is incorrect
                             if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $_POST['clearPass'])) {
@@ -220,9 +218,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             echo "<script>\n";
 

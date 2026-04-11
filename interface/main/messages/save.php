@@ -53,8 +53,8 @@ if ($_REQUEST['go'] == 'Preferences') {
 			`LABELS_local`=?,`LABELS_choice`=?,
 			`combine_time`=?, postcard_top=?";
 
-        $facilities = implode("|", $_REQUEST['facilities']);
-        $providers = implode("|", $_REQUEST['providers']);
+        $facilities = implode("|", filter_input(INPUT_POST, 'facilities', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY) ?: []);
+        $providers = implode("|", filter_input(INPUT_POST, 'providers', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY) ?: []);
         $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ?: '');
         $country_code = ($_REQUEST['PHONE_country_code'] ?: '1');
 

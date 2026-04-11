@@ -46,7 +46,7 @@ class MyMailer extends PHPMailer
     {
         $requiredKeys = [];
         if (OEGlobalsBag::getInstance()->get('EMAIL_METHOD') === "SMTP") {
-            $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
+            $requiredKeys = ['SMTP_HOST', 'SMTP_PORT'];
             if (!empty(OEGlobalsBag::getInstance()->get('SMTP_Auth'))) {
                 $requiredKeys[] = 'SMTP_USER';
                 $requiredKeys[] = 'SMTP_PASS';
@@ -189,10 +189,10 @@ class MyMailer extends PHPMailer
             case "SMTP":
                 $this->Mailer = "smtp";
                 $this->SMTPAuth = OEGlobalsBag::getInstance()->get('SMTP_Auth');
-                $this->Host = OEGlobalsBag::getInstance()->get('SMTP_HOST');
-                $this->Username = OEGlobalsBag::getInstance()->get('SMTP_USER');
+                $this->Host = OEGlobalsBag::getInstance()->getString('SMTP_HOST');
+                $this->Username = OEGlobalsBag::getInstance()->getString('SMTP_USER');
                 $cryptoGen = ServiceContainer::getCrypto();
-                $this->Password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('SMTP_PASS'));
+                $this->Password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('SMTP_PASS'));
                 $this->Port = OEGlobalsBag::getInstance()->getInt('SMTP_PORT');
                 $this->SMTPSecure = OEGlobalsBag::getInstance()->get('SMTP_SECURE');
                 break;

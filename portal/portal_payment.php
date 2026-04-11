@@ -84,7 +84,7 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
+$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = [];
 $invdata = [];
 if ($edata) {
@@ -324,10 +324,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
     ]);
 
-// Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
-
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
     $frow = sqlQuery("SELECT * FROM facility " . " WHERE id = ?", [$tmprow['facility_id']
@@ -451,7 +447,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_public_key')) ? $globalsBag->get('gateway_public_key') : null)); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_public_key')) ? $globalsBag->getString('gateway_public_key') : null)); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1205,7 +1201,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_api_key')) ? $globalsBag->get('gateway_api_key') : null)); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_api_key')) ? $globalsBag->getString('gateway_api_key') : null)); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>

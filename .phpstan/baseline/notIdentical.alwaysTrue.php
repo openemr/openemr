@@ -17,6 +17,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between \'category\'\\|\'item\'\\|\'subcategory\' and \'\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between array\\<array\\<string, mixed\\>\\> and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -45,6 +50,11 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between ADORecordSet and false will always evaluate to true\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Services/DashboardContextService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and false will always evaluate to true\\.$#',
@@ -185,11 +195,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between OpenEMR\\\\Services\\\\Globals\\\\Effective and string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between ADORecordSet and false will always evaluate to true\\.$#',

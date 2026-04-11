@@ -1392,7 +1392,7 @@ function write_form_line_ippf(
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
-        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
         echo "<input type='text' name='line[$lino][adjust]' size='6'";
         echo " value='" . attr(formatMoneyNumber($adjust)) . "'";
         // Modifying discount requires the acct/disc permission.
@@ -1502,9 +1502,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // On a save, do the following:
     // Flag this form's drug_sales and billing items as billed.
@@ -2679,7 +2677,7 @@ if (!$current_irnumber) {
         </td>
     </tr>
         <?php
-    } elseif (!empty(OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number'))) {
+    } elseif (!empty(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
         ?>
     <tr>
@@ -2689,8 +2687,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>")'
+                onkeyup='maskkeyup(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
+                onblur='maskblur(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
         />
         </td>
     </tr>
