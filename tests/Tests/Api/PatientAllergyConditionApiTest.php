@@ -251,6 +251,48 @@ class PatientAllergyConditionApiTest extends TestCase
     }
 
     /**
+     * Test that GET /api/patient/:puuid/medical_problem/:muuid returns a single
+     * condition by its UUID within the patient context.
+     */
+    public function testGetSingleConditionByPatient(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $conditionData = [
+            "title" => "Essential Hypertension",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:I10",
+            "begdate" => "2021-03-20",
+        ];
+        $createBody = $this->createCondition($patientUuid, $conditionData);
+
+        $this->assertIsArray($createBody["data"]);
+        $conditionUuid = $createBody["data"]["uuid"] ?? null;
+        if ($conditionUuid === null) {
+            $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/medical_problem";
+            $result = $this->getAndDecode($url);
+            $listBody = $result['body'];
+            $this->assertNotEmpty($listBody["data"], "No conditions found for patient");
+            $this->assertIsArray($listBody["data"]);
+            $this->assertIsArray($listBody["data"][0]);
+            $conditionUuid = $listBody["data"][0]["uuid"];
+        }
+
+        $this->assertIsString($conditionUuid);
+
+        $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid
+            . "/medical_problem/" . $conditionUuid;
+        $result = $this->getAndDecode($url);
+        $body = $result['body'];
+
+        $this->assertArrayHasKey("data", $body);
+        $this->assertNotEmpty(
+            $body["data"],
+            "Single condition endpoint returned empty for valid condition UUID"
+        );
+    }
+
+    /**
      * Test that per-patient allergy endpoint does NOT return allergies
      * belonging to a different patient.
      */
