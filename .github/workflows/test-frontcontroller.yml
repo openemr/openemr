@@ -85,16 +85,11 @@ jobs:
             sleep 2
           done
 
-      - name: Set permissions
-        run: |
-          docker compose exec -T ${{ steps.services.outputs.php_container }} sh -c '
-            chmod 666 sites/default/sqlconf.php
-            chmod -R 777 sites/default/documents
-          '
-
       - name: Install OpenEMR
         run: |
-          docker compose exec -T ${{ steps.services.outputs.php_container }} \
+          docker compose exec -T \
+            -e OPENEMR_ENABLE_INSTALLER_AUTO=1 \
+            ${{ steps.services.outputs.php_container }} \
             php -f contrib/util/installScripts/InstallerAuto.php \
               rootpass=root \
               server=mysql \
