@@ -39707,11 +39707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:getOne\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
@@ -39957,11 +39952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:selectHelper\\(\\) has parameter \\$map with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
@@ -40027,11 +40017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CarePlanService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CarePlanService\\:\\:getOne\\(\\) has parameter \\$puuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
@@ -40063,11 +40048,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CareTeamService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CareTeamService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
@@ -40947,11 +40927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ConditionService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ConditionService\\:\\:getOne\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
@@ -41493,11 +41468,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DrugService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DrugService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
@@ -44207,11 +44177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getById\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
@@ -44537,11 +44502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:getOne\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
@@ -44573,11 +44533,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
@@ -44628,11 +44583,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
@@ -44792,11 +44742,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\LocationService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LocationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\LocationService\\:\\:getOne\\(\\) has parameter \\$uuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
@@ -44933,11 +44878,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
@@ -45247,11 +45187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformationActivity\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
@@ -45517,22 +45452,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:getOne\\(\\) has parameter \\$uuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
@@ -45567,11 +45492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:addDiagnosis\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
@@ -45588,11 +45508,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
@@ -47032,11 +46947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\SurgeryService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SurgeryService\\:\\:getOne\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
@@ -47162,11 +47072,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/UserService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getAuthGroupForUser\\(\\) has parameter \\$username with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
@@ -47193,11 +47098,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:search\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/UserService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:search\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];

@@ -39,7 +39,7 @@ class ConditionService extends BaseService
         $this->conditionValidator = new ConditionValidator();
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
@@ -112,13 +112,13 @@ class ConditionService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
 
