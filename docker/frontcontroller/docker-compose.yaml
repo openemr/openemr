@@ -20,7 +20,7 @@ x-dev-env: &dev-env
   ENVIRONMENT: development
   OPENEMR__ENVIRONMENT: dev
   # OPENEMR__NO_BACKGROUND_TASKS: true
-  # PHP setings
+  # PHP settings
   PHP_ZEND_ASSERTIONS: 1
 
 x-fastcgi: &x-fastcgi
