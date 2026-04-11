@@ -31,8 +31,8 @@ use PHPUnit\Framework\TestCase;
 
 class ConditionServiceSearchFieldTest extends TestCase
 {
-    private string $conditionServiceFile = '';
-    private string $allergyServiceFile = '';
+    private string $conditionServiceContent = '';
+    private string $allergyServiceContent = '';
 
     protected function setUp(): void
     {
@@ -40,13 +40,21 @@ class ConditionServiceSearchFieldTest extends TestCase
         if (!is_string($resolvedCondition)) {
             $this->markTestSkipped('ConditionService.php not found');
         }
-        $this->conditionServiceFile = $resolvedCondition;
+        $content = file_get_contents($resolvedCondition);
+        if ($content === false) {
+            $this->markTestSkipped('Failed to read ConditionService.php');
+        }
+        $this->conditionServiceContent = $content;
 
         $resolvedAllergy = realpath(__DIR__ . '/../../../../src/Services/AllergyIntoleranceService.php');
         if (!is_string($resolvedAllergy)) {
             $this->markTestSkipped('AllergyIntoleranceService.php not found');
         }
-        $this->allergyServiceFile = $resolvedAllergy;
+        $content = file_get_contents($resolvedAllergy);
+        if ($content === false) {
+            $this->markTestSkipped('Failed to read AllergyIntoleranceService.php');
+        }
+        $this->allergyServiceContent = $content;
     }
 
     /**
@@ -55,7 +63,7 @@ class ConditionServiceSearchFieldTest extends TestCase
      */
     public function testConditionServiceUnsetsPuuidBeforeForeach(): void
     {
-        $content = (string) file_get_contents($this->conditionServiceFile);
+        $content = $this->conditionServiceContent;
 
         // The TokenSearchField creation for puuid must be followed by unset
         // before the foreach loop
@@ -73,7 +81,7 @@ class ConditionServiceSearchFieldTest extends TestCase
      */
     public function testConditionServiceConvertsConditionUuidToTokenSearchField(): void
     {
-        $content = (string) file_get_contents($this->conditionServiceFile);
+        $content = $this->conditionServiceContent;
 
         $this->assertStringContainsString(
             "TokenSearchField('condition_uuid'",
@@ -96,7 +104,7 @@ class ConditionServiceSearchFieldTest extends TestCase
      */
     public function testAllergyServiceConvertsAllergyUuidToTokenSearchField(): void
     {
-        $content = (string) file_get_contents($this->allergyServiceFile);
+        $content = $this->allergyServiceContent;
 
         $this->assertStringContainsString(
             "TokenSearchField('allergy_uuid'",
@@ -119,7 +127,7 @@ class ConditionServiceSearchFieldTest extends TestCase
      */
     public function testAllergyServiceUnsetsPuuidBeforeForeach(): void
     {
-        $content = (string) file_get_contents($this->allergyServiceFile);
+        $content = $this->allergyServiceContent;
 
         $pattern = '/TokenSearchField\s*\(\s*[\'"]puuid[\'"]\s*,\s*\$search\s*\[\s*[\'"]puuid[\'"]\s*\]\s*,\s*true\s*\);\s*\n\s*unset\s*\(\s*\$search\s*\[\s*[\'"]puuid[\'"]\s*\]\s*\)/s';
         $this->assertMatchesRegularExpression(
