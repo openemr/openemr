@@ -38,7 +38,7 @@ class FhirBundleSerializer
      * @param $fhirJson
      * @return FHIRBundle
      */
-    public static function deserialize($fhirJson)
+    public static function deserialize($fhirJson): FHIRBundle
     {
         $identifier = $fhirJson['identifier'] ?? null;
         $type = $fhirJson['type'] ?? null;
