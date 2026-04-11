@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Api;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -38,7 +38,7 @@ class PatientAllergyConditionApiTest extends TestCase
 
         $this->fixtureManager = new FixtureManager();
         /** @var array<string, mixed> $record */
-        $record = (array) $this->fixtureManager->getSinglePatientFixture();
+        $record = $this->fixtureManager->getSinglePatientFixture();
         $this->patientRecord = $record;
     }
 
