@@ -203,29 +203,18 @@ function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
   top.restoreSession();
   if (label === "Fee Sheet") {
-    if (!execute) {
-      twAddTab(
-        tabsid,
-        label,
-        "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
-      );
-      execute = true;
-      temp = panelId;
-      return panelId;
-    } else {
+    if (execute) {
       asyncAlertMsg($message, 3000, 'warning','') ;
       return false;
     }
-  } else {
-    twAddTab(
-      tabsid,
-      label,
-      "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
-    );
-    return panelId;
+    execute = true;
+    temp = panelId;
   }
-
-
+  var iframe = $("<iframe class='w-100' style='height:94.5vh;border:0;'>Oops</iframe>")
+    .attr('name', panelId)
+    .attr('src', url);
+  twAddTab(tabsid, label, iframe.prop('outerHTML'));
+  return panelId;
 }
 
 // Remove the specified tab from the specified tab set.
