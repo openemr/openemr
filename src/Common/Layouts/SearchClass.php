@@ -14,16 +14,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Layouts;
 
-use OpenEMR\Common\Database\TableTypes;
-
 /**
  * Categorize layout field data types by their search UI treatment.
  *
  * Each layout field has a numeric data_type that determines how it renders.
  * For search purposes, those data types fall into three classes: not searchable,
  * text input, or select list.
- *
- * @phpstan-import-type LayoutOptionsRow from TableTypes
  */
 enum SearchClass
 {

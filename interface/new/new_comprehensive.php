@@ -313,8 +313,8 @@ function searchme() {
 $lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
@@ -887,8 +887,8 @@ $(function () {
 <?php
 $lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
