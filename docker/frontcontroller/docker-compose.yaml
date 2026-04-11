@@ -11,7 +11,17 @@
 #   docker compose up -d apache-fpm php-fpm mysql
 #   docker compose up -d apache-modphp mysql
 #   docker compose up -d php-builtin mysql
-#
+
+# Shared config for all of the webservers/backends
+x-dev-env: &dev-env
+  # OpenEMR settings
+  LOG_LEVEL: debug
+  OPENEMR_SITE: default
+  ENVIRONMENT: development
+  OPENEMR__ENVIRONMENT: dev
+  # OPENEMR__NO_BACKGROUND_TASKS: true
+  # PHP setings
+  PHP_ZEND_ASSERTIONS: 1
 
 x-fastcgi: &x-fastcgi
   FASTCGI_HOST: php-fpm
@@ -57,8 +67,7 @@ services:
     depends_on:
       - mysql
     environment:
-      ENVIRONMENT: development
-      PHP_ZEND_ASSERTIONS: 1
+      <<: *dev-env
     restart: always
     ports:
       - 80
@@ -73,9 +82,8 @@ services:
     depends_on:
       - mysql
     environment:
-      ENVIRONMENT: development
+      <<: *dev-env
       PHP_CLI_SERVER_WORKERS: 8
-      PHP_ZEND_ASSERTIONS: 1
     restart: always
     ports:
       - 80
@@ -91,17 +99,10 @@ services:
     depends_on:
       - mysql
     environment:
-      # OpenEMR settings
-      ENVIRONMENT: development
-      LOG_LEVEL: debug
-      OPENEMR_SITE: default
-      OPENEMR__ENVIRONNENT: dev
-      # OPENEMR__NO_BACKGROUND_TASKS: true
-
-      # PHP & PHP-FPM settings
+      <<: *dev-env
+      # PHP-FPM settings
       # In dev, nginx+fpm access logs are redundant, disable the latter
       PHP_FPM_ACCESS_LOG: "/dev/null"
-      PHP_ZEND_ASSERTIONS: 1
     restart: always
     volumes:
       - ../../:/app
