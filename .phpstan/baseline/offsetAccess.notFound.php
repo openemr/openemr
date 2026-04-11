@@ -877,11 +877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-empty\\-string\\}\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestRoutes/AllergyConditionRouteParameterTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'secondaryAddress\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',

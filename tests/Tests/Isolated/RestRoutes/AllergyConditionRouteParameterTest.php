@@ -52,7 +52,7 @@ class AllergyConditionRouteParameterTest extends TestCase
         $pattern = '/GET \/api\/patient\/:puuid\/allergy".*?getAll\(\[([^\]]+)\]\)/s';
         $this->assertMatchesRegularExpression($pattern, $content, 'Per-patient allergy list route not found');
 
-        preg_match($pattern, $content, $matches);
+        $this->assertSame(1, preg_match($pattern, $content, $matches));
         $params = $matches[1];
 
         $this->assertStringContainsString("'puuid'", $params, 'Route should pass puuid key for patient filtering');
@@ -71,7 +71,7 @@ class AllergyConditionRouteParameterTest extends TestCase
         $pattern = '/GET \/api\/patient\/:puuid\/allergy\/:auuid".*?getAll\(\[([^\]]+)\]\)/s';
         $this->assertMatchesRegularExpression($pattern, $content, 'Per-patient single allergy route not found');
 
-        preg_match($pattern, $content, $matches);
+        $this->assertSame(1, preg_match($pattern, $content, $matches));
         $params = $matches[1];
 
         $this->assertStringContainsString("'puuid'", $params, 'Route should pass puuid key for patient filtering');
@@ -91,7 +91,7 @@ class AllergyConditionRouteParameterTest extends TestCase
         $pattern = '/GET \/api\/patient\/:puuid\/medical_problem".*?ConditionRestController.*?getAll\(\[([^\]]+)\]\)/s';
         $this->assertMatchesRegularExpression($pattern, $content, 'Per-patient condition list route not found');
 
-        preg_match($pattern, $content, $matches);
+        $this->assertSame(1, preg_match($pattern, $content, $matches));
         $params = $matches[1];
 
         $this->assertStringContainsString("'puuid'", $params, 'Route should pass puuid key for patient filtering');
@@ -109,7 +109,7 @@ class AllergyConditionRouteParameterTest extends TestCase
         $pattern = '/GET \/api\/patient\/:puuid\/medical_problem\/:muuid".*?ConditionRestController.*?getAll\(\[([^\]]+)\]\)/s';
         $this->assertMatchesRegularExpression($pattern, $content, 'Per-patient single condition route not found');
 
-        preg_match($pattern, $content, $matches);
+        $this->assertSame(1, preg_match($pattern, $content, $matches));
         $params = $matches[1];
 
         $this->assertStringContainsString("'puuid'", $params, 'Route should pass puuid key for patient filtering');

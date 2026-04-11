@@ -44,8 +44,8 @@ class PatientAllergyConditionApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removePatientFixtures();
         $this->fixtureManager->removeAllergyIntoleranceFixtures();
+        $this->fixtureManager->removePatientFixtures();
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
@@ -118,15 +118,11 @@ class PatientAllergyConditionApiTest extends TestCase
     /**
      * Perform a GET request and decode the JSON response body.
      *
-     * ApiTestClient::get() lacks a return type, so this wrapper provides
-     * type safety by asserting the response type.
-     *
      * @return array{response: ResponseInterface, body: array<string, mixed>}
      */
     private function getAndDecode(string $url): array
     {
         $response = $this->testClient->get($url);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         return ['response' => $response, 'body' => $this->decodeBody($response)];
     }

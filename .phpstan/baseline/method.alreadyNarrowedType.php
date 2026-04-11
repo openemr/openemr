@@ -14,11 +14,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Psr\\\\\\\\Http\\\\\\\\Message\\\\\\\\ResponseInterface\' and Psr\\\\Http\\\\Message\\\\ResponseInterface will always evaluate to true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Psr\\\\\\\\Http\\\\\\\\Message\\\\\\\\ResponseInterface\' and Psr\\\\Http\\\\Message\\\\ResponseInterface will always evaluate to true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
