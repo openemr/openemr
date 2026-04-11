@@ -161,7 +161,7 @@ class AllergyIntoleranceService extends BaseService
             unset($search['lists.id']);
         }
         // Validating and Converting Patient UUID to PID
-        if (isset($search['puuid'])) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
