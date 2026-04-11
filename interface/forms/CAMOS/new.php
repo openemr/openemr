@@ -405,9 +405,9 @@ $i = 0;
 $statement = QueryUtils::sqlStatementThrowException("SELECT id, item, content, subcategory_id FROM {$tbl_camos_item} ORDER BY item");
 /** @var array{id: int, item: ?string, content: ?string, subcategory_id: int} $itemRow */
 while ($itemRow = QueryUtils::fetchArrayFromResultSet($statement)) {
-    // Convert literal \r\n escape sequences (stored by CAMOS input handling)
-    // back to real newlines so json_encode produces correct JS string escapes.
-    $content = str_replace(['\r', '\n'], ["\r", "\n"], strip_tags($itemRow['content'] ?? '', "<b>,<i>"));
+    // Convert the literal \r\n placeholder stored by CAMOS input handling
+    // back to a real CRLF sequence so json_encode produces correct JS escapes.
+    $content = str_replace('\r\n', "\r\n", strip_tags($itemRow['content'] ?? '', "<b>,<i>"));
     echo "array3[" . $i . "] = new Array(" . js_escape($itemRow['item'] ?? '') . ", " . js_escape($content) . ", " . js_escape(strval($itemRow['subcategory_id'])) .
     "," . js_escape(strval($itemRow['id'])) . ");\n";
     $i++;
