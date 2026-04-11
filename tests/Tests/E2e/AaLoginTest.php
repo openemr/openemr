@@ -23,7 +23,6 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class AaLoginTest extends PantherTestCase
 {
@@ -79,6 +78,21 @@ class AaLoginTest extends PantherTestCase
             throw $e;
         }
         // Close client
+        $this->client->quit();
+    }
+
+    #[Test]
+    public function testAdminPageLoads(): void
+    {
+        $this->base();
+        try {
+            $this->crawler = $this->client->request('GET', '/admin.php');
+            $title = $this->client->getTitle();
+            $this->assertSame('OpenEMR Site Administration', $title, 'FAILED to load admin.php');
+        } catch (\Throwable $e) {
+            $this->client->quit();
+            throw $e;
+        }
         $this->client->quit();
     }
 

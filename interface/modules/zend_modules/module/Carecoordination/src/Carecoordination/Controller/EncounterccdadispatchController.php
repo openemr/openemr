@@ -19,13 +19,12 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaServiceConnectionException;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
+use Exception;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Exception;
-use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
@@ -75,7 +74,6 @@ class EncounterccdadispatchController extends AbstractActionController
 
         global $assignedEntity;
         global $representedOrganization;
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -121,12 +119,15 @@ class EncounterccdadispatchController extends AbstractActionController
             exit;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $authProvider = $session->get('authProvider');
         // QRDA III user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $authUser, $authProvider, 1, "QRDA3 view");
             exit;
         }
 
@@ -137,7 +138,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // For HTML view, you could add XSL transformation here if needed
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 Consolidated view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $authUser, $authProvider, 1, "QRDA3 Consolidated view");
             exit;
         }
 
@@ -245,10 +246,10 @@ class EncounterccdadispatchController extends AbstractActionController
                 if ($view && !$downloadccda) {
                     if (str_starts_with($content, 'ERROR:')) {
                         echo "<h3>" . text($content) . "</h3>";
-                        (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+                        ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
-                    $xml = simplexml_load_string($content);
+                    $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.
@@ -261,7 +262,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $htmlContent = file_get_contents($outputFile);
                     $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
                     if (!$result) {
-                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                        ServiceContainer::getLogger()->error("EncounterccdadispatchController: Failed to unlink temporary CDA output {filename}. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
                     }
                     echo $htmlContent;
                 }
@@ -301,7 +302,7 @@ class EncounterccdadispatchController extends AbstractActionController
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
             echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
-            (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error("Connection error with ccda service", ['exception' => $exception]);
             die();
         }
 
@@ -359,10 +360,7 @@ class EncounterccdadispatchController extends AbstractActionController
             echo xlt("Failed to generate consolidated QRDA III report. Please try again.");
 
             // Log using your existing logging pattern
-            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III", [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            ServiceContainer::getLogger()->error("Error generating consolidated QRDA III", ['exception' => $e]);
         }
     }
 
@@ -372,7 +370,6 @@ class EncounterccdadispatchController extends AbstractActionController
      */
     public function getConsolidatedQrda3Content($pids = null, $measures = [])
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         try {
             $xmlController = new QrdaReportController();
 
@@ -385,6 +382,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $content = $xmlController->getConsolidatedCategoryIIIReport($pids, $measures);
 
             // Log the event (following your existing audit pattern)
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-generation",
                 $session->get('authUser'),
@@ -395,8 +393,9 @@ class EncounterccdadispatchController extends AbstractActionController
 
             return $content;
         } catch (\Throwable $e) {
-            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
-                'message' => $e->getMessage()
+            ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating consolidated QRDA III content: {message}", [
+                'message' => $e->getMessage(),
+                'exception' => $e
             ]);
 
             return "ERROR: " . $e->getMessage();

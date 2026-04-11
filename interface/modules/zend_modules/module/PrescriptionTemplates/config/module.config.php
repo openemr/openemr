@@ -21,11 +21,10 @@
 
 namespace PrescriptionTemplates;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
+use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;
-use Interop\Container\ContainerInterface;
 
 return [
 

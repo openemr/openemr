@@ -13,13 +13,10 @@
 
 namespace OpenEMR\Common\Command;
 
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
-use Lcobucci\JWT\Signer\Rsa\Sha384;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
-use Ramsey\Uuid\Uuid;
 
 class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
 {

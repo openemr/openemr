@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Reminder;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class BirthdayReminder
 {
     public function __construct(private $pid, private $user_id)
@@ -47,17 +49,17 @@ class BirthdayReminder
         if (
             // on and up to 28 days
             (
-                $GLOBALS['patient_birthday_alert'] == 3 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 3 &&
                 $today >= $dobStr &&
                 $today <= date('m-d', strtotime('+28 days', strtotime((string) $res['DOB'])))
             ) ||
             // on and after
             (
-                $GLOBALS['patient_birthday_alert'] == 2 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 2 &&
                 $today >= $dobStr
             ) ||
             (
-                $GLOBALS['patient_birthday_alert'] == 1 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 1 &&
                 $today == $dobStr
             )
         ) {

@@ -20,7 +20,6 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Ramsey\Uuid\UuidFactory;
 

@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
+use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 

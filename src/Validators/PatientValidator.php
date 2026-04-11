@@ -3,9 +3,9 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Utils\ValidationUtils;
-use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Particle\Validator\Exception\InvalidValueException;
+use Particle\Validator\Validator;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**

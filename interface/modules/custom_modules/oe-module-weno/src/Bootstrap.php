@@ -14,9 +14,11 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -27,7 +29,7 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Utils\SQLUpgradeService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
@@ -49,10 +51,7 @@ class Bootstrap
      */
     private $globalsConfig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly string $modulePath;
 
@@ -71,13 +70,14 @@ class Bootstrap
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?LoggerInterface $logger = null,
     ) {
-        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
+        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
         $this->isWenoUser = !empty($this->isWenoUser());
         $this->isAuthorized = AclMain::aclCheckCore('patients', 'rx');
@@ -128,7 +128,7 @@ class Bootstrap
         $service->addUserSpecificTab(self::MODULE_MENU_NAME);
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             if ($userMode) {
                 $service->appendToSection(
                     self::MODULE_MENU_NAME,
@@ -395,7 +395,8 @@ class Bootstrap
     public function isWenoUser()
     {
         if (empty($id)) {
-            $id = $_SESSION['authUserID'] ?? '';
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $id = $session->get('authUserID') ?? '';
         }
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
@@ -414,9 +415,9 @@ class Bootstrap
             $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
             return true;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->errorLogCaller(
+            ServiceContainer::getLogger()->error(
                 "Error: " . $exception->getMessage(),
-                ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'statement' => $exception->getSqlStatement()]
             );
             return false;
         }

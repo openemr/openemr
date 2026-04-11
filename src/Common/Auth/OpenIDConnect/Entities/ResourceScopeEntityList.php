@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
-use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use ArrayObject;
+use League\OAuth2\Server\Entities\Traits\EntityTrait;
 
 class ResourceScopeEntityList extends ArrayObject
 {

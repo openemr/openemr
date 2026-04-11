@@ -10,12 +10,10 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
-use OpenEMR\Cqm\Qdm\Diagnosis;
-use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;

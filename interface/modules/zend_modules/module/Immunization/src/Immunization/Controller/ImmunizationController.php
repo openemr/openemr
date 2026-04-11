@@ -13,12 +13,12 @@
 namespace Immunization\Controller;
 
 use Application\Listener\Listener;
-use Application\Model\ApplicationTable;
 use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 
 class ImmunizationController extends AbstractActionController
@@ -29,11 +29,8 @@ class ImmunizationController extends AbstractActionController
 
     protected $date_format;
 
-    protected $appTable;
-
     public function __construct(ImmunizationTable $table)
     {
-        $this->appTable = new ApplicationTable();
         $this->immunizationTable = $table;
         $this->listenerObject = new Listener();
     }
@@ -52,8 +49,8 @@ class ImmunizationController extends AbstractActionController
         $data = $request->getPost();
         $isFormRefresh = 'true';
         $form_code = $data['codes'] ?? [];
-        $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
-        $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+        $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
+        $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
         $form_get_hl7 = '';
         $patient_id = $request->getPost('patient_id', null);
         //pagination
@@ -199,8 +196,8 @@ class ImmunizationController extends AbstractActionController
         $key_val = '';
         if (isset($data['hl7button'])) {
             $form_code = $data['codes'] ?? [];
-            $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
-            $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+            $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
+            $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
             $form_get_hl7 = 'true';
             $patient_id = $request->getPost('patient_id', null);
             //pagination
@@ -743,26 +740,22 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $ethnicity
-     * @return type
+     * @param string $ethnicity
+     * @return string
      */
     public function format_ethnicity($ethnicity)
     {
-        switch ($ethnicity) {
-            case "hisp_or_latin":
-                return ("H^Hispanic or Latino^HL70189");
-            case "not_hisp_or_latin":
-                return ("N^not Hispanic or Latino^HL70189");
-            default: // Unknown
-                return ("U^Unknown^HL70189");
-        }
+        return match ($ethnicity) {
+            "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
+            "not_hisp_or_latin" => "N^not Hispanic or Latino^HL70189",
+            // Unknown
+            default => "U^Unknown^HL70189",
+        };
     }
 
     /**
-     *
-     * @param type $a
-     * @return type
+     * @param string $a
+     * @return string
      */
     public function tr($a)
     {
@@ -770,9 +763,8 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $cvx_code
-     * @return type
+     * @param int|string $cvx_code
+     * @return string
      */
     public function format_cvx_code($cvx_code)
     {

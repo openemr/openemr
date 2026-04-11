@@ -20,31 +20,33 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // From billing manager so do stuff
-if (isset($_SESSION['billencounter'])) {
-    $pid = $_SESSION['billpid'];
-    $encounter = $_SESSION['billencounter'];
+if ($session->has('billencounter')) {
+    $pid = $session->get('billpid');
+    $encounter = $session->get('billencounter');
     echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
 }
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "") {
+if (Utilities::isDateEmpty($_POST["off_work_from"])) {
     $_POST["is_unable_to_work"] = "0";
     $_POST["off_work_to"] = "";
 } else {
     $_POST["is_unable_to_work"] = "1";
 }
 
-if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "") {
+if (Utilities::isDateEmpty($_POST["hospitalization_date_from"])) {
     $_POST["is_hospitalized"] = "0";
     $_POST["hospitalization_date_to"] = "";
 } else {
@@ -92,8 +94,8 @@ if (empty($id)) {
         "INSERT INTO form_misc_billing_options SET $sets",
         [
             $pid,
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["employment_related"] ?? ''),
             ($_POST["auto_accident"] ?? ''),
@@ -131,8 +133,8 @@ if (empty($id)) {
         "UPDATE form_misc_billing_options SET $sets WHERE id = ?",
         [
             $pid,
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["employment_related"] ?? ''),
             ($_POST["auto_accident"] ?? ''),
@@ -166,7 +168,7 @@ if (empty($id)) {
     );
 }
 
-if (isset($_SESSION['billencounter'])) {
+if ($session->has('billencounter')) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
     echo "<script>dlgclose('SubmitTheScreen')</script>";
 } else {

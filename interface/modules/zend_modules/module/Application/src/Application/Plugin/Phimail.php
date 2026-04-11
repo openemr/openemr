@@ -12,29 +12,18 @@
 
 namespace Application\Plugin;
 
-use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
-use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
-use Interop\Container\ContainerInterface;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/direct_message_check.inc.php');
 
 class Phimail extends AbstractPlugin
 {
-    protected $application;
-
     private readonly Listener $listenerObject;
-  /**
-  *
-  * Application Table Object
-  * Listener Object
-  * @param type $container ContainerInterface
-  */
-    public function __construct(ContainerInterface $container)
+
+    public function __construct()
     {
-        // TODO: again why grab the service... construct the tables and do nothing with them.  Can this code be removed?
-        $container->get(\Laminas\Db\Adapter\Adapter::class);
-        $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener();
     }
 

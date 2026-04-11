@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use Symfony\Contracts\EventDispatcher\Event;
 use Document;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientRetrieveOffsiteDocument extends Event
 {

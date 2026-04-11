@@ -1,0 +1,37 @@
+# Example front controller infrastructure for OpenEMR.
+#
+# This file sets up routing through `public/index.php` and `FallbackRouter`.
+# Paths are migrated incrementally - add RewriteRules here as corresponding
+# subdirectory .htaccess files are decommissioned.
+#
+# See `OpenEMR\BC\FallbackRouter` for the PHP-side routing logic.
+#
+# EXAMPLE ONLY - if you move this file from `.htaccess.example` to `.htaccess`
+# AND delete the other `.htaccess` files throughout, you'll use the front
+# controller. This is still an experimental/opt-in process.
+
+RewriteEngine On
+
+# Apache can strip Authorization headers by default... restore them.
+# Equivalent: `CGIPassAuth On`
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+# Static files - serve directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !\.php$
+RewriteRule ^ - [L]
+
+# Existing PHP files - route through front controller
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} \.php$
+RewriteRule ^ public/index.php [QSA,L]
+
+# Paths migrated to front controller (add incrementally as subdirectory
+# .htaccess files are decommissioned):
+RewriteRule ^apis/ public/index.php [QSA,L]
+RewriteRule ^meta/ public/index.php [QSA,L]
+RewriteRule ^oauth2/ public/index.php [QSA,L]
+
+# Everything else: route through front controller
+RewriteRule ^ public/index.php [QSA,L]
+# vim: ft=apache

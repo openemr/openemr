@@ -15,10 +15,12 @@ if (!defined('OPENEMR_GLOBALS_LOADED')) {
     exit();
 }
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
 require_once("FormROS.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormROS extends Controller
 {
@@ -27,13 +29,14 @@ class C_FormROS extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/ros/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('web_root'));
+        $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->get('form_exit_url'));
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
     function default_action()
@@ -63,12 +66,13 @@ class C_FormROS extends Controller
         parent::populate_object($this->form);
         $this->form->persist();
 
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Review Of Systems", $this->form->id, "ros", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Review Of Systems", $this->form->id, "ros", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";
         }
 

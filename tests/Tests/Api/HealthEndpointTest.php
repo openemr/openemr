@@ -47,7 +47,7 @@ class HealthEndpointTest extends TestCase
         $this->assertStringContainsString('application/json', $contentType, 'livez should return JSON content type');
 
         $body = json_decode((string) $response->getBody(), true);
-        $this->assertIsArray($body, 'livez response should be valid JSON');
+        assert(is_array($body), 'livez response should be valid JSON');
         $this->assertArrayHasKey('status', $body, 'livez response should have status key');
         $this->assertEquals('alive', $body['status'], 'livez status should be "alive"');
     }
@@ -78,7 +78,7 @@ class HealthEndpointTest extends TestCase
         $this->assertStringNotContainsString('login_screen.php', $bodyRaw, 'readyz should not redirect to login');
 
         $body = json_decode($bodyRaw, true);
-        $this->assertIsArray($body, 'readyz response should be valid JSON');
+        assert(is_array($body), 'readyz response should be valid JSON');
         $this->assertArrayHasKey('status', $body, 'readyz response should have status key');
         $this->assertContains($body['status'], ['ready', 'setup_required', 'error'], 'readyz status should be valid');
     }
@@ -90,6 +90,7 @@ class HealthEndpointTest extends TestCase
     {
         $response = $this->client->get('/meta/health/readyz');
         $body = json_decode((string) $response->getBody(), true);
+        assert(is_array($body));
 
         // If status is 'ready', we should have checks
         if ($body['status'] === 'ready') {

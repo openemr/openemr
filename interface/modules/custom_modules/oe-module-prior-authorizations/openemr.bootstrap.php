@@ -12,17 +12,10 @@
  *
  */
 
-
-use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
-use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\ModulesClassLoader;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
-use OpenEMR\Menu\PatientMenuRole;
-use OpenEMR\Events\PatientDemographics\RenderEvent;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\ModulesClassLoader;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // AI Generated: registering namespace
@@ -68,7 +61,7 @@ function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
 
     $menuItem = new stdClass();
     $menuItem->label = "Auths";
-    $menuItem->url = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php";
+    $menuItem->url = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php";
     $menuItem->menu_id = "mod_pa";
     $menuItem->target = "mod";
 

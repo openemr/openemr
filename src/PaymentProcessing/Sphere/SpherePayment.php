@@ -12,9 +12,11 @@
 
 namespace OpenEMR\PaymentProcessing\Sphere;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
 class SpherePayment
@@ -40,14 +42,14 @@ class SpherePayment
     public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
         // Set if in testing mode (or false for production mode)
-        $testing = empty($GLOBALS['gateway_mode_production']);
+        $testing = !OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production');
 
         // Collect the correct trxcustid and trxcustid_licensekey and url
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         if ($this->front == 'patient') {
             $frontSpecific = 'patient';
-            $trxcustid = $cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
-            $trxcustidLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid_licensekey']);
+            $trxcustid = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+            $trxcustidLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid_licensekey'));
             if ($testing) {
                 $url = Sphere::PATIENTFRONT_TESTING_URL;
             } else {
@@ -56,10 +58,10 @@ class SpherePayment
         } else { //$this->front == 'clinic'
             $frontSpecific = 'clinic-phone';
             $frontSpecificRetail = 'clinic-retail';
-            $trxcustid = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid']);
-            $trxcustidLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid_licensekey']);
-            $trxcustidRetail = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid']);
-            $trxcustidRetailLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid_licensekey']);
+            $trxcustid = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+            $trxcustidLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid_licensekey'));
+            $trxcustidRetail = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+            $trxcustidRetailLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid_licensekey'));
             if ($testing) {
                 $url = Sphere::CLINICFRONT_TESTING_URL;
             } else {
@@ -68,12 +70,13 @@ class SpherePayment
         }
 
         // Calculate the OpenEMR server
-        $this->serverSite = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'];
+        $this->serverSite = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('web_root');
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Calculate the $mainUrl
-        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
+        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere'));
         if ($this->front == 'clinic') {
-            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
+            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere'));
         }
 
         if ($this->front == 'patient') {
@@ -170,6 +173,7 @@ class SpherePayment
      */
     private function renderSphereJsCore(): string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return "
             function sphereNotSuccess(message) {
                 alert(message);
@@ -201,7 +205,7 @@ class SpherePayment
                 }
 
                 let responseUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php';
-                let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken('sphere')) .  ";
+                let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere')) .  ";
                 let mainUrlEnd = '&amount=' + encodeURIComponent(total) + '&ticketno=' + encodeURIComponent(ticket) + '&response_url=' + encodeURIComponent(responseUrl) + '&is_redirect=y&show_cancelurl=' + encodeURIComponent(cancelUrl);
                 let mainUrl = '';
                 if ((front == 'patient') || (front == 'clinic-phone')) {

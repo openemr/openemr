@@ -1,4 +1,5 @@
 <?php
+
 /*
 if (!empty($_GET['debug'])) {
     $debug = $_GET['debug'];

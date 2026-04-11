@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Services\FHIR\Observation\Trait;
 
-use InvalidArgumentException;
 use BadMethodCallException;
+use InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
@@ -217,7 +217,7 @@ trait FhirObservationTrait
         }
     }
 
-    protected function setObservationValueWithDetails(FhirObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = []): void
+    protected function setObservationValueWithDetails(FHIRObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = []): void
     {
         $valueType = "string";
         if (is_string($value) && !empty($codeDescription) && str_contains($value, ':')) {

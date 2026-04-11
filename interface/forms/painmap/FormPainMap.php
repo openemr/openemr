@@ -10,7 +10,10 @@
  */
 
 /* include the class we are extending. */
-require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/clickmap/AbstractClickmapModel.php");
 
 /**
  * @class FormPainMap
@@ -22,9 +25,8 @@ class FormPainMap extends AbstractClickmapModel
     /**
      * The database table to place form data in/read form data from.
      *
-     * @var TABLE_NAME
+     * @var string
      */
-
     static $TABLE_NAME = "form_painmap";
 
     /* Initializer. just calls parent's initializer. */

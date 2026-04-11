@@ -15,26 +15,26 @@ namespace OpenEMR\Common\Auth;
 
 use DateInterval;
 use DateTime;
-use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OneTimeAuth
 {
-    private readonly CryptoGen $cryptoGen;
-    private readonly SystemLogger $systemLogger;
-    private readonly SessionWrapperInterface $session;
+    private readonly CryptoInterface $cryptoGen;
+    private readonly LoggerInterface $systemLogger;
+    private readonly SessionInterface $session;
     private readonly OEGlobalsBag $globalsBag;
 
     /**
@@ -42,11 +42,16 @@ class OneTimeAuth
      * @param string $scope   scope = portal/service tasks (reset, register).
      * @param string $profile
      */
-    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
+    public function __construct(
+        private $context = 'portal',
+        private $scope = 'redirect',
+        private $profile = 'default',
+        ?LoggerInterface $logger = null,
+    )
     {
-        $this->cryptoGen = new CryptoGen();
-        $this->systemLogger = new SystemLogger();
-        $this->session = SessionWrapperFactory::getInstance()->getWrapper();
+        $this->cryptoGen = ServiceContainer::getCrypto();
+        $this->systemLogger = $logger ?? ServiceContainer::getLogger();
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->globalsBag = OEGlobalsBag::getInstance();
     }
 
@@ -104,7 +109,7 @@ class OneTimeAuth
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
-            $site_addr = trim((string)$this->globalsBag->get('portal_onsite_two_address', ''));
+            $site_addr = trim($this->globalsBag->getString('portal_onsite_two_address'));
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);
@@ -158,8 +163,9 @@ class OneTimeAuth
         $t_info = [];
 
         if (strlen((string)$onetime_token) >= 64) {
-            if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
-                $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
+            $onetimeTokenStr = is_string($onetime_token) ? $onetime_token : null;
+            if ($this->cryptoGen->cryptCheckStandard($onetimeTokenStr)) {
+                $one_time = $this->cryptoGen->decryptStandard($onetimeTokenStr, minimumVersion: 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
@@ -188,8 +194,9 @@ class OneTimeAuth
         // However, leave the option of using embedded encrypted redirect.
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
-            if ($this->cryptoGen->cryptCheckStandard($redirect_token)) {
-                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, null, 'drive', 6);
+            $redirectTokenStr = is_string($redirect_token) ? $redirect_token : null;
+            if ($this->cryptoGen->cryptCheckStandard($redirectTokenStr)) {
+                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirectTokenStr, minimumVersion: 6);
                 $redirect_array = json_decode($redirect_decrypted, true);
                 $redirect = $redirect_array['to'];
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
@@ -378,7 +385,7 @@ class OneTimeAuth
         $extend = ($auth['actions']['extend_portal_visit'] ?? 1) ? 1 : 0;
         $this->session->set('portal_visit_extended', $extend);
 
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($this->session);
         header('Location: ' . $auth['redirect']);
 
         // allows logging and any other processing to be handled on the return

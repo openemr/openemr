@@ -16,24 +16,23 @@
 namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
+use OpenEMR\Modules\EhiExporter\Models;
+use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
+use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 use OpenEMR\Modules\EhiExporter\Services\ExportKeyDefinitionFilterer;
+use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOpenEmrPostCalendarEventsTableDefinition;
-use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
-use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
-use OpenEMR\Modules\EhiExporter\Models;
-use OpenEMR\Modules\EhiExporter\Models\ExportResult;
-use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
-use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
+use Psr\Log\LoggerInterface;
 
 class ExportState
 {
@@ -53,8 +52,12 @@ class ExportState
 
     private readonly ExportKeyDefinitionFilterer $keyFilterer;
 
-    public function __construct(private readonly SystemLogger $logger, public \SimpleXMLElement $rootNode, private readonly \SimpleXMLElement $metaNode, private readonly EhiExportJobTask $jobTask)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        public \SimpleXMLElement $rootNode,
+        private readonly \SimpleXMLElement $metaNode,
+        private readonly EhiExportJobTask $jobTask
+    ) {
         $this->queue = new \SplQueue();
         $this->result = new Models\ExportResult();
         $this->tableDefinitionsMap = [];

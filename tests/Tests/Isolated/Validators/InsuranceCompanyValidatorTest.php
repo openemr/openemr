@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\InsuranceCompanyValidator;
 use PHPUnit\Framework\TestCase;
 
 class InsuranceCompanyValidatorTest extends TestCase

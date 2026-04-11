@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -457,6 +458,8 @@ class QuestionnaireResponseService extends BaseService
         // todo add author and other meta
         $r_content = $this->jsonSerialize($fhirResponseOb);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $dataValues = [
             'uuid' => $qr_uuid
             , 'response_id' => $qr_id
@@ -464,8 +467,8 @@ class QuestionnaireResponseService extends BaseService
             , 'questionnaire_id' => $q_id
             , 'questionnaire_name' => $q_title
             // if its created by a patient we won't have an authUserID
-            , 'audit_user_id' => $update_flag ? ($_SESSION['authUserID'] ?? null) : null
-            , 'creator_user_id' => $_SESSION['authUserID'] ?? null
+            , 'audit_user_id' => $update_flag ? $session->get('authUserID') : null
+            , 'creator_user_id' => $session->get('authUserID')
             , 'version' => $update_flag ? (int)$id['version'] + 1 : 1
             , 'last_updated' => date("Y-m-d H:i:s")
             , 'patient_id' => $pid

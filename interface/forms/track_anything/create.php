@@ -15,7 +15,6 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
 use OpenEMR\Core\Header;
 
 formHeader("Form: Track anything");

@@ -10,7 +10,9 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $faxstats = [
 'B' => xl('Blocked'),
@@ -27,10 +29,10 @@ $mlines = [];
 $dlines = [];
 $slines = [];
 
-if ($GLOBALS['enable_hylafax']) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
-    exec("faxstat -r -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -50,7 +52,7 @@ if ($GLOBALS['enable_hylafax']) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = [];
-    exec("faxstat -s -d -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
@@ -61,8 +63,8 @@ if ($GLOBALS['enable_hylafax']) {
     ksort($dlines);
 }
 
-$scandir = $GLOBALS['scanner_output_directory'];
-if ($scandir && $GLOBALS['enable_scanner']) {
+$scandir = OEGlobalsBag::getInstance()->getString('scanner_output_directory');
+if ($scandir && OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);
     if (! $dh) {
@@ -83,6 +85,7 @@ if ($scandir && $GLOBALS['enable_scanner']) {
     ksort($slines);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -144,33 +147,33 @@ function refreshme() {
 
 // Process click on filename to view.
 function dodclick(ffname) {
- cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click on Job ID to view.
 function dojclick(jobid) {
- cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process scanned document filename to view.
 function dosvclick(sfname) {
- cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
-    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Scanned Dispatch');
+    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 850, 550, '', 'Scanned Dispatch');
 }
 
 </script>
@@ -181,21 +184,21 @@ function dosdclick(sfname) {
 <table class='w-100 h-100' cellspacing='0' cellpadding='0' style='margin: 0; border: 2px solid var(--black);' id='bigtable'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-    <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) { ?>
    style='color: var(--danger); border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
-    <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
-    <?php if ($GLOBALS['enable_scanner']) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) { ?>
    style='color: var(--gray); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--danger); border-bottom: 2px solid transparent; display:none;'
@@ -208,7 +211,7 @@ function dosdclick(sfname) {
    <form method='post' action='faxq.php'>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_faxin'
-    <?php if (!$GLOBALS['enable_hylafax']) {
+    <?php if (!OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>
@@ -227,9 +230,9 @@ foreach ($mlines as $matches) {
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
+    echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
     echo "     <td onclick='domclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($matches[3]) . "</td>\n";
     echo "     <td>" . text($matches[2]) . "</td>\n";
     echo "     <td align='right'>" . text($matches[1]) . "</td>\n";
@@ -268,7 +271,7 @@ foreach ($dlines as $matches) {
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
-     "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" .
+     "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$jobid</a></td>\n";
     echo "     <td>" . text($matches[5]) . "</td>\n";
     echo "     <td>" . text($matches[6]) . "</td>\n";
@@ -281,7 +284,7 @@ foreach ($dlines as $matches) {
    </table>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_scanin'
-    <?php if ($GLOBALS['enable_hylafax']) {
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>
@@ -298,10 +301,10 @@ foreach ($slines as $sline) {
     $sfdate = date('Y-m-d H:i', $sline[9]);
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dosvclick(\"" . attr(addslashes($sfname)) . "\")'>" .
-     "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" .
+     "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$sfname</a></td>\n";
     echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($sfdate) . "</td>\n";
     echo "     <td align='right'>" . text($sline[7]) . "</td>\n";
     echo "    </tr>\n";

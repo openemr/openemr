@@ -17,8 +17,8 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\AddressService;
 use OpenEMR\Services\Address\AddressData;
+use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

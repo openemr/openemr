@@ -2,15 +2,14 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
-use OpenEMR\Services\UserService;
-use Symfony\Component\HttpFoundation\Response;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -26,7 +25,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     public function shouldProcessRequest(Request $request): bool
     {
         if ($request->headers->has("APICSRFTOKEN")) {
-            $request->attributes->set("_is_local_api", true);
+            $request->attributes->set("is_local_api", true);
             // this is a local api request, so we should process it
             return true;
         }
@@ -52,7 +51,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             $csrfFail = true;
         }
 
-        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, 'api', $session))) {
+        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, $session, 'api'))) {
             $this->logger->error("OpenEMR Error: internal api failed because csrf token did not match");
             $csrfFail = true;
         }

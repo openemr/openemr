@@ -11,7 +11,12 @@
 
 namespace OpenEMR\Services\FHIR\QuestionnaireResponse;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use BadMethodCallException;
+use DateTime;
+use DateTimeInterface;
+use InvalidArgumentException;
+use JsonException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
@@ -41,12 +46,6 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use InvalidArgumentException;
-use JsonException;
-use DateTime;
-use DateTimeInterface;
-use BadMethodCallException;
-use Exception;
 
 class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
 {
@@ -183,11 +182,9 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         } catch (JsonException $exception) {
             // log the error and move on
             $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
-            (new SystemLogger())->errorLogCaller(
+            ServiceContainer::getLogger()->error(
                 "Unable to parse questionnaire json",
-                ['uuid' => $dataRecord['uuid'] ?? '', 'message' => $exception->getMessage()
-                ,
-                'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
             );
         }
         $fhirResource = new OpenEMRFhirQuestionnaireResponse($innerData);
@@ -386,7 +383,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
             $processingResult->addData($saved['response_id']);
             return $processingResult;
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
             $processingResult = new ProcessingResult();
             $processingResult->setInternalErrors("Server Error in creating QuestionnaireResponse resource");
             return $processingResult;

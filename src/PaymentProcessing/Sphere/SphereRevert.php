@@ -15,10 +15,13 @@ namespace OpenEMR\PaymentProcessing\Sphere;
 
 use Exception;
 use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 
 class SphereRevert
 {
@@ -52,19 +55,13 @@ class SphereRevert
      */
     private $returnUrl;
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(string $front)
+    public function __construct(string $front, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
 
         if (!in_array($front, ['patient', 'clinic-phone', 'clinic-retail'])) {
             $this->logger->error("SphereRevert getToken front needs to be patient or clinic-phone or clinic-retail. Exiting.");
@@ -74,22 +71,22 @@ class SphereRevert
 
         $this->authGlobalPin = new AuthGlobal('sphere_credit_void_confirm_pin');
 
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         if ($front == 'patient') {
-            $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
-            $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_ecomm_tc_link_pass']);
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_ecomm_tc_link_pass'));
         } elseif ($front == 'clinic-retail') {
-            $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid']);
-            $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_retail_tc_link_pass']);
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_retail_tc_link_pass'));
         } else { // $front == 'clinic-phone'
-            $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid']);
-            $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_moto_tc_link_pass']);
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_moto_tc_link_pass'));
         }
 
         $this->client = new Client(['base_uri' => Sphere::TRUSTEE_API_URL]);
 
         // Calculate the OpenEMR server returnUrl
-        $this->returnUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/sphere/initial_response.php';
+        $this->returnUrl = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('web_root') . '/sphere/initial_response.php';
     }
 
     /**
@@ -111,6 +108,7 @@ class SphereRevert
             throw new Exception(xl('Incorrect confirmation PIN'));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Note that the returnurl needs to match the returnUrl that is created in processSphereRevert() js function, so
         //  if modify this, also need to modify there
         $response = $this->client->request('POST', 'token.php', [
@@ -119,7 +117,7 @@ class SphereRevert
                 'aggregator1' => Sphere::AGGREGATOR_ID,
                 'custid' => $this->custid,
                 'password' => $this->custpass,
-                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode((string) CsrfUtils::collectCsrfToken("sphere_revert")),
+                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere_revert')),
                 'action' => $action,
                 'transid' => $transid
             ]
@@ -187,6 +185,7 @@ class SphereRevert
      */
     public static function renderRevertSphereJs(): string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return '
             function revertSphere(action, front, transId, uuidTx) {
                 dlgopen("", "", 300, 250, false, xl("Enter PIN code"), {
@@ -234,7 +233,7 @@ class SphereRevert
                 request.append("front", front);
                 request.append("trans_id", transId);
                 request.append("uuid_tx", uuidTx);
-                request.append("csrf_token", ' . js_escape(CsrfUtils::collectCsrfToken("sphere_revert_token")) . ');
+                request.append("csrf_token", ' . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere_revert_token')) . ');
 
                 top.restoreSession();
                 fetch(top.webroot_url + "/sphere/token.php", {
@@ -265,7 +264,7 @@ class SphereRevert
             function processSphereRevert(token, front, action, transId, uuidTx) {
                 // Note that the returnUrl needs to match the returnurl that is created in getToken() function, so
                 //  if modify this, also need to modify there
-                let returnUrl = ' . js_escape($GLOBALS["site_addr_oath"] . $GLOBALS["web_root"]) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken("sphere_revert")) . ';
+                let returnUrl = ' . js_escape(OEGlobalsBag::getInstance()->get("site_addr_oath") . OEGlobalsBag::getInstance()->get("web_root")) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken($session, 'sphere_revert')) . ';
                 let mainUrl = ' . js_escape(Sphere::TRUSTEE_API_URL) . ' + "payment.php?aggregators=1&aggregator1=" + ' . js_escape(Sphere::AGGREGATOR_ID) . ' + "&transid=" + encodeURIComponent(transId) + "&token=" + encodeURIComponent(token) + "&action=" + encodeURIComponent(action) + "&returnurl=" + encodeURIComponent(returnUrl);
                 dlgopen(mainUrl, "_blank", 950, 650, "", "Sphere " + action, {allowExternal: true});
             }

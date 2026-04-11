@@ -11,13 +11,11 @@
 
 namespace OpenEMR\Tests\Api;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -25,11 +23,12 @@ use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthorizationGrantFlowTest extends TestCase
 {
@@ -200,7 +199,7 @@ class AuthorizationGrantFlowTest extends TestCase
             "password" => "pass",
             // this is not to be confused with the other 'role' variables
             "user_role" => "api", // valid options are "api" or "portal-api"
-            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session)
+            "csrf_token_form" => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ], [], []);
         // we have to do overrideGlobals since AuthUtils will not work with the HttpRestRequest but instead requires superglobals
         $request->overrideGlobals();
@@ -245,7 +244,7 @@ class AuthorizationGrantFlowTest extends TestCase
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
         $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger(new SystemLogger(Level::Error));
+        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
         return $authController;
     }
 
@@ -281,7 +280,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $scopeArray = array_combine($scope, $scope);
         $originalSessionId = $session->getId();
         $request = HttpRestRequest::create("/oauth2/default" . AuthorizationController::DEVICE_CODE_ENDPOINT, "POST", [
-            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
+            "csrf_token_form" => CsrfUtils::collectCsrfToken($session, 'oauth2'),
             // this is an array of scopes [scopeIdentifier] => scopeIdentifier
             "scope" => $scopeArray,
             'proceed' => "1",
@@ -366,7 +365,7 @@ class AuthorizationGrantFlowTest extends TestCase
         // now we will make a post request to select a patient
         $patientSelectionSubmissionPage = $authController->authBaseFullUrl . SMARTAuthorizationController::PATIENT_SELECT_CONFIRM_ENDPOINT;
         $request = HttpRestRequest::create($patientSelectionSubmissionPage, "POST", [
-            "csrf_token" => CsrfUtils::collectCsrfToken('oauth2', $session),
+            "csrf_token" => CsrfUtils::collectCsrfToken($session, 'oauth2'),
             "patient_id" => "1", // assuming patient with ID 1 exists
             "proceed" => "1",
         ]);

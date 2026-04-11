@@ -15,7 +15,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Validators\ProcessingResult;
 
 class CareExperiencePreferenceService extends BaseService
 {

@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Tabs;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class TabsWrapper
 {
     public $tabs = [];
@@ -64,7 +66,8 @@ EOD;
           padding: .1em .4em;
         }
 EOD;
-            if ($_SESSION['language_direction'] == 'rtl') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if ($session->get('language_direction') === 'rtl') {
                 $s .= <<<EOD
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }
@@ -136,8 +139,8 @@ function twSetup(tabsid) {
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
     const self = $(this);
+    const panelId = self.parent().attr("href").substring(1);
     const closeTab = function() {
-        const panelId = self.parent().attr("href").substring(1);
         top.restoreSession();
         twCloseTab(tabsid, panelId);
     }
@@ -147,7 +150,7 @@ function twSetup(tabsid) {
         closeTab();
     }
 
-    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+    if (self.data('tab-label') === 'SOAP' && top.isSoapEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
             html: '<p>$modalContent</p>',
@@ -179,7 +182,12 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' id='" + label + "' role='close'>&times;</span></a> </li>";
+  var closeId = panelId + '-close';
+  var li = $("<li class='tabs-tabs'></li>");
+  var anchor = $("<a data-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
+  anchor.append(document.createTextNode(label));
+  anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId).attr('data-tab-label', label));
+  li.append(anchor);
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");

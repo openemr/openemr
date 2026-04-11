@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Common\Forms\Types;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Services\EncounterService;
 

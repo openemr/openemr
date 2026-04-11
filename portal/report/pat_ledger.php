@@ -593,7 +593,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 <td></td>
             </tr>
             <br /><br />
-                    <?php if ($globalsBag->get('print_next_appointment_on_ledger') == 1) {
+                    <?php if ($globalsBag->getBoolean('print_next_appointment_on_ledger')) {
                         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
 # add one day to date so it will not get todays appointment
                         $current_date2 = date('Y-m-d', $next_day);

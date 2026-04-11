@@ -13,9 +13,6 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
-use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
-use OpenEMR\Modules\ClaimRevConnector\InformationReceiver;
-use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 
 class ClaimRevRteService
 {

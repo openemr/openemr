@@ -13,7 +13,6 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -23,18 +22,21 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+// Email verification flow uses migrate() and writes to session
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 $session->migrate(true);
 
-$session->remove('itsme');
-$session->set('verifyPortalEmail', true);
+SessionUtil::unsetSession('itsme');
+SessionUtil::setSession('verifyPortalEmail', true);
 
 $ignoreAuth_onsite_portal = true;
 require_once("../../interface/globals.php");
 
 $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -42,10 +44,10 @@ if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->
 }
 
 // set up csrf
-CsrfUtils::setupCsrfKey($session->getSymfonySession());
+CsrfUtils::setupCsrfKey($session);
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [
-    $globalsBag->get('language_default')
+    $globalsBag->getString('language_default')
 ]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
@@ -60,7 +62,7 @@ if (count($result2) == 1) {
 }
 
 if (!$session->has('language_choice')) {
-    $session->set('language_choice', $defaultLangID);
+    SessionUtil::setSession('language_choice', $defaultLangID);
 }
 // collect languages if showing language menu
 if ($globalsBag->get('language_menu_login')) {
@@ -223,7 +225,7 @@ if ($globalsBag->get('language_menu_login')) {
         </div>
         <!-- // Start Forms // -->
         <form id="startForm" role="form" action="account.php?action=verify_email" method="post">
-            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf', $session->getSymfonySession())); ?>' />
+            <input type='hidden' name='csrf_token_form' value='<?php echo CsrfUtils::collectCsrfToken($session, 'verifyEmailCsrf'); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">
@@ -235,15 +237,15 @@ if ($globalsBag->get('language_menu_login')) {
                                 echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                                 foreach ($result3 as $iter) {
-                                    if ($globalsBag->get('language_menu_showall')) {
-                                        if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                                    if ($globalsBag->getBoolean('language_menu_showall')) {
+                                        if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
                                         echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                             text($iter['trans_lang_description']) . "</option>\n";
                                     } else {
                                         if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
-                                            if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                                            if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                                 continue; // skip the dummy language
                                             }
                                             echo "<option value='" . attr($iter['lang_id']) . "'>" .
@@ -283,7 +285,7 @@ if ($globalsBag->get('language_menu_login')) {
                     </div>
                     <div class="form-group">
                         <div class="d-flex justify-content-center">
-                            <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->get('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
+                            <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->getString('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
                         </div>
                     </div>
                 </div>

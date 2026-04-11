@@ -179,7 +179,7 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance contains either validation or internal errors.
+     * @return bool True if the instance contains either validation or internal errors.
      */
     public function hasErrors()
     {

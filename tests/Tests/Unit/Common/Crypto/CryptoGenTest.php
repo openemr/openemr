@@ -15,12 +15,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Crypto;
 
-use Error;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
@@ -109,7 +107,7 @@ final class CryptoGenTest extends TestCase
         $result = $this->cryptoGen->encryptStandard('');
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
     }
 
     public function testEncryptStandardWithNullValue(): void
@@ -117,7 +115,7 @@ final class CryptoGenTest extends TestCase
         $result = $this->cryptoGen->encryptStandard(null);
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
     }
 
     public function testEncryptStandardWithValidValue(): void
@@ -127,19 +125,8 @@ final class CryptoGenTest extends TestCase
 
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
         $this->assertNotEquals($testValue, $result);
-    }
-
-    public function testEncryptStandardWithCustomPassword(): void
-    {
-        $testValue = 'test data';
-        $customPassword = 'mypassword123';
-        $result = $this->cryptoGen->encryptStandard($testValue, $customPassword);
-
-        $this->assertNotEmpty($result);
-        $this->assertIsString($result);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $result);
     }
 
     public function testEncryptStandardWithDatabaseKeySource(): void
@@ -155,11 +142,11 @@ final class CryptoGenTest extends TestCase
             ->willReturn(['value' => 'encoded_key_value']);
 
         $testValue = 'test data';
-        $result = $mockCryptoGen->encryptStandard($testValue, null, KeySource::DATABASE->value);
+        $result = $mockCryptoGen->encryptStandard($testValue, keySource: KeySource::Database);
 
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
     }
 
     public function testDecryptStandardWithEmptyValue(): void
@@ -181,18 +168,6 @@ final class CryptoGenTest extends TestCase
         $encrypted = $this->cryptoGen->encryptStandard($originalValue);
         $this->assertIsString($encrypted);
         $decrypted = $this->cryptoGen->decryptStandard($encrypted);
-
-        $this->assertEquals($originalValue, $decrypted);
-    }
-
-    public function testEncryptDecryptRoundTripWithCustomPassword(): void
-    {
-        $originalValue = 'Test data with custom password';
-        $customPassword = 'secret123';
-
-        $encrypted = $this->cryptoGen->encryptStandard($originalValue, $customPassword);
-        $this->assertIsString($encrypted);
-        $decrypted = $this->cryptoGen->decryptStandard($encrypted, $customPassword);
 
         $this->assertEquals($originalValue, $decrypted);
     }
@@ -256,11 +231,9 @@ final class CryptoGenTest extends TestCase
 
     public function testAes256DecryptTwoWithValidData(): void
     {
-        // This tests backward compatibility with version 2 encryption
-        // We need to create a properly formatted version 2 encrypted value
-
-        // For now, test that the method exists and handles invalid data
-        $result = $this->cryptoGen->aes256DecryptTwo('invalid_data');
+        // This tests backward compatibility with version 2 encryption via the public API
+        // Test that invalid data returns false when routed through decryptStandard
+        $result = $this->cryptoGen->decryptStandard('002' . 'invalid_data');
         $this->assertFalse($result);
     }
 
@@ -269,15 +242,15 @@ final class CryptoGenTest extends TestCase
     {
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         // Test creating a new key
-        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key)); // 256 bits = 32 bytes
 
         // Test retrieving the same key (should be cached)
-        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertEquals($key, $key2);
     }
 
@@ -287,7 +260,7 @@ final class CryptoGenTest extends TestCase
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['sqlQueryNoLog', 'sqlStatementNoLog', 'getRandomBytes'])->getMock();
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         $testKey = 'random_32_byte_key_for_testing!!';
         $this->assertEquals(32, strlen($testKey), 'Test key must be exactly 32 bytes long');
@@ -309,7 +282,7 @@ final class CryptoGenTest extends TestCase
 
         $reflection = new ReflectionMethod($mockCryptoGen, 'collectCryptoKey');
 
-        $key = $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
+        $key = $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::Database);
         $this->assertIsString($key);
         $this->assertEquals($key, $testKey);
     }
@@ -327,36 +300,10 @@ final class CryptoGenTest extends TestCase
 
         // Test older versions that don't encrypt the key on drive
         foreach ($legacyVersions as $keyVersion) {
-            $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+            $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
             $this->assertIsString($key);
             $this->assertEquals(32, strlen($key));
         }
-    }
-
-    public function testFormatExceptionMessage(): void
-    {
-        $reflection = new ReflectionMethod($this->cryptoGen, 'formatExceptionMessage');
-
-        $stackTrace = [
-            [
-                'file' => '/test/file.php',
-                'line' => 123,
-                'class' => 'TestClass',
-                'type' => '->',
-                'function' => 'testMethod'
-            ],
-            [
-                'function' => 'anotherFunction'
-            ]
-        ];
-
-        $result = $reflection->invoke($this->cryptoGen, $stackTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Error Call Stack:', $result);
-        $this->assertStringContainsString('/test/file.php', $result);
-        $this->assertStringContainsString('123', $result);
-        $this->assertStringContainsString('TestClass->testMethod()', $result);
-        $this->assertStringContainsString('anotherFunction()', $result);
     }
 
     public function testDecryptStandardWithVersions(): void
@@ -379,8 +326,8 @@ final class CryptoGenTest extends TestCase
     {
         $reflection = new ReflectionProperty($this->cryptoGen, 'keyCache');
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
-        $keySource = KeySource::DRIVE;
+        $keyVersion = KeyVersion::CURRENT;
+        $keySource = KeySource::Drive;
 
         // Initially empty
         $this->assertEmpty($reflection->getValue($this->cryptoGen));
@@ -395,19 +342,6 @@ final class CryptoGenTest extends TestCase
         $cacheKeys = array_keys($cache);
         $expectedKey = "{$keyVersion->toString()}a{$keySource->value}";
         $this->assertContains($expectedKey, $cacheKeys, 'Cache should contain the expected key after collectCryptoKey call');
-    }
-
-    public function testDecryptWithWrongPassword(): void
-    {
-        $testData = 'sensitive data';
-        $password1 = 'password1';
-        $password2 = 'password2';
-
-        $encrypted = $this->cryptoGen->encryptStandard($testData, $password1);
-        $this->assertIsString($encrypted);
-        $decrypted = $this->cryptoGen->decryptStandard($encrypted, $password2);
-
-        $this->assertFalse($decrypted);
     }
 
     public function testLargeDataEncryption(): void
@@ -451,7 +385,7 @@ final class CryptoGenTest extends TestCase
 
         // Test all supported decryption versions
         foreach (KeyVersion::cases() as $keyVersion) {
-            if ($keyVersion === $this->cryptoGen::CURRENT_KEY_VERSION) {
+            if ($keyVersion === KeyVersion::CURRENT) {
                 // Test current version
                 $testData = 'test current version';
                 $encrypted = $this->cryptoGen->encryptStandard($testData);
@@ -482,11 +416,11 @@ final class CryptoGenTest extends TestCase
         // Test using drive keys instead of database to avoid SQL mocking complexity
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         // First call will create a key, second call should return the same key from cache
-        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
-        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
 
         $this->assertIsString($key1);
         $this->assertEquals(32, strlen($key1)); // 256-bit key should be 32 bytes
@@ -505,7 +439,7 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
 
         // Create a key with version 'five'
-        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key));
 
@@ -516,13 +450,13 @@ final class CryptoGenTest extends TestCase
         // The content should be encrypted (start with version prefix)
         $content = file_get_contents($keyFile);
         $this->assertIsString($content);
-        // $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() is correct here,
+        // KeyVersion::CURRENT->toPaddedString() is correct here,
         // which is the current version (currently '007' but this can be incremented in future)
         // The encryption version used to encrypt the key is not the same
         // as the version of the key itself. That is, while this key is
         // used to encrypt/decrypt data encrypted with version five encryption
         // the key itself is encrypted with current version encryption.
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $content);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $content);
     }
 
     public function testHmacValidationFailure(): void
@@ -539,39 +473,18 @@ final class CryptoGenTest extends TestCase
         // Tamper with the HMAC (first 48 bytes) by flipping bits in the first byte
         // Use XOR to guarantee the tampered byte is different from the original
         $tamperedRaw = chr(ord($raw[0]) ^ 0xFF) . substr($raw, 1);
-        $tamperedEncrypted = $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . base64_encode($tamperedRaw);
+        $tamperedEncrypted = KeyVersion::CURRENT->toPaddedString() . base64_encode($tamperedRaw);
 
         // This should fail HMAC validation and return false
         $result = $this->cryptoGen->decryptStandard($tamperedEncrypted);
         $this->assertFalse($result);
     }
 
-    public function testCustomPasswordHmacFailure(): void
-    {
-        // Test HMAC failure with custom password
-        $testData = 'test data';
-        $password = 'mypassword';
-        $encrypted = $this->cryptoGen->encryptStandard($testData, $password);
-
-        // Tamper with the encrypted data
-        $this->assertIsString($encrypted);
-        $withoutVersion = substr($encrypted, 3);
-        $raw = base64_decode($withoutVersion);
-
-        // Skip salt (32 bytes) and tamper with HMAC (next 48 bytes) by flipping bits
-        // Use XOR to guarantee the tampered byte is different from the original
-        $tamperedRaw = substr($raw, 0, 32) . chr(ord($raw[32]) ^ 0xFF) . substr($raw, 33);
-        $tamperedEncrypted = $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . base64_encode($tamperedRaw);
-
-        $result = $this->cryptoGen->decryptStandard($tamperedEncrypted, $password);
-        $this->assertFalse($result);
-    }
-
     public function testAes256DecryptTwoHmacFailure(): void
     {
-        // Test HMAC failure in aes256DecryptTwo
+        // Test HMAC failure in aes256DecryptTwo via the public API
         $fakeEncrypted = base64_encode(str_repeat('X', 100)); // Invalid HMAC
-        $result = $this->cryptoGen->aes256DecryptTwo($fakeEncrypted);
+        $result = $this->cryptoGen->decryptStandard('002' . $fakeEncrypted);
         $this->assertFalse($result);
     }
 
@@ -589,7 +502,7 @@ final class CryptoGenTest extends TestCase
         $testData = 'test';
         $encrypted = $this->cryptoGen->encryptStandard($testData); // Current version
         $this->assertIsString($encrypted);
-        $result = $this->cryptoGen->decryptStandard($encrypted, null, KeySource::DRIVE->value, $this->cryptoGen::CURRENT_KEY_VERSION->value + 1);
+        $result = $this->cryptoGen->decryptStandard($encrypted, minimumVersion: KeyVersion::CURRENT->value + 1);
         $this->assertFalse($result);
     }
 
@@ -631,16 +544,16 @@ final class CryptoGenTest extends TestCase
 
         $cacheProperty = new ReflectionProperty($this->cryptoGen, 'keyCache');
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         // Initially empty
         $this->assertEmpty($cacheProperty->getValue($this->cryptoGen));
 
         // Get a key
-        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
 
         // Getting the same key again should return cached version
-        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertEquals($key1, $key2, 'Second call should return cached key (same as first)');
 
         // Cache should now contain the key - verify by checking cache size
@@ -655,7 +568,7 @@ final class CryptoGenTest extends TestCase
         $encrypted = $this->cryptoGen->encryptStandard('');
         $this->assertNotEmpty($encrypted);
         $this->assertIsString($encrypted);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $encrypted);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $encrypted);
 
         $decrypted = $this->cryptoGen->decryptStandard($encrypted);
         $this->assertEquals('', $decrypted);
@@ -666,10 +579,10 @@ final class CryptoGenTest extends TestCase
         // Test using drive key source to avoid complex database mocking
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         // This will create a real key file on drive and return the key
-        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
 
         // Key should be a valid 32-byte string
         $this->assertIsString($key);
@@ -680,41 +593,8 @@ final class CryptoGenTest extends TestCase
         $this->assertFileExists($keyFilePath);
 
         // Second call should return the same key from cache
-        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertEquals($key, $key2);
-    }
-
-    public function testFormatExceptionMessageEdgeCases(): void
-    {
-        $reflection = new ReflectionMethod($this->cryptoGen, 'formatExceptionMessage');
-
-        // Test with minimal stack trace
-        $minimalTrace = [
-            ['function' => 'testFunction']
-        ];
-        $result = $reflection->invoke($this->cryptoGen, $minimalTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('testFunction()', $result);
-
-        // Test with empty stack trace
-        $result = $reflection->invoke($this->cryptoGen, []);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Error Call Stack:', $result);
-
-        // Test with stack trace missing some fields
-        $partialTrace = [
-            [
-                'class' => 'TestClass',
-                'file' => '/test.php',
-                'function' => 'method',
-                'type' => '::'
-            ]
-        ];
-        $result = $reflection->invoke($this->cryptoGen, $partialTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('/test.php', $result);
-        $this->assertStringContainsString('TestClass', $result);
-        $this->assertStringContainsString('method()', $result);
     }
 
     public function testReadExistingOlderVersionKeys(): void
@@ -729,7 +609,7 @@ final class CryptoGenTest extends TestCase
         $testKey = base64_encode('test_older_key_32_bytes_for_testing!');
         file_put_contents("{$keyDir}/{$keyVersion->toString()}a", $testKey);
 
-        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertEquals(base64_decode($testKey), $key);
     }
 
@@ -750,8 +630,8 @@ final class CryptoGenTest extends TestCase
         // Create an encrypted key file using the mock
         $keyDir = $this->testSiteDir . '/documents/logs_and_misc/methods';
         $rawKey = 'test_newer_key_32_bytes_for_test'; // Exactly 32 bytes
-        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, null, KeySource::DATABASE->value);
-        file_put_contents($keyDir . '/' . $this->cryptoGen::CURRENT_KEY_VERSION->toString() . 'x', $encryptedKey);
+        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, keySource: KeySource::Database);
+        file_put_contents($keyDir . '/' . KeyVersion::CURRENT->toString() . 'x', $encryptedKey);
 
         // Now test reading the key with a second mock for the decryption part
         $mockCryptoGenForDecryption = $this->getMockBuilder(CryptoGen::class)
@@ -764,13 +644,13 @@ final class CryptoGenTest extends TestCase
 
         $reflection = new ReflectionMethod($mockCryptoGenForDecryption, 'collectCryptoKey');
 
-        $key = $reflection->invoke($mockCryptoGenForDecryption, $this->cryptoGen::CURRENT_KEY_VERSION, 'x', KeySource::DRIVE);
+        $key = $reflection->invoke($mockCryptoGenForDecryption, KeyVersion::CURRENT, 'x', KeySource::Drive);
         $this->assertEquals($rawKey, $key);
     }
 
     public function testCorruptedKeyFileHandling(): void
     {
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
 
@@ -779,30 +659,9 @@ final class CryptoGenTest extends TestCase
         file_put_contents("{$keyDir}/{$keyVersion->toString()}a", 'invalid_encrypted_data');
 
         $this->expectException(CryptoGenException::class);
-        $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
     }
 
-
-    public function testCustomPasswordEncryptionPaths(): void
-    {
-        // Test custom password encryption to cover those specific code paths
-        $testData = 'test custom password encryption';
-        $password = 'test_password_123';
-
-        // This should exercise the custom password path in coreEncrypt
-        $encrypted = $this->cryptoGen->encryptStandard($testData, $password);
-        $this->assertNotEmpty($encrypted);
-        $this->assertIsString($encrypted);
-        $this->assertStringStartsWith($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString(), $encrypted);
-
-        // And the custom password path in coreDecrypt
-        $decrypted = $this->cryptoGen->decryptStandard($encrypted, $password);
-        $this->assertEquals($testData, $decrypted);
-
-        // Test wrong password to trigger HMAC failure path
-        $wrongDecrypted = $this->cryptoGen->decryptStandard($encrypted, 'wrong_password');
-        $this->assertFalse($wrongDecrypted);
-    }
 
     public function testAllCollectCryptoKeyPaths(): void
     {
@@ -815,7 +674,7 @@ final class CryptoGenTest extends TestCase
         $subs = ['', 'a', 'b'];
         foreach (KeyVersion::cases() as $keyVersion) {
             foreach ($subs as $sub) {
-                $key = $reflection->invoke($this->cryptoGen, $keyVersion, $sub, KeySource::DRIVE);
+                $key = $reflection->invoke($this->cryptoGen, $keyVersion, $sub, KeySource::Drive);
                 $this->assertIsString($key);
                 $this->assertEquals(32, strlen($key));
             }
@@ -826,42 +685,19 @@ final class CryptoGenTest extends TestCase
         $this->assertEquals(count(KeyVersion::cases()), $totalVersionsTested, 'All versions should be tested');
     }
 
-    public function testCoreDecryptCustomPasswordPath(): void
-    {
-        // Test coreDecrypt with custom password to cover those lines
-        $reflection = new ReflectionMethod($this->cryptoGen, 'coreDecrypt');
-
-        // Create a mock encrypted value with salt for custom password
-        $salt = str_repeat('S', 32); // 32 byte salt
-        $hmac = str_repeat('H', 48); // 48 byte HMAC
-        $iv = str_repeat('I', 16);   // 16 byte IV
-        $data = str_repeat('D', 32); // encrypted data
-
-        $mockEncrypted = base64_encode($salt . $hmac . $iv . $data);
-
-        // This should exercise the custom password decryption path
-        $result = $reflection->invoke($this->cryptoGen, $mockEncrypted, 'testpass');
-        $this->assertFalse($result); // Will fail HMAC validation but covers the code
-    }
-
-
     public function testAllExceptionPaths(): void
     {
         // Test various exception scenarios to improve coverage
 
         // Test with malformed encrypted data to trigger HMAC validation failures
-        $malformedData = $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . base64_encode(str_repeat('x', 100));
+        $malformedData = KeyVersion::CURRENT->toPaddedString() . base64_encode(str_repeat('x', 100));
         $result = $this->cryptoGen->decryptStandard($malformedData);
         $this->assertFalse($result);
 
-        // Test custom password with malformed data
-        $result2 = $this->cryptoGen->decryptStandard($malformedData, 'password');
-        $this->assertFalse($result2);
-
         // Test version 2 decrypt with malformed data
         $malformedV2 = '002' . base64_encode(str_repeat('y', 100));
-        $result3 = $this->cryptoGen->decryptStandard($malformedV2);
-        $this->assertFalse($result3);
+        $result2 = $this->cryptoGen->decryptStandard($malformedV2);
+        $this->assertFalse($result2);
     }
 
     /**
@@ -880,70 +716,6 @@ final class CryptoGenTest extends TestCase
         $this->expectException(CryptoGenException::class);
 
         $mockCryptoGen->encryptStandard('test data');
-    }
-
-    /**
-     * Test encryption failure when random bytes fail in custom password mode
-     */
-    public function testEncryptStandardRandomBytesFailCustomPassword(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'getRandomBytes'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(true);
-
-        // First call for salt generation returns empty (failure)
-        $mockCryptoGen->expects($this->once())
-            ->method('getRandomBytes')
-            ->with(32)
-            ->willReturn('');
-
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->encryptStandard('test data', 'custom_password');
-    }
-
-    /**
-     * Test encryption failure when IV generation fails
-     */
-    public function testEncryptStandardEmptyIV(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'getOpenSSLCipherIvLength', 'getRandomBytes', 'hashPbkdf2', 'hashHkdf'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(true);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('getOpenSSLCipherIvLength')
-            ->willReturn(16);
-
-        // Mock the key derivation functions for custom password
-        $mockCryptoGen->expects($this->once())
-            ->method('hashPbkdf2')
-            ->willReturn('derived_pre_key');
-
-        $mockCryptoGen->expects($this->exactly(2))
-            ->method('hashHkdf')
-            ->willReturn('derived_key');
-
-        // Handle salt generation and IV generation
-        $mockCryptoGen->expects($this->exactly(2))
-            ->method('getRandomBytes')
-            ->willReturnCallback(
-                function ($length) {
-                    return $length === 32 ? 'salt_32_bytes_long_generated!' : ''; // Salt succeeds, IV fails
-                }
-            );
-
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->encryptStandard('test data', 'custom_password');
     }
 
     /**
@@ -992,7 +764,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $mockCryptoGen->encryptStandard('non_empty_data', null, KeySource::DATABASE->value);
+        $mockCryptoGen->encryptStandard('non_empty_data', keySource: KeySource::Database);
     }
 
     /**
@@ -1009,7 +781,7 @@ final class CryptoGenTest extends TestCase
             ->willReturn(false);
 
         // Call with a current version encrypted value that will trigger coreDecrypt
-        $result = $mockCryptoGen->decryptStandard($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . 'test_data');
+        $result = $mockCryptoGen->decryptStandard(KeyVersion::CURRENT->toPaddedString() . 'test_data');
         $this->assertFalse($result);
     }
 
@@ -1020,23 +792,6 @@ final class CryptoGenTest extends TestCase
     /**
      * Test decryption failure when secret keys are empty
      */
-
-    /**
-     * Test aes256DecryptTwo failure when OpenSSL extension is not loaded
-     */
-    public function testAes256DecryptTwoOpenSSLNotLoaded(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(false);
-
-        $result = $mockCryptoGen->aes256DecryptTwo('test_data');
-        $this->assertFalse($result);
-    }
 
     /**
      * Test aes256DecryptTwo failure when secret keys are empty
@@ -1051,23 +806,6 @@ final class CryptoGenTest extends TestCase
      */
 
     /**
-     * Test aes256DecryptOne failure when OpenSSL extension is not loaded
-     */
-    public function testAes256DecryptOneOpenSSLNotLoaded(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(false);
-
-        $result = $mockCryptoGen->aes256DecryptOne('test_data');
-        $this->assertFalse($result);
-    }
-
-    /**
      * Test aes256DecryptOne failure when secret key is empty
      */
 
@@ -1076,7 +814,7 @@ final class CryptoGenTest extends TestCase
      */
     public function testCollectCryptoKeyDatabaseRandomBytesFailure(): void
     {
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['sqlQueryNoLog', 'getRandomBytes'])
@@ -1096,7 +834,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::Database);
     }
 
     /**
@@ -1105,10 +843,9 @@ final class CryptoGenTest extends TestCase
     public function testCollectCryptoKeyDriveRandomBytesFailure(): void
     {
         // Set up globals for file path
-        global $GLOBALS;
         $GLOBALS['OE_SITE_DIR'] = $this->testSiteDir;
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['getRandomBytes'])
@@ -1123,7 +860,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::Drive);
     }
 
     /**
@@ -1135,7 +872,7 @@ final class CryptoGenTest extends TestCase
             ->onlyMethods(['sqlQueryNoLog', 'createDatabaseKey'])
             ->getMock();
 
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
         // First call: key doesn't exist
         // Second call: key still empty after attempted creation
         $mockCryptoGen->expects($this->once())
@@ -1152,7 +889,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::Database);
     }
 
     /**
@@ -1167,7 +904,7 @@ final class CryptoGenTest extends TestCase
 
         $testKey = 'test_key_32_bytes_for_testing!!!'; // Exactly 32 bytes
         $this->assertEquals(32, strlen($testKey), 'Test key must be exactly 32 bytes long');
-        $keyVersion = $this->cryptoGen::CURRENT_KEY_VERSION;
+        $keyVersion = KeyVersion::CURRENT;
 
         // Mock random bytes generation to return our test key
         $mockCryptoGen->expects($this->once())
@@ -1198,7 +935,7 @@ final class CryptoGenTest extends TestCase
         $this->expectException(CryptoGenException::class);
         $this->expectExceptionMessage('The newly created key could not be stored or encoded correctly.');
 
-        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::Database);
     }
 
     /**
@@ -1227,93 +964,7 @@ final class CryptoGenTest extends TestCase
         $this->expectException(CryptoGenException::class);
 
         // This calls encryptStandard which internally calls collectCryptoKey
-        $mockCryptoGen->encryptStandard('test data', null, KeySource::DRIVE->value);
-    }
-
-    /**
-     * Expect to throw a CryptoGenException if hashing fails on a custom password in coreEncrypt.
-     */
-    public function testCustomPassEncryptHashFail(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hashPbkdf2', 'hashHkdf'])
-            ->getMock();
-
-        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
-        $mockCryptoGen->method('hashPbkdf2')->willReturn('hashPbkdf2 value');
-        $mockCryptoGen->method('hashHkdf')->willReturn('');
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->encryptStandard('test data', 'custom password');
-    }
-
-    /**
-     * Expect it to return false if hashing fails on a custom password in coreDecrypt.
-     */
-    public function testCustomPassDecryptHashFail(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hashPbkdf2', 'hashHkdf'])
-            ->getMock();
-
-        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
-        $mockCryptoGen->method('hashPbkdf2')->willReturn('hashPbkdf2 value');
-        $mockCryptoGen->method('hashHkdf')->willReturn('');
-        $this->assertFalse($mockCryptoGen->decryptStandard($this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . 'test data', 'custom password'));
-    }
-
-    /**
-     * Expect it to return false if hashing fails on a custom password in aes256DecryptTwo.
-     */
-    public function testCustomPassAesTwoDecryptHashFail(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hash'])
-            ->getMock();
-
-        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
-        $mockCryptoGen->method('hash')->willReturn('');
-
-        $this->assertFalse($mockCryptoGen->aes256DecryptTwo('test data', 'custom password'));
-    }
-
-    /**
-     * Expect it to return false if hashing fails on a custom password in aes256DecryptOne.
-     */
-    public function testCustomPassAesOneDecryptHashFail(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hash'])
-            ->getMock();
-
-        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
-        $mockCryptoGen->method('hash')->willReturn('');
-
-        $this->assertFalse($mockCryptoGen->aes256DecryptOne('test data', 'custom password'));
-    }
-
-    /**
-     * Test that aes256DecryptTwo works with a custom password.
-     */
-    public function testAes256DecryptTwoWithCustomPassword(): void
-    {
-        $rawTestData = 'This is a test string that is approximately one hundred characters long for testing purposes here';
-        $testData = base64_encode($rawTestData);
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded', 'openSSLDecrypt', 'hashEquals', 'hash'])
-            ->getMock();
-
-        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
-        $mockCryptoGen->method('hash')->willReturn('hash value');
-        $mockCryptoGen->method('hashEquals')->willReturn(true);
-        $encryptedData = mb_substr($rawTestData, 48, null, '8bit');
-        $iv = mb_substr($rawTestData, 32, 16, '8bit');
-        $mockCryptoGen->expects($this->once())
-            ->method('openSSLDecrypt')
-            ->with($encryptedData, 'aes-256-cbc', 'hash value', $iv)
-            ->willReturn('decrypted data');
-
-        $mockCryptoGen->aes256DecryptTwo($testData, 'custom password');
+        $mockCryptoGen->encryptStandard('test data', keySource: KeySource::Drive);
     }
 
     /**

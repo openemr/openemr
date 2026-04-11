@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Events\Services;
 
-use OpenEMR\Services\BaseService;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class LogoFilterEvent extends Event

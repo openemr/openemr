@@ -163,12 +163,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
 use createProcessingResultResponse\\(\\) instead\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
-use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
 ];
 $ignoreErrors[] = [
@@ -206,6 +200,12 @@ $ignoreErrors[] = [
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method produceRandomBytes\\(\\) of class OpenEMR\\\\Common\\\\Utils\\\\RandomGenUtils\\:
+Use random_bytes\\(\\) directly$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/RandomGenUtilsTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:

@@ -35,9 +35,12 @@ require_once("$srcdir/api.inc.php");
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -81,7 +84,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
         <h3><?php echo text($str_form_name); ?></h3>
         <form method=post action="<?php echo $rootdir; ?>/forms/phq9/save.php?mode=<?php echo attr_url($viewmode); ?>&id=<?php echo attr_url($_GET['id'] ?? 0); ?>" name="my_form"<?php if (!$obj) {
             ?> onSubmit="return(check_all());"<?php }?>>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="title"><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></div>
             <hr />
             <table>
@@ -324,7 +327,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                     var conf = confirm(<?php echo js_escape($str_nosave_confirm); ?>);
 
                     if (conf) {
-                        window.location.href = "<?php echo $GLOBALS['form_exit_url']; ?>";
+                        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
                     }
                     return (conf);
                 }

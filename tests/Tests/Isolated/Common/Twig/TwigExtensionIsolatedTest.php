@@ -14,15 +14,11 @@ namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigExtension;
 use OpenEMR\Core\OEGlobalsBag;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 #[Group('isolated')]
 #[Group('twig')]
-#[CoversClass(TwigExtension::class)]
-#[CoversMethod(TwigExtension::class, 'getGlobals')]
 class TwigExtensionIsolatedTest extends TestCase
 {
     public function testGetGlobals(): void

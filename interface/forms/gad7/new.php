@@ -14,7 +14,11 @@
 require_once("gad7.inc.php"); //common strings, require_once(globals.php), other includes  etc
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -57,7 +61,7 @@ function create_q8(question, menu){
 }
 </script>
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all(true));" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br></br>
 <span><font size=4><?php echo text($str_form_name); ?></font></span>
 <br></br>
@@ -198,7 +202,7 @@ var conf = true;
         conf = confirm (<?php echo js_escape($str_nosave_confirm) ; ?>);
     }
     if (conf) {
-        window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
+        window.location.href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
     }
     return ( conf );
 }

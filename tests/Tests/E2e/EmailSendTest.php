@@ -15,10 +15,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use MyMailer;
-use OpenEMR\Tests\E2e\Email\EmailTestingTrait;
 use OpenEMR\Tests\E2e\Email\EmailTestData;
-use PHPUnit\Framework\Attributes\Test;
+use OpenEMR\Tests\E2e\Email\EmailTestingTrait;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class EmailSendTest extends TestCase

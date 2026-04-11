@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -22,11 +22,7 @@ use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
-use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\SearchComparator;
-use OpenEMR\Services\Search\TokenSearchField;
 
 trait FhirBulkExportDomainResourceTrait
 {
@@ -64,7 +60,7 @@ trait FhirBulkExportDomainResourceTrait
                     // empty files with no data?
                     return; // nothing to export here as we have no patients
                 }
-                (new SystemLogger())->debug(
+                ServiceContainer::getLogger()->debug(
                     "FhirBulkExportDomainResourceTrait->export() filtering by patient uuids",
                     ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => $this::class]
                 );

@@ -15,8 +15,8 @@ $backpic = "";
 $ignoreAuth = 1;
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
-require_once($GLOBALS['srcdir'] . "/reminders.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/maviq_phone_api.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/reminders.php");
 
 use OpenEMR\Core\Header;
 

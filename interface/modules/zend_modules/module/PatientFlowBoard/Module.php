@@ -18,7 +18,6 @@
 
 namespace PatientFlowBoard;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\ZendModules\PatientFlowBoard\Listener\PatientFlowBoardEventsSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

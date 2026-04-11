@@ -14,10 +14,10 @@ require_once(__DIR__ . "/../../interface/globals.php");
 require_once(__DIR__ . "/../report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 //  Collect/bookmark a new report id in report_results sql table and send it back.
 echo bookmarkReportDatabase();

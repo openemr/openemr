@@ -15,11 +15,10 @@
 namespace OpenEMR\Patient\Cards;
 
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Events\Patient\Card\Card;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PortalCard extends CardModel
 {
@@ -65,7 +64,6 @@ class PortalCard extends CardModel
     // used in twigs
     private function setOpts()
     {
-        global $GLOBALS;
         global $pid;
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
@@ -87,7 +85,7 @@ class PortalCard extends CardModel
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
-                'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
+                'portalLoginHref' => OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),
