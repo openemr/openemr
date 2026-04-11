@@ -1,0 +1,146 @@
+name: Test Front Controller
+
+on:
+  pull_request:
+    paths:
+      - 'docker/frontcontroller/**'
+      - 'config/**'
+      - 'public/index.php'
+      - '.github/workflows/test-frontcontroller.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.webserver }} / ${{ matrix.suite }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        webserver:
+          - nginx
+          - apache-fpm
+          - apache-modphp
+        suite:
+          - api
+          - e2e
+    defaults:
+      run:
+        working-directory: docker/frontcontroller
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+        options: --shm-size=2gb
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+        working-directory: .
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine services to start
+        id: services
+        run: |
+          case "${{ matrix.webserver }}" in
+            nginx|apache-fpm)
+              echo "services=${{ matrix.webserver }} php-fpm mysql" >> "$GITHUB_OUTPUT"
+              echo "php_container=php-fpm" >> "$GITHUB_OUTPUT"
+              ;;
+            apache-modphp)
+              echo "services=apache-modphp mysql" >> "$GITHUB_OUTPUT"
+              echo "php_container=apache-modphp" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Build and start services
+        run: |
+          docker compose up -d --build --wait --wait-timeout 120 ${{ steps.services.outputs.services }}
+
+      - name: Show running containers
+        run: docker compose ps
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; then
+              echo "MySQL is ready"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+
+      - name: Set permissions
+        run: |
+          docker compose exec -T ${{ steps.services.outputs.php_container }} sh -c '
+            chmod 666 sites/default/sqlconf.php
+            chmod -R 777 sites/default/documents
+          '
+
+      - name: Install OpenEMR
+        run: |
+          docker compose exec -T ${{ steps.services.outputs.php_container }} \
+            php -f contrib/util/installScripts/InstallerAuto.php \
+              rootpass=root \
+              server=mysql \
+              loginhost=%
+
+      - name: Configure globals for API
+        run: |
+          docker compose exec -T mysql mysql -u root -proot openemr -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
+            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
+          "
+
+      - name: Get webserver port
+        id: port
+        run: |
+          port=$(docker compose port ${{ matrix.webserver }} 80 | cut -d: -f2)
+          echo "port=$port" >> "$GITHUB_OUTPUT"
+          echo "Webserver available at http://localhost:$port"
+
+      - name: Verify webserver responds
+        run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:${{ steps.port.outputs.port }}
+          SELENIUM_BASE_URL: http://localhost:${{ steps.port.outputs.port }}
+          SELENIUM_HOST: localhost
+          SELENIUM_USE_GRID: "true"
+        run: |
+          php -d memory_limit=4G vendor/bin/phpunit \
+            --testsuite ${{ matrix.suite }} \
+            --log-junit junit-${{ matrix.suite }}.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-${{ matrix.webserver }}-${{ matrix.suite }}
+          path: junit-*.xml
+          if-no-files-found: ignore
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
