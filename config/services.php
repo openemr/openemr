@@ -21,6 +21,7 @@ use Monolog\{
     Logger,
     Processor\PsrLogMessageProcessor,
 };
+use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Core\ErrorHandler;
 use Psr\Log\LoggerInterface;
@@ -37,6 +38,12 @@ return [
         // Once there are more well-defined environments, set this using them
         shouldDisplayErrors: false,
     ),
+
+    FallbackRouter::class => fn (TC $c) => new FallbackRouter(
+        installRoot: $c->getString('installRoot'),
+        logger: $c->get(LoggerInterface::class),
+    ),
+
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
         // Duplicated from setup in SystemLogger (for now)

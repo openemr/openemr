@@ -3409,10 +3409,10 @@ class InstallerTest extends TestCase
      *
      *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
      *
-     * The fix inserts a single space between concatenated lines, restoring
-     * valid token separation.
+     * The fix inserts a newline between concatenated lines, restoring
+     * valid token separation and ensuring SQL comments terminate correctly.
      */
-    public function testLoadFileInsertsSpaceSeparatorBetweenSqlLines(): void
+    public function testLoadFileInsertsNewlineSeparatorBetweenSqlLines(): void
     {
         $mockInstaller = $this->buildLoadFileMock();
         $mockResource = fopen('php://memory', 'w+');
@@ -3464,13 +3464,90 @@ class InstallerTest extends TestCase
         $completeUpdateStatement = $executedSql[2] ?? '';
         $this->assertIsString($completeUpdateStatement);
 
-        // Must contain "0 WHERE" (with space), not "0WHERE" (fused)
-        $this->assertStringContainsString('0 WHERE', $completeUpdateStatement);
+        // Must contain "0\nWHERE" (with newline), not "0WHERE" (fused)
+        $this->assertStringContainsString("0\nWHERE", $completeUpdateStatement);
         $this->assertStringNotContainsString('0WHERE', $completeUpdateStatement);
 
-        // Must contain "10 AND" (with space), not "10AND" (fused)
-        $this->assertStringContainsString('10 AND', $completeUpdateStatement);
+        // Must contain "10\nAND" (with newline), not "10AND" (fused)
+        $this->assertStringContainsString("10\nAND", $completeUpdateStatement);
         $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
+    }
+
+    /**
+     * Verify that a mid-line "--" comment does not swallow the next line.
+     *
+     * Regression test for #11465: when lines are joined with a space,
+     * a trailing "--" comment extends to the end of the single
+     * concatenated line, silently absorbing the continuation clause.
+     * With a newline separator the comment terminates at the line
+     * boundary, preserving the WHERE clause.
+     *
+     * Input (two file lines forming one statement):
+     *
+     *   UPDATE t SET col = 0 -- reset value
+     *   WHERE id = 1;
+     *
+     * Old behaviour (space join):
+     *   "UPDATE t SET col = 0 -- reset value WHERE id = 1;"
+     *   → "--" swallows "WHERE id = 1;" → UPDATE with no WHERE
+     *
+     * New behaviour (newline join):
+     *   "UPDATE t SET col = 0 -- reset value\nWHERE id = 1;"
+     *   → "--" ends at newline → WHERE clause preserved
+     */
+    public function testLoadFileDoesNotSwallowStatementAfterDashDashComment(): void
+    {
+        $mockInstaller = $this->buildLoadFileMock();
+        $mockResource = fopen('php://memory', 'w+');
+
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/path/to/test.sql', 'r')
+            ->willReturn($mockResource);
+
+        $eofCallCount = 0;
+        $mockInstaller->expects($this->exactly(3))
+            ->method('atEndOfFile')
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
+                $eofCallCount++;
+                return $eofCallCount > 2;
+            });
+
+        $mockInstaller->expects($this->exactly(2))
+            ->method('getLine')
+            ->with($mockResource)
+            ->willReturnOnConsecutiveCalls(
+                "UPDATE t SET col = 0 -- reset value\n",
+                "WHERE id = 1;\n"
+            );
+
+        $executedSql = [];
+        $mockInstaller->expects($this->exactly(5))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$executedSql) {
+                $executedSql[] = $sql;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('closeFile')
+            ->with($mockResource)
+            ->willReturn(true);
+
+        $result = $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('OK', $result);
+
+        // executedSql: [SET autocommit=0, START TRANSACTION, UPDATE…, COMMIT, SET autocommit=1]
+        $updateStatement = $executedSql[2] ?? '';
+        $this->assertIsString($updateStatement);
+
+        // The newline must separate the comment from the WHERE clause
+        $this->assertStringContainsString("-- reset value\nWHERE id = 1", $updateStatement);
+        // The comment must not have fused with the WHERE clause
+        $this->assertStringNotContainsString('-- reset value WHERE', $updateStatement);
+        $this->assertStringNotContainsString('-- reset valueWHERE', $updateStatement);
     }
 
     /**

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -51,6 +52,12 @@ class PatientMenuRole extends MenuRole
     {
         // Collect the selected menu of user
         $patientMenuRole = $this->getMenuRole();
+
+        // Validate that the menu role filename is a basename only (no path traversal)
+        if ($patientMenuRole !== basename($patientMenuRole) || str_contains($patientMenuRole, '..')) {
+            ServiceContainer::getLogger()->error("Invalid menu role filename rejected", ['filename' => $patientMenuRole]);
+            die("\nInvalid menu role filename.");
+        }
 
         // Load the selected menu
         if (str_ends_with($patientMenuRole, '.json')) {

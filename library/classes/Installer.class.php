@@ -481,14 +481,12 @@ class Installer
                 continue;
             }
 
-            // Insert a single space separator between concatenated lines.
-            // Without it, a continuation line starting at column 0 would
-            // fuse with the previous token (e.g. "= 0" + "WHERE" → "0WHERE",
-            // see #10935). getLine() is unbounded, so every call returns a
-            // complete logical line and the separator is always safe to
-            // insert.
+            // Insert a newline separator between concatenated lines.
+            // A space would fuse a SQL "--" comment with the following line,
+            // swallowing it (see #11465). A newline terminates the comment
+            // at the line boundary as SQL requires.
             if ($query !== "") {
-                $query .= " ";
+                $query .= "\n";
             }
             $query .= $line;
             $chr = substr($query, strlen($query) - 1, 1);
