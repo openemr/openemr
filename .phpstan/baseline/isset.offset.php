@@ -2,7 +2,7 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'action\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'action\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
@@ -37,12 +37,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'post_sftp\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'post_sftp\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'blank\\-nav\\-button\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'blank\\-nav\\-button\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
@@ -70,16 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'components\' on array\\{fullcode\\: \'LOINC\\:76690\\-7\', code\\: \'76690\\-7\', description\\: \'Sexual Orientation\', column\\: \'sexual_orientation\', list_id\\: \'sexual_orientation\', category\\: \'social\\-history\', screening_category_code\\: null, screening_category_display\\: null, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset int on array\\{\\} in isset\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset OpenEMR\\\\Services\\\\Search\\\\ServiceField on array\\<OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\> in isset\\(\\) does not exist\\.$#',

@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\OpenEMRParticleValidator;
 use OpenEMR\Validators\OpenEMRChain;
+use OpenEMR\Validators\OpenEMRParticleValidator;
 use Particle\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 

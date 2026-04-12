@@ -1,4 +1,5 @@
 <?php
+
 /*
  * smtp.php
  *

@@ -14,15 +14,15 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
-use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 class TeleHealthProviderRepository
 {
     private readonly TeleHealthPersonSettingsRepository $personSettings;
 
-    public function __construct(SystemLogger $logger, private readonly TelehealthGlobalConfig $config)
+    public function __construct(LoggerInterface $logger, private readonly TelehealthGlobalConfig $config)
     {
         $this->personSettings = new TeleHealthPersonSettingsRepository($logger);
     }
@@ -47,10 +47,11 @@ class TeleHealthProviderRepository
         if ($this->config->shouldAutoProvisionProviders()) {
             // grab all the providers and return them as enabled settings
             $service = new UserService();
-            $facility = $_SESSION['pc_facility'] ?? "";
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $facility = $session->get('pc_facility') ?? "";
             $dataArray = $service->getUsersForCalendar($facility);
             if (empty($dataArray)) { // if our facility came back with nothing we will try to hit the current logged in user
-                $service->getUsersForCalendar($_SESSION['authUserID']);
+                $service->getUsersForCalendar($session->get('authUserID'));
             }
             if (!empty($dataArray)) {
                 $providers = array_map($this->mapProviderToPersonSetting(...), $dataArray);

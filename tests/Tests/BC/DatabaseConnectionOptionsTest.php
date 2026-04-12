@@ -15,13 +15,11 @@ namespace OpenEMR\Tests\BC;
 use InvalidArgumentException;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use PDO;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use SensitiveParameter;
 
-#[CoversClass(DatabaseConnectionOptions::class)]
 #[Small]
 class DatabaseConnectionOptionsTest extends TestCase
 {
@@ -76,8 +74,9 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
+        $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
+            $attrSslCa => '/path/to/ca.pem',
         ], $params['driverOptions'] ?? null);
     }
 
@@ -98,10 +97,13 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
+        $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
+        $attrSslCert = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CERT : PDO::MYSQL_ATTR_SSL_CERT;
+        $attrSslKey = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_KEY : PDO::MYSQL_ATTR_SSL_KEY;
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
-            PDO::MYSQL_ATTR_SSL_CERT => '/path/to/cert.pem',
-            PDO::MYSQL_ATTR_SSL_KEY => '/path/to/key.pem',
+            $attrSslCa => '/path/to/ca.pem',
+            $attrSslCert => '/path/to/cert.pem',
+            $attrSslKey => '/path/to/key.pem',
         ], $params['driverOptions'] ?? null);
     }
 

@@ -90,7 +90,6 @@ use OpenEMR\Core\Header;
                                 <li><?php echo xlt('ACL Administration (acl)');?></li>
                                 <li><?php echo xlt('Manage modules (manage_modules)');?> <i class="fa fa-exclamation-circle" style="color:blue" aria-hidden="true"></i>&nbsp;<strong><?php echo xlt("New in ACL Ver 7"); ?></strong></li>
                                 <li><?php echo xlt('Menu (menu)');?> <i class="fa fa-exclamation-circle" style="color:magenta" aria-hidden="true"></i>&nbsp;<strong><?php echo xlt("New in ACL Ver 6"); ?></strong></li>
-                                <li><?php echo xlt('Multipledb (multipledb)');?> <i class="fa fa-exclamation-circle oe-text-green" aria-hidden="true"></i>&nbsp;<strong><?php echo xlt("New in ACL Ver 5"); ?></strong></li>
 
                             </ul>
                         <li><strong><?php echo xlt('Encounter Information (encounters)');?></strong></li>

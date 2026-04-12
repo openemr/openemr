@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty shared plugin
  * @package Smarty

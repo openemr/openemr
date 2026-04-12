@@ -10,9 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+namespace OpenEMR\Modules\ClaimRevConnector;
 
-    use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ClaimRevModuleSetup
 {
@@ -22,7 +22,7 @@ class ClaimRevModuleSetup
 
     public static function doesPartnerExists()
     {
-        $x12Name = $GLOBALS['oe_claimrev_x12_partner_name'];
+        $x12Name = OEGlobalsBag::getInstance()->get('oe_claimrev_x12_partner_name');
         $sql = "SELECT * FROM x12_partners WHERE name = ?";
         $sqlarr = [$x12Name];
         $result = sqlStatementNoLog($sql, $sqlarr);

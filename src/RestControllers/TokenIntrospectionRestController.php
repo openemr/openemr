@@ -1,4 +1,5 @@
 <?php
+
 /*
  * TokenIntrospectionRestController.php  handles OAuth2 token introspection requests as per RFC 7662 and SMART on FHIR v2.2 specifications.
  *
@@ -16,6 +17,7 @@
 namespace OpenEMR\RestControllers;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
@@ -23,7 +25,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -38,7 +40,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Exception;
 
 class TokenIntrospectionRestController {
 
@@ -52,7 +53,7 @@ class TokenIntrospectionRestController {
 
     protected ?JsonWebKeyParser $jsonWebKeyParser = null;
 
-    protected ?CryptoGen $cryptoGen = null;
+    protected ?CryptoInterface $cryptoGen = null;
 
     protected ?TrustedUserService $trustedUserService = null;
 
@@ -168,14 +169,14 @@ class TokenIntrospectionRestController {
         $this->trustedUserService = $trustedUserService;
     }
 
-    public function getCryptoGen(): CryptoGen {
+    public function getCryptoGen(): CryptoInterface {
         if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
+            $this->cryptoGen = ServiceContainer::getCrypto();
         }
         return $this->cryptoGen;
     }
 
-    public function setCryptoGen(CryptoGen $cryptoGen): void {
+    public function setCryptoGen(CryptoInterface $cryptoGen): void {
         $this->cryptoGen = $cryptoGen;
     }
 
@@ -363,7 +364,7 @@ class TokenIntrospectionRestController {
                 }
                 // lets verify secret to prevent bad guys.
                 if (!empty($client['client_secret'])) {
-                    $decryptedSecret = $this->getCryptoGen()->decryptStandard($client['client_secret']);
+                    $decryptedSecret = $this->getCryptoGen()->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
                     if ($decryptedSecret !== $clientSecret) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
@@ -443,7 +444,7 @@ class TokenIntrospectionRestController {
         }
         catch (\Throwable $exception) {
             // something else went wrong
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['exception' => $exception, 'client_id' => $clientId]);
             // something else went wrong
             // NOTE : per RFC7662 we must return active:false on error for invalid tokens
             return $this->returnInactiveResponse($request);

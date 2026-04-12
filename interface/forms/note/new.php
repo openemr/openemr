@@ -19,11 +19,15 @@ require_once dirname(__FILE__, 3) . "/globals.php";
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 /* name of this form */
 $form_name = "note";
 ?>
@@ -32,14 +36,14 @@ $form_name = "note";
     <?php Header::setupHeader('datetime-picker'); ?>
     <script>
         // required for textbox date verification
-        const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        const mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -55,7 +59,7 @@ $form_name = "note";
         <div class="row">
             <div class="col-sm-12">
                 <form class="form" method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=new";?>" name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <div style="margin: 10px;">
                         <input type="button" class="btn btn-primary save" value="    <?php echo xla('Save'); ?>    "> &nbsp;

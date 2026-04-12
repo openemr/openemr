@@ -21,8 +21,9 @@
  * @link    https://www.open-emr.org
  */
 
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Function to add a document via the C_Document class.
  *
@@ -54,7 +55,7 @@ function addNewDocument(
 ) {
 
     if (empty($owner)) {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $owner = $session->get('authUserID');
     }
 

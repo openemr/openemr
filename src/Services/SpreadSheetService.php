@@ -18,7 +18,6 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use PhpOffice\PhpSpreadsheet\{
     IOFactory,
     Spreadsheet,

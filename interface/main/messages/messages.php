@@ -11,10 +11,12 @@
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @author Ray Magauran <magauran@medfetch.com>
  * @author Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017 MedEXBank.com
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,9 +31,14 @@ require_once("$srcdir/MedEx/API.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -39,7 +46,7 @@ $collectthis = empty($collectthis) ? "{}" : json_sanitize($collectthis[array_key
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
-if ($GLOBALS['medex_enable'] == '1') {
+if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
     if ($_REQUEST['SMS_bot']) {
         $result = $MedEx->login('');
         $MedEx->display->SMS_bot($result);
@@ -55,7 +62,9 @@ $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setti
 $uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
+$patient_id = UserSettingsService::prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
+$patient_name = UserSettingsService::prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
 
 if (
     (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
@@ -71,7 +80,7 @@ if (
     <?php
     //validation library
     $use_validate_js = 1;
-    require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+    require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
     ?>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -86,7 +95,7 @@ if (
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -101,7 +110,7 @@ if (
     </style>
 
 <?php
-if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
+if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu'])) && (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb'))) {
     $MedEx->display->navigation($logged_in);
     echo "<br /><br /><br />";
 }
@@ -139,15 +148,15 @@ if (!empty($_REQUEST['go'])) { ?>
 } else {
     //original message.php stuff
 
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 0) {
          $help_icon = '';
     }
     $heading_caption = xlt('Messages') . ', ' . xlt('Reminders');
-    if ($GLOBALS['disable_rcb'] != '1') {
+    if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) {
         $heading_caption .= ', ' . xlt('Recalls');
     }
 
@@ -185,7 +194,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <li class="nav-item" id='li-remi' role="presentation">
                         <a href='#reminders-div' id='reminders-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Reminders");?>" aria-selected="true"><?php echo xlt('Reminders'); ?></a>
                     </li>
-                    <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                    <?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
                     <li class="nav-item" id='li-reca' role="presentation">
                         <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
                     </li>
@@ -294,7 +303,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
-                                    if (checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                                    if (checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                         updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
                                         $noteid = '';
                                     } else {
@@ -332,11 +341,15 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Update alert.
                             $noteid = $_POST['noteid'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = $_POST['reply_to'];
+                            $reply_to_pid = filter_input(INPUT_POST, 'reply_to', FILTER_VALIDATE_INT) ?: 0;
+                            // IDOR protection: verify note is assigned to current user
+                            if (!checkPnotesNoteId($noteid, $session->get('authUser'))) {
+                                die("Message is not assigned to you. Update is disallowed.");
+                            }
                             if ($task == "save") {
                                 updatePnoteMessageStatus($noteid, $form_message_status);
                             } else {
-                                updatePnotePatient($noteid, $reply_to);
+                                updatePnotePatient($noteid, $reply_to_pid);
                             }
                             $task = "edit";
                             $note = $_POST['note'];
@@ -348,7 +361,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 die("There was an error processing your request.");
                             }
                             // Check to make sure the noteid is assigned to the user
-                            if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                            if (!checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                 die("Message is not assigned to you. Viewing is disallowed.");
                             }
                             // Update the message if it already exists; it's appended to an existing note in Patient Notes.
@@ -371,8 +384,12 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Delete selected message(s) from the Messages box (only).
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
+                                // IDOR protection: verify note is assigned to current user
+                                if (!checkPnotesNoteId($delete_id[$i], $_SESSION['authUser'])) {
+                                    continue; // skip notes not assigned to user
+                                }
                                 deletePnote($delete_id[$i]);
-                                EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
@@ -468,7 +485,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
                                         <div class="row">
-                                            <?php if ($GLOBALS['messages_due_date']) { ?>
+                                            <?php if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) { ?>
                                             <div class="col-6 col-sm-2">
                                                 <label for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
                                                 <?php generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
@@ -522,7 +539,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
-                                                echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
+                                                echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/orders/single_order_results.php?orderid=";
                                                 echo attr_url($gprow['id1']);
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
@@ -584,7 +601,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         // Manage page numbering and display beneath the Messages table.
                         $listnumber = 25;
-                        $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                        $total = getPnotesByUser($active, $show_all, $session->get('authUser'), true);
                         if ($begin == "" or $begin == 0) {
                             $begin = 0;
                         }
@@ -593,8 +610,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         $start = $begin + 1;
                         $end = $listnumber + $start - 1;
 
-                        $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
-                        $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+                        $chevron_icon_left = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+                        $chevron_icon_right = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
                         if ($end >= $total) {
                             $end = $total;
@@ -627,13 +644,13 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
                                                         <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
                                                         <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt(OEGlobalsBag::getInstance()->getBoolean('messages_due_date') ? 'Due date' : 'Date') . " $sortlink[3]</th>
                                                         <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
                                                     </tr>
                                                 </thead>";
                         // Display the Messages table body.
                         $count = 0;
-                        $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                        $result = getPnotesByUser($active, $show_all, $session->get('authUser'), false, $sortby, $sortorder, $begin, $listnumber);
                         while ($myrow = sqlFetchArray($result)) {
                             $name = $myrow['user'];
                             $name = $myrow['users_lname'];
@@ -684,7 +701,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
                                             xlt('Delete') . "</a>";
 
-                        if ($GLOBALS['phimail_enable']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
                             echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
                             echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                         }
@@ -777,7 +794,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <?php require_once '../dated_reminders/dated_reminders.php'; ?>
                 </div>
             </div><!--end of reminders div-->
-            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+            <?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
             <div class="row tab-pane" role="tabpanel" id="recalls-div">
                 <div class="col-sm-6 col-md-6 col-lg-6">
                     <h4><?php echo xlt('Recalls'); ?></h4>
@@ -806,7 +823,7 @@ if (!empty($_REQUEST['go'])) { ?>
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         echo "<script>var helpFile = 'message_center_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
         require "../../help_modal.php";
@@ -816,22 +833,22 @@ if (!empty($_REQUEST['go'])) { ?>
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
-            var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
+            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root')); ?>;
 
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
 
-            <?php if ($GLOBALS['phimail_enable']) : ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) : ?>
             $('.trusted-messages-force-check').click(function() {
                 window.top.restoreSession();
                 request = new FormData;
                 request.append("ajax", "1");
-                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                 request.append("background_service", "phimail");
                 request.append("background_force", "1");
                 fetch(webRoot + "/library/ajax/execute_background_services.php", {
@@ -1032,7 +1049,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

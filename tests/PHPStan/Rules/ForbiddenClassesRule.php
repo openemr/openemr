@@ -16,7 +16,6 @@ namespace OpenEMR\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;

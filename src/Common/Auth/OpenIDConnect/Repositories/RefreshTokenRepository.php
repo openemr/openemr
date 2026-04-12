@@ -17,7 +17,6 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\RefreshTokenEntity;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface

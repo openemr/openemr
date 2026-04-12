@@ -14,21 +14,22 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $module_config = 1;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
 
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
@@ -66,18 +67,14 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
 
 if ($_POST['form_save'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-    $_SESSION['editingUser'] = ($_POST['editingUser'] ?? 0);
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    $session->set('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
 // Handle user permissions form submission
 if ($_POST['form_save_permissions'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Get all active users
     $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
@@ -205,16 +202,13 @@ $vendors = $boot->getVendorGlobals();
     $isVoiceEnable = $vendors['oe_enable_voice'] > 0 ? 'voice' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
 
-    $isRCSMS = $vendors['oefax_enable_sms'] == 1 ? '1' : '0';
-    $isEMAIL = $vendors['oe_enable_email'] == 4 ? '1' : '0';
-    $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
-    $isVOICE = $vendors['oe_enable_voice'] == 9 ? '1' : '0';
-    $isSWFax = $vendors['oefax_enable_fax'] == 6 ? '1' : '0';
+    $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
+    $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
+    $emailVendor = ServiceType::fromValue($vendors['oe_enable_email']);
+    $voiceVendor = ServiceType::fromValue($vendors['oe_enable_voice']);
 
-    $setupUrl = './../setup.php';
-    if ($isRCFax || $isRCSMS) {
-        $setupUrl = './../setup_rc.php';
-    }
+    $setupUrl = ($faxVendor === ServiceType::RINGCENTRAL || $smsVendor === ServiceType::RINGCENTRAL)
+        ? './../setup_rc.php' : './../setup.php';
     Header::setupHeader();
     ?>
     <script>
@@ -251,11 +245,12 @@ $vendors = $boot->getVendorGlobals();
             });
         }
     </script>
+    <?php echo ServiceType::renderJsConstants(); ?>
     <script>
-        let ServiceFax = <?php echo js_escape($isRCFax) ?>;
-        let ServiceSMS = <?php echo js_escape($isRCSMS); ?>;
-        let ServiceEmail = <?php echo js_escape($isEMAIL); ?>;
-        let ServiceVoice = <?php echo js_escape($isVOICE); ?>;
+        let ServiceFax = <?php echo js_escape($faxVendor->stringValue()); ?>;
+        let ServiceSMS = <?php echo js_escape($smsVendor->stringValue()); ?>;
+        let ServiceEmail = <?php echo js_escape($emailVendor->stringValue()); ?>;
+        let ServiceVoice = <?php echo js_escape($voiceVendor->stringValue()); ?>;
 
         function toggleHelpCard() {
             const helpCard = document.getElementById('helpCard');
@@ -263,11 +258,8 @@ $vendors = $boot->getVendorGlobals();
         }
 
         function toggleSetup(id, type = 'single') {
-            let url = '../setup.php';
-            if (ServiceFax === '1') {
-                url = '../setup_rc.php';
-            }
-            if (ServiceVoice === '9') {
+            let url = ServiceFax === ServiceType.RINGCENTRAL ? '../setup_rc.php' : '../setup.php';
+            if (ServiceVoice === ServiceType.VOICE) {
                 url = '../setup_voice.php';
             }
             let dialog = $("#dialog").is(':checked');
@@ -278,7 +270,7 @@ $vendors = $boot->getVendorGlobals();
             }
             if (id === 'set-fax') {
                 let url = './../setup.php';
-                if (ServiceSMS === '1') {
+                if (ServiceSMS === ServiceType.RINGCENTRAL) {
                     url = './../setup_rc.php';
                 }
                 let title = 'Fax Module Credentials';
@@ -346,7 +338,7 @@ $vendors = $boot->getVendorGlobals();
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
-                <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                <?php if (empty($current_primary_user) || $current_primary_user == $session->get('authUserID')) { ?>
                     <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
                 <?php } ?>
             <?php } ?>
@@ -369,7 +361,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="form-group">
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
@@ -387,7 +379,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     <?php } ?>
                     <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
-                        <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                        <?php if (empty($current_primary_user) || $current_primary_user == $session->get('authUserID')) { ?>
                             <?php if (!empty($current_primary_user)) { ?>
                                 <div class="alert alert-success text-center" role="alert">
                                     <i class="fa fa-user-check"></i>
@@ -413,7 +405,7 @@ $vendors = $boot->getVendorGlobals();
                                         <option value="0"><?php echo xlt("Default (You)"); ?></option>
                                         <?php foreach ($active_users as $user) {
                                             $user_id = $user['id'];
-                                            if ($_SESSION['authUserID'] == $user_id) {
+                                            if ($session->get('authUserID') == $user_id) {
                                                 continue;
                                             }
                                             $display_name = trim($user['fname'] . ' ' . $user['lname']);
@@ -421,7 +413,7 @@ $vendors = $boot->getVendorGlobals();
                                                 $display_name = $user['username'];
                                             }
                                             ?>
-                                            <option value="<?php echo attr($user_id); ?>" <?php echo ($_SESSION['editingUser'] == $user_id) ? 'selected' : ''; ?>>
+                                            <option value="<?php echo attr($user_id); ?>" <?php echo ($session->get('editingUser') == $user_id) ? 'selected' : ''; ?>>
                                                 <?php echo text($display_name); ?>
                                             </option>
                                         <?php } ?>
@@ -445,10 +437,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
-                                <option value="0" <?php echo $vendors['oefax_enable_sms'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_sms'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral SMS"); ?></option>
-                                <option value="2" <?php echo $vendors['oefax_enable_sms'] == '2' ? 'selected' : ''; ?>><?php echo xlt("Twilio SMS"); ?></option>
-                                <option value="5" <?php echo $vendors['oefax_enable_sms'] == '5' ? 'selected' : ''; ?>><?php echo xlt("Clickatell"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('sms', $smsVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -456,10 +445,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
-                                <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_fax'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral Fax"); ?></option>
-                                <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
-                                <option value="6" <?php echo $vendors['oefax_enable_fax'] == '6' ? 'selected' : ''; ?>><?php echo xlt("SignalWire Fax"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('fax', $faxVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -467,8 +453,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
-                                <option value="0" <?php echo $vendors['oe_enable_email'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="4" <?php echo $vendors['oe_enable_email'] == '4' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('email', $emailVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -476,8 +461,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
                         <div class="col-sm-6" title="Enable Voice Widgets Support.">
                             <select class="form-control persist" name="voice_vendor" id="voice_vendor">
-                                <option value="0" <?php echo $vendors['oe_enable_voice'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="9" <?php echo $vendors['oe_enable_voice'] == '9' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('voice', $voiceVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -500,7 +484,7 @@ $vendors = $boot->getVendorGlobals();
             </form>
 
             <form class="form w-100" id="form_action" method="POST" action="setup_services.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Background Service to Manage');
                         $showFlag = false; ?></legend>
@@ -559,10 +543,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="set-fax" class="frame d-none">
                 <h3 class="text-center"><?php echo xlt("Setup Fax Account"); ?></h3>
                 <iframe src="<?php
-                $setupUrl = './../setup.php';
-                if ($isRCFax) {
-                    $setupUrl = './../setup_rc.php';
-                }
+                $setupUrl = $faxVendor === ServiceType::RINGCENTRAL ? './../setup_rc.php' : './../setup.php';
                 echo attr($setupUrl . '?type=fax&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php }
@@ -570,10 +551,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="set-sms" class="frame d-none">
                 <h3 class="text-center"><?php echo xlt("Setup SMS Account"); ?></h3>
                 <iframe src="<?php
-                $setupUrl = './../setup.php';
-                if ($isRCSMS) {
-                    $setupUrl = './../setup_rc.php';
-                }
+                $setupUrl = $smsVendor === ServiceType::RINGCENTRAL ? './../setup_rc.php' : './../setup.php';
                 echo attr($setupUrl . '?type=sms&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php } ?>
@@ -592,7 +570,7 @@ $vendors = $boot->getVendorGlobals();
         <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
             <div class="frame col-12 d-none" id="set-user-permissions">
                 <form id="user_permissions_form" name="user_permissions_form" class="form" role="form" method="post" action="">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="container-fluid">
                         <div class="title text-center"><?php echo xlt("User Service Permissions"); ?></div>
                         <div class="small text-center mb-2">

@@ -14,6 +14,7 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
@@ -23,10 +24,9 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 
 $wenoLog = new WenoLogService();
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
     unset($_POST['csrf_token']);
     foreach ($_POST as $location) {
         sqlQuery("update facility set weno_id = ? where id = ?", [$location[1], $location[0]]);
@@ -72,7 +72,7 @@ while ($row = sqlFetchArray($list)) {
         <div class="container-fluid" id="facility">
             <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Facility Weno Location."); ?></cite></small></h6>
             <form name="wenofacilityinfo" method="post" action="setup_facilities.php" onsubmit="return top.restoreSession()">
-                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
                 <table class="table table-sm table-hover table-striped table-borderless">
                     <thead>
                     <tr>

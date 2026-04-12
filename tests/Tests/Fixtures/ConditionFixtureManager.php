@@ -18,7 +18,6 @@ namespace OpenEMR\Tests\Fixtures;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientIssuesService;
-use OpenEMR\Services\UserService;
 
 /**
  * Manages test fixtures for condition-related unit tests

@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../globals.php");
 
 //Get the data to place on labels
@@ -35,17 +37,17 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //get label type and number of labels on sheet
 //
 
-if ($GLOBALS['chart_label_type'] == '1') {
+if (OEGlobalsBag::getInstance()->get('chart_label_type') == '1') {
     $pdf = new PDF_Label('5160');
     $last = 30;
 }
 
-if ($GLOBALS['chart_label_type'] == '2') {
+if (OEGlobalsBag::getInstance()->get('chart_label_type') == '2') {
     $pdf = new PDF_Label('5161');
     $last = 20;
 }
 
-if ($GLOBALS['chart_label_type'] == '3') {
+if (OEGlobalsBag::getInstance()->get('chart_label_type') == '3') {
     $pdf = new PDF_Label('5162');
     $last = 14;
 }

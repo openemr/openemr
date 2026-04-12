@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Common\Command;
 
+use DateInterval;
+use DateTimeImmutable;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -28,18 +30,17 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,10 +50,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
-use Exception;
-use DateTimeImmutable;
-use DateInterval;
-use RuntimeException;
 
 class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 {

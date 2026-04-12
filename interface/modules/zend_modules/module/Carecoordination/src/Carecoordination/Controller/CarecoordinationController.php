@@ -14,20 +14,19 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
-use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
-use C_Document;
 use Document;
-use CouchDB;
-use OpenEMR\Common\Logging\SystemLogger;
+use Documents\Controller\DocumentsController;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
-use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
 {
@@ -55,7 +54,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
-        $this->date_format = ApplicationTable::dateFormat($GLOBALS['date_display_format']);
+        $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
         $this->documentsController = $documentsController;
     }
 
@@ -139,8 +138,9 @@ class CarecoordinationController extends AbstractActionController
                 $this->importZipUpload($request);
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
+                    ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
@@ -948,7 +948,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (new SystemLogger())->error("File in zip is " . $stat['name']);
+            ServiceContainer::getLogger()->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }

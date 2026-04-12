@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
@@ -144,7 +145,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $("#wait").addClass('d-none');
@@ -574,7 +575,7 @@ function doWait(e){
                     echo "</a></td>\n";
                     echo "  <td>";
                     // Order ID comes with a link to open the manifest in a new window/tab.
-                    echo "<a href='" . $GLOBALS['webroot'];
+                    echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot');
                     echo "/interface/orders/order_manifest.php?orderid=";
                     echo attr_url($order_id);
                     echo "' target='_blank' onclick='top.restoreSession()' ";

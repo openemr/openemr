@@ -12,7 +12,6 @@
 namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -242,7 +241,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 continue;
             }
             if (!isset($uuidMappings[$code])) {
-                $this->getSystemLogger()->errorLogCaller("No UUID mapping for patient_data record ", ['uuid' => $record['uuid'], 'code' => $code]);
+                $this->getSystemLogger()->error("No UUID mapping for patient_data record {uuid} for code {code}", ['uuid' => $record['uuid'], 'code' => $code]);
                 continue;
             }
 

@@ -4,9 +4,8 @@ namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\OeUI\OemrUI;
 
 require_once(__DIR__ . "/../../../../globals.php");
 
@@ -31,7 +30,8 @@ $errorMessage = "";
 $twig = $bootstrap->getTwig();
 if (isset($_POST['submit'])) {
     try {
-        if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '', session: $session)) {
             throw new \InvalidArgumentException(xl("Invalid CSRF token"));
         }
         $memoryLimitUpdated = ini_set("memory_limit", "-1"); // set the memory limit to be unlimited so we can run the export.
@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
                     'result' => $result
                     ,'job' => $job
                     , 'assetPath' => $bootstrap->getAssetPath()
-                    ,'postUrl' => $GLOBALS['webroot'] . Bootstrap::MODULE_INSTALLATION_PATH . '/'
+                    ,'postUrl' => OEGlobalsBag::getInstance()->get('webroot') . Bootstrap::MODULE_INSTALLATION_PATH . '/'
                                     . Bootstrap::MODULE_NAME . '/public/index.php'
                 ]
             );
@@ -64,7 +64,7 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
@@ -76,14 +76,14 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
     } catch (\Throwable $exception) {
         $errorMessage = $exception->getMessage();
-        $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+        $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
     }
 } else {
     $exportSizeSettings = $exporter->getExportSizeSettings($defaultZipSize);
@@ -97,7 +97,7 @@ if (isset($_POST['submit'])) {
             // TODO: @adunsulag add most recent exports here.
             , 'errorMessage' => $errorMessage
             , 'postAction' => $_SERVER['PHP_SELF']
-            , 'site_addr_oath' => trim($GLOBALS['site_addr_oath'] ?? '')
+            , 'site_addr_oath' => trim(OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '')
             , 'assetPath' => $bootstrap->getAssetPath()
         ]
     );

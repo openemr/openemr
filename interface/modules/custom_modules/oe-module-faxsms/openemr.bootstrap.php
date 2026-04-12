@@ -23,22 +23,25 @@
  */
 
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // some flags
-$allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
-$allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
-$allowSMSButtons = ($GLOBALS['oesms_send'] ?? null);
-$allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
-$allowVoice = ($GLOBALS['oe_enable_voice'] ?? null);
+$allowFax = (OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null);
+$allowSMS = (OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null);
+$allowSMSButtons = (OEGlobalsBag::getInstance()->get('oesms_send') ?? null);
+$allowEmail = (OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null);
+$allowVoice = (OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null);
 
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
@@ -65,22 +68,37 @@ $isUserPermissionOverride = BootstrapService::getVendorGlobal('oeenable_users_pe
 // Be aware that the Globals are set to the service vendor identifier(int) values in the module setup.
 // So not true/false booleans.
 if ($isUserPermissionOverride) {
-    $GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] ?? null : false;
-    $GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] ?? null : false;
-    $GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] ?? null : false;
-    $GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] ?? null : false;
+    OEGlobalsBag::getInstance()->set('oefax_enable_fax', !empty(BootstrapService::getUserPermission('', 'fax')) ? OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null : false);
+    OEGlobalsBag::getInstance()->set('oefax_enable_sms', !empty(BootstrapService::getUserPermission('', 'sms')) ? OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null : false);
+    OEGlobalsBag::getInstance()->set('oe_enable_email', !empty(BootstrapService::getUserPermission('', 'email')) ? OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null : false);
+    OEGlobalsBag::getInstance()->set('oe_enable_voice', !empty(BootstrapService::getUserPermission('', 'voice')) ? OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null : false);
 } else {
     // No user permission overrides, so just set to enabled/disabled based on module setup.
-    $GLOBALS['oefax_enable_fax'] = !empty($GLOBALS['oefax_enable_fax']) ? $GLOBALS['oefax_enable_fax'] : false;
-    $GLOBALS['oefax_enable_sms'] = !empty($GLOBALS['oefax_enable_sms']) ? $GLOBALS['oefax_enable_sms'] : false;
-    $GLOBALS['oe_enable_email'] = !empty($GLOBALS['oe_enable_email']) ? $GLOBALS['oe_enable_email'] : false;
-    $GLOBALS['oe_enable_voice'] = !empty($GLOBALS['oe_enable_voice']) ? $GLOBALS['oe_enable_voice'] : false;
+    OEGlobalsBag::getInstance()->set('oefax_enable_fax', !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ? OEGlobalsBag::getInstance()->get('oefax_enable_fax') : false);
+    OEGlobalsBag::getInstance()->set('oefax_enable_sms', !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms')) ? OEGlobalsBag::getInstance()->get('oefax_enable_sms') : false);
+    OEGlobalsBag::getInstance()->set('oe_enable_email', !empty(OEGlobalsBag::getInstance()->get('oe_enable_email')) ? OEGlobalsBag::getInstance()->get('oe_enable_email') : false);
+    OEGlobalsBag::getInstance()->set('oe_enable_voice', !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice')) ? OEGlobalsBag::getInstance()->get('oe_enable_voice') : false);
 }
 // Set local variables for use in this bootstrap.
-$allowFax = $GLOBALS['oefax_enable_fax'];
-$allowSMS = $GLOBALS['oefax_enable_sms'];
-$allowEmail = $GLOBALS['oe_enable_email'];
-$allowVoice = $GLOBALS['oe_enable_voice'];
+$allowFax = OEGlobalsBag::getInstance()->get('oefax_enable_fax');
+$allowSMS = OEGlobalsBag::getInstance()->get('oefax_enable_sms');
+$allowEmail = OEGlobalsBag::getInstance()->get('oe_enable_email');
+$allowVoice = OEGlobalsBag::getInstance()->get('oe_enable_voice');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if ($allowVoice) {
+    $voiceVendorId = is_numeric($allowVoice) ? (int)$allowVoice : 0;
+    if (ServiceType::tryFrom($voiceVendorId) !== ServiceType::VOICE) {
+        ServiceContainer::getLogger()->error(
+            "FaxSMS: unknown voice vendor ID '" . var_export($allowVoice, true) . "'. "
+            . "Voice features disabled. To fix, run: "
+            . "UPDATE globals SET gl_value = '9' WHERE gl_name = 'oe_enable_voice';"
+        );
+        $allowVoice = false;
+        OEGlobalsBag::getInstance()->set('oe_enable_voice', false);
+    }
+}
 
 function getTwigNamespaces(): array
 {
@@ -92,21 +110,16 @@ function getTwigNamespaces(): array
 // Add menu items
 function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
 {
-    $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
-    $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
-    $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-    $sms_label = match ($allowSMS) {
-        '1' => xlt("RingCentral SMS"),
-        '2' => xlt("Twilio SMS"),
-        '5' => xlt("Clickatell SMS"),
-        default => xlt("SMS"),
-    };
-    $fax_label = match ($allowFax) {
-        '1' => xlt("RingCentral Fax"),
-        '3' => xlt("Manage etherFAX"),
-        default => xlt("FAX"),
-    };
+    $allowFax = (OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null);
+    $allowSMS = (OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null);
+    $allowEmail = (OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null);
+
+    $smsEnum = ServiceType::fromValue($allowSMS);
+    $sms_label = $smsEnum->getSmsMenuLabel();
+    $faxEnum = ServiceType::fromValue($allowFax);
+    $fax_label = $faxEnum->getFaxMenuLabel();
 
     $menu = $event->getMenu();
     // Our SMS menu
@@ -134,7 +147,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : ($allowFax == '6' ? xlt("SignalWire Fax") : xlt("RingCentral FAX"));
+    $menuItem2->label = $faxEnum->getFaxMenuLabel();
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "demo"];
@@ -146,7 +159,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem3->target = 'fax';
     $menuItem3->menu_id = 'mod1';
     $menuItem3->label = xlt("Test Email Reminders");
-    $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $_SESSION['site_id'];
+    $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $session->get('site_id');
     $menuItem3->children = [];
     $menuItem3->acl_req = ["patients", "demo"];
     $menuItem3->global_req = ["oe_enable_email"];
@@ -156,7 +169,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem4->target = 'fax';
     $menuItem4->menu_id = 'mod1';
     $menuItem4->label = xlt("Send Email Reminders");
-    $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $_SESSION['site_id'];
+    $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $session->get('site_id');
     $menuItem4->children = [];
     $menuItem4->acl_req = ["patients", "demo"];
     $menuItem4->global_req = ["oe_enable_email"];
@@ -331,6 +344,6 @@ if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
 }
 
-if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail || $allowVoice)) {
+if (!(empty($session->get('authUserID')) && $session->get('pid')) && ($allowSMS || $allowEmail || $allowVoice)) {
     (new NotificationEventListener($eventDispatcher, OEGlobalsBag::getInstance()->getKernel()))->subscribeToEvents();
 }

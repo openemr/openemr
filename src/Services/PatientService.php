@@ -19,12 +19,10 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -32,11 +30,10 @@ use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchConfigClauseBuilder;
-use OpenEMR\Services\Search\SearchQueryConfig;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -108,7 +105,7 @@ class PatientService extends BaseService
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
      * @param  $pid unique patient id
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformationActivity($pid)
     {
@@ -129,7 +126,7 @@ class PatientService extends BaseService
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformation()
     {
@@ -154,7 +151,9 @@ class PatientService extends BaseService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-        return $pid['pid'] === null ? 1 : intval($pid['pid']);
+        /** @var int|string|null $pidValue */
+        $pidValue = $pid['pid'];
+        return $pidValue === null ? 1 : (int) $pidValue;
     }
 
     /**
@@ -168,7 +167,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -251,7 +250,7 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
         /** @var int $pid */
         $pid = $data['pid'];
@@ -278,6 +277,15 @@ class PatientService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if ($sqlResult) {
+            // If portal access is enabled, ensure the portal login username exists
+            if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
+                $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+                $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
+                if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
+                    $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
+                    QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
+                }
+            }
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
             OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
@@ -670,7 +678,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
+        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -703,15 +711,15 @@ class PatientService extends BaseService
     /**
      * Returns a string to be used to display a patient's age
      *
-     * @param type $dobYMD
-     * @param type $asOfYMD
+     * @param string $dobYMD
+     * @param ?string $asOfYMD
      * @return string suitable for displaying patient's age based on preferences
      */
     public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
     {
-        if ($GLOBALS['age_display_format'] == '1') {
+        if (OEGlobalsBag::getInstance()->get('age_display_format') == '1') {
             $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
-            if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
+            if (OEGlobalsBag::getInstance()->has('age_display_limit') && $ageYMD['age'] <= OEGlobalsBag::getInstance()->getInt('age_display_limit')) {
                 return $ageYMD['ageinYMD'];
             } else {
                 return $this->getPatientAge($dobYMD, $asOfYMD);
@@ -775,9 +783,8 @@ class PatientService extends BaseService
 
 
     /**
-     *
-     * @param type $dob
-     * @param type $date
+     * @param string $dob
+     * @param ?string $date
      * @return array containing
      *      age - decimal age in years
      *      age_in_months - decimal age in months
@@ -792,6 +799,7 @@ class PatientService extends BaseService
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
             $datenow = preg_replace("/-/", "", $date);
+            assert(is_string($datenow));
             $yearnow = substr($datenow, 0, 4);
             $monthnow = substr($datenow, 4, 2);
             $daynow = substr($datenow, 6, 2);
@@ -799,6 +807,7 @@ class PatientService extends BaseService
         }
 
         $dob = preg_replace("/-/", "", $dob);
+        assert(is_string($dob));
         $dobyear = substr($dob, 0, 4);
         $dobmonth = substr($dob, 4, 2);
         $dobday = substr($dob, 6, 2);
@@ -937,7 +946,7 @@ class PatientService extends BaseService
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $row = sqlQuery($query, $curUser['id']);
+        $row = sqlQuery($query, [$curUser['id']]);
         $rp = ($row) ? unserialize($row['patients']) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
@@ -962,7 +971,7 @@ class PatientService extends BaseService
         // Push the new patient to the front of the FIFO list
         array_unshift($rp, $patient);
         // Cap out at max count as set in globals
-        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
+        $rp = array_slice($rp, 0, OEGlobalsBag::getInstance()->getInt('recent_patient_count'));
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";

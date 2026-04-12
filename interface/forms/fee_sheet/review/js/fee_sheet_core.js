@@ -51,15 +51,20 @@ function update_display_table(data)
 
     // need refresh the diagnosis list
     /* eslint-disable-next-line no-control-regex */
-    var diag_regex=new RegExp("diags.push(.*);\n","g");
-    var diags_matches=data.match(diag_regex);
-    if(diags_matches!=null)
+    var diag_regex=new RegExp("diags\\.push\\((.*)\\);\n","g");
+    var diag_match;
+    diags=new Array(); // clear the existing diags array
+    while((diag_match=diag_regex.exec(data))!==null)
     {
-        diags=new Array(); // clear the existing diags array
-        for(var i=0;i<diags_matches.length;i++)
-            {
-                eval(diags_matches[i]);
-            }
+        // Parse the argument from diags.push(...) without using eval
+        try {
+            var arg=JSON.parse(diag_match[1]);
+            diags.push(arg);
+        } catch(e) {
+            // If JSON.parse fails, use the raw string (strip surrounding quotes)
+            var raw=diag_match[1].replace(/^["']|["']$/g,'');
+            diags.push(raw);
+        }
     }
     var justifications=$("select[onchange='setJustify(this)']");
     justifications.change();

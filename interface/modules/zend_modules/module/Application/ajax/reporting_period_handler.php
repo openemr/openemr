@@ -14,11 +14,15 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 header('Content-Type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }
@@ -60,10 +64,10 @@ function handleUpdateReportingPeriod()
 
     if ($result['count'] > 0) {
         // Update session
-        $_SESSION['selected_ecqm_period'] = $period;
+        SessionUtil::setSession('selected_ecqm_period', $period);
 
         // Update global
-        $GLOBALS['cqm_performance_period'] = $period;
+        OEGlobalsBag::getInstance()->set('cqm_performance_period', $period);
 
         // Optionally update database global setting
         try {
@@ -110,8 +114,8 @@ function handleGetMeasuresForPeriod()
     }
 
     // Temporarily update the global to get measures for the selected period
-    $originalPeriod = $GLOBALS['cqm_performance_period'] ?? null;
-    $GLOBALS['cqm_performance_period'] = $period;
+    $originalPeriod = OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? null;
+    OEGlobalsBag::getInstance()->set('cqm_performance_period', $period);
 
     $measures = [];
 
@@ -143,7 +147,7 @@ function handleGetMeasuresForPeriod()
     } catch (\Throwable $e) {
         // Restore original period on error
         if ($originalPeriod !== null) {
-            $GLOBALS['cqm_performance_period'] = $originalPeriod;
+            OEGlobalsBag::getInstance()->set('cqm_performance_period', $originalPeriod);
         }
 
         return [

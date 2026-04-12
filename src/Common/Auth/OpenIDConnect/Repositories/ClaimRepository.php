@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
+use InvalidArgumentException;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
-use InvalidArgumentException;
 
 class ClaimRepository implements ClaimSetRepositoryInterface
 {

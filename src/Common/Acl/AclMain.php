@@ -23,7 +23,6 @@
  *   language    Language Interface Tool
  *   drugs       Pharmacy Dispensary
  *   acl         ACL Administration
- *   multipledb  Multipledb
  *   menu        Menu
  *   manage_modules Manage modules
  *
@@ -111,14 +110,17 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Acl;
 
-use OpenEMR\Gacl\Gacl;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Gacl\Gacl;
 
 class AclMain
 {
@@ -163,7 +165,7 @@ class AclMain
      */
     public static function aclCheckCore($section, $value, $user = '', $return_value = ''): bool
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (! $user) {
             $user = $session->get('authUser') ?? '';
         }
@@ -294,26 +296,37 @@ class AclMain
                         group_settings.group_id IN (" . $groupPlacemakers . ") AND acl_sections.`section_identifier` = ? ";
 
         $sql_group_acl_allowed = $sql_group_acl_base . " AND group_settings.allowed = '1'";
+        $sql_group_acl_denied  = $sql_group_acl_base . " AND group_settings.allowed = '0'";
 
         // Complete the group queries sql binding array
         array_push($groups_sql_param, $section_identifier);
 
-        $count_group_allowed    = 0;
-        $count_user_allowed     = 0;
+        $res_user_denied    = QueryUtils::querySingleRow($sql_user_acl, [$section_identifier, $user_id, 0]);
+        $count_user_denied  = $res_user_denied['count'] ?? 0;
 
-        $res_user_allowed       = sqlQuery($sql_user_acl, [$section_identifier,$user_id,1]);
-        $count_user_allowed     = $res_user_allowed['count'];
+        $res_user_allowed   = sqlQuery($sql_user_acl, [$section_identifier, $user_id, 1]);
+        $count_user_allowed = $res_user_allowed['count'];
 
-        $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
-        $count_group_allowed    = $res_group_allowed['count'];
+        $count_group_denied  = 0;
+        $count_group_allowed = 0;
+        if ($groupPlacemakers !== "") {
+            // Need a separate copy of the params for the denied query since
+            // $groups_sql_param already has $section_identifier appended.
+            $groups_denied_param = $groups_sql_param;
 
-        if ($count_user_allowed > 0) {
-            return true;
-        } elseif ($count_group_allowed > 0) {
-            return true;
-        } else {
-            return false;
+            $res_group_denied   = QueryUtils::querySingleRow($sql_group_acl_denied, $groups_denied_param);
+            $count_group_denied = $res_group_denied['count'] ?? 0;
+
+            $res_group_allowed   = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
+            $count_group_allowed = $res_group_allowed['count'];
         }
+
+        // Precedence: user deny > user allow > group deny > group allow.
+        return $count_user_denied == 0 // no user deny
+            && (
+                $count_user_allowed > 0 // user allow (overrides group deny)
+                || ($count_group_denied == 0 && $count_group_allowed > 0) // group allow without group deny
+            );
     }
 
     // Permissions check for an ACO in "section|aco" format.

@@ -16,27 +16,22 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-// AI GENERATED CODE - START
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\UtilsService;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class FhirMedicationRequestServiceUSCore8Test extends TestCase
@@ -48,7 +43,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     protected function setUp(): void
     {
         $this->fhirMedicationRequestService = new FhirMedicationRequestService();
-        $this->fhirMedicationRequestService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirMedicationRequestService->setSystemLogger($this->createMock(LoggerInterface::class));
 
         // US Core compliant medication request data with all required and must support elements
         $this->compliantMedicationRequestData = [

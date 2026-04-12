@@ -15,23 +15,23 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_API_TEST')) {
     die('Set OPENEMR_ENABLE_INTERNAL_API_TEST=1 environment variable to enable this script');
 }
 
-$globalsBag = require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
+use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -44,7 +44,7 @@ use OpenEMR\RestControllers\Finder\StandardRouteFinder;
                 url: '../../apis/default/api/facility',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -60,7 +60,7 @@ use OpenEMR\RestControllers\Finder\StandardRouteFinder;
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 })
             })
             .then(response => response.json())
@@ -99,16 +99,16 @@ echo "<br /><br />";
 // CALL the api via route handler
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
+$globalsBag = OEGlobalsBag::getInstance();
 $getParams = [];
 try {
     $restRequest = HttpRestRequest::create('/api/facility', 'GET');
     $restRequest->setRequestUserRole("users");
-    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->get('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
+    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getString('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
-    $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());
-    $kernel->setSystemLogger(new SystemLogger());
+    $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
+    $kernel->setSystemLogger(ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);
     $routes = $routeFinder->find($restRequest);

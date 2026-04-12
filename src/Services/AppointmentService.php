@@ -14,9 +14,10 @@
 
 namespace OpenEMR\Services;
 
-use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceDeleteEvent;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -319,6 +320,8 @@ class AppointmentService extends BaseService
         $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
         $sql .= "     uuid=?,";
         $sql .= "     pc_pid=?,";
@@ -354,7 +357,7 @@ class AppointmentService extends BaseService
                 $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
-                $_SESSION['authUserID'] ?? 1, // Grab authenticated user ID or default to 1
+                $session->get('authUserID') ?? 1, // Grab authenticated user ID or default to 1
                 $data["pc_aid"] ?? null,
                 $data["pc_website"] ?? null,
             ]
@@ -374,7 +377,7 @@ class AppointmentService extends BaseService
         // =======================================
         //  multi providers event
         // =======================================
-        if ($GLOBALS['select_multi_providers']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
             // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
@@ -641,7 +644,7 @@ class AppointmentService extends BaseService
         );
 
         $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
-        if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+        if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
             $visit_reason = 'Please indicate visit reason';
         }
         $data = [

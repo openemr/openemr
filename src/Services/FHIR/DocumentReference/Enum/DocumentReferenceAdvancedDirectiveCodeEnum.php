@@ -1,4 +1,5 @@
 <?php
+
 /*
  * DocumentReferenceAdvancedDirectiveCodeEnum.php
  * @package openemr

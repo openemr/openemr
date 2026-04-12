@@ -19,6 +19,8 @@ require_once(__DIR__ . "/../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Access control - same permission required as edih_view.php
 if (!AclMain::aclCheckCore('acct', 'eob')) {
@@ -85,7 +87,7 @@ require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 // php may output line endings with included files
 ob_clean();
 
-if (isset($GLOBALS['OE_SITE_DIR'])) {
+if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
     $edih_base_dir = csv_edih_basedir();
     $edih_tmp_dir = csv_edih_tmpdir();
 } else {
@@ -129,15 +131,14 @@ if (count($_POST)) {
     csv_edihist_log($dbg_str);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 /* ******* remove functions to separate file ******* */
 /*
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //
     // === log user access on POST requests ===========
@@ -183,9 +184,7 @@ if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     //
     if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {

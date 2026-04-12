@@ -17,11 +17,12 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/options.inc.php");
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
-use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 
 // Not checking csrf since it breaks when opening up a patient in a new frame.
 //  Also note that csrf checking is not needed in this script because of following 2 reasons.
@@ -77,7 +78,7 @@ if (isset($_GET['iSortCol_0'])) {
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             } else {
-                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . "` $sSortDir";
+                $orderby .= escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . " $sSortDir";
             }
         }
     }
@@ -97,8 +98,8 @@ function dateSearch($sSearch)
 {
     // Determine if MDY date format is used, preferring Date Display Format from
     // global settings if it's not YMD, otherwise guessing from country code.
-    $mdy = empty($GLOBALS['date_display_format']) ?
-        ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+    $mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
+        (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
     if (preg_match('/[^0-9]/', (string) $sSearch)) {
@@ -149,13 +150,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
-            $where .= " `" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ?"; // any search
+            $where .= " " . escape_sql_column_name($colname, ['patient_data']) . " LIKE ?"; // any search
             array_push($srch_bind, ('%' . $sSearch . '%'));
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -185,13 +186,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($colname == 'DOB') {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -201,7 +202,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
@@ -222,7 +223,7 @@ foreach ($aColumns as $colname) {
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, ['patient_data']) . "`";
+        $sellist .= escape_sql_column_name($colname, ['patient_data']);
     }
 }
 

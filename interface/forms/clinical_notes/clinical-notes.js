@@ -1113,16 +1113,12 @@
                 datetimepickerTranslated('.datepicker', {
                     timepicker: false
                     , showSeconds: false
-                    , formatInput: false
+                    , formatInput: true
                 });
             });
 
             // initialize
             $(".clinical_notes_type").change(typeChange);
-
-            // init code values by triggering the change in case
-            // there are any default values set in the template
-            $(".clinical_notes_type").trigger("change");
             $(".btn-add").click(duplicateRow);
             $(".btn-delete").click(deleteRow);
             if (typeof config.alertMessage !== 'undefined' && config.alertMessage != '') {

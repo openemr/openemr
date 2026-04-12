@@ -42,16 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaTargetFactory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$scopes \\(array\\|string\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomRefreshTokenGrant\\:\\:validateScopes\\(\\) should be contravariant with parameter \\$scopes \\(array\\|string\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Grant\\\\AbstractGrant\\:\\:validateScopes\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
@@ -62,64 +52,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:alert\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:alert\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:critical\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:critical\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:debug\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:debug\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:emergency\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:emergency\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:error\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:error\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:info\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:info\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:notice\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:notice\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:warning\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:warning\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$message \\(string\\) of method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:log\\(\\) should be contravariant with parameter \\$message \\(string\\|Stringable\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:log\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$results \\(array\\) of method OpenEMR\\\\Common\\\\ORDataObject\\\\Person\\:\\:populate_array\\(\\) should be contravariant with parameter \\$results \\(mixed\\) of method OpenEMR\\\\Common\\\\ORDataObject\\\\ORDataObject\\:\\:populate_array\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',

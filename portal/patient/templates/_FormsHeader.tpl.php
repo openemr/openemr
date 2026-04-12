@@ -10,11 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $web_root = $globalsBag->getString('web_root');
-$v_js_includes = $globalsBag->get('v_js_includes');
+$v_js_includes = $globalsBag->getString('v_js_includes');
 
 if ($session->get('patient_portal_onsite_two', 0)) {
     Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'moment']);
@@ -47,7 +47,8 @@ if ($session->get('patient_portal_onsite_two', 0)) {
         .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")
         .script("<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>")
         .script("<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait()
-        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait();
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait()
+        .script("<?php echo $web_root; ?>/portal/portal_payment.js?v=<?php echo $v_js_includes; ?>").wait();
 </script>
 
 </head>

@@ -2,32 +2,29 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
-use Google\Service\Bigquery\SessionInfo;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
+use LogicException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use LogicException;
 
 class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 {
@@ -376,7 +373,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             (self::is_api_request($resource) && !in_array('api:oemr', $oauthScopes)) ||
             (self::is_portal_request($resource) && !in_array('api:port', $oauthScopes))
         ) {
-            $this->getSystemLogger()->errorLogCaller("api call with token that does not cover the requested route");
+            $this->getSystemLogger()->error("API call with token that does not cover the requested route");
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
         }
         // ensure user role has access to the resource

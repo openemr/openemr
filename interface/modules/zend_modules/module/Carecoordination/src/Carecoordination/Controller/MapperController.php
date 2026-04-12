@@ -12,9 +12,9 @@
 
 namespace Carecoordination\Controller;
 
+use Carecoordination\Model\MapperTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Carecoordination\Model\MapperTable;
 
 // TODO: this class appears to be deprecated as nothing else refers to it.  It looks like it does the same thing as the SetupController does...
 // Recommend removing this if it's not used.
@@ -120,7 +120,7 @@ class MapperController extends AbstractActionController
     /**
     * Table Gateway
     *
-    * @return type
+    * @return MapperTable
     */
     public function getMapperTable()
     {

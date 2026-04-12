@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GaclAdminApi class - phpGACL custom extended API Class
  *
@@ -18,8 +19,9 @@
  * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License 2.1
  */
 
-
 namespace OpenEMR\Gacl;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class GaclAdminApi extends GaclApi {
 
@@ -27,11 +29,11 @@ class GaclAdminApi extends GaclApi {
      * Administration interface settings
      */
     /** @var int Number of items to display per page in the phpGACL interface. */
-    public $_items_per_page = 100;
+    public int $_items_per_page = 100;
     /** @var int Maximum number of items to display in a select box. Override to manage large collections via ACL Admin */
-    public $_max_select_box_items = 100;
+    public int $_max_select_box_items = 100;
     /** @var int Maximum number of items to return in an ACL Search. */
-    public $_max_search_return_items = 100;
+    public int $_max_search_return_items = 100;
 
     /*
      *
@@ -47,7 +49,7 @@ class GaclAdminApi extends GaclApi {
      */
     function return_page($url=""): never {
         $return_page = basename((string) $url);
-        header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
+        header('Location: ' . OEGlobalsBag::getInstance()->get('web_root') . "/gacl/admin/" . $return_page);
         exit;
     }
 

@@ -24,22 +24,28 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
 $searchArray = [];
-$pid = $_REQUEST['pid'] ?? $_SESSION['pid'] ?? null;
+$pid = $_REQUEST['pid'] ?? $session->get('pid') ?? null;
 $patientName = "";
 if (!empty($_REQUEST['pid'])) {
-    $pid = intval($_REQUEST['pid']);
+    /** @var string|int $rawPid */
+    $rawPid = $_REQUEST['pid'];
+    $pid = intval($rawPid);
     $patientService = new PatientService();
     $patientArray = $patientService->findByPid($pid);
     if (!empty($patientArray)) {
@@ -155,10 +161,10 @@ foreach ($searchResult as $docResult) {
                        title='<?php echo xla('Any part of the document name'); ?>' />
                 <div class="col">
                     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
-                    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                    <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif" /></div>
                 </div>
             </div>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         </form>
     </div>
 

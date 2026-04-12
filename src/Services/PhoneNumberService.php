@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use Particle\Validator\Validator;
 
@@ -69,7 +69,7 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     type=?,";
         $phoneNumbersSql .= "     foreign_id=?";
 
-        $phoneNumbersSqlResults = QueryUtils::sqlInsert(
+        QueryUtils::sqlInsert(
             $phoneNumbersSql,
             [
                 $freshId,
@@ -81,10 +81,6 @@ class PhoneNumberService extends BaseService
                 $this->foreignId
             ]
         );
-
-        if (!$phoneNumbersSqlResults) {
-            return false;
-        }
 
         return $freshId;
     }
@@ -238,7 +234,7 @@ class PhoneNumberService extends BaseService
         }
         $formatted = self::formatPhone($phone, $defaultRegion);
         if ($formatted === '') {
-            (new SystemLogger())->warning("Could not format phone number", ['phone' => $phone]);
+            ServiceContainer::getLogger()->warning("Could not format phone number", ['phone' => $phone]);
             return $phone;
         }
         return $formatted;

@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use OpenEMR\Services\Search\DateSearchField;
 use DateTime;
+use OpenEMR\Services\Search\DateSearchField;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientDocumentCreateCCDAEvent extends Event

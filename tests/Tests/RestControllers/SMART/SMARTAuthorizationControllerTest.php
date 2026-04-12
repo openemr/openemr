@@ -2,21 +2,20 @@
 
 namespace OpenEMR\Tests\RestControllers\SMART;
 
-use Monolog\Level;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\RestControllers\SMART\PatientContextSearchController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
-use OpenEMR\Services\LogoService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,11 +24,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
-use Twig\TemplateWrapper;
 
 class SMARTAuthorizationControllerTest extends TestCase
 {
-    const LOG_LEVEL = Level::Critical;
 
     const SMART_FINAL_REDIRECT_URL = "http://localhost:8080/smart/final_redirect";
 
@@ -41,16 +38,16 @@ class SMARTAuthorizationControllerTest extends TestCase
     private function getDefaultSMARTAuthorizationController(SessionInterface $session, HttpRestRequest $request)
     {
         CsrfUtils::setupCsrfKey($session);
-        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken("oauth2", $session)); // Simulate a CSRF token in the request
+        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken($session, "oauth2")); // Simulate a CSRF token in the request
         $session->set("user_id", 1); // Simulate a user ID being set in the session
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method('getGlobalsBag')
             ->willReturn(new OEGlobalsBag([]));
         $kernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
         $kernel->method('getSystemLogger')
-            ->willReturn($logger);
+            ->willReturn($mockLogger);
         return new SMARTAuthorizationController(
             $session,
             $kernel,
@@ -143,9 +140,9 @@ class SMARTAuthorizationControllerTest extends TestCase
 
         $session = $this->getMockSessionForRequest($request);
         CsrfUtils::setupCsrfKey($session);
-        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken("oauth2", $session)); // Simulate a CSRF token in the request
+        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken($session, "oauth2")); // Simulate a CSRF token in the request
         $session->set("user_id", 1); // Simulate a user ID being set in the session
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $twigVars = ['action' => 'patient-select'];
         $twigName = 'smart/patient-select.twig.html';
@@ -166,7 +163,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $kernel->method('getEventDispatcher')
             ->willReturn($dispatcher);
         $kernel->method('getSystemLogger')
-            ->willReturn(new SystemLogger());
+            ->willReturn(ServiceContainer::getLogger());
 
         $controller = new SMARTAuthorizationController(
             $session,
@@ -210,14 +207,14 @@ class SMARTAuthorizationControllerTest extends TestCase
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
         $session->set("scopes", "openid " . SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE);
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method('getGlobalsBag')
             ->willReturn(new OEGlobalsBag([]));
         $kernel->method('getEventDispatcher')
             ->willReturn($this->createMock(EventDispatcher::class));
         $kernel->method('getSystemLogger')
-            ->willReturn($logger);
+            ->willReturn($mockLogger);
         $controller = new SMARTAuthorizationController(
             $session,
             $kernel,
@@ -234,10 +231,10 @@ class SMARTAuthorizationControllerTest extends TestCase
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
         $session->set("scopes", "");
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method("getSystemLogger")
-            ->willReturn($logger);
+            ->willReturn($mockLogger);
         $kernel->method("getEventDispatcher")
             ->willReturn($this->createMock(EventDispatcherInterface::class));
 
@@ -258,14 +255,14 @@ class SMARTAuthorizationControllerTest extends TestCase
         $session = $this->getMockSessionForRequest($request);
         $session->set("scopes", "openid " . SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE);
         $session->set("puuid", "123e4567-e89b-12d3-a456-426614174000");
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method('getGlobalsBag')
             ->willReturn(new OEGlobalsBag([]));
         $kernel->method('getEventDispatcher')
             ->willReturn($this->createMock(EventDispatcher::class));
         $kernel->method('getSystemLogger')
-            ->willReturn($logger);
+            ->willReturn($mockLogger);
         $controller = new SMARTAuthorizationController(
             $session,
             $kernel,
@@ -281,7 +278,7 @@ class SMARTAuthorizationControllerTest extends TestCase
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
-        $logger = new SystemLogger(self::LOG_LEVEL);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $twigVars = ['action' => 'patient-select'];
         $twigName = 'smart/ehr-launch-auto-submit.twig.json';
         $dispatcher = $this->createMock(EventDispatcher::class);
@@ -302,7 +299,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $kernel->method('getEventDispatcher')
             ->willReturn($dispatcher);
         $kernel->method('getSystemLogger')
-            ->willReturn($logger);
+            ->willReturn($mockLogger);
         $controller = new SMARTAuthorizationController(
             $session,
             $kernel,

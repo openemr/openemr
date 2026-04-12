@@ -23,7 +23,7 @@ class PatientSessionUtil
     {
         global $pid, $encounter;
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // Escape $new_pid by forcing it to an integer to protect from sql injection
         $new_pid_int = intval($new_pid);
@@ -53,6 +53,7 @@ class PatientSessionUtil
         // Set pid to the escaped pid and update the session variables
         $sessionSetArray['pid'] = $new_pid_int;
         SessionUtil::setUnsetSession($sessionSetArray, $sessionUnsetArray);
+
         $pid = $new_pid_int;
         EventAuditLogger::getInstance()->newEvent("view", $session->get("authUser"), $session->get("authProvider"), 1, '', $pid);
     }
