@@ -131,7 +131,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         if (!is_string($php)) {
             $php = PHP_BINARY;
         }
-        $fileroot = $this->getGlobalsBag()->getString('fileroot');
+        $globalsBag = $this->getGlobalsBag();
+        $fileroot = $globalsBag->getProjectDir();
         if ($fileroot === '') {
             $io->error('Global "fileroot" is not configured.');
             return Command::FAILURE;

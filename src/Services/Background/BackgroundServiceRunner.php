@@ -219,7 +219,7 @@ class BackgroundServiceRunner
     {
         $requireOnce = $service['require_once'];
         if ($requireOnce !== null && $requireOnce !== '') {
-            require_once(OEGlobalsBag::getInstance()->getString('fileroot') . $requireOnce);
+            require_once(OEGlobalsBag::getInstance()->getProjectDir() . $requireOnce);
         }
 
         $function = $service['function'];

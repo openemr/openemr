@@ -71,7 +71,11 @@ class AuthorizationGrantFlowTest extends TestCase
         // set the globals.php kernel which doesn't do much... need to reconicle these two
         // set our site_addr_oath so we use it properly
         $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
-        $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
+        $kernel->getGlobalsBag()->set('kernel', new Kernel(
+            $GLOBALS['webserver_root'] ?? dirname(__DIR__, 3),
+            $GLOBALS['webroot'] ?? '',
+            $dispatcher,
+        ));
         [$clientIdentifier, $clientSecret] = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 
         // now test the authorization flow

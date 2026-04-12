@@ -61,7 +61,7 @@ class MainMenuRole extends MenuRole
             $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/" . $mainMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
         }
 
         // if error, then die and report error

@@ -262,7 +262,7 @@ class ObservationController
 
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id="
+                OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/forms/observation/new.php?id="
                 . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
@@ -492,7 +492,7 @@ class ObservationController
             if (!$observation) {
                 // observation may have already been deleted, just redirect to list with success to avoid error loops
                 return $this->createRedirectResponse(
-                    OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                    OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                     . "&status=delete_success" // still redirect to list with success to avoid error loops
                 );
             }
@@ -509,7 +509,7 @@ class ObservationController
             QueryUtils::commitTransaction();
             $committed = true;
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
         } catch (\Throwable $e) {
@@ -518,7 +518,7 @@ class ObservationController
                 'formId' => $formId
             ]);
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_failed" // let them know that the delete failed
             );
         } finally {

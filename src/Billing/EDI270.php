@@ -572,7 +572,7 @@ class EDI270
 				<td class ='detail'>" . text($row['subscriber_sex']) . "</td>
 				<td class ='detail'>" . text($row['subscriber_ss']) . "</td>
 				<td class ='detail'>
-				<img src=\"" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/deleteBtn.png\" title=" . text(xl('Delete Row')) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i . "_" . text($row['policy_number']) . "\")'>
+				<img src=\"" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png\" title=" . text(xl('Delete Row')) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i . "_" . text($row['policy_number']) . "\")'>
 				</td>
 			</tr>
 		";

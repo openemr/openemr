@@ -9,7 +9,7 @@ class CqmServiceManager
 {
     public static function makeCqmClient(): CqmClient
     {
-        $servicePath = OEGlobalsBag::getInstance()->getString('fileroot') . DIRECTORY_SEPARATOR .
+        $servicePath = OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . DIRECTORY_SEPARATOR .
             'ccdaservice/node_modules' . DIRECTORY_SEPARATOR .
             'oe-cqm-service' . DIRECTORY_SEPARATOR .
             'server.js';

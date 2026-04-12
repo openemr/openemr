@@ -245,7 +245,8 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $normalized = !empty(OEGlobalsBag::getInstance()->get('webroot')) ? preg_replace('#^(' . OEGlobalsBag::getInstance()->get('webroot') . ')?#', '', $path) : $path;
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
+        $normalized = ($webRoot !== '') ? preg_replace('#^(' . preg_quote($webRoot, '#') . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 

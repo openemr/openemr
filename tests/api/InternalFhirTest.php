@@ -108,7 +108,7 @@ $getParams = [];
 try {
     $restRequest = HttpRestRequest::create('/fhir/Organization', 'GET');
     $restRequest->setRequestUserRole("users");
-    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getString('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
+    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getKernel()->getWebRoot(), HttpSessionFactory::SESSION_TYPE_CORE);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());

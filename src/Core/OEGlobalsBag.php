@@ -97,4 +97,37 @@ class OEGlobalsBag extends ParameterBag
         }
         return $kernel;
     }
+
+    /**
+     * Get the project directory, falling back to the 'fileroot' global
+     * when the Kernel is not initialized (e.g. CLI --skip-globals).
+     */
+    public function getProjectDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getProjectDir()
+            : $this->getString('fileroot');
+    }
+
+    /**
+     * Get the web root path, falling back to the 'webroot' global
+     * when the Kernel is not initialized.
+     */
+    public function getWebRoot(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getWebRoot()
+            : $this->getString('webroot');
+    }
+
+    /**
+     * Get the src (library) directory, falling back to the 'srcdir' global
+     * when the Kernel is not initialized.
+     */
+    public function getSrcDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getSrcDir()
+            : $this->getString('srcdir');
+    }
 }

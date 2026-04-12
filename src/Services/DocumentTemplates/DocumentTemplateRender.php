@@ -29,8 +29,9 @@ use OpenEMR\Services\VersionService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/appointments.inc.php');
+require_once($srcDir . '/options.inc.php');
 
 class DocumentTemplateRender
 {

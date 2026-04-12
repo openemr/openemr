@@ -65,7 +65,7 @@ class PatientMenuRole extends MenuRole
             $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
         }
         // if error, then die and report error
         if (!$menu_parsed) {
@@ -258,7 +258,7 @@ class PatientMenuRole extends MenuRole
             if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
                 $rel_url = ltrim((string) $rel_url, '/\\');
             }
-            return OEGlobalsBag::getInstance()->get('webroot') . "/" . $rel_url;
+            return OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/" . $rel_url;
         }
         return $rel_url;
     }
