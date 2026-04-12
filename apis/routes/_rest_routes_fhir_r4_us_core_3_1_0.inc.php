@@ -1515,7 +1515,7 @@ return [
 
         return $return;
     },
-    'POST /fhir' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+    'POST /fhir/' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirBundleRestController())->post($data);
