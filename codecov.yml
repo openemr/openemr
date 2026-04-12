@@ -14,7 +14,7 @@ coverage:
   status:
     project:
       default:
-        target: 27%       # Lock in current ~27% coverage as floor (was 4%)
+        target: auto      # Use current coverage as floor — no regression allowed (was 4%)
         threshold: 1%     # Allow 1% fluctuation for test-unrelated changes
     patch:
       default:
