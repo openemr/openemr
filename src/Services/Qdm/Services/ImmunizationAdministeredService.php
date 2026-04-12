@@ -35,12 +35,8 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
     {
         $record = $recordObj->getData();
         $model = new ImmunizationAdministered([
-            'relevantDatetime' => new DateTime([
-                'date' => $record['administered_date']
-            ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['administered_date']
-            ]),
+            'relevantDatetime' => new DateTime(date: $record['administered_date']),
+            'authorDatetime' => new DateTime(date: $record['administered_date']),
         ]);
 
         // if we have a reason code we add that in.  Its unlikely there is a reason and a refusal_reason but
@@ -64,17 +60,17 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
                 // Sometimes codes are nulled out and sdc:valueSet is in the code, like this:
                 // <code nullFlavor="NA" sdtc:valueSet="2.16.840.1.113883.3.526.3.1254"/>
                 $model->addCode(
-                    new Code([
-                        'code' => str_replace('OID:', '', $record['cvx_code']),
-                        'system' => null
-                    ])
+                    new Code(
+                        code: str_replace('OID:', '', $record['cvx_code']),
+                        system: null,
+                    )
                 );
             } else {
                 $model->addCode(
-                    new Code([
-                        'code' => $record['cvx_code'],
-                        'system' => $this->getSystemForCodeType('CVX')
-                    ])
+                    new Code(
+                        code: $record['cvx_code'],
+                        system: $this->getSystemForCodeType('CVX'),
+                    )
                 );
             }
         }

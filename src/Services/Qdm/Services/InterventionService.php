@@ -47,12 +47,8 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
         $qdmModel = new InterventionPerformed([
             '_id' => $id,
             'id' => $id,
-            'relevantDatetime' => new DateTime([
-                'date' => $record['date_ordered']
-            ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['date_ordered']
-            ])
+            'relevantDatetime' => new DateTime(date: $record['date_ordered']),
+            'authorDatetime' => new DateTime(date: $record['date_ordered'])
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);

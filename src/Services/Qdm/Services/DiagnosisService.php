@@ -30,12 +30,12 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
     {
         $record = $recordObj->getData();
         $qdmModel = new Diagnosis([
-            'prevalencePeriod' => new Interval([
-                'low' => $this->validDateOrNull($record['begdate']),
-                'high' => $this->validDateOrNull($record['enddate']),
-                'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
-            ])
+            'prevalencePeriod' => new Interval(
+                low: $this->validDateOrNull($record['begdate']),
+                high: $this->validDateOrNull($record['enddate']),
+                lowClosed: $this->validDateOrNull($record['begdate']) !== null,
+                highClosed: $this->validDateOrNull($record['enddate']) !== null,
+            ),
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['diagnosis']);

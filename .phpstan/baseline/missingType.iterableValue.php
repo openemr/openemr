@@ -4767,16 +4767,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:__construct\\(\\) has parameter \\$properties with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:__construct\\(\\) has parameter \\$properties with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\QrdaControllers\\\\QrdaReportController\\:\\:downloadConsolidatedQrdaIII\\(\\) has parameter \\$measures with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',

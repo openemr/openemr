@@ -28,9 +28,9 @@ class PhysicalExamService extends AbstractObservationService implements QdmServi
 
     public function makeResult($record)
     {
-        return new Quantity([
-            'value' => (int)$record['ob_value'],
-            'unit' => $record['ob_unit']
-        ]);
+        return new Quantity(
+            value: (int) $record['ob_value'],
+            unit: $record['ob_unit'],
+        );
     }
 }

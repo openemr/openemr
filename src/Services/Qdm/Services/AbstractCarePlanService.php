@@ -61,9 +61,7 @@ abstract class AbstractCarePlanService extends AbstractQdmService
         $model = new $modelClass([
             '_id' => $id,
             'id' => $id,
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
+            'authorDatetime' => new DateTime(date: $record['date']),
         ]);
 
         // If there is a Negation reason noted why this plan was NOT done, add a negation. It will be in the 'code' column

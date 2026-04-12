@@ -35,25 +35,19 @@ class SubstanceOrderService extends AbstractCarePlanService implements QdmServic
         $record = $recordObj->getData();
 
         // The medication order has an additional field for relevantPeriod that is not in the parent
-        $model->relevantPeriod = new Interval([
-            'low' =>  new DateTime([
-                'date' => $record['date']
-            ]),
-            'high' => new DateTime([
-                'date' => $record['date_end']
-            ]),
-            'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false,
-        ]);
+        $model->relevantPeriod = new Interval(
+            low: new DateTime(date: $record['date']),
+            high: new DateTime(date: $record['date_end']),
+            lowClosed: $record['date'] ? true : false,
+            highClosed: $this->validDateOrNull($record['date_end']) !== null,
+        );
 
-        $model->authorDatetime = new DateTime([
-            'date' => $record['date']
-        ]);
+        $model->authorDatetime = new DateTime(date: $record['date']);
 
-        $model->frequency = new Code([
-            "code" => "396125000",
-            "system" => "2.16.840.1.113883.6.96",
-        ]);
+        $model->frequency = new Code(
+            code: '396125000',
+            system: '2.16.840.1.113883.6.96',
+        );
 
         return $model;
     }

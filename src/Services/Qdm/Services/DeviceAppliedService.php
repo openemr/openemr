@@ -45,9 +45,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
         $qdmModel = new DeviceApplied([
             '_id' => $id,
             'id' => $id,
-            'relevantDatetime' => new DateTime([
-                'date' => $record['date_ordered']
-            ])
+            'relevantDatetime' => new DateTime(date: $record['date_ordered'])
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);

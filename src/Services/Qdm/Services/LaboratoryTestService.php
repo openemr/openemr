@@ -57,10 +57,10 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
             !empty($record['result'])
             && $record['result'] != 'Negative'
         ) {
-            $result = new Quantity([
-                'value' => (int)$record['result'],
-                'unit' => $record['units']
-            ]);
+            $result = new Quantity(
+                value: (int) $record['result'],
+                unit: $record['units'],
+            );
         }
         // A result generally should have a code however,
         // for rare occasions with values such as Negative, schematron expects a code type
@@ -73,23 +73,15 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         }
 
         $qdmModel = new LaboratoryTestPerformed([
-            'relevantDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
-            'relevantPeriod' => new Interval([
-                'low' => new DateTime([
-                    'date' => $record['date']
-                ]),
-                'high' => new DateTime([
-                    'date' => $record['date_end'] ?: null
-                ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
-            ]),
+            'relevantDatetime' => new DateTime(date: $record['date']),
+            'relevantPeriod' => new Interval(
+                low: new DateTime(date: $record['date']),
+                high: new DateTime(date: $record['date_end'] ?: null),
+                lowClosed: $record['date'] ? true : false,
+                highClosed: $this->validDateOrNull($record['date_end']) !== null,
+            ),
             'result' => $result,
-            'resultDatetime' => new DateTime([
-                'date' => $record['date']
-            ])
+            'resultDatetime' => new DateTime(date: $record['date']),
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);

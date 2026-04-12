@@ -69,34 +69,28 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         $qdmRecord = new EncounterPerformed([
             '_id' => $enc_id,
             'id' => $enc_id,
-            'relevantPeriod' => new Interval([
-                'low' =>  new DateTime([
-                    'date' => $start->format('Y-m-d H:i:s')
-                ]),
-                'high' => new DateTime([
-                    'date' => $end_date
-                ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
-            ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
+            'relevantPeriod' => new Interval(
+                low: new DateTime(date: $start->format('Y-m-d H:i:s')),
+                high: new DateTime(date: $end_date),
+                lowClosed: $record['date'] ? true : false,
+                highClosed: $this->validDateOrNull($record['date_end']) !== null,
+            ),
+            'authorDatetime' => new DateTime(date: $record['date']),
             'admissionSource' => null,
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],
-            'lengthOfStay' => new Quantity([
-                'value' => (int)$days,
-                'unit' => 'd'
-                ]),
+            'lengthOfStay' => new Quantity(
+                value: (int) $days,
+                unit: 'd',
+            ),
             'negationRationale' => null
         ]);
 
         $encounter_diagnosis_codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
         foreach ($encounter_diagnosis_codes as $encounter_diagnosis_code) {
-            $qdmRecord->diagnoses [] = new DiagnosisComponent([
-                'code' => $encounter_diagnosis_code
-            ]);
+            $component = new DiagnosisComponent();
+            $component->code = $encounter_diagnosis_code;
+            $qdmRecord->diagnoses[] = $component;
         }
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);

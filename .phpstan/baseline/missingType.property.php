@@ -24907,11 +24907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AdverseEvent\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/AdverseEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AdverseEvent\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AdverseEvent.php',
@@ -24967,11 +24962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AdverseEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AllergyIntolerance\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/AllergyIntolerance.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AllergyIntolerance\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AllergyIntolerance.php',
@@ -25022,11 +25012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AllergyIntolerance.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentOrder.php',
@@ -25070,11 +25055,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentPerformed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -25157,11 +25137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentRecommended.php',
@@ -25205,116 +25180,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\AssessmentRecommended\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/AssessmentRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$city has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$country has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$state has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$street has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$use has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Address\\:\\:\\$zip has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Address.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Any\\:\\:\\$bundleId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Any.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Code\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Code\\:\\:\\$code has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Code\\:\\:\\$display has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Code\\:\\:\\$system has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Code\\:\\:\\$version has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:\\$bundleId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:\\$dataElementCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DateTime\\:\\:\\$date has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DateTime.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Quantity\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Quantity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Quantity\\:\\:\\$unit has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Quantity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Quantity\\:\\:\\$value has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Quantity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Telcom\\:\\:\\$use has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Telcom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Telcom\\:\\:\\$value has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Telcom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\CareGoal\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/CareGoal.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\CareGoal\\:\\:\\$hqmfOid has no type specified\\.$#',
@@ -25385,11 +25250,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\CarePartner\\:\\:\\$relationship has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/CarePartner.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\CommunicationPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/CommunicationPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\CommunicationPerformed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -25482,11 +25342,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Component.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceApplied\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceApplied.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceApplied\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceApplied.php',
@@ -25547,11 +25402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceApplied.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceOrder.php',
@@ -25597,11 +25447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceRecommended.php',
@@ -25645,11 +25490,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DeviceRecommended\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DeviceRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Diagnosis\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/Diagnosis.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Diagnosis\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
@@ -25727,11 +25567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosisComponent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyOrder.php',
@@ -25775,11 +25610,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyPerformed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -25877,11 +25707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyRecommended.php',
@@ -25920,11 +25745,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\DiagnosticStudyRecommended\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/DiagnosticStudyRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/EncounterOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -25980,11 +25800,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/EncounterOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/EncounterPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterPerformed\\:\\:\\$admissionSource has no type specified\\.$#',
@@ -26070,11 +25885,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterPerformed\\:\\:\\$relevantPeriod has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/EncounterPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/EncounterRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\EncounterRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -26167,11 +25977,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/FacilityLocation.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\FamilyHistory\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/FamilyHistory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\FamilyHistory\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/FamilyHistory.php',
@@ -26232,11 +26037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Identifier.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ImmunizationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ImmunizationAdministered.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ImmunizationAdministered\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ImmunizationAdministered.php',
@@ -26295,11 +26095,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ImmunizationAdministered\\:\\:\\$route has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ImmunizationAdministered.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ImmunizationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ImmunizationOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ImmunizationOrder\\:\\:\\$activeDatetime has no type specified\\.$#',
@@ -26367,11 +26162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ImmunizationOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionOrder.php',
@@ -26415,11 +26205,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionPerformed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -26492,11 +26277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\InterventionRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionRecommended.php',
@@ -26542,11 +26322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/InterventionRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestOrder.php',
@@ -26590,11 +26365,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestPerformed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -26692,11 +26462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\LaboratoryTestRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/LaboratoryTestRecommended.php',
@@ -26762,11 +26527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Location.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationActive\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationActive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationActive\\:\\:\\$dosage has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationActive.php',
@@ -26820,11 +26580,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationActive\\:\\:\\$route has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationActive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationAdministered\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -26895,11 +26650,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationAdministered\\:\\:\\$route has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationAdministered.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationDischarge\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationDischarge.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationDischarge\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -26975,11 +26725,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationDischarge\\:\\:\\$supply has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationDischarge.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationDispensed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationDispensed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationDispensed\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -27072,11 +26817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationDispensed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\MedicationOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationOrder.php',
@@ -27167,11 +26907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/MedicationOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentOrder.php',
@@ -27180,11 +26915,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27197,11 +26927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentRecommended.php',
@@ -27210,11 +26935,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeAssessmentRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeAssessmentRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeCommunicationPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeCommunicationPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeCommunicationPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27227,11 +26947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeCommunicationPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceApplied\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceApplied.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceApplied\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceApplied.php',
@@ -27240,11 +26955,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceApplied\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceApplied.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27257,11 +26967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceRecommended.php',
@@ -27270,11 +26975,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDeviceRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDeviceRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27287,11 +26987,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyPerformed.php',
@@ -27300,11 +26995,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeDiagnosticStudyRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27317,11 +27007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeDiagnosticStudyRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterOrder.php',
@@ -27330,11 +27015,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27347,11 +27027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterRecommended.php',
@@ -27360,11 +27035,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeEncounterRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeEncounterRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeImmunizationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeImmunizationAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeImmunizationAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27377,11 +27047,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeImmunizationAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeImmunizationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeImmunizationOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeImmunizationOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeImmunizationOrder.php',
@@ -27390,11 +27055,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeImmunizationOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeImmunizationOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27407,11 +27067,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionPerformed.php',
@@ -27420,11 +27075,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeInterventionRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27437,11 +27087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeInterventionRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestOrder.php',
@@ -27450,11 +27095,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27467,11 +27107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestRecommended.php',
@@ -27480,11 +27115,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeLaboratoryTestRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeLaboratoryTestRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27497,11 +27127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationDischarge\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationDischarge.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationDischarge\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationDischarge.php',
@@ -27510,11 +27135,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationDischarge\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationDischarge.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationDispensed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationDispensed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationDispensed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27527,11 +27147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationDispensed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationOrder.php',
@@ -27540,11 +27155,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeMedicationOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeMedicationOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27557,11 +27167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamPerformed.php',
@@ -27570,11 +27175,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativePhysicalExamRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27587,11 +27187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativePhysicalExamRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureOrder.php',
@@ -27600,11 +27195,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedurePerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedurePerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27617,11 +27207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureRecommended.php',
@@ -27630,11 +27215,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeProcedureRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeProcedureRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27647,11 +27227,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceOrder.php',
@@ -27660,11 +27235,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/NegativeSubstanceRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\NegativeSubstanceRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -27695,11 +27265,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Organization\\:\\:\\$qrdaOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Organization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Participation\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/Participation.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Participation\\:\\:\\$hqmfOid has no type specified\\.$#',
@@ -27772,11 +27337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCareExperience\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCareExperience.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCareExperience\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCareExperience.php',
@@ -27812,11 +27372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCareExperience.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristic\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristic.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristic\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristic.php',
@@ -27847,11 +27402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristic.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicBirthdate\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicBirthdate.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicBirthdate\\:\\:\\$birthDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicBirthdate.php',
@@ -27880,11 +27430,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicBirthdate\\:\\:\\$qrdaOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicBirthdate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicClinicalTrialParticipant\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicClinicalTrialParticipant.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicClinicalTrialParticipant\\:\\:\\$hqmfOid has no type specified\\.$#',
@@ -27922,11 +27467,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicClinicalTrialParticipant.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicEthnicity\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicEthnicity.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicEthnicity\\:\\:\\$hqmfOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicEthnicity.php',
@@ -27950,11 +27490,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicEthnicity\\:\\:\\$qrdaOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicEthnicity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicExpired\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicExpired.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicExpired\\:\\:\\$cause has no type specified\\.$#',
@@ -27992,11 +27527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicExpired.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicPayer\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicPayer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicPayer\\:\\:\\$hqmfOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicPayer.php',
@@ -28027,11 +27557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicPayer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicRace\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicRace.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicRace\\:\\:\\$hqmfOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicRace.php',
@@ -28055,11 +27580,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicRace\\:\\:\\$qrdaOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicRace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicSex\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientCharacteristicSex.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientCharacteristicSex\\:\\:\\$hqmfOid has no type specified\\.$#',
@@ -28100,11 +27620,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PatientEntity\\:\\:\\$qrdaOid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PatientEntity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamOrder\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
@@ -28155,11 +27670,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamPerformed\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
@@ -28242,11 +27752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PhysicalExamRecommended\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamRecommended.php',
@@ -28297,11 +27802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PhysicalExamRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentOrder.php',
@@ -28310,11 +27810,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28327,11 +27822,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentRecommended.php',
@@ -28340,11 +27830,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveAssessmentRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveAssessmentRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveCommunicationPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveCommunicationPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveCommunicationPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28357,11 +27842,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveCommunicationPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceApplied\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceApplied.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceApplied\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceApplied.php',
@@ -28370,11 +27850,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceApplied\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceApplied.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28387,11 +27862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceRecommended.php',
@@ -28400,11 +27870,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDeviceRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDeviceRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28417,11 +27882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyPerformed.php',
@@ -28430,11 +27890,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveDiagnosticStudyRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28447,11 +27902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveDiagnosticStudyRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterOrder.php',
@@ -28460,11 +27910,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28477,11 +27922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterRecommended.php',
@@ -28490,11 +27930,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveEncounterRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveEncounterRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveImmunizationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveImmunizationAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveImmunizationAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28507,11 +27942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveImmunizationAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveImmunizationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveImmunizationOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveImmunizationOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveImmunizationOrder.php',
@@ -28520,11 +27950,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveImmunizationOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveImmunizationOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28537,11 +27962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionPerformed.php',
@@ -28550,11 +27970,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveInterventionRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28567,11 +27982,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveInterventionRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestOrder.php',
@@ -28580,11 +27990,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28597,11 +28002,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestPerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestRecommended.php',
@@ -28610,11 +28010,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveLaboratoryTestRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveLaboratoryTestRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28627,11 +28022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationDischarge\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationDischarge.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationDischarge\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationDischarge.php',
@@ -28640,11 +28030,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationDischarge\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationDischarge.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationDispensed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationDispensed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationDispensed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28657,11 +28042,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationDispensed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationOrder.php',
@@ -28670,11 +28050,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveMedicationOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveMedicationOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28687,11 +28062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamPerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamPerformed.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamPerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamPerformed.php',
@@ -28700,11 +28070,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamPerformed\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamPerformed.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositivePhysicalExamRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28717,11 +28082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositivePhysicalExamRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureOrder.php',
@@ -28730,11 +28090,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedurePerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedurePerformed\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28747,11 +28102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureRecommended.php',
@@ -28760,11 +28110,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveProcedureRecommended\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveProcedureRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceAdministered\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28777,11 +28122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceAdministered.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceOrder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceOrder\\:\\:\\$qdmTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceOrder.php',
@@ -28790,11 +28130,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceOrder\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/PositiveSubstanceRecommended.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\PositiveSubstanceRecommended\\:\\:\\$qdmTitle has no type specified\\.$#',
@@ -28835,11 +28170,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Practitioner\\:\\:\\$specialty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Practitioner.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedureOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedureOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedureOrder\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
@@ -28900,11 +28230,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedureOrder\\:\\:\\$requester has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedureOrder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedurePerformed\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedurePerformed\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
@@ -29002,11 +28327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedurePerformed.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedureRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedureRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProcedureRecommended\\:\\:\\$anatomicalLocationSite has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedureRecommended.php',
@@ -29062,11 +28382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProcedureRecommended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProviderCareExperience\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/ProviderCareExperience.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ProviderCareExperience\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProviderCareExperience.php',
@@ -29102,11 +28417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ProviderCareExperience.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\QDMBaseType\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/QDMBaseType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\QDMBaseType\\:\\:\\$code has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/QDMBaseType.php',
@@ -29120,11 +28430,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\QDMBaseType\\:\\:\\$qdmVersion has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/QDMBaseType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\RelatedPerson\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/RelatedPerson.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\RelatedPerson\\:\\:\\$hqmfOid has no type specified\\.$#',
@@ -29170,11 +28475,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\ResultComponent\\:\\:\\$referenceRange has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/ResultComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceAdministered\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceAdministered.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceAdministered\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -29240,11 +28540,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceAdministered\\:\\:\\$route has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceAdministered.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceOrder\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceOrder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceOrder\\:\\:\\$authorDatetime has no type specified\\.$#',
@@ -29322,11 +28617,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceOrder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceRecommended\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceRecommended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceRecommended\\:\\:\\$authorDatetime has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceRecommended.php',
@@ -29390,11 +28680,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\SubstanceRecommended\\:\\:\\$route has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/SubstanceRecommended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Symptom\\:\\:\\$_type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/Symptom.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Symptom\\:\\:\\$hqmfOid has no type specified\\.$#',

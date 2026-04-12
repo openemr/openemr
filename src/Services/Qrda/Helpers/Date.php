@@ -22,9 +22,9 @@ trait Date
     protected $_performance_period_start;
     protected $_performance_period_end;
 
-    public function value_or_null_flavor($time)
+    public function value_or_null_flavor(?string $time): string
     {
-        if (!empty($time) && !str_contains((string) $time, "0000-00-00")) {
+        if (!empty($time) && !str_contains($time, "0000-00-00")) {
             $time = DateHelper::format_datetime($time);
             $v = "value='{$time}'";
         } else {

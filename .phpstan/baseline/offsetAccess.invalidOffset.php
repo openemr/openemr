@@ -999,11 +999,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
 ];
 $ignoreErrors[] = [

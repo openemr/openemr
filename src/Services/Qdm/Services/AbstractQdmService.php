@@ -63,9 +63,7 @@ abstract class AbstractQdmService
         if (empty($date) || str_contains((string) $date, '0000-00-00')) {
             return null;
         }
-        return new DateTime([
-            'date' => $date
-        ]);
+        return new DateTime(date: $date);
     }
 
     public function getPatientIdColumn()
@@ -167,10 +165,10 @@ abstract class AbstractQdmService
             !empty($code)
             && !empty($system)
         ) {
-            $codeModel = new Code([
-                'code' => $code,
-                'system' => $this->getSystemForCodeType($system)
-            ]);
+            $codeModel = new Code(
+                code: $code,
+                system: $this->getSystemForCodeType($system),
+            );
         }
 
         return $codeModel;

@@ -1,24 +1,26 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 namespace OpenEMR\Cqm\Qdm\BaseTypes;
 
+use JsonSerializable;
 use OpenEMR\Services\Qrda\Util\DateHelper;
 
-class DateTime extends AbstractType implements \JsonSerializable
+class DateTime implements JsonSerializable
 {
-    public $date;
+    public function __construct(
+        public ?string $date = null,
+    ) {
+    }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): ?string
     {
-        $formatted = DateHelper::format_datetime_cqm($this->date);
-        return $formatted;
+        return DateHelper::format_datetime_cqm($this->date);
     }
 }

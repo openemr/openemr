@@ -10582,16 +10582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_datetime\\(\\) should return string\\|false but returns numeric\\-string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_datetime_cqm\\(\\) should return string\\|false but returns non\\-falsy\\-string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:extractAnswerValue\\(\\) should return string but returns mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',

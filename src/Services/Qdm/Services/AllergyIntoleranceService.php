@@ -34,15 +34,13 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
         $qdmModel = new AllergyIntolerance([
             '_id' => $id,
             'id' => $id,
-            'authorDatetime' => new DateTime([
-                'date' => $record['begdate']
-            ]),
-            'prevalencePeriod' => new Interval([
-                'low' => $record['begdate'],
-                'high' => $record['enddate'],
-                'lowClosed' => $record['begdate'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
-            ])
+            'authorDatetime' => new DateTime(date: $record['begdate']),
+            'prevalencePeriod' => new Interval(
+                low: $this->validDateOrNull($record['begdate']),
+                high: $this->validDateOrNull($record['enddate']),
+                lowClosed: $record['begdate'] ? true : false,
+                highClosed: $this->validDateOrNull($record['enddate']) !== null,
+            ),
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
