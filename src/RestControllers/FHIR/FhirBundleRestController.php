@@ -148,14 +148,20 @@ class FhirBundleRestController
     )]
     public function post($fhirJson): Response
     {
+        $this->logger->info("Validating incoming FHIR JSON resource!");
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
+            $this->logger->error("Invalid FHIR JSON Resource!");
             return RestControllerHelper::handleFhirProcessingResult($fhirValidate, 400);
         }
 
+        $this->logger->info("Deserializing incoming FHIR JSON resource!");
         $object = FhirBundleSerializer::deserialize($fhirJson);
 
+        $this->logger->info("Processing incoming FHIR Resource Object!");
         $processingResult = $this->insert($object);
+
+        $this->logger->info("FHIR Resource Object processed!");
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
