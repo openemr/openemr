@@ -20,12 +20,13 @@ jobs:
           - common
           - controllers
           - e2e
-          - ECQM
           - email
-          - fixures
+          - fixtures
           - services
           - unit
           - valdiators
+          # Needs a node thing
+          # - ECQM
 
     # services:
       # mysql:
