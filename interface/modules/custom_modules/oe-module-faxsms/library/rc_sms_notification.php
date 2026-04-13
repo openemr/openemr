@@ -18,6 +18,7 @@
  */
 
 //hack add for command line version
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -284,14 +285,19 @@ function isValidPhone($phone): array|bool|string|null
 }
 
 /**
- * Integrate cron functions into this script
+ * Mark a non-recurring event as notified on the events table.
  *
- * Borrowed from cron_functions.php. Update status yes if alert send to patient
+ * Recurring events are intentionally skipped: the pc_sendalertsms /
+ * pc_sendalertemail columns live on the base event row which is shared by
+ * every occurrence. Setting them would suppress reminders for all future
+ * occurrences. Recurring-event dedup is handled in
+ * faxsms_getAlertPatientData() by checking the notification_log keyed on
+ * (pc_eid, pc_eventDate, type).
  *
  * @param string $type
  * @param int    $pid
  * @param int    $pc_eid
- * @param string $recur
+ * @param string $recur pc_recurrtype value
  * @return int
  */
 function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
@@ -346,11 +352,68 @@ function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificat
         return [];
     }
 
+    // For recurring events, the events-table dedup columns
+    // (pc_sendalertsms/pc_sendalertemail) live on the base event row shared
+    // by all occurrences, so they cannot distinguish individual occurrence
+    // dates. Check the notification_log instead, keyed on
+    // (pc_eid, pc_eventDate, type).
+    $channelType = match ($channel) {
+        NotificationChannel::EMAIL => 'Email',
+        NotificationChannel::SMS => 'SMS',
+    };
+
+    // Collect recurring event IDs so we can batch-check notification_log
+    // in a single query instead of one query per occurrence. Use string
+    // keys to match the mixed types from fetchEvents() and notification_log
+    // without requiring casts from mixed.
+    /** @var array<string, true> */
+    $recurringEids = [];
+    foreach ($events as $event) {
+        if (!is_array($event)) {
+            continue;
+        }
+        $recurrtype = $event['pc_recurrtype'] ?? 0;
+        $pcEid = $event['pc_eid'] ?? null;
+        if (is_numeric($recurrtype) && $recurrtype > 0 && is_numeric($pcEid)) {
+            $recurringEids[(string)$pcEid] = true;
+        }
+    }
+
+    /** @var array<string, array<string, true>> */
+    $sentNotifications = [];
+    if ($recurringEids !== []) {
+        $pcEids = array_keys($recurringEids);
+        $placeholders = implode(',', array_fill(0, count($pcEids), '?'));
+        $rows = QueryUtils::fetchRecords(
+            "SELECT pc_eid, pc_eventDate FROM notification_log WHERE type = ? AND pc_eid IN ($placeholders)",
+            array_merge([$channelType], $pcEids),
+        );
+        foreach ($rows as $row) {
+            $eid = $row['pc_eid'] ?? null;
+            $date = $row['pc_eventDate'] ?? null;
+            if (is_numeric($eid) && is_string($date)) {
+                $sentNotifications[(string)$eid][$date] = true;
+            }
+        }
+    }
+
     $normalized = [];
     foreach ($events as $event) {
-        if (is_array($event)) {
-            $normalized[] = $event;
+        if (!is_array($event)) {
+            continue;
         }
+        $recurrtype = $event['pc_recurrtype'] ?? 0;
+        $eventDate = $event['pc_eventDate'] ?? '';
+        $pcEid = $event['pc_eid'] ?? null;
+        if (
+            is_numeric($recurrtype) && $recurrtype > 0
+            && is_string($eventDate)
+            && is_numeric($pcEid)
+            && isset($sentNotifications[(string)$pcEid][$eventDate])
+        ) {
+            continue;
+        }
+        $normalized[] = $event;
     }
     return $normalized;
 }
