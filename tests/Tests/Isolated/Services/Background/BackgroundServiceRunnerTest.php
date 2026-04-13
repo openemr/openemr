@@ -175,10 +175,12 @@ class BackgroundServiceRunnerTest extends TestCase
     public function testValidateIncludePathRejectsNonexistentFile(): void
     {
         $validator = new BackgroundServicePathValidator();
+        $projectDir = dirname(__DIR__, 5); // repository/project root
+        $nonexistentPath = $projectDir . DIRECTORY_SEPARATOR . 'nonexistent_file_' . uniqid('', true) . '.php';
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('file does not exist');
-        $validator->callValidateIncludePath('/var/www/openemr/nonexistent_file.php', '/var/www/openemr', 'test_svc');
+        $this->expectExceptionMessage('path cannot be resolved');
+        $validator->callValidateIncludePath($nonexistentPath, $projectDir, 'test_svc');
     }
 
     public function testValidateIncludePathRejectsFileOutsideRoot(): void

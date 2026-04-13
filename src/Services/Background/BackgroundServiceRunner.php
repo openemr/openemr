@@ -267,7 +267,7 @@ class BackgroundServiceRunner
         $realPath = realpath($path);
         if ($realPath === false) {
             throw new \RuntimeException(sprintf(
-                'Background service "%s" has an invalid require_once path: file does not exist.',
+                'Background service "%s" has an invalid require_once path: path cannot be resolved.',
                 $serviceName,
             ));
         }
