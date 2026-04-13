@@ -357,10 +357,7 @@ function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificat
     // by all occurrences, so they cannot distinguish individual occurrence
     // dates. Check the notification_log instead, keyed on
     // (pc_eid, pc_eventDate, type).
-    $channelType = match ($channel) {
-        NotificationChannel::EMAIL => 'Email',
-        NotificationChannel::SMS => 'SMS',
-    };
+    $channelType = $channel->value;
 
     // Collect recurring event IDs so we can batch-check notification_log
     // in a single query instead of one query per occurrence. Use string
