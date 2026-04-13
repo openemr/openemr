@@ -12,7 +12,7 @@
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -472,13 +472,23 @@ class Installer
         }
 
         while (!$this->atEndOfFile($fd)) {
-            $line = $this->getLine($fd, 1024);
-            $line = rtrim($line);
+            $rawLine = $this->getLine($fd);
+            if ($rawLine === false) {
+                continue;
+            }
+            $line = rtrim($rawLine);
             if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
                 continue;
             }
 
-            $query .= $line;          // Check for full query
+            // Insert a newline separator between concatenated lines.
+            // A space would fuse a SQL "--" comment with the following line,
+            // swallowing it (see #11465). A newline terminates the comment
+            // at the line boundary as SQL requires.
+            if ($query !== "") {
+                $query .= "\n";
+            }
+            $query .= $line;
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                 $query = rtrim($query, ";");
@@ -2116,12 +2126,11 @@ SETHLP;
      * @codeCoverageIgnore
      *
      * @param resource $stream
-     * @param int $length
      * @return string|false
      */
-    protected function getLine($stream, int $length): string|false
+    protected function getLine($stream): string|false
     {
-        return fgets($stream, $length);
+        return fgets($stream);
     }
 
     /**

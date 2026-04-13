@@ -351,7 +351,7 @@ class sms_clickatell implements sms_interface
         $result = '';
         $handler = @fopen($command, 'r');
         if ($handler) {
-            while ($line = @fgets($handler, 1024)) {
+            while (($line = @fgets($handler)) !== false) {
                 $result .= $line;
             }
 

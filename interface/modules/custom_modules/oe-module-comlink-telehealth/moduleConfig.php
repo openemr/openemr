@@ -33,9 +33,7 @@ if (!empty($_GET['setup']) ?? null) {
      * 'ctsiOrgId' => 'OPENEM2xxxx']];
      *
      * */
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);

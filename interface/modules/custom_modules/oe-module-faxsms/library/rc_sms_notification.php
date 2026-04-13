@@ -14,6 +14,7 @@
  * @copyright Copyright (c) 2008 Larry Lart
  * @copyright Copyright (c) 2018-2024 Jerry Padgett
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
 //hack add for command line version
@@ -21,6 +22,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
@@ -83,7 +85,8 @@ if (!empty($runtime['type'])) {
     $TYPE = $runtime['type'] = "SMS"; // default
 }
 
-$CRON_TIME = 150;
+$taskManager = new \OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager();
+$CRON_TIME = $taskManager->getTaskHours(strtolower($TYPE));
 // use service if needed
 if ($TYPE === "SMS") {
     $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
@@ -107,7 +110,8 @@ if ($TYPE === "EMAIL") {
 session_write_close();
 set_time_limit(0);
 
-$SMS_NOTIFICATION_HOUR = $cred['smsHours'] ?? $cred['notification_hours'] ?? 24;
+$smsNotificationHourRaw = $cred['smsHours'] ?? $cred['notification_hours'] ?? 24;
+$SMS_NOTIFICATION_HOUR = is_numeric($smsNotificationHourRaw) ? (int) $smsNotificationHourRaw : 24;
 $MESSAGE = $cred['smsMessage'] ?? $cred['email_message'];
 
 // check command line for quite option
@@ -115,10 +119,6 @@ $bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
 if (!empty($runtime['testrun'])) {
     $bTestRun = 1;
 }
-
-$curr_date = date("Y-m-d");
-$curr_time = time();
-$check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
 $db_sms_msg['type'] = $TYPE;
 $db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
@@ -145,8 +145,8 @@ $db_sms_msg['message'] = $MESSAGE;
             if ($bTestRun) {
                 echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
             }
-            $db_patient = cron_GetAlertPatientData();
-            echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . text($SMS_NOTIFICATION_HOUR) . ' ' . xlt("hrs from now.");
+            $db_patient = faxsms_getAlertPatientData(NotificationChannel::fromLegacyType($TYPE), $SMS_NOTIFICATION_HOUR);
+            echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . $SMS_NOTIFICATION_HOUR . ' ' . xlt("hrs from now.");
             ob_flush();
             flush();
             // for every event found
@@ -171,10 +171,10 @@ $db_sms_msg['message'] = $MESSAGE;
                     echo "<h4>" . xlt("For Provider") . ": " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
                     $plast = $prow['ulname'];
                 }
-                $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
+                $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . $SMS_NOTIFICATION_HOUR . " | " . xlt("CRONJOB RUNS EVERY:") . $CRON_TIME . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
 
                 // check in the interval
-                if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
+                if (\OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager::isWithinCronWindow((int) $remain_hour, $CRON_TIME)) {
                     //set message
                     $db_sms_msg['message'] = cron_SetMessage($prow, $db_sms_msg);
                     // send sms to patient - if not in test mode
@@ -320,23 +320,40 @@ function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = ''
 
 /**
  * Cron Get Alert Patient Data
- * *
  *
- * @param $type
- * @return array
+ * Pass the notification channel and hours-ahead explicitly rather than reading
+ * them from globals. The Background Services entry path loads this file via
+ * require_once from inside a function, which traps the file's top-level
+ * variables as function locals — `global $TYPE` then sees null and the wrong
+ * WHERE clause runs, causing duplicate email reminders. See issue #11477.
+ *
+ * Renamed from `cron_GetAlertPatientData()` to a module-prefixed name to avoid
+ * a PHP case-insensitive collision with the legacy `cron_getAlertpatientData()`
+ * in `modules/sms_email_reminder/cron_functions.php`.
+ *
+ * @return list<array<mixed>>
  */
-function cron_GetAlertPatientData()
+function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificationHour): array
 {
-    global $SMS_NOTIFICATION_HOUR, $TYPE;
-    $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')";
-    if ($TYPE == 'EMAIL') {
-        $where = " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')";
-    }
-    $adj_date = date("h") + $SMS_NOTIFICATION_HOUR;
-    $check_date = date("Y-m-d", mktime($adj_date, 0, 0, date("m"), date("d"), date("Y")));
-    $patient_array = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
+    $where = match ($channel) {
+        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')",
+        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')",
+    };
+    $adj_date = (int)date("H") + $notificationHour;
+    $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
 
-    return $patient_array;
+    $events = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
+    if (!is_array($events)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach ($events as $event) {
+        if (is_array($event)) {
+            $normalized[] = $event;
+        }
+    }
+    return $normalized;
 }
 
 /**

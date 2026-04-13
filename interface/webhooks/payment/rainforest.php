@@ -4,7 +4,7 @@
  * Webhook receiver for Rainforest data
  *
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @link      https://docs.rainforestpay.com/docs/payin-webhooks
  * @package   OpenEMR

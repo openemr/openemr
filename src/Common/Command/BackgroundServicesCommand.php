@@ -8,7 +8,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -109,7 +109,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             match ($result['status']) {
                 'executed' => $io->success("Service '{$result['name']}' executed successfully."),
                 'skipped' => $io->warning("Service '{$result['name']}' skipped (inactive, already running, or requires --force for manual mode)."),
-                'locked' => $io->warning("Service '{$result['name']}' is locked (not yet due to run)."),
+                'already_running' => $io->warning("Service '{$result['name']}' is already running (another process holds the lock)."),
+                'not_due' => $io->warning("Service '{$result['name']}' is not yet due to run (interval has not elapsed)."),
                 'not_found' => $io->error("Service '{$result['name']}' not found."),
                 'error' => $io->error("Service '{$result['name']}' encountered an error."),
                 default => $io->note("Service '{$result['name']}': {$result['status']}"),
@@ -119,7 +120,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         $status = $results[0]['status'] ?? 'not_found';
         return match ($status) {
             'executed' => Command::SUCCESS,
-            'skipped', 'locked' => 2,
+            'skipped', 'already_running', 'not_due' => 2,
             default => Command::FAILURE,
         };
     }
@@ -130,7 +131,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         if (!is_string($php)) {
             $php = PHP_BINARY;
         }
-        $fileroot = $this->getGlobalsBag()->getString('fileroot');
+        $globalsBag = $this->getGlobalsBag();
+        $fileroot = $globalsBag->getProjectDir();
         if ($fileroot === '') {
             $io->error('Global "fileroot" is not configured.');
             return Command::FAILURE;

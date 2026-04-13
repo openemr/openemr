@@ -46,7 +46,7 @@ class CDADocumentService extends BaseService
      */
     private function getXslPath(): string
     {
-        return OEGlobalsBag::getInstance()->get('fileroot') . self::XSL_PATH;
+        return OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . self::XSL_PATH;
     }
 
     /**
@@ -129,8 +129,7 @@ class CDADocumentService extends BaseService
             null,
             []
         );
-        $content = $result->getContent();
-        unset($result);
+        $content = $result->getContent() ?: '';
 
         if (str_starts_with($content, 'ERROR:')) {
             ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);
@@ -276,7 +275,7 @@ class CDADocumentService extends BaseService
             throw new RuntimeException(xlt("CDA stylesheet not found"));
         }
 
-        $xml = simplexml_load_string($content);
+        $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();

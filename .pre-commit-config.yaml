@@ -145,7 +145,7 @@ repos:
 
   - id: conventional-commits
     name: Conventional Commits
-    entry: composer conventional-commits:check --
+    entry: bash -c 'composer conventional-commits:check -- "$(<"$1")"' --
     language: system
     stages:
     - commit-msg

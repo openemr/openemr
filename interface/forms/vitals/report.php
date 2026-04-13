@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -44,8 +45,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
         foreach ($data as $key => $value) {
             if (
-                in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" ||
-                $value == "0000-00-00 00:00:00" || $value == "0.0"
+                in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
+                Utilities::isDateEmpty($value) || $value == "0.0"
             ) {
                 // skip certain data
                 continue;
@@ -69,7 +70,12 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                     }
                 }
 
-                $vitals .= '<td><div class="bold" style="display:inline-block">' . xlt($key) . ': </div></td><td><div class="text" style="display:inline-block">' . xlt($value) . "</div></td>";
+                $valueStr = is_string($value) ? $value : '';
+                // Vitals labels/values are dynamic content; translate unconditionally via xl().
+                $keyLabel = xl($key);
+                // @phpstan-ignore argument.type (vitals values are dynamic content)
+                $valueLabel = xl($valueStr);
+                $vitals .= '<td><div class="bold" style="display:inline-block">' . text($keyLabel) . ': </div></td><td><div class="text" style="display:inline-block">' . text($valueLabel) . "</div></td>";
             } elseif ($key == "Bps") {
                 $bps = $value;
                 if (!empty($bpd)) {
@@ -153,7 +159,9 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                     }
                 }
             } else {
-                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . "</div></td>";
+                // @phpstan-ignore argument.type (vitals keys are dynamic content)
+                $keyLabel = xl($key);
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . text($keyLabel) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . "</div></td>";
             }
 
             $count++;

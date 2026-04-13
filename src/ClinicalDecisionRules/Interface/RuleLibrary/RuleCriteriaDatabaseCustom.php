@@ -24,8 +24,14 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaDatabaseCustom extends RuleCriteria
 {
-    function __construct(public $table, public $column, public $valueComparator, public $value, public $frequencyComparator, public $frequency)
-    {
+    function __construct(
+        public string $table,
+        public string $column,
+        public string $valueComparator,
+        public string $value,
+        public string $frequencyComparator,
+        public string $frequency,
+    ) {
     }
 
     function getRequirements()
@@ -45,7 +51,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
 
     function getTitle()
     {
-        return xl($this->table) . "." . xl($this->column);
+        return $this->table . "." . $this->column;
     }
 
     function getView()
@@ -59,7 +65,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $stmts = sqlStatement("SHOW TABLES");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             foreach ($row as $value) {
-                array_push($options, ["id" => $value, "label" => xl($value)]);
+                $options[] = ["id" => $value, "label" => $value];
             }
         }
 
@@ -84,11 +90,22 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     {
         parent::updateFromRequest();
 
-        $this->table = Common::post("fld_table");
-        $this->column = Common::post("fld_column");
-        $this->value = Common::post("fld_value");
-        $this->valueComparator = Common::post("fld_value_comparator");
-        $this->frequency = Common::post("fld_frequency");
-        $this->frequencyComparator = Common::post("fld_frequency_comparator");
+        $this->table = self::postField("fld_table");
+        $this->column = self::postField("fld_column");
+        $this->value = self::postField("fld_value");
+        $this->valueComparator = self::postField("fld_value_comparator");
+        $this->frequency = self::postField("fld_frequency");
+        $this->frequencyComparator = self::postField("fld_frequency_comparator");
+    }
+
+    /**
+     * Read a string field from POST and strip the `::` delimiter used by
+     * {@see self::getDbView()} to serialize criteria values. Without this, an
+     * input containing `::` would shift field indices when parsed by
+     * {@see RuleCriteriaDatabaseBuilder}.
+     */
+    private static function postField(string $key): string
+    {
+        return str_replace("::", "", Common::postString($key));
     }
 }

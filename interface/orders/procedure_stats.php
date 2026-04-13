@@ -412,9 +412,7 @@ $(function () {
 } // end not export
 
 if (!empty($_POST['form_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {

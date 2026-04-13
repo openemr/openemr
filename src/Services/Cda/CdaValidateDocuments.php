@@ -113,7 +113,7 @@ class CdaValidateDocuments
         $serverActive = @socket_connect($socket, "localhost", $port);
 
         if ($serverActive === false) {
-            $path = OEGlobalsBag::getInstance()->get('fileroot') . "/ccdaservice/node_modules/oe-schematron-service";
+            $path = OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/ccdaservice/node_modules/oe-schematron-service";
             if (IS_WINDOWS) {
                 $redirect_errors = " > ";
                 $redirect_errors .= $system->escapeshellcmd(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/schematron_server.log") . " 2>&1";

@@ -35,9 +35,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $userService = new UserService();
@@ -244,8 +242,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
         $patient_id      = $row['pubpid'];
         $patient_dob     = $row['dob'];
-        $msg_type        = $row['title'];
-        $msg_status      = $row['message_status'];
+        $msg_type        = is_string($row['title'] ?? null) ? $row['title'] : '';
+        $msg_status      = is_string($row['message_status'] ?? null) ? $row['message_status'] : '';
         $updateById      = $row['update_by'];
         if ($updateById) {
             $userRecord = $userService->getUser($updateById);
@@ -264,7 +262,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($patient_id) . ',';
             echo csvEscape($patient_dob) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo csvEscape(xl($msg_type)) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo csvEscape(xl($msg_status)) . ',';
             echo csvEscape($update_by) . ',';
             echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";
