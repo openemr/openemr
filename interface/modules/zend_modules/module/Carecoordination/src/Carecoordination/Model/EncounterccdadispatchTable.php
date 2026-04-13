@@ -3571,8 +3571,7 @@ class EncounterccdadispatchTable
         foreach ($formTables as $formTables_details) {
             /***************Fetching the form id for the patient***************/
 
-            /** @var string $formDir */
-            $formDir = $formTables_details[2];
+            $formDir = (string) $formTables_details[2];
             check_file_dir_name($formDir);
 
             $query = "select form_id,encounter from forms where pid = ? and formdir = ? AND deleted=0";

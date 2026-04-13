@@ -314,7 +314,7 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
-    $formsBaseDir = realpath(OEGlobalsBag::getInstance()->get('incdir') . "/forms");
+    $formsBaseDir = realpath(OEGlobalsBag::getInstance()->getString('incdir') . "/forms");
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
         check_file_dir_name($result["formdir"]);
