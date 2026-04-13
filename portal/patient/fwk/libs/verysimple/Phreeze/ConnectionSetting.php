@@ -97,6 +97,10 @@ class ConnectionSetting
     {
         // load the util from the serialized code
         $tmp = unserialize(base64_decode((string) $serialized), ['allowed_classes' => [self::class]]);
+        if (!($tmp instanceof self)) {
+            return;
+        }
+
         $this->Type = $tmp->Type;
         $this->Username = $tmp->Username;
         $this->Password = $tmp->Password;
