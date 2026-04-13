@@ -56,6 +56,7 @@ This file configures the kind that requires initialization.
       <file>tests/Tests/E2e/EmailSendTest.php</file>
       <file>tests/Tests/E2e/EmailTestServiceTest.php</file>
       <file>tests/Tests/E2e/FaxSmsEmailTest.php</file>
+      <file>tests/Tests/E2e/NotificationCronEmailTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
