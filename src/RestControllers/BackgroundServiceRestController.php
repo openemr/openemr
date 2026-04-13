@@ -37,8 +37,24 @@ class BackgroundServiceRestController
         description: 'Retrieves all registered background services',
         tags: ['standard'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
-            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(
+                response: '200',
+                description: 'List of registered background services',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'name', type: 'string'),
+                            new OA\Property(property: 'title', type: 'string'),
+                            new OA\Property(property: 'active', type: 'boolean'),
+                            new OA\Property(property: 'running', type: 'boolean'),
+                            new OA\Property(property: 'execute_interval', type: 'integer'),
+                            new OA\Property(property: 'next_run', type: 'string', nullable: true),
+                        ]
+                    )
+                )
+            ),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
         security: [['openemr_auth' => []]]
@@ -75,10 +91,32 @@ class BackgroundServiceRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
-            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(
+                response: '200',
+                description: 'Background service details',
+                content: new OA\JsonContent(
+                    required: ['name', 'title', 'active', 'running', 'execute_interval', 'next_run'],
+                    properties: [
+                        new OA\Property(property: 'name', type: 'string'),
+                        new OA\Property(property: 'title', type: 'string'),
+                        new OA\Property(property: 'active', type: 'boolean'),
+                        new OA\Property(property: 'running', type: 'boolean'),
+                        new OA\Property(property: 'execute_interval', type: 'integer'),
+                        new OA\Property(property: 'next_run', type: 'string', nullable: true),
+                    ]
+                )
+            ),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+            new OA\Response(
+                response: '404',
+                description: 'Background service not found',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string', example: 'Service not found'),
+                    ]
+                )
+            ),
         ],
         security: [['openemr_auth' => []]]
     )]
@@ -131,11 +169,58 @@ class BackgroundServiceRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
-            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(
+                response: '200',
+                description: 'Service executed successfully',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string'),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'completed']
+                )
+            ),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
-            new OA\Response(response: '409', description: 'Service is already running, not due, or skipped'),
+            new OA\Response(
+                response: '404',
+                description: 'Background service not found',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string'),
+                    ],
+                    example: ['error' => 'Service not found']
+                )
+            ),
+            new OA\Response(
+                response: '409',
+                description: 'Service is already running, not due, or skipped',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            enum: ['already_running', 'not_due', 'skipped']
+                        ),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'already_running']
+                )
+            ),
+            new OA\Response(
+                response: '500',
+                description: 'Service execution failed',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string', enum: ['error']),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'error']
+                )
+            ),
         ],
         security: [['openemr_auth' => []]]
     )]
