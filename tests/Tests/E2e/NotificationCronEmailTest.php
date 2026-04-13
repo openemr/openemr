@@ -55,6 +55,7 @@ class NotificationCronEmailTest extends TestCase
         require_once $faxSmsPath . '/src/Enums/NotificationChannel.php';
         require_once $faxSmsPath . '/src/Controller/AppDispatch.php';
         require_once $faxSmsPath . '/src/Controller/EmailClient.php';
+        require_once $faxSmsPath . '/src/Controller/NotificationTaskManager.php';
         require_once $faxSmsPath . '/src/BootstrapService.php';
         require_once $faxSmsPath . '/src/Exception/EmailException.php';
         require_once $faxSmsPath . '/src/Exception/SmtpNotConfiguredException.php';
