@@ -219,7 +219,10 @@ class BackgroundServiceRunner
     {
         $requireOnce = $service['require_once'];
         if ($requireOnce !== null && $requireOnce !== '') {
-            require_once(OEGlobalsBag::getInstance()->getProjectDir() . $requireOnce);
+            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
+            $fullPath = $projectDir . $requireOnce;
+            $this->validateIncludePath($fullPath, $projectDir, $service['name']);
+            require_once($fullPath);
         }
 
         $function = $service['function'];
@@ -232,5 +235,44 @@ class BackgroundServiceRunner
         }
 
         $function();
+    }
+
+    /**
+     * Validate that an include path is safe: no traversal, no stream wrappers,
+     * no NUL bytes, and the resolved path stays under the project root.
+     *
+     * @throws \RuntimeException If the path fails validation
+     */
+    protected function validateIncludePath(string $path, string $projectDir, string $serviceName): void
+    {
+        if (str_contains($path, "\0")) {
+            throw new \RuntimeException(sprintf(
+                'Background service "%s" has an invalid require_once path: contains NUL byte.',
+                $serviceName,
+            ));
+        }
+
+        if (str_contains($path, '://')) {
+            throw new \RuntimeException(sprintf(
+                'Background service "%s" has an invalid require_once path: contains stream wrapper.',
+                $serviceName,
+            ));
+        }
+
+        $realPath = realpath($path);
+        if ($realPath === false) {
+            throw new \RuntimeException(sprintf(
+                'Background service "%s" has an invalid require_once path: file does not exist.',
+                $serviceName,
+            ));
+        }
+
+        $realProjectDir = realpath($projectDir);
+        if ($realProjectDir === false || !str_starts_with($realPath, $realProjectDir . DIRECTORY_SEPARATOR)) {
+            throw new \RuntimeException(sprintf(
+                'Background service "%s" has an invalid require_once path: resolves outside project root.',
+                $serviceName,
+            ));
+        }
     }
 }
