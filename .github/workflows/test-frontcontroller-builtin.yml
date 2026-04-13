@@ -79,19 +79,19 @@ jobs:
             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
           "
 
-      - name: Start server (bg)
-        env:
-          ENVIRONMENT: ci
-        run: |
-          php -S 0.0.0.0:8080 -t . public/index.php \
-            > "${RUNNER_TEMP}/php-server.out.log" \
-            2> "${RUNNER_TEMP}/php-server.err.log" &
+      # - name: Start server (bg)
+      #   env:
+      #     ENVIRONMENT: ci
+      #   run: |
+      #     php -S 0.0.0.0:8080 -t . public/index.php \
+      #       > "${RUNNER_TEMP}/php-server.out.log" \
+      #       2> "${RUNNER_TEMP}/php-server.err.log" &
 
-      - name: Wait for webserver
-        run: |
-          curl --retry-connrefused --retry 30 --retry-delay 1 \
-               --fail --silent --show-error \
-               -o /dev/null http://127.0.0.1:8080/
+      # - name: Wait for webserver
+      #   run: |
+      #     curl --retry-connrefused --retry 30 --retry-delay 1 \
+      #          --fail --silent --show-error \
+      #          -o /dev/null http://127.0.0.1:8080/
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
