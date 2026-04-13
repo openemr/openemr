@@ -151,7 +151,7 @@ paths:
                       type: integer
                     next_run:
                       type: string
-                      nullable: true
+                      format: date-time
                   type: object
         401:
           $ref: '#/components/responses/unauthorized'
@@ -197,7 +197,7 @@ paths:
                     type: integer
                   next_run:
                     type: string
-                    nullable: true
+                    format: date-time
                 type: object
         401:
           $ref: '#/components/responses/unauthorized'

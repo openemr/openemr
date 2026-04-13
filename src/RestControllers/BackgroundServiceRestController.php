@@ -50,7 +50,7 @@ class BackgroundServiceRestController
                             new OA\Property(property: 'active', type: 'boolean'),
                             new OA\Property(property: 'running', type: 'boolean'),
                             new OA\Property(property: 'execute_interval', type: 'integer'),
-                            new OA\Property(property: 'next_run', type: 'string', nullable: true),
+                            new OA\Property(property: 'next_run', type: 'string', format: 'date-time'),
                         ]
                     )
                 )
@@ -102,7 +102,7 @@ class BackgroundServiceRestController
                         new OA\Property(property: 'active', type: 'boolean'),
                         new OA\Property(property: 'running', type: 'boolean'),
                         new OA\Property(property: 'execute_interval', type: 'integer'),
-                        new OA\Property(property: 'next_run', type: 'string', nullable: true),
+                        new OA\Property(property: 'next_run', type: 'string', format: 'date-time'),
                     ]
                 )
             ),
