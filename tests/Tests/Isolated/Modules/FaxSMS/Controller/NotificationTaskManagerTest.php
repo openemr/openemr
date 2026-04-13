@@ -51,6 +51,9 @@ class NotificationTaskManagerTest extends TestCase
             'outside 24h window'                 => [25, 24, false],
             'far outside window'                 => [100, 24, false],
             'old 150h window was a no-op'        => [100, 150, true],
+            'zero interval clamps to 1h'         => [1, 0, true],
+            'zero interval rejects 2h early'     => [2, 0, false],
+            'negative interval clamps to 1h'     => [0, -5, true],
         ];
     }
 }

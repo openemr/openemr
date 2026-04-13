@@ -42,6 +42,10 @@ class NotificationTaskManager
      */
     public static function isWithinCronWindow(int $remainHour, int $cronIntervalHours): bool
     {
+        // Enforce a minimum 1-hour window. getTaskHours() returns int, so
+        // sub-hour intervals (e.g. 30 minutes) truncate to 0 — which would
+        // make the window zero-width and silently suppress all sends.
+        $cronIntervalHours = max(1, $cronIntervalHours);
         return $remainHour >= -$cronIntervalHours && $remainHour <= $cronIntervalHours;
     }
 
