@@ -114,6 +114,7 @@ jobs:
               -d xdebug.mode=trace \
               -d xdebug.trace_format=0 \
               -d xdebug.collect_params=1 \
+              -d xdebug.use_compression=0 \
               -d auto_prepend_file=/tmp/trace_start.php \
               vendor/bin/phpunit \
                 --testsuite ${{ matrix.suite }} \
