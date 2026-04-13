@@ -230,7 +230,7 @@ abstract class AppDispatch
             return self::$_apiService;
         } catch (\Throwable $e) {
             echo $e->getMessage();
-            exit;
+            exit(1);
         }
     }
 
