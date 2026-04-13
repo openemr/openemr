@@ -36,7 +36,7 @@ class ForbiddenCoversRule implements Rule
         'CoversFunction',
     ];
 
-    private const ERROR_MESSAGE = 'Do not use %s. It restricts coverage attribution to listed classes, '
+    private const ERROR_MESSAGE = 'Do not use %s. It restricts coverage attribution to listed symbols, '
         . 'causing test lines to show 0%% in codecov patch coverage reports.';
 
     public function getNodeType(): string
