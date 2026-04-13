@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Security;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../../../gacl/Cache_Lite/Lite.php';
@@ -42,10 +40,6 @@ class TestCacheLite extends \Cache_Lite
     public array $_memoryCachingState = [];
 }
 
-#[CoversClass(\Cache_Lite::class)]
-#[CoversClass(\ConnectionSetting::class)]
-#[CoversFunction('smarty_core_process_cached_inserts')]
-#[CoversFunction('smarty_core_read_cache_file')]
 class UnserializeAllowedClassesTest extends TestCase
 {
     // ---- Cache_Lite: memory-cached automatic deserialization (line 256) ----
