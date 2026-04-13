@@ -219,7 +219,10 @@ class BackgroundServiceRunner
     {
         $requireOnce = $service['require_once'];
         if ($requireOnce !== null && $requireOnce !== '') {
-            require_once(OEGlobalsBag::getInstance()->getProjectDir() . $requireOnce);
+            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
+            $fullPath = $projectDir . $requireOnce;
+            $resolvedPath = $this->validateIncludePath($fullPath, $projectDir, $service['name']);
+            require_once($resolvedPath);
         }
 
         $function = $service['function'];
@@ -232,5 +235,58 @@ class BackgroundServiceRunner
         }
 
         $function();
+    }
+
+    /**
+     * Validate that an include path is safe: no stream wrappers, no NUL bytes,
+     * and the resolved path is a regular file under the project root.
+     *
+     * Traversal sequences (e.g. `..`) are handled implicitly by `realpath()`:
+     * they are resolved to an absolute path, then the prefix check rejects any
+     * result that lands outside the project root.
+     *
+     * @return string The resolved real path, safe to include
+     * @throws \RuntimeException If the path fails validation
+     */
+    protected function validateIncludePath(string $path, string $projectDir, string $serviceName): string
+    {
+        if (str_contains($path, "\0")) {
+            throw new UnsafeIncludePathException(sprintf(
+                'Background service "%s" has an invalid require_once path: contains NUL byte.',
+                $serviceName,
+            ));
+        }
+
+        if (str_contains($path, '://')) {
+            throw new UnsafeIncludePathException(sprintf(
+                'Background service "%s" has an invalid require_once path: contains stream wrapper.',
+                $serviceName,
+            ));
+        }
+
+        $realPath = realpath($path);
+        if ($realPath === false) {
+            throw new UnsafeIncludePathException(sprintf(
+                'Background service "%s" has an invalid require_once path: path cannot be resolved.',
+                $serviceName,
+            ));
+        }
+
+        if (!is_file($realPath)) {
+            throw new UnsafeIncludePathException(sprintf(
+                'Background service "%s" has an invalid require_once path: path is not a file.',
+                $serviceName,
+            ));
+        }
+
+        $realProjectDir = realpath($projectDir);
+        if ($realProjectDir === false || !str_starts_with($realPath, $realProjectDir . DIRECTORY_SEPARATOR)) {
+            throw new UnsafeIncludePathException(sprintf(
+                'Background service "%s" has an invalid require_once path: resolves outside project root.',
+                $serviceName,
+            ));
+        }
+
+        return $realPath;
     }
 }

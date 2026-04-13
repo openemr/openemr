@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\RestControllers;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +32,33 @@ class BackgroundServiceRestController
         $this->runner = new BackgroundServiceRunner();
     }
 
+    #[OA\Get(
+        path: '/api/background_service',
+        description: 'Retrieves all registered background services',
+        tags: ['standard'],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'List of registered background services',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'name', type: 'string'),
+                            new OA\Property(property: 'title', type: 'string'),
+                            new OA\Property(property: 'active', type: 'boolean'),
+                            new OA\Property(property: 'running', type: 'boolean'),
+                            new OA\Property(property: 'execute_interval', type: 'integer'),
+                            new OA\Property(property: 'next_run', type: 'string', format: 'date-time'),
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function listAll(): Response
     {
         $definitions = $this->registry->list();
@@ -49,6 +77,49 @@ class BackgroundServiceRestController
         return new JsonResponse($data);
     }
 
+    #[OA\Get(
+        path: '/api/background_service/{name}',
+        description: 'Retrieves a single background service by name',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'name',
+                in: 'path',
+                description: 'The registered name of the background service.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Background service details',
+                content: new OA\JsonContent(
+                    required: ['name', 'title', 'active', 'running', 'execute_interval', 'next_run'],
+                    properties: [
+                        new OA\Property(property: 'name', type: 'string'),
+                        new OA\Property(property: 'title', type: 'string'),
+                        new OA\Property(property: 'active', type: 'boolean'),
+                        new OA\Property(property: 'running', type: 'boolean'),
+                        new OA\Property(property: 'execute_interval', type: 'integer'),
+                        new OA\Property(property: 'next_run', type: 'string', format: 'date-time'),
+                    ]
+                )
+            ),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(
+                response: '404',
+                description: 'Background service not found',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string', example: 'Service not found'),
+                    ]
+                )
+            ),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne(string $name): Response
     {
         $definition = $this->registry->get($name);
@@ -68,6 +139,102 @@ class BackgroundServiceRestController
     /**
      * @param array<mixed> $data
      */
+    #[OA\Post(
+        path: '/api/background_service/{name}/run',
+        description: 'Triggers execution of a background service',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'name',
+                in: 'path',
+                description: 'The registered name of the background service.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: false,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    properties: [
+                        new OA\Property(
+                            property: 'force',
+                            description: 'Force execution even if the service is not due to run.',
+                            type: 'boolean',
+                        ),
+                    ],
+                    example: ['force' => true]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Service executed successfully',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string'),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'executed']
+                )
+            ),
+            new OA\Response(
+                response: '400',
+                description: 'Invalid JSON payload',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string'),
+                    ],
+                    example: ['error' => 'Invalid JSON payload']
+                )
+            ),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(
+                response: '404',
+                description: 'Background service not found',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string'),
+                    ],
+                    example: ['error' => 'Service not found']
+                )
+            ),
+            new OA\Response(
+                response: '409',
+                description: 'Service is already running, not due, or skipped',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            enum: ['already_running', 'not_due', 'skipped']
+                        ),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'already_running']
+                )
+            ),
+            new OA\Response(
+                response: '500',
+                description: 'Service execution failed',
+                content: new OA\JsonContent(
+                    required: ['service', 'status'],
+                    properties: [
+                        new OA\Property(property: 'service', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string', enum: ['error']),
+                    ],
+                    example: ['service' => 'patient-reminder', 'status' => 'error']
+                )
+            ),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function runService(string $name, array $data = []): Response
     {
         $force = isset($data['force']) && $data['force'] === true;
