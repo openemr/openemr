@@ -85,7 +85,8 @@ if (!empty($runtime['type'])) {
     $TYPE = $runtime['type'] = "SMS"; // default
 }
 
-$CRON_TIME = 150;
+$taskManager = new \OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager();
+$CRON_TIME = $taskManager->getTaskHours(strtolower($TYPE));
 // use service if needed
 if ($TYPE === "SMS") {
     $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
