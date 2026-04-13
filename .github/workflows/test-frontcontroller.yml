@@ -74,9 +74,9 @@ jobs:
 
       - name: Install OpenEMR
         run: |
-          docker compose exec -T \
-            -e OPENEMR_ENABLE_INSTALLER_AUTO=1 \
-            ${{ steps.services.outputs.php_container }} \
+          docker compose exec --no-tty \
+            --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
+            php-fpm \
             php -f contrib/util/installScripts/InstallerAuto.php \
               rootpass=root \
               server=mysql \
@@ -115,14 +115,14 @@ jobs:
             --testsuite ${{ matrix.suite }} \
             --log-junit junit-${{ matrix.suite }}.xml
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: junit-${{ matrix.webserver }}-${{ matrix.suite }}
-          path: junit-*.xml
-          if-no-files-found: ignore
+      # - name: Upload test results
+      #   if: always()
+      #   uses: actions/upload-artifact@v7
+      #   with:
+      #     name: junit-${{ matrix.webserver }}-${{ matrix.suite }}
+      #     path: junit-*.xml
+      #     if-no-files-found: ignore
 
-      - name: Show logs on failure
-        if: failure()
-        run: docker compose logs
+      # - name: Show logs on failure
+      #   if: failure()
+      #   run: docker compose logs
