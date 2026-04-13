@@ -79,6 +79,8 @@ jobs:
           "
 
       - name: Start server (bg)
+        env:
+          ENVIRONMENT: ci
         run: |
           php -S 0.0.0.0:8080 -t . public/index.php \
             > "${RUNNER_TEMP}/php-server.out.log" \
