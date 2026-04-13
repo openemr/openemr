@@ -56,6 +56,7 @@ function smarty_core_read_cache_file(&$params, &$smarty)
     if (
         !is_array($_cache_info)
         || !isset($_cache_info['timestamp'], $_cache_info['template'])
+        || !is_numeric($_cache_info['timestamp'])
         || !is_array($_cache_info['template'])
     ) {
         // corrupt cache header, regenerate

@@ -49,6 +49,10 @@ function smarty_core_process_cached_inserts($params, &$smarty)
             }
         }
 
+        if (!isset($smarty->_plugins['insert'][$name][0])) {
+            // insert plugin no longer registered, skip
+            continue;
+        }
         $function_name = $smarty->_plugins['insert'][$name][0];
         if (empty($args['assign'])) {
             $replace = $function_name($args, $smarty);
