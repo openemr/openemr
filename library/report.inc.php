@@ -316,6 +316,7 @@ function printPatientForms($pid, $cols): void
     //this function takes a $pid
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
+        check_file_dir_name($result["formdir"]);
         include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/" . $result["formdir"] . "/report.php");
     }
 

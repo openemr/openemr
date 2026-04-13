@@ -3579,6 +3579,7 @@ class EncounterccdadispatchTable
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $value) {
                             ob_start();
+                            check_file_dir_name($formTables_details[2]);
                             if (file_exists(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php');
                                 ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
@@ -3643,6 +3644,7 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
+                    check_file_dir_name($formTables_details[2]);
                     $filename = OEGlobalsBag::getInstance()->get('srcdir') . "/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
                     if (file_exists($filename)) {
                         include_once($filename);
