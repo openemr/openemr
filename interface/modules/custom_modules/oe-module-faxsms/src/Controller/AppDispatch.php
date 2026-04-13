@@ -230,6 +230,7 @@ abstract class AppDispatch
             return self::$_apiService;
         } catch (\Throwable $e) {
             echo $e->getMessage();
+            throw $e;
             exit(1);
         }
     }
@@ -251,6 +252,7 @@ abstract class AppDispatch
             self::$_apiService = self::getServiceInstance($type);
         } catch (\Throwable $e) {
             echo $e->getMessage();
+            throw $e;
             exit;
         }
     }
