@@ -14160,6 +14160,15 @@ CREATE TABLE `oidc_external_identity` (
     KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS `oidc_cache`;
+CREATE TABLE `oidc_cache` (
+    `cache_key` VARCHAR(255) NOT NULL COMMENT 'PSR-16 cache key',
+    `cache_value` LONGBLOB NOT NULL COMMENT 'Serialized CacheEntry',
+    `expires_at` DATETIME DEFAULT NULL COMMENT 'NULL = no expiration',
+    PRIMARY KEY (`cache_key`),
+    KEY `idx_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 DROP TABLE IF EXISTS `oidc_token_revocation`;
 CREATE TABLE `oidc_token_revocation` (
     `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',

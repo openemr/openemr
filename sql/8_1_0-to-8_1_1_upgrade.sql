@@ -130,6 +130,17 @@ CREATE TABLE `oidc_external_identity` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #EndIf
 
+-- OIDC cache table (used when oidc_cache_backend = 'database')
+#IfNotTable oidc_cache
+CREATE TABLE `oidc_cache` (
+    `cache_key` VARCHAR(255) NOT NULL COMMENT 'PSR-16 cache key',
+    `cache_value` LONGBLOB NOT NULL COMMENT 'Serialized CacheEntry',
+    `expires_at` DATETIME DEFAULT NULL COMMENT 'NULL = no expiration',
+    PRIMARY KEY (`cache_key`),
+    KEY `idx_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#EndIf
+
 -- OIDC token revocation list (for immediate lockout of valid tokens)
 #IfNotTable oidc_token_revocation
 CREATE TABLE `oidc_token_revocation` (
