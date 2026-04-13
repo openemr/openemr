@@ -79,7 +79,11 @@ jobs:
           "
 
       - name: Start server (bg)
-        run: php -S 0.0.0.0:8080 -t . public/index.php &
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
+          echo $! > "${RUNNER_TEMP}/php-server.pid"
 
       - name: Verify webserver responds
         run: curl -fsSL "http://localhost:8080/" -o /dev/null -w '%{http_code}\n'
@@ -95,6 +99,18 @@ jobs:
           php -d memory_limit=4G vendor/bin/phpunit \
             --testsuite ${{ matrix.suite }} \
             --log-junit junit-${{ matrix.suite }}.xml
+
+      - name: Stop server
+        if: always()
+        run: kill "$(cat "${RUNNER_TEMP}/php-server.pid")" || true
+
+      - name: Show server stdout
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.out.log"
+
+      - name: Show server stderr
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.err.log"
 
       # - name: Upload test results
       #   if: always()
