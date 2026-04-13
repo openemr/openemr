@@ -15,18 +15,19 @@ jobs:
       fail-fast: false
       matrix:
         suite:
+          # These do not need webserver
+          # - common
+          # - controllers
+          # - fixtures
+          # - validators
+          # - unit
           - api
           - certification
-          - common
-          - controllers
           - e2e
           - email
-          - fixtures
           - services
-          - validators
-          - unit
           # Needs a node thing
-          # - ECQM
+          - ECQM
 
     services:
       mysql:
@@ -81,19 +82,19 @@ jobs:
             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
           "
 
-      # - name: Start server (bg)
-      #   env:
-      #     ENVIRONMENT: ci
-      #   run: |
-      #     php -S 0.0.0.0:8080 -t . public/index.php \
-      #       > "${RUNNER_TEMP}/php-server.out.log" \
-      #       2> "${RUNNER_TEMP}/php-server.err.log" &
+      - name: Start server (bg)
+        env:
+          ENVIRONMENT: ci
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
 
-      # - name: Wait for webserver
-      #   run: |
-      #     curl --retry-connrefused --retry 30 --retry-delay 1 \
-      #          --fail --silent --show-error \
-      #          -o /dev/null http://127.0.0.1:8080/
+      - name: Wait for webserver
+        run: |
+          curl --retry-connrefused --retry 30 --retry-delay 1 \
+               --fail --silent --show-error \
+               -o /dev/null http://127.0.0.1:8080/
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
@@ -139,13 +140,13 @@ jobs:
           path: /tmp/xdebug/phpunit.xt
           if-no-files-found: ignore
 
-      # - name: Show server stdout
-      #   if: always()
-      #   run: cat "${RUNNER_TEMP}/php-server.out.log"
+      - name: Show server stdout
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.out.log"
 
-      # - name: Show server stderr
-      #   if: always()
-      #   run: cat "${RUNNER_TEMP}/php-server.err.log"
+      - name: Show server stderr
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.err.log"
 
       # - name: Upload test results
       #   if: always()
