@@ -184,15 +184,22 @@ class BackgroundServiceRunnerTest extends TestCase
     public function testValidateIncludePathRejectsFileOutsideRoot(): void
     {
         $validator = new BackgroundServicePathValidator();
+        $projectDir = dirname(__DIR__, 5); // repository/project root
+        $tempFile = tempnam(sys_get_temp_dir(), 'openemr-bg-');
 
-        // Use /etc/hosts (a real file on macOS/Linux) which is outside the project dir
-        if (!is_file('/etc/hosts')) {
-            $this->markTestSkipped('/etc/hosts not available on this platform');
+        if ($tempFile === false) {
+            $this->fail('Failed to create temporary file for outside-root validation test');
         }
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('resolves outside project root');
-        $validator->callValidateIncludePath('/etc/hosts', __DIR__, 'test_svc');
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('resolves outside project root');
+            $validator->callValidateIncludePath($tempFile, $projectDir, 'test_svc');
+        } finally {
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
+        }
     }
 
     public function testValidateIncludePathRejectsDirectory(): void
