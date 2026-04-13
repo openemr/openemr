@@ -206,7 +206,8 @@ class ModulesApplication
      */
     private static function getModuleRootRealpath(): string|false
     {
-        return realpath(OEGlobalsBag::getInstance()->getProjectDir() . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+        // realpath() normalizes directory separators, so forward slashes are platform-agnostic.
+        return realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/modules');
     }
 
     /**
