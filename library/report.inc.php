@@ -375,7 +375,10 @@ function printPatientForms($pid, $cols): void
             }
         }
 
-        ($result["formdir"] . "_report")($pid, $result["encounter"], $cols, $result["form_id"]);
+        $reportFn = $result["formdir"] . "_report";
+        if (function_exists($reportFn)) {
+            $reportFn($pid, $result["encounter"], $cols, $result["form_id"]);
+        }
 
         echo "</div>";
     }

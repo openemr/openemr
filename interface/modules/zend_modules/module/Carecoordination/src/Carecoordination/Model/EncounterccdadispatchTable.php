@@ -3579,7 +3579,7 @@ class EncounterccdadispatchTable
 
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
-                    $formsBasePath = realpath(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms');
+                    $formsBasePath = realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms');
                     $resolvedReportPath = ($formsBasePath !== false && $formDir !== '.' && $formDir !== '..')
                         ? realpath($formsBasePath . '/' . $formDir . '/report.php')
                         : false;
@@ -3654,7 +3654,7 @@ class EncounterccdadispatchTable
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
                     if ($formDir !== '.' && $formDir !== '..') {
-                        $srcBaseDir = realpath(OEGlobalsBag::getInstance()->get('srcdir'));
+                        $srcBaseDir = realpath(OEGlobalsBag::getInstance()->getSrcDir());
                         $filename = ($srcBaseDir !== false)
                             ? realpath($srcBaseDir . "/" . $formDir . "/" . $formDir . "_db.php")
                             : false;
