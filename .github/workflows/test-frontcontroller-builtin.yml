@@ -16,7 +16,16 @@ jobs:
       matrix:
         suite:
           - api
-          # - e2e
+          - certification
+          - common
+          - controllers
+          - e2e
+          - ECQM
+          - email
+          - fixures
+          - services
+          - unit
+          - valdiators
 
     services:
       mysql:
