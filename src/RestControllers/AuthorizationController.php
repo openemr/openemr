@@ -691,10 +691,11 @@ class AuthorizationController
                 ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->webroot, 'site_id' => $this->session->get('site_id')]
             );
             $fhirServiceConfig = new ServerConfig();
+            $apiBase = $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default');
             $expectedAudience = [
                 $fhirServiceConfig->getFhirUrl(),
-                $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default') . "/api",
-                $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
+                $apiBase . "/api",
+                $apiBase . "/portal",
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),

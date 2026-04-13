@@ -61,7 +61,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             return $this->kernel;
         }
         if ($this->globals->hasKernel()) {
-            return $this->globals->getKernel();
+            $this->kernel = $this->globals->getKernel();
+            return $this->kernel;
         }
         return null;
     }

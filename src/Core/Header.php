@@ -440,9 +440,8 @@ class Header
         //remove web root and query string
         $uriPath = strtok($_SERVER["REQUEST_URI"], '?') ?: '';
         $webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
-        if ($webRoot !== '') {
-            return str_replace($webRoot . '/', '', $uriPath);
-        }
-        return ltrim($uriPath, '/');
+        return $webRoot !== ''
+            ? str_replace($webRoot . '/', '', $uriPath)
+            : ltrim($uriPath, '/');
     }
 }

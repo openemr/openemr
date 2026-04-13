@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @author    Robert Down <robertdown@live.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2022 Robert Down
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 class Kernel
 {
@@ -238,10 +238,7 @@ class Kernel
     private function requireProjectDir(): string
     {
         if ($this->projectDir === null) {
-            throw new \RuntimeException(
-                'Kernel was constructed without a projectDir. '
-                . 'Pass $projectDir to the Kernel constructor.'
-            );
+            throw new \RuntimeException('Kernel was constructed without a projectDir. Pass $projectDir to the Kernel constructor.');
         }
         return $this->projectDir;
     }
@@ -249,10 +246,7 @@ class Kernel
     private function requireWebRoot(): string
     {
         if ($this->webRoot === null) {
-            throw new \RuntimeException(
-                'Kernel was constructed without a webRoot. '
-                . 'Pass $webRoot to the Kernel constructor.'
-            );
+            throw new \RuntimeException('Kernel was constructed without a webRoot. Pass $webRoot to the Kernel constructor.');
         }
         return $this->webRoot;
     }
