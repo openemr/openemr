@@ -258,7 +258,7 @@ paths:
                 type: object
               example:
                 service: patient-reminder
-                status: completed
+                status: executed
         400:
           description: 'Invalid JSON payload'
           content:

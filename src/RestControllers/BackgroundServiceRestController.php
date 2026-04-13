@@ -178,7 +178,7 @@ class BackgroundServiceRestController
                         new OA\Property(property: 'service', type: 'string'),
                         new OA\Property(property: 'status', type: 'string'),
                     ],
-                    example: ['service' => 'patient-reminder', 'status' => 'completed']
+                    example: ['service' => 'patient-reminder', 'status' => 'executed']
                 )
             ),
             new OA\Response(
