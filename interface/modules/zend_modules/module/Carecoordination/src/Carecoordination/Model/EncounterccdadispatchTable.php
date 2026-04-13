@@ -3570,19 +3570,29 @@ class EncounterccdadispatchTable
         $count_folder = 0;
         foreach ($formTables as $formTables_details) {
             /***************Fetching the form id for the patient***************/
+
+            /** @var string $formDir */
+            $formDir = $formTables_details[2];
+            check_file_dir_name($formDir);
+
             $query = "select form_id,encounter from forms where pid = ? and formdir = ? AND deleted=0";
-                        $form_ids = QueryUtils::fetchRecords($query, [$pid, $formTables_details[2]]);
-            /***************Fetching the form id for the patient***************/
+                        $form_ids = QueryUtils::fetchRecords($query, [$pid, $formDir]);
 
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
+                    $formsBasePath = realpath(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms');
+                    $resolvedReportPath = ($formsBasePath !== false && $formDir !== '.' && $formDir !== '..')
+                        ? realpath($formsBasePath . '/' . $formDir . '/report.php')
+                        : false;
+                    $reportPathValid = $resolvedReportPath !== false
+                        && str_starts_with($resolvedReportPath, $formsBasePath . DIRECTORY_SEPARATOR);
+
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $value) {
                             ob_start();
-                            check_file_dir_name($formTables_details[2]);
-                            if (file_exists(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
-                                include_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
+                            if ($reportPathValid) {
+                                include_once($resolvedReportPath);
+                                ($formDir . "_report")($pid, $encounter, 2, $value);
                             }
 
                             $res[0][$value] = ob_get_clean();
@@ -3601,7 +3611,7 @@ class EncounterccdadispatchTable
                     $query = "select " . $formTables_details[3] . " from " . $formTables_details[1] . "
                     join forms as f on f.pid=? AND f.encounter=? AND f.form_id=" . $formTables_details[1] . "." . $primary_key . " AND f.formdir=?
                     where 1 = 1 ";
-                                        $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formTables_details[2]]);
+                                        $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formDir]);
 
                     foreach ($result as $row) {
                         foreach ($row as $key => $value) {
@@ -3623,7 +3633,7 @@ class EncounterccdadispatchTable
                             ?>
                             <table>
                                 <?php
-                                display_layout_rows_group_new($formTables_details[2], '', '', $pid, $value, [$formTables_details[1]], '');
+                                display_layout_rows_group_new($formDir, '', '', $pid, $value, [$formTables_details[1]], '');
                                 ?>
                             </table>
                             <?php
@@ -3644,10 +3654,14 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    check_file_dir_name($formTables_details[2]);
-                    $filename = OEGlobalsBag::getInstance()->get('srcdir') . "/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
-                    if (file_exists($filename)) {
-                        include_once($filename);
+                    if ($formDir !== '.' && $formDir !== '..') {
+                        $srcBaseDir = realpath(OEGlobalsBag::getInstance()->get('srcdir'));
+                        $filename = ($srcBaseDir !== false)
+                            ? realpath($srcBaseDir . "/" . $formDir . "/" . $formDir . "_db.php")
+                            : false;
+                        if ($filename !== false && str_starts_with($filename, $srcBaseDir . DIRECTORY_SEPARATOR)) {
+                            include_once($filename);
+                        }
                     }
 
                     $field_ids = explode(',', (string)$formTables_details[3]);
@@ -3663,7 +3677,7 @@ class EncounterccdadispatchTable
                     $query = "select * from " . $lbf . "
                     join forms as f on f.pid = ? AND f.form_id = " . $lbf . ".form_id AND f.formdir = ? AND " . $lbf . ".field_id IN (" . $fields_str . ")
                     where deleted = 0";
-                                        $result = QueryUtils::fetchRecords($query, [$pid, $formTables_details[2]]);
+                                        $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
 
                     foreach ($result as $row) {
                         preg_match('/\.$/', trim((string)$row['field_value']), $matches);
@@ -3679,7 +3693,7 @@ class EncounterccdadispatchTable
                 FROM categories AS c, documents AS d, categories_to_documents AS c2d
                 WHERE c.id = ? AND c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
 
-                                $result = QueryUtils::fetchRecords($query, [$formTables_details[2], $pid]);
+                                $result = QueryUtils::fetchRecords($query, [$formDir, $pid]);
 
                 foreach ($result as $row_folders) {
                     $r = \Documents\Plugin\Documents::getDocument($row_folders['document_id']);

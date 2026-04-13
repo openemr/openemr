@@ -314,10 +314,20 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
+    $formsBaseDir = realpath(OEGlobalsBag::getInstance()->get('incdir') . "/forms");
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
         check_file_dir_name($result["formdir"]);
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/" . $result["formdir"] . "/report.php");
+        if ($formsBaseDir === false || $result["formdir"] === '.' || $result["formdir"] === '..') {
+            continue;
+        }
+
+        $reportPath = realpath($formsBaseDir . "/" . $result["formdir"] . "/report.php");
+        if ($reportPath === false || !str_starts_with($reportPath, $formsBaseDir . DIRECTORY_SEPARATOR)) {
+            continue;
+        }
+
+        include_once($reportPath);
     }
 
     $res = sqlStatement("select * from forms where pid=? AND deleted=0 order by date", [$pid]);

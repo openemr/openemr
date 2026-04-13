@@ -82,10 +82,20 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  //print "Provider: " . $provider  . "<br />";
 
+ $formsBaseDir = realpath(OEGlobalsBag::getInstance()->get('incdir') . "/forms");
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
     check_file_dir_name($result["formdir"]);
-    include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/" . $result["formdir"] . "/report.php");
+    if ($formsBaseDir === false || $result["formdir"] === '.' || $result["formdir"] === '..') {
+        continue;
+    }
+
+    $reportPath = realpath($formsBaseDir . "/" . $result["formdir"] . "/report.php");
+    if ($reportPath === false || !str_starts_with($reportPath, $formsBaseDir . DIRECTORY_SEPARATOR)) {
+        continue;
+    }
+
+    include_once($reportPath);
 }
 
  $printed = false;
