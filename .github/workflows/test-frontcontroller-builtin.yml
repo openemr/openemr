@@ -23,9 +23,8 @@ jobs:
           - email
           - fixtures
           - services
+          - validators
           - unit
-          # No tests.
-          # - valdiators
           # Needs a node thing
           # - ECQM
 
