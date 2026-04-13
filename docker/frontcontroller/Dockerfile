@@ -27,7 +27,7 @@ RUN apk add --no-cache \
   # intl \
   icu-dev \
   # imagemagick \
-  imagick-dev \
+  imagemagick-dev \
   # ldap \
   openldap-dev \
   # sockets \
