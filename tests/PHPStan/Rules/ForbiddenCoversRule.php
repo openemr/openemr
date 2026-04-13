@@ -5,7 +5,7 @@
  *
  * Forbids @covers docblock annotations and #[CoversClass]/#[CoversFunction]
  * PHP attributes on test classes and methods. These restrict PHPUnit's coverage
- * attribution to only the listed classes, which causes test file lines to show
+ * attribution to only the listed symbols, which causes test file lines to show
  * 0% in codecov patch coverage reports on test-only PRs.
  *
  * @package   OpenEMR

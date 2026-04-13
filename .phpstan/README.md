@@ -121,7 +121,7 @@ $logger->info("User logged in", ['userId' => $userId]);
 
 **Purpose:** Prevents use of `@covers` docblock annotations and `#[CoversClass]`/`#[CoversFunction]` PHP attributes in test files.
 
-**Rationale:** These annotations restrict PHPUnit's coverage attribution to only the listed classes, which causes transitively used code to be excluded from coverage reports. This results in test file lines showing 0% in codecov patch coverage reports on test-only PRs.
+**Rationale:** These annotations restrict PHPUnit's coverage attribution to only the listed symbols, which causes transitively used code to be excluded from coverage reports. This results in test file lines showing 0% in codecov patch coverage reports on test-only PRs.
 
 **Before (❌ Forbidden):**
 ```php
