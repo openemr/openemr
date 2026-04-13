@@ -28,16 +28,16 @@ jobs:
           # Needs a node thing
           # - ECQM
 
-    # services:
-      # mysql:
-      #   image: mysql:8
-      #   env:
-      #     MYSQL_ROOT_PASSWORD: root
-      #     MYSQL_USER: ci
-      #     MYSQL_PASSWORD: topsecret
-      #     MYSQL_DATABASE: openemr_test
-      #   ports:
-      #     - 3306:3306
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: topsecret
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3306:3306
 
       # selenium:
       #   image: selenium/standalone-chrome:latest
@@ -59,27 +59,27 @@ jobs:
         run: composer install --prefer-dist --no-progress
         working-directory: .
 
-#       - name: Install OpenEMR
-#         env:
-#           OPENEMR_ENABLE_INSTALLER_AUTO: "1"
-#         run: php -f contrib/util/installScripts/InstallerAuto.php
-#               rootpass=root
-#               server=127.0.0.1
-#               loginhost=%
-#               login=ci
-#               pass=topsecret
-#               dbname=openemr_test
+      - name: Install OpenEMR
+        env:
+          OPENEMR_ENABLE_INSTALLER_AUTO: "1"
+        run: php -f contrib/util/installScripts/InstallerAuto.php
+              rootpass=root
+              server=127.0.0.1
+              loginhost=%
+              login=ci
+              pass=topsecret
+              dbname=openemr_test
 
-#       - name: Configure globals for API
-#         run: |
-#           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
-#             INSERT INTO product_registration (opt_out) VALUES (1);
-#             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
-#             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
-#             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
-#             UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
-#             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
-#           "
+      - name: Configure globals for API
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
+            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
+          "
 
       # - name: Start server (bg)
       #   env:
