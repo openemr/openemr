@@ -206,7 +206,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry(NotificationChannel::SMS, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -251,7 +251,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry(NotificationChannel::EMAIL, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -286,7 +286,12 @@ function isValidPhone($phone): array|bool|string|null
 }
 
 /**
- * Mark a non-recurring event as notified on the events table.
+ * Mark a non-recurring appointment as already-notified for a given channel.
+ *
+ * Only the per-channel alert flag (pc_sendalertsms / pc_sendalertemail) is
+ * updated. pc_apptstatus is intentionally left alone — it holds the real
+ * appointment status set by front-desk staff (Pending, Arrived, etc.) and
+ * must not be overwritten with notification metadata. See #11479.
  *
  * Recurring events are intentionally skipped: the pc_sendalertsms /
  * pc_sendalertemail columns live on the base event row which is shared by
@@ -294,34 +299,23 @@ function isValidPhone($phone): array|bool|string|null
  * occurrences. Recurring-event dedup is handled in
  * faxsms_getAlertPatientData() by checking the notification_log keyed on
  * (pc_eid, pc_eventDate, type).
- *
- * @param string $type
- * @param int    $pid
- * @param int    $pc_eid
- * @param string $recur pc_recurrtype value
- * @return int
  */
-function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
+function rc_sms_notification_cron_update_entry(NotificationChannel $channel, int $pid, int $pc_eid, string $recur = ''): void
 {
     global $bTestRun;
 
     if ($bTestRun || (int)trim($recur) > 0) {
-        return 1;
+        return;
     }
 
-    $query = "UPDATE openemr_postcalendar_events SET";
+    $column = match ($channel) {
+        NotificationChannel::SMS   => 'pc_sendalertsms',
+        NotificationChannel::EMAIL => 'pc_sendalertemail',
+    };
 
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
-    } elseif ($type == 'EMAIL') {
-        $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
-    } else {
-        $query .= " pc_sendalertsms='NO' ";
-    }
+    $query = "UPDATE openemr_postcalendar_events SET {$column} = 'YES' WHERE pc_pid = ? AND pc_eid = ?";
 
-    $query .= " where pc_pid=? and pc_eid=? ";
-
-    return sqlStatement($query, [$pid, $pc_eid]);
+    QueryUtils::sqlStatementThrowException($query, [$pid, $pc_eid]);
 }
 
 /**
@@ -342,8 +336,8 @@ function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = ''
 function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificationHour): array
 {
     $where = match ($channel) {
-        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')",
-        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')",
+        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')",
+        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')",
     };
     $adj_date = (int)date("H") + $notificationHour;
     $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
