@@ -34,11 +34,14 @@ class NotificationTaskManager
     /**
      * Check whether a reminder falls within the cron send window.
      *
-     * $remainHour is the difference between hours-until-appointment and the
-     * configured notification lead time. A value of 0 means "exactly time to
-     * send"; negative means the ideal send time has passed. The cron window
-     * is the background-service execution interval — if the remainder falls
-     * within ±interval, we should send.
+     * Both parameters use whole-hour granularity. $remainHour is the
+     * difference between hours-until-appointment and the configured
+     * notification lead time. A value of 0 means "exactly time to send";
+     * negative means the ideal send time has passed.
+     *
+     * $cronIntervalHours is the background-service execution interval
+     * converted to hours (via getTaskHours()). Values below 1 are clamped
+     * to 1 so the window is never zero-width.
      */
     public static function isWithinCronWindow(int $remainHour, int $cronIntervalHours): bool
     {
