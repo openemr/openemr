@@ -14,7 +14,6 @@ namespace OpenEMR\Tests\Isolated\BC;
 
 use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\FallbackRouter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +22,6 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-#[CoversClass(FallbackRouter::class)]
 #[Small]
 class FallbackRouterTest extends TestCase
 {

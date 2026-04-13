@@ -14,8 +14,6 @@ namespace OpenEMR\Tests\Isolated\BC;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
-use OpenEMR\BC\FallbackRouter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Large;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +25,6 @@ use Symfony\Component\Process\Process;
  * These tests validate that requests are routed to the correct entry point.
  * They do NOT validate full application behavior (which requires a database).
  */
-#[CoversClass(FallbackRouter::class)]
 #[Large]
 class FrontControllerRoutingTest extends TestCase
 {
