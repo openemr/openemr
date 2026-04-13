@@ -37,11 +37,11 @@ jobs:
         ports:
           - 3306:3306
 
-      selenium:
-        image: selenium/standalone-chrome:latest
-        ports:
-          - 4444:4444
-        options: --shm-size=2gb
+      # selenium:
+      #   image: selenium/standalone-chrome:latest
+      #   ports:
+      #     - 4444:4444
+      #   options: --shm-size=2gb
 
     steps:
       - name: Checkout
