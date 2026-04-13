@@ -213,15 +213,20 @@ class BackgroundServiceRunnerTest extends TestCase
         $validator->callValidateIncludePath(__DIR__, $projectDir, 'test_svc');
     }
 
-    public function testValidateIncludePathAcceptsValidFile(): void
+    public function testValidateIncludePathAcceptsValidFileAndReturnsResolvedPath(): void
     {
         $validator = new BackgroundServicePathValidator();
 
         // This test file itself is a valid path under the repository/project root
         $projectDir = dirname(__DIR__, 5); // repository/project root
-        $validator->callValidateIncludePath(__FILE__, $projectDir, 'test_svc');
+        $expectedPath = realpath(__FILE__);
+        if ($expectedPath === false) {
+            $this->fail('Failed to resolve the current test file path');
+        }
 
-        $this->addToAssertionCount(1);
+        $resolvedPath = $validator->callValidateIncludePath(__FILE__, $projectDir, 'test_svc');
+
+        $this->assertSame($expectedPath, $resolvedPath);
     }
 
     /**
