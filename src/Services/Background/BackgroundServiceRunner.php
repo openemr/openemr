@@ -251,14 +251,14 @@ class BackgroundServiceRunner
     protected function validateIncludePath(string $path, string $projectDir, string $serviceName): string
     {
         if (str_contains($path, "\0")) {
-            throw new \RuntimeException(sprintf(
+            throw new UnsafeIncludePathException(sprintf(
                 'Background service "%s" has an invalid require_once path: contains NUL byte.',
                 $serviceName,
             ));
         }
 
         if (str_contains($path, '://')) {
-            throw new \RuntimeException(sprintf(
+            throw new UnsafeIncludePathException(sprintf(
                 'Background service "%s" has an invalid require_once path: contains stream wrapper.',
                 $serviceName,
             ));
@@ -266,14 +266,14 @@ class BackgroundServiceRunner
 
         $realPath = realpath($path);
         if ($realPath === false) {
-            throw new \RuntimeException(sprintf(
+            throw new UnsafeIncludePathException(sprintf(
                 'Background service "%s" has an invalid require_once path: path cannot be resolved.',
                 $serviceName,
             ));
         }
 
         if (!is_file($realPath)) {
-            throw new \RuntimeException(sprintf(
+            throw new UnsafeIncludePathException(sprintf(
                 'Background service "%s" has an invalid require_once path: path is not a file.',
                 $serviceName,
             ));
@@ -281,7 +281,7 @@ class BackgroundServiceRunner
 
         $realProjectDir = realpath($projectDir);
         if ($realProjectDir === false || !str_starts_with($realPath, $realProjectDir . DIRECTORY_SEPARATOR)) {
-            throw new \RuntimeException(sprintf(
+            throw new UnsafeIncludePathException(sprintf(
                 'Background service "%s" has an invalid require_once path: resolves outside project root.',
                 $serviceName,
             ));

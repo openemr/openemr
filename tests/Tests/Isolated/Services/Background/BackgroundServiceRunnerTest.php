@@ -15,6 +15,7 @@ namespace OpenEMR\Tests\Isolated\Services\Background;
 
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
+use OpenEMR\Services\Background\UnsafeIncludePathException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -158,7 +159,7 @@ class BackgroundServiceRunnerTest extends TestCase
     {
         $validator = new BackgroundServicePathValidator();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnsafeIncludePathException::class);
         $this->expectExceptionMessage('contains NUL byte');
         $validator->callValidateIncludePath("/var/www/openemr/library/file\0.php", '/var/www/openemr', 'test_svc');
     }
@@ -167,7 +168,7 @@ class BackgroundServiceRunnerTest extends TestCase
     {
         $validator = new BackgroundServicePathValidator();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnsafeIncludePathException::class);
         $this->expectExceptionMessage('contains stream wrapper');
         $validator->callValidateIncludePath('php://filter/resource=/etc/passwd', '/var/www/openemr', 'test_svc');
     }
@@ -178,7 +179,7 @@ class BackgroundServiceRunnerTest extends TestCase
         $projectDir = dirname(__DIR__, 5); // repository/project root
         $nonexistentPath = $projectDir . DIRECTORY_SEPARATOR . 'nonexistent_file_' . uniqid('', true) . '.php';
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnsafeIncludePathException::class);
         $this->expectExceptionMessage('path cannot be resolved');
         $validator->callValidateIncludePath($nonexistentPath, $projectDir, 'test_svc');
     }
@@ -194,7 +195,7 @@ class BackgroundServiceRunnerTest extends TestCase
         }
 
         try {
-            $this->expectException(\RuntimeException::class);
+            $this->expectException(UnsafeIncludePathException::class);
             $this->expectExceptionMessage('resolves outside project root');
             $validator->callValidateIncludePath($tempFile, $projectDir, 'test_svc');
         } finally {
@@ -210,7 +211,7 @@ class BackgroundServiceRunnerTest extends TestCase
 
         // __DIR__ is a real directory under the project root — should be rejected as not a file
         $projectDir = dirname(__DIR__, 5); // repository/project root
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnsafeIncludePathException::class);
         $this->expectExceptionMessage('path is not a file');
         $validator->callValidateIncludePath(__DIR__, $projectDir, 'test_svc');
     }
