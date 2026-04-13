@@ -15,7 +15,6 @@ namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
-use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
 

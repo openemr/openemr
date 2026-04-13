@@ -17,17 +17,18 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Facility\FacilityCreatedEvent;
+use OpenEMR\Events\Facility\FacilityUpdatedEvent;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Events\Facility\FacilityCreatedEvent;
-use OpenEMR\Events\Facility\FacilityUpdatedEvent;
 use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
@@ -307,7 +308,7 @@ class FacilityService extends BaseService
             }
             return $returnRecords;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }
@@ -332,12 +333,12 @@ class FacilityService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         $querySearch = [];
         if (!empty($search)) {

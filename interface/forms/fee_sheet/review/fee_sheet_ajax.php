@@ -18,6 +18,7 @@ require_once("fee_sheet_queries.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 use OpenEMR\Forms\FeeSheet\Review\Procedure;
 
@@ -25,7 +26,8 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     AccessDeniedHelper::deny('Unauthorized access to fee sheet');
 }
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

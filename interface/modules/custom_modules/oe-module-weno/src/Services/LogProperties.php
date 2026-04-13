@@ -13,8 +13,11 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class LogProperties
 {
@@ -46,10 +49,7 @@ class LogProperties
      * @var false|string
      */
     private $weno_admin_password;
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     /**
      * @var string
      */
@@ -68,18 +68,18 @@ class LogProperties
      */
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->method = "aes-256-cbc";
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
-        $logDir = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno";
+        $this->rxsynclog = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/logsync.csv";
+        $logDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno";
         if (!is_dir($logDir)) {
             mkdir($logDir, 0775, true);
         }
-        $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
+        $this->enc_key = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-        $this->weno_admin_email = $GLOBALS['weno_admin_username'] ?? '';
-        $this->weno_admin_password = $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
+        $this->weno_admin_email = OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
+        $this->weno_admin_password = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
     }
 
     public function fetchLogSyncDates(): array
@@ -88,8 +88,8 @@ class LogProperties
         $workday = date("l");
         $from = $workday == 'Monday' ? date("Y-m-d", strtotime("-2 days")) : date("Y-m-d", strtotime("yesterday"));
         // Retrieve the last sync date
-        $lastSync = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;")['created_at'];
-        $lastSync = date("Y-m-d", strtotime((string) $lastSync));
+        $lastSyncRow = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;");
+        $lastSync = $lastSyncRow ? date("Y-m-d", strtotime((string) $lastSyncRow['created_at'])) : $from;
         // Ensure `to` is today and `from` defaults to yesterday or earlier
         $to = date("Y-m-d", strtotime("tomorrow"));
         // Ensure `from` and `to` are within a 7-day range
@@ -188,13 +188,14 @@ class LogProperties
         }
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
             $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
                 error_log('Prescription download failed: ' . errorLogEscape($error));
-                EventAuditLogger::getInstance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
+                EventAuditLogger::getInstance()->newEvent("prescriptions_log", $session->get('authUser'), $session->get('authProvider'), 0, ($error));
                 // if background task then return false
                 if ($tasked == 'background') {
                     $wenoLog->insertWenoLog("Sync Report", $error);
@@ -211,7 +212,7 @@ class LogProperties
             }
         } else {
             // yes record failures.
-            EventAuditLogger::getInstance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
+            EventAuditLogger::getInstance()->newEvent("prescriptions_log", $session->get('authUser'), $session->get('authProvider'), 0, ("$statusCode"));
             error_log("Prescription download failed: errorLogEscape($statusCode)");
             $wenoLog->insertWenoLog("Sync Report", "Failed http_error_$statusCode");
             return false;
@@ -234,17 +235,18 @@ class LogProperties
      */
     public function getProviderEmail(): string|array
     {
-        if ($_SESSION['authUser']) {
-            $provider_info = ['email' => $GLOBALS['weno_provider_email']];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('authUser')) {
+            $provider_info = ['email' => OEGlobalsBag::getInstance()->get('weno_provider_email')];
             if (!empty($provider_info['email'])) {
                 return $provider_info;
-            } else {
-                $error = xlt("Weno Prescriber email address is missing. Go to User settings Email to add Weno Prescriber's weno registered email address");
-                error_log(errorLogEscape($error));
-                TransmitProperties::echoError($error);
             }
-        } elseif ($GLOBALS['weno_admin_username'] ?? false) {
-            $provider_info["email"] = $GLOBALS['weno_admin_username'];
+
+            $error = xlt("Weno Prescriber email address is missing. Go to User settings Email to add Weno Prescriber's weno registered email address");
+            error_log(errorLogEscape($error));
+            TransmitProperties::echoError($error);
+        } elseif (OEGlobalsBag::getInstance()->get('weno_admin_username') ?? false) {
+            $provider_info["email"] = OEGlobalsBag::getInstance()->get('weno_admin_username');
             return $provider_info;
         } else {
             $error = xlt("Weno Prescriber email address is missing. Go to User settings Weno tab to add Weno Prescriber's weno registered email address");
@@ -260,16 +262,17 @@ class LogProperties
      */
     public function getProviderPassword(): mixed
     {
-        if ($_SESSION['authUser']) {
-            if (!empty($GLOBALS['weno_provider_password'])) {
-                return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('authUser')) {
+            if (!empty(OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
+                return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_provider_password'));
             } else {
                 echo xlt('Weno Prescriber Password is missing');
                 error_log("Weno Prescriber Password is missing");
                 die;
             }
-        } elseif ($GLOBALS['weno_admin_password']) {
-            return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
+        } elseif (OEGlobalsBag::getInstance()->get('weno_admin_password')) {
+            return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password'));
         } else {
             error_log("Admin password not set");
             exit;

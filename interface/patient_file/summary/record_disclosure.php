@@ -18,7 +18,9 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Control access
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
@@ -27,6 +29,7 @@ if (!$authWrite && !$authAddonly) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/disclosure: Edit/Record Disclosure", xl("Edit/Record Disclosure"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
     if (!$authWrite) {
@@ -84,7 +87,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -105,7 +108,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="btn-group">
                         <button class='btn btn-primary btn-save' name='form_save' id='form_save'>
                             <?php echo xlt('Save'); ?>

@@ -5,8 +5,8 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Practitioner Service Tests

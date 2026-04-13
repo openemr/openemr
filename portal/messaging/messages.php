@@ -14,30 +14,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendSmsEvent;
-
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('portal_username'));
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (empty($session->get('authUserID'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -90,8 +89,10 @@ function getAuthPortalUsers()
  CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE id = 1");
         }
 
-        $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.lname, patient_data.id)) as userid,
- CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
+        $authpatients = sqlStatement("SELECT pao.portal_username as userid,
+ CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data
+ LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid
+ WHERE allow_patient_portal = 'YES' AND pao.portal_username IS NOT NULL");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
         }
@@ -159,7 +160,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {
@@ -546,7 +547,7 @@ function getAuthPortalUsers()
 
         <?php
         if ($showSMS) {
-            $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
         }
         ?>
     </script>
@@ -594,7 +595,7 @@ function getAuthPortalUsers()
                             </button>
                             <?php
                             if ($showSMS) {
-                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                                $globalsBag->getKernel()->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
                             <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>

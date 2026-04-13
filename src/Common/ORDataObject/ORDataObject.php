@@ -8,6 +8,7 @@
 namespace OpenEMR\Common\ORDataObject;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ORDataObject
 {
@@ -17,7 +18,7 @@ class ORDataObject
     private $_throwExceptionOnError = false;
     protected $_prefix;
     protected $_table;
-    public $_db; // Need to be public so can access from C_Document class
+    protected $_db;
 
     public function __construct($table = null, $prefix = null)
     {
@@ -32,7 +33,7 @@ class ORDataObject
             $this->_prefix = $prefix;
         }
 
-        $this->_db = $GLOBALS['adodb']['db'];
+        $this->_db = OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 
     public function markObjectModified()
@@ -169,11 +170,11 @@ class ORDataObject
     protected function _load_enum($field_name, $blank = true)
     {
         if (
-            !empty($GLOBALS['static']['enums'][$this->_table][$field_name])
-            && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
+            !empty(OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name])
+            && is_array(OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name])
             && !empty($this->_table)
         ) {
-            return $GLOBALS['static']['enums'][$this->_table][$field_name];
+            return OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name];
         } else {
             $cols = $this->_db->MetaColumns($this->_table);
             if ((is_array($cols) && !empty($cols)) || ($cols && !$cols->EOF)) {
@@ -199,7 +200,7 @@ class ORDataObject
                 }
 
                 $enum = array_flip($enum);
-                $GLOBALS['static']['enums'][$this->_table][$field_name] = $enum;
+                OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name] = $enum;
             }
 
             return $enum;

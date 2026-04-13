@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class OEHttpKernel extends HttpKernel
 {
@@ -39,7 +39,7 @@ class OEHttpKernel extends HttpKernel
     public function getSystemLogger(): LoggerInterface
     {
         if (empty($this->logger)) {
-            $this->logger = new SystemLogger();
+            $this->logger = ServiceContainer::getLogger();
         }
         return $this->logger;
     }

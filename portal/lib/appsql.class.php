@@ -12,7 +12,6 @@
 
 require_once(__DIR__ . '/../../interface/globals.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -36,7 +35,7 @@ class ApplicationTable
      *            Logging True / False
      * @param boolean $error
      *            Error Display True / False
-     * @return type
+     * @return mixed
      */
     public function zQuery($sql, $params = '', $log = false, $error = true)
     {
@@ -59,13 +58,18 @@ class ApplicationTable
         return $return;
     }
 
-    public function getPortalAuditRec($recid)
+    public function getPortalAuditRec($recid, ?int $patientId = null)
     {
         $return = false;
         $result = false;
         try {
-            $sql = "Select * From onsite_portal_activity Where  id = ?";
-            $return = sqlStatementNoLog($sql, $recid);
+            if ($patientId !== null) {
+                $sql = "Select * From onsite_portal_activity Where id = ? And patient_id = ?";
+                $return = sqlStatementNoLog($sql, [$recid, $patientId]);
+            } else {
+                $sql = "Select * From onsite_portal_activity Where id = ?";
+                $return = sqlStatementNoLog($sql, $recid);
+            }
             $result = true;
         } catch (\Throwable $e) {
             $this->errorHandler($e, $sql);
@@ -142,7 +146,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $return = false;
         $result = false;
         $audit =  [];
@@ -200,10 +204,10 @@ class ApplicationTable
         return $return;
     }
 
-    public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
+    public function portalLog($event = '', mixed $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
         $globalsBag = OEGlobalsBag::getInstance();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
         $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';
@@ -240,7 +244,7 @@ class ApplicationTable
      * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
-     * @param type $e
+     * @param \Throwable $e
      * @param string $sql
      * @param array $binds
      */
@@ -369,8 +373,9 @@ class ApplicationTable
         return QueryUtils::generateId();
     }
 
-    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
+    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", mixed $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
+        $patient_id = (is_string($patient_id) || is_int($patient_id)) && $patient_id !== '' ? intval($patient_id) : null;
         EventAuditLogger::getInstance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

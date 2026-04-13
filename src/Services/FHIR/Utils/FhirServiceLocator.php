@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Services\FHIR\Utils;
 
-use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 

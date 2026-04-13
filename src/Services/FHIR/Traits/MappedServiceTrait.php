@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
-use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Validators\ProcessingResult;
 

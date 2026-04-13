@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Api;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Patient API Endpoint Test Cases.
@@ -29,7 +29,7 @@ class PatientApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FixtureManager();
-        $this->patientRecord = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientRecord = $this->fixtureManager->getSinglePatientFixture();
     }
 
     protected function tearDown(): void

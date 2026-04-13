@@ -21,11 +21,11 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class AuthorizationListenerTest extends TestCase

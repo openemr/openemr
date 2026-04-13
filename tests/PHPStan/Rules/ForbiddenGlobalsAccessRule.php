@@ -27,6 +27,16 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ForbiddenGlobalsAccessRule implements Rule
 {
+    /**
+     * Files that set $GLOBALS before the Composer autoloader is available.
+     * These run before interface/globals.php and cannot use OEGlobalsBag.
+     *
+     * @var list<string>
+     */
+    private const PRE_AUTOLOADER_FILES = [
+        'sql_upgrade.php',
+    ];
+
     public function getNodeType(): string
     {
         return ArrayDimFetch::class;
@@ -46,6 +56,13 @@ class ForbiddenGlobalsAccessRule implements Rule
         // Allow $GLOBALS access in the OEGlobalsBag class itself
         if ($scope->isInClass() && $scope->getClassReflection()->getName() === \OpenEMR\Core\OEGlobalsBag::class) {
             return [];
+        }
+
+        // Allow $GLOBALS in files that run before the autoloader loads
+        foreach (self::PRE_AUTOLOADER_FILES as $filename) {
+            if (str_ends_with($scope->getFile(), DIRECTORY_SEPARATOR . $filename)) {
+                return [];
+            }
         }
 
         // Check if this is accessing $GLOBALS

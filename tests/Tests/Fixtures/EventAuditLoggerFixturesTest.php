@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class EventAuditLoggerFixturesTest extends TestCase

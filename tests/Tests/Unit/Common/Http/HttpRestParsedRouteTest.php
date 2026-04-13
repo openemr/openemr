@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Unit\Common\Http;
 
 use OpenEMR\Common\Http\HttpRestParsedRoute;
-use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 

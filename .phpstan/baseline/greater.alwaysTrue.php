@@ -53,7 +53,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',
-    'count' => 2,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [

@@ -16,8 +16,6 @@ namespace OpenEMR\Services\Qrda\Helpers;
 
 use Mustache_Context;
 use OpenEMR\Services\Qrda\Util\DateHelper;
-use ReflectionClass;
-use ReflectionMethod;
 
 trait Date
 {

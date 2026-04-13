@@ -13,11 +13,11 @@
 // AI GENERATED CODE: HEADER START
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
-use Psr\Log\LoggerInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
+use Psr\Log\LoggerInterface;
 
 class FormLocator
 {
@@ -29,11 +29,11 @@ class FormLocator
     public function __construct(?LoggerInterface $logger = null)
     {
         if (!$logger) {
-            $logger = new SystemLogger();
+            $logger = ServiceContainer::getLogger();
         }
         $this->logger = $logger;
     // AI GENERATED CODE: HEADER START
-        $this->fileRoot = $GLOBALS['fileroot'];
+        $this->fileRoot = OEGlobalsBag::getInstance()->get('fileroot');
     }
 
     public function findFile(string $formDir, string $fileName, string $page): string
@@ -73,14 +73,14 @@ class FormLocator
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {
                 return $finalPath;
             } else {
-                $this->logger->errorLogCaller(
-                    "Module attempted to load a file outside of its directory",
+                $this->logger->error(
+                    "Module attempted to load a file outside of its directory: {file} for form {formdir}",
                     ['file' => $event->getFormIncludePath(), 'formdir' => $event->getFormName()]
                 );
             }
         }
         if (!file_exists($finalPath)) {
-            $this->logger->errorLogCaller("form is missing report.php file", ['file' => $finalPath, 'formdir' => $formDir]);
+            $this->logger->error("Form {formdir} is missing report.php file at {file}", ['file' => $finalPath, 'formdir' => $formDir]);
         }
         // AI GENERATED CODE: HEADER START
 

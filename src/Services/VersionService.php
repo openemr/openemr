@@ -6,11 +6,16 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class VersionService extends BaseService implements VersionServiceInterface
 {
@@ -23,37 +28,58 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * @return array the sole version entry in the database.
+     * @return array{v_major: int, v_minor: int, v_patch: int, v_realpatch: int, v_tag: string, v_database: int, v_acl: int}
      */
     public function fetch(): array
     {
-        return sqlQuery("SELECT * FROM `version`");
-    }
-
-    /**
-     * Return the compounded major, minor, patch and tag versions as a string
-     *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
-     */
-    public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
-    {
-        $v = $this->fetch();
-        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
-            $string .= " (" . $v['v_realpatch'] . ")";
+        $row = QueryUtils::querySingleRow("SELECT * FROM `version`");
+        if (!is_array($row)) {
+            throw new \RuntimeException('Missing version entry in database');
         }
-        return $string;
+
+        $major = $row['v_major'] ?? null;
+        $minor = $row['v_minor'] ?? null;
+        $patch = $row['v_patch'] ?? null;
+        $realpatch = $row['v_realpatch'] ?? null;
+        $tag = $row['v_tag'] ?? null;
+        $database = $row['v_database'] ?? null;
+        $acl = $row['v_acl'] ?? null;
+
+        if (
+            !is_numeric($major) || !is_numeric($minor) || !is_numeric($patch)
+            || !is_numeric($realpatch) || !is_numeric($database) || !is_numeric($acl)
+        ) {
+            throw new \RuntimeException('Non-numeric version data in database');
+        }
+
+        if (!is_string($tag)) {
+            throw new \RuntimeException("Non-string v_tag in version table");
+        }
+
+        return [
+            'v_major' => (int) $major,
+            'v_minor' => (int) $minor,
+            'v_patch' => (int) $patch,
+            'v_realpatch' => (int) $realpatch,
+            'v_tag' => $tag,
+            'v_database' => (int) $database,
+            'v_acl' => (int) $acl,
+        ];
+    }
+
+    public function getSoftwareVersion(): SoftwareVersion
+    {
+        return SoftwareVersion::fromGlobals(OEGlobalsBag::getInstance());
+    }
+
+    public function getSchemaVersion(): SchemaVersion
+    {
+        return SchemaVersion::fromDatabaseRow($this->fetch());
     }
 
     /**
-     * Updates the sole version entry in the database. If the release contains
-     * a patch file, also updates the real patch indicator.
-     *
-     * @param $version array the new version entry.
-     * @return void.
+     * Update the sole version entry in the database. If the release contains
+     * a patch file, also update the real patch indicator.
      */
     public function update(array $version): void
     {

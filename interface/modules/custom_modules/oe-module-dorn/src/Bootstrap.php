@@ -17,19 +17,18 @@
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
+use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
 use OpenEMR\Services\Globals\GlobalSetting;
-use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
@@ -54,10 +53,7 @@ class Bootstrap
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
@@ -65,13 +61,10 @@ class Bootstrap
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
     ) {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
@@ -83,7 +76,7 @@ class Bootstrap
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents()
@@ -114,10 +107,6 @@ class Bootstrap
     }
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        // If globals are properly included elsewhere this should not be needed.
-        //  Will leave this here for now to avoid breaking anything.
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
         $section = xlt("DORN Lab Integration");
         $service->createSection($section, 'Portal');
@@ -125,7 +114,7 @@ class Bootstrap
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $service->appendToSection(
                 $section,
                 $key,
@@ -174,7 +163,7 @@ class Bootstrap
                 $loader->prependPath($this->getTemplatePath());
             }
         } catch (LoaderError $error) {
-            $this->logger->errorLogCaller("Failed to create template loader", ['innerMessage' => $error->getMessage(), 'trace' => $error->getTraceAsString()]);
+            $this->logger->error("Failed to create template loader", ['exception' => $error]);
         }
     }
 

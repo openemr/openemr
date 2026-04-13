@@ -13,18 +13,19 @@
 
 namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
-use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -34,7 +35,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
-use InvalidArgumentException;
 
 class ObservationController
 {
@@ -83,8 +83,9 @@ class ObservationController
             $formId = $id; // openemr sends us the form_id as the id param for new forms
         }
 
-        $pid = $_SESSION['pid'] ?? 0;
-        $encounter = $_SESSION['encounter'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid') ?? 0;
+        $encounter = $session->get('encounter') ?? 0;
 
         try {
             // Get observations for this form
@@ -115,8 +116,8 @@ class ObservationController
                 'formId' => $formId ?: $observation['id'],
                 'observation' => $observation,
                 'reasonCodeStatii' => $reasonCodeStatii,
-                'csrf_token' => CsrfUtils::collectCsrfToken(),
-                'apiCsrfToken' => CsrfUtils::collectCsrfToken('api'),
+                'csrf_token' => CsrfUtils::collectCsrfToken($session),
+                'apiCsrfToken' => CsrfUtils::collectCsrfToken($session, 'api'),
                 'title' => xl('Observation Form'),
                 'reasonCodeTypes' => $this->codeTypeService->collectCodeTypes("medical_problem", "csv"),
                 'linkedQuestionnaireResponse' => $observation['questionnaire_response'] ?? null,
@@ -155,8 +156,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation form", [
+                'exception' => $e,
                 'formId' => $formId,
                 'pid' => $pid,
                 'encounter' => $encounter
@@ -182,8 +183,9 @@ class ObservationController
             return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
         }
 
-        $pid = $_SESSION['pid'] ?? 0;
-        $encounter = $_SESSION['encounter'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid') ?? 0;
+        $encounter = $session->get('encounter') ?? 0;
 
         try {
             // Get observations with filtering
@@ -217,8 +219,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation list", [
+                'exception' => $e,
                 'pid' => $pid,
                 'encounter' => $encounter
             ]);
@@ -242,7 +244,9 @@ class ObservationController
         if (!$this->getFormService()->hasFormPermission("observation")) {
             return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
         }
-        if (!CsrfUtils::verifyCsrfToken($request->request->get('csrf_token_form'))) {
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($request->request->get('csrf_token_form'), session: $session)) {
             return $this->createResponse(
                 xlt("Authentication Error"),
                 Response::HTTP_UNAUTHORIZED
@@ -258,13 +262,13 @@ class ObservationController
 
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id="
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id="
                 . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error saving observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error saving observation", [
+                'exception' => $e,
                 'formId' => $formId,
                 'postData' => $postData
             ]);
@@ -281,9 +285,10 @@ class ObservationController
         try {
             QueryUtils::startTransaction();
             // Extract main observation data
-            $observationId = intval($postData['observation_id'] ?? 0);
+            $observationId = (int)($postData['observation_id'] ?? 0);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             if ($observationId > 0) {
-                $observation = $this->observationService->getObservationById($observationId, $_SESSION['pid']);
+                $observation = $this->observationService->getObservationById($observationId, $session->get('pid'));
                 if (empty($observation)) {
                     throw new \Exception("Observation with ID {$observationId} not found for patient.");
                 }
@@ -291,11 +296,11 @@ class ObservationController
                 $observation = $this->observationService->getNewObservationTemplate();
             }
             $observation['form_id'] = $formId;
-            $observation['pid'] = $_SESSION['pid'];
-            $observation['encounter'] = $_SESSION['encounter'];
-            $observation['user'] = $_SESSION['authUser'];
-            $observation['groupname'] = $_SESSION['authProvider'];
-            $observation['authorized'] = $_SESSION['userauthorized'] ?? 0;
+            $observation['pid'] = $session->get('pid');
+            $observation['encounter'] = $session->get('encounter');
+            $observation['user'] = $session->get('authUser');
+            $observation['groupname'] = $session->get('authProvider');
+            $observation['authorized'] = $session->get('userauthorized') ?? 0;
 
             // grab any ids before postData can overwrite them
             $originalIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $observation['sub_observations'] ?? []));
@@ -330,8 +335,10 @@ class ObservationController
             // we cleanup the sub observations first so the final save will return the correct data structure
             $submittedIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $submittedObservations));
             $idsToDelete = array_diff($originalIds, $submittedIds);
+            $pid = $session->get('pid');
+            $encounter = $session->get('encounter');
             foreach ($idsToDelete as $idToDelete) {
-                $this->observationService->deleteObservationById($idToDelete, $formId, $_SESSION['pid'], $_SESSION['encounter']);
+                $this->observationService->deleteObservationById($idToDelete, $formId, $pid, $encounter);
             }
             $observation['sub_observations'] = $submittedObservations;
             // Save main observation with sub-observations
@@ -362,11 +369,11 @@ class ObservationController
             $sql = "SELECT id FROM questionnaire_response WHERE response_id = ? OR id = ?";
             $result = QueryUtils::fetchSingleValue($sql, 'id', [$numericId, $numericId]);
 
-            return $result ? (int)$result : null;
+            return $result ? intval($result) : null;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
-                'fhir_id' => $fhirId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error converting FHIR ID to local ID", [
+                'exception' => $e,
+                'fhir_id' => $fhirId
             ]);
             return null;
         }
@@ -406,9 +413,9 @@ class ObservationController
                 'questionnaire_data' => $questionnaireData
             ];
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
-                'questionnaire_response_id' => $questionnaireResponseId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error getting QuestionnaireResponse details", [
+                'exception' => $e,
+                'questionnaire_response_id' => $questionnaireResponseId
             ]);
             return null;
         }
@@ -470,8 +477,9 @@ class ObservationController
             return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
         }
         $observationId = $request->query->getInt('id');
-        $pid = $_SESSION['pid'];
-        $encounter = $_SESSION['encounter'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $session->get('pid');
+        $encounter = $session->get('encounter');
         $formId = $request->query->getInt('form_id', 0);
         $committed = false;
         try {
@@ -484,7 +492,7 @@ class ObservationController
             if (!$observation) {
                 // observation may have already been deleted, just redirect to list with success to avoid error loops
                 return $this->createRedirectResponse(
-                    $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                    OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                     . "&status=delete_success" // still redirect to list with success to avoid error loops
                 );
             }
@@ -501,16 +509,16 @@ class ObservationController
             QueryUtils::commitTransaction();
             $committed = true;
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error deleting observation", [
+                'exception' => $e,
                 'formId' => $formId
             ]);
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_failed" // let them know that the delete failed
             );
         } finally {

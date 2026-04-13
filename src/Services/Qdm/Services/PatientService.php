@@ -10,13 +10,11 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
-use OpenEMR\Cqm\Qdm\Id;
 use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;

@@ -2,14 +2,14 @@
 
 namespace OpenEMR\Cqm;
 
-use FontLib\Table\DirectoryEntry;
 use OpenEMR\Common\System\System;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CqmServiceManager
 {
     public static function makeCqmClient()
     {
-        $servicePath = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR .
+        $servicePath = OEGlobalsBag::getInstance()->get('fileroot') . DIRECTORY_SEPARATOR .
             'ccdaservice/node_modules' . DIRECTORY_SEPARATOR .
             'oe-cqm-service' . DIRECTORY_SEPARATOR .
             'server.js';

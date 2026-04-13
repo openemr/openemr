@@ -15,8 +15,9 @@
 namespace OpenEMR\Modules\DashboardContext\Controller;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class ContextWidgetController
 {
@@ -26,7 +27,8 @@ class ContextWidgetController
     public function __construct()
     {
         $this->contextService = new DashboardContextService();
-        $this->userId = (int)($_SESSION['authUserID'] ?? 0);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->userId = (int)($session->get('authUserID') ?? 0);
     }
 
     /**
@@ -49,7 +51,8 @@ class ContextWidgetController
         $isLocked = $this->contextService->isUserContextLocked($this->userId);
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
-        $csrfToken = CsrfUtils::collectCsrfToken();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
 
@@ -154,7 +157,7 @@ class ContextWidgetController
                     widgets: <?php echo js_escape($currentWidgets); ?>,
                     manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                     customContexts: <?php echo js_escape($customContexts); ?>,
-                    canSwitch: <?php echo js_escape($canSwitch); ?>
+                    canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                 },
 
                 xl: {
@@ -707,7 +710,8 @@ class ContextWidgetController
         $isLocked = $this->contextService->isUserContextLocked($this->userId);
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
-        $csrfToken = CsrfUtils::collectCsrfToken();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
         ob_start();
@@ -831,7 +835,7 @@ class ContextWidgetController
                         widgets: <?php echo js_escape($currentWidgets); ?>,
                         manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                         customContexts: <?php echo js_escape($customContexts); ?>,
-                        canSwitch: <?php echo js_escape($canSwitch); ?>
+                        canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                     },
 
                     xl: {

@@ -14,7 +14,6 @@ namespace OpenEMR\Services\FHIR\Traits;
 use InvalidArgumentException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 
 trait VersionedProfileTrait
@@ -82,7 +81,7 @@ trait VersionedProfileTrait
         if (in_array($version, self::PROFILE_VERSIONS_ALL)) {
             $this->highestUSCoreProfileVersion = $version;
         } else {
-            $this->getSystemLogger()->errorLogCaller("Attempt to set unsupported US Core profile version", ['version' => $version]);
+            $this->getSystemLogger()->error("Attempt to set unsupported US Core profile version {version}", ['version' => $version]);
             throw new InvalidArgumentException("Unsupported US Core profile version " . $version);
         }
     }

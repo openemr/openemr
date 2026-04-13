@@ -14,10 +14,11 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $facilityService = new FacilityService();
 
@@ -53,7 +54,7 @@ function convertToDataArray($data_array)
 
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
             $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {

@@ -94,13 +94,11 @@ final readonly class DatabaseConnectionOptions
      * Creates options for a site by loading its sqlconf.php file.
      *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
-     * @param literal-string $configFile Config filename to load
      */
     public static function forSite(
         string $siteDir,
-        string $configFile = 'sqlconf.php',
     ): self {
-        $sqlconf = self::loadSqlconf($siteDir, $configFile);
+        $sqlconf = self::loadSqlconf($siteDir);
         $sslPaths = self::inferSslPaths($siteDir);
 
         return self::fromSqlconf($sqlconf, $sslPaths);
@@ -135,7 +133,7 @@ final readonly class DatabaseConnectionOptions
      *
      * @return SslConfig
      */
-    private static function inferSslPaths(string $siteDir): array
+    public static function inferSslPaths(string $siteDir): array
     {
         $config = [];
 
@@ -163,16 +161,15 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
-     * @param literal-string $configFile
      * @return SqlConf
      */
-    private static function loadSqlconf(string $siteDir, string $configFile): array
+    private static function loadSqlconf(string $siteDir): array
     {
-        $sqlconfPath = $siteDir . '/' . $configFile;
+        $sqlconfPath = $siteDir . '/sqlconf.php';
         if (!file_exists($sqlconfPath)) {
             throw new RuntimeException(sprintf(
                 '%s not found in %s. Is the site configured?',
-                $configFile,
+                'sqlconf.php',
                 $siteDir,
             ));
         }
@@ -221,11 +218,15 @@ final readonly class DatabaseConnectionOptions
 
         $driverOptions = [];
         if ($this->sslCaPath !== null) {
-            $driverOptions[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;
+            // PHP 8.5+ moved MySQL-specific PDO attributes to Pdo\Mysql
+            $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
+            $driverOptions[$attrSslCa] = $this->sslCaPath;
         }
         if ($this->sslClientCert !== null) {
-            $driverOptions[PDO::MYSQL_ATTR_SSL_CERT] = $this->sslClientCert['cert'];
-            $driverOptions[PDO::MYSQL_ATTR_SSL_KEY] = $this->sslClientCert['key'];
+            $attrSslCert = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CERT : PDO::MYSQL_ATTR_SSL_CERT;
+            $attrSslKey = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_KEY : PDO::MYSQL_ATTR_SSL_KEY;
+            $driverOptions[$attrSslCert] = $this->sslClientCert['cert'];
+            $driverOptions[$attrSslKey] = $this->sslClientCert['key'];
         }
         if ($driverOptions !== []) {
             $params['driverOptions'] = $driverOptions;

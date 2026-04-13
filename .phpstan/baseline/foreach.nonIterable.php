@@ -228,31 +228,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/ajax_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
@@ -623,7 +598,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
@@ -968,23 +943,13 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 14,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
@@ -1008,16 +973,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type Application\\\\Model\\\\type\\|list\\<array\\<string, string\\>\\> supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
@@ -1038,7 +993,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 17,
+    'count' => 11,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -1082,11 +1037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Argument of an invalid type array\\|false supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
@@ -1100,21 +1050,6 @@ $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
@@ -1394,11 +1329,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appt_encounter_report.php',
 ];
 $ignoreErrors[] = [
@@ -1588,7 +1518,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 13,
+    'count' => 14,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -1898,7 +1828,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
@@ -2288,11 +2218,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
@@ -2493,11 +2418,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',
 ];
@@ -2548,7 +2468,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
 $ignoreErrors[] = [
@@ -2565,11 +2485,6 @@ $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type array\\|true supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
@@ -2822,21 +2737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Argument of an invalid type DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false supplied for foreach, only iterables are supported\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
@@ -2883,11 +2783,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
 ];
@@ -2900,11 +2795,6 @@ $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 11,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type array\\|false supplied for foreach, only iterables are supported\\.$#',
@@ -3234,32 +3124,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
@@ -3278,7 +3148,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
@@ -3288,18 +3158,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
@@ -3408,12 +3268,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
@@ -3575,16 +3430,6 @@ $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',

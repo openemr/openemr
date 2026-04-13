@@ -12,22 +12,11 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\System\System;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
-use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
-use OpenEMR\Services\CDADocumentService;
-use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
@@ -35,13 +24,11 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use Ramsey\Uuid\Uuid;
 
 // TODO: @adunsulag look at putting this into its own operations folder
 class FhirDocRefService
@@ -147,7 +134,7 @@ class FhirDocRefService
         $patientService = new PatientService();
         $patient = $patientService->search([$field => $newSearchField])->getData() ?? null;
         if (empty($patient)) {
-            (new SystemLogger())->errorLogCaller("Failed to find patient with uuid", ['uuids' => $searchPatient->getValues()]);
+            $this->getSystemLogger()->error("Failed to find patient with uuid {uuids}", ['uuids' => $searchPatient->getValues()]);
             throw new SearchFieldException($field, "Invalid argument");
         } else {
             $patient = $patient[0];

@@ -20,9 +20,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $facilityService = new FacilityService();
 
 $form_name = "Eye Form";
@@ -35,7 +38,7 @@ if (!($_REQUEST['pid'] ?? '') && $_REQUEST['id']) {
     $_REQUEST['pid'] = $_REQUEST['id'];
 }
 if (!$_REQUEST['pid']) {
-    $_REQUEST['pid'] = $_SESSION['pid'];
+    $_REQUEST['pid'] = $session->get('pid');
 }
 
 $query = "select  *,form_encounter.date as encounter_date
@@ -103,7 +106,7 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
             }
         }
         $fields['RXTYPE'] = $RXTYPE;
-        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $_SESSION['userauthorized']);
+        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $session->get('userauthorized'));
     }
 
     exit;
@@ -137,7 +140,7 @@ if ($_REQUEST['REFTYPE']) {
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
-    $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
+    $encounter = !$_REQUEST['encounter'] ? $session->get('encounter') : $_REQUEST['encounter'];
 
 
 
@@ -245,7 +248,7 @@ if ($_REQUEST['REFTYPE']) {
 
         $fields['RXTYPE'] = $RXTYPE;
         $fields['REFDATE'] = $data['date'];
-        $insert_this_id = formSubmit($table_name, $fields, $form_id, $_SESSION['userauthorized']);
+        $insert_this_id = formSubmit($table_name, $fields, $form_id, $session->get('userauthorized'));
     }
 }
 
@@ -450,7 +453,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                     } elseif ($row['REFTYPE'] == "CTL") {
                                         echo xlt('Contact Lens');
                                     } else {
-                                        echo $row['REFTYPE'];
+                                        echo text($row['REFTYPE']);
                                     } ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
@@ -1235,12 +1238,12 @@ if ($REFTYPE == "CTL") {
             </tr>
             <tr>
                 <?php
-                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
+                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/eye_mag/images/sign_" . attr($session->get('authUserID')) . ".jpg";
                 if (file_exists($signature)) {
                     ?>
                 <td class="center" style="margin:25px auto;">
                             <span style="position:relative;padding-left:40px;">
-                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
+                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($session->get('authUserID')); ?>.jpg'
                                      style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
                                     </span><br/>
 
@@ -1256,7 +1259,11 @@ if ($REFTYPE == "CTL") {
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
-                    } ?><br/>
+                    } ?>
+                    <?php if (isset($prov_data['state_license_number']) && is_string( $prov_data['state_license_number'])) { ?>
+                        <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
+                    <?php } ?>
+
                     <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
                 </td>
             </tr>

@@ -34,12 +34,11 @@
 
 function smarty_function_xlj($params, &$smarty): void
 {
-    if (empty($params['t'])) {
-        trigger_error("xlj: missing 't' parameter", E_USER_WARNING);
+    if (empty($params['t']) || !is_string($params['t'])) {
+        trigger_error("xlj: missing or non-string 't' parameter", E_USER_WARNING);
         return;
-    } else {
-        $translate = $params['t'];
     }
 
-    echo xlj($translate);
+    // @phpstan-ignore argument.type (Smarty template strings are not statically analyzable as literal-string)
+    echo xlj($params['t']);
 }

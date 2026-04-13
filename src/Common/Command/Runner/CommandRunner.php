@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Common\Command\Runner;
 
-use MongoDB\Driver\Command;
 use OpenEMR\Common\Command\IOpenEMRCommand;
 
 class CommandRunner

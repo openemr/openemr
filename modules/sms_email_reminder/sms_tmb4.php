@@ -13,6 +13,9 @@
 // Created by:  Avasiloaei Dorin
 // Modified by: Larry Lart
 ////////////////////////////////////////////////////////////////////
+
+use OpenEMR\Core\OEGlobalsBag;
+
 class sms_tmb4 implements sms_interface
 {
     function __construct(public $username, public $password)
@@ -105,7 +108,7 @@ class sms_tmb4 implements sms_interface
     function _send_curl($request)
     {
         /* Initiate a cURL session */
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init();
 
         /* Set cURL variables */

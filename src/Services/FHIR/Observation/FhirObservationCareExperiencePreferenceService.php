@@ -12,8 +12,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -25,11 +23,11 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationCareExperiencePreferenceService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService

@@ -487,66 +487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:addClaim\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:close\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixEStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixJust\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixRelation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixString\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function collect_codetypes\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
@@ -790,11 +730,6 @@ $ignoreErrors[] = [
     'message' => '#^Function unique_by_key\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function SavePatientAudit\\(\\) has no return type specified\\.$#',
@@ -1390,66 +1325,6 @@ $ignoreErrors[] = [
     'message' => '#^Function mergeTiffs\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addAppt\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function content_parser\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function patient_age\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function process_commands\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function remove_comments\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function replace\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getMyPatientData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function myauth\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function searchName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formatVitals\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function startsWith\\(\\) has no return type specified\\.$#',
@@ -3412,21 +3287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetCallingScriptName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function UrlIfImageExists\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function strterm\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function find_or_create_constant\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/csv/translation_utilities.php',
@@ -4687,11 +4547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isThirdPartyConfigurationSetup\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isThirdPartyInvitationsEnabled\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
@@ -5298,11 +5153,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Bootstrap\\:\\:getExporter\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Bootstrap\\:\\:getLogger\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',
 ];
@@ -6052,77 +5902,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:aclSections\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:aclUserGroupMapping\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:deleteGroupACL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:deleteModuleGroupACL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:deleteUserACL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getAclDataGroups\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getAclDataUsers\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getActiveModules\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getGroupAcl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getGroups\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getModuleSections\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getSectionsInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:insertGroupACL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:insertuserACL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:saveACLSections\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
 ];
@@ -6172,11 +5952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/Javascript.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\TranslatorViewHelper\\:\\:xl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Listener\\\\ModuleMenuSubscriber\\:\\:onMenuRestrict\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/ModuleMenuSubscriber.php',
@@ -6207,37 +5982,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:errorHandler\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:generateSequenceID\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:listAutoSuggest\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getCCDAComponents\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getFacility\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getFaxRecievers\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getUsers\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
@@ -6593,11 +6338,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getSocialHistorySDOH\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:is_snomed_codes_installed\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
@@ -7032,11 +6772,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:insertDocumentCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Documents\\\\Plugin\\\\Documents\\:\\:fetchXmlDocuments\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
@@ -7220,11 +6955,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Immunization\\\\Model\\\\Immunization\\:\\:getArrayCopy\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Immunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:codeslist\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getCodes\\(\\) has no return type specified\\.$#',
@@ -7440,106 +7170,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:updateRegistered\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Module\\:\\:getAutoloaderConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/Module.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Module\\:\\:getConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/Module.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Module\\:\\:init\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/Module.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getRequestedParamsArray\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\ModuleconfigController\\:\\:getAclConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/ModuleconfigController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\ModuleconfigController\\:\\:getDependedModulesConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/ModuleconfigController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\ModuleconfigController\\:\\:getHookConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/ModuleconfigController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:checkAcl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:editAction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:errorAction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:generatesafekeyAction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:removeAction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:saveAction\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\Multipledb\\:\\:exchangeArray\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:checknamespace\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:deleteMultidbById\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:fetchAll\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:getMultipledbById\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:randomSafeKey\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\MultipledbTable\\:\\:storeMultipledb\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PatientFilter\\\\Module\\:\\:checkBlacklistForUpdateAuth\\(\\) has no return type specified\\.$#',
@@ -7797,19 +7427,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getSearchClass\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function oresRawData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function onvalue\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function proc_stats_getListTitle\\(\\) has no return type specified\\.$#',
@@ -8002,11 +7622,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function displayLogin\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/create_portallogin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function deceasedDays\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
@@ -8123,11 +7738,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function checkReorder\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/inventory_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function genUserWarehouses\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/inventory_list.php',
 ];
@@ -10002,11 +9612,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Controller\\:\\:act\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Controller\\:\\:default_action\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
@@ -11085,411 +10690,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Pharmacy\\:\\:utility_pharmacy_array\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_active\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_created_by\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_date_added\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_date_modified\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_dispensation_count\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_dosage\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_dosage_display\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_drug\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_drug_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_encounter\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_filled_by_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_filled_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_form\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_interval\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_medication\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_note\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_ntx\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_patient_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_per_refill\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_pharmacist\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_pharmacy_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_prescription_display\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_prescription_florida_display\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_provider_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_quantity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_refills\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_route\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_rxnorm_drugcode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_size\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_start_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_start_date_d\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_start_date_m\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_start_date_y\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_substitute\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_txDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_unit\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_unit_display\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_updated_by\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:handle_drug_updates\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:handle_medication_list_updates\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:load_drug_attributes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:persist\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:populate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:prescriptions_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:reset_change_tracking\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_active\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_created_by\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_date_added\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_date_modified\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_dosage\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_drug_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_encounter\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_erx_source\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_filled_by_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_filled_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_form\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_interval\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_note\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_ntx\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_patient_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_per_refill\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_pharmacist_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_pharmacy_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_provider\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_provider_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_quantity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_refills\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_route\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_rxnorm_drugcode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_size\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_start_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_start_date_d\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_start_date_m\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_start_date_y\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_substitute\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_txDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_unit\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_updated_by\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:toString\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PrescriptionPatient\\:\\:get_dob\\(\\) has no return type specified\\.$#',
@@ -16932,6 +16132,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formatting.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function add_escape_custom\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getDocumentsByEncounter\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/forms.inc.php',
@@ -17158,11 +16363,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function dateToDB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fixDate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
@@ -17417,37 +16617,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function deletePnote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function disappearPnote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getAssignedToById\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getMessageStatusById\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPatientNotes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPatientNotifications\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPatientSentNotes\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
@@ -17468,11 +16643,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnoteConvertLinks\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function reappearPnote\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
@@ -17607,11 +16777,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function collectIpAddresses\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function convert_safe_file_dir_name\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
@@ -17645,16 +16810,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_headerTemplate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xla\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xlt\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:_set_config_var\\(\\) has no return type specified\\.$#',
@@ -18032,11 +17187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getPrivDB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function icd_import\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
@@ -18143,11 +17293,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_SendSMS\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getAlertpatientData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
@@ -19487,11 +18632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/DefaultController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OnsiteActivityViewController\\:\\:CreateView\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OnsiteActivityViewController\\:\\:Init\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
@@ -20572,16 +19712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:additionalNotes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:autoAccidentState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingContactEmail\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -20598,111 +19728,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityAssignment\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityETIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingFacilityZip\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingIdCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderStreetB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderUPIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:billingProviderZip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -20732,87 +19757,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cleanDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:clearingHouseETIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:clearingHouseName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cliaCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptCharges\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptDescription\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptKey\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptModifier\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNDCID\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNDCQuantity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNDCUOM\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNOC\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNotecodes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptUnits\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:dateInitialTreatmentValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:dateInitialTreatment\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -20828,56 +19778,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:diagIndex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:epsdtFlag\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityETIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityPOS\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:facilityZip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -20922,22 +19822,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:groupName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:groupNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:hospitalizedFromDateValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:hospitalizedFrom\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -20947,37 +19832,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:hospitalizedTo\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:icnResubmissionNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredDOB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredMiddleName\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -20997,22 +19852,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredTypeCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredZip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21062,37 +19902,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:medicaidOriginalReference\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:medicaidReferralCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:medicaidResubmissionCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:miscOnsetDateValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:miscOnsetDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:offWorkFrom\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:offWorkTo\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21102,102 +19912,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:onsetDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererStreetB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererUPIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:ordererZip\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:outsideLabAmount\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientDOB\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientOccupation\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21217,22 +19937,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:patientZip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21242,32 +19947,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerAltID\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerAttn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerCity\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerID\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerName\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21277,37 +19957,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerStreet\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerTotals\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:payerZip\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:planName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:policyNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:priorAuth\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -21317,157 +19967,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerGroupNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNPIValid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNumberType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerSuffixName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerUPIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:referrerUPIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:serviceDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorFirstName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorLastName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorMiddleName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorNPI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorNumberType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorNumber\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorTaxonomy\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:supervisorUPIN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Clean\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Zip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -23452,21 +21957,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/SymfonyCommandRunner.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:collectCsrfToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:setupCsrfKey\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:verifyCsrfToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\:\\:getLinks\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryPagination.php',
@@ -24167,17 +22657,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:determineRFC3881EventIdDisplayName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:getEvents\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:isBreakglassUser\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
@@ -24198,11 +22678,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:recordLogItem\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:sendAtnaAuditMsg\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
@@ -24487,69 +22962,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:get\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:has\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:remove\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:set\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PatientSessionUtil\\:\\:setPid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/PatientSessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperInterface\\:\\:get\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperInterface\\:\\:has\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperInterface\\:\\:remove\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperInterface\\:\\:set\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SymfonySessionWrapper\\:\\:get\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SymfonySessionWrapper\\:\\:has\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SymfonySessionWrapper\\:\\:remove\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SymfonySessionWrapper\\:\\:set\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\CacheUtils\\:\\:getAssetCacheParamRaw\\(\\) has no return type specified\\.$#',
@@ -25095,11 +23510,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ActionUrlBuilder\\:\\:getCSRFToken\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ActionUrlBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:setTwig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:createFieldsFromQuestionnaireItem\\(\\) has no return type specified\\.$#',
@@ -25677,46 +24087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getSoapNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getSoapNotes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getVital\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getVitals\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:postSoapNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:postVital\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:putSoapNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:putVital\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
@@ -25772,11 +24142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGoalRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGroupRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
@@ -25805,16 +24170,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirObservationRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPatientRestController\\:\\:post\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPatientRestController\\:\\:put\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPersonRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
@@ -25850,11 +24205,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirServiceRequestRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirSpecimenRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirValueSetRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
@@ -26037,26 +24387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:getAll\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PrescriptionRestController\\:\\:getAll\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PrescriptionRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\ProcedureRestController\\:\\:getAll\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
@@ -26078,11 +24408,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:addRequestMethods\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:createProcessingResultResponse\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
@@ -26238,11 +24563,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:setEventDispatcher\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:setLogger\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
@@ -29872,26 +28192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:institution_not_specified_point_frequency\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:institution_not_specified_range_frequency\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:institution_specified_point_frequency\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:institution_specified_range_frequency\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:intervention_order\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
@@ -29953,11 +28253,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:medication_duration_effective_time\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:medication_frequency\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
@@ -30592,27 +28887,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Population.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:denominator\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:denominator_exceptions\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:denominator_exclusions\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:is_cv\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:numerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
 ];
@@ -30623,16 +28898,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:performance_rate_denominator\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:population_count\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:population_id\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
 ];
@@ -31167,94 +29432,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:cleanupClient\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:cleanupRevokeAuth\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getAccessToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getClientId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getClientSecret\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getClient\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getConfig\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getIdToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:getRefreshToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:get\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:patch\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:put\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:removeAuthToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setBearer\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setHeaders\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:requestTestPatientSelectionFlow\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\BulkAPITestClient\\:\\:registerClient\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\CapabilityFhirTest\\:\\:assertCapabilityHasSMARTRequirements\\(\\) has no return type specified\\.$#',
@@ -31370,11 +29550,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\JjEncounterContextMainMenuLinksTest\\:\\:menuLinkProvider\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getFixturesFromFile\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getUuid\\(\\) has no return type specified\\.$#',
@@ -31700,11 +29875,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:_post\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerRouterTest\\:\\:createActionRouter\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomClientCredentialsGrantTest\\:\\:createJWTForKeys\\(\\) has no return type specified\\.$#',

@@ -18,14 +18,15 @@
 // TODO: Make more intuitive
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $info_msg = "";
 
@@ -71,7 +72,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 "bProcessing": true,
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],
                 "iDisplayLength": 50,

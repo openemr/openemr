@@ -2,19 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Class User referenced with incorrect case\\: user\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class ZipArchive referenced with incorrect case\\: ZIPARCHIVE\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class DOMXPath referenced with incorrect case\\: DOMXpath\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Class DOMXPath referenced with incorrect case\\: DOMXpath\\.$#',

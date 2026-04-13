@@ -12,7 +12,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
 use OpenEMR\Core\Header;
 

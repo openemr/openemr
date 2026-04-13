@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;

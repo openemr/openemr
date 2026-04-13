@@ -3,11 +3,9 @@
 namespace OpenEMR\RestControllers\Subscriber;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;

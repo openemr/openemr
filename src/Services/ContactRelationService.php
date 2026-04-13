@@ -11,18 +11,15 @@
 
 namespace OpenEMR\Services;
 
-use League\Csv\Exception;
-use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\ContactRelation;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ContactRelationService extends BaseService
 {
@@ -701,7 +698,7 @@ class ContactRelationService extends BaseService
     {
         $linkService = new PersonPatientLinkService();
         $personService = new PersonService();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // Check if patient already has a linked person
         $existingPerson = $linkService->getPersonForPatient($patientId);

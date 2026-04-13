@@ -10,10 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
 require_once("FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormPriorAuth extends Controller
 {
@@ -22,13 +24,14 @@ class C_FormPriorAuth extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/prior_auth/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('web_root'));
+        $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->get('form_exit_url'));
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
     function default_action()
@@ -58,12 +61,13 @@ class C_FormPriorAuth extends Controller
 
 
         $this->form->persist();
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Prior Authorization", $this->form->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Prior Authorization", $this->form->id, "prior_auth", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";
         }
         return;

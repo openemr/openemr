@@ -13,9 +13,9 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
-use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
+use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 
 class GeneratorExternal extends AbstractGenerator implements GeneratorInterface, LoggerInterface

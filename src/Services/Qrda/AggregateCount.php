@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\PopulationSet;
 
 class AggregateCount

@@ -7,8 +7,10 @@
 * @link      https://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Michael A. Smith <michael@opencoreemr.com>
 * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -28,27 +30,26 @@ require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/amc.php");
-require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Header;
-use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
-use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
+$expand_default = (int)OEGlobalsBag::getInstance()->getBoolean('expand_form') ? 'show' : 'hide';
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
@@ -74,7 +75,7 @@ $formLocator = new FormLocator();
 <head>
 
 <title class="title"></title>
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common', 'esign', 'dygraphs', 'utility']); ?>
 
@@ -85,10 +86,10 @@ $esignApi = new Api();
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     </script>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/report.js"></script>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/report.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/style.css">
 <?php } ?>
 
 <?php
@@ -120,9 +121,9 @@ if (!empty($_GET['attachid'])) {
 
 <?php
 // If google sign-in enable then add scripts.
-if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
+if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) { ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/gSignIn.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/gSignIn.js"></script>
 <?php } ?>
 
 <script>
@@ -185,7 +186,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -205,7 +206,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -233,7 +234,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -253,7 +254,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -272,7 +273,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -318,7 +319,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     // Process click on Delete link.
     function deleteme() {
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             encounterid: <?php echo js_escape($encounter); ?>
         });
         dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {
@@ -540,10 +541,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterLocked = false;
     if (
         $esignApi->lockEncounters() &&
-        isset($GLOBALS['encounter']) &&
-        !empty($GLOBALS['encounter'])
+        OEGlobalsBag::getInstance()->has('encounter') &&
+        !empty(OEGlobalsBag::getInstance()->get('encounter'))
     ) {
-        $esign = $esignApi->createEncounterESign($GLOBALS['encounter']);
+        $esign = $esignApi->createEncounterESign(OEGlobalsBag::getInstance()->get('encounter'));
         if ($esign->isLocked()) {
             $encounterLocked = true;
         }
@@ -555,7 +556,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();
-        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$GLOBALS["encounter"] ?? null])['sensitivity'] ?? null;
+        // Check sensitivity from the appropriate table based on encounter type
+        $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
+            ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
+            : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
+        $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
         $pass_sens = true;
         if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
             $pass_sens = false;
@@ -602,10 +607,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         while ($row = sqlFetchArray($module_query)) {
             $_cat = $row['mod_ui_name'];
             if ($row['type'] == 0) {
-                $modulePath = $GLOBALS['customModDir'];
+                $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                 $added = "";
             } else {
-                $modulePath = $GLOBALS['zendModDir'];
+                $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 $added = "index";
             }
 
@@ -649,7 +654,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         'encounterDate' => oeFormatShortDate($encounter_date),
         'patientName' => $patientName,
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
-        'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
+        'enableFollowUpEncounters' => OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters'),
         'menuArray' => $menu->getMenuData(),
         'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
         'pid' => (int) $pid,
@@ -682,7 +687,13 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
 
                     // Check for no access to the encounter's sensitivity level.
-                    $sensitivity = (new EncounterService())->getSensitivity($pid, $encounter);
+                    // Use appropriate table based on whether this is a patient or group encounter
+                    if ($attendant_type === 'pid') {
+                        $sensitivity = (new EncounterService())->getSensitivity($pid, $encounter);
+                    } else {
+                        $sensitivityResult = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?", [$encounter]);
+                        $sensitivity = $sensitivityResult['sensitivity'] ?? null;
+                    }
                     if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity)) || (!$authPostCalendarCategory ?? '')) {
                         $pass_sens_squad = false;
                     }
@@ -706,7 +717,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 } ?>
             </div>
             <div class='encounter-summary-column'>
-                <?php if ($GLOBALS['enable_amc_prompting']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting')) { ?>
                     <div class="float-right border border-dark mb-2">
                         <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
                         <div id="amc-requires" class="float-left m-2 collapse">
@@ -848,7 +859,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     ?>
                     <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
-                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png" /></a>
+                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/info.png" /></a>
                     <?php } ?>
                 <?php } ?>
             </div>

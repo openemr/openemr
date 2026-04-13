@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -20,13 +20,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority;
 use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\ProcedureOrderRelationshipService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\ProcedureOrderRelationshipService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -302,7 +301,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Log validation issues
         if (!empty($validation['errors'])) {
             $errorMsg = "US Core 8.0 validation errors: " . implode("; ", $validation['errors']);
-            (new SystemLogger())->errorLogCaller($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
+            ServiceContainer::getLogger()->error($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
 
             // In strict mode, throw exception
             if ($this->strictValidation) {
@@ -312,7 +311,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
         if (!empty($validation['warnings'])) {
             $warningMsg = "US Core 8.0 validation warnings: " . implode("; ", $validation['warnings']);
-            (new SystemLogger())->debug($warningMsg);
+            ServiceContainer::getLogger()->debug($warningMsg);
         }
 
         $serviceRequest = new FHIRServiceRequest();

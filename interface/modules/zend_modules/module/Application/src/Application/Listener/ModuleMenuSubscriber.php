@@ -15,6 +15,8 @@
 namespace Application\Listener;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\MenuEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -82,6 +84,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
      */
     private function updateModulesModulesMenu(&$menu_list)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // TODO: there's a lot of globals here.. these really need to be injected or extracted
         // out so we can test these things...
         $module_query = sqlStatement("select mod_id,mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
@@ -94,11 +97,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 $modulePath = "";
                 $added      = "";
                 if ($modulerow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                     $added      = "";
                 } else {
                     $added      = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 $relative_link = "/interface/modules/" . $modulePath . "/" . $modulerow['mod_relative_link'] . $added;
@@ -107,7 +110,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 if (sqlNumRows($module_hooks) == 0) {
                     // module without hooks in module section
                     $acl_section = strtolower((string) $modulerow['mod_directory']);
-                    if (AclMain::zhAclCheck($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
+                    if (AclMain::zhAclCheck($session->get('authUserID'), $acl_section) ?  "" : "1") {
                         continue;
                     }
 
@@ -127,7 +130,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     $jid = 0;
                     $modid = '';
                     while ($hookrow = sqlFetchArray($module_hooks)) {
-                        if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                        if (AclMain::zhAclCheck($session->get('authUserID'), $hookrow['obj_name']) ?  "" : "1") {
                             continue;
                         }
 
@@ -159,6 +162,8 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
      */
     private function updateModulesReportsMenu(&$menu_list)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
@@ -169,11 +174,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
 
             while ($hookrow = sqlFetchArray($module_query)) {
                 if ($hookrow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                     $added = "";
                 } else {
                     $added = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
@@ -188,7 +193,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     array_unshift($menu_list->children, $newEntry);
                 }
 
-                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($session->get('authUserID'), $hookrow['obj_name']) ?  "" : "1") {
                     continue;
                 }
 

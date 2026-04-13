@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Menu;
 
 use OpenEMR\Menu\BaseMenuItem;
-use OpenEMR\Menu\MenuItemInterface;
 use OpenEMR\Menu\MenuItems;
 use PHPUnit\Framework\TestCase;
 

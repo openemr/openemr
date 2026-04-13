@@ -20,15 +20,19 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/encounter.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
@@ -57,14 +61,14 @@ if ($formid > 0) {
         [$formid]
     );
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
-        (new SystemLogger())->warning(
+        ServiceContainer::getLogger()->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
-            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
+            ['user-id' => $session->get('authUserID') ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );
         EventAuditLogger::getInstance()->newEvent(
             "security-access",
-            $_SESSION['authUser'] ?? '',
-            $_SESSION['authProvider'] ?? '',
+            $session->get('authUser') ?? '',
+            $session->get('authProvider') ?? '',
             0,
             "Unauthorized attempt to view LBF form " . $formid . " for pid " . $patientid
         );
@@ -120,11 +124,11 @@ if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->getInt('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -284,7 +288,7 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 <?php
 // Generate header with optional logo.
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }

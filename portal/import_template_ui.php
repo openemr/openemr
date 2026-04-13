@@ -12,15 +12,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -32,10 +31,10 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Service
-$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
+$eventDispatcher = $globalsBag->getKernel()->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
@@ -354,7 +353,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session->getSymfonySession())); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-delete')); ?>)
             }
             return false;
         };
@@ -681,7 +680,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session->getSymfonySession())); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'import-template-upload'); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>

@@ -2,20 +2,20 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMoney;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageClass;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageCostToBeneficiary;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -24,7 +24,6 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;

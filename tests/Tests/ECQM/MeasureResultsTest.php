@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Tests\ECQM;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;

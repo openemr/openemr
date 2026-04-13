@@ -12,10 +12,10 @@
 
 namespace Syndromicsurveillance\Controller;
 
+use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
+use OpenEMR\Core\OEGlobalsBag;
 
 class SyndromicsurveillanceController extends AbstractActionController
 {
@@ -44,7 +44,7 @@ class SyndromicsurveillanceController extends AbstractActionController
     */
     public function indexAction()
     {
-        $date_display_format = $GLOBALS['date_display_format'];
+        $date_display_format = OEGlobalsBag::getInstance()->get('date_display_format');
         $default_from_date = date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $default_to_date = date('Y-m-d');  // be inclusive of today.
         $request        = $this->getRequest();

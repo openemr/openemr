@@ -8,9 +8,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class TelehealthConfigurationVerifier
 {
@@ -22,8 +20,12 @@ class TelehealthConfigurationVerifier
     private readonly TeleHealthRemoteRegistrationService $telehealthRegistration;
 
 
-    public function __construct(private readonly SystemLogger $logger, private readonly TeleHealthProvisioningService $provisioningService, private readonly TeleHealthUserRepository $userRepository, private readonly TelehealthGlobalConfig $config)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly TeleHealthUserRepository $userRepository,
+        private readonly TelehealthGlobalConfig $config
+    ) {
         $this->httpClient = new Client();
         $this->telehealthRegistration = $this->provisioningService->getRemoteRegistrationService();
     }
@@ -58,9 +60,9 @@ class TelehealthConfigurationVerifier
                 $resultObject['status'] = 'success';
                 $resultObject['bridgeSettings'] = $bridgeSettings;
             } catch (\Throwable $exception) {
-                $this->logger->errorLogCaller(
+                $this->logger->error(
                     "Failed to verify telehealth connection settings" . $exception->getMessage(),
-                    ['trace' => $exception->getTraceAsString()]
+                    ['exception' => $exception]
                 );
                 $resultObject["message"] = xlt("Could not successfully communicate with telehealth servers.  Check that your Telehealth configuration settings are valid.");
             }

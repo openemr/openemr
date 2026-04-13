@@ -9,14 +9,14 @@
 
 namespace PatientFilter;
 
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\Mvc\MvcEvent;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Laminas\ModuleManager\ModuleManager;
-use Laminas\Mvc\MvcEvent;
 
 /**
  * Module for creating a blacklist on the patient finder, which can restrict certain
@@ -112,17 +112,19 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user['username']);
-        if (count($patientsToHide)) {
-            $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
-            foreach ($patientsToHide as $patientToHide) {
-                $filterString .= "?,";
+        if ($user !== false) {
+            $patientsToHide = $this->getBlacklist($user['username']);
+            if (count($patientsToHide)) {
+                $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
+                foreach ($patientsToHide as $patientToHide) {
+                    $filterString .= "?,";
+                }
+                $filterString = rtrim($filterString, ",");
+                $filterString .= "))";
+                $boundFilter = $appointmentsFilterEvent->getBoundFilter();
+                $boundFilter->setFilterClause($filterString);
+                $boundFilter->setBoundValues($patientsToHide);
             }
-            $filterString = rtrim($filterString, ",");
-            $filterString .= "))";
-            $boundFilter = $appointmentsFilterEvent->getBoundFilter();
-            $boundFilter->setFilterClause($filterString);
-            $boundFilter->setBoundValues($patientsToHide);
         }
 
         return $appointmentsFilterEvent;

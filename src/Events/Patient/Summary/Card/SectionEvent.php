@@ -15,8 +15,6 @@
 namespace OpenEMR\Events\Patient\Summary\Card;
 
 use DomainException;
-use LogicException;
-use OpenEMR\Events\PatientDemographics\ViewEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class SectionEvent extends Event

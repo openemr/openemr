@@ -17,6 +17,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between \'pid\' and \'pid\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'\' and \'\' will always evaluate to true\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -30,6 +35,11 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'object\' and \'object\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between false and false will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'us_core_v311\' and \'us_core_v311\' will always evaluate to true\\.$#',

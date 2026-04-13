@@ -21,13 +21,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
-use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -58,7 +57,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             'assets_dir' => $this->globals->get('assets_static_relative'),
             'srcdir' => $this->globals->get('srcdir'),
@@ -79,7 +78,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getFunctions(): array
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             new TwigFunction(
                 'setupHeader',
@@ -111,6 +110,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'selectList',
                 function ($name, $list, $value, $title, $opts = []) {
                     $empty_name = array_key_exists('empty_name', $opts) ? $opts['empty_name'] : '';
+                    $empty_name = is_string($empty_name) ? $empty_name : '';
                     $class = array_key_exists('class', $opts) ? $opts['class'] : '';
                     $onchange = array_key_exists('onchange', $opts) ? $opts['onchange'] : '';
                     $tag_id = array_key_exists('tag_id', $opts) ? $opts['tag_id'] : '';
@@ -182,12 +182,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject, $session->getSymfonySession())));
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, CsrfUtils::collectCsrfToken($session, is_string($subject) ? $subject : 'default'));
                 }
             ),
             new TwigFunction(
                 'csrfTokenRaw',
-                CsrfUtils::collectCsrfToken(...)
+                fn(string $subject = 'default') => CsrfUtils::collectCsrfToken($session, $subject)
             ),
             new TwigFunction(
                 'jqueryDateTimePicker',
@@ -196,7 +196,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
                     $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
                     echo "$($selector).datetimepicker({";
-                    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                     echo "})";
                     return ob_get_clean();
                 }
@@ -205,7 +205,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'DateToYYYYMMDD_js',
                 function () {
                     ob_start();
-                    require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php";
+                    require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php";
                     return ob_get_clean();
                 }
             ),
@@ -235,7 +235,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'oemHelpIcon',
                 function () {
                     // this setups a variable called $help_icon... strange
-                    require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
+                    require OEGlobalsBag::getInstance()->get('srcdir') . "/display_help_icon_inc.php";
                     return $help_icon ?? '';
                 }
             ),
@@ -273,6 +273,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('js_escape', js_escape(...)),
             new TwigFilter('attr_js', attr_js(...)),
             new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('safe_href', safe_href(...)),
             new TwigFilter('js_url', js_url(...)),
             new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
             new TwigFilter('xl', xl(...)),
@@ -293,7 +294,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                fn($str): int|false => strtotime((string) $str)
+                fn($str): int|false => strtotime(is_string($str) ? $str : '')
             ),
             new TwigFilter(
                 'addCacheParam',

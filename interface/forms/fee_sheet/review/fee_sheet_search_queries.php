@@ -17,12 +17,11 @@ require_once("$srcdir/../custom/code_types.inc.php");
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 
 /**
- *
  * wrapper for sequential code set search
  *
- * @param type $search_type_id      The integer ID used for code_type in codes (e.g. 2 for ICD9)
- * @param type $search_type         A string representing the code type to be searched on (e.g. ICD9, DSMIV)
- * @param type $search_query        The text to search on.
+ * @param int $search_type_id The integer ID used for code_type in codes (e.g. 2 for ICD9)
+ * @param string $search_type A string representing the code type to be searched on (e.g. ICD9, DSMIV)
+ * @param string $search_query The text to search on.
  * @return array
  */
 function diagnosis_search($search_type_id, $search_type, $search_query)

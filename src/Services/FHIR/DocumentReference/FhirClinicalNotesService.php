@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
-use Monolog\Utils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -21,15 +20,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
 use OpenEMR\Services\ClinicalNotesService;
-use OpenEMR\Services\FHIR\a;
 use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\FHIR\Indicates;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;

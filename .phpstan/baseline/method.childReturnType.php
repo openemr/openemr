@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Multipledb\\\\Controller\\\\MultipledbController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\ZendModules\\\\PatientFlowBoard\\\\Listener\\\\PatientFlowBoardEventsSubscriber\\:\\:getSubscribedEvents\\(\\) should be covariant with return type \\(array\\<string, list\\<array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\>\\|string\\>\\) of method Symfony\\\\Component\\\\EventDispatcher\\\\EventSubscriberInterface\\:\\:getSubscribedEvents\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFlowBoard/src/PatientFlowBoard/Listener/PatientFlowBoardEventsSubscriber.php',
@@ -1600,11 +1595,6 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\) of method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:setThrowExceptionOnError\\(\\) should be covariant with return type \\(\\$this\\(OpenEMR\\\\Services\\\\Utils\\\\Interfaces\\\\ISQLUpgradeService\\)\\) of method OpenEMR\\\\Services\\\\Utils\\\\Interfaces\\\\ISQLUpgradeService\\:\\:setThrowExceptionOnError\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) should be compatible with return type \\(OpenEMR\\\\Tests\\\\Fixtures\\\\a\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

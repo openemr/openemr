@@ -19,8 +19,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -48,9 +49,7 @@ if ($payment_method == "insurance") {
 }
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         // Get the provider ID from the new encounter form if possible, otherwise
@@ -233,7 +232,7 @@ if (!$thisauth) {
 }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  onsubmit="return validate(this)">
 <table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
@@ -243,7 +242,7 @@ if (!$thisauth) {
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo attr($target); ?>" onclick="top.restoreSession()">
-<span class='title'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
+<span class='title'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Billing') : xlt('Coding'); ?></span>
 <span class='more'><?php echo text($tmore); ?></span></a>
 
 <?php
@@ -252,14 +251,14 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
-<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->get('weight_loss_clinic')) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="submit" name="justify" value="<?php echo xla('Justify/Save');?>">
 <?php } ?>
 </dt>
 </dl>
 
-<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+<a href="cash_receipt.php?csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
 <table class="table-borderless">

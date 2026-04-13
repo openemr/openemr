@@ -25,24 +25,26 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // kick out if patient not authenticated
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    $site_id = $session->get('site_id');
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
+    $landingpage = "index.php?site=" . urlencode((string) $site_id);
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -55,8 +57,6 @@ require_once("../interface/globals.php");
 require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
-use OpenEMR\Core\Header;
-use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
