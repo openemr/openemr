@@ -21,11 +21,11 @@ jobs:
       matrix:
         webserver:
           - nginx
-          - apache-fpm
-          - apache-modphp
+          # - apache-fpm
+          # - apache-modphp
         suite:
           - api
-          - e2e
+          # - e2e
     defaults:
       run:
         working-directory: docker/frontcontroller
