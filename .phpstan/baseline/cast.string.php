@@ -3058,7 +3058,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 21,
+    'count' => 20,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];
 $ignoreErrors[] = [

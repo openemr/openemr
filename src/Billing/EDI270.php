@@ -521,76 +521,86 @@ class EDI270
     {
 
         $i = 0;
-        echo "	<div id='report_results'>
+        $thFacilityName = xlt('Facility Name');
+        $thFacilityNpi = xlt('Facility NPI');
+        $thInsuranceComp = xlt('Insurance Comp');
+        $thApptDate = xlt('Appt Date');
+        $thPolicyNo = xlt('Policy No');
+        $thPatientName = xlt('Patient Name');
+        $thDob = xlt('DOB');
+        $thGender = xlt('Gender');
+        $thSsn = xlt('SSN');
+        echo <<<HTML
+    <div id='report_results'>
     <table class='table table-striped table-hover'>
         <thead>
-            <th>" . text(xl('Facility Name')) . "</th>
-            <th>" . text(xl('Facility NPI')) . "</th>
-            <th>" . text(xl('Insurance Comp')) . "</th>
-            <th>" . text(xl('Appt Date')) . "</th>
-            <th>" . text(xl('Policy No')) . "</th>
-            <th>" . text(xl('Patient Name')) . "</th>
-            <th>" . text(xl('DOB')) . "</th>
-            <th>" . text(xl('Gender')) . "</th>
-            <th>" . text(xl('SSN')) . "</th>
-            <th>	&nbsp;			  </th>
+            <tr>
+                <th>{$thFacilityName}</th>
+                <th>{$thFacilityNpi}</th>
+                <th>{$thInsuranceComp}</th>
+                <th>{$thApptDate}</th>
+                <th>{$thPolicyNo}</th>
+                <th>{$thPatientName}</th>
+                <th>{$thDob}</th>
+                <th>{$thGender}</th>
+                <th>{$thSsn}</th>
+                <th></th>
+            </tr>
         </thead>
-        <tbody>";
+        <tbody>
+HTML;
 
+        $imgBase = attr(OEGlobalsBag::getInstance()->getKernel()->getImagesRelative());
+        $deleteTitle = xla('Delete Row');
         foreach ($res as $row) {
             $i += 1;
-            // what the heck is below for... looks abandoned.
-            $elig = [];
-            $elig[0] = $row['facility_name'];              // Inquiring Provider Name  calendadr
-            $elig[1] = $row['facility_npi'];               // Inquiring Provider NPI
-            $elig[2] = $row['payer_name'];                     // Payer Name  our insurance co name
-            $elig[3] = $row['policy_number'];              // Subscriber ID
-            $elig[4] = $row['subscriber_lname'];               // Subscriber Last Name
-            $elig[5] = $row['subscriber_fname'];               // Subscriber First Name
-            $elig[6] = $row['subscriber_mname'];               // Subscriber Middle Initial
-            $elig[7] = $row['subscriber_dob'];                 // Subscriber Date of Birth
-            $elig[8] = substr((string) $row['subscriber_sex'], 0, 1);       // Subscriber Sex
-            $elig[9] = $row['subscriber_ss'];              // Subscriber SSN
-            $elig[10] = self::translateRelationship($row['subscriber_relationship']);    // Pt Relationship to insured
-            $elig[11] = $row['lname'];                  // Dependent Last Name
-            $elig[12] = $row['fname'];                  // Dependent First Name
-            $elig[13] = $row['mname'];                  // Dependent Middle Initial
-            $elig[14] = $row['dob'];                    // Dependent Date of Birth
-            $elig[15] = substr((string) $row['sex'], 0, 1);              // Dependent Sex
-            $elig[16] = $row['pc_eventDate'];               // Date of service
-            $elig[17] = "30";                       // Service Type
-            $elig[18] = $row['pubpid'];                     // Patient Account Number pubpid
-
-            echo "	<tr id='PR" . $i . "_" . text($row['policy_number']) . "'>
-				<td class ='detail'>" . text($row['facility_name']) . "</td>
-				<td class ='detail'>" . text($row['facility_npi']) . "</td>
-				<td class ='detail'>" . text($row['payer_name']) . "</td>
-				<td class ='detail'>" . text(date("m/d/Y", strtotime((string) $row['pc_eventDate']))) . "</td>
-				<td class ='detail'>" . text($row['policy_number']) . "</td>
-				<td class ='detail'>" . text($row['subscriber_lname'] . " " . $row['subscriber_fname']) . "</td>
-				<td class ='detail'>" . text($row['subscriber_dob']) . "</td>
-				<td class ='detail'>" . text($row['subscriber_sex']) . "</td>
-				<td class ='detail'>" . text($row['subscriber_ss']) . "</td>
-				<td class ='detail'>
-				<img src=\"" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png\" title=" . text(xl('Delete Row')) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i . "_" . text($row['policy_number']) . "\")'>
-				</td>
-			</tr>
-		";
-            unset($elig); // see ..
+            $policyNumber = (string) $row['policy_number'];
+            $policyNumberDisplay = text($policyNumber);
+            $trId = $i . '_' . $policyNumber;
+            $trIdAttr = attr('PR' . $trId);
+            $trIdJs = attr_js($trId);
+            $facilityName = text($row['facility_name']);
+            $facilityNpi = text($row['facility_npi']);
+            $payerName = text($row['payer_name']);
+            $eventDate = text(date('m/d/Y', strtotime((string) $row['pc_eventDate'])));
+            $subscriberName = text($row['subscriber_lname'] . ' ' . $row['subscriber_fname']);
+            $subscriberDob = text($row['subscriber_dob']);
+            $subscriberSex = text($row['subscriber_sex']);
+            $subscriberSs = text($row['subscriber_ss']);
+            echo <<<HTML
+    <tr id="{$trIdAttr}">
+        <td class='detail'>{$facilityName}</td>
+        <td class='detail'>{$facilityNpi}</td>
+        <td class='detail'>{$payerName}</td>
+        <td class='detail'>{$eventDate}</td>
+        <td class='detail'>{$policyNumberDisplay}</td>
+        <td class='detail'>{$subscriberName}</td>
+        <td class='detail'>{$subscriberDob}</td>
+        <td class='detail'>{$subscriberSex}</td>
+        <td class='detail'>{$subscriberSs}</td>
+        <td class='detail'>
+            <img src="{$imgBase}/deleteBtn.png" title="{$deleteTitle}" style='cursor:pointer;cursor:hand;' onclick='deletetherow({$trIdJs})'>
+        </td>
+    </tr>
+HTML;
         }
 
-        if ($i == 0) {
-            echo "	<tr>
-				<td class='norecord' colspan=9>
-					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>" . text(xl('No records found')) . "</div>
-				</td>
-			</tr>	";
+        if ($i === 0) {
+            $noRecordsFound = xlt('No records found');
+            echo <<<HTML
+    <tr>
+        <td class='norecord' colspan=10>
+            <div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>{$noRecordsFound}</div>
+        </td>
+    </tr>
+HTML;
         }
-        echo "	</tbody>
-			</table>";
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
     }
 
-// To Show Eligibility Verification data
+    // To Show Eligibility Verification data
     public static function showEligibilityInformation($pid, $flag = false)
     {
         $query =
