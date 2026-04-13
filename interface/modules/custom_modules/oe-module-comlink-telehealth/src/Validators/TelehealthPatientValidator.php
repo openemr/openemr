@@ -24,7 +24,7 @@ class TelehealthPatientValidator extends PatientValidator
         parent::__construct();
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
         array_push($this->supportedContexts, self::TELEHEALTH_INSERT_CONTEXT);

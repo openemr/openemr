@@ -50,7 +50,7 @@ readonly class Metadata implements JsonSerializable
      * @param array{
      *   formatVersion: int,
      *   patientId: string,
-     *   encounters: array<string, mixed>[],
+     *   encounters: array<int, array{id: string, code: string, codeType: string, amount: array{amount: numeric-string, currency: non-empty-string}}>,
      * } $data
      */
     public static function fromParsedJson(array $data): Metadata

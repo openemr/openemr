@@ -19,10 +19,11 @@ class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Translates a string.
+     *
+     * @param literal-string $str
      */
     public function xl(string $str): string
     {
-        // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
         return xl($str);
     }
 }
