@@ -74,7 +74,7 @@ jobs:
 
       - name: Install OpenEMR
         run: |
-          docker compose exec --no-tty \
+          docker compose exec \
             --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
             php-fpm \
             php -f contrib/util/installScripts/InstallerAuto.php \
