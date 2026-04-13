@@ -36,6 +36,16 @@ require_once SMARTY_CORE_DIR . 'core.read_cache_file.php';
 #[CoversClass(\ConnectionSetting::class)]
 #[CoversFunction('smarty_core_process_cached_inserts')]
 #[CoversFunction('smarty_core_read_cache_file')]
+/**
+ * Cache_Lite subclass that declares the undeclared dynamic property
+ * _memoryCachingState, avoiding PHP 8.2+ deprecation warnings in tests.
+ */
+class TestCacheLite extends \Cache_Lite
+{
+    /** @var array<string, mixed> */
+    public array $_memoryCachingState = [];
+}
+
 class UnserializeAllowedClassesTest extends TestCase
 {
     // ---- Cache_Lite: memory-cached automatic deserialization (line 256) ----
@@ -85,7 +95,7 @@ class UnserializeAllowedClassesTest extends TestCase
 
     public function testCacheLiteGetMemoryCachingStateRoundTrip(): void
     {
-        $cache = new \Cache_Lite([
+        $cache = new TestCacheLite([
             'caching' => true,
             'memoryCaching' => true,
             'onlyMemoryCaching' => true,
@@ -97,7 +107,7 @@ class UnserializeAllowedClassesTest extends TestCase
         // saveMemoryCachingState serializes _memoryCachingCounter and
         // _memoryCachingState into a cache entry.
         $cache->_memoryCachingCounter = 5;
-        @$cache->_memoryCachingState = ['key1' => 'data1', 'key2' => 'data2']; // @phpstan-ignore property.notFound (legacy undeclared dynamic property)
+        $cache->_memoryCachingState = ['key1' => 'data1', 'key2' => 'data2'];
 
         $cache->saveMemoryCachingState('state-id', 'state-group');
 
@@ -112,7 +122,7 @@ class UnserializeAllowedClassesTest extends TestCase
 
     public function testCacheLiteGetMemoryCachingStateBlocksObjectInjection(): void
     {
-        $cache = new \Cache_Lite([
+        $cache = new TestCacheLite([
             'caching' => true,
             'memoryCaching' => true,
             'onlyMemoryCaching' => true,
@@ -125,7 +135,7 @@ class UnserializeAllowedClassesTest extends TestCase
         $obj->evil = true;
 
         $cache->_memoryCachingCounter = 1;
-        @$cache->_memoryCachingState = ['entry' => $obj]; // @phpstan-ignore property.notFound (legacy undeclared dynamic property)
+        $cache->_memoryCachingState = ['entry' => $obj];
 
         $cache->saveMemoryCachingState('inject-state', 'state-group');
 
@@ -186,7 +196,7 @@ class UnserializeAllowedClassesTest extends TestCase
         $smarty->_plugins = [
             'insert' => [
                 'testfunc' => [
-                    static fn(array $args): string => 'REPLACED',
+                    static fn(array $args, object $smarty): string => 'REPLACED',
                 ],
             ],
         ];
@@ -216,7 +226,7 @@ class UnserializeAllowedClassesTest extends TestCase
         $smarty->_plugins = [
             'insert' => [
                 'testfunc' => [
-                    static fn(array $args): string => ($args['extra'] instanceof \__PHP_Incomplete_Class)
+                    static fn(array $args, object $smarty): string => ($args['extra'] instanceof \__PHP_Incomplete_Class)
                         ? 'BLOCKED'
                         : 'INJECTED',
                 ],
