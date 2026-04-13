@@ -96,7 +96,7 @@ class ConnectionSetting
     function Unserialize(&$serialized)
     {
         // load the util from the serialized code
-        $tmp = unserialize(base64_decode((string) $serialized), ['allowed_classes' => false]);
+        $tmp = unserialize(base64_decode((string) $serialized), ['allowed_classes' => [self::class]]);
         $this->Type = $tmp->Type;
         $this->Username = $tmp->Username;
         $this->Password = $tmp->Password;

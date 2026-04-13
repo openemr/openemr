@@ -50,7 +50,7 @@ class Authenticator
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $sessionGuid = $session->get($guid);
             if (!empty($sessionGuid)) {
-                self::$user = unserialize($sessionGuid, ['allowed_classes' => false]);
+                self::$user = unserialize($sessionGuid, ['allowed_classes' => true]);
             }
         }
 
