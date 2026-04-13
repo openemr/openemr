@@ -61,7 +61,7 @@ jobs:
           OPENEMR_ENABLE_INSTALLER_AUTO: "1"
         run: php -f contrib/util/installScripts/InstallerAuto.php
               rootpass=root
-              server=mysql
+              server=127.0.0.1
               loginhost=%
               login=ci
               pass=topsecret
@@ -69,7 +69,7 @@ jobs:
 
       - name: Configure globals for API
         run: |
-          mysql -u root -proot openemr_test -e "
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
             INSERT INTO product_registration (opt_out) VALUES (1);
             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
             UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
