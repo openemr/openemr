@@ -50,40 +50,27 @@ jobs:
         run: composer install --prefer-dist --no-progress
         working-directory: .
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Determine services to start
-        id: services
-        run: |
-          case "${{ matrix.webserver }}" in
-            nginx|apache-fpm)
-              echo "services=${{ matrix.webserver }} php-fpm mysql" >> "$GITHUB_OUTPUT"
-              echo "php_container=php-fpm" >> "$GITHUB_OUTPUT"
-              ;;
-            apache-modphp)
-              echo "services=apache-modphp mysql" >> "$GITHUB_OUTPUT"
-              echo "php_container=apache-modphp" >> "$GITHUB_OUTPUT"
-              ;;
-          esac
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
 
       - name: Build and start services
-        run: |
-          docker compose up -d --build --wait --wait-timeout 120 ${{ steps.services.outputs.services }}
+        run: docker compose up --detach --build ${{ matrix.webserver }}
+        # run: |
+        #   docker compose up -d --build --wait --wait-timeout 120 ${{ matrix.webserver }}
 
-      - name: Show running containers
-        run: docker compose ps
+      # - name: Show running containers
+      #   run: docker compose ps
 
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; then
-              echo "MySQL is ready"
-              break
-            fi
-            echo "Waiting for MySQL... ($i/30)"
-            sleep 2
-          done
+      # - name: Wait for MySQL
+      #   run: |
+      #     for i in {1..30}; do
+      #       if docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; then
+      #         echo "MySQL is ready"
+      #         break
+      #       fi
+      #       echo "Waiting for MySQL... ($i/30)"
+      #       sleep 2
+      #     done
 
       - name: Install OpenEMR
         run: |

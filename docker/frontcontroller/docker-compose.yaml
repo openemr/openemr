@@ -97,7 +97,9 @@ services:
       dockerfile: docker/frontcontroller/Dockerfile
       target: server
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+        restart: false
     environment:
       <<: *dev-env
       # PHP-FPM settings
@@ -110,6 +112,11 @@ services:
   mysql:
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "mysql", "-uroot", '-proot', "-e", "SELECT 1"]
+      retries: 10
+      start_interval: 5s
+      start_period: 30s
     image: mysql:8
     ports:
       # Expose to the host on a generated port
