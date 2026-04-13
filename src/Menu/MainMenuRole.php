@@ -68,7 +68,13 @@ class MainMenuRole extends MenuRole
             die("\nMenu role unavailable.");
         }
 
-        $menu_parsed = json_decode(file_get_contents($path));
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            ServiceContainer::getLogger()->error("Failed to read main menu role file", ['path' => $path]);
+            die("\nMenu role unavailable.");
+        }
+
+        $menu_parsed = json_decode($contents);
 
         // if error, then die and report error
         if (!$menu_parsed) {
