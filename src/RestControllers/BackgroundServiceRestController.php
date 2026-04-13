@@ -181,6 +181,17 @@ class BackgroundServiceRestController
                     example: ['service' => 'patient-reminder', 'status' => 'completed']
                 )
             ),
+            new OA\Response(
+                response: '400',
+                description: 'Invalid JSON payload',
+                content: new OA\JsonContent(
+                    required: ['error'],
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string'),
+                    ],
+                    example: ['error' => 'Invalid JSON payload']
+                )
+            ),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
             new OA\Response(
                 response: '404',
