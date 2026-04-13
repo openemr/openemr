@@ -119,6 +119,7 @@ jobs:
               -d auto_prepend_file=/tmp/trace_start.php \
               vendor/bin/phpunit \
                 --testsuite ${{ matrix.suite }} \
+                --bootstrap vendor/autoload.php \
                 --log-junit junit-${{ matrix.suite }}.xml
           echo "phpunit_exit=$?"
           echo "--- /tmp/xdebug listing ---"
