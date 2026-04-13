@@ -13,6 +13,10 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
+register_shutdown_function(function() {
+    echo new Exception('Shutdown stack trace');
+});
+
 $_GET['site'] = 'default';
 $ignoreAuth = true;
 require_once(__DIR__ . "/../interface/globals.php");
