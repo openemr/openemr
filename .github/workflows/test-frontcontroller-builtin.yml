@@ -27,7 +27,7 @@ jobs:
           - unit
           - valdiators
 
-    services:
+    # services:
       # mysql:
       #   image: mysql:8
       #   env:
