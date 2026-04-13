@@ -2,11 +2,6 @@ name: Test Front Controller (php -S)
 
 on:
   pull_request:
-    # paths:
-    #   - 'docker/frontcontroller/**'
-    #   - 'config/**'
-    #   - 'public/index.php'
-    #   - '.github/workflows/test-frontcontroller.yml'
   workflow_dispatch:
 
 permissions:
@@ -22,9 +17,6 @@ jobs:
         suite:
           - api
           # - e2e
-    # defaults:
-    #   run:
-    #     working-directory: docker/frontcontroller
 
     services:
       mysql:
