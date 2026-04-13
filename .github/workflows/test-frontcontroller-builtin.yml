@@ -52,6 +52,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
+          coverage: xdebug
 
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
@@ -101,17 +102,38 @@ jobs:
           SELENIUM_HOST: localhost
           SELENIUM_USE_GRID: "true"
         run: |
-          php -d memory_limit=4G vendor/bin/phpunit \
-            --testsuite ${{ matrix.suite }} \
-            --log-junit junit-${{ matrix.suite }}.xml
+          mkdir -p /tmp/xdebug
+          php -d memory_limit=4G \
+              -d xdebug.mode=trace \
+              -d xdebug.start_with_request=yes \
+              -d xdebug.trace_format=0 \
+              -d xdebug.collect_params=3 \
+              -d xdebug.trace_output_dir=/tmp/xdebug \
+              -d xdebug.trace_output_name=phpunit \
+              vendor/bin/phpunit \
+                --testsuite ${{ matrix.suite }} \
+                --log-junit junit-${{ matrix.suite }}.xml
+          echo "phpunit_exit=$?"
+          echo "--- exit/die calls ---"
+          grep -nE '-> (exit|die)\(' /tmp/xdebug/phpunit.xt || true
+          echo "--- tail of trace ---"
+          tail -n 80 /tmp/xdebug/phpunit.xt || true
 
-      - name: Show server stdout
+      - name: Upload xdebug trace
         if: always()
-        run: cat "${RUNNER_TEMP}/php-server.out.log"
+        uses: actions/upload-artifact@v4
+        with:
+          name: xdebug-trace-${{ matrix.suite }}
+          path: /tmp/xdebug/phpunit.xt
+          if-no-files-found: ignore
 
-      - name: Show server stderr
-        if: always()
-        run: cat "${RUNNER_TEMP}/php-server.err.log"
+      # - name: Show server stdout
+      #   if: always()
+      #   run: cat "${RUNNER_TEMP}/php-server.out.log"
+
+      # - name: Show server stderr
+      #   if: always()
+      #   run: cat "${RUNNER_TEMP}/php-server.err.log"
 
       # - name: Upload test results
       #   if: always()
