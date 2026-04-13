@@ -25,7 +25,9 @@ $request = ServerRequest::fromGlobals();
 const FRONT_CONTROLLER_USED = true;
 
 $logger = $container->get(LoggerInterface::class);
-$logger->debug('Request routed through front-controller');
+$logger->debug('Request routed through front-controller ({sapi})', [
+    'sapi' => PHP_SAPI,
+]);
 
 // Future scope: Put a router ahead of the fallback routing; any well-formed
 // new routes will be executed without touching the existing systems. Such new
