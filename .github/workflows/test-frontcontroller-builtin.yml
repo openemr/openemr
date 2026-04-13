@@ -103,35 +103,30 @@ jobs:
           SELENIUM_USE_GRID: "true"
         run: |
           mkdir -p /tmp/xdebug
-          echo "--- xdebug info ---"
-          XDEBUG_MODE=trace php \
-              -d xdebug.mode=trace \
-              -r 'var_dump(extension_loaded("xdebug"), ini_get("xdebug.mode"));'
+          cat > /tmp/trace_start.php <<'PHP'
+          <?php
+          if (function_exists('xdebug_start_trace')) {
+              xdebug_start_trace('/tmp/xdebug/phpunit');
+          }
+          PHP
           XDEBUG_MODE=trace php \
               -d memory_limit=4G \
               -d xdebug.mode=trace \
-              -d xdebug.start_with_request=yes \
               -d xdebug.trace_format=0 \
               -d xdebug.collect_params=1 \
-              -d xdebug.trace_output_dir=/tmp/xdebug \
-              -d xdebug.trace_output_name=phpunit \
+              -d auto_prepend_file=/tmp/trace_start.php \
               vendor/bin/phpunit \
                 --testsuite ${{ matrix.suite }} \
                 --log-junit junit-${{ matrix.suite }}.xml
           echo "phpunit_exit=$?"
           echo "--- /tmp/xdebug listing ---"
           ls -la /tmp/xdebug/ || true
-          echo "--- any .xt files on disk ---"
-          find /tmp -maxdepth 3 -name '*.xt' -ls 2>/dev/null || true
-          TRACE=$(find /tmp -maxdepth 3 -name '*.xt' 2>/dev/null | head -1)
-          if [ -n "$TRACE" ]; then
+          TRACE=/tmp/xdebug/phpunit.xt
+          if [ -f "$TRACE" ]; then
             echo "--- exit/die calls in $TRACE ---"
             grep -nE -- '-> (exit|die)\(' "$TRACE" || true
             echo "--- tail of $TRACE ---"
             tail -n 120 "$TRACE" || true
-            if [ "$TRACE" != "/tmp/xdebug/phpunit.xt" ]; then
-              cp "$TRACE" /tmp/xdebug/phpunit.xt
-            fi
           fi
 
       - name: Upload xdebug trace
