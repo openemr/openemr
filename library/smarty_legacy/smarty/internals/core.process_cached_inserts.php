@@ -26,7 +26,7 @@ function smarty_core_process_cached_inserts($params, &$smarty)
         }
 
         $args = unserialize($insert_args[$i], ['allowed_classes' => false]);
-        if (!is_array($args) || !isset($args['name'])) {
+        if (!is_array($args) || !isset($args['name']) || !is_string($args['name']) || $args['name'] === '') {
             // corrupt cached insert, skip
             continue;
         }
