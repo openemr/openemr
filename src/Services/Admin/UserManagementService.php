@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Admin User Management Service — read and create operations for admin user endpoints.
+ * Admin User Management Service — read, create, update, and deactivate operations for admin user endpoints.
  *
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
@@ -79,6 +79,11 @@ class UserManagementService extends UserService
      */
     public function getOneByUuid(string $uuid): ProcessingResult
     {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
         return $this->searchUsers(['uuid' => UuidRegistry::uuidToBytes($uuid)]);
     }
 
@@ -272,6 +277,12 @@ class UserManagementService extends UserService
      */
     public function updateUser(string $uuid, array $data): ProcessingResult
     {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
+
         /** @var ProcessingResult $processingResult */
         $processingResult = $this->userValidator->validate($data, BaseValidator::DATABASE_UPDATE_CONTEXT);
         if (!$processingResult->isValid()) {
@@ -356,22 +367,22 @@ class UserManagementService extends UserService
 
             // Update ACL groups if provided
             if ($accessGroup !== null) {
-                $fname = trim(self::strVal($data['fname'] ?? ''));
-                $mname = trim(self::strVal($data['mname'] ?? ''));
-                $lname = trim(self::strVal($data['lname'] ?? ''));
-                // If name fields weren't provided in the update, use existing values
-                if (!isset($data['fname'])) {
+                $fname = isset($data['fname']) ? trim(self::strVal($data['fname'])) : null;
+                $mname = isset($data['mname']) ? trim(self::strVal($data['mname'])) : null;
+                $lname = isset($data['lname']) ? trim(self::strVal($data['lname'])) : null;
+                // Fetch existing values for any name fields not provided in the update
+                if ($fname === null || $mname === null || $lname === null) {
                     $currentUser = QueryUtils::querySingleRow("SELECT fname, mname, lname FROM users WHERE id = ?", [$userId]);
                     if (is_array($currentUser)) {
                         $rawFname = $currentUser['fname'] ?? '';
                         $rawMname = $currentUser['mname'] ?? '';
                         $rawLname = $currentUser['lname'] ?? '';
-                        $fname = is_string($rawFname) ? $rawFname : '';
-                        $mname = is_string($rawMname) ? $rawMname : '';
-                        $lname = is_string($rawLname) ? $rawLname : '';
+                        $fname ??= is_string($rawFname) ? $rawFname : '';
+                        $mname ??= is_string($rawMname) ? $rawMname : '';
+                        $lname ??= is_string($rawLname) ? $rawLname : '';
                     }
                 }
-                AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
+                AclExtended::setUserAro($accessGroup, $username, $fname ?? '', $mname ?? '', $lname ?? '');
             }
 
             // Audit log
@@ -403,6 +414,11 @@ class UserManagementService extends UserService
     public function deactivateUser(string $uuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
+
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
 
         // Resolve UUID to user record
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
