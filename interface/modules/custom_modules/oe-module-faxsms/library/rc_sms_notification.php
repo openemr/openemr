@@ -385,8 +385,8 @@ function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificat
         $pcEids = array_keys($recurringEids);
         $placeholders = implode(',', array_fill(0, count($pcEids), '?'));
         $rows = QueryUtils::fetchRecords(
-            "SELECT pc_eid, pc_eventDate FROM notification_log WHERE type = ? AND pc_eid IN ($placeholders)",
-            array_merge([$channelType], $pcEids),
+            "SELECT pc_eid, pc_eventDate FROM notification_log WHERE type = ? AND pc_eventDate = ? AND pc_eid IN ($placeholders)",
+            array_merge([$channelType, $check_date], $pcEids),
         );
         foreach ($rows as $row) {
             $eid = $row['pc_eid'] ?? null;
