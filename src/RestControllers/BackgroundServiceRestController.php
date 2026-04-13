@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\RestControllers;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +32,17 @@ class BackgroundServiceRestController
         $this->runner = new BackgroundServiceRunner();
     }
 
+    #[OA\Get(
+        path: '/api/background_service',
+        description: 'Retrieves all registered background services',
+        tags: ['standard'],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function listAll(): Response
     {
         $definitions = $this->registry->list();
@@ -49,6 +61,27 @@ class BackgroundServiceRestController
         return new JsonResponse($data);
     }
 
+    #[OA\Get(
+        path: '/api/background_service/{name}',
+        description: 'Retrieves a single background service by name',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'name',
+                in: 'path',
+                description: 'The registered name of the background service.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne(string $name): Response
     {
         $definition = $this->registry->get($name);
@@ -68,6 +101,44 @@ class BackgroundServiceRestController
     /**
      * @param array<mixed> $data
      */
+    #[OA\Post(
+        path: '/api/background_service/{name}/run',
+        description: 'Triggers execution of a background service',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'name',
+                in: 'path',
+                description: 'The registered name of the background service.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: false,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    properties: [
+                        new OA\Property(
+                            property: 'force',
+                            description: 'Force execution even if the service is not due to run.',
+                            type: 'boolean',
+                        ),
+                    ],
+                    example: ['force' => true]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+            new OA\Response(response: '409', description: 'Service is already running, not due, or skipped'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function runService(string $name, array $data = []): Response
     {
         $force = isset($data['force']) && $data['force'] === true;

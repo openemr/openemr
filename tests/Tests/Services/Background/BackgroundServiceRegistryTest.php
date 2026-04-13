@@ -32,7 +32,7 @@ class BackgroundServiceRegistryTest extends TestCase
     private BackgroundServiceRegistry $registry;
 
     /** @var list<string> names of services created during the test — read in tearDown() */
-    private array $createdServices = []; // @phpstan-ignore property.onlyWritten (read by tearDown)
+    private array $createdServices = [];
 
     protected function setUp(): void
     {
