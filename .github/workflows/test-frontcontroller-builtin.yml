@@ -24,7 +24,8 @@ jobs:
           - fixtures
           - services
           - unit
-          - valdiators
+          # No tests.
+          # - valdiators
           # Needs a node thing
           # - ECQM
 
