@@ -297,8 +297,8 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
  */
 class BackgroundServicePathValidator extends BackgroundServiceRunner
 {
-    public function callValidateIncludePath(string $path, string $projectDir, string $serviceName): void
+    public function callValidateIncludePath(string $path, string $projectDir, string $serviceName): string
     {
-        $this->validateIncludePath($path, $projectDir, $serviceName);
+        return $this->validateIncludePath($path, $projectDir, $serviceName);
     }
 }

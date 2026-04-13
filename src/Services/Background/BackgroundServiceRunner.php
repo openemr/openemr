@@ -221,8 +221,8 @@ class BackgroundServiceRunner
         if ($requireOnce !== null && $requireOnce !== '') {
             $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
             $fullPath = $projectDir . $requireOnce;
-            $this->validateIncludePath($fullPath, $projectDir, $service['name']);
-            require_once($fullPath);
+            $resolvedPath = $this->validateIncludePath($fullPath, $projectDir, $service['name']);
+            require_once($resolvedPath);
         }
 
         $function = $service['function'];
@@ -245,9 +245,10 @@ class BackgroundServiceRunner
      * they are resolved to an absolute path, then the prefix check rejects any
      * result that lands outside the project root.
      *
+     * @return string The resolved real path, safe to include
      * @throws \RuntimeException If the path fails validation
      */
-    protected function validateIncludePath(string $path, string $projectDir, string $serviceName): void
+    protected function validateIncludePath(string $path, string $projectDir, string $serviceName): string
     {
         if (str_contains($path, "\0")) {
             throw new \RuntimeException(sprintf(
@@ -285,5 +286,7 @@ class BackgroundServiceRunner
                 $serviceName,
             ));
         }
+
+        return $realPath;
     }
 }
