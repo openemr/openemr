@@ -144,7 +144,8 @@ $db_sms_msg['message'] = $MESSAGE;
             if ($bTestRun) {
                 echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
             }
-            $db_patient = faxsms_getAlertPatientData(NotificationChannel::fromLegacyType($TYPE), $SMS_NOTIFICATION_HOUR);
+            $notificationChannel = NotificationChannel::fromLegacyType($TYPE);
+            $db_patient = faxsms_getAlertPatientData($notificationChannel, $SMS_NOTIFICATION_HOUR);
             echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . $SMS_NOTIFICATION_HOUR . ' ' . xlt("hrs from now.");
             ob_flush();
             flush();
@@ -204,7 +205,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($notificationChannel, (int) $prow['pid'], (int) $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -249,7 +250,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($notificationChannel, (int) $prow['pid'], (int) $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -284,37 +285,30 @@ function isValidPhone($phone): array|bool|string|null
 }
 
 /**
- * Integrate cron functions into this script
+ * Mark an appointment as already-notified for the given channel.
  *
- * Borrowed from cron_functions.php. Update status yes if alert send to patient
- *
- * @param string $type
- * @param int    $pid
- * @param int    $pc_eid
- * @param string $recur
- * @return int
+ * Sets pc_sendalertsms or pc_sendalertemail to 'YES' so the next cron run
+ * skips this appointment. Does NOT touch pc_apptstatus — that column holds
+ * the real appointment status (Pending, Arrived, etc.) and must not be
+ * overwritten with channel names.
  */
-function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
+function rc_sms_notification_cron_update_entry(NotificationChannel $channel, int $pid, int $pc_eid, string $recur = ''): void
 {
     global $bTestRun;
 
     if ($bTestRun || (int)trim($recur) > 0) {
-        return 1;
+        return;
     }
 
-    $query = "UPDATE openemr_postcalendar_events SET";
+    $column = match ($channel) {
+        NotificationChannel::SMS   => 'pc_sendalertsms',
+        NotificationChannel::EMAIL => 'pc_sendalertemail',
+    };
 
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
-    } elseif ($type == 'EMAIL') {
-        $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
-    } else {
-        $query .= " pc_sendalertsms='NO' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-
-    return sqlStatement($query, [$pid, $pc_eid]);
+    sqlStatement(
+        "UPDATE openemr_postcalendar_events SET {$column} = 'YES' WHERE pc_pid = ? AND pc_eid = ?",
+        [$pid, $pc_eid],
+    );
 }
 
 /**
@@ -335,8 +329,8 @@ function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = ''
 function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificationHour): array
 {
     $where = match ($channel) {
-        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')",
-        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')",
+        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')",
+        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')",
     };
     $adj_date = (int)date("H") + $notificationHour;
     $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
