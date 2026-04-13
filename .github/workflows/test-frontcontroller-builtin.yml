@@ -83,10 +83,12 @@ jobs:
           php -S 0.0.0.0:8080 -t . public/index.php \
             > "${RUNNER_TEMP}/php-server.out.log" \
             2> "${RUNNER_TEMP}/php-server.err.log" &
-          echo $! > "${RUNNER_TEMP}/php-server.pid"
 
-      - name: Verify webserver responds
-        run: curl -fsSL "http://localhost:8080/" -o /dev/null -w '%{http_code}\n'
+      - name: Wait for webserver
+        run: |
+          curl --retry-connrefused --retry 30 --retry-delay 1 \
+               --fail --silent --show-error \
+               -o /dev/null http://127.0.0.1:8080/
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
@@ -99,10 +101,6 @@ jobs:
           php -d memory_limit=4G vendor/bin/phpunit \
             --testsuite ${{ matrix.suite }} \
             --log-junit junit-${{ matrix.suite }}.xml
-
-      - name: Stop server
-        if: always()
-        run: kill "$(cat "${RUNNER_TEMP}/php-server.pid")" || true
 
       - name: Show server stdout
         if: always()
