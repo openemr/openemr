@@ -238,8 +238,12 @@ class BackgroundServiceRunner
     }
 
     /**
-     * Validate that an include path is safe: no traversal, no stream wrappers,
-     * no NUL bytes, and the resolved path stays under the project root.
+     * Validate that an include path is safe: no stream wrappers, no NUL bytes,
+     * and the resolved path is a regular file under the project root.
+     *
+     * Traversal sequences (e.g. `..`) are handled implicitly by `realpath()`:
+     * they are resolved to an absolute path, then the prefix check rejects any
+     * result that lands outside the project root.
      *
      * @throws \RuntimeException If the path fails validation
      */
@@ -263,6 +267,13 @@ class BackgroundServiceRunner
         if ($realPath === false) {
             throw new \RuntimeException(sprintf(
                 'Background service "%s" has an invalid require_once path: file does not exist.',
+                $serviceName,
+            ));
+        }
+
+        if (!is_file($realPath)) {
+            throw new \RuntimeException(sprintf(
+                'Background service "%s" has an invalid require_once path: path is not a file.',
                 $serviceName,
             ));
         }

@@ -181,22 +181,37 @@ class BackgroundServiceRunnerTest extends TestCase
         $validator->callValidateIncludePath('/var/www/openemr/nonexistent_file.php', '/var/www/openemr', 'test_svc');
     }
 
-    public function testValidateIncludePathRejectsTraversalOutsideRoot(): void
+    public function testValidateIncludePathRejectsFileOutsideRoot(): void
     {
         $validator = new BackgroundServicePathValidator();
 
-        // Use /tmp as a real directory to get past the realpath check, but it's outside the project dir
+        // Use /etc/hosts (a real file on macOS/Linux) which is outside the project dir
+        if (!is_file('/etc/hosts')) {
+            $this->markTestSkipped('/etc/hosts not available on this platform');
+        }
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('resolves outside project root');
-        $validator->callValidateIncludePath('/tmp', __DIR__, 'test_svc');
+        $validator->callValidateIncludePath('/etc/hosts', __DIR__, 'test_svc');
+    }
+
+    public function testValidateIncludePathRejectsDirectory(): void
+    {
+        $validator = new BackgroundServicePathValidator();
+
+        // __DIR__ is a real directory under the project root — should be rejected as not a file
+        $projectDir = dirname(__DIR__, 5); // repository/project root
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('path is not a file');
+        $validator->callValidateIncludePath(__DIR__, $projectDir, 'test_svc');
     }
 
     public function testValidateIncludePathAcceptsValidFile(): void
     {
         $validator = new BackgroundServicePathValidator();
 
-        // This test file itself is a valid path under its own directory
-        $projectDir = dirname(__DIR__, 5); // tests/ root
+        // This test file itself is a valid path under the repository/project root
+        $projectDir = dirname(__DIR__, 5); // repository/project root
         $validator->callValidateIncludePath(__FILE__, $projectDir, 'test_svc');
 
         $this->addToAssertionCount(1);
