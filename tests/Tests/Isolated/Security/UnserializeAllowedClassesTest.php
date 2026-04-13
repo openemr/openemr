@@ -98,16 +98,30 @@ class UnserializeAllowedClassesTest extends TestCase
     {
         // ConnectionSetting::Unserialize uses allowed_classes => [self::class],
         // so a foreign class becomes __PHP_Incomplete_Class and property
-        // access triggers warnings. Suppress warnings to test the behavior.
+        // access triggers warnings.
         $fake = new \stdClass();
         $fake->Type = 'evil';
         $payload = base64_encode(serialize($fake));
 
         $setting = new \ConnectionSetting();
+        $warnings = [];
 
-        // Property access on __PHP_Incomplete_Class triggers E_WARNING
-        @$setting->Unserialize($payload);
+        set_error_handler(static function (int $errno, string $errstr) use (&$warnings): bool {
+            if ($errno === E_WARNING) {
+                $warnings[] = $errstr;
+                return true;
+            }
 
+            return false;
+        });
+
+        try {
+            $setting->Unserialize($payload);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertNotEmpty($warnings);
         $this->assertNotSame('evil', $setting->Type);
     }
 }
