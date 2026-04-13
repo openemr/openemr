@@ -26,6 +26,8 @@ RUN apk add --no-cache \
   libpng-dev \
   # intl \
   icu-dev \
+  # imagemagick \
+  imagick-dev \
   # ldap \
   openldap-dev \
   # sockets \
@@ -50,7 +52,6 @@ RUN docker-php-ext-install \
   xsl \
   zip
 
-RUN apk add --no-cache imagemagick-dev
 RUN pecl install imagick && docker-php-ext-enable imagick
 
 RUN addgroup php-users && adduser -D -G php-users php
