@@ -32,10 +32,6 @@ if (!defined('SMARTY_CORE_DIR')) {
 require_once SMARTY_CORE_DIR . 'core.process_cached_inserts.php';
 require_once SMARTY_CORE_DIR . 'core.read_cache_file.php';
 
-#[CoversClass(\Cache_Lite::class)]
-#[CoversClass(\ConnectionSetting::class)]
-#[CoversFunction('smarty_core_process_cached_inserts')]
-#[CoversFunction('smarty_core_read_cache_file')]
 /**
  * Cache_Lite subclass that declares the undeclared dynamic property
  * _memoryCachingState, avoiding PHP 8.2+ deprecation warnings in tests.
@@ -46,6 +42,10 @@ class TestCacheLite extends \Cache_Lite
     public array $_memoryCachingState = [];
 }
 
+#[CoversClass(\Cache_Lite::class)]
+#[CoversClass(\ConnectionSetting::class)]
+#[CoversFunction('smarty_core_process_cached_inserts')]
+#[CoversFunction('smarty_core_read_cache_file')]
 class UnserializeAllowedClassesTest extends TestCase
 {
     // ---- Cache_Lite: memory-cached automatic deserialization (line 256) ----
@@ -265,6 +265,7 @@ class UnserializeAllowedClassesTest extends TestCase
             string $action,
             object $smarty,
             ?string &$results,
+            mixed ...$unused,
         ) use ($content): void {
             $results = $content;
         };
@@ -303,6 +304,7 @@ class UnserializeAllowedClassesTest extends TestCase
             string $action,
             object $smarty,
             ?string &$results,
+            mixed ...$unused,
         ) use ($content): void {
             $results = $content;
         };
