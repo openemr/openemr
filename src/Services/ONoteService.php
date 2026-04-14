@@ -29,8 +29,9 @@ class ONoteService
     /**
      * Creates a new office note.
      *
-     * @param The text of the office note.
-     * @return $body New id.
+     * @param  string $body The text of the office note.
+     * @return int The id of the newly inserted office note.
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying insert.
      */
     public function add($body)
     {
@@ -39,10 +40,11 @@ class ONoteService
     }
 
     /**
-     * Toggles a office note to be enabled.
+     * Toggles an office note to be enabled.
      *
-     * @param $id The office note id.
-     * @return true/false if the update was successful.
+     * @param  int|string $id The office note id.
+     * @return void
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying update.
      */
     public function enableNoteById($id)
     {
@@ -50,10 +52,11 @@ class ONoteService
     }
 
     /**
-     * Toggles a office note to be disabled.
+     * Toggles an office note to be disabled.
      *
-     * @param $id The office note id.
-     * @return true/false if the update was successful.
+     * @param  int|string $id The office note id.
+     * @return void
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying update.
      */
     public function disableNoteById($id)
     {

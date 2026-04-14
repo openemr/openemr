@@ -844,18 +844,19 @@ class ContactRelationService extends BaseService
 
                     // If target is a patient, get or create their person record
                     if ($targetTable === 'patient_data') {
+                        $originalPatientId = $targetId;
                         try {
                             $targetPersonId = $this->getOrCreatePersonForPatient($targetId);
                             $targetTable = 'person';
                             $targetId = $targetPersonId;
 
                             $this->getLogger()->debug("Resolved patient to person", [
-                                'patient_id' => $targetId,
+                                'patient_id' => $originalPatientId,
                                 'person_id' => $targetPersonId
                             ]);
                         } catch (\Throwable $e) {
                             $this->getLogger()->error("Failed to get/create person for patient", [
-                                'patient_id' => $targetId,
+                                'patient_id' => $originalPatientId,
                                 'error' => $e->getMessage()
                             ]);
                             continue;
