@@ -26,8 +26,10 @@ declare(strict_types=1);
 namespace OpenEMR\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Throw_ as ThrowExpr;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Catch_;
+use PhpParser\Node\Stmt\Expression as ExpressionStmt;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
@@ -67,6 +69,9 @@ class ForbiddenCatchTypeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if ($this->endsWithThrow($node->stmts)) {
+            return [];
+        }
         $errors = [];
         foreach ($node->types as $typeName) {
             $error = $this->checkType($typeName);
@@ -75,6 +80,21 @@ class ForbiddenCatchTypeRule implements Rule
             }
         }
         return $errors;
+    }
+
+    /**
+     * A catch that ends in an unconditional `throw` (re-raise or wrap) is
+     * exempt — the failure still propagates to the global exception handler.
+     *
+     * @param Node[] $stmts
+     */
+    private function endsWithThrow(array $stmts): bool
+    {
+        $last = end($stmts);
+        if ($last === false) {
+            return false;
+        }
+        return $last instanceof ExpressionStmt && $last->expr instanceof ThrowExpr;
     }
 
     private function checkType(Name $typeName): ?IdentifierRuleError
