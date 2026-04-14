@@ -342,8 +342,8 @@ class C_EncounterVisitForm
     function getInCollectionOptionsForTemplate($encounter = null)
     {
         $options = [
+            ['value' => '0', 'title' => xl('No')],
             ['value' => '1', 'title' => xl('Yes')],
-            ['value' => '0', 'title' => xl('No')]
         ];
 
         // Mark selected option for existing encounters
