@@ -183,7 +183,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\": "tests/"
+            "OpenEMR\\PHPStan\\Rules\\": "tests/PHPStan/Rules",
+            "OpenEMR\\Rector\\Rules\\": "tests/Rector/Rules",
+            "OpenEMR\\Tests\\": "tests/Tests"
         }
     },
     "config": {
