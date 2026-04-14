@@ -46,7 +46,7 @@ jobs:
         image: selenium/standalone-chrome:latest
         ports:
           - 4444:4444
-        options: --shm-size=2gb
+        options: --shm-size=2gb --add-host=host.docker.internal:host-gateway
 
     steps:
       - name: Checkout
@@ -99,16 +99,25 @@ jobs:
                --fail --silent --show-error \
                -o /dev/null http://127.0.0.1:8080/
 
-      - name: Resolve host address for service containers
-        id: host
-        run: echo "addr=$(ip -4 route show default | awk '/default/ {print $3}')" >> "$GITHUB_OUTPUT"
+      - name: Probe FC from inside selenium container
+        run: |
+          container=$(docker ps --filter ancestor=selenium/standalone-chrome:latest --format '{{.ID}}' | head -n1)
+          if [ -z "$container" ]; then
+            echo "::error::selenium container not found"
+            docker ps
+            exit 1
+          fi
+          echo "Probing host.docker.internal:8080 from container $container"
+          docker exec "$container" curl -sv --max-time 10 \
+            --fail --show-error \
+            -o /dev/null http://host.docker.internal:8080/
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
         env:
           OPENEMR_BASE_URL_API: http://localhost:8080
           # INFERNO_BASE_URL: http://localhost:8080
-          SELENIUM_BASE_URL: http://${{ steps.host.outputs.addr }}:8080
+          SELENIUM_BASE_URL: http://host.docker.internal:8080
           SELENIUM_HOST: localhost
           SELENIUM_USE_GRID: "true"
         run: vendor/bin/phpunit --testsuite ${{ matrix.suite }} --log-junit junit-${{ matrix.suite }}.xml
