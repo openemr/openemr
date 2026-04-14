@@ -31,12 +31,13 @@ function prior_auth_report($pid, $encounter, $cols, $id): void
                 $value = "yes";
             }
 
-            if ($key == "from_date" || "to_date") {
+            if ($key === "from_date" || $key === "to_date") {
                 $value = oeFormatShortDate($value);
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
             if ($count == $cols) {
                 $count = 0;

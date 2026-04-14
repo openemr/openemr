@@ -56,9 +56,11 @@ class ClientAdminControllerTest extends TestCase
         $mockTwig = $this->createMock(Environment::class);
         $mockTwig->method('render')->willReturn('<html>Mock Template</html>');
 
-        // Mock event dispatcher
+        // Mock event dispatcher and path accessors
         $mockEventDispatcher = new EventDispatcher();
         $this->mockKernel->method('getEventDispatcher')->willReturn($mockEventDispatcher);
+        $this->mockKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 5));
+        $this->mockKernel->method('getWebRoot')->willReturn('');
 
         // Create controller instance
         $this->controller = new ClientAdminController(

@@ -249,9 +249,10 @@ function get_openemr_globals($libdir): void
 
     require_once("$libdir/../interface/globals.php");
 }
-function sftp_status($msg, $val): void
+function sftp_status(string $msg, $val): void
 {
     if (php_sapi_name() == 'cli') {
+        // @phpstan-ignore argument.type (CLI status messages from internal callers; literal-string not enforceable here)
         fwrite(STDOUT, xl($msg) . ' ' . $val . PHP_EOL);
     }
 }

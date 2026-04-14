@@ -83,11 +83,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Services/DashboardContextAdminService.php',
 ];
@@ -219,11 +214,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
 ];
 $ignoreErrors[] = [
@@ -300,6 +290,16 @@ $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Integration/Api/ApiApplicationTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Integration/RestControllers/Subscriber/AuthorizationListenerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

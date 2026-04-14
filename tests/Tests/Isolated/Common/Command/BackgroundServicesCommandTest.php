@@ -5,7 +5,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,7 +32,7 @@ class BackgroundServicesCommandTest extends TestCase
     private function createTester(BackgroundServicesCommandStub $command): CommandTester
     {
         $app = new Application();
-        $app->add($command);
+        $app->addCommand($command);
         return new CommandTester($app->find('background:services'));
     }
 

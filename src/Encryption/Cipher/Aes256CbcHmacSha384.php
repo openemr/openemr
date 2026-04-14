@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
@@ -20,6 +28,8 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
+    public const KEY_LENGTH = 32; // openssl_cipher_key_length('aes-256-cbc')
+
     public function __construct(
         private KeyMaterial $key,
         private KeyMaterial $hmacKey,
@@ -28,7 +38,7 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
 
     public function decrypt(Ciphertext $ciphertext): Plaintext
     {
-        $ciphertext = $ciphertext->wrapped;
+        $ciphertext = $ciphertext->value;
         $hmac = substr($ciphertext, 0, self::HMAC_LENGTH);
         $iv = substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH);
         $data = substr($ciphertext, self::HMAC_LENGTH + self::IV_LENGTH);
@@ -57,7 +67,7 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
     {
         $iv = random_bytes(self::IV_LENGTH);
         $encrypted = openssl_encrypt(
-            $plaintext->wrapped,
+            $plaintext->bytes,
             'aes-256-cbc',
             $this->key->key,
             OPENSSL_RAW_DATA,

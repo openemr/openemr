@@ -41,7 +41,7 @@ class AllergyIntoleranceService extends BaseService
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // we inner join on lists itself so we can grab our uuids, we do this so we can search on each of the uuids
         // such as allergy_uuid, practitioner_uuid,organization_uuid, etc.  You can't use an 'AS' clause in a select
@@ -142,13 +142,13 @@ class AllergyIntoleranceService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         // backwards compatible we let sub tables be referenced before,
         // we want those to go away as it's a leaky abstraction
@@ -161,7 +161,7 @@ class AllergyIntoleranceService extends BaseService
             unset($search['lists.id']);
         }
         // Validating and Converting Patient UUID to PID
-        if (isset($search['puuid'])) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
@@ -174,7 +174,7 @@ class AllergyIntoleranceService extends BaseService
         }
 
         // Validating and Converting UUID to ID
-        if (isset($search['allergy_uuid'])) {
+        if (isset($search['allergy_uuid']) && !($search['allergy_uuid'] instanceof ISearchField)) {
             $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
@@ -201,14 +201,20 @@ class AllergyIntoleranceService extends BaseService
 
         $newSearch = [];
         // override puuid with the token search field for binary search
-        if (isset($search['puuid'])) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
             unset($search['puuid']);
         }
 
+        // override allergy_uuid with token search field for binary comparison
+        if (isset($search['allergy_uuid']) && !($search['allergy_uuid'] instanceof ISearchField)) {
+            $newSearch['allergy_uuid'] = new TokenSearchField('allergy_uuid', $search['allergy_uuid'], true);
+            unset($search['allergy_uuid']);
+        }
+
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }

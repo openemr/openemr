@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption\Keys;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
+use OpenEMR\Encryption\KeyId;
 
 /**
  * Implementations of KeychainInterface are responsible for key management and
@@ -22,7 +23,9 @@ use OpenEMR\Encryption\Cipher\CipherInterface;
  */
 interface KeychainInterface
 {
-    public function getCipher(Id $keyId): CipherInterface;
+    public function getCipher(KeyId $keyId): CipherInterface;
 
-    public function hasKey(Id $keyId): bool;
+    public function getCurrentKeyId(): KeyId;
+
+    public function hasKey(KeyId $keyId): bool;
 }

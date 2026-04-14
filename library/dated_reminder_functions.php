@@ -251,13 +251,13 @@ function getRemindersHTML($today, $reminders = []): string
         // end check if reminder is due or overdue
         // append to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(js_escape((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . attr(js_escape((string) $r['messageID'])) . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '
-            <span onclick="goPid(' . attr(addslashes((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(js_escape((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']

@@ -1,10 +1,10 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8
-    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    image: mariadb:11.8.6@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
+    command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
-    - 8320:3306
+    - "${WT_MYSQL_PORT:-8320}:3306"
     volumes:
     - ../library/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
@@ -26,19 +26,20 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c
     ports:
-    - 8300:80
-    - 9300:443
+    - "${WT_HTTP_PORT:-8300}:80"
+    - "${WT_HTTPS_PORT:-9300}:443"
     volumes:
-    - ../..:/openemr:ro
-    - ../..:/var/www/localhost/htdocs/openemr:rw
+    - ${OPENEMR_DIR:-../..}:/openemr:ro
+    - ${OPENEMR_DIR:-../..}:/var/www/localhost/htdocs/openemr:rw
     - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
     - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
+    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
@@ -62,7 +63,7 @@ services:
       GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
       GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -90,9 +91,9 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin
+    image: phpmyadmin:latest@sha256:96096b1a03f287e424506646200d27a8a8f8e2e1fb9d4bd750ca2e2294b2e909
     ports:
-    - 8310:80
+    - "${WT_PMA_PORT:-8310}:80"
     environment:
       PMA_HOSTS: mysql
     depends_on:
@@ -106,5 +107,6 @@ volumes:
   nodemodules: {}
   vendordir: {}
   ccdanodemodules: {}
+  ccdanodemodules2: {}
   logvolume: {}
   couchdbvolume: {}

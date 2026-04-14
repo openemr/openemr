@@ -47,7 +47,7 @@ class CDADocumentService extends BaseService
      */
     private function getXslPath(): string
     {
-        return OEGlobalsBag::getInstance()->get('fileroot') . self::XSL_PATH;
+        return OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . self::XSL_PATH;
     }
 
     /**
@@ -130,8 +130,7 @@ class CDADocumentService extends BaseService
             null,
             []
         );
-        $content = $result->getContent();
-        unset($result);
+        $content = $result->getContent() ?: '';
 
         if (str_starts_with($content, 'ERROR:')) {
             ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);

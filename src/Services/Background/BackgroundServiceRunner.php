@@ -10,7 +10,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Background;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
@@ -219,7 +220,16 @@ class BackgroundServiceRunner
     {
         $requireOnce = $service['require_once'];
         if ($requireOnce !== null && $requireOnce !== '') {
-            require_once(OEGlobalsBag::getInstance()->getString('fileroot') . $requireOnce);
+            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
+            $resolvedPath = SafeIncludeResolver::resolve($projectDir, ltrim($requireOnce, '/'));
+            if ($resolvedPath === false) {
+                throw new UnsafeIncludePathException(sprintf(
+                    'Background service "%s" has an invalid require_once path.',
+                    $service['name'],
+                ));
+            }
+
+            require_once($resolvedPath);
         }
 
         $function = $service['function'];

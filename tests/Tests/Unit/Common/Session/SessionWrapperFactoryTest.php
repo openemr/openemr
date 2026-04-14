@@ -8,8 +8,11 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    OpenCoreEMR <hello@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @author    Chris Dickman <chrisd@opencoreemr.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Eric Stern <eric@ericstern.com>
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

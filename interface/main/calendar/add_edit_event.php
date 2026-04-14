@@ -832,7 +832,7 @@ if (!empty($_POST['form_action'])) {
     // Close this window and refresh the calendar (or the patient_tracker) display.
     echo "<html>\n<body>\n<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
     echo " if (opener && !opener.closed && opener.refreshme) {\n " .
       "  opener.refreshme();\n " . // This is for standard calendar page refresh
@@ -1808,7 +1808,7 @@ function HideRecurrPopup() {
 }
 
 function deleteEvent() {
-    if (confirm("<?php echo addslashes(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>")) {
+    if (confirm(<?php echo js_escape(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>)) {
         $('#form_action').val("delete");
 
         <?php if ($repeats) : ?>

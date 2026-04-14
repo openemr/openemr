@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 535
+-- v_database: 536
 --
 
 --
@@ -12691,7 +12691,8 @@ INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
 INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
 ('46', '3', 'medical_devices', 'Medical Devices', '0'),
-('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
+('47', '3', 'goals', 'Goals', '0');
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `ccda_field_mapping`
@@ -13870,7 +13871,7 @@ CREATE TABLE `form_eye_antseg` (
   `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
   `ODTBUT`               varchar(25) DEFAULT NULL,
   `OSTBUT`               varchar(25) DEFAULT NULL,
-  `OSCONJ`               varchar(25) DEFAULT NULL,
+  `OSCONJ`               text,
   `ODCONJ`               text,
   `ODCORNEA`             text,
   `OSCORNEA`             text,

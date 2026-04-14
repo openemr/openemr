@@ -25272,21 +25272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:\\$bundleId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:\\$dataElementCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DateTime\\:\\:\\$date has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DateTime.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\Quantity\\:\\:\\$_type has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/Quantity.php',
@@ -29557,11 +29542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/RestApiExtend/RestApiSecurityCheckEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\Services\\\\DornLabEvent\\:\\:\\$sendOrderResponse has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Services/DornLabEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Events\\\\User\\\\UserEditRenderEvent\\:\\:\\$userId has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/User/UserEditRenderEvent.php',
@@ -29622,26 +29602,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$allowed_to_create_diagnosis_from_problem has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$allowed_to_create_problem_from_diagnosis has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$create_problem has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$db_id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$config_file has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
@@ -29650,76 +29610,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\MedicalDevice\\\\MedicalDevice\\:\\:\\$udi_data has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$acl has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$attributes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$children has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$displayText has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$globalReq has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$globalReqStrict has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$linkClassList has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$linkContainerClassList has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$postTextContent has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$preTextContent has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$requirements has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$target has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:\\$url has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Menu\\\\PatientMenuRole\\:\\:\\$dispatcher has no type specified\\.$#',
@@ -30262,11 +30152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaTextParser\\:\\:\\$xml has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:\\$externalValidatorEnabled has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -30490,11 +30375,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\QdmRecord\\:\\:\\$pid has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/QdmRecord.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\QdmRequestOne\\:\\:\\$filter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/QdmRequestOne.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\QdmRequestSome\\:\\:\\$filter has no type specified\\.$#',
@@ -30825,16 +30705,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tabs\\\\TabsWrapper\\:\\:\\$tabs has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Tabs/TabsWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Validators\\\\BaseValidator\\:\\:\\$supportedContexts has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Validators\\\\BaseValidator\\:\\:\\$validator has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:\\$data has no type specified\\.$#',

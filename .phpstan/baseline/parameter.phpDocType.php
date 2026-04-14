@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPreParseEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$menu with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$formName with type mixed is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/LoadEncounterFormFilterEvent.php',
@@ -60,11 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$pageName with type mixed is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/LoadEncounterFormFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$globalsService with type array is incompatible with native type OpenEMR\\\\Services\\\\Globals\\\\GlobalsService\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Globals/GlobalsInitializedEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$patientData with type mixed is not subtype of native type array\\.$#',

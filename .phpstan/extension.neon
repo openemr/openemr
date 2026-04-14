@@ -4,7 +4,7 @@
 # 1. Forbid laminas-db usage outside zend_modules
 # 2. Forbid legacy sql.inc.php functions in src/ directory
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
-# 4. Forbid @covers annotations on test classes and methods
+# 4. Forbid @covers annotations and #[CoversClass]/#[CoversFunction] attributes
 # 5. Forbid raw curl_* functions in favor of GuzzleHttp
 #
 # Include this in phpstan.github.neon with:
@@ -37,10 +37,7 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenGlobalsAccessRule
   tags:
   - phpstan.rules.rule
-- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationRule
-  tags:
-  - phpstan.rules.rule
-- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationOnClassRule
+- class: OpenEMR\PHPStan\Rules\ForbiddenCoversRule
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenCurlFunctionsRule
