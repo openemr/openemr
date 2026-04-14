@@ -123,15 +123,15 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        $request = HttpRestRequest::createFromGlobals();
-        if ($request->request->get('save_care_team') === 'true') {
+        $post = HttpRestRequest::createFromGlobals()->request->all();
+        if (($post['save_care_team'] ?? null) === 'true') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-            $teamId = ValidationUtils::validateInt($request->request->get('team_id'));
+            $teamId = ValidationUtils::validateInt($post['team_id'] ?? null);
             $teamId = $teamId === false ? null : $teamId;
-            $teamName = trim((string) $request->request->get('team_name', ''));
-            $team = $request->request->all('team');
-            $teamStatus = trim((string) $request->request->get('team_status', 'active'));
+            $teamName = trim(is_string($post['team_name'] ?? null) ? $post['team_name'] : '');
+            $team = is_array($post['team'] ?? null) ? $post['team'] : [];
+            $teamStatus = trim(is_string($post['team_status'] ?? null) ? $post['team_status'] : 'active');
 
             if (!$this->pid) {
                 die(xlt("Invalid request."));

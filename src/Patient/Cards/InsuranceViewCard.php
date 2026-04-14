@@ -162,8 +162,8 @@ class InsuranceViewCard extends CardModel
         $output = '';
         $pid = $this->pid;
         if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
-            $request = HttpRestRequest::createFromGlobals();
-            if ($request->request->get('status_update') === 'true') {
+            $post = HttpRestRequest::createFromGlobals()->request->all();
+            if (($post['status_update'] ?? null) === 'true') {
                 $showEligibility = true;
                 $ok = EDI270::requestEligibleTransaction($pid);
                 if ($ok === true) {

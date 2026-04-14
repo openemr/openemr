@@ -15,8 +15,8 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class Common
 {
@@ -52,7 +52,7 @@ class Common
      */
     public static function get($var, $default = ''): string
     {
-        $val = HttpRestRequest::createFromGlobals()->query->get($var);
+        $val = Request::createFromGlobals()->query->all()[$var] ?? null;
         if (is_string($val) && $val !== '') {
             return $val;
         }
@@ -68,7 +68,7 @@ class Common
      */
     public static function post($var, $default = ''): string|array
     {
-        $val = HttpRestRequest::createFromGlobals()->request->get($var);
+        $val = Request::createFromGlobals()->request->all()[$var] ?? null;
         if (is_array($val)) {
             /** @var string[] $val */
             return $val;
