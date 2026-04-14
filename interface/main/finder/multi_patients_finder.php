@@ -149,7 +149,7 @@ if (isset($_GET['patients'])) {
                             '<td>' . text($result['ss']) . '</td>' .
                             '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                             '<td>' . text($result['pubpid']) . '</td>' .
-                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes((string) $result['pid'])) . ')"></i></td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(js_escape((string) $result['pid'])) . ')"></i></td>' .
                         '<tr>';
                 }
             } ?>

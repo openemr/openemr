@@ -961,31 +961,52 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             // Handle X12 835 file upload.
                             //
                             if ($_FILES['form_erafile']['size']) {
-                                $tmp_name = $_FILES['form_erafile']['tmp_name'];
-
-                                // Handle .zip extension if present.  Probably won't work on Windows.
-                                if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-                                    rename($tmp_name, "$tmp_name.zip");
-                                    exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg((string) $tmp_name));
-                                    unlink("$tmp_name.zip");
-                                }
-
-                                echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
-                                echo "-->\n";
-                                $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
-                                $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
-
-                                if (is_file($erafullname)) {
-                                    $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
-                                        $alertmsg .= "and processed. ";
-                                    } else {
-                                        $alertmsg .= "but not yet processed. ";
+                                $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
+                                if (!is_string($tmp_name)) {
+                                    $alertmsg .= xl("Invalid file upload") . " ";
+                                } else {
+                                    $shouldParseEra = true;
+                                    // Handle .zip extension if present.
+                                    if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
+                                        $zip = new ZipArchive();
+                                        if ($zip->open($tmp_name) === true) {
+                                            $contents = $zip->getFromIndex(0);
+                                            $zip->close();
+                                            if ($contents === false) {
+                                                $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                                $shouldParseEra = false;
+                                            } elseif (file_put_contents($tmp_name, $contents) === false) {
+                                                $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                                                $shouldParseEra = false;
+                                            }
+                                        } else {
+                                            $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                                            $shouldParseEra = false;
+                                        }
                                     }
+
+                                    echo "<!-- Notes from ERA upload processing:\n";
+                                    if ($shouldParseEra) {
+                                        $parseResult = ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
+                                        if (is_string($parseResult)) {
+                                            $alertmsg .= $parseResult;
+                                        }
+                                    }
+                                    echo "-->\n";
+                                    $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
+                                    $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
+
+                                    if (is_file($erafullname)) {
+                                        $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                        if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
+                                            $alertmsg .= "and processed. ";
+                                        } else {
+                                            $alertmsg .= "but not yet processed. ";
+                                        }
+                                    }
+                                    rename($tmp_name, $erafullname);
+                                    copy($erafullname, $edihname);
                                 }
-                                rename($tmp_name, $erafullname);
-                                copy($erafullname, $edihname);
                             } // End 835 upload
 
                             if ($eracount) {
@@ -1350,7 +1371,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     });
     <?php
     if ($alertmsg) {
-        echo "alert('" . addslashes((string) $alertmsg) . "');\n";
+        echo "alert(" . js_escape((string) $alertmsg) . ");\n";
     }
     ?>
     $(function () {

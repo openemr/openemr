@@ -20,6 +20,7 @@
 
 namespace OpenEMR\Common\Auth;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -38,7 +39,7 @@ class AuthHash
         if ($this->algo == "SHA512HASH") {
             if (CRYPT_SHA512 != 1) {
                 $this->algo = "DEFAULT";
-                error_log("OpenEMR WARNING: SHA512HASH not supported, so using DEFAULT instead");
+                ServiceContainer::getLogger()->warning("SHA512HASH not supported, using DEFAULT instead");
             }
         }
 
@@ -74,12 +75,12 @@ class AuthHash
         if (($this->algo == "ARGON2ID") && (!defined('PASSWORD_ARGON2ID'))) {
             // argon2id not supported, so will try argon2i instead
             $this->algo = "ARGON2I";
-            error_log("OpenEMR WARNING: ARGON2ID not supported, so using ARGON2I instead");
+            ServiceContainer::getLogger()->warning("ARGON2ID not supported, using ARGON2I instead");
         }
         if (($this->algo == "ARGON2I") && (!defined('PASSWORD_ARGON2I'))) {
             // argon2i not supported, so will use bcrypt instead
             $this->algo = "BCRYPT";
-            error_log("OpenEMR WARNING: ARGON2I not supported, so using BCRYPT instead");
+            ServiceContainer::getLogger()->warning("ARGON2I not supported, using BCRYPT instead");
         }
 
         // Now can safely set up the algorithm and algorithm options
@@ -127,7 +128,7 @@ class AuthHash
             //   BCRYPT, ARGON2I, or ARGON2ID.
             // If this happens, then will just go with PHP Default (ie. go with default php algorithm and options).
             $this->algo_constant = PASSWORD_DEFAULT;
-            error_log("OpenEMR WARNING: Unable to resolve hashing preference, so using PHP Default");
+            ServiceContainer::getLogger()->warning("Unable to resolve hashing preference, using PHP Default");
         }
     }
 
@@ -186,7 +187,7 @@ class AuthHash
     public static function passwordVerify(&$password, $hash): bool
     {
         if (empty($password) || empty($hash)) {
-            error_log("OpenEMR Error: call to passwordVerify is missing password or hash");
+            ServiceContainer::getLogger()->error("Call to passwordVerify is missing password or hash");
             return false;
         }
 
@@ -226,7 +227,7 @@ class AuthHash
         if (OEGlobalsBag::getInstance()->getBoolean('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStop = round(microtime(true) * 1000);
-            error_log("Password hash verification execution time was following (milliseconds): " . errorLogEscape($millisecondsStop - $millisecondsStart));
+            ServiceContainer::getLogger()->debug("Password hash verification execution time (ms): {duration}", ['duration' => $millisecondsStop - $millisecondsStart]);
         }
 
         return $valid;

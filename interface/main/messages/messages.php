@@ -449,7 +449,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div class="col-6 col-md-4">
                                                 <?php
                                                 if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes((string) $result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                    <a class="patLink" onclick="goPid(<?php echo attr(js_escape((string) $result['pid'])); ?>)" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                     <?php
                                                 } else { ?>
                                                     <span class='<?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
@@ -671,7 +671,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <tr id=\"row" . attr($count) . "\" height='24' class='messages-item-row' role='button'>
                                     <td align='center'>
                                         <input type='checkbox' id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
-                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
+                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow(" . attr(js_escape('row' . $count)) . "); }else{ deselectRow(" . attr(js_escape('row' . $count)) . "); }\"></td>
                                     <td>
                                         <div>" . text($name) . "</div>
                                     </td>

@@ -117,9 +117,9 @@ jobs:
       id: compute-suites
       run: |
         if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
-          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email","e2e"]' >> "$GITHUB_OUTPUT"
+          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","integration","email","e2e"]' >> "$GITHUB_OUTPUT"
         else
-          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email"]' >> "$GITHUB_OUTPUT"
+          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","integration","email"]' >> "$GITHUB_OUTPUT"
         fi
 
     - name: Setup PHP
@@ -157,8 +157,8 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
           echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
           echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
