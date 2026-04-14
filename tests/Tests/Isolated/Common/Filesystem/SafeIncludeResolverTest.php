@@ -73,7 +73,7 @@ class SafeIncludeResolverTest extends TestCase
         $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'php://filter/resource=composer.json'));
     }
 
-    public function testResolveReturnsFalseForFileOutsideBaseDirViaSymlink(): void
+    public function testResolveReturnsFalseForSymlinkPointingOutsideBaseDir(): void
     {
         $projectRoot = dirname(__DIR__, 5);
         $tempFile = tempnam(sys_get_temp_dir(), 'openemr-safe-');
@@ -81,10 +81,20 @@ class SafeIncludeResolverTest extends TestCase
             $this->fail('Failed to create temp file');
         }
 
+        $linkName = 'openemr-safe-link-' . uniqid('', true) . '.php';
+        $linkPath = $projectRoot . '/' . $linkName;
+
         try {
-            // Even if the path somehow resolved, it's outside the base dir
-            $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, basename($tempFile)));
+            if (!@symlink($tempFile, $linkPath)) {
+                $this->markTestSkipped('Unable to create symlink in this environment.');
+            }
+
+            $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, $linkName));
         } finally {
+            if (is_link($linkPath)) {
+                unlink($linkPath);
+            }
+
             if (is_file($tempFile)) {
                 unlink($tempFile);
             }
