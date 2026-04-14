@@ -16,7 +16,7 @@ class InstallCommand extends Command
 {
     public function __invoke(
         OutputInterface $output,
-        #[Option] string $dbServer = '127.0.0.1',
+        #[Option] string $dbHost = '127.0.0.1',
         #[Option] int $dbPort = 3306,
         #[Option] string $dbUser = '',
         #[Option] string $dbPassword = '',
@@ -24,12 +24,40 @@ class InstallCommand extends Command
         #[Option] string $dbRootUser = 'root',
         #[Option] string $dbRootPassword = '',
     ): int {
-        $logger = new ConsoleLogger($output);
 
         // login -> dbuser
         // pass -> dbPassowrd
         // dbname => dbName
         // collate = 'utf8mb4_general_ci'
-        return -2;
+        // pre-validate things are nonempty??
+        $params = [
+            // DB root
+            'root' => $dbRootUser,
+            'rootpass' => $dbRootPassword,
+
+            'server' => $dbHost,
+            'port' => $dbPort,
+            'login' => $dbUser,
+            'pass' => $dbPassword,
+            'dbname' => $dbName, // NEEDS VALIDATION
+            'loginhost' => '%', // FIXME: webserver for db user
+
+            'iuserpass' => 'changeme',
+            'site' => 'FAKESITE', // FIXME: remove this.
+        ];
+        $logger = new ConsoleLogger($output);
+        $installer = new Installer(
+            $params,
+            $logger,
+        );
+        /* return 2; */
+        $success = $installer->quick_install();
+        if (!$success) {
+            $output->writeln('Installation failed:');
+            $output->writeln($installer->error_message);
+            return Command::FAILURE;
+        }
+        $output->writeln('OpenEMR has been installed!');
+        return Command::SUCCESS;
     }
 }
