@@ -44602,27 +44602,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:add\\(\\) has parameter \\$body with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:countNotes\\(\\) has parameter \\$active with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:deleteNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:disableNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:enableNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];

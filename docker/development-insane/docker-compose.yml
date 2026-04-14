@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:a6d93c09afa889a1a38124136e6d7ee2c0e38087f411bc73687c1dce6898afff
+    image: openemr/openemr:flex-edge@sha256:7b5664c9774f89283383d9f6488bff19878af95d203af36d55741225e58fdff2
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:a6d93c09afa889a1a38124136e6d7ee2c0e38087f411bc73687c1dce6898afff
+    image: openemr/openemr:flex-edge@sha256:7b5664c9774f89283383d9f6488bff19878af95d203af36d55741225e58fdff2
     ports:
     - 8098:80
     - 9098:443
@@ -805,7 +805,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:147.0.7727.55@sha256:a97cafaef9b7c398ef6692cf3e460f36b761ba5ac20d4cc943e138b2322e3f0e
+    image: selenium/standalone-chromium:147.0.7727.55@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)

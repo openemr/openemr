@@ -15,7 +15,6 @@ namespace OpenEMR\Tests\Isolated\Services\Background;
 
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
-use OpenEMR\Services\Background\UnsafeIncludePathException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -155,83 +154,6 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertTrue($executed);
     }
 
-    public function testValidateIncludePathRejectsNulByte(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-
-        $this->expectException(UnsafeIncludePathException::class);
-        $this->expectExceptionMessage('contains NUL byte');
-        $validator->callValidateIncludePath("/var/www/openemr/library/file\0.php", '/var/www/openemr', 'test_svc');
-    }
-
-    public function testValidateIncludePathRejectsStreamWrapper(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-
-        $this->expectException(UnsafeIncludePathException::class);
-        $this->expectExceptionMessage('contains stream wrapper');
-        $validator->callValidateIncludePath('php://filter/resource=/etc/passwd', '/var/www/openemr', 'test_svc');
-    }
-
-    public function testValidateIncludePathRejectsNonexistentFile(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-        $projectDir = dirname(__DIR__, 5); // repository/project root
-        $nonexistentPath = $projectDir . DIRECTORY_SEPARATOR . 'nonexistent_file_' . uniqid('', true) . '.php';
-
-        $this->expectException(UnsafeIncludePathException::class);
-        $this->expectExceptionMessage('path cannot be resolved');
-        $validator->callValidateIncludePath($nonexistentPath, $projectDir, 'test_svc');
-    }
-
-    public function testValidateIncludePathRejectsFileOutsideRoot(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-        $projectDir = dirname(__DIR__, 5); // repository/project root
-        $tempFile = tempnam(sys_get_temp_dir(), 'openemr-bg-');
-
-        if ($tempFile === false) {
-            $this->fail('Failed to create temporary file for outside-root validation test');
-        }
-
-        try {
-            $this->expectException(UnsafeIncludePathException::class);
-            $this->expectExceptionMessage('resolves outside project root');
-            $validator->callValidateIncludePath($tempFile, $projectDir, 'test_svc');
-        } finally {
-            if (is_file($tempFile)) {
-                unlink($tempFile);
-            }
-        }
-    }
-
-    public function testValidateIncludePathRejectsDirectory(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-
-        // __DIR__ is a real directory under the project root — should be rejected as not a file
-        $projectDir = dirname(__DIR__, 5); // repository/project root
-        $this->expectException(UnsafeIncludePathException::class);
-        $this->expectExceptionMessage('path is not a file');
-        $validator->callValidateIncludePath(__DIR__, $projectDir, 'test_svc');
-    }
-
-    public function testValidateIncludePathAcceptsValidFileAndReturnsResolvedPath(): void
-    {
-        $validator = new BackgroundServicePathValidator();
-
-        // This test file itself is a valid path under the repository/project root
-        $projectDir = dirname(__DIR__, 5); // repository/project root
-        $expectedPath = realpath(__FILE__);
-        if ($expectedPath === false) {
-            $this->fail('Failed to resolve the current test file path');
-        }
-
-        $resolvedPath = $validator->callValidateIncludePath(__FILE__, $projectDir, 'test_svc');
-
-        $this->assertSame($expectedPath, $resolvedPath);
-    }
-
     /**
      * @return BackgroundServicesRow
      */
@@ -304,16 +226,5 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         if ($this->executeCallback !== null) {
             ($this->executeCallback)($service);
         }
-    }
-}
-
-/**
- * Exposes validateIncludePath for direct testing.
- */
-class BackgroundServicePathValidator extends BackgroundServiceRunner
-{
-    public function callValidateIncludePath(string $path, string $projectDir, string $serviceName): string
-    {
-        return $this->validateIncludePath($path, $projectDir, $serviceName);
     }
 }

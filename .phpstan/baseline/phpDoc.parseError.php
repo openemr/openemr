@@ -4446,26 +4446,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(The text of the office note\\.\\)\\: Unexpected token "text", expected variable at offset 63 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$body New id\\.\\)\\: Unexpected token "\\$body", expected type at offset 103 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 112 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 113 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(@isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary\\)\\: Unexpected token "@isUuid", expected type at offset 118 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',

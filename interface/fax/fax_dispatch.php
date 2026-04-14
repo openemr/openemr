@@ -397,7 +397,7 @@ if ($_POST['form_save']) {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
