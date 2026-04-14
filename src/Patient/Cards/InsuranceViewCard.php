@@ -16,6 +16,7 @@ use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -161,12 +162,8 @@ class InsuranceViewCard extends CardModel
         $output = '';
         $pid = $this->pid;
         if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
-            $statusUpdate = filter_input(INPUT_POST, 'status_update');
-            if (!is_string($statusUpdate)) {
-                $statusUpdate = $_POST['status_update'] ?? '';
-            }
-            if ($statusUpdate === 'true') {
-                unset($_POST['status_update']);
+            $request = HttpRestRequest::createFromGlobals();
+            if ($request->request->get('status_update') === 'true') {
                 $showEligibility = true;
                 $ok = EDI270::requestEligibleTransaction($pid);
                 if ($ok === true) {

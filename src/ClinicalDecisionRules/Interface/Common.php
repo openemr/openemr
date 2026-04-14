@@ -15,6 +15,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
 class Common
@@ -51,14 +52,7 @@ class Common
      */
     public static function get($var, $default = ''): string
     {
-        // filter_input reads the original SAPI input, not the $_GET array.
-        // It returns null when not set, false on failure — neither is a
-        // usable string, so fall back to $_GET for CLI/test environments
-        // or filter failure.
-        $val = filter_input(INPUT_GET, $var);
-        if (!is_string($val)) {
-            $val = $_GET[$var] ?? null;
-        }
+        $val = HttpRestRequest::createFromGlobals()->query->get($var);
         if (is_string($val) && $val !== '') {
             return $val;
         }
@@ -74,13 +68,7 @@ class Common
      */
     public static function post($var, $default = ''): string|array
     {
-        // filter_input returns null when not set, false on failure
-        // (including array values without FILTER_REQUIRE_ARRAY).
-        // Fall back to $_POST for CLI/test, arrays, or filter failure.
-        $val = filter_input(INPUT_POST, $var);
-        if (!is_string($val)) {
-            $val = $_POST[$var] ?? null;
-        }
+        $val = HttpRestRequest::createFromGlobals()->request->get($var);
         if (is_array($val)) {
             /** @var string[] $val */
             return $val;

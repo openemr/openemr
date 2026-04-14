@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
@@ -122,18 +123,15 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        $saveCareTeam = filter_input(INPUT_POST, 'save_care_team');
-        if (!is_string($saveCareTeam)) {
-            $saveCareTeam = $_POST['save_care_team'] ?? '';
-        }
-        if ($saveCareTeam === 'true') {
+        $request = HttpRestRequest::createFromGlobals();
+        if ($request->request->get('save_care_team') === 'true') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-            $teamId = ValidationUtils::validateInt(filter_input(INPUT_POST, 'team_id'));
+            $teamId = ValidationUtils::validateInt($request->request->get('team_id'));
             $teamId = $teamId === false ? null : $teamId;
-            $teamName = trim(filter_input(INPUT_POST, 'team_name') ?: '');
-            $team = filter_input(INPUT_POST, 'team', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-            $teamStatus = trim(filter_input(INPUT_POST, 'team_status') ?: 'active'); // AI-generated addition
+            $teamName = trim((string) $request->request->get('team_name', ''));
+            $team = $request->request->all('team');
+            $teamStatus = trim((string) $request->request->get('team_status', 'active'));
 
             if (!$this->pid) {
                 die(xlt("Invalid request."));
