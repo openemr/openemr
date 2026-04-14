@@ -317,12 +317,17 @@ function printPatientForms($pid, $cols): void
     $formsBaseDir = realpath(OEGlobalsBag::getInstance()->getString('incdir') . "/forms");
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
-        if ($formsBaseDir === false || $result["formdir"] === '.' || $result["formdir"] === '..') {
+        if ($formsBaseDir === false || !is_string($result["formdir"]) || $result["formdir"] === '.' || $result["formdir"] === '..' || str_contains($result["formdir"], "\0")) {
             continue;
         }
 
-        $reportPath = realpath($formsBaseDir . "/" . $result["formdir"] . "/report.php");
-        if ($reportPath === false || !str_starts_with($reportPath, $formsBaseDir . DIRECTORY_SEPARATOR)) {
+        try {
+            $reportPath = realpath($formsBaseDir . "/" . $result["formdir"] . "/report.php");
+        } catch (\ValueError) {
+            continue;
+        }
+
+        if ($reportPath === false || !is_file($reportPath) || !str_starts_with($reportPath, $formsBaseDir . DIRECTORY_SEPARATOR)) {
             continue;
         }
 

@@ -3583,10 +3583,17 @@ class EncounterccdadispatchTable
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
                     $formsBasePath = realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms');
-                    $resolvedReportPath = ($formsBasePath !== false && $formDir !== '.' && $formDir !== '..')
-                        ? realpath($formsBasePath . '/' . $formDir . '/report.php')
-                        : false;
+                    $resolvedReportPath = false;
+                    if ($formsBasePath !== false && $formDir !== '.' && $formDir !== '..' && !str_contains($formDir, "\0")) {
+                        try {
+                            $resolvedReportPath = realpath($formsBasePath . '/' . $formDir . '/report.php');
+                        } catch (\ValueError) {
+                            $resolvedReportPath = false;
+                        }
+                    }
+
                     $reportPathValid = $resolvedReportPath !== false
+                        && is_file($resolvedReportPath)
                         && str_starts_with($resolvedReportPath, $formsBasePath . DIRECTORY_SEPARATOR);
 
                     foreach ($form_ids as $row) {//Fetching the values of each forms
@@ -3656,12 +3663,18 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    if ($formDir !== '.' && $formDir !== '..') {
+                    if ($formDir !== '.' && $formDir !== '..' && !str_contains($formDir, "\0")) {
                         $srcBaseDir = realpath(OEGlobalsBag::getInstance()->getSrcDir());
-                        $filename = ($srcBaseDir !== false)
-                            ? realpath($srcBaseDir . "/" . $formDir . "/" . $formDir . "_db.php")
-                            : false;
-                        if ($filename !== false && str_starts_with($filename, $srcBaseDir . DIRECTORY_SEPARATOR)) {
+                        $filename = false;
+                        if ($srcBaseDir !== false) {
+                            try {
+                                $filename = realpath($srcBaseDir . "/" . $formDir . "/" . $formDir . "_db.php");
+                            } catch (\ValueError) {
+                                $filename = false;
+                            }
+                        }
+
+                        if ($filename !== false && is_file($filename) && str_starts_with($filename, $srcBaseDir . DIRECTORY_SEPARATOR)) {
                             include_once($filename);
                         }
                     }
