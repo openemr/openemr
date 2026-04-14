@@ -772,6 +772,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:assign\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:get\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',

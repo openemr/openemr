@@ -662,7 +662,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{get_source\\: false, quiet\\: true, resource_name\\: int\\|string\\}\\.$#',
+    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{get_source\\: false, quiet\\: true, resource_name\\: \\(int\\|string\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
 ];
