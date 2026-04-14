@@ -23,6 +23,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -3571,7 +3572,7 @@ class EncounterccdadispatchTable
         foreach ($formTables as $formTables_details) {
             /***************Fetching the form id for the patient***************/
 
-            if (!is_string($formTables_details[2])) {
+            if (!is_string($formTables_details[2]) || !SafeIncludeResolver::isSafePathComponent($formTables_details[2])) {
                 continue;
             }
 
@@ -3582,19 +3583,9 @@ class EncounterccdadispatchTable
 
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
-                    $formsBasePath = realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms');
-                    $resolvedReportPath = false;
-                    if ($formsBasePath !== false && $formDir !== '.' && $formDir !== '..' && !str_contains($formDir, "\0")) {
-                        try {
-                            $resolvedReportPath = realpath($formsBasePath . '/' . $formDir . '/report.php');
-                        } catch (\ValueError) {
-                            $resolvedReportPath = false;
-                        }
-                    }
-
-                    $reportPathValid = $resolvedReportPath !== false
-                        && is_file($resolvedReportPath)
-                        && str_starts_with($resolvedReportPath, $formsBasePath . DIRECTORY_SEPARATOR);
+                    $formsBasePath = OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms';
+                    $resolvedReportPath = SafeIncludeResolver::resolve($formsBasePath, $formDir . '/report.php');
+                    $reportPathValid = $resolvedReportPath !== false;
 
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $value) {
@@ -3666,20 +3657,10 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    if ($formDir !== '.' && $formDir !== '..' && !str_contains($formDir, "\0")) {
-                        $srcBaseDir = realpath(OEGlobalsBag::getInstance()->getSrcDir());
-                        $filename = false;
-                        if ($srcBaseDir !== false) {
-                            try {
-                                $filename = realpath($srcBaseDir . "/" . $formDir . "/" . $formDir . "_db.php");
-                            } catch (\ValueError) {
-                                $filename = false;
-                            }
-                        }
-
-                        if ($filename !== false && is_file($filename) && str_starts_with($filename, $srcBaseDir . DIRECTORY_SEPARATOR)) {
-                            include_once($filename);
-                        }
+                    $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
+                    $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
+                    if ($filename !== false) {
+                        include_once($filename);
                     }
 
                     $field_ids = explode(',', (string)$formTables_details[3]);

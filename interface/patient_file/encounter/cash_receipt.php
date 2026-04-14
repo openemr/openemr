@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -82,20 +83,16 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  //print "Provider: " . $provider  . "<br />";
 
- $formsBaseDir = realpath(OEGlobalsBag::getInstance()->getString('incdir') . "/forms");
+ $formsBaseDir = OEGlobalsBag::getInstance()->getString('incdir') . "/forms";
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
-    if ($formsBaseDir === false || !is_string($result["formdir"]) || $result["formdir"] === '.' || $result["formdir"] === '..' || str_contains($result["formdir"], "\0")) {
+    $formDir = $result["formdir"];
+    if (!is_string($formDir) || !SafeIncludeResolver::isSafePathComponent($formDir)) {
         continue;
     }
 
-    try {
-        $reportPath = realpath($formsBaseDir . "/" . $result["formdir"] . "/report.php");
-    } catch (\ValueError) {
-        continue;
-    }
-
-    if ($reportPath === false || !is_file($reportPath) || !str_starts_with($reportPath, $formsBaseDir . DIRECTORY_SEPARATOR)) {
+    $reportPath = SafeIncludeResolver::resolve($formsBaseDir, $formDir . "/report.php");
+    if ($reportPath === false) {
         continue;
     }
 
