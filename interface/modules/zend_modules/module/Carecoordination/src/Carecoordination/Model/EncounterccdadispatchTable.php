@@ -3601,7 +3601,10 @@ class EncounterccdadispatchTable
                             ob_start();
                             if ($reportPathValid) {
                                 include_once($resolvedReportPath);
-                                ($formDir . "_report")($pid, $encounter, 2, $value);
+                                $reportFn = $formDir . '_report';
+                                if (function_exists($reportFn)) {
+                                    $reportFn($pid, $encounter, 2, $value);
+                                }
                             }
 
                             $res[0][$value] = ob_get_clean();
