@@ -2957,16 +2957,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/BaseController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:get\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:post\\(\\) should return array\\<string\\>\\|string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ControllerRouter\\:\\:route\\(\\) should return Symfony\\\\Component\\\\HttpFoundation\\\\Response but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ControllerRouter.php',

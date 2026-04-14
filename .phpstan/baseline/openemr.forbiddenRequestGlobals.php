@@ -4507,16 +4507,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
@@ -4620,21 +4610,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_SERVER is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/Config/ServerConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/CareExperiencePreferenceViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/InsuranceViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/TreatmentPreferenceViewCard.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
