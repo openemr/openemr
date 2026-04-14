@@ -3,19 +3,20 @@
 declare(strict_types=1);
 
 /**
- * Custom PHPStan Rule to Forbid Overbroad catch Types
+ * Custom PHPStan Rule to Forbid catch Blocks That Would Suppress Specific Types
  *
- * PHP's throwable hierarchy has two branches: `\Exception` (for recoverable
- * application-level failures) and `\Error` (for programmer errors —
- * `\TypeError`, `\ParseError`, `\ArithmeticError`, etc.) — both implementing
- * `\Throwable`. Code should never catch `\Throwable` or anything in the
- * `\Error` branch: doing so masks programmer bugs as "handled" failures and
- * prevents the global exception handler from logging and responding
- * appropriately.
+ * Maintains a list of throwable types that should never be suppressed by a
+ * `catch` block. A catch declaration is flagged whenever its declared type
+ * would actually catch one of the forbidden types at runtime — i.e. the
+ * declared type and a forbidden type are related by inheritance in either
+ * direction. Examples with `\Error` in the list:
+ *   - `catch (\Throwable $e)` → flagged (Throwable would catch Error)
+ *   - `catch (\Error $e)` → flagged (exact match)
+ *   - `catch (\TypeError $e)` → flagged (TypeError is-a Error)
+ *   - `catch (\RuntimeException $e)` → not flagged (no relation to Error)
  *
- * Catches of `\Exception` and its subclasses are allowed. To forbid specific
- * further types (e.g. ban a particular domain exception from being caught
- * broadly), add them to {@see self::ADDITIONALLY_FORBIDDEN}.
+ * Extend {@see self::FORBIDDEN} to add more types the project should not
+ * suppress.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -39,12 +40,16 @@ use PHPStan\Rules\RuleErrorBuilder;
 class ForbiddenCatchTypeRule implements Rule
 {
     /**
-     * Additional FQCNs (or their subclasses) forbidden from being caught.
-     * Extend this list to block further types beyond the \Error branch.
+     * Types that catch blocks must not suppress. A catch is flagged when its
+     * declared type and any entry here share an inheritance relationship in
+     * either direction (catch would capture the forbidden type at runtime).
      *
      * @var list<class-string>
      */
-    private const ADDITIONALLY_FORBIDDEN = [];
+    private const FORBIDDEN = [
+        \Error::class,
+        \ErrorException::class,
+    ];
 
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
@@ -74,40 +79,31 @@ class ForbiddenCatchTypeRule implements Rule
 
     private function checkType(Name $typeName): ?IdentifierRuleError
     {
-        $fqn = ltrim($typeName->toString(), '\\');
-        if (!$this->reflectionProvider->hasClass($fqn)) {
+        $declaredFqn = ltrim($typeName->toString(), '\\');
+        if (!$this->reflectionProvider->hasClass($declaredFqn)) {
             return null;
         }
-        $classRef = $this->reflectionProvider->getClass($fqn);
+        $declaredRef = $this->reflectionProvider->getClass($declaredFqn);
 
-        if (!$classRef->is(\Exception::class)) {
-            return $this->error(
-                $typeName,
-                sprintf(
-                    'Catching %s is forbidden: it captures PHP Errors (TypeError, ParseError, etc.) which should propagate to the global exception handler.',
-                    $fqn,
-                ),
-            );
-        }
+        foreach (self::FORBIDDEN as $forbiddenFqn) {
+            if (!$this->reflectionProvider->hasClass($forbiddenFqn)) {
+                continue;
+            }
+            $forbiddenRef = $this->reflectionProvider->getClass($forbiddenFqn);
 
-        foreach (self::ADDITIONALLY_FORBIDDEN as $forbidden) {
-            if ($classRef->is(ltrim($forbidden, '\\'))) {
-                return $this->error(
-                    $typeName,
-                    sprintf('Catching %s is forbidden (matches configured forbidden type %s).', $fqn, $forbidden),
-                );
+            if ($declaredRef->is($forbiddenFqn) || $forbiddenRef->is($declaredFqn)) {
+                return RuleErrorBuilder::message(sprintf(
+                    'catch (%s) would suppress %s, which is forbidden.',
+                    $declaredFqn,
+                    $forbiddenFqn,
+                ))
+                    ->identifier('openemr.forbiddenCatchType')
+                    ->line($typeName->getStartLine())
+                    ->tip('Narrow the catch to a type unrelated to the forbidden one, or re-throw (throw;) after any observation/logging so the failure propagates to the global exception handler.')
+                    ->build();
             }
         }
 
         return null;
-    }
-
-    private function error(Name $typeName, string $message): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message($message)
-            ->identifier('openemr.forbiddenCatchType')
-            ->line($typeName->getStartLine())
-            ->tip('Narrow the catch to \Exception or a more specific subclass. Use "throw;" at the end of the handler if you need to observe/log without swallowing the failure.')
-            ->build();
     }
 }
