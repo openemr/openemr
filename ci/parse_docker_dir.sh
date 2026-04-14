@@ -12,7 +12,7 @@ readonly -A WEBSERVER_OPENEMR_DIRS=(
 # to build configurations for tests in GitHub Actions
 parse() {
   local docker_dir="${1}"
-  local node_version=22
+  local node_version
   local database
   local db
   local webserver
@@ -29,6 +29,9 @@ parse() {
 
   # Format PHP version
   printf -v php '%d.%d' "${php::1}" "${php:1}"
+
+  # Read node version from compose file, default to 22
+  node_version=$(yq '.x-includes."node-version" // "22"' "ci/${docker_dir}/docker-compose.yml")
 
   # Collect docker-compose.yml templates
   selenium_template=$(yq '.x-includes.selenium-template' "ci/${docker_dir}/docker-compose.yml")
