@@ -269,7 +269,6 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
-            http_response_code(400);
             throw new \OpenEMR\Common\System\MissingSiteIdException();
         }
 
