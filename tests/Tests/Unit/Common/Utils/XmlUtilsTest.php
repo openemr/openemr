@@ -16,10 +16,10 @@
 
 namespace OpenEMR\Tests\Unit\Common\Utils;
 
+use OpenEMR\Common\Utils\XmlParseException;
 use OpenEMR\Common\Utils\XmlUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 class XmlUtilsTest extends TestCase
 {
@@ -72,28 +72,28 @@ class XmlUtilsTest extends TestCase
     #[Test]
     public function testLoadStringThrowsOnMalformedXml(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(XmlParseException::class);
         XmlUtils::loadString('<not-valid-xml');
     }
 
     #[Test]
     public function testLoadStringThrowsOnEmptyString(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(XmlParseException::class);
         XmlUtils::loadString('');
     }
 
     #[Test]
     public function testLoadStringThrowsOnNonXmlString(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(XmlParseException::class);
         XmlUtils::loadString('this is not xml at all');
     }
 
     #[Test]
     public function testLoadStringThrowsOnUnclosedTag(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(XmlParseException::class);
         XmlUtils::loadString('<root><child>text</root>');
     }
 
@@ -172,7 +172,7 @@ class XmlUtilsTest extends TestCase
                 $result = XmlUtils::loadString($xxeAttempt);
                 $body = (string) $result;
                 $this->assertStringNotContainsString($sentinel, $body, 'File contents must not appear in output');
-            } catch (RuntimeException) {
+            } catch (XmlParseException) {
                 // Expected: parsing was blocked — this is the secure outcome.
                 $this->addToAssertionCount(1);
             }

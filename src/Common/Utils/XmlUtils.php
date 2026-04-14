@@ -18,7 +18,6 @@
 
 namespace OpenEMR\Common\Utils;
 
-use RuntimeException;
 use SimpleXMLElement;
 
 class XmlUtils
@@ -47,7 +46,7 @@ class XmlUtils
      *
      * @return SimpleXMLElement
      *
-     * @throws RuntimeException If parsing fails, with the first libxml error message included.
+     * @throws XmlParseException If parsing fails, with the first libxml error message included.
      */
     public static function loadString(
         string $xml,
@@ -69,7 +68,7 @@ class XmlUtils
 
         if ($result === false) {
             $firstError = $errors !== [] ? trim($errors[0]->message) : 'unknown error';
-            throw new RuntimeException(
+            throw new XmlParseException(
                 sprintf('Failed to parse XML: %s', $firstError)
             );
         }
@@ -96,7 +95,7 @@ class XmlUtils
     ): ?SimpleXMLElement {
         try {
             return self::loadString($xml, $extraFlags, $class);
-        } catch (RuntimeException) {
+        } catch (XmlParseException) {
             return null;
         }
     }
