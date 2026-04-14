@@ -146,28 +146,40 @@ class XmlUtilsTest extends TestCase
     #[Test]
     public function testLoadStringDoesNotResolveExternalEntities(): void
     {
-        // An XXE payload that attempts to read /etc/passwd via an external entity.
-        // PHP 8+ disables entity substitution by default (LIBXML_NOENT is not set),
-        // so the entity is not expanded. LIBXML_NONET additionally blocks network
-        // access for DTDs/entities. Together these prevent file disclosure and SSRF.
-        $xxeAttempt = <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE root [
-  <!ENTITY xxe SYSTEM "file:///etc/passwd">
-]>
-<root>&xxe;</root>
-XML;
+        $tempFile = tempnam(sys_get_temp_dir(), 'xxe-test-');
+        $this->assertIsString($tempFile, 'Failed to create temporary file for XXE test');
 
-        // loadString should throw (external entity resolution blocked/failed)
-        // OR return an element where the entity body is not the file contents.
+        $sentinel = 'XXE_TEST_SENTINEL_7f4c3d2b';
+        file_put_contents($tempFile, $sentinel);
+
         try {
-            $result = XmlUtils::loadString($xxeAttempt);
-            // If we get here, parsing succeeded but the entity must not have resolved.
-            $body = (string) $result;
-            $this->assertStringNotContainsString('root:', $body, 'File contents must not appear in output');
-        } catch (RuntimeException) {
-            // Expected: parsing was blocked — this is the secure outcome.
-            $this->addToAssertionCount(1);
+            // An XXE payload that attempts to read a temporary file via an external entity.
+            // PHP 8+ disables entity substitution by default (LIBXML_NOENT is not set),
+            // so the entity is not expanded. LIBXML_NONET additionally blocks network
+            // access for DTDs/entities. Together these prevent file disclosure and SSRF.
+            $xxeAttempt = sprintf(
+                <<<'XML'
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE root [
+                  <!ENTITY xxe SYSTEM "file://%s">
+                ]>
+                <root>&xxe;</root>
+                XML,
+                $tempFile
+            );
+
+            try {
+                $result = XmlUtils::loadString($xxeAttempt);
+                $body = (string) $result;
+                $this->assertStringNotContainsString($sentinel, $body, 'File contents must not appear in output');
+            } catch (RuntimeException) {
+                // Expected: parsing was blocked — this is the secure outcome.
+                $this->addToAssertionCount(1);
+            }
+        } finally {
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
         }
     }
 }
