@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Common\System;
 
-class MissingSiteException extends \RuntimeException
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+class MissingSiteException extends BadRequestHttpException
 {
     public function __construct(string $message = "Site directory is not configured. OE_SITE_DIR must be set.", int $code = 0, ?\Throwable $previous = null)
     {
