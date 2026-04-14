@@ -67,6 +67,12 @@ class SafeIncludeResolverTest extends TestCase
         $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, "src/Common\0/file.php"));
     }
 
+    public function testResolveReturnsFalseForStreamWrapper(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'php://filter/resource=composer.json'));
+    }
+
     public function testResolveReturnsFalseForFileOutsideBaseDirViaSymlink(): void
     {
         $projectRoot = dirname(__DIR__, 5);

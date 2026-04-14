@@ -99,6 +99,10 @@ final class SafeIncludeResolver
             return true;
         }
 
+        if (str_contains($path, '://')) {
+            return true;
+        }
+
         // Check each path segment for . or ..
         $segments = preg_split('#[/\\\\]#', $path);
         if (!is_array($segments)) {
