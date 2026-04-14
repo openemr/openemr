@@ -11057,11 +11057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:escapeLimit\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:escape\\(\\) has parameter \\$string with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',

@@ -22718,7 +22718,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string\\|false on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [

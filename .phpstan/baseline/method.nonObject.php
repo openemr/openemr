@@ -8487,17 +8487,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getCurrentOffsetId\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getField\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getLimit\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
 ];

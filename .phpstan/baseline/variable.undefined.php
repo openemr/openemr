@@ -12747,11 +12747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$codetype might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$fe_array might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
@@ -12769,11 +12764,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sellist might not be defined\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$source might not be defined\\.$#',
-    'count' => 7,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [
