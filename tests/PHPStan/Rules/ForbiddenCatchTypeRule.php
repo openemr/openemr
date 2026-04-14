@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Custom PHPStan Rule to Forbid catch Blocks That Would Suppress Specific Types
  *
@@ -19,9 +17,13 @@ declare(strict_types=1);
  * suppress.
  *
  * @package   OpenEMR
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules;
 
