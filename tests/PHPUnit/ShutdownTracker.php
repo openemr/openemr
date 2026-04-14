@@ -33,7 +33,7 @@ class ShutdownTracker implements FinishedSubscriber
 
     public function install(): void
     {
-        register_shutdown_function(function () {
+        register_shutdown_function(function (): void {
             if (!$this->gotFinishedEvent) {
                 error_log("CRITICAL ERROR: Exiting without having received PHPUnit shutdown event");
                 exit(70); // "Internal software error"
