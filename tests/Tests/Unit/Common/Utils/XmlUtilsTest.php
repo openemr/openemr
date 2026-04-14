@@ -140,15 +140,16 @@ class XmlUtilsTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Security: LIBXML_NONET prevents external entity resolution
+    // Security: external entity payloads must not disclose file contents
     // -------------------------------------------------------------------------
 
     #[Test]
     public function testLoadStringDoesNotResolveExternalEntities(): void
     {
         // An XXE payload that attempts to read /etc/passwd via an external entity.
-        // With LIBXML_NONET the external DTD fetch is blocked, so parsing fails or
-        // the entity is left unresolved — either way no file disclosure occurs.
+        // PHP 8+ disables entity substitution by default (LIBXML_NOENT is not set),
+        // so the entity is not expanded. LIBXML_NONET additionally blocks network
+        // access for DTDs/entities. Together these prevent file disclosure and SSRF.
         $xxeAttempt = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE root [

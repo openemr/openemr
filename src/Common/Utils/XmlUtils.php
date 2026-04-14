@@ -28,8 +28,9 @@ class XmlUtils
      *
      * - LIBXML_NONET disables network access during parsing, preventing XXE-based
      *   server-side request forgery via external entities or DTDs.
-     * - LIBXML_NOERROR suppresses error messages from the libxml error buffer
-     *   (errors are still returned via libxml_get_errors() when needed).
+     * - LIBXML_NOERROR suppresses libxml error output during parsing; when
+     *   internal error handling is enabled, errors may still accumulate and be
+     *   retrieved via libxml_get_errors().
      */
     private const DEFAULT_FLAGS = LIBXML_NONET | LIBXML_NOERROR;
 
@@ -57,6 +58,7 @@ class XmlUtils
         $flags = self::DEFAULT_FLAGS | $extraFlags;
 
         $previousErrorHandling = libxml_use_internal_errors(true);
+        libxml_clear_errors();
         try {
             $result = simplexml_load_string($xml, $class, $flags);
             $errors = libxml_get_errors();

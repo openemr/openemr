@@ -132,7 +132,7 @@ class CDADocumentService extends BaseService
         );
         $content = $result->getContent() ?: '';
 
-        if (str_starts_with($content, 'ERROR:')) {
+        if (str_starts_with((string) $content, 'ERROR:')) {
             ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
         }
@@ -276,7 +276,15 @@ class CDADocumentService extends BaseService
             throw new RuntimeException(xlt("CDA stylesheet not found"));
         }
 
-        $xml = XmlUtils::loadString($content);
+        try {
+            $xml = XmlUtils::loadString($content);
+        } catch (RuntimeException $e) {
+            ServiceContainer::getLogger()->error(
+                'Failed to parse CCDA XML for HTML transformation: {error}',
+                ['error' => $e->getMessage()]
+            );
+            throw new RuntimeException(xlt("Failed to parse CCDA XML"), 0, $e);
+        }
 
         $xsl = new DOMDocument();
         if (!$xsl->load($sheet)) {
