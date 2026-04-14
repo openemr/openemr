@@ -56,10 +56,14 @@ class XmlUtils
         // Always enforce LIBXML_NONET; merge caller's extra flags.
         $flags = self::DEFAULT_FLAGS | $extraFlags;
 
-        libxml_use_internal_errors(true);
-        $result = simplexml_load_string($xml, $class, $flags);
-        $errors = libxml_get_errors();
-        libxml_clear_errors();
+        $previousErrorHandling = libxml_use_internal_errors(true);
+        try {
+            $result = simplexml_load_string($xml, $class, $flags);
+            $errors = libxml_get_errors();
+            libxml_clear_errors();
+        } finally {
+            libxml_use_internal_errors($previousErrorHandling);
+        }
 
         if ($result === false) {
             $firstError = $errors !== [] ? trim($errors[0]->message) : 'unknown error';
