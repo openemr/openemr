@@ -123,22 +123,27 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        $post = HttpRestRequest::createFromGlobals()->request->all();
-        if (($post['save_care_team'] ?? null) === 'true') {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-
-            $teamId = ValidationUtils::validateInt($post['team_id'] ?? null);
-            $teamId = $teamId === false ? null : $teamId;
-            $teamName = trim(is_string($post['team_name'] ?? null) ? $post['team_name'] : '');
-            $team = is_array($post['team'] ?? null) ? $post['team'] : [];
-            $teamStatus = trim(is_string($post['team_status'] ?? null) ? $post['team_status'] : 'active');
-
-            if (!$this->pid) {
-                die(xlt("Invalid request."));
-            }
-
-            $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
+        $request = HttpRestRequest::createFromGlobals()->request;
+        if ($request->getString('save_care_team') !== 'true') {
+            return;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+        $teamId = ValidationUtils::validateInt($request->getString('team_id'));
+        $teamId = $teamId === false ? null : $teamId;
+        $teamName = trim($request->getString('team_name'));
+        // `team` is the only field that legitimately arrives as an array
+        // (per-row metadata for each team member). Fall through to
+        // ->all() for that one field.
+        $allPost = $request->all();
+        $team = is_array($allPost['team'] ?? null) ? $allPost['team'] : [];
+        $teamStatus = trim($request->getString('team_status', 'active'));
+
+        if (!$this->pid) {
+            die(xlt("Invalid request."));
+        }
+
+        $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
     }
 
     private function getUserCardSetting($settingName)

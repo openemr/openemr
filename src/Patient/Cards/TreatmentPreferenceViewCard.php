@@ -194,15 +194,15 @@ class TreatmentPreferenceViewCard extends CardModel
         if ($request->getMethod() !== 'POST') {
             return;
         }
-        if ((string) $request->request->get('pref_type', '') !== 'treatment_intervention') {
+        if ($request->request->getString('pref_type') !== 'treatment_intervention') {
             return;
         }
         CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
 
-        $action = (string) $request->request->get('action', '');
+        $action = $request->request->getString('action');
         if ($action === 'save') {
-            $idInput = $request->request->get('id');
-            $id = $idInput !== null && $idInput !== ''
+            $idInput = $request->request->getString('id');
+            $id = $idInput !== ''
                 ? filter_var($idInput, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
                 : null;
             $data = $this->collectPost($request->request->all());  // note: returns patient_id
@@ -214,7 +214,7 @@ class TreatmentPreferenceViewCard extends CardModel
                 $this->flashMessage = xl('Preference saved');
             }
         } elseif ($action === 'delete') {
-            $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT) ?: 0;
+            $id = $request->request->getInt('id');
             if ($id) {
                 $this->service->delete($id);     // method exists
                 $this->flashMessage = xl('Preference deleted');
