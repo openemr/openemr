@@ -22,6 +22,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -76,6 +77,11 @@ class NotificationCronEmailTest extends TestCase
         $GLOBALS['practice_return_email_path'] = 'noreply@openemr.local';
         $GLOBALS['patient_reminder_sender_name'] = 'OpenEMR Test';
         $GLOBALS['oe_enable_email'] = true;
+        // AppDispatch::getServiceType() reads the enable flag from the
+        // OEGlobalsBag, not $GLOBALS, and the factory map keys on
+        // ServiceType::EMAIL->value — setting the bag entry is what makes
+        // getApiService('email') resolve to EmailClient.
+        OEGlobalsBag::getInstance()->set('oe_enable_email', ServiceType::EMAIL->value);
 
         // Session state for ACL check inside the script
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
