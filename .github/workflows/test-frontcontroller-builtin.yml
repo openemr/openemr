@@ -110,50 +110,15 @@ jobs:
           SELENIUM_BASE_URL: http://${{ steps.host.outputs.addr }}:8080
           SELENIUM_HOST: localhost
           SELENIUM_USE_GRID: "true"
-        run: |
-          mkdir -p /tmp/xdebug
-          cat > /tmp/trace_start.php <<'PHP'
-          <?php
-          if (function_exists('xdebug_start_trace')) {
-              xdebug_start_trace('/tmp/xdebug/phpunit');
-          }
-          PHP
-          XDEBUG_MODE=trace php \
-              -d memory_limit=4G \
-              -d xdebug.mode=trace \
-              -d xdebug.trace_format=0 \
-              -d xdebug.collect_params=1 \
-              -d xdebug.use_compression=0 \
-              -d auto_prepend_file=/tmp/trace_start.php \
-              vendor/bin/phpunit \
-                --testsuite ${{ matrix.suite }} \
-                --log-junit junit-${{ matrix.suite }}.xml
-          echo "phpunit_exit=$?"
-          echo "--- /tmp/xdebug listing ---"
-          ls -la /tmp/xdebug/ || true
-          TRACE=/tmp/xdebug/phpunit.xt
-          if [ -f "$TRACE" ]; then
-            echo "--- exit/die calls in $TRACE ---"
-            grep -nE -- '-> (exit|die)\(' "$TRACE" || true
-            echo "--- tail of $TRACE ---"
-            tail -n 120 "$TRACE" || true
-          fi
-
-      - name: Upload xdebug trace
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: xdebug-trace-${{ matrix.suite }}
-          path: /tmp/xdebug/phpunit.xt
-          if-no-files-found: ignore
+        run: vendor/bin/phpunit --testsuite ${{ matrix.suite }} --log-junit junit-${{ matrix.suite }}.xml
 
       - name: Show server stdout
         if: always()
-        run: cat "${RUNNER_TEMP}/php-server.out.log"
+        run: cat "${RUNNER_TEMP}/php-server.out.log" || true
 
       - name: Show server stderr
         if: always()
-        run: cat "${RUNNER_TEMP}/php-server.err.log"
+        run: cat "${RUNNER_TEMP}/php-server.err.log" || true
 
       # - name: Upload test results
       #   if: always()
