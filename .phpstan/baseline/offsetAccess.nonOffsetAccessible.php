@@ -19903,7 +19903,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 2 on mixed\\.$#',
-    'count' => 11,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -50495,11 +50495,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'to\' on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'COUNT\\(\\*\\)\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
