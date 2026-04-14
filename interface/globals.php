@@ -270,7 +270,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 require_once("$srcdir/auth.inc.php");
             }
             http_response_code(400);
-            die("Site ID is missing from session data!");
+            throw new \OpenEMR\Common\System\MissingSiteIdException();
         }
 
         $tmp = $_SERVER['HTTP_HOST'];
