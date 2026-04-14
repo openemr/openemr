@@ -27,6 +27,10 @@ This file configures the kind that does not require initialization.
          failOnPhpunitDeprecation="true"
          testdox="false">
 
+  <extensions>
+    <bootstrap class="OpenEMR\PHPUnit\Extension" />
+  </extensions>
+
   <php>
     <env name="ENV" value="test" />
     <ini name="error_reporting" value="-1"/>
