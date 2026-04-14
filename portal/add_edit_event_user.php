@@ -243,7 +243,10 @@ if ($form_action === "save") {
             $currentDay = (int) date('N', $baseTimestamp); // 1=Mon .. 7=Sun
             if ($currentDay !== $repeatTargetDay) {
                 $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
-                $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", $baseTimestamp));
+                $adjustedTimestamp = strtotime("+{$daysUntilTarget} days", $baseTimestamp);
+                if ($adjustedTimestamp !== false) {
+                    $event_date = date('Y-m-d', $adjustedTimestamp);
+                }
             }
         }
     }
