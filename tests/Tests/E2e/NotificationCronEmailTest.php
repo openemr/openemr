@@ -53,6 +53,7 @@ class NotificationCronEmailTest extends TestCase
 
         // Module source files are not in the main autoloader
         require_once $faxSmsPath . '/src/Enums/NotificationChannel.php';
+        require_once $faxSmsPath . '/src/Enums/ServiceType.php';
         require_once $faxSmsPath . '/src/Controller/AppDispatch.php';
         require_once $faxSmsPath . '/src/Controller/EmailClient.php';
         require_once $faxSmsPath . '/src/Controller/NotificationTaskManager.php';
