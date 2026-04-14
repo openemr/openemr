@@ -19,7 +19,7 @@ use PHPUnit\Event\Application\{
 
 /**
  * This is designed as a failsafe in case the SUT calls exit() and causes the
- * tests to abort. If the PHPUnit shutdown event wasn't recevied, force
+ * tests to abort. If the PHPUnit shutdown event wasn't received, force
  * a nonzero exit code. This should ensure the test suite fails as intended.
  */
 class ShutdownTracker implements FinishedSubscriber
@@ -35,7 +35,7 @@ class ShutdownTracker implements FinishedSubscriber
     {
         register_shutdown_function(function () {
             if (!$this->gotFinishedEvent) {
-                error_log("CRITICAL ERROR: Exiting without having recevied PHPUnit shutdown event");
+                error_log("CRITICAL ERROR: Exiting without having received PHPUnit shutdown event");
                 exit(70); // "Internal software error"
             }
         });
