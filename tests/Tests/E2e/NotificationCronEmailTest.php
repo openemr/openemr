@@ -44,6 +44,16 @@ class NotificationCronEmailTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
+        self::markTestSkipped(
+            'Loading rc_sms_notification.php pulls in the full notification '
+            . 'cron pipeline, which requires the faxsms module schema '
+            . '(module_faxsms_credentials etc.), a configured email service, '
+            . 'an authenticated session, and ACL setup. The module is not '
+            . 'installed in the CI database. Re-enable once either the test '
+            . 'env installs the faxsms module or the dedup logic is testable '
+            . 'without require_once-ing the cron script.'
+        );
+
         if (self::$functionsLoaded) {
             return;
         }
