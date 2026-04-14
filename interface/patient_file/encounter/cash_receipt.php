@@ -85,7 +85,6 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
  $formsBaseDir = realpath(OEGlobalsBag::getInstance()->getString('incdir') . "/forms");
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
-    check_file_dir_name($result["formdir"]);
     if ($formsBaseDir === false || $result["formdir"] === '.' || $result["formdir"] === '..') {
         continue;
     }
