@@ -21,6 +21,7 @@ if (!class_exists(Extension::class)) {
 
 register_shutdown_function(function (): void {
     if (!Extension::isBootstrapped()) {
+        // @phpstan-ignore openemr.forbiddenErrorLog (System logger not available here)
         error_log("CRITICAL ERROR: Safety-net bootstrap did not load, unsafe test run");
         exit(70);
     }

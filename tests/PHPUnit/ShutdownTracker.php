@@ -35,6 +35,7 @@ class ShutdownTracker implements FinishedSubscriber
     {
         register_shutdown_function(function (): void {
             if (!$this->gotFinishedEvent) {
+                // @phpstan-ignore openemr.forbiddenErrorLog (System logger not available here)
                 error_log("CRITICAL ERROR: Exiting without having received PHPUnit shutdown event");
                 exit(70); // "Internal software error"
             }
