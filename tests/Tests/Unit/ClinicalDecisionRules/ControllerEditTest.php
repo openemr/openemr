@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
@@ -18,6 +19,13 @@ class ControllerEditTest extends TestCase
 
     protected function setUp(): void
     {
+        // ControllerEdit reaches into `$_GET`/`$_POST` via `Common::get()`/
+        // `Common::post()`, which now caches the Symfony Request built from
+        // those globals. Each test in this class mutates the superglobals
+        // before invoking the controller, so drop the snapshot up front
+        // to make sure those mutations are seen.
+        Common::resetRequestCache();
+
         $this->ruleManagerMock = $this->createMock(RuleManager::class);
         $this->codeManagerMock = $this->createMock(CodeManager::class);
 
