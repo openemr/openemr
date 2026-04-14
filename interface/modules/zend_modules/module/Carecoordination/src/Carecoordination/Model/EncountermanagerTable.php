@@ -199,7 +199,7 @@ class EncountermanagerTable
     private function getCcdaAsPdf(string $ccda)
     {
         $dompdf = new Dompdf();
-        $dompdf->loadHtml($this->getCcdaAsHTML((string) $ccda));
+        $dompdf->loadHtml($this->getCcdaAsHTML($ccda));
         $dompdf->render();
         return $dompdf->output();
     }
