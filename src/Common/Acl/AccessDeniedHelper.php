@@ -91,6 +91,7 @@ class AccessDeniedHelper
         if ($beforeExit !== null) {
             $beforeExit();
         }
+        error_log((string)(new \Exception('stack trace')));
 
         exit(1);
     }
