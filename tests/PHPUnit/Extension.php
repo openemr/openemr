@@ -22,6 +22,12 @@ use PHPUnit\TextUI\Configuration\Configuration;
  */
 class Extension implements PHPUnitExtension
 {
+    /**
+     * Tracks if bootstrapping occurred. PHPUnit itself instantiates this class
+     * so we can't track the setup ourselves.
+     */
+    private static bool $isBootstrapped = false;
+
     public function bootstrap(
         Configuration $configuration,
         Facade $facade,
@@ -30,5 +36,12 @@ class Extension implements PHPUnitExtension
         $shutdownTracker = new ShutdownTracker();
         $shutdownTracker->install();
         $facade->registerSubscriber($shutdownTracker);
+
+        self::$isBootstrapped = true;
+    }
+
+    public static function isBootstrapped(): bool
+    {
+        return self::$isBootstrapped;
     }
 }
