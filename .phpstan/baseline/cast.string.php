@@ -1118,7 +1118,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 55,
+    'count' => 54,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [

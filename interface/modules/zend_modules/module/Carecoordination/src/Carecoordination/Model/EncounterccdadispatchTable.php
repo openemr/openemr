@@ -3571,7 +3571,11 @@ class EncounterccdadispatchTable
         foreach ($formTables as $formTables_details) {
             /***************Fetching the form id for the patient***************/
 
-            $formDir = (string) $formTables_details[2];
+            if (!is_string($formTables_details[2])) {
+                continue;
+            }
+
+            $formDir = $formTables_details[2];
 
             $query = "select form_id,encounter from forms where pid = ? and formdir = ? AND deleted=0";
                         $form_ids = QueryUtils::fetchRecords($query, [$pid, $formDir]);
