@@ -16082,36 +16082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 1 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 2 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 3 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 4 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 5 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and 6 results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \' H\\=\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
