@@ -16,6 +16,9 @@
 # license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 
 services:
+- class: OpenEMR\PHPStan\Rules\ForbiddenCatchTypeRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenClassesRule
   tags:
   - phpstan.rules.rule
@@ -41,6 +44,9 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenCurlFunctionsRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenExitInCatchFinallyRule
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenGlobalNamespaceRule
