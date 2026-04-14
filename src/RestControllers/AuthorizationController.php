@@ -784,7 +784,7 @@ class AuthorizationController
             $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
             $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
             $session->set('authRequestSerial', $this->authRequestSerial);
-        } catch (\Throwable $e) {
+        } catch (\JsonException $e) {
             echo $e;
         }
     }

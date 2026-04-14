@@ -26,6 +26,7 @@ namespace OpenEMR\Services\Background;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Core\OEGlobalsBag;
@@ -109,7 +110,7 @@ class BackgroundServiceRunner
 
             try {
                 $lockFailureReason = $this->acquireLock($service, $force);
-            } catch (\Throwable) {
+            } catch (SqlQueryException) {
                 $results[] = ['name' => $name, 'status' => 'error'];
                 continue;
             }

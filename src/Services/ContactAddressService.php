@@ -11,6 +11,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -415,7 +416,7 @@ class ContactAddressService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactAddressId, $contactId]);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error setting primary address", ['error' => $e->getMessage()]);
             return false;
         }
