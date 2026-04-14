@@ -22,7 +22,7 @@ class MissingSiteIdException extends MissingSiteException
 {
     public function __construct(
         string $message = 'Site ID is missing from session data.',
-        int $code = 0,
+        int $code = 400,
         ?\Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
