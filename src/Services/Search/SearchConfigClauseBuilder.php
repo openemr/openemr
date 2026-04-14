@@ -50,14 +50,16 @@ class SearchConfigClauseBuilder
     }
     public static function buildQueryPaginationClause(QueryPagination|null $pagination): string
     {
-        $clause = "";
-        $limit = $pagination != null ? $pagination->getLimit() : 0;
-        if ($limit > 0) { // we do nothing if its 0
-            // we go one beyond the pagination limit to see if we need to add a next link
-            $paginationLimit = $pagination->getLimit() + 1;
-            $clause = "LIMIT " . $paginationLimit . " OFFSET " . (is_numeric($pagination->getCurrentOffsetId()) ? (int) $pagination->getCurrentOffsetId() : 0);
+        if ($pagination === null) {
+            return "";
         }
-
-        return $clause;
+        $limit = $pagination->getLimit();
+        if ($limit <= 0) {
+            return "";
+        }
+        // we go one beyond the pagination limit to see if we need to add a next link
+        $paginationLimit = $limit + 1;
+        $offset = is_numeric($pagination->getCurrentOffsetId()) ? (int) $pagination->getCurrentOffsetId() : 0;
+        return "LIMIT " . $paginationLimit . " OFFSET " . $offset;
     }
 }

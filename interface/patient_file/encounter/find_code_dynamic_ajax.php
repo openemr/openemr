@@ -36,16 +36,19 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 $searchTerm = filter_input(INPUT_GET, 'sSearch') ?? '';
 
 // What we are picking from: codes, fields, lists or groups
-$what = $_GET['what'];
+$what = filter_input(INPUT_GET, 'what') ?? '';
+$codetype = filter_input(INPUT_GET, 'codetype') ?? '';
+$inactive = filter_input(INPUT_GET, 'inactive') ?? '';
+$source = filter_input(INPUT_GET, 'source') ?? '';
+$layoutIdIn = filter_input(INPUT_GET, 'layout_id') ?? '';
 $layout_id = '';
 
 if ($what == 'codes') {
-    $codetype = $_GET['codetype'];
     $prod = $codetype == 'PROD';
     $ncodetype = $code_types[$codetype]['id'];
-    $include_inactive = !empty($_GET['inactive']);
+    $include_inactive = $inactive !== '';
 } elseif ($what == 'fields') {
-    $source = empty($_GET['source']) ? 'D' : $_GET['source'];
+    $source = $source !== '' ? $source : 'D';
     if ($source == 'D') {
         $layout_id = 'DEM';
     } elseif ($source == 'H') {
@@ -54,8 +57,8 @@ if ($what == 'codes') {
         $layout_id = 'LBF%';
     }
 } elseif ($what == 'groups') {
-    if (!empty($_GET['layout_id'])) {
-        $layout_id = $_GET['layout_id'];
+    if ($layoutIdIn !== '') {
+        $layout_id = $layoutIdIn;
     }
 }
 

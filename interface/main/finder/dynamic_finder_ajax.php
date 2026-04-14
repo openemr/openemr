@@ -30,7 +30,11 @@ use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
-$searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
+$getSearchAny = filter_input(INPUT_GET, 'search_any') ?? '';
+$getSSearchRaw = filter_input(INPUT_GET, 'sSearch') ?? '';
+$getSColumns = filter_input(INPUT_GET, 'sColumns') ?? '';
+$getSearchType = filter_input(INPUT_GET, 'searchType') ?? '';
+$searchAny = ($getSearchAny !== '' && $getSSearchRaw === '') ? $getSearchAny : "";
 
 // With the ColReorder or ColReorderWithResize plug-in, the expected column
 // ordering may have been changed by the user.  So we cannot depend on
@@ -50,7 +54,7 @@ if ($searchAny) {
         $aColumns[] = $row['field_id'];
     }
 } else {
-    $aColumns = explode(',', (string) $_GET['sColumns']);
+    $aColumns = explode(',', $getSColumns);
 }
 // Paging parameters.  -1 means not applicable.
 //
@@ -64,7 +68,7 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true" ?  true : false;
+$searchMethodInPatientList = $getSearchType === "true";
 
 // Column sorting parameters.
 //
