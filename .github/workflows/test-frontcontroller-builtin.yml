@@ -62,6 +62,16 @@ jobs:
         run: composer install --prefer-dist --no-progress
         working-directory: .
 
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Build front-end assets
+        run: |
+          npm ci
+          npm run build
+
       - name: Install OpenEMR
         env:
           OPENEMR_ENABLE_INSTALLER_AUTO: "1"
