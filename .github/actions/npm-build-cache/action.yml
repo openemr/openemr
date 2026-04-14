@@ -1,0 +1,39 @@
+name: npm build with caching
+description: Restores build outputs from cache, runs npm build if needed, saves cache
+
+inputs:
+  node-version:
+    description: Node.js version (used in cache key)
+    required: true
+
+outputs:
+  cache-hit:
+    description: Whether the build cache was an exact hit
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    # hashFiles() doesn't work reliably in composite actions due to path
+    # resolution issues. Compute hash manually instead.
+    # See: https://github.com/actions/runner/issues/3765
+    - name: Compute lockfile hash
+      id: hash
+      shell: bash
+      run: |
+        hash=$(cat package-lock.json | sha256sum | cut -d' ' -f1)
+        echo "lockfile=$hash" >> "$GITHUB_OUTPUT"
+
+    - name: Cache build outputs
+      id: cache
+      uses: actions/cache@v5
+      with:
+        key: ${{ runner.os }}-build-outputs-${{ inputs.node-version }}-${{ steps.hash.outputs.lockfile }}
+        path: |
+          public/assets/
+          public/themes/
+
+    - name: Build assets
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm run build
