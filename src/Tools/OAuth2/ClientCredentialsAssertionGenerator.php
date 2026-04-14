@@ -9,6 +9,11 @@ use Ramsey\Uuid\Uuid;
 
 class ClientCredentialsAssertionGenerator
 {
+    /**
+     * @param non-empty-string $oauthTokenUrl
+     * @param non-empty-string $clientId
+     * @return non-empty-string
+     */
     public static function generateAssertion(Key $privateKey, Key $publicKey, string $oauthTokenUrl, string $clientId): string
     {
         $configuration = Configuration::forAsymmetricSigner(
@@ -19,7 +24,7 @@ class ClientCredentialsAssertionGenerator
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 
-        $jti = Uuid::uuid4();
+        $jti = Uuid::uuid4()->toString();
 
         $now   = new \DateTimeImmutable();
         $token = $configuration->builder()
@@ -38,6 +43,7 @@ class ClientCredentialsAssertionGenerator
             ->relatedTo($clientId)
             ->getToken($configuration->signer(), $configuration->signingKey());
         $assertion = $token->toString(); // The string representation of the object is a JWT string
+        assert($assertion !== '');
         return $assertion;
     }
 }

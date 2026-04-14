@@ -62,17 +62,25 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     {
         $this->initJwtConfiguration();
 
+        $clientId = $this->getClient()->getIdentifier();
+        assert($clientId !== '');
+        $tokenId = $this->getIdentifier();
+        assert(is_string($tokenId) && $tokenId !== '');
+        $userId = (string) $this->getUserIdentifier();
+        assert($userId !== '');
+
         $builder = $this->jwtConfiguration->builder()
-            ->permittedFor($this->getClient()->getIdentifier())
-            ->identifiedBy($this->getIdentifier())
+            ->permittedFor($clientId)
+            ->identifiedBy($tokenId)
             ->issuedAt(new DateTimeImmutable())
             ->canOnlyBeUsedAfter(new DateTimeImmutable())
             ->expiresAt($this->getExpiryDateTime())
-            ->relatedTo((string) $this->getUserIdentifier())
+            ->relatedTo($userId)
             ->withClaim('scopes', $this->getScopes());
         // add issuer to token
-        if ($this->getIssuer() != null) {
-            $builder = $builder->issuedBy($this->getIssuer());
+        $issuer = $this->getIssuer();
+        if ($issuer !== null && $issuer !== '') {
+            $builder = $builder->issuedBy($issuer);
         }
         return $builder->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
     }

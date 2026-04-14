@@ -59,7 +59,7 @@ class RsaSha384Signer implements Signer
     /**
      * Returns the algorithm id
      *
-     * @return string
+     * @return non-empty-string
      */
     public function algorithmId(): string
     {
@@ -80,7 +80,7 @@ class RsaSha384Signer implements Signer
     /**
      * {@inheritdoc}
      */
-    public function sign($payload, $key): string
+    public function sign(string $payload, Key $key): string
     {
         // we only handle signature verification not signature creation.
         throw new \BadMethodCallException("This class can only be used for signature verification not signing");

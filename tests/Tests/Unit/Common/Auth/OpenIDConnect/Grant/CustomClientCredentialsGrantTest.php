@@ -17,7 +17,6 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -52,7 +51,9 @@ class CustomClientCredentialsGrantTest extends TestCase
     {
 
         $clientEntity = $this->getClientEntityForTest();
-        $jwt = $this->createJWTForKeys($clientEntity->getIdentifier(), self::AUDIENCE);
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE);
         $clientEntity->setJwks($this->loadJSONFile("jwk-public-valid.json"));
         // setup our fake access token & our repo
         $accessToken = new AccessTokenEntity();
@@ -92,7 +93,9 @@ class CustomClientCredentialsGrantTest extends TestCase
     public function testValidResponseForClientWithJwksUri(): void
     {
         $clientEntity = $this->getClientEntityForTest();
-        $jwt = $this->createJWTForKeys($clientEntity->getIdentifier(), self::AUDIENCE);
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE);
 
         $jwks = $this->loadJSONFile("jwk-public-valid.json");
         $jwkUri = 'https://localhost:9000/some-jwk-uri';
@@ -276,14 +279,18 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $jsonData;
     }
 
-    private function createJWTForKeys($iss, $aud)
+    /**
+     * @param non-empty-string $iss
+     * @param non-empty-string $aud
+     */
+    private function createJWTForKeys(string $iss, string $aud): string
     {
 
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
-            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
-            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
+            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
+            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 

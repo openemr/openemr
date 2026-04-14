@@ -17,17 +17,20 @@ namespace OpenEMR\Services;
 use DateInterval;
 use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
+use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\BC\ServiceContainer;
@@ -69,7 +72,7 @@ class JWTClientAuthenticationService
     /**
      * JWTClientAuthenticationService constructor
      *
-     * @param string $authTokenUrl The OAuth2 token endpoint URL to be used as audience
+     * @param non-empty-string $authTokenUrl The OAuth2 token endpoint URL to be used as audience
      * @param ClientRepository $clientRepository Repository for client operations
      * @param JWTRepository $jwtRepository Repository for JWT tracking (replay prevention)
      * @param ClientInterface|null $httpClient HTTP client for fetching JWKS
@@ -155,13 +158,12 @@ class JWTClientAuthenticationService
             );
         }
 
-        if (empty($jwt)) {
+        if (!is_string($jwt) || $jwt === '') {
             throw OAuthServerException::invalidRequest('client_assertion', 'Client assertion is required');
         }
 
         try {
-            $configuration = Configuration::forUnsecuredSigner();
-            $token = $configuration->parser()->parse($jwt);
+            $token = (new Parser(new JoseEncoder()))->parse($jwt);
 
             if (!$token instanceof Plain) {
                 throw OAuthServerException::invalidClient($request);
@@ -172,7 +174,7 @@ class JWTClientAuthenticationService
             // Both 'sub' and 'iss' should contain the client_id per RFC 7523
             $clientId = $claims->get('sub');
 
-            if (empty($clientId)) {
+            if (!is_string($clientId) || $clientId === '') {
                 $this->logger->error('JWT assertion missing required sub claim');
                 throw OAuthServerException::invalidClient($request);
             }
@@ -240,6 +242,14 @@ class JWTClientAuthenticationService
 
         $params = (array) $request->getParsedBody();
         $jwt = $params['client_assertion'] ?? '';
+        if (!is_string($jwt) || $jwt === '') {
+            $this->logger->error('JWT client assertion is missing or empty', ['client_id' => $clientId]);
+            throw OAuthServerException::invalidClient($request);
+        }
+        if (!is_string($clientId) || $clientId === '') {
+            $this->logger->error('Client identifier is missing or invalid');
+            throw OAuthServerException::invalidClient($request);
+        }
 
         try {
             // Get the JSON Web Key Set for signature validation
@@ -250,11 +260,9 @@ class JWTClientAuthenticationService
             );
 
             // Configure JWT validation per RFC 7523 Section 3
-            $configuration = Configuration::forUnsecuredSigner();
-
-            // Set up validation constraints
-            $configuration->setValidationConstraints(
-            // 1. Clock validation with 1 minute drift tolerance
+            /** @var list<Constraint> $constraints */
+            $constraints = [
+                // 1. Clock validation with 1 minute drift tolerance
                 new LooseValidAt(
                     new SystemClock(new \DateTimeZone(\date_default_timezone_get())),
                     new DateInterval('PT' . self::MAX_CLOCK_DRIFT_MINUTES . 'M')
@@ -266,11 +274,11 @@ class JWTClientAuthenticationService
                 // 4. Audience must be the token endpoint
                 new PermittedFor($this->authTokenUrl),
                 // 5. JTI uniqueness check for replay prevention
-                new UniqueID($this->jwtRepository)
-            );
+                new UniqueID($this->jwtRepository),
+            ];
 
             // Parse the JWT
-            $token = $configuration->parser()->parse($jwt);
+            $token = (new Parser(new JoseEncoder()))->parse($jwt);
 
             $this->logger->debug(
                 'Parsed JWT token',
@@ -284,12 +292,9 @@ class JWTClientAuthenticationService
             // Additional validations per SMART Backend Services
             $this->performAdditionalValidations($token, $clientId);
 
-            // Validate all constraints
-            $constraints = $configuration->validationConstraints();
-
             try {
                 // Note: @ suppresses phpseclib RSA validation notice that gets printed to screen
-                @$configuration->validator()->assert($token, ...$constraints);
+                @(new Validator())->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
                 $this->logger->error(
                     'JWT failed validation constraints',

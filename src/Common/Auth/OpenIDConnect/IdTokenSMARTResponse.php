@@ -162,13 +162,19 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $claimsFormatter = ChainedFormatter::withUnixTimestampDates();
         $builder = new Builder(new JoseEncoder(), $claimsFormatter);
 
+        $clientId = $accessToken->getClient()->getIdentifier();
+        assert($clientId !== '');
+        $issuer = $this->globalsBag->get('site_addr_oath') . $this->globalsBag->getKernel()->getWebRoot() . "/oauth2/" . $this->session->get('site_id');
+        $userId = $userEntity->getIdentifier();
+        assert(is_string($userId) && $userId !== '');
+
         // Add required id_token claims
         $builder = $builder
-            ->permittedFor($accessToken->getClient()->getIdentifier())
-            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->getKernel()->getWebRoot() . "/oauth2/" . $this->session->get('site_id'))
+            ->permittedFor($clientId)
+            ->issuedBy($issuer)
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
-            ->relatedTo($userEntity->getIdentifier());
+            ->relatedTo($userId);
         if ($this->session->has("nonce")) {
             $nonce = $this->session->get("nonce");
             $this->getSystemLogger()->debug("IdTokenSMARTResponse->getBuilder() nonce found in session", ["nonce" => $nonce]);

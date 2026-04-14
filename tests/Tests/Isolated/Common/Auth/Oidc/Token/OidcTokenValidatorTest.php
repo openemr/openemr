@@ -119,6 +119,15 @@ final class OidcTokenValidatorTest extends TestCase
         ], JSON_THROW_ON_ERROR));
     }
 
+    /**
+     * @param non-empty-string|null $issuer
+     * @param non-empty-string|null $audience
+     * @param non-empty-string|null $kid
+     * @param non-empty-string|null $subject
+     * @param non-empty-string|null $email
+     * @param non-empty-string|null $name
+     * @param non-empty-string|null $jti
+     */
     private function buildToken(
         ?string $issuer = self::ISSUER,
         ?string $audience = self::AUDIENCE,

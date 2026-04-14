@@ -67,7 +67,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
         }
         $clientId = $input->getOption('issuer');
         $oauthTokenUrl = $input->getOption('oauth-token-url');
-        if (empty($clientId) || empty($oauthTokenUrl)) {
+        if (!is_string($clientId) || $clientId === '' || !is_string($oauthTokenUrl) || $oauthTokenUrl === '') {
             $output->writeln("Missing required arguments.");
             $output->writeln($this->getSynopsis());
             return Command::FAILURE;
@@ -81,7 +81,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 
-        $jti = Uuid::uuid4();
+        $jti = Uuid::uuid4()->toString();
 
         $now   = new \DateTimeImmutable();
         $token = $configuration->builder()

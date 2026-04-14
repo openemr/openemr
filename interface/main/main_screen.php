@@ -377,7 +377,7 @@ if (isset($_POST['new_login_session_management'])) {
     // This is a new login, so create a new session id and remove the old session
     $session->migrate(true);
     // Also need to delete clearPass from memory (not present for OIDC logins)
-    if (filter_input(INPUT_POST, 'clearPass') !== null) { // @phpstan-ignore openemr.forbiddenRequestGlobals
+    if (filter_input(INPUT_POST, 'clearPass') !== null) {
         if (function_exists('sodium_memzero')) {
             sodium_memzero($_POST["clearPass"]);
         } else {

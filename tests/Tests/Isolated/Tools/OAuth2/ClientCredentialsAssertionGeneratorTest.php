@@ -86,7 +86,6 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
             $clientId
         );
 
-        $this->assertIsString($assertion);
         $this->assertNotEmpty($assertion);
 
         // JWT should have three parts separated by dots
@@ -383,6 +382,7 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
             $this->privateKey,
             $this->publicKey,
             $oauthTokenUrl,
+            /** @phpstan-ignore argument.type (intentionally testing runtime behavior with empty string, violating the non-empty-string contract) */
             $clientId
         );
 
@@ -403,6 +403,7 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $this->privateKey,
             $this->publicKey,
+            /** @phpstan-ignore argument.type (intentionally testing runtime behavior with empty string, violating the non-empty-string contract) */
             $oauthTokenUrl,
             $clientId
         );

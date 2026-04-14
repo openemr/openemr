@@ -21,8 +21,8 @@ final readonly class OidcValidationParameters
     private const DEFAULT_MAX_TOKEN_AGE_SECONDS = 86400; // 24 hours
 
     /**
-     * @param string $expectedIssuer     The expected iss claim (e.g. "https://accounts.google.com").
-     * @param string $expectedAudience   The expected aud claim (your client ID).
+     * @param non-empty-string $expectedIssuer     The expected iss claim (e.g. "https://accounts.google.com").
+     * @param non-empty-string $expectedAudience   The expected aud claim (your client ID).
      * @param int    $clockSkewSeconds   Allowed clock skew for exp/iat/nbf validation.
      * @param int    $maxTokenAgeSeconds Maximum acceptable age based on iat claim.
      * @param list<string> $allowedAlgorithms Accepted signing algorithms.

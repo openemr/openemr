@@ -121,9 +121,12 @@ class JsonWebKeySet implements Key
         }
     }
 
-    /** @return string */
+    /** @return non-empty-string */
     public function contents(): string
     {
+        if ($this->content === '') {
+            throw new JWKValidatorException('JWKS content is empty');
+        }
         return $this->content;
     }
 

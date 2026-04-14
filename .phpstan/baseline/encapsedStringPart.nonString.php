@@ -4892,16 +4892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$oauthTokenUrl \\(list\\<mixed\\>\\|string\\|false\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$oauthTokenUrl \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionSymfonyCommand.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$clientId \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',

@@ -676,8 +676,12 @@ class AuthorizationController
         );
 
         // Create JWT authentication service for use by grants
+        $tokenUrl = $this->getServerConfig()->getTokenUrl();
+        if ($tokenUrl === '') {
+            throw new \RuntimeException('OAuth2 token URL is not configured');
+        }
         $jwtAuthService = new JWTClientAuthenticationService(
-            $this->getServerConfig()->getTokenUrl(), // Use token URL as audience
+            $tokenUrl, // Use token URL as audience
             $this->getClientRepository(),
             new JWTRepository(),
             null // HTTP client will be created as needed

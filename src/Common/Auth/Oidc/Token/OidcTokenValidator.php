@@ -28,18 +28,20 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Auth\Oidc\Token;
 
 use Lcobucci\Clock\Clock;
-use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsSha256;
 use Lcobucci\JWT\Signer\Rsa\Sha384 as RsSha384;
 use Lcobucci\JWT\Signer\Rsa\Sha512 as RsSha512;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Math\BigInteger;
@@ -67,12 +69,13 @@ final readonly class OidcTokenValidator
         string $jwksUri,
         OidcValidationParameters $parameters,
     ): ValidatedToken {
-        /** @phpstan-ignore staticMethod.deprecated (used only for parsing, not signing — no non-deprecated alternative in lcobucci/jwt v4.x) */
-        $configuration = Configuration::forUnsecuredSigner();
+        if ($idToken === '') {
+            throw new OidcTokenValidationException('ID token is empty');
+        }
 
         // Step 1: Parse the JWT
         try {
-            $token = $configuration->parser()->parse($idToken);
+            $token = (new Parser(new JoseEncoder()))->parse($idToken);
         } catch (\Throwable $e) {
             throw new OidcTokenValidationException('Failed to parse ID token', 0, $e);
         }
@@ -119,7 +122,7 @@ final readonly class OidcTokenValidator
         ];
 
         try {
-            $configuration->validator()->assert($token, ...$constraints);
+            (new Validator())->assert($token, ...$constraints);
         } catch (RequiredConstraintsViolated $e) {
             throw new OidcTokenValidationException('Token validation failed', 0, $e);
         }
