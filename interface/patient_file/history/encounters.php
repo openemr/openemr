@@ -226,12 +226,10 @@ function toencounter(rawdata) {
 
 function todocument(docid) {
   const params = new URLSearchParams({
-    doc_id: docid,
-    document: '',
     patient_id: <?php echo js_escape($pid); ?>,
-    view: ''
+    doc_id: docid
   });
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
+  const h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&' + params;
   top.restoreSession();
   location.href = h;
 }
