@@ -25,6 +25,7 @@ This file configures the kind that does not require initialization.
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnPhpunitDeprecations="true"
          failOnPhpunitDeprecation="true"
+         failOnPhpunitWarning="true"
          testdox="false">
 
   <extensions>
