@@ -19,7 +19,6 @@ use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
-use OpenEMR\Common\Auth\Oidc\Token\ValidatedToken;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
 use phpseclib3\Crypt\RSA;
 use PHPUnit\Framework\TestCase;

@@ -21,7 +21,11 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Utils\HttpUtils;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -49,12 +53,15 @@ class JsonWebKeySet implements Key
      */
     private $httpClient;
 
-    private $jwks = [];
+    /** @var list<object> */
+    private array $jwks = [];
 
     /**
      * @var LoggerInterface
      */
     private $logger;
+
+    private ?string $jwksUri = null;
 
     public function __construct(
         ClientInterface $httpClient,
@@ -73,6 +80,7 @@ class JsonWebKeySet implements Key
         }
         $content = $jwks;
         if (!empty($jwks_uri) && is_string($jwks_uri)) {
+            $this->jwksUri = $jwks_uri;
             $content = $this->getJWKFromUriWithCache($jwks_uri);
         }
 
@@ -81,10 +89,147 @@ class JsonWebKeySet implements Key
         if (!property_exists($jwks, 'keys')) {
             throw new JWKValidatorException("Malformed jwks missing keys property");
         }
-        $this->jwks = $jwks->keys;
+        $this->jwks = $this->extractKeys($jwks);
 
         $this->content = $content;
         $this->passphrase = $passphrase;
+    }
+
+    /**
+     * Narrow the decoded JWKS document's "keys" array to a list of objects.
+     *
+     * @return list<object>
+     */
+    private function extractKeys(mixed $decoded): array
+    {
+        if (!is_object($decoded) || !property_exists($decoded, 'keys') || !is_array($decoded->keys)) {
+            return [];
+        }
+
+        $keys = [];
+        foreach ($decoded->keys as $key) {
+            if (is_object($key)) {
+                $keys[] = $key;
+            }
+        }
+        return $keys;
+    }
+
+    /**
+     * Force-refresh the JWKS from its URI, bypassing the cache read path.
+     *
+     * Intended for key-rotation scenarios: when a token's kid isn't present
+     * in the currently-loaded JWKS, a fresh fetch may bring newly rotated
+     * keys. Cache is re-populated on success. No-op when the set was
+     * constructed from inline JWKS content (no URI to refresh from).
+     *
+     * @throws JWKValidatorException If the re-fetched document is malformed.
+     */
+    public function refresh(): void
+    {
+        if ($this->jwksUri === null) {
+            return;
+        }
+
+        $json = $this->getJWKFromUri($this->jwksUri);
+
+        if ($this->cache !== null) {
+            $cacheKey = self::CACHE_KEY_PREFIX . hash('sha256', $this->jwksUri);
+            try {
+                $this->cache->set($cacheKey, $json, $this->cacheTtlSeconds);
+            } catch (\RuntimeException | \InvalidArgumentException $exception) {
+                $this->logger->warning(
+                    "JWKS cache write failed on refresh",
+                    ['jwks_uri' => $this->jwksUri, 'exception' => $exception],
+                );
+            }
+        }
+
+        $decoded = json_decode($json);
+        if (!is_object($decoded) || !property_exists($decoded, 'keys')) {
+            throw new JWKValidatorException("Malformed jwks on refresh");
+        }
+
+        $this->jwks = $this->extractKeys($decoded);
+        $this->content = $json;
+    }
+
+    /**
+     * Resolve a specific JWK by kid and algorithm to a PEM-wrapped signing key.
+     *
+     * Strict matching: requires exact kid match. If the JWK declares an "alg"
+     * field it must match the requested algorithm; JWKs without an "alg" field
+     * are accepted (callers derive the algorithm from the token header). Keys
+     * marked with use=="enc" are excluded.
+     *
+     * On cache miss the JWKS is refreshed once to tolerate provider key
+     * rotation. If the kid is still not present after refresh the call fails.
+     *
+     * @param non-empty-string $kid The JWT header "kid" value.
+     * @param non-empty-string $alg The JWT header "alg" value (e.g. "RS256").
+     * @throws JWKValidatorException On unknown kid, unsupported key type, or malformed key material.
+     */
+    public function getSigningKeyAsPem(string $kid, string $alg): InMemory
+    {
+        $jwk = $this->findJwkStrict($kid, $alg);
+        if ($jwk === null) {
+            $this->refresh();
+            $jwk = $this->findJwkStrict($kid, $alg);
+        }
+
+        if ($jwk === null) {
+            throw new JWKValidatorException("No signing key found for kid '{$kid}'");
+        }
+
+        return $this->jwkToPem($jwk);
+    }
+
+    private function findJwkStrict(string $kid, string $alg): ?object
+    {
+        foreach ($this->jwks as $jwk) {
+            $props = get_object_vars($jwk);
+            $jwkKid = isset($props['kid']) && is_string($props['kid']) ? $props['kid'] : null;
+            if ($jwkKid !== $kid) {
+                continue;
+            }
+            $jwkUse = isset($props['use']) && is_string($props['use']) ? $props['use'] : null;
+            if ($jwkUse !== null && $jwkUse !== 'sig') {
+                continue;
+            }
+            $jwkAlg = isset($props['alg']) && is_string($props['alg']) ? $props['alg'] : null;
+            if ($jwkAlg !== null && $jwkAlg !== $alg) {
+                continue;
+            }
+            return $jwk;
+        }
+        return null;
+    }
+
+    private function jwkToPem(object $jwk): InMemory
+    {
+        $props = get_object_vars($jwk);
+
+        $kty = isset($props['kty']) && is_string($props['kty']) ? $props['kty'] : null;
+        if ($kty !== 'RSA') {
+            throw new JWKValidatorException('Unsupported JWK key type: ' . ($kty ?? 'unknown'));
+        }
+
+        $n = isset($props['n']) && is_string($props['n']) ? $props['n'] : null;
+        $e = isset($props['e']) && is_string($props['e']) ? $props['e'] : null;
+        if ($n === null || $e === null) {
+            throw new JWKValidatorException('RSA JWK missing "n" or "e" parameter');
+        }
+
+        $bigN = new BigInteger(HttpUtils::base64url_decode($n), 256);
+        $bigE = new BigInteger(HttpUtils::base64url_decode($e), 256);
+
+        /** @var \phpseclib3\Crypt\RSA\PublicKey $rsaKey */
+        $rsaKey = PublicKeyLoader::load(['n' => $bigN, 'e' => $bigE]);
+
+        $pem = $rsaKey->toString('PKCS8');
+        assert(is_string($pem) && $pem !== '');
+
+        return InMemory::plainText($pem);
     }
     /**
      * Returns a JWK that matches the given key id and algorithm in the JWK Set.
@@ -96,12 +241,16 @@ class JsonWebKeySet implements Key
     {
         $this->logger->debug("JsonWebKeySet::getJSONWebKey() Attempting to find web key for kid & alg", ['kid' => $kid, 'alg' => $alg]);
         foreach ($this->jwks as $key) {
-            if ($key->kty === 'RSA') {
-                if (!isset($kid) || $key->kid === $kid) {
+            $props = get_object_vars($key);
+            $kty = $props['kty'] ?? null;
+            $keyKid = $props['kid'] ?? null;
+            $keyAlg = $props['alg'] ?? null;
+            if ($kty === 'RSA') {
+                if (!isset($kid) || $keyKid === $kid) {
                     return $key;
                 }
             } else {
-                if (isset($key->alg) && $key->alg === $alg && $key->kid === $kid) {
+                if ($keyAlg !== null && $keyAlg === $alg && $keyKid === $kid) {
                     return $key;
                 }
             }

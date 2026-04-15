@@ -527,11 +527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$kid\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeySet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$use\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
