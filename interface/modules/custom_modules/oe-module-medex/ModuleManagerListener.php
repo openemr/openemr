@@ -121,17 +121,14 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             $escapedUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $escapedTitle = htmlspecialchars($helpTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            $overlayId = 'medex-module-help-overlay';
             header('Content-Type: application/json');
             $output = <<<HTML
-<div id="{$overlayId}" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;">
-  <div style="width:min(920px,96vw);height:min(720px,92vh);background:#fff;border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column;">
-    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding:10px 12px;font-weight:700;">
-      <span>{$escapedTitle}</span>
-      <button type="button" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;" onclick="var ov=document.getElementById('{$overlayId}');if(ov){ov.remove();}var log=document.getElementById('install_upgrade_log');if(log){log.innerHTML='';log.style.display='none';}">×</button>
-    </div>
-    <iframe src="{$escapedUrl}" title="{$escapedTitle}" style="border:0;width:100%;height:100%;"></iframe>
+<div style="margin:12px auto 0;max-width:1100px;height:720px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.12);overflow:hidden;display:flex;flex-direction:column;">
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding:10px 12px;font-weight:700;background:#f8fafc;">
+    <span>{$escapedTitle}</span>
+    <button type="button" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;" onclick="var log=document.getElementById('install_upgrade_log');if(log){log.innerHTML='';log.style.display='none';}">Close</button>
   </div>
+  <iframe src="{$escapedUrl}" title="{$escapedTitle}" style="border:0;width:100%;height:100%;background:#fff;"></iframe>
 </div>
 HTML;
             echo json_encode([
