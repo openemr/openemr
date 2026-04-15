@@ -116,30 +116,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
             : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
         $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
 
-        // For pre-install XHR help clicks, return visible inline HTML that the
-        // Installer page can append directly into install_upgrade_log.
-        if ($showSetup && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $escapedUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            header('Content-Type: application/json');
-            $output = <<<HTML
-<div style="margin:12px auto 0;max-width:1100px;border:3px solid #dc2626;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.12);">
-  <div style="padding:12px 14px;background:#fee2e2;color:#7f1d1d;font-weight:800;font-size:18px;">
-    MedEx help path reached
-  </div>
-  <div style="padding:10px 14px;background:#fff7ed;color:#9a3412;font-size:14px;border-top:1px solid #fecaca;border-bottom:1px solid #fed7aa;">
-    If you can see this box, the Module Manager is appending MedEx help output correctly.
-  </div>
-  <iframe src="{$escapedUrl}" title="MedEx Setup Help" style="display:block;width:100%;height:720px;border:0;background:#fff;"></iframe>
-</div>
-HTML;
-            echo json_encode([
-                'status' => 'Success',
-                'output' => $output
-            ]);
-            exit(0);
-        }
-
-        // Always render setup help inline for pre-install for non-XHR access.
+        // Always render setup help inline for pre-install. In AJAX mode the
+        // Installer page will treat the response as raw HTML and append it to
+        // install_upgrade_log when JSON parsing fails.
         if ($showSetup && file_exists(__DIR__ . '/show_help_setup.php')) {
             include __DIR__ . '/show_help_setup.php';
             exit(0);
