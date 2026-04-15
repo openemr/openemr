@@ -94,33 +94,61 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     public function help_requested($modId, $currentActionStatus): mixed
     {
+        $modActive = 0;
+        try {
+            $row = sqlQuery(
+                "SELECT mod_active FROM modules WHERE mod_id = ?",
+                [$modId]
+            );
+            $modActive = (int)($row['mod_active'] ?? 0);
+        } catch (\Throwable $e) {
+            error_log('[MedEx ModuleManagerListener] help_requested state lookup failed: ' . $e->getMessage());
+        }
+
         $webroot = $GLOBALS['webroot'] ?? '';
         $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
         if ($siteId === '') {
             $siteId = 'default';
         }
-        $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId);
+        $showSetup = ($modActive !== 1);
+        $helpUrl = $showSetup
+            ? ($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId))
+            : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
+        $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
 
-        // XHR (AJAX from manage() in action.js): emit JSON directly.
-        // Inject a <script> that calls openModuleHelp() — defined in index.phtml —
-        // so action.js appends it to install_upgrade_log and jQuery executes it,
-        // opening the help modal without a page reload.
+        // XHR help clicks in Module Manager should return direct HTML for the modal
+        // body instead of relying on script execution side effects.
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $escapedUrl = htmlspecialchars($setupHelpUrl, ENT_QUOTES, 'UTF-8');
+            $escapedUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $escapedTitle = htmlspecialchars($helpTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $overlayId = 'medex-module-help-overlay';
             header('Content-Type: application/json');
+            $output = <<<HTML
+<div id="{$overlayId}" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div style="width:min(920px,96vw);height:min(720px,92vh);background:#fff;border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding:10px 12px;font-weight:700;">
+      <span>{$escapedTitle}</span>
+      <button type="button" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;" onclick="var ov=document.getElementById('{$overlayId}');if(ov){ov.remove();}var log=document.getElementById('install_upgrade_log');if(log){log.innerHTML='';log.style.display='none';}">×</button>
+    </div>
+    <iframe src="{$escapedUrl}" title="{$escapedTitle}" style="border:0;width:100%;height:100%;"></iframe>
+  </div>
+</div>
+HTML;
             echo json_encode([
                 'status' => 'Success',
-                'output' => '<script>if(typeof openModuleHelp==="function"){openModuleHelp("' . $escapedUrl . '","MedEx Setup Help");}</script>'
+                'output' => $output
             ]);
             exit(0);
         }
 
-        // Non-XHR direct navigation: include the setup page inline.
-        if (file_exists(__DIR__ . '/show_help_setup.php')) {
+        // Non-XHR direct navigation: include the setup page inline for pre-install,
+        // otherwise redirect to the richer help center.
+        if ($showSetup && file_exists(__DIR__ . '/show_help_setup.php')) {
             include __DIR__ . '/show_help_setup.php';
             exit(0);
         }
-        return $currentActionStatus;
+        header('Location: ' . $helpUrl);
+        exit(0);
     }
 
     // ---------------------------------------------------------------
