@@ -64,13 +64,13 @@ class ForbiddenShellExecutionRule implements Rule
         return [
             RuleErrorBuilder::message(
                 sprintf(
-                    'Shell execution function %s() is forbidden. %s Use Symfony\Component\Process\Process for safe command execution.',
+                    'Shell execution function %s() is forbidden. %s Use Symfony\Component\Process\Process with array arguments as a safer alternative.',
                     $functionName,
                     self::FORBIDDEN_FUNCTIONS[$functionName]
                 )
             )
                 ->identifier('openemr.forbiddenShellExecution')
-                ->tip('Symfony Process provides proper argument escaping, timeout handling, and testability')
+                ->tip('Pass arguments as an array to Process for proper escaping; avoid fromShellCommandline() or interpolated shell strings')
                 ->build()
         ];
     }
