@@ -396,9 +396,11 @@ $help_items = [
   }
 </style>
 <script>
+    <?php if ($showUploadToolbar): ?>
     const medexModuleUploadApiUrl = <?php echo json_encode($moduleUploadApiUrl, JSON_UNESCAPED_SLASHES); ?>;
     const medexModuleUploadHelpUrl = <?php echo json_encode($moduleUploadHelpUrl, JSON_UNESCAPED_SLASHES); ?>;
     const medexSiteId = <?php echo json_encode((string)$site, JSON_UNESCAPED_SLASHES); ?>;
+    <?php endif; ?>
 
     function openModuleHelp(url, titleText) {
         var modal = document.getElementById('moduleHelpModal');
@@ -424,6 +426,7 @@ $help_items = [
         }
     }
 
+    <?php if ($showUploadToolbar): ?>
     async function submitInlineModuleUpload(mode) {
         var file = document.getElementById('inlineModuleZip');
         var url = document.getElementById('inlineModuleUrl');
@@ -492,6 +495,7 @@ $help_items = [
         }
         return false;
     }
+    <?php endif; ?>
 </script>
 <div class="installer bg-light text-dark">
     <div id="moduleHelpModal" class="module-help-modal" onclick="if (event.target === this) { closeModuleHelp(); }">
