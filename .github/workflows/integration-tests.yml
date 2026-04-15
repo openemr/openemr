@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   test:
-    name: ${ matrix.suite }} - ${{ matrix.php }}
+    name: ${{ matrix.suite }} - ${{ matrix.php }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
