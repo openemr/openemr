@@ -155,6 +155,17 @@ class ModuleManagerListener extends AbstractModuleActionListener
         }
 
         return <<<HTML
+<script>
+(function () {
+  var log = document.getElementById('install_upgrade_log');
+  if (log) {
+    log.style.display = 'block';
+    log.style.height = 'auto';
+    log.style.minHeight = '240px';
+    log.style.overflowY = 'visible';
+  }
+})();
+</script>
 <style>
 .medex-mm-wrap{max-width:980px;margin:14px auto;padding:18px 20px;border:1px solid #cfe0fb;border-radius:14px;background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);box-shadow:0 14px 28px rgba(15,75,143,.08);color:#0f172a}
 .medex-mm-head h2{margin:0 0 6px;font-size:24px;line-height:1.2;color:#0f4b8f}
