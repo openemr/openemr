@@ -608,6 +608,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             helpLink.setAttribute('target', '_self');
             helpLink.setAttribute('onclick', 'return false;');
             helpLink.onclick = function (event) {
+                alert('MEDEX HELP CLICK PATCH REACHED');
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
