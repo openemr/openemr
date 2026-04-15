@@ -87,6 +87,138 @@ class ModuleManagerListener extends AbstractModuleActionListener
         return new self();
     }
 
+    private static function getSiteId(): string
+    {
+        $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+        $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', $siteId);
+        return $siteId !== '' ? $siteId : 'default';
+    }
+
+    private static function esc(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    }
+
+    private static function getModuleState($modId): array
+    {
+        $row = sqlQuery(
+            "SELECT mod_id, mod_active, mod_ui_active, sql_run
+               FROM modules
+              WHERE mod_id = ?
+              LIMIT 1",
+            [$modId]
+        ) ?: [];
+
+        return [
+            'mod_id' => (int)($row['mod_id'] ?? $modId ?? 0),
+            'installed' => ((int)($row['sql_run'] ?? 0) === 1),
+            'enabled' => ((int)($row['mod_active'] ?? 0) === 1),
+            'ui_enabled' => ((int)($row['mod_ui_active'] ?? 0) === 1),
+        ];
+    }
+
+    private static function renderInstallerHelpFragment($modId): string
+    {
+        $state = self::getModuleState($modId);
+        $siteId = self::getSiteId();
+        $webroot = (string)($GLOBALS['webroot'] ?? '');
+        $moduleId = (string)$state['mod_id'];
+        $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' . rawurlencode($siteId);
+        $helpCenterUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . rawurlencode($siteId);
+
+        $headline = 'MedEx Setup';
+        $summary = 'Install, enable, and launch onboarding from Module Manager.';
+        $primaryLabel = 'Run Install';
+        $primaryAction = "manage('" . self::esc($moduleId) . "','install'); return false;";
+        $primaryHint = 'Step 1 of 3';
+        $secondaryButton = '';
+        $installDone = '';
+        $enableDone = '';
+        $onboardingReady = '';
+
+        if ($state['installed']) {
+            $installDone = '<div class="medex-mm-state medex-mm-done">Installed</div>';
+            $primaryLabel = 'Run Enable';
+            $primaryAction = "manage('" . self::esc($moduleId) . "','enable'); return false;";
+            $primaryHint = 'Step 2 of 3';
+        }
+
+        if ($state['enabled']) {
+            $enableDone = '<div class="medex-mm-state medex-mm-done">Enabled</div>';
+            $headline = 'MedEx Onboarding';
+            $summary = 'The module is enabled. Launch the intake flow from here.';
+            $primaryLabel = 'Open Onboarding';
+            $primaryAction = "window.location.href='" . self::esc($onboardingUrl) . "'; return false;";
+            $primaryHint = 'Step 3 of 3';
+            $onboardingReady = '<div class="medex-mm-state medex-mm-ready">Ready</div>';
+            $secondaryButton = '<a class="medex-mm-btn medex-mm-btn-secondary" href="' . self::esc($helpCenterUrl) . '">Open Help Center</a>';
+        }
+
+        return <<<HTML
+<style>
+.medex-mm-wrap{max-width:980px;margin:14px auto;padding:18px 20px;border:1px solid #cfe0fb;border-radius:14px;background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);box-shadow:0 14px 28px rgba(15,75,143,.08);color:#0f172a}
+.medex-mm-head h2{margin:0 0 6px;font-size:24px;line-height:1.2;color:#0f4b8f}
+.medex-mm-head p{margin:0;color:#475569;font-size:14px}
+.medex-mm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.medex-mm-card{background:#fff;border:1px solid #d8e5fa;border-radius:12px;padding:14px}
+.medex-mm-card h3{margin:0 0 6px;font-size:16px;color:#0f172a}
+.medex-mm-card p{margin:0;color:#475569;font-size:13px;line-height:1.45}
+.medex-mm-state{margin-top:8px;font-size:12px;font-weight:700}
+.medex-mm-done{color:#047857}
+.medex-mm-ready{color:#1d4ed8}
+.medex-mm-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.medex-mm-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:9px;border:1px solid #1d4ed8;background:#1d4ed8;color:#fff !important;text-decoration:none;font-weight:700;cursor:pointer}
+.medex-mm-btn-secondary{background:#fff;color:#1d4ed8 !important;border-color:#93c5fd}
+.medex-mm-hint{font-size:12px;font-weight:700;color:#1d4ed8}
+@media (max-width:900px){.medex-mm-grid{grid-template-columns:1fr}}
+</style>
+<div class="medex-mm-wrap">
+  <div class="medex-mm-head">
+    <h2>{$headline}</h2>
+    <p>{$summary}</p>
+  </div>
+  <div class="medex-mm-grid">
+    <div class="medex-mm-card">
+      <h3>1. Install</h3>
+      <p>Register the MedEx database objects and mark the module as installed.</p>
+      {$installDone}
+    </div>
+    <div class="medex-mm-card">
+      <h3>2. Enable</h3>
+      <p>Activate the module so MedEx pages and services can load normally.</p>
+      {$enableDone}
+    </div>
+    <div class="medex-mm-card">
+      <h3>3. Onboarding</h3>
+      <p>Launch the MedEx intake flow and continue account setup.</p>
+      {$onboardingReady}
+    </div>
+  </div>
+  <div class="medex-mm-actions">
+    <button type="button" class="medex-mm-btn" onclick="{$primaryAction}">{$primaryLabel}</button>
+    {$secondaryButton}
+    <span class="medex-mm-hint">{$primaryHint}</span>
+  </div>
+</div>
+HTML;
+    }
+
+    private static function emitInstallerHelpFragment($modId): void
+    {
+        echo self::renderInstallerHelpFragment($modId);
+        exit(0);
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    public function prehelp_requested($modId, $currentActionStatus): mixed
+    {
+        self::emitInstallerHelpFragment($modId);
+    }
+
     /**
      * @param $modId
      * @param $currentActionStatus
@@ -94,37 +226,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     public function help_requested($modId, $currentActionStatus): mixed
     {
-        $modActive = 0;
-        try {
-            $row = sqlQuery(
-                "SELECT mod_active FROM modules WHERE mod_id = ?",
-                [$modId]
-            );
-            $modActive = (int)($row['mod_active'] ?? 0);
-        } catch (\Throwable $e) {
-            error_log('[MedEx ModuleManagerListener] help_requested state lookup failed: ' . $e->getMessage());
-        }
-
-        $webroot = $GLOBALS['webroot'] ?? '';
-        $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
-        if ($siteId === '') {
-            $siteId = 'default';
-        }
-        $showSetup = ($modActive !== 1);
-        $helpUrl = $showSetup
-            ? ($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId))
-            : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
-        $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
-
-        // Always render setup help inline for pre-install. In AJAX mode the
-        // Installer page will treat the response as raw HTML and append it to
-        // install_upgrade_log when JSON parsing fails.
-        if ($showSetup && file_exists(__DIR__ . '/show_help_setup.php')) {
-            include __DIR__ . '/show_help_setup.php';
-            exit(0);
-        }
-        header('Location: ' . $helpUrl);
-        exit(0);
+        self::emitInstallerHelpFragment($modId);
     }
 
     // ---------------------------------------------------------------
@@ -262,6 +364,10 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (self::hasLegacyMedEx()) {
             error_log('[MedEx] Legacy library/MedEx detected — deactivating background service');
             self::deactivateLegacyBackgroundService();
+        }
+
+        if ($currentActionStatus === 'Success') {
+            self::emitInstallerHelpFragment($modId);
         }
 
         return $currentActionStatus;
@@ -447,6 +553,10 @@ HTML;
             // Ensure legacy background service stays deactivated
             self::deactivateLegacyBackgroundService();
             error_log('[MedEx] Legacy mode: background service confirmed deactivated on enable');
+        }
+
+        if ($currentActionStatus === 'Success') {
+            self::emitInstallerHelpFragment($modId);
         }
 
         return $currentActionStatus;

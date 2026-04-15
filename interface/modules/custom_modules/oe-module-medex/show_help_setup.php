@@ -455,7 +455,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
     function findMedexModuleRow() {
         for (const d of getFrameDocs()) {
             try {
-                const byId = d.querySelector(`tr#${String(initStatus.mod_id || '')}`);
+                const byId = d.querySelector(`tr#${String((currentStatus && currentStatus.mod_id) || '')}`);
                 if (byId) return byId;
                 const rows = Array.from(d.querySelectorAll('tr'));
                 const row = rows.find((tr) => {
