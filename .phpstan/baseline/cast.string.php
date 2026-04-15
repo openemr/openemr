@@ -3337,16 +3337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Messaging/SendSmsEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot cast array\\<OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString\\> to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRMedicationKnowledge/FHIRMedicationKnowledgePatientCharacteristics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ActionUrlBuilder.php',

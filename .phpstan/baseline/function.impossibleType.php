@@ -107,11 +107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportJob.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_scalar\\(\\) with array will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with OpenEMR\\\\Gacl\\\\ADORecordSet will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
