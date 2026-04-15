@@ -26,6 +26,9 @@ class InstallCommand extends Command
         #[Option] string $dbName = 'openemr',
         #[Option] string $dbRootUser = 'root',
         #[Option] string $dbRootPassword = '',
+        #[Option(description: 'OpenEMR admin display name')] string $oeAdminName = 'Administrator',
+        #[Option(description: 'OpenEMR admin username')] string $oeAdminUsername = 'admin',
+        #[Option(description: 'OpenEMR admin password')] string $oeAdminPassword = '',
     ): int {
         $io = new SymfonyStyle($input, $output);
 
@@ -33,32 +36,36 @@ class InstallCommand extends Command
             return Command::FAILURE;
         }
 
-        // login -> dbuser
-        // pass -> dbPassowrd
-        // dbname => dbName
-        // collate = 'utf8mb4_general_ci'
-        // pre-validate things are nonempty??
         $params = [
             // DB root
             'root' => $dbRootUser,
             'rootpass' => $dbRootPassword,
 
+            // Runtime DB info
             'server' => $dbHost,
             'port' => $dbPort,
             'login' => $dbUser,
             'pass' => $dbPassword,
             'dbname' => $dbName, // NEEDS VALIDATION
+            // Future:
+            // - sockets instead of host/port
+            // - SSL
+
             'loginhost' => '%', // FIXME: webserver for db user
 
-            'iuserpass' => 'changeme',
-            'site' => 'FAKESITE', // FIXME: remove this.
+            // Initial admin user seed
+            'iuser' => $oeAdminUsername,
+            'iuname' => $oeAdminName,
+            'iuserpass' => $oeAdminPassword,
+
+            // == Not user configurable ==
+            'site' => 'default', // Only default site supported.
         ];
         $logger = new ConsoleLogger($output);
         $installer = new Installer(
             $params,
             $logger,
         );
-        /* return 2; */
         $success = $installer->quick_install();
         if (!$success) {
             $output->writeln('Installation failed:');
