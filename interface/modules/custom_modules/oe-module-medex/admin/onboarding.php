@@ -110,10 +110,18 @@ if ($step > 1 && !$api->isConfigured()) {
 
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; color: #0f172a; background: #fff; }
         .form-control.invalid { border-color: #dc2626; }
         .field-error { color: #dc2626; font-size: 12px; margin-top: 6px; display: none; }
         .form-control::placeholder { color: #9ca3af; opacity: 1; }
+        select.form-control {
+            min-height: 46px;
+            line-height: 1.35;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            -webkit-text-fill-color: #0f172a;
+            appearance: auto;
+        }
         .password-wrap { position: relative; }
         .password-toggle {
             position: absolute;
@@ -162,6 +170,8 @@ if ($step > 1 && !$api->isConfigured()) {
         .otp-status { font-size: 13px; color: #475569; margin-top: 8px; }
         .otp-status.ok { color: #15803d; }
         .otp-status.err { color: #b91c1c; }
+        .otp-channel-label { display:block; font-weight:700; color:#1e293b; margin-bottom:8px; }
+        .otp-consent-copy { color:#475569; display:block; margin-top:8px; line-height:1.45; }
         .field-status { font-size: 12px; margin-top: 6px; color: #475569; }
         .field-status.ok { color: #15803d; font-weight: 600; }
         .field-status.err { color: #b91c1c; }
@@ -287,11 +297,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="panel-card full-width-card">
                     <div class="service-title" style="margin-bottom: 6px;"><?php echo xlt("Send One-Time Passcode"); ?></div>
                     <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="otp_channel" class="otp-channel-label"><?php echo xlt("Delivery Method"); ?></label>
                         <select id="otp_channel" name="otp_channel" class="form-control">
                             <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
                             <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                         </select>
-                        <small style="color:#64748b;">
+                        <small class="otp-consent-copy">
                             <span id="otp-consent-copy"><?php echo xlt("You agree to allow us to send you this email to verify your identity before enabling your MedEx setup."); ?></span>
                             <a href="<?php echo attr($privacyUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo xlt("Privacy Policy"); ?></a>
                         </small>
