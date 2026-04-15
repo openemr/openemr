@@ -1412,6 +1412,7 @@ $config = 1; /////////////
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
+            $this->logger->debug('Validating installation parameters');
             if (! $this->login_is_valid()) {
                 return false;
             }
@@ -1432,6 +1433,7 @@ $config = 1; /////////////
 
         if (! $this->no_root_db_access) {
             // Connect to mysql via root user
+            $this->logger->debug('Connecting to database as root');
             if (! $this->root_database_connection()) {
                 return false;
             }
@@ -1439,6 +1441,7 @@ $config = 1; /////////////
             // Create the dumpfile
             //   (applicable if cloning from another database)
             if (! empty($this->clone_database)) {
+                $this->logger->debug('Creating database dumpfiles for cloning');
                 if (! $this->create_dumpfiles()) {
                     return false;
                 }
@@ -1447,6 +1450,7 @@ $config = 1; /////////////
             // Create the site directory
             //   (applicable if mirroring another local site)
             if (! empty($this->source_site_id)) {
+                $this->logger->debug('Creating site directory from {source}', ['source' => $this->source_site_id]);
                 if (! $this->create_site_directory()) {
                     return false;
                 }
@@ -1470,16 +1474,19 @@ $config = 1; /////////////
                 }
 
                 // Create the mysql database
+                $this->logger->debug('Creating database {dbname}', ['dbname' => $this->dbname]);
                 if (! $this->create_database()) {
                     return false;
                 }
 
                 // Create the mysql user
+                $this->logger->debug('Creating database user {login}', ['login' => $this->login]);
                 if (! $this->create_database_user()) {
                     return false;
                 }
 
                 // Grant user privileges to the mysql database
+                $this->logger->debug('Granting database privileges');
                 if (! $this->grant_privileges()) {
                     return false;
                 }
@@ -1489,16 +1496,19 @@ $config = 1; /////////////
         }
 
         // Connect to mysql via created user
+        $this->logger->debug('Connecting to database as {login}', ['login' => $this->login]);
         if (! $this->user_database_connection()) {
             return false;
         }
 
         // Build the database
+        $this->logger->debug('Loading database schema (this may take a while)');
         if (! $this->load_dumpfiles()) {
             return false;
         }
 
         // Write the sql configuration file
+        $this->logger->debug('Writing configuration file');
         if (! $this->write_configuration_file()) {
             return false;
         }
@@ -1507,10 +1517,12 @@ $config = 1; /////////////
         // initial user, and set up gacl access controls.
         // (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
+            $this->logger->debug('Adding version info');
             if (! $this->add_version_info()) {
                 return false;
             }
 
+            $this->logger->debug('Inserting global settings');
             if (! $this->insert_globals()) {
                 return false;
             }
@@ -1519,18 +1531,22 @@ $config = 1; /////////////
                 return false;
             }
 
+            $this->logger->debug('Creating initial user {iuser}', ['iuser' => $this->iuser]);
             if (! $this->add_initial_user()) {
                 return false;
             }
 
+            $this->logger->debug('Installing access controls');
             if (! $this->install_gacl()) {
                 return false;
             }
 
+            $this->logger->debug('Installing additional users');
             if (! $this->install_additional_users()) {
                 return false;
             }
 
+            $this->logger->debug('Configuring care coordination');
             if (! $this->on_care_coordination()) {
                 return false;
             }
