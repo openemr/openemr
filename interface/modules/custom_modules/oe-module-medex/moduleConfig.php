@@ -2,7 +2,10 @@
 /**
  * Module Configuration File
  * Required by OpenEMR to register the gear icon in Module Manager.
- * Keep behavior simple: gear always opens MedEx Admin Dashboard in an OpenEMR tab.
+ *
+ * MedEx no longer uses the legacy local admin dashboard as its primary entry
+ * point from Module Manager. The gear should open the same setup/onboarding
+ * modal used by the help/install flow.
  */
 
 $module_config = 1;
@@ -24,46 +27,33 @@ if (basename($_SERVER['SCRIPT_FILENAME']) === 'moduleConfig.php') {
 
     $site = $_GET['site'] ?? 'default';
     $webroot = $GLOBALS['webroot'] ?? '';
-    $dashboardUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site=' . urlencode((string)$site);
+    $setupUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode((string)$site);
     ?><!DOCTYPE html><html><head><meta charset="utf-8"></head><body>
     <script>
     (function() {
-        var target = <?php echo json_encode($dashboardUrl); ?>;
+        var target = <?php echo json_encode($setupUrl); ?>;
         try {
             if (window.top && typeof window.top.restoreSession === 'function') {
                 window.top.restoreSession();
             }
         } catch (e) {}
         try {
-            // Preferred OpenEMR tabs API.
-            if (window.top && typeof window.top.navigateTab === 'function') {
-                window.top.navigateTab(target, 'medex_admin', function() {
-                    try {
-                        if (typeof window.top.activateTabByName === 'function') {
-                            window.top.activateTabByName('medex_admin', true);
-                        }
-                    } catch (e) {}
-                }, 'Loading MedEx');
+            if (window.top && typeof window.top.openModuleHelp === 'function') {
+                window.top.openModuleHelp(target, 'MedEx Setup Help');
                 return;
             }
         } catch (e) {
             // Ignore and keep falling through.
         }
         try {
-            // Fallback: open new browser tab if tabs API unavailable.
-            window.open(target, '_blank');
-            return;
-        } catch (e) {}
-        // Last fallback: navigate current frame/window.
-        try {
             if (window.top && window.top.location) {
                 window.top.location.href = target;
             } else {
                 window.location.href = target;
             }
-        } catch (e) {
-            window.location.href = target;
-        }
+            return;
+        } catch (e) {}
+        window.location.href = target;
     })();
     </script>
     </body></html><?php

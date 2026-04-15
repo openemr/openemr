@@ -555,7 +555,23 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
     function patchConfigure() {
         if (typeof window.configure !== 'function' || window.__medex_configure_patched) { return; }
         window.__medex_configure_patched = true;
+        var originalConfigure = window.configure;
         window.configure = function (id, imgpath) {
+            var row = document.getElementById(String(id));
+            var isMedexRow = false;
+            if (row) {
+                var rowText = (row.textContent || '').toLowerCase();
+                isMedexRow = rowText.indexOf('oe-module-medex') !== -1 || rowText.indexOf('medex module') !== -1;
+            }
+            if (isMedexRow) {
+                var setupUrl = getMedexSetupUrl(id);
+                if (typeof window.openModuleHelp === 'function') {
+                    window.openModuleHelp(setupUrl, 'MedEx Setup Help');
+                } else {
+                    window.location.href = setupUrl;
+                }
+                return false;
+            }
             if (jQuery('#ConfigRow_' + id).css('display') !== 'none') {
                 jQuery('.config').hide();
                 jQuery('#ConfigRow_' + id).fadeOut();
