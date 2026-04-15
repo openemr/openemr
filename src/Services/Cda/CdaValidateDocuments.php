@@ -175,8 +175,6 @@ class CdaValidateDocuments
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
         $response = curl_exec($ch);
-        curl_close($ch);
-
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         if ($status == '200') {
             $reply = json_decode($response, true);
@@ -237,7 +235,6 @@ class CdaValidateDocuments
                     xlt('Request Status') . ':' . $status
             ];
         }
-        curl_close($ch);
         if ($status == '200') {
             $reply = json_decode($response, true);
         }
