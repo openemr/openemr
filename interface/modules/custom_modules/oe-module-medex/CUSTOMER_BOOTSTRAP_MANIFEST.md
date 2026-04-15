@@ -47,11 +47,17 @@ These files stay in the initial local package.
 - `admin/cloud_dashboard.php`
 - `admin/help_center.php`
 - `admin/manual_config.php`
+- `admin/splash.php`
+- `admin/register.php`
+- `admin/onboarding.php`
+- `admin/register_process.php`
 - `admin/reconnect.php`
 - `admin/disconnect.php`
 - `admin/reset_connection.php`
 - `admin/save_preferences.php`
 - `admin/sync_practice.php`
+- `admin/create_cart.php`
+- `admin/process_payment.php`
 
 ### Bootstrap public pages
 
