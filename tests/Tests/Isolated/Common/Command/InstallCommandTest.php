@@ -31,10 +31,10 @@ class InstallCommandTest extends TestCase
         $installer = $this->createMock(InstallerInterface::class);
         $installer->expects($this->once())
             ->method('setLogger')
-            ->with($this->isInstanceOf(LoggerInterface::class));
+            ->with(self::isInstanceOf(LoggerInterface::class));
         $installer->expects($this->once())
             ->method('install')
-            ->with($this->callback(function (array $params) use (&$capturedParams): bool {
+            ->with(self::callback(function (array $params) use (&$capturedParams): bool {
                 $capturedParams = $params;
                 return true;
             }))
@@ -56,24 +56,24 @@ class InstallCommandTest extends TestCase
             '--oe-admin-password' => 'adminpass',
         ], ['interactive' => false]);
 
-        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
-        $this->assertNotNull($capturedParams);
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertNotNull($capturedParams);
 
         // Verify CLI options are mapped to correct param keys
-        $this->assertSame('mydbhost', $capturedParams['server']);
-        $this->assertSame(3307, $capturedParams['port']);
-        $this->assertSame('myuser', $capturedParams['login']);
-        $this->assertSame('mypass', $capturedParams['pass']);
-        $this->assertSame('mydb', $capturedParams['dbname']);
-        $this->assertSame('myroot', $capturedParams['root']);
-        $this->assertSame('myrootpass', $capturedParams['rootpass']);
-        $this->assertSame('Test Admin', $capturedParams['iuname']);
-        $this->assertSame('testadmin', $capturedParams['iuser']);
-        $this->assertSame('adminpass', $capturedParams['iuserpass']);
+        self::assertSame('mydbhost', $capturedParams['server']);
+        self::assertSame(3307, $capturedParams['port']);
+        self::assertSame('myuser', $capturedParams['login']);
+        self::assertSame('mypass', $capturedParams['pass']);
+        self::assertSame('mydb', $capturedParams['dbname']);
+        self::assertSame('myroot', $capturedParams['root']);
+        self::assertSame('myrootpass', $capturedParams['rootpass']);
+        self::assertSame('Test Admin', $capturedParams['iuname']);
+        self::assertSame('testadmin', $capturedParams['iuser']);
+        self::assertSame('adminpass', $capturedParams['iuserpass']);
 
         // Verify hardcoded values
-        $this->assertSame('%', $capturedParams['loginhost']);
-        $this->assertSame('default', $capturedParams['site']);
+        self::assertSame('%', $capturedParams['loginhost']);
+        self::assertSame('default', $capturedParams['site']);
     }
 
     public function testInstallFailureReturnsError(): void
@@ -87,8 +87,8 @@ class InstallCommandTest extends TestCase
 
         $tester->execute([], ['interactive' => false]);
 
-        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
-        $this->assertStringContainsString('Database connection failed', $tester->getDisplay());
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('Database connection failed', $tester->getDisplay());
     }
 
     private function createTester(InstallCommand $command): CommandTester
