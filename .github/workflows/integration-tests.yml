@@ -47,17 +47,18 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Run CLI installer
-        run: |
-          php cli install -n \
-            --db-host=127.0.0.1 \
-            --db-port=3306 \
-            --db-root-user=root \
-            --db-root-password=root \
-            --db-user=ci \
-            --db-password=topsecret \
-            --db-name=openemr_test \
-            --oe-admin-username=admin \
+        run: ./cli install
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-root-user=root
+            --db-root-password=root
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
             --oe-admin-password=pass
+            --no-interaction
+            -vvv
 
       - name: Verify installation
         run: |
