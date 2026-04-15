@@ -24,6 +24,8 @@ This file configures the kind that requires initialization.
     displayDetailsOnTestsThatTriggerWarnings="true"
     displayDetailsOnTestsThatTriggerNotices="true"
     displayDetailsOnPhpunitDeprecations="true"
+    failOnDeprecation="true"
+    failOnPhpunitDeprecation="true"
     failOnPhpunitWarning="true"
     testdox="false">
   <coverage> </coverage>
@@ -82,4 +84,12 @@ This file configures the kind that requires initialization.
       <file>tests/Tests/E2e/NotificationCronEmailTest.php</file>
     </testsuite>
   </testsuites>
+  <source ignoreIndirectDeprecations="true">
+    <include>
+      <directory>.</directory>
+    </include>
+    <exclude>
+      <directory>vendor</directory>
+    </exclude>
+  </source>
 </phpunit>

@@ -21,6 +21,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -2309,8 +2310,8 @@ final class EventAuditLoggerTest extends TestCase
     /**
      * Test logHttpRequest method with various HTTP request methods
      *
-     * @dataProvider httpRequestDataProvider
      */
+    #[DataProvider('httpRequestDataProvider')]
     public function testLogHttpRequestParameterized(
         string $method,
         string $script,
