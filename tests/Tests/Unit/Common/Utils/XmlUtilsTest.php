@@ -172,9 +172,8 @@ class XmlUtilsTest extends TestCase
                 $result = XmlUtils::loadString($xxeAttempt);
                 $body = (string) $result;
                 $this->assertStringNotContainsString($sentinel, $body, 'File contents must not appear in output');
-            } catch (XmlParseException) {
-                // Expected: parsing was blocked — this is the secure outcome.
-                $this->addToAssertionCount(1);
+            } catch (XmlParseException) { // @codeCoverageIgnore — branch depends on PHP/libxml version
+                $this->addToAssertionCount(1); // @codeCoverageIgnore
             }
         } finally {
             if (is_file($tempFile)) {
