@@ -15,10 +15,29 @@ namespace OpenEMR\Tests\Isolated\Core\Migrations;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+
+interface TestableCreateTableMigration
+{
+    public function runCreateTable(Table $table): void;
+
+    /**
+     * @param non-empty-string $column
+     * @param non-empty-string ...$otherColumns
+     */
+    public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): void;
+
+    /**
+     * @return list<\Doctrine\Migrations\Query\Query>
+     */
+    public function getSql(): array;
+}
 
 #[Group('isolated')]
 #[Group('core')]
@@ -45,13 +64,16 @@ class CreateTableTraitTest extends TestCase
             }))
             ->willReturn($expectedSql);
 
-        $connection = $this->createStub(Connection::class);
+        $connection = self::createStub(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn($platform);
 
-        $migration = new TestMigration($connection);
-        $migration->doCreateTable($table);
+        $migration = $this->createMigration($connection);
+        $migration->runCreateTable($table);
 
-        self::assertSame($expectedSql, $migration->getAddedSql());
+        self::assertSame($expectedSql, array_map(
+            static fn($q) => $q->getStatement(),
+            $migration->getSql(),
+        ));
     }
 
     public function testAddPrimaryKeyAddsSingleColumnPrimaryKey(): void
@@ -59,8 +81,8 @@ class CreateTableTraitTest extends TestCase
         $table = new Table('test_table');
         $table->addColumn('id', 'integer');
 
-        $migration = new TestMigration($this->createStub(Connection::class));
-        $migration->doAddPrimaryKey($table, 'id');
+        $migration = $this->createMigration(self::createStub(Connection::class));
+        $migration->runAddPrimaryKey($table, 'id');
 
         $pk = $table->getPrimaryKeyConstraint();
         self::assertNotNull($pk);
@@ -73,12 +95,37 @@ class CreateTableTraitTest extends TestCase
         $table->addColumn('user_id', 'integer');
         $table->addColumn('group_id', 'integer');
 
-        $migration = new TestMigration($this->createStub(Connection::class));
-        $migration->doAddPrimaryKey($table, 'user_id', 'group_id');
+        $migration = $this->createMigration(self::createStub(Connection::class));
+        $migration->runAddPrimaryKey($table, 'user_id', 'group_id');
 
         $pk = $table->getPrimaryKeyConstraint();
         self::assertNotNull($pk);
         self::assertSame(['user_id', 'group_id'], $this->extractColumnNames($pk->getColumnNames()));
+    }
+
+    private function createMigration(Connection $connection): TestableCreateTableMigration
+    {
+        return new class ($connection, new NullLogger()) extends AbstractMigration implements TestableCreateTableMigration {
+            use CreateTableTrait;
+
+            public function up(Schema $schema): void
+            {
+            }
+
+            public function runCreateTable(Table $table): void
+            {
+                $this->createTable($table);
+            }
+
+            /**
+             * @param non-empty-string $column
+             * @param non-empty-string ...$otherColumns
+             */
+            public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): void
+            {
+                $this->addPrimaryKey($table, $column, ...$otherColumns);
+            }
+        };
     }
 
     /**
@@ -91,50 +138,5 @@ class CreateTableTraitTest extends TestCase
             static fn(UnqualifiedName $name): string => $name->toString(),
             $columnNames,
         );
-    }
-}
-
-/**
- * Test double that exposes the trait's methods for testing.
- */
-class TestMigration
-{
-    use CreateTableTrait;
-
-    /** @var list<string> */
-    private array $addedSql = [];
-
-    public function __construct(
-        /** @phpstan-ignore property.onlyWritten (Used by CreateTableTrait) */
-        private readonly Connection $connection,
-    ) {
-    }
-
-    public function doCreateTable(Table $table): void
-    {
-        $this->createTable($table);
-    }
-
-    /**
-     * @param non-empty-string $column
-     * @param non-empty-string ...$otherColumns
-     */
-    public function doAddPrimaryKey(Table $table, string $column, string ...$otherColumns): void
-    {
-        $this->addPrimaryKey($table, $column, ...$otherColumns);
-    }
-
-    /** @phpstan-ignore method.unused (Used by CreateTableTrait) */
-    private function addSql(string $sql): void
-    {
-        $this->addedSql[] = $sql;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getAddedSql(): array
-    {
-        return $this->addedSql;
     }
 }
