@@ -6,6 +6,7 @@
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
 # 4. Forbid @covers annotations and #[CoversClass]/#[CoversFunction] attributes
 # 5. Forbid raw curl_* functions in favor of GuzzleHttp
+# 6. Forbid shell execution functions, backtick operator, and eval()
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -62,5 +63,11 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenRequestGlobalsRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenShellExecutionRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenEvalRule
   tags:
   - phpstan.rules.rule
