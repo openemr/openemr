@@ -20,10 +20,14 @@ use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
-class Installer
+/**
+ * @phpstan-import-type InstallParams from InstallerInterface
+ */
+class Installer implements InstallerInterface
 {
     public array $custom_globals;
     public array $dumpfiles;
@@ -64,10 +68,17 @@ class Installer
     /**
      * Initialize the Installer with configuration variables.
      *
-     * @param array $cgi_variables Configuration array containing installation parameters
-     * @param LoggerInterface $logger Logger instance for error reporting
+     * @param InstallParams $cgi_variables Configuration array containing installation parameters
      */
-    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
+    public function __construct(array $cgi_variables, private LoggerInterface $logger)
+    {
+        $this->initializeParams($cgi_variables);
+    }
+
+    /**
+     * @param InstallParams $cgi_variables
+     */
+    protected function initializeParams(array $cgi_variables): void
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -81,7 +92,7 @@ class Installer
         $this->i2faSecret               = $cgi_variables['i2fasecret'] ?? '';
         $this->server                   = $cgi_variables['server'] ?? ''; // mysql server (usually localhost)
         $this->loginhost                = $cgi_variables['loginhost'] ?? ''; // php/apache server (usually localhost)
-        $this->port                     = $cgi_variables['port'] ?? '';
+        $this->port                     = (string) ($cgi_variables['port'] ?? '');
         $this->root                     = $cgi_variables['root'] ?? '';
         $this->rootpass                 = $cgi_variables['rootpass'] ?? '';
         $this->login                    = $cgi_variables['login'] ?? '';
@@ -2336,5 +2347,23 @@ SETHLP;
     protected function writeToFile($stream, string $data, ?int $length = null): int|false
     {
         return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
+    }
+
+    // InstallerInterface implementation
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function install(array $params): bool
+    {
+        $this->initializeParams($params);
+        return $this->quick_install();
+    }
+
+    public function getErrorMessage(): string
+    {
+        return $this->error_message;
     }
 }
