@@ -27,11 +27,13 @@ use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Psr\Log\LoggerInterface;
 
 return [
     // Connection Manager - manages named connections with different middleware
     ConnectionManager::class => function (TC $c) {
+        CustomTypes::register();
         $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
 
