@@ -92,103 +92,35 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-    private function help_requested($modId, $currentActionStatus): mixed
+    public function help_requested($modId, $currentActionStatus): mixed
     {
-        $row = sqlQuery("SELECT sql_run, mod_active, mod_ui_active FROM modules WHERE mod_id = ?", [$modId]);
-        $sqlRun      = (int)($row['sql_run'] ?? 0);
-        $modActive   = (int)($row['mod_active'] ?? 0);
-        $modUiActive = (int)($row['mod_ui_active'] ?? 0);
-
         $webroot = $GLOBALS['webroot'] ?? '';
         $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
         if ($siteId === '') {
             $siteId = 'default';
         }
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=' . urlencode($siteId);
         $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId);
 
-        // Always open guided setup/help in-tab modal from Module Manager.
-        $target = json_encode($setupHelpUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        $script = <<<HTML
-<script>
-(function () {
-  var doc = window.top && window.top.document ? window.top.document : document;
-  function eachDoc(fn) {
-    var seen = [];
-    function add(d) {
-      if (!d || seen.indexOf(d) !== -1) return;
-      seen.push(d);
-      fn(d);
-    }
-    try { add(document); } catch (e) {}
-    try { add(window.parent && window.parent.document ? window.parent.document : null); } catch (e) {}
-    try { add(window.top && window.top.document ? window.top.document : null); } catch (e) {}
-  }
-  function cleanupInstallerLog() {
-    eachDoc(function(d) {
-      var logDiv = d.getElementById('install_upgrade_log');
-      if (logDiv) {
-        logDiv.innerHTML = '';
-        logDiv.style.display = 'none';
-      }
-    });
-  }
-  function closeOverlay(overlay) {
-    cleanupInstallerLog();
-    if (overlay && overlay.parentNode) {
-      overlay.parentNode.removeChild(overlay);
-    }
-  }
-  if (doc.getElementById('medex-help-mini-overlay')) {
-    cleanupInstallerLog();
-    return;
-  }
-  var overlay = doc.createElement('div');
-  overlay.id = 'medex-help-mini-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;';
+        // XHR (AJAX from manage() in action.js): emit JSON directly.
+        // Inject a <script> that calls openModuleHelp() — defined in index.phtml —
+        // so action.js appends it to install_upgrade_log and jQuery executes it,
+        // opening the help modal without a page reload.
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            $escapedUrl = htmlspecialchars($setupHelpUrl, ENT_QUOTES, 'UTF-8');
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'Success',
+                'output' => '<script>if(typeof openModuleHelp==="function"){openModuleHelp("' . $escapedUrl . '","MedEx Setup Help");}</script>'
+            ]);
+            exit(0);
+        }
 
-  var modal = doc.createElement('div');
-  modal.style.cssText = 'width:min(980px,96vw);height:min(760px,92vh);background:#fff;border-radius:14px;border:1px solid #cfe1fb;box-shadow:0 24px 60px rgba(2,6,23,.35);display:flex;flex-direction:column;overflow:hidden;';
-
-  var head = doc.createElement('div');
-  head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0f4b8f;color:#fff;font:700 16px/1.2 Segoe UI,Arial,sans-serif;';
-  head.innerHTML = '<span>MedEx Quick Help</span>';
-
-  var close = doc.createElement('button');
-  close.type = 'button';
-  close.textContent = 'Close';
-  close.style.cssText = 'border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font:600 13px Segoe UI,Arial,sans-serif;';
-  close.onclick = function () { closeOverlay(overlay); };
-  head.appendChild(close);
-
-  var frame = doc.createElement('iframe');
-  frame.setAttribute('src', {$target});
-  frame.setAttribute('title', 'MedEx Setup Help');
-  frame.style.cssText = 'border:0;flex:1 1 auto;width:100%;background:#fff;';
-
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) {
-      closeOverlay(overlay);
-    }
-  });
-  doc.addEventListener('keydown', function escHandler(e) {
-    if (e.key === 'Escape' && doc.getElementById('medex-help-mini-overlay')) {
-      closeOverlay(overlay);
-      doc.removeEventListener('keydown', escHandler);
-    }
-  });
-
-  modal.appendChild(head);
-  modal.appendChild(frame);
-  overlay.appendChild(modal);
-  cleanupInstallerLog();
-  doc.body.appendChild(overlay);
-})();
-</script>
-HTML;
-
-        echo json_encode(["status" => "Success", "output" => $script]);
-        exit(0);
+        // Non-XHR direct navigation: include the setup page inline.
+        if (file_exists(__DIR__ . '/show_help_setup.php')) {
+            include __DIR__ . '/show_help_setup.php';
+            exit(0);
+        }
+        return $currentActionStatus;
     }
 
     // ---------------------------------------------------------------
@@ -522,7 +454,7 @@ HTML;
     private static function runMigrations(): void
     {
         $migrationsDir = __DIR__ . '/migrations';
-        
+
         // Ensure migrations tracking table exists
         try {
             sqlStatement("CREATE TABLE IF NOT EXISTS medex_migrations (
@@ -540,24 +472,24 @@ HTML;
         if (empty($files)) {
             return;
         }
-        
+
         sort($files);
-        
+
         foreach ($files as $file) {
             $migrationName = basename($file);
-            
+
             // Skip if already applied
             $applied = sqlQuery("SELECT id FROM medex_migrations WHERE migration_name = ?", [$migrationName]);
             if ($applied) {
                 continue;
             }
-            
+
             error_log("[MedEx] Running migration: $migrationName");
-            
+
             try {
                 // Include and run the migration
                 include_once $file;
-                
+
                 // Extract number from filename (e.g., 003_create_telehealth_form.php -> 003)
                 if (preg_match('/^(\d+)_/', $migrationName, $matches)) {
                     $funcName = 'run_migration_' . $matches[1];

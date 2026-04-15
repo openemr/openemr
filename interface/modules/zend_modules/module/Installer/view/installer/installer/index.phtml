@@ -31,6 +31,23 @@ $zendModDir = $GLOBALS['zendModDir'];
 
 $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
+$site = attr_url($_SESSION['site_id'] ?? $_GET['site'] ?? 'default');
+$moduleUploadApiUrl = '/interface/modules/custom_modules/oe-module-upload-module/public/index.php?site=' . $site . '&format=json';
+$moduleUploadHelpUrl = '/interface/modules/custom_modules/oe-module-upload-module/moduleConfig.php?site=' . $site;
+$showUploadToolbar = false;
+if (!empty($InstallersAll)) {
+    foreach ($InstallersAll as $installerRow) {
+        if (
+            (($installerRow->modDirectory ?? '') === 'oe-module-upload-module') &&
+            ((int)($installerRow->sqlRun ?? 0) === 1) &&
+            ((int)($installerRow->modActive ?? 0) === 1) &&
+            ((int)($installerRow->modUiActive ?? 0) === 1)
+        ) {
+            $showUploadToolbar = true;
+            break;
+        }
+    }
+}
 
 $help_items = [
     xlt('') . '<a  class="text-dark" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank">' . xlt("Visit additional modules for OpenEMR developed and listed by third party vendors.") . '</a>',
@@ -100,34 +117,412 @@ $help_items = [
     width: 100%;
     background: rgba(255, 255, 255, .8) url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
   }
+
+  .module-upload-btn {
+    background: #0f62fe !important;
+    border: 1px solid #0f62fe !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .module-upload-inline {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .module-upload-inline input[type=file] {
+    max-width: 360px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px;
+    background: #fff;
+  }
+
+  .module-upload-status {
+    margin-top: 4px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .module-upload-status.ok {
+    color: #166534;
+  }
+
+  .module-upload-status.err {
+    color: #9a3412;
+  }
+
+  .module-source-panel {
+    width: 560px;
+    background: #ffffff;
+    border: 1px solid #d7e5fb;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 6px 14px rgba(15, 75, 143, 0.08);
+  }
+
+  .module-source-links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .module-source-link {
+    border: 1px solid #cddcf7;
+    background: #f6f9ff;
+    color: #0f4b8f;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .module-source-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .module-source-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .module-source-row input[type=file],
+  .module-source-row input[type=url] {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fff;
+    font-size: 0.85rem;
+  }
+
+  .module-help-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid #0f62fe;
+    border-radius: 9999px;
+    color: #0f62fe !important;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .module-help-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .module-help-modal.open {
+    display: flex;
+  }
+
+  .module-help-modal-inner {
+    width: min(920px, 96vw);
+    height: min(720px, 92vh);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .module-help-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    font-weight: 700;
+  }
+
+  .module-help-modal-head button {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  .module-help-modal iframe {
+    border: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .manager-toolbar {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    z-index: 5;
+  }
+
+  #helpPanel {
+    display: none;
+  }
+
+  .installer {
+    position: relative;
+    padding: 52px 14px 18px;
+    background: linear-gradient(180deg, #f4f8ff 0%, #eef5ff 100%);
+    border: 1px solid #d7e5fb;
+    border-radius: 14px;
+    box-shadow: 0 12px 26px rgba(15, 75, 143, 0.08);
+  }
+
+  #helpPanel {
+    background: #ffffff;
+    border: 1px solid #d8e5fa;
+    border-radius: 12px;
+    padding: 6px 10px 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 6px 18px rgba(15, 75, 143, 0.06);
+  }
+
+  .installer .h3 {
+    font-size: 1.2rem;
+    color: #0f3f75;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .installer .table-responsive {
+    border: 1px solid #d7e5fb;
+    border-radius: 12px;
+    background: #f7fbff;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  }
+
+  .installer table.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-bottom: 0;
+    background: transparent;
+  }
+
+  .installer table.table thead th {
+    background: #0f4b8f !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 10px 8px;
+  }
+
+  .installer table.table thead th:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .installer table.table thead th:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+
+  .installer table.table tbody tr {
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(15, 75, 143, 0.06);
+  }
+
+  .installer table.table tbody td {
+    border: 0 !important;
+    padding: 10px 8px;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #1f2937;
+  }
+
+  .installer table.table tbody td:first-child {
+    border-radius: 8px 0 0 8px;
+    color: #0f4b8f;
+    font-weight: 700;
+  }
+
+  .installer table.table tbody td:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+
+  .installer .link_submit input[type='button'] {
+    border: 1px solid #c9dcfa;
+    background: #f5f9ff;
+    color: #0f3f75;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .installer .link_submit input[type='button']:hover {
+    background: #e8f1ff;
+  }
+
+  .installer .link_submit i.fa-cog,
+  .installer .link_submit i.fa-trash,
+  .installer .link_submit i.fa-registered {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d4e2fa;
+    background: #f7fbff;
+  }
+
+  .installer .text-success strong {
+    color: #0f3f75 !important;
+  }
 </style>
 <script>
-    function toggleHelp() {
-        const helpContent = document.getElementById('helpContent');
-        if (helpContent.classList.contains('d-none')) {
-            helpContent.classList.remove('d-none');
-        } else {
-            helpContent.classList.add('d-none');
+    const medexModuleUploadApiUrl = <?php echo json_encode($moduleUploadApiUrl, JSON_UNESCAPED_SLASHES); ?>;
+    const medexModuleUploadHelpUrl = <?php echo json_encode($moduleUploadHelpUrl, JSON_UNESCAPED_SLASHES); ?>;
+    const medexSiteId = <?php echo json_encode((string)$site, JSON_UNESCAPED_SLASHES); ?>;
+
+    function openModuleHelp(url, titleText) {
+        var modal = document.getElementById('moduleHelpModal');
+        var title = document.getElementById('moduleHelpModalTitle');
+        var frame = document.getElementById('moduleHelpModalFrame');
+        if (!modal || !title || !frame) {
+            return false;
         }
+        title.textContent = titleText || 'Module Help';
+        frame.src = url;
+        modal.classList.add('open');
+        return false;
+    }
+
+    function closeModuleHelp() {
+        var modal = document.getElementById('moduleHelpModal');
+        var frame = document.getElementById('moduleHelpModalFrame');
+        if (frame) {
+            frame.src = 'about:blank';
+        }
+        if (modal) {
+            modal.classList.remove('open');
+        }
+    }
+
+    async function submitInlineModuleUpload(mode) {
+        var file = document.getElementById('inlineModuleZip');
+        var url = document.getElementById('inlineModuleUrl');
+        var status = document.getElementById('inlineModuleUploadStatus');
+        if (!status) {
+            return false;
+        }
+        var fd = new FormData();
+        fd.append('site', medexSiteId);
+        if (mode === 'zip') {
+            if (!file || !file.files || file.files.length === 0) {
+                status.className = 'module-upload-status err';
+                status.textContent = 'Select a ZIP file first.';
+                return false;
+            }
+            fd.append('module_zip', file.files[0]);
+        } else if (mode === 'url') {
+            var val = (url && url.value) ? url.value.trim() : '';
+            if (!val) {
+                status.className = 'module-upload-status err';
+                status.textContent = 'Enter a module ZIP URL.';
+                return false;
+            }
+            fd.append('module_url', val);
+        } else {
+            return false;
+        }
+        status.className = 'module-upload-status';
+        status.textContent = mode === 'zip' ? 'Uploading ZIP...' : 'Downloading URL...';
+        try {
+            var res = await fetch(medexModuleUploadApiUrl, {
+                method: 'POST',
+                body: fd,
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            var raw = await res.text();
+            var json = null;
+            try {
+                json = JSON.parse(raw);
+            } catch (e) {
+                json = null;
+            }
+            if (json && json.success) {
+                status.className = 'module-upload-status ok';
+                status.textContent = json.message || 'Upload successful. Reloading...';
+                setTimeout(function () {
+                    window.location.reload();
+                }, 900);
+            } else {
+                status.className = 'module-upload-status err';
+                if (json && json.error) {
+                    status.textContent = json.error;
+                } else if (raw && raw.trim() !== '') {
+                    status.textContent = raw.replace(/<[^>]*>/g, '').trim().slice(0, 240);
+                } else {
+                    status.textContent = 'Upload failed (HTTP ' + res.status + ').';
+                }
+            }
+        } catch (e) {
+            status.className = 'module-upload-status err';
+            status.textContent = 'Upload failed: ' + (e && e.message ? e.message : 'network error');
+        }
+        return false;
     }
 </script>
 <div class="installer bg-light text-dark">
-    <div class="bg-light text-dark text-center" id="helpPanel">
-        <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
-        <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
-        <div class="help-content bg-light text-dark text-left d-none" id="helpContent">
-            <ul style="font-size: 1.0rem;">
-                <?php
-                echo '';
-                foreach ($help_items as $item) {
-                    echo '<li class="text-dark">' . $item . '</li>' . "\n";
-                }
-                echo '';
-                ?>
-            </ul>
-            <button class="btn btn-sm btn-outline-primary float-right mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
+    <div id="moduleHelpModal" class="module-help-modal" onclick="if (event.target === this) { closeModuleHelp(); }">
+        <div class="module-help-modal-inner">
+            <div class="module-help-modal-head">
+                <span id="moduleHelpModalTitle"><?php echo xlt('Module Help'); ?></span>
+                <button type="button" onclick="closeModuleHelp()">×</button>
+            </div>
+            <iframe id="moduleHelpModalFrame" title="<?php echo xla('Module Help'); ?>"></iframe>
         </div>
     </div>
+    <div class="bg-light text-dark text-center" id="helpPanel"></div>
+    <?php if ($showUploadToolbar): ?>
+        <div class="manager-toolbar">
+            <div class="module-source-panel">
+                <div class="module-source-links">
+                    <button class="module-source-link" type="button" onclick="return openModuleHelp(medexModuleUploadHelpUrl,'Module Upload Help');"><?php echo xlt('Modules Help'); ?></button>
+                    <a class="module-source-link" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('3rd Party Wiki'); ?></a>
+                </div>
+                <div class="module-source-row">
+                    <input type="file" id="inlineModuleZip" name="module_zip" accept=".zip">
+                    <button type="button" class="btn btn-sm module-upload-btn" onclick="return submitInlineModuleUpload('zip');"><?php echo xlt('Upload ZIP'); ?></button>
+                </div>
+                <div class="module-source-row">
+                    <input type="url" id="inlineModuleUrl" name="module_url" placeholder="https://github.com/org/repo/releases/download/v1.2.3/module.zip">
+                    <button type="button" class="btn btn-sm module-upload-btn" onclick="return submitInlineModuleUpload('url');"><?php echo xlt('Install URL'); ?></button>
+                </div>
+                <div id="inlineModuleUploadStatus" class="module-upload-status"></div>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="text-center"><span class="h3"><?php echo $listener->z_xlt('Custom Module Listings'); ?></span></div>
     <div id='err' class='bold'></div>
     <div class="imagetable">
@@ -229,7 +624,11 @@ $help_items = [
                                 <?php } ?>
                             </td>
                             <td>
-                                <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','help_requested');" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>"><i class="fa fa-question-circle text-primary fa-1x" aria-hidden="true"></i></a>
+                                <?php if ($moduleResult->modDirectory === 'oe-module-upload-module') { ?>
+                                    <a href="#" class="link_submit active module-help-btn" data-help-url="<?php echo attr($moduleUploadHelpUrl); ?>" data-help-title="<?php echo attr($listener->z_xla('Module Upload Help')); ?>" onclick="return openModuleHelp(this.dataset.helpUrl, this.dataset.helpTitle);" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>" aria-label="<?php echo $listener->z_xla('Module Help'); ?>">?</a>
+                                <?php } else { ?>
+                                    <a href="javascript:void(0)" class="link_submit active module-help-btn" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','help_requested');" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>" aria-label="<?php echo $listener->z_xla('Module Help'); ?>">?</a>
+                                <?php } ?>
                                 <!-- We should be able to unregister even if not installed i.e sql_run = 0 -->
                                 <?php if ($moduleResult->sqlRun == 0 && $moduleResult->modActive == 0) { ?>
                                     <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','reset_module');" title="<?php echo $listener->z_xla('Click Here to Reset this Module to the initial unregistered and uninstalled state.'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
