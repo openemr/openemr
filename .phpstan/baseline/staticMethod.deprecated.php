@@ -10,12 +10,6 @@ Returns a new instance from a file path\\.$#',
     'path' => __DIR__ . '/../../contrib/util/billing/load_fee_schedule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method formatPhone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
-Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>formatLocal\\(\\) instead$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
 Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
     'count' => 1,

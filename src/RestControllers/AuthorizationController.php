@@ -327,22 +327,31 @@ class AuthorizationController
 
             foreach ($keys as $key => $supported_values) {
                 if ($data->has($key)) {
-                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
-                        $params[$key] = implode('|', $data->all($key));
+                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'], true)) {
+                        $stringValues = [];
+                        foreach ($data->all($key) as $value) {
+                            if (!is_string($value)) {
+                                throw new OAuthServerException("$key is invalid", 0, 'invalid_client_metadata');
+                            }
+                            $stringValues[] = $value;
+                        }
+                        $params[$key] = implode('|', $stringValues);
                     } else if (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $jwks = $data->all('jwks');
-                        if (is_string($jwks)) {
-                            $jwks = json_decode($jwks, true, 512, JSON_THROW_ON_ERROR);
-                        }
-                        $params[$key] = json_encode($jwks);
+                        $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
                     } else {
                         $params[$key] = $data->get($key);
                     }
                     if (!empty($supported_values)) {
-                        if (!in_array($params[$key], $supported_values)) {
-                            throw new OAuthServerException("Unsupported $key value : $params[$key]", 0, 'invalid_client_metadata');
+                        $paramValue = $params[$key];
+                        if (!is_scalar($paramValue) && $paramValue !== null) {
+                            throw new OAuthServerException("$key is invalid", 0, 'invalid_client_metadata');
+                        }
+                        if (!in_array($paramValue, $supported_values, true)) {
+                            $displayValue = $paramValue === null ? 'null' : (string) $paramValue;
+                            throw new OAuthServerException("Unsupported $key value : $displayValue", 0, 'invalid_client_metadata');
                         }
                     }
                 }

@@ -38,7 +38,6 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
-$EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 // echo $GLOBALS['daysheet_provider_totals'];
 
 $daysheet = false;
@@ -315,9 +314,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             var can_generate = (count0 > 0 || count1 > 0 || count2 > 0);
             var can_mark = (count1 > 0 || count0 > 0 || count2 > 0);
             var can_bill = (count0 == 0 && count1 == 0 && count2 > 0);
-            <?php if (file_exists($EXPORT_INC)) { ?>
-            f.bn_external.disabled = !can_generate;
-            <?php } else { ?>
             f.bn_x12_support.disabled = !can_generate;
                 <?php if (OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims')) { ?>
             f.bn_x12_encounter.disabled = !can_generate;
@@ -331,7 +327,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             <?php } ?>
             f.bn_hcfa_txt_file.disabled = !can_generate;
             f.bn_reopen.disabled = !can_bill;
-            <?php } ?>
             f.bn_mark.disabled = !can_mark;
         }
 
@@ -443,16 +438,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             <?php if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') == 3) { ?>
             document.the_form.action = 'print_daysheet_report_num3.php';
             <?php } ?>
-            document.the_form.submit();
-            return true;
-        }
-
-        function SubmitTheScreenExportOFX() { //Action on Export OFX link
-            if (!ProcessBeforeSubmitting()) return false;
-            top.restoreSession();
-            document.the_form.mode.value = 'export';
-            document.the_form.target = '_self';
-            document.the_form.action = 'billing_report.php';
             document.the_form.submit();
             return true;
         }
@@ -748,24 +733,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <?php if (file_exists($EXPORT_INC)) { ?>
-                            <li class="nav-item">
-                                <button type="submit" data-open-popup="true" class="btn nav-link btn-link btn-download" name="bn_external" title="<?php echo xla('Export to external billing system') ?>" value="<?php echo xla("Export Billing") ?>">
-                                    <?php echo xlt("Export Billing") ?>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button type="submit" data-open-popup="true" class="btn nav-link btn-link btn-download" name="bn_mark" title="<?php echo xla('Mark as billed but skip billing') ?>">
-                                    <?php echo xlt("Mark as Cleared") ?>
-                                </button>
-                            </li>
-                            <?php } else { ?>
                             <li class="nav-item">
                                 <button type="button" class="btn nav-link btn-link btn-download" name="bn_x12" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate and download X12 batch') ?>">
                                     <?php echo xlt('Generate X12') ?>
                                 </button>
                             </li>
-                            <?php } ?>
                             <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
                             <li class="nav-item">
                                 <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate Institutional X12 837I') ?>">

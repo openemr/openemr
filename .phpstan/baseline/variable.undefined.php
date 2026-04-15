@@ -807,11 +807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_tracker.php',
@@ -14147,11 +14142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/cqm.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$EXPORT_INC might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/criteria.tab.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$RadioSeperator might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/criteria.tab.php',
@@ -14223,11 +14213,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$webroot might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/criteria.tab.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/criteria.tab.php',
 ];

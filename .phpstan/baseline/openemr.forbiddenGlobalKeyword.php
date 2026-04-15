@@ -1802,11 +1802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/sqlconf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$webserver_root\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorExternal.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$TPSCriteriaDisplay, \\$TPSCriteriaKey, \\$TPSCriteriaIndex, \\$web_root\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingReport.php',

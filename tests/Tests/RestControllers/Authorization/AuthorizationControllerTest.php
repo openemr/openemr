@@ -34,6 +34,16 @@ class AuthorizationControllerTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $payload
+     */
+    private function createJsonRequest(string $path, array $payload): HttpRestRequest
+    {
+        return HttpRestRequest::create($path, 'POST', [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode($payload, JSON_THROW_ON_ERROR));
+    }
+
+    /**
      * @param HttpRestRequest $request
      * @param array $globalValues
      * @return AuthorizationController
@@ -140,5 +150,69 @@ class AuthorizationControllerTest extends TestCase
         $authorizationController->setClientRepository($clientRepository);
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
+    }
+
+    public function testClientRegistrationRejectsUnsupportedTokenEndpointAuthMethod(): void
+    {
+        $request = $this->createJsonRequest('/oauth2/default/register', [
+            'application_type' => 'private',
+            'redirect_uris' => ['https://example.com/callback'],
+            'client_name' => 'Test Client',
+            'token_endpoint_auth_method' => 'client_secret_invalid',
+            'contacts' => ['test@open-emr.org'],
+            'scope' => 'openid',
+        ]);
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $response = $authorizationController->clientRegistration($request);
+
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertStringContainsString('Unsupported token_endpoint_auth_method value', $response->getBody()->getContents());
+    }
+
+    public function testClientRegistrationEncodesJwksArrayBeforeRedirectValidation(): void
+    {
+        $request = $this->createJsonRequest('/oauth2/default/register', [
+            'application_type' => 'private',
+            'client_name' => 'Test Client',
+            'token_endpoint_auth_method' => 'client_secret_post',
+            'contacts' => ['test@open-emr.org'],
+            'scope' => 'openid',
+            'jwks' => [
+                'keys' => [
+                    ['kty' => 'RSA', 'kid' => 'test-key'],
+                ],
+            ],
+        ]);
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $response = $authorizationController->clientRegistration($request);
+
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertStringContainsString('redirect_uris is invalid', $response->getBody()->getContents());
+    }
+
+    public function testClientRegistrationRejectsNonStringRedirectUris(): void
+    {
+        $request = $this->createJsonRequest('/oauth2/default/register', [
+            'application_type' => 'private',
+            'redirect_uris' => ['https://example.com/callback', 123],
+            'client_name' => 'Test Client',
+            'token_endpoint_auth_method' => 'client_secret_post',
+            'contacts' => ['test@open-emr.org'],
+            'scope' => 'openid',
+        ]);
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $response = $authorizationController->clientRegistration($request);
+
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertStringContainsString('redirect_uris is invalid', $response->getBody()->getContents());
     }
 }

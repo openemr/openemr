@@ -51,9 +51,8 @@ class BillingProcessor
     /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
-     * @var
      */
-    protected $logger;
+    protected BillingLogger $logger;
 
     /**
      * The following constants are the options for processing tasks, which are the actions
@@ -187,8 +186,6 @@ class BillingProcessor
             $processing_task = new Tasks\GeneratorUB04NoForm($this->extractAction());
         } elseif (isset($post['bn_process_ub04_form'])) {
             $processing_task = new Tasks\GeneratorUB04Form_PDF($this->extractAction());
-        } elseif (isset($post['bn_external'])) {
-            $processing_task = new Tasks\GeneratorExternal($this->extractAction());
         }
 
         // If the processing task can write to the billing log, let's set it's log

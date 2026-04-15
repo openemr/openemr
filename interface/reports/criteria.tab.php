@@ -254,11 +254,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                     <li class="list-group-item bg-light d-flex justify-content-between align-items-center">
                         <a class="link_submit" href="#" onclick="javascript:return SubmitTheScreen();"><strong><?php echo xlt('Update List') ?></strong></a><i id='update-tooltip' class="fa fa-info-circle fa-lg text-primary" aria-hidden="true"></i>
                     </li>
-                    <?php if (file_exists("$webserver_root/custom/BillingExport.php")) { ?>
-                        <li class="list-group-item bg-light">
-                            <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenExportOFX();"><strong><?php echo xlt('Export OFX'); ?></strong></a>
-                        </li>
-                    <?php } ?>
+
                     <li class="list-group-item bg-light">
                         <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenPrint();"><strong><?php echo xlt('View Printable Report'); ?></strong></a>
                     </li>
@@ -276,10 +272,8 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                         </li>
                     <?php } ?>
                     </span>
-                    <?php if (!file_exists($EXPORT_INC)) { ?>
-                        <li class="list-group-item bg-light"><a href='#' id="view-log-link" data-toggle="modal" data-target="#myModal" class='link_submit' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
-                        </li>
-                    <?php } ?>
+                    <li class="list-group-item bg-light"><a href='#' id="view-log-link" data-toggle="modal" data-target="#myModal" class='link_submit' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
+                    </li>
                     <li class="list-group-item bg-light"><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" rel="noopener" target="_blank" onclick="top.restoreSession()"><strong><?php echo xlt('Tab Log') ?></strong></a>
                     </li>
                     <li class="list-group-item bg-light"><a class="link_submit" href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
