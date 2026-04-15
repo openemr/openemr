@@ -29,15 +29,19 @@ class BillingLoggerTest extends TestCase
         unset($GLOBALS['billing_log_option'], $GLOBALS['drive_encryption']);
     }
 
-    private function createLogger(): BillingLogger
+    private function createStorageManager(): ManagerInterface
     {
         $storageManager = $this->createMock(ManagerInterface::class);
         $storageManager->method('getStorage')
             ->with(Location::Documents)
             ->willReturn($this->filesystem);
+        return $storageManager;
+    }
 
+    private function createLogger(): BillingLogger
+    {
         return new BillingLogger(
-            $storageManager,
+            $this->createStorageManager(),
             $this->createStub(CryptoInterface::class),
         );
     }
@@ -206,16 +210,11 @@ class BillingLoggerTest extends TestCase
         $GLOBALS['billing_log_option'] = 1;
         $this->filesystem->write('edi/process_bills.log', 'Existing log content');
 
-        $storageManager = $this->createMock(ManagerInterface::class);
-        $storageManager->method('getStorage')
-            ->with(Location::Documents)
-            ->willReturn($this->filesystem);
-
         $crypto = $this->createStub(CryptoInterface::class);
         $crypto->method('cryptCheckStandard')->willReturn(false);
 
-        $logger = new BillingLogger($storageManager, $crypto);
+        $logger = new BillingLogger($this->createStorageManager(), $crypto);
 
-        $this->assertEquals('Existing log content', $logger->hlog());
+        self::assertEquals('Existing log content', $logger->hlog());
     }
 }
