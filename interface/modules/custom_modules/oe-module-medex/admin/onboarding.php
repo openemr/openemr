@@ -95,10 +95,11 @@ if ($step > 1 && !$api->isConfigured()) {
     <script src="https://js.braintreegateway.com/web/3.97.2/js/hosted-fields.min.js"></script>
     <?php endif; ?>
     <style>
-        body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .wizard-container { max-width: 1100px; margin: 50px auto; background: #f5f5f5; padding: 32px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body { background: linear-gradient(180deg, #eef4fb 0%, #f8fafc 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .wizard-container { max-width: 1100px; margin: 50px auto; background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid #dbe7f5; box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08); }
         .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
         .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
+        .wizard-back-link:hover { color: #0f4b8f; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
         .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #e0e0e0; z-index: 1; }
         .wizard-progress-fill { position: absolute; top: 15px; left: 0; height: 2px; width: 0%; background: #0f4b8f; z-index: 1; transition: width 0.25s ease; }
@@ -111,6 +112,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; color: #0f172a; background: #fff; }
+        .form-control:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.18); }
         .form-control.invalid { border-color: #dc2626; }
         .field-error { color: #dc2626; font-size: 12px; margin-top: 6px; display: none; }
         .form-control::placeholder { color: #9ca3af; opacity: 1; }
@@ -135,6 +137,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .btn { padding: 12px 30px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; font-size: 16px; }
         .btn-primary { background: #0f4b8f; color: white; }
         .btn-primary:hover { background: #0a3460; }
+        .btn[disabled] { opacity: .55; cursor: not-allowed; box-shadow: none; }
 
         .service-card { border: 2px solid #e0e0e0; padding: 20px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px; transition: all 0.2s ease; background: #fff; }
         .service-card:hover { border-color: #667eea; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
@@ -157,10 +160,16 @@ if ($step > 1 && !$api->isConfigured()) {
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
         .onboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
-        .panel-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; background: #ffffff; transition: all 0.2s ease; }
-        .panel-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: #d3d9e6; }
+        .panel-card { border: 1px solid #d8e5f3; border-radius: 14px; padding: 22px; background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); transition: all 0.2s ease; }
+        .panel-card:hover { box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06); border-color: #bfd5ef; }
         .panel-card .form-group:last-child { margin-bottom: 0; }
         .full-width-card { margin-top: 14px; }
+        .section-kicker { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0f4b8f; margin-bottom:10px; }
+        .section-title { font-size: 21px; font-weight: 800; color: #132238; margin: 0 0 8px; }
+        .section-intro { margin: 0 0 18px; font-size: 14px; line-height: 1.55; color: #526277; max-width: 760px; }
+        .helper-copy { color:#64748b; display:block; margin-top:6px; line-height:1.45; }
+        .step1-actionbar { margin-top: 28px; display:flex; justify-content:flex-end; }
+        #step1-next-btn { min-width: 250px; box-shadow: 0 10px 24px rgba(15, 75, 143, 0.16); }
 
         #result { margin-top: 20px; }
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
@@ -264,10 +273,13 @@ if ($step > 1 && !$api->isConfigured()) {
             <form id="form-step-1">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
                 <div class="panel-card full-width-card">
+                        <div class="section-kicker"><?php echo xlt("Step 1"); ?></div>
+                        <h3 class="section-title"><?php echo xlt("Create the administrator account"); ?></h3>
+                        <p class="section-intro"><?php echo xlt("Enter the email and password that will own this MedEx setup. This account will be used to complete onboarding and manage services later."); ?></p>
                         <div class="form-group">
                             <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
-                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
+                            <small class="helper-copy"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
                             <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
                         </div>
                         <div class="form-group">
@@ -276,7 +288,7 @@ if ($step > 1 && !$api->isConfigured()) {
                                 <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
                                 <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
                             </div>
-                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
+                            <small class="helper-copy"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
                             <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."); ?></div>
                         </div>
                         <div class="form-group">
@@ -295,7 +307,9 @@ if ($step > 1 && !$api->isConfigured()) {
                 </div>
 
                 <div class="panel-card full-width-card">
-                    <div class="service-title" style="margin-bottom: 6px;"><?php echo xlt("Send One-Time Passcode"); ?></div>
+                    <div class="section-kicker"><?php echo xlt("Verify Identity"); ?></div>
+                    <h3 class="section-title"><?php echo xlt("Send One-Time Passcode"); ?></h3>
+                    <p class="section-intro"><?php echo xlt("Verify the administrator before we continue. Choose the delivery method, send the code, and confirm it here."); ?></p>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label for="otp_channel" class="otp-channel-label"><?php echo xlt("Delivery Method"); ?></label>
                         <select id="otp_channel" name="otp_channel" class="form-control">
@@ -329,7 +343,9 @@ if ($step > 1 && !$api->isConfigured()) {
                 </div>
 
                 <div class="panel-card full-width-card">
-                    <div class="service-title" style="margin-bottom: 10px;"><?php echo xlt("Required Agreements"); ?></div>
+                    <div class="section-kicker"><?php echo xlt("Required"); ?></div>
+                    <h3 class="section-title"><?php echo xlt("Required Agreements"); ?></h3>
+                    <p class="section-intro"><?php echo xlt("Open each agreement, complete the signature flow, and then the checkbox will unlock automatically."); ?></p>
                     <input type="hidden" id="terms_completed" name="terms_completed" value="0">
                     <input type="hidden" id="baa_completed" name="baa_completed" value="0">
                     <input type="hidden" id="terms_signature_name" name="terms_signature_name" value="">
@@ -366,7 +382,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         <?php echo xlt("Open each agreement link and complete electronic signature to unlock its checkbox."); ?>
                     </div>
                 </div>
-                <div style="margin-top: 30px; text-align: right;">
+                <div class="step1-actionbar">
                     <button type="button" id="step1-next-btn" class="btn btn-primary" onclick="submitStep1()" disabled><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
                 </div>
             </form>
