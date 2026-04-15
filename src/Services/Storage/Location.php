@@ -20,6 +20,8 @@ enum Location
 
     /**
      * Returns the default path for this location, relative to the site directory.
+     *
+     * @internal - only the storage tooling should call this.
      */
     public function getDefaultPath(): string
     {
