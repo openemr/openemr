@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command;
 
-use Installer;
+use OpenEMR\Common\Installer\InstallerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -26,6 +26,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'install', description: 'Install OpenEMR (experimental)')]
 class InstallCommand extends Command
 {
+    public function __construct(private readonly InstallerInterface $installer)
+    {
+        parent::__construct();
+    }
+
     public function __invoke(
         InputInterface $input,
         OutputInterface $output,
@@ -71,14 +76,10 @@ class InstallCommand extends Command
             // == Not user configurable ==
             'site' => 'default', // Only default site supported.
         ];
-        $logger = new ConsoleLogger($output);
-        $installer = new Installer(
-            $params,
-            $logger,
-        );
-        $success = $installer->quick_install();
+        $this->installer->setLogger(new ConsoleLogger($output));
+        $success = $this->installer->install($params);
         if (!$success) {
-            $io->error(['Installation failed:', $installer->error_message]);
+            $io->error(['Installation failed:', $this->installer->getErrorMessage()]);
             return Command::FAILURE;
         }
         $io->success('OpenEMR has been installed!');
