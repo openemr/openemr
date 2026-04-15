@@ -1,153 +1,130 @@
 #!/bin/bash
 #
-# Build MedEx Module release ZIPs
+# Build MedEx customer bootstrap ZIP from manifest.
 #
-# Produces two ZIPs:
-#   1. oe-module-medex-v8.zip  — for OpenEMR >=8.0 (post-PR, MedEx removed from core)
-#   2. oe-module-medex-v7.zip  — for OpenEMR 7.x (pre-PR, library/MedEx still in core)
+# The ZIP filename is bootstrap-specific, but the archive still expands to the
+# OpenEMR module directory name `oe-module-medex/`.
 #
-# Both contain the same module code. The module auto-detects which environment
-# it's on (hasLegacyMedEx) and adapts install/enable/disable/unregister behavior.
-# The v7 ZIP additionally includes a README_V7_INSTALL.md with legacy-specific notes.
-#
-# Usage: cd oe-module-medex && bash build_release.sh
+# Usage:
+#   cd oe-module-medex && bash build_release.sh
 #
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build"
-MODULE_NAME="oe-module-medex"
-TIMESTAMP=$(date +%Y%m%d)
+STAGE_ROOT="${BUILD_DIR}/stage"
+MODULE_DIR_NAME="oe-module-medex"
+PACKAGE_NAME="oe-module-medex-bootstrap"
+MANIFEST_FILE="${SCRIPT_DIR}/CUSTOMER_BOOTSTRAP_MANIFEST.md"
+TIMESTAMP="$(date +%Y%m%d)"
+ZIP_PATH="${BUILD_DIR}/${PACKAGE_NAME}-${TIMESTAMP}.zip"
+STAGE_MODULE_DIR="${STAGE_ROOT}/${MODULE_DIR_NAME}"
 
-# Clean previous build
-rm -rf "${BUILD_DIR}"
-mkdir -p "${BUILD_DIR}/stage"
+extract_manifest_paths() {
+    local start_heading="$1"
+    local end_heading="$2"
 
-echo "=== Building MedEx Module release ZIPs ==="
-echo "Source: ${SCRIPT_DIR}"
-echo "Build:  ${BUILD_DIR}"
-echo ""
+    awk -v start="$start_heading" -v end="$end_heading" '
+        $0 == start { in_section=1; next }
+        $0 == end { in_section=0 }
+        in_section && $0 ~ /^- `[^`]+`$/ {
+            line = $0
+            sub(/^- `/, "", line)
+            sub(/`$/, "", line)
+            print line
+        }
+    ' "$MANIFEST_FILE"
+}
 
-# ---------------------------------------------------------------
-# Collect files for the release (exclude dev/doc artifacts)
-# ---------------------------------------------------------------
-STAGE="${BUILD_DIR}/stage/${MODULE_NAME}"
-mkdir -p "${STAGE}"
+copy_manifest_file() {
+    local relative_path="$1"
+    local src="${SCRIPT_DIR}/${relative_path}"
+    local dest="${STAGE_MODULE_DIR}/${relative_path}"
 
-# Core PHP/JS/CSS/JSON/SQL files
-rsync -a --prune-empty-dirs \
-    --include='*/' \
-    --include='*.php' \
-    --include='*.js' \
-    --include='*.css' \
-    --include='*.json' \
-    --include='*.sql' \
-    --include='*.html' \
-    --include='*.lock' \
-    --exclude='*' \
-    "${SCRIPT_DIR}/" "${STAGE}/"
+    if [ ! -e "$src" ]; then
+        echo "[ERROR] Manifest file is missing from source tree: ${relative_path}" >&2
+        exit 1
+    fi
 
-# Include essential docs only
-for doc in README.md INSTALL.md LICENSE.md CHANGELOG.md HELP.md QUICK_START.md; do
-    [ -f "${SCRIPT_DIR}/${doc}" ] && cp "${SCRIPT_DIR}/${doc}" "${STAGE}/"
-done
+    mkdir -p "$(dirname "$dest")"
+    cp -p "$src" "$dest"
+}
 
-# Remove dev/test artifacts that shouldn't ship
-rm -rf "${STAGE}/build"
-rm -rf "${STAGE}/tests"
-rm -f "${STAGE}/test_integration.sh"
-rm -f "${STAGE}/modernize_api.php"
-rm -f "${STAGE}/debug_api.php"  2>/dev/null || true
-rm -f "${STAGE}/admin/debug_api.php"
-rm -f "${STAGE}/src/API/API_Original_Backup.php"
-rm -rf "${STAGE}/backup_recall_board_assets"
-rm -f "${STAGE}/.DS_Store"
-find "${STAGE}" -name '.DS_Store' -delete 2>/dev/null || true
-find "${STAGE}" -name '*.bak*' -delete 2>/dev/null || true
+validate_stage_against_denylist() {
+    local violations=0
+    local deny_entry
 
-# ---------------------------------------------------------------
-# v8 ZIP (post-PR / clean core)
-# ---------------------------------------------------------------
-echo "--- Building v8 ZIP (OpenEMR >=8.0, post-PR) ---"
+    while IFS= read -r deny_entry; do
+        [ -n "$deny_entry" ] || continue
 
-V8_ZIP="${BUILD_DIR}/${MODULE_NAME}-v8-${TIMESTAMP}.zip"
-(cd "${BUILD_DIR}/stage" && zip -r "${V8_ZIP}" "${MODULE_NAME}" -x '*/.DS_Store' '*/.*')
-echo "Created: ${V8_ZIP}"
-echo "  Size: $(du -h "${V8_ZIP}" | cut -f1)"
-echo ""
+        case "$deny_entry" in
+            */)
+                if find "$STAGE_MODULE_DIR" -path "${STAGE_MODULE_DIR}/${deny_entry%/}" -prune | grep -q .; then
+                    echo "[ERROR] Deny-listed directory present in stage: ${deny_entry}" >&2
+                    violations=1
+                fi
+                ;;
+            *'*'*)
+                if find "$STAGE_MODULE_DIR" -name "$deny_entry" | grep -q .; then
+                    echo "[ERROR] Deny-listed pattern present in stage: ${deny_entry}" >&2
+                    violations=1
+                fi
+                ;;
+            *)
+                if [ -e "${STAGE_MODULE_DIR}/${deny_entry}" ]; then
+                    echo "[ERROR] Deny-listed path present in stage: ${deny_entry}" >&2
+                    violations=1
+                fi
+                ;;
+        esac
+    done < <(extract_manifest_paths "## Never Ship In Customer Bootstrap ZIP" "## Immediate Packaging Rule")
 
-# ---------------------------------------------------------------
-# v7 ZIP (pre-PR / legacy core with library/MedEx)
-# Add v7-specific install docs
-# ---------------------------------------------------------------
-echo "--- Building v7 ZIP (OpenEMR 7.x, pre-PR) ---"
+    if [ "$violations" -ne 0 ]; then
+        echo "[ERROR] Stage validation failed against bootstrap deny-list." >&2
+        exit 1
+    fi
+}
 
-cat > "${STAGE}/README_V7_INSTALL.md" << 'V7EOF'
-# MedEx Module — OpenEMR 7.x Installation Guide
+print_summary() {
+    echo "=== Build Complete ==="
+    echo
+    echo "Created: ${ZIP_PATH}"
+    echo "  Size: $(du -h "${ZIP_PATH}" | cut -f1)"
+    echo "  Files: $(unzip -l "${ZIP_PATH}" | tail -1 | awk '{print $2}')"
+    echo
+    echo "Archive root directory: ${MODULE_DIR_NAME}/"
+    echo "Manifest source: ${MANIFEST_FILE}"
+}
 
-## Prerequisites
-- OpenEMR 7.0.x with existing `library/MedEx/` directory
-- Admin access to Module Manager (Administration → Modules)
+if [ ! -f "$MANIFEST_FILE" ]; then
+    echo "[ERROR] Bootstrap manifest not found: ${MANIFEST_FILE}" >&2
+    exit 1
+fi
 
-## Installation Steps
+rm -rf "$BUILD_DIR"
+mkdir -p "$STAGE_MODULE_DIR"
 
-1. **Extract** this ZIP to:
-   ```
-   <openemr>/interface/modules/custom_modules/oe-module-medex/
-   ```
+echo "=== Building MedEx customer bootstrap ZIP ==="
+echo "Source:   ${SCRIPT_DIR}"
+echo "Manifest: ${MANIFEST_FILE}"
+echo "Build:    ${BUILD_DIR}"
+echo
 
-2. **Register** the module in Module Manager:
-   - Go to Administration → Modules → Manage Modules → Unregistered
-   - Find "MedEx Communication Manager" and click Register
+copied_count=0
+while IFS= read -r relative_path; do
+    [ -n "$relative_path" ] || continue
+    copy_manifest_file "$relative_path"
+    copied_count=$((copied_count + 1))
+done < <(extract_manifest_paths "## Bootstrap Package Contents" "## Component Packages")
 
-3. **Install** the module:
-   - Click Install on the module row
-   - This will **automatically deactivate** the legacy `library/MedEx/MedEx_background.php` background service
-   - The previous background service state is saved and will be restored if you uninstall
+if [ "$copied_count" -eq 0 ]; then
+    echo "[ERROR] No bootstrap files were parsed from the manifest." >&2
+    exit 1
+fi
 
-4. **Enable** the module:
-   - Click Enable
-   - The module now manages all MedEx communication features
+validate_stage_against_denylist
 
-## What Happens on Install (v7 / pre-PR)
+(cd "$STAGE_ROOT" && zip -rq "$ZIP_PATH" "$MODULE_DIR_NAME")
 
-- The legacy `MedEx` background service in `background_services` is set to `active=0`
-- Its previous state is saved in `medex_module_state` so it can be restored
-- The module's own API handles all MedEx server communication
-- The legacy `library/MedEx/API.php` is NOT modified or deleted
-
-## Uninstall / Disable
-
-- **Disable**: Restores the legacy background service to its previous state
-- **Unregister**: Restores background service, clears credentials, drops `medex_module_state`
-- `library/MedEx/` files are never touched — they remain intact throughout
-
-## Cron Jobs
-
-If you have a cron job running `library/ajax/execute_background_services.php`
-for MedEx, it will be harmless while the module is active (the background service
-row is set to `active=0`). You do not need to modify your crontab.
-V7EOF
-
-V7_ZIP="${BUILD_DIR}/${MODULE_NAME}-v7-${TIMESTAMP}.zip"
-(cd "${BUILD_DIR}/stage" && zip -r "${V7_ZIP}" "${MODULE_NAME}" -x '*/.DS_Store' '*/.*')
-echo "Created: ${V7_ZIP}"
-echo "  Size: $(du -h "${V7_ZIP}" | cut -f1)"
-echo ""
-
-# ---------------------------------------------------------------
-# Summary
-# ---------------------------------------------------------------
-echo "=== Build Complete ==="
-echo ""
-echo "v8 (OpenEMR >=8.0, post-PR):  ${V8_ZIP}"
-echo "v7 (OpenEMR 7.x, pre-PR):    ${V7_ZIP}"
-echo ""
-echo "File counts:"
-echo "  v8: $(unzip -l "${V8_ZIP}" | tail -1 | awk '{print $2}') files"
-echo "  v7: $(unzip -l "${V7_ZIP}" | tail -1 | awk '{print $2}') files"
-echo ""
-echo "To test in k8s:"
-echo "  kubectl cp ${V8_ZIP} openemr/<pod>:/tmp/"
-echo "  kubectl exec -it <pod> -- unzip -o /tmp/$(basename ${V8_ZIP}) -d /var/www/localhost/htdocs/openemr/interface/modules/custom_modules/"
+print_summary
