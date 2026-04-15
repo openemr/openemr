@@ -119,6 +119,10 @@ $siteId = (string)($_GET['site'] ?? 'default');
             background: #fff;
             padding: 12px;
         }
+        .step.current {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+        }
         .icon {
             width: 28px;
             height: 28px;
@@ -173,16 +177,30 @@ $siteId = (string)($_GET['site'] ?? 'default');
         .act-btn:hover {
             background: #dbeafe;
         }
+        .primary-cta {
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #1d4ed8;
+            background: #1d4ed8;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <div class="wrap">
     <div class="hdr">
         <h2>MedEx Setup Checklist</h2>
-        <p>Use the guided action below to install, enable, and launch onboarding from one place.</p>
+        <p>Use one action here. MedEx will install, enable, and then open onboarding.</p>
         <div class="act" style="margin-top:10px;">
-            <button type="button" class="act-btn" id="startOnboardingBtn" style="font-size:14px;padding:10px 14px;background:#1d4ed8;color:#fff;border-color:#1d4ed8;">
-                Start Onboarding
+            <button type="button" class="primary-cta" id="startOnboardingBtn">
+                Install and Start Onboarding
             </button>
         </div>
     </div>
@@ -192,11 +210,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
             <div class="icon">1</div>
             <div>
                 <h3>Install the module</h3>
-                <p>Click <strong>Install</strong> for <strong>oe-module-medex</strong> in Module Manager.</p>
+                <p>Register the MedEx database objects and prepare the module.</p>
                 <div class="state"></div>
-                <div class="act">
-                    <button type="button" class="act-btn" id="installBtn">Run Install</button>
-                </div>
             </div>
         </div>
 
@@ -204,11 +219,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
             <div class="icon">2</div>
             <div>
                 <h3>Enable the module</h3>
-                <p>Click <strong>Enable</strong> to activate MedEx.</p>
+                <p>Activate MedEx automatically as part of setup.</p>
                 <div class="state"></div>
-                <div class="act">
-                    <button type="button" class="act-btn" id="enableBtn">Run Enable</button>
-                </div>
             </div>
         </div>
 
@@ -216,11 +228,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
             <div class="icon">3</div>
             <div>
                 <h3>Open onboarding</h3>
-                <p>After Enable succeeds, onboarding opens automatically.</p>
+                <p>Launch the intake flow immediately after setup completes.</p>
                 <div class="state"></div>
-                <div class="act">
-                    <button type="button" class="act-btn" id="onboardingBtn">Open Onboarding</button>
-                </div>
             </div>
         </div>
 
@@ -247,20 +256,17 @@ $siteId = (string)($_GET['site'] ?? 'default');
         setStep('step-install', status.installed, 'Done');
         setStep('step-enable', status.enabled, 'Done');
         setStep('step-configure', status.enabled, 'Ready');
+        const installStep = document.getElementById('step-install');
+        const enableStep = document.getElementById('step-enable');
+        const configureStep = document.getElementById('step-configure');
+        if (installStep) installStep.classList.toggle('current', !status.installed);
+        if (enableStep) enableStep.classList.toggle('current', !!status.installed && !status.enabled);
+        if (configureStep) configureStep.classList.toggle('current', !!status.enabled);
 
-        const installBtn = document.getElementById('installBtn');
-        const enableBtn = document.getElementById('enableBtn');
-        const onboardingBtn = document.getElementById('onboardingBtn');
-        if (installBtn) {
-            installBtn.style.display = status.installed ? 'none' : 'inline-flex';
+        const startBtn = document.getElementById('startOnboardingBtn');
+        if (startBtn) {
+            startBtn.textContent = status.enabled ? 'Open Onboarding' : 'Install and Start Onboarding';
         }
-        if (enableBtn) {
-            enableBtn.style.display = (status.installed && !status.enabled) ? 'inline-flex' : 'none';
-        }
-        if (onboardingBtn) {
-            onboardingBtn.style.display = status.enabled ? 'inline-flex' : 'none';
-        }
-
     }
 
     function openOnboardingNow() {
@@ -528,45 +534,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
             // Keep last known state visible.
         }
     }
-
-    document.getElementById('installBtn').addEventListener('click', async () => {
-        try {
-            await runManageAction('install');
-            setRowActionButton('enable');
-            setRowStatusLabel('Inactive');
-            cleanupInstallerLogEverywhere();
-            setTimeout(refresh, 1000);
-            setTimeout(refresh, 2500);
-            setTimeout(refresh, 5000);
-        } catch (e) {
-            alert('Install failed: ' + (e && e.message ? e.message : 'request error'));
-        }
-    });
-
-    document.getElementById('enableBtn').addEventListener('click', async () => {
-        try {
-            await runManageAction('enable');
-            setRowActionButton('disable');
-            setRowStatusLabel('Active');
-            cleanupInstallerLogEverywhere();
-            setTimeout(refresh, 1000);
-            setTimeout(refresh, 2500);
-            setTimeout(() => {
-                refresh().finally(() => {
-                    const inferred = inferStatusFromModuleRow();
-                    if (inferred && inferred.enabled) {
-                        openOnboardingNow();
-                    }
-                });
-            }, 5000);
-        } catch (e) {
-            alert('Enable failed: ' + (e && e.message ? e.message : 'request error'));
-        }
-    });
-
-    document.getElementById('onboardingBtn').addEventListener('click', () => {
-        openOnboardingNow();
-    });
 
     document.getElementById('startOnboardingBtn').addEventListener('click', () => {
         runOnboardingFlow();

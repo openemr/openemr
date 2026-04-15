@@ -123,24 +123,30 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $siteId = self::getSiteId();
         $webroot = (string)($GLOBALS['webroot'] ?? '');
         $moduleId = (string)$state['mod_id'];
+        $needsInstall = !$state['installed'] ? 'true' : 'false';
+        $needsEnable = !$state['enabled'] ? 'true' : 'false';
         $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' . rawurlencode($siteId);
         $helpCenterUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . rawurlencode($siteId);
 
         $headline = 'MedEx Setup';
-        $summary = 'Install, enable, and launch onboarding from Module Manager.';
-        $primaryLabel = 'Run Install';
-        $primaryAction = "manage('" . self::esc($moduleId) . "','install'); return false;";
-        $primaryHint = 'Step 1 of 3';
+        $summary = 'Use one action here. MedEx will install, enable, and then open onboarding.';
+        $primaryLabel = 'Install and Start Onboarding';
+        $primaryAction = "return window.medexRunSetupFlow && window.medexRunSetupFlow('" . self::esc($moduleId) . "','" . self::esc($onboardingUrl) . "', " . $needsInstall . ", " . $needsEnable . ", this);";
+        $primaryHint = 'One click';
         $secondaryButton = '';
         $installDone = '';
         $enableDone = '';
         $onboardingReady = '';
+        $installCardClass = ' medex-mm-current';
+        $enableCardClass = '';
+        $onboardingCardClass = '';
 
         if ($state['installed']) {
             $installDone = '<div class="medex-mm-state medex-mm-done">Installed</div>';
-            $primaryLabel = 'Run Enable';
-            $primaryAction = "manage('" . self::esc($moduleId) . "','enable'); return false;";
-            $primaryHint = 'Step 2 of 3';
+            $installCardClass = '';
+            $enableCardClass = ' medex-mm-current';
+            $primaryLabel = 'Enable and Start Onboarding';
+            $primaryHint = 'Almost there';
         }
 
         if ($state['enabled']) {
@@ -149,9 +155,12 @@ class ModuleManagerListener extends AbstractModuleActionListener
             $summary = 'The module is enabled. Launch the intake flow from here.';
             $primaryLabel = 'Open Onboarding';
             $primaryAction = "window.location.href='" . self::esc($onboardingUrl) . "'; return false;";
-            $primaryHint = 'Step 3 of 3';
+            $primaryHint = 'Ready';
             $onboardingReady = '<div class="medex-mm-state medex-mm-ready">Ready</div>';
             $secondaryButton = '<a class="medex-mm-btn medex-mm-btn-secondary" href="' . self::esc($helpCenterUrl) . '">Open Help Center</a>';
+            $installCardClass = '';
+            $enableCardClass = '';
+            $onboardingCardClass = ' medex-mm-current';
         }
 
         return <<<HTML
@@ -164,6 +173,59 @@ class ModuleManagerListener extends AbstractModuleActionListener
     log.style.minHeight = '240px';
     log.style.overflowY = 'visible';
   }
+  window.medexRunSetupFlow = async function (moduleId, onboardingUrl, needsInstall, needsEnable, trigger) {
+    if (!moduleId || !window.fetch) {
+      return false;
+    }
+    if (trigger) {
+      trigger.disabled = true;
+      trigger.dataset.medexOriginalLabel = trigger.textContent || '';
+      trigger.textContent = 'Working...';
+    }
+    try {
+      var site = new URLSearchParams(window.location.search).get('site') || 'default';
+      var postAction = async function(actionName) {
+        var body = new URLSearchParams({
+          modId: String(moduleId),
+          modAction: actionName,
+          mod_enc_menu: '',
+          mod_nick_name: ''
+        });
+        var response = await fetch('./Installer/manage?site=' + encodeURIComponent(site), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+          body: body.toString()
+        });
+        if (!response.ok) {
+          throw new Error(actionName + ' failed');
+        }
+        var text = await response.text();
+        try {
+          var parsed = JSON.parse(text);
+          if (parsed && parsed.status && String(parsed.status).toLowerCase() !== 'success') {
+            throw new Error(String(parsed.status));
+          }
+        } catch (e) {
+        }
+      };
+      if (needsInstall) {
+        await postAction('install');
+      }
+      if (needsEnable) {
+        await postAction('enable');
+      }
+      window.location.href = onboardingUrl;
+    } catch (error) {
+      alert('MedEx setup failed: ' + (error && error.message ? error.message : 'request error'));
+    } finally {
+      if (trigger) {
+        trigger.disabled = false;
+        trigger.textContent = trigger.dataset.medexOriginalLabel || 'Install and Start Onboarding';
+      }
+    }
+    return false;
+  };
 })();
 </script>
 <style>
@@ -172,6 +234,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
 .medex-mm-head p{margin:0;color:#475569;font-size:14px}
 .medex-mm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
 .medex-mm-card{background:#fff;border:1px solid #d8e5fa;border-radius:12px;padding:14px}
+.medex-mm-card.medex-mm-current{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.18)}
 .medex-mm-card h3{margin:0 0 6px;font-size:16px;color:#0f172a}
 .medex-mm-card p{margin:0;color:#475569;font-size:13px;line-height:1.45}
 .medex-mm-state{margin-top:8px;font-size:12px;font-weight:700}
@@ -189,17 +252,17 @@ class ModuleManagerListener extends AbstractModuleActionListener
     <p>{$summary}</p>
   </div>
   <div class="medex-mm-grid">
-    <div class="medex-mm-card">
+    <div class="medex-mm-card{$installCardClass}">
       <h3>1. Install</h3>
       <p>Register the MedEx database objects and mark the module as installed.</p>
       {$installDone}
     </div>
-    <div class="medex-mm-card">
+    <div class="medex-mm-card{$enableCardClass}">
       <h3>2. Enable</h3>
       <p>Activate the module so MedEx pages and services can load normally.</p>
       {$enableDone}
     </div>
-    <div class="medex-mm-card">
+    <div class="medex-mm-card{$onboardingCardClass}">
       <h3>3. Onboarding</h3>
       <p>Launch the MedEx intake flow and continue account setup.</p>
       {$onboardingReady}
