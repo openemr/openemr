@@ -225,6 +225,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
 <script>
     const initStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const setupStatusUrl = <?php echo json_encode(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
     function setStep(stepId, done, doneText) {
         const step = document.getElementById(stepId);
@@ -418,7 +419,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
         // Fallback once if row is not found.
         try {
             const siteParam = new URLSearchParams(window.location.search).get('site') || 'default';
-            const r = await fetch('show_help_setup.php?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
+            const r = await fetch(setupStatusUrl + '?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
             if (r.status === 401) {
                 return;
             }

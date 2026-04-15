@@ -24,7 +24,7 @@ if (basename($_SERVER['SCRIPT_FILENAME']) === 'moduleConfig.php') {
 
     $site = $_GET['site'] ?? 'default';
     $webroot = $GLOBALS['webroot'] ?? '';
-    $dashboardUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php?site=' . urlencode((string)$site);
+    $dashboardUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site=' . urlencode((string)$site);
     ?><!DOCTYPE html><html><head><meta charset="utf-8"></head><body>
     <script>
     (function() {
