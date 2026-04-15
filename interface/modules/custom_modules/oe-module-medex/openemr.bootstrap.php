@@ -604,10 +604,16 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         var helpLink = row.querySelector("a[onclick*=\"help_requested\"]");
         if (helpLink && !helpLink.dataset.medexPatched) {
             helpLink.dataset.medexPatched = '1';
+            helpLink.setAttribute('href', setupUrl);
+            helpLink.setAttribute('target', '_self');
+            helpLink.setAttribute('onclick', 'return false;');
             helpLink.onclick = function (event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (typeof event.stopImmediatePropagation === 'function') {
+                        event.stopImmediatePropagation();
+                    }
                 }
                 if (typeof window.openModuleHelp === 'function') {
                     window.openModuleHelp(setupUrl, 'MedEx Setup Help');
@@ -621,10 +627,16 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         var installLink = row.querySelector("a[onclick*=\"'install'\"]");
         if (installLink && !installLink.dataset.medexPatched) {
             installLink.dataset.medexPatched = '1';
+            installLink.setAttribute('href', setupUrl);
+            installLink.setAttribute('target', '_self');
+            installLink.setAttribute('onclick', 'return false;');
             installLink.onclick = function (event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (typeof event.stopImmediatePropagation === 'function') {
+                        event.stopImmediatePropagation();
+                    }
                 }
                 if (typeof window.openModuleHelp === 'function') {
                     window.openModuleHelp(setupUrl, 'MedEx Setup Help');
