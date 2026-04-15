@@ -16,10 +16,8 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Manager::class)]
 final class ManagerTest extends TestCase
 {
     public function testGetStorageReturnsRegisteredFilesystem(): void
