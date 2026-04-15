@@ -66,8 +66,33 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     $hasCredentials = false;
     $hasLiveSessionToken = false;
     try {
+        $medexPrefsColumns = [];
+        $columnResult = sqlStatement("SHOW COLUMNS FROM medex_prefs");
+        while ($columnRow = sqlFetchArray($columnResult)) {
+            if (!empty($columnRow['Field'])) {
+                $medexPrefsColumns[(string)$columnRow['Field']] = true;
+            }
+        }
+
+        $selectFields = [
+            'status',
+            'ME_username',
+            'ME_api_key',
+            'MedEx_id',
+        ];
+        if (!empty($medexPrefsColumns['session_token'])) {
+            $selectFields[] = 'session_token';
+        } else {
+            $selectFields[] = "NULL AS session_token";
+        }
+        if (!empty($medexPrefsColumns['session_token_expiry'])) {
+            $selectFields[] = 'session_token_expiry';
+        } else {
+            $selectFields[] = "NULL AS session_token_expiry";
+        }
+
         $statusRecord = sqlQuery(
-            "SELECT status, ME_username, ME_api_key, MedEx_id, session_token, session_token_expiry
+            "SELECT " . implode(', ', $selectFields) . "
                FROM medex_prefs
               ORDER BY MedEx_lastupdated DESC LIMIT 1"
         );

@@ -283,6 +283,8 @@ HTML;
                 `postcard_top` text,
                 `MedEx_lastupdated` timestamp NOT NULL DEFAULT current_timestamp(),
                 `status` text DEFAULT NULL,
+                `session_token` varchar(255) DEFAULT NULL,
+                `session_token_expiry` datetime DEFAULT NULL,
                 `bad_actor_until` timestamp NULL DEFAULT NULL,
                 `bad_actor_message` varchar(500) DEFAULT NULL,
                 `terms_version` varchar(32) DEFAULT NULL,
@@ -357,6 +359,14 @@ HTML;
         );
         QueryUtils::sqlStatementThrowException(
             "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `status` text DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `session_token` varchar(255) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `session_token_expiry` datetime DEFAULT NULL",
             []
         );
         QueryUtils::sqlStatementThrowException(
