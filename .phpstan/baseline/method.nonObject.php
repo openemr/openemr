@@ -6127,11 +6127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method xpath\\(\\) on SimpleXMLElement\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Cqm/Generator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method generateCategoryIIIXml\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',

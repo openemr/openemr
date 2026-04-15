@@ -15,6 +15,7 @@ namespace OpenEMR\Cqm\QrdaControllers;
 use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
@@ -46,11 +47,11 @@ class QrdaReportController
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
-        if (empty($document)) {
+        if ($document === '') {
             return '';
         }
         if ($type === 'html') {
-            $xml = simplexml_load_string($document, 'SimpleXMLElement', LIBXML_NONET);
+            $xml = XmlUtils::loadString($document);
             $xsl = new DOMDocument();
             $xsl->load(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl');
             $proc = new XSLTProcessor();

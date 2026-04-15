@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Unit\Common\Session;
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -346,8 +347,8 @@ class SessionWrapperFactoryTest extends TestCase
     /**
      * Test that all non-portal session types route to core session
      *
-     * @dataProvider nonPortalSessionTypeProvider
      */
+    #[DataProvider('nonPortalSessionTypeProvider')]
     public function testAllNonPortalSessionTypesRouteToCore(string $sessionType): void
     {
         $_COOKIE[SessionUtil::APP_COOKIE_NAME] = $sessionType;
@@ -873,8 +874,8 @@ class SessionWrapperFactoryTest extends TestCase
     /**
      * Test: Injected session takes priority regardless of any App cookie value
      *
-     * @dataProvider appCookieProvider
      */
+    #[DataProvider('appCookieProvider')]
     public function testInjectedSessionTakesPriorityOverAnyCookie(string $cookieValue): void
     {
         $_COOKIE[SessionUtil::APP_COOKIE_NAME] = $cookieValue;

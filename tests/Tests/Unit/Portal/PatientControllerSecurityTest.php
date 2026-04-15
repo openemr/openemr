@@ -64,7 +64,6 @@ class PatientControllerSecurityTest extends TestCase
      * 2. User attempts to modify patient ID 2's profile by manipulating the pid parameter
      * 3. The system should reject this unauthorized access attempt
      *
-     * @test
      */
     public function testUserCannotUpdateOtherUsersProfile(): void
     {
@@ -101,7 +100,6 @@ class PatientControllerSecurityTest extends TestCase
      * Even if authorization checks pass, users should never be able to
      * modify their own pid or pubpid as these are internal system identifiers
      *
-     * @test
      */
     public function testPidAndPubpidCannotBeModifiedByUser(): void
     {
@@ -127,7 +125,6 @@ class PatientControllerSecurityTest extends TestCase
     /**
      * Test that authorization check properly validates session pid
      *
-     * @test
      */
     public function testAuthorizationCheckValidatesSessionPid(): void
     {
@@ -155,7 +152,6 @@ class PatientControllerSecurityTest extends TestCase
     /**
      * Test that authorization prevents IDOR (Insecure Direct Object Reference)
      *
-     * @test
      */
     public function testIDORAttackPrevention(): void
     {
@@ -217,7 +213,6 @@ class PatientControllerSecurityTest extends TestCase
      * 2. User A modifies request to target User B's profile
      * 3. System should reject the cross-account modification
      *
-     * @test
      */
     public function testCompleteAttackScenarioFromAdvisory(): void
     {

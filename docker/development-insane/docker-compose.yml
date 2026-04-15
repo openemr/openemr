@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:7b5664c9774f89283383d9f6488bff19878af95d203af36d55741225e58fdff2
+    image: openemr/openemr:flex-edge@sha256:892410a3d54caee1ee7f030d9275e5e88f63d7b6e67d4cf120214ca487533013
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:7b5664c9774f89283383d9f6488bff19878af95d203af36d55741225e58fdff2
+    image: openemr/openemr:flex-edge@sha256:892410a3d54caee1ee7f030d9275e5e88f63d7b6e67d4cf120214ca487533013
     ports:
     - 8098:80
     - 9098:443
@@ -572,7 +572,7 @@ services:
       retries: 3
   mysql:
     restart: always
-    image: mysql:8.4.8@sha256:da906917ca4ace3ba55538b7c2ee97a9bc865ef14a4b6920b021f0249d603f3d
+    image: mysql:8.4.8@sha256:669b2d89f3916f5263af230ffa20889a03c7f4bedf58133fe8780466c613f7ae
     command: [mysqld, --character-set-server=utf8mb4]
     ports:
     - 8220:3306
@@ -589,7 +589,7 @@ services:
       retries: 3
   mysql-old:
     restart: always
-    image: mysql:8.0.45@sha256:64756cc92f707eb504496d774353990bcb0f6999ddf598b6ad188f2da66bd000
+    image: mysql:8.0.45@sha256:529b4afa138686871cf698617ef6e347a857179fa2c58e6811b6c20862a1cd6a
     command: [mysqld, --character-set-server=utf8mb4, --default-authentication-plugin=mysql_native_password]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -641,7 +641,7 @@ services:
       COUCHDB_PASSWORD: password
   orthanc:
     restart: always
-    image: jodogne/orthanc-plugins:latest@sha256:fbd5e3747430fa478d5e1d68969017f75cabab76731d98e9e46f8f8e755c7d5c
+    image: jodogne/orthanc-plugins:latest@sha256:d9b82d85ac61f9f19e2d66cc96341f79e34a97a5f1267cca54c4e4f098f98e60
     ports:
     - 4242:4242
     - 8042:8042

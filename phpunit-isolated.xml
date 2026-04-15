@@ -18,12 +18,12 @@ This file configures the kind that does not require initialization.
          stopOnIncomplete="false"
          stopOnRisky="false"
          stopOnSkipped="false"
-         stopOnWarning="false"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnPhpunitDeprecations="true"
+         failOnDeprecation="true"
          failOnPhpunitDeprecation="true"
          failOnPhpunitWarning="true"
          testdox="false">
@@ -39,19 +39,13 @@ This file configures the kind that does not require initialization.
     <server name="DISABLE_DATABASE" value="1"/>
   </php>
 
-  <source>
+  <source ignoreIndirectDeprecations="true">
     <include>
-      <directory>apis</directory>
-      <directory>gacl</directory>
-      <directory>interface</directory>
-      <directory>library</directory>
-      <directory>modules</directory>
-      <directory>oauth2</directory>
-      <directory>portal</directory>
-      <directory>sites</directory>
-      <directory>src</directory>
-      <directory>tests</directory>
+      <directory>.</directory>
     </include>
+    <exclude>
+      <directory>vendor</directory>
+    </exclude>
   </source>
 
   <testsuites>
