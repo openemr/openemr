@@ -78,6 +78,8 @@
         "lcobucci/clock": "^2.3 || ^3.0",
         "lcobucci/jwt": "^4.3.0",
         "league/csv": "^9.28.0",
+        "league/flysystem": "^3.33",
+        "league/flysystem-local": "^3.31",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "^3.2.1",
         "moneyphp/money": "^4.8",
@@ -132,6 +134,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
         "iamcal/sql-parser": "^0.7.0",
+        "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
