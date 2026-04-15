@@ -20,6 +20,7 @@ MANIFEST_FILE="${SCRIPT_DIR}/CUSTOMER_BOOTSTRAP_MANIFEST.md"
 TIMESTAMP="$(date +%Y%m%d)"
 ZIP_PATH="${BUILD_DIR}/${PACKAGE_NAME}-${TIMESTAMP}.zip"
 STAGE_MODULE_DIR="${STAGE_ROOT}/${MODULE_DIR_NAME}"
+COMPONENT_BUILD_DIR="${BUILD_DIR}/components"
 
 extract_manifest_paths() {
     local start_heading="$1"
@@ -51,7 +52,27 @@ copy_manifest_file() {
     cp -p "$src" "$dest"
 }
 
+extract_component_entries() {
+    awk '
+        $0 == "## Component Packages" { in_components=1; next }
+        $0 == "## SaaS Wrapper Files" { in_components=0 }
+        in_components && $0 ~ /^### `component-[^`]+`$/ {
+            component = $0
+            sub(/^### `/, "", component)
+            sub(/`$/, "", component)
+            next
+        }
+        in_components && component != "" && $0 ~ /^- `[^`]+`$/ {
+            path = $0
+            sub(/^- `/, "", path)
+            sub(/`$/, "", path)
+            print component "\t" path
+        }
+    ' "$MANIFEST_FILE"
+}
+
 validate_stage_against_denylist() {
+    local stage_module_dir="$1"
     local violations=0
     local deny_entry
 
@@ -60,19 +81,19 @@ validate_stage_against_denylist() {
 
         case "$deny_entry" in
             */)
-                if find "$STAGE_MODULE_DIR" -path "${STAGE_MODULE_DIR}/${deny_entry%/}" -prune | grep -q .; then
+                if find "$stage_module_dir" -path "${stage_module_dir}/${deny_entry%/}" -prune | grep -q .; then
                     echo "[ERROR] Deny-listed directory present in stage: ${deny_entry}" >&2
                     violations=1
                 fi
                 ;;
             *'*'*)
-                if find "$STAGE_MODULE_DIR" -name "$deny_entry" | grep -q .; then
+                if find "$stage_module_dir" -name "$deny_entry" | grep -q .; then
                     echo "[ERROR] Deny-listed pattern present in stage: ${deny_entry}" >&2
                     violations=1
                 fi
                 ;;
             *)
-                if [ -e "${STAGE_MODULE_DIR}/${deny_entry}" ]; then
+                if [ -e "${stage_module_dir}/${deny_entry}" ]; then
                     echo "[ERROR] Deny-listed path present in stage: ${deny_entry}" >&2
                     violations=1
                 fi
@@ -86,15 +107,21 @@ validate_stage_against_denylist() {
     fi
 }
 
-print_summary() {
-    echo "=== Build Complete ==="
-    echo
-    echo "Created: ${ZIP_PATH}"
-    echo "  Size: $(du -h "${ZIP_PATH}" | cut -f1)"
-    echo "  Files: $(unzip -l "${ZIP_PATH}" | tail -1 | awk '{print $2}')"
-    echo
-    echo "Archive root directory: ${MODULE_DIR_NAME}/"
-    echo "Manifest source: ${MANIFEST_FILE}"
+build_zip_from_stage() {
+    local stage_dir="$1"
+    local zip_path="$2"
+
+    validate_stage_against_denylist "${stage_dir}/${MODULE_DIR_NAME}"
+    (cd "$stage_dir" && zip -rq "$zip_path" "$MODULE_DIR_NAME")
+}
+
+print_zip_summary() {
+    local label="$1"
+    local zip_path="$2"
+
+    echo "${label}: ${zip_path}"
+    echo "  Size: $(du -h "${zip_path}" | cut -f1)"
+    echo "  Files: $(unzip -l "${zip_path}" | tail -1 | awk '{print $2}')"
 }
 
 if [ ! -f "$MANIFEST_FILE" ]; then
@@ -104,6 +131,7 @@ fi
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$STAGE_MODULE_DIR"
+mkdir -p "$COMPONENT_BUILD_DIR"
 
 echo "=== Building MedEx customer bootstrap ZIP ==="
 echo "Source:   ${SCRIPT_DIR}"
@@ -123,8 +151,38 @@ if [ "$copied_count" -eq 0 ]; then
     exit 1
 fi
 
-validate_stage_against_denylist
+build_zip_from_stage "$STAGE_ROOT" "$ZIP_PATH"
 
-(cd "$STAGE_ROOT" && zip -rq "$ZIP_PATH" "$MODULE_DIR_NAME")
+component_names_file="${BUILD_DIR}/component-names.txt"
+extract_component_entries | awk -F '\t' '{print $1}' | awk '!seen[$0]++' > "$component_names_file"
 
-print_summary
+while IFS= read -r component_name; do
+    [ -n "$component_name" ] || continue
+    component_stage_root="${COMPONENT_BUILD_DIR}/${component_name}/stage"
+    component_stage_module_dir="${component_stage_root}/${MODULE_DIR_NAME}"
+    mkdir -p "$component_stage_module_dir"
+
+    while IFS=$'\t' read -r entry_component_name relative_path; do
+        [ "$entry_component_name" = "$component_name" ] || continue
+        STAGE_MODULE_DIR="$component_stage_module_dir" copy_manifest_file "$relative_path"
+    done < <(extract_component_entries)
+done < "$component_names_file"
+
+echo "=== Build Complete ==="
+echo
+print_zip_summary "Bootstrap ZIP" "$ZIP_PATH"
+echo
+
+if [ -s "$component_names_file" ]; then
+    echo "Component ZIPs:"
+    while IFS= read -r component_name; do
+        [ -n "$component_name" ] || continue
+        component_zip="${COMPONENT_BUILD_DIR}/${component_name}-${TIMESTAMP}.zip"
+        build_zip_from_stage "${COMPONENT_BUILD_DIR}/${component_name}/stage" "$component_zip"
+        print_zip_summary "  ${component_name}" "$component_zip"
+    done < "$component_names_file"
+    echo
+fi
+
+echo "Archive root directory: ${MODULE_DIR_NAME}/"
+echo "Manifest source: ${MANIFEST_FILE}"
