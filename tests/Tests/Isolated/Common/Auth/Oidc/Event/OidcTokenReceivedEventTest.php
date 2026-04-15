@@ -13,10 +13,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Event;
 use OpenEMR\Common\Auth\Oidc\Event\OidcTokenReceivedEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use OpenEMR\Common\Auth\Oidc\Identity\NormalizedIdentity;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcTokenReceivedEvent::class)]
 final class OidcTokenReceivedEventTest extends TestCase
 {
     public function testExposesTokenAndIssuer(): void

@@ -11,11 +11,9 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Identity;
 
 use OpenEMR\Common\Auth\Oidc\Identity\NormalizedIdentity;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(NormalizedIdentity::class)]
 final class NormalizedIdentityTest extends TestCase
 {
     public function testConstructionWithAllFields(): void

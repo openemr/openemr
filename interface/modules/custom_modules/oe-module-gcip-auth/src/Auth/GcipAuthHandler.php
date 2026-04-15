@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\GcipAuth\Auth;
 
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
 use OpenEMR\Common\Auth\Oidc\Event\OidcAuthenticationEvent;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
@@ -64,7 +65,7 @@ final readonly class GcipAuthHandler
         // Resolve JWKS URI from discovery
         try {
             $metadata = $this->discoveryClient->getMetadata($issuer);
-        } catch (\Throwable) {
+        } catch (OidcDiscoveryException) {
             EventAuditLogger::getInstance()->newEvent(
                 'login',
                 '',

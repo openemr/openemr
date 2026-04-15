@@ -14,10 +14,8 @@ use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\JwksException;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(JwksClient::class)]
 final class JwksClientTest extends TestCase
 {
     private const JWKS_URI = 'https://provider.example.com/jwks';

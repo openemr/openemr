@@ -17,10 +17,8 @@ namespace OpenEMR\Tests\Integration\Common\Auth;
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AuthUtils::class)]
 final class AuthUtilsIpDelegationTest extends TestCase
 {
     /**

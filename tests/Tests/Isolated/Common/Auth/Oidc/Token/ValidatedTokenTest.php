@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Token;
 
 use OpenEMR\Common\Auth\Oidc\Identity\NormalizedIdentity;
 use OpenEMR\Common\Auth\Oidc\Token\ValidatedToken;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ValidatedToken::class)]
 final class ValidatedTokenTest extends TestCase
 {
     public function testConstructionWithAllFields(): void

@@ -17,11 +17,9 @@ namespace OpenEMR\Tests\Integration\Common\Auth\Oidc;
 use OpenEMR\Common\Auth\Oidc\Cache\DatabaseCache;
 use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheInvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(DatabaseCache::class)]
 final class DatabaseCacheTest extends TestCase
 {
     private DatabaseCache $cache;

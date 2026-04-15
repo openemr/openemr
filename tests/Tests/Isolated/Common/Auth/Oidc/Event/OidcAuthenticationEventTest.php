@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Event;
 
 use OpenEMR\Common\Auth\Oidc\Event\OidcAuthenticationEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\NormalizedIdentity;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcAuthenticationEvent::class)]
 final class OidcAuthenticationEventTest extends TestCase
 {
     private function createIdentity(): NormalizedIdentity

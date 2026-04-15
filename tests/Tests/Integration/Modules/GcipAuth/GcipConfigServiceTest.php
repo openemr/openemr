@@ -17,10 +17,8 @@ namespace OpenEMR\Tests\Integration\Modules\GcipAuth;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(GcipConfigService::class)]
 final class GcipConfigServiceTest extends TestCase
 {
     private GcipConfigService $service;

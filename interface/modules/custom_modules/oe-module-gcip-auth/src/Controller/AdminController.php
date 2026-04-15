@@ -57,7 +57,7 @@ final readonly class AdminController
                 'get' => $this->getConfig(),
                 default => throw new \InvalidArgumentException('Invalid action'),
             };
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
             http_response_code(400);
             echo json_encode(['error' => $e->getMessage()]);
         }

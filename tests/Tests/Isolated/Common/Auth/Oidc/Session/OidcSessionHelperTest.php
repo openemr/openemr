@@ -17,11 +17,9 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Session;
 
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-#[CoversClass(OidcSessionHelper::class)]
 final class OidcSessionHelperTest extends TestCase
 {
     protected function setUp(): void

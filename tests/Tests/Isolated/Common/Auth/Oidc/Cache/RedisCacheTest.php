@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Cache;
 
 use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheInvalidArgumentException;
 use OpenEMR\Common\Auth\Oidc\Cache\RedisCache;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(RedisCache::class)]
 final class RedisCacheTest extends TestCase
 {
     private FakePredisClient $client;

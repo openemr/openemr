@@ -11,10 +11,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Event;
 
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcLoginRequestEvent::class)]
 final class OidcLoginRequestEventTest extends TestCase
 {
     public function testIsNotHandledByDefault(): void

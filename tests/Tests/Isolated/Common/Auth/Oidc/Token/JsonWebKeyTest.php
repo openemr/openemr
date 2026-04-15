@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Token;
 
 use OpenEMR\Common\Auth\Oidc\Token\JsonWebKey;
 use OpenEMR\Common\Auth\Oidc\Token\JwksException;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(JsonWebKey::class)]
 final class JsonWebKeyTest extends TestCase
 {
     /**

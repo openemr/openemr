@@ -13,12 +13,10 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\OpenIDConnect\JWT;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 
-#[CoversClass(JsonWebKeySet::class)]
 final class JsonWebKeySetCacheTest extends TestCase
 {
     private const JWKS_URI = 'https://accounts.example.com/jwks';

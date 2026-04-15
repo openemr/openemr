@@ -11,10 +11,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Token;
 
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcValidationParameters::class)]
 final class OidcValidationParametersTest extends TestCase
 {
     public function testConstructionWithRequiredFieldsOnly(): void

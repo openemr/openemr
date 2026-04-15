@@ -13,11 +13,9 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Cache;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheException;
 use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheInvalidArgumentException;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(FilesystemCache::class)]
 final class FilesystemCacheTest extends TestCase
 {
     private string $cacheDir;

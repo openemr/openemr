@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Identity;
 
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMappingException;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(MinimalClaimMapper::class)]
 final class MinimalClaimMapperTest extends TestCase
 {
     private MinimalClaimMapper $mapper;

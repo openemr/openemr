@@ -13,10 +13,8 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcDiscoveryClient::class)]
 final class OidcDiscoveryClientTest extends TestCase
 {
     private const ISSUER = 'https://accounts.example.com';

@@ -13,10 +13,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth;
 
 use OpenEMR\Common\Auth\IpBlockStatus;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(IpBlockStatus::class)]
 final class IpBlockStatusTest extends TestCase
 {
     public function testAllowedFactoryReturnsAllowedStatus(): void

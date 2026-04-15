@@ -12,10 +12,8 @@ namespace OpenEMR\Tests\Isolated\Modules\GcipAuth\Auth;
 
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMappingException;
 use OpenEMR\Modules\GcipAuth\Auth\GcipClaimMapper;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(GcipClaimMapper::class)]
 final class GcipClaimMapperTest extends TestCase
 {
     private GcipClaimMapper $mapper;

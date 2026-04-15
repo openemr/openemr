@@ -16,10 +16,8 @@ namespace OpenEMR\Tests\Integration\Common\Auth;
 
 use OpenEMR\Common\Auth\IpLoginRateLimiter;
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(IpLoginRateLimiter::class)]
 final class IpLoginRateLimiterTest extends TestCase
 {
     private const TEST_IP = '10.99.99.1 (test-integration)';

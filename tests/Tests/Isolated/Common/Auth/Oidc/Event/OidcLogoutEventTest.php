@@ -11,10 +11,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Event;
 
 use OpenEMR\Common\Auth\Oidc\Event\OidcLogoutEvent;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcLogoutEvent::class)]
 final class OidcLogoutEventTest extends TestCase
 {
     public function testExposesProperties(): void

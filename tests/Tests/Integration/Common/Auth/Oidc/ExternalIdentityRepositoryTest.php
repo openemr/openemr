@@ -17,10 +17,8 @@ namespace OpenEMR\Tests\Integration\Common\Auth\Oidc;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityMapping;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ExternalIdentityRepository::class)]
 final class ExternalIdentityRepositoryTest extends TestCase
 {
     private ExternalIdentityRepository $repository;

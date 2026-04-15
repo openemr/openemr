@@ -11,11 +11,9 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Cache;
 
 use OpenEMR\Common\Auth\Oidc\Cache\CacheEntry;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(CacheEntry::class)]
 final class CacheEntryTest extends TestCase
 {
     public function testConstructionWithValueAndExpiry(): void

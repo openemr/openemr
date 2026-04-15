@@ -56,22 +56,16 @@ class JsonWebKeySet implements Key
      */
     private $logger;
 
-    private ?CacheInterface $cache;
-
-    private int $cacheTtlSeconds;
-
     public function __construct(
         ClientInterface $httpClient,
         $jwks_uri = null,
         $jwks = null,
         ?LoggerInterface $logger = null,
-        ?CacheInterface $cache = null,
-        int $cacheTtlSeconds = self::DEFAULT_CACHE_TTL_SECONDS,
+        private readonly ?CacheInterface $cache = null,
+        private readonly int $cacheTtlSeconds = self::DEFAULT_CACHE_TTL_SECONDS,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->setHttpClient($httpClient);
-        $this->cache = $cache;
-        $this->cacheTtlSeconds = $cacheTtlSeconds;
 
         $passphrase = '';
         if (empty($jwks_uri) && empty($jwks)) {
@@ -163,7 +157,7 @@ class JsonWebKeySet implements Key
                 $this->logger->debug("Retrieved jwk content from cache", ['jwks_uri' => $jwksUri]);
                 return $cached;
             }
-        } catch (\Throwable $exception) {
+        } catch (\RuntimeException | \InvalidArgumentException $exception) {
             $this->logger->warning(
                 "JWKS cache read failed, falling back to HTTP",
                 ['jwks_uri' => $jwksUri, 'exception' => $exception],
@@ -175,7 +169,7 @@ class JsonWebKeySet implements Key
 
         try {
             $this->cache->set($cacheKey, $json, $this->cacheTtlSeconds);
-        } catch (\Throwable $exception) {
+        } catch (\RuntimeException | \InvalidArgumentException $exception) {
             $this->logger->warning(
                 "JWKS cache write failed",
                 ['jwks_uri' => $jwksUri, 'exception' => $exception],

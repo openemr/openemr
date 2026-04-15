@@ -12,11 +12,9 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery;
 
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcProviderMetadata;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OidcProviderMetadata::class)]
 final class OidcProviderMetadataTest extends TestCase
 {
     /**

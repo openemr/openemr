@@ -16,11 +16,9 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-#[CoversClass(CsrfUtils::class)]
 final class OidcLoginCsrfTest extends TestCase
 {
     private const SUBJECT = 'oidc_login';

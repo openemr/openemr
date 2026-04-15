@@ -16,10 +16,8 @@ namespace OpenEMR\Tests\Integration\Common\Auth\Oidc;
 
 use OpenEMR\Common\Auth\Oidc\Token\TokenRevocationService;
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(TokenRevocationService::class)]
 final class TokenRevocationServiceTest extends TestCase
 {
     private TokenRevocationService $service;

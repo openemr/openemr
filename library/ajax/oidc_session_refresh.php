@@ -21,6 +21,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
@@ -116,9 +117,10 @@ $tokenValidator = new OidcTokenValidator($jwksClient, new MinimalClaimMapper(), 
 $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
 
 // 7. Discover provider metadata
+$metadata = null;
 try {
     $metadata = $discoveryClient->getMetadata($sessionIssuer);
-} catch (\Throwable) {
+} catch (OidcDiscoveryException) {
     EventAuditLogger::getInstance()->newEvent(
         'login',
         $username,
@@ -128,6 +130,8 @@ try {
     );
     http_response_code(401);
     echo json_encode(['error' => 'token_invalid', 'message' => 'Discovery failed']);
+}
+if ($metadata === null) {
     exit;
 }
 
@@ -139,6 +143,7 @@ $parameters = new OidcValidationParameters(
     clockSkewSeconds: $clockSkew > 0 ? $clockSkew : 30,
 );
 
+$validatedToken = null;
 try {
     $validatedToken = $tokenValidator->validate($idToken, $metadata->jwksUri, $parameters);
 } catch (OidcTokenValidationException) {
@@ -151,6 +156,8 @@ try {
     );
     http_response_code(401);
     echo json_encode(['error' => 'token_invalid', 'message' => 'Token validation failed']);
+}
+if ($validatedToken === null) {
     exit;
 }
 
