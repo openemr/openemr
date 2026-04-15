@@ -44,6 +44,7 @@ use Lcobucci\JWT\Validation\Validator;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -54,6 +55,7 @@ final readonly class OidcTokenValidator
         private ClientInterface $httpClient,
         private ClaimMapperInterface $claimMapper,
         private Clock $clock,
+        private JWTRepository $jwtRepository,
         private ?CacheInterface $cache = null,
         private ?LoggerInterface $logger = null,
     ) {
@@ -145,6 +147,28 @@ final readonly class OidcTokenValidator
             }
         }
 
+        // JTI replay protection.
+        //
+        // Every ID-token validation records a replay key so a second presentation
+        // of the same token is rejected. Providers that omit the "jti" claim
+        // (notably Firebase/GCIP in some configurations) fall back to a synthetic
+        // key derived from (iss, sub, iat), which is unique per token issuance.
+        //
+        // The repository's "jti_exp > ?" filter is passed the current clock time
+        // (not the token's own exp), so the lookup returns "has this jti been
+        // seen recently, and is the stored record still within its validity
+        // window". Records past their stored jti_exp naturally age out.
+        $exp = $token->claims()->get('exp');
+        $replayKey = $this->computeReplayKey($token);
+        $nowTimestamp = $this->clock->now()->getTimestamp();
+        if ($this->jwtRepository->getJwtGrantHistoryForJTI($replayKey, $nowTimestamp) !== []) {
+            throw new OidcTokenValidationException('ID token has already been used (replay detected)');
+        }
+        $issuerClaim = $token->claims()->get('iss');
+        $issuerForRecord = is_string($issuerClaim) ? $issuerClaim : $parameters->expectedIssuer;
+        $storedExpiration = $exp instanceof \DateTimeInterface ? $exp->getTimestamp() : null;
+        $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $storedExpiration);
+
         // Step 9: Map claims to NormalizedIdentity
         $claims = $this->extractClaims($token);
 
@@ -159,7 +183,6 @@ final readonly class OidcTokenValidator
         }
 
         // Step 10: Build result
-        $exp = $token->claims()->get('exp');
         $expiresAt = $exp instanceof \DateTimeImmutable
             ? $exp
             : new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp());
@@ -172,6 +195,36 @@ final readonly class OidcTokenValidator
             expiresAt: $expiresAt,
             jti: is_string($jti) ? $jti : null,
         );
+    }
+
+    /**
+     * Compute the replay-protection key for a token.
+     *
+     * Prefers the token's "jti" claim when present (the OIDC standard). Falls
+     * back to a synthetic SHA-256 digest of (iss, sub, iat) when the provider
+     * omits "jti" — this is stable per token issuance so a second presentation
+     * of the same token still collides with the stored record.
+     */
+    private function computeReplayKey(Plain $token): string
+    {
+        $jti = $token->claims()->get('jti');
+        if (is_string($jti) && $jti !== '') {
+            return $jti;
+        }
+
+        $iss = $token->claims()->get('iss');
+        $sub = $token->claims()->get('sub');
+        $iat = $token->claims()->get('iat');
+
+        $issPart = is_string($iss) ? $iss : '';
+        $subPart = is_string($sub) ? $sub : '';
+        $iatPart = match (true) {
+            $iat instanceof \DateTimeInterface => (string) $iat->getTimestamp(),
+            is_int($iat) => (string) $iat,
+            default => '0',
+        };
+
+        return 'oidc-synthetic:' . hash('sha256', $issPart . '|' . $subPart . '|' . $iatPart);
     }
 
     private function signerForAlgorithm(string $alg): Signer

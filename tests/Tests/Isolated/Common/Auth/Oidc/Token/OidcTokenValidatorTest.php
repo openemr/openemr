@@ -18,6 +18,7 @@ use OpenEMR\Common\Auth\Oidc\Identity\StandardClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
 use phpseclib3\Crypt\RSA;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +36,7 @@ final class OidcTokenValidatorTest extends TestCase
     private OidcTokenValidator $validator;
     private OidcValidationParameters $params;
     private FakeClock $clock;
+    private InMemoryJwtRepository $jwtRepository;
 
     /** @var InMemory */
     private InMemory $privateKey;
@@ -75,11 +77,13 @@ final class OidcTokenValidatorTest extends TestCase
         $this->cache = new FilesystemCache($this->cacheDir);
 
         $this->clock = new FakeClock(new \DateTimeImmutable('2026-01-15T12:00:00Z'));
+        $this->jwtRepository = new InMemoryJwtRepository();
 
         $this->validator = new OidcTokenValidator(
             $this->httpClient,
             new StandardClaimMapper(),
             $this->clock,
+            $this->jwtRepository,
             $this->cache,
         );
 
@@ -536,5 +540,117 @@ final class OidcTokenValidatorTest extends TestCase
         $this->expectExceptionMessage('Token validation failed');
 
         $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    public function testSecondValidationOfSameJtiIsRejectedAsReplay(): void
+    {
+        $jwt = $this->buildToken(jti: 'unique-jti-1');
+
+        // First call succeeds and records the jti.
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        // Second call with the same token must be rejected.
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('replay detected');
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    public function testReplayProtectionTriggersFallbackKeyWhenJtiIsMissing(): void
+    {
+        // Token without jti — validator should synthesize a replay key from iss+sub+iat.
+        $jwt = $this->buildToken();
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('replay detected');
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    public function testDifferentTokensFromSameUserAreIndependent(): void
+    {
+        // Two distinct tokens (different iat / jti) for the same user must both succeed;
+        // the replay store must not treat "same user" as a collision.
+        $jwt1 = $this->buildToken(jti: 'jti-a');
+        $jwt2 = $this->buildToken(jti: 'jti-b');
+
+        $this->validator->validate($jwt1, self::JWKS_URI, $this->params);
+        // No exception for the second, distinct token.
+        $result = $this->validator->validate($jwt2, self::JWKS_URI, $this->params);
+
+        self::assertSame('user-123', $result->identity->externalId);
+    }
+
+    public function testReplayStoreRecordsIssuerAndExpiration(): void
+    {
+        $jwt = $this->buildToken(jti: 'unique-jti-record-check');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        $records = $this->jwtRepository->recordsFor('unique-jti-record-check');
+        self::assertCount(1, $records);
+        self::assertSame(self::ISSUER, $records[0]['client_id']);
+        self::assertIsInt($records[0]['jti_exp']);
+        self::assertGreaterThan($this->clock->now()->getTimestamp(), $records[0]['jti_exp']);
+    }
+}
+
+/**
+ * In-memory JWTRepository fake — isolated tests must not hit the database.
+ *
+ * Mirrors the "jti_exp > ?" filter semantics of the concrete repository:
+ * when a non-null expiration threshold is given, only records whose stored
+ * jti_exp is strictly greater are returned.
+ *
+ * @internal
+ */
+final class InMemoryJwtRepository extends JWTRepository
+{
+    /** @var array<string, list<array{jti: string, client_id: string, jti_exp: int|null}>> */
+    private array $history = [];
+
+    /**
+     * @param mixed $jti
+     * @param mixed $expiration
+     * @return list<array{jti: string, client_id: string, jti_exp: int|null}>
+     */
+    public function getJwtGrantHistoryForJTI($jti, $expiration = null)
+    {
+        if (!is_string($jti)) {
+            return [];
+        }
+        $records = $this->history[$jti] ?? [];
+        if (!is_int($expiration) || $expiration <= 0) {
+            return $records;
+        }
+        return array_values(array_filter(
+            $records,
+            static fn(array $r): bool => $r['jti_exp'] !== null && $r['jti_exp'] > $expiration,
+        ));
+    }
+
+    /**
+     * @param mixed $jti
+     * @param mixed $client_id
+     * @param mixed $expiration
+     */
+    public function saveJwtHistory($jti, $client_id, $expiration): void
+    {
+        if (!is_string($jti) || !is_string($client_id)) {
+            return;
+        }
+        $this->history[$jti][] = [
+            'jti' => $jti,
+            'client_id' => $client_id,
+            'jti_exp' => is_int($expiration) ? $expiration : null,
+        ];
+    }
+
+    /**
+     * @return list<array{jti: string, client_id: string, jti_exp: int|null}>
+     */
+    public function recordsFor(string $jti): array
+    {
+        return $this->history[$jti] ?? [];
     }
 }

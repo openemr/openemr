@@ -24,6 +24,7 @@ use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -205,6 +206,7 @@ final readonly class Bootstrap
             $httpClient,
             new GcipClaimMapper(),
             $clock,
+            new JWTRepository(),
             $cache,
         );
 

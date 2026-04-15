@@ -27,6 +27,7 @@ use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
@@ -110,7 +111,13 @@ $httpClient = new GuzzleHttp\Client(['timeout' => 10]);
 $cache = new FilesystemCache($cacheDir);
 $discoveryClient = new OidcDiscoveryClient($httpClient, $cache);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
-$tokenValidator = new OidcTokenValidator($httpClient, new MinimalClaimMapper(), $clock, $cache);
+$tokenValidator = new OidcTokenValidator(
+    $httpClient,
+    new MinimalClaimMapper(),
+    $clock,
+    new JWTRepository(),
+    $cache,
+);
 
 $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
 
