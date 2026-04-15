@@ -120,27 +120,170 @@ updates:
     include: scope
   open-pull-requests-limit: 5
 
-  # Docker selenium docker updates in 4 places in the repo as a group
+  # Docker selenium updates for CI (shared compose file)
+  # Docker dev directories are covered by their own entries below,
+  # which handle selenium alongside all other images.
 - package-ecosystem: docker-compose
   directories:
   - ci/compose-shared-selenium/
-  - docker/development-easy/
-  - docker/development-easy-redis/
-  - docker/development-insane/
   schedule:
-    interval: weekly
+    interval: daily
   allow:
   - dependency-name: selenium/standalone-chromium
-  ignore:
-  - dependency-name: selenium/standalone-chromium
-    versions: ['>=50']
+  - dependency-name: selenium/video
   groups:
     selenium-updates:
       patterns:
-      - selenium/standalone-chromium
+      - selenium/*
   labels:
   - dependencies
   - selenium
+  - docker
+
+  # Docker CI images (database + PHP + shared services)
+  # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
+  # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
+  # Tooling images (mailpit, dev-nginx, couchdb) are unconstrained.
+- package-ecosystem: docker-compose
+  directories:
+  - ci/apache_82_118/
+  - ci/apache_83_118/
+  - ci/apache_84_118/
+  - ci/apache_85_1011/
+  - ci/apache_85_106/
+  - ci/apache_85_114/
+  - ci/apache_85_118/
+  - ci/apache_85_122/
+  - ci/apache_85_57/
+  - ci/apache_85_80/
+  - ci/apache_85_84/
+  - ci/apache_85_93/
+  - ci/compose-shared-mailpit/
+  - ci/compose-shared-nginx/
+  - ci/inferno/
+  - ci/nginx_82/
+  - ci/nginx_83/
+  - ci/nginx_84/
+  - ci/nginx_85/
+  - ci/nginx_86/
+  schedule:
+    interval: daily
+  ignore:
+    # Block major/minor bumps for version-pinned images only — each CI
+    # directory intentionally tests a specific database + PHP version.
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    mailpit:
+      patterns:
+      - axllent/mailpit
+  labels:
+  - dependencies
+  - docker
+
+  # Docker dev environments (easy, easy-light, easy-redis, production)
+  # These use a single database version for convenience, not to test a
+  # specific version matrix. Major bumps are blocked (e.g., mariadb 11→12)
+  # but minor and patch updates are welcome.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-easy/
+  - docker/development-easy-light/
+  - docker/development-easy-redis/
+  - docker/production/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    selenium:
+      patterns:
+      - selenium/*
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
+  - docker
+
+  # Docker insane (version-testing matrix)
+  # Like CI, insane intentionally runs specific database + PHP versions.
+  # Block major/minor bumps for version-pinned images.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-insane/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    selenium:
+      patterns:
+      - selenium/*
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
   - docker
 
   # JavaScript dependencies (ccdaservice)

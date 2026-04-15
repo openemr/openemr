@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -52,13 +53,19 @@ class PatientMenuRole extends MenuRole
         // Collect the selected menu of user
         $patientMenuRole = $this->getMenuRole();
 
+        // Validate that the menu role filename is a basename only (no path traversal)
+        if ($patientMenuRole !== basename($patientMenuRole) || str_contains($patientMenuRole, '..')) {
+            ServiceContainer::getLogger()->error("Invalid menu role filename rejected", ['filename' => $patientMenuRole]);
+            die("\nInvalid menu role filename.");
+        }
+
         // Load the selected menu
         if (str_ends_with($patientMenuRole, '.json')) {
             // load custom menu (includes .json in id)
             $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
         }
         // if error, then die and report error
         if (!$menu_parsed) {
@@ -251,7 +258,7 @@ class PatientMenuRole extends MenuRole
             if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
                 $rel_url = ltrim((string) $rel_url, '/\\');
             }
-            return OEGlobalsBag::getInstance()->get('webroot') . "/" . $rel_url;
+            return OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/" . $rel_url;
         }
         return $rel_url;
     }

@@ -354,7 +354,7 @@ class OemrUI
         $print = xla("Print");
         if ($help_file) {
             $help_file = attr($help_file);
-            $help_file = OEGlobalsBag::getInstance()->get('webroot') . "/Documentation/help_files/$help_file";
+            $help_file = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/Documentation/help_files/$help_file";
             $modal_body = "<iframe src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
@@ -416,7 +416,7 @@ class OemrUI
         $expandTitle = xlj("Click to Contract and set to henceforth open in Centered mode");
         $contractTitle = xlj("Click to Expand and set to henceforth open in Expanded mode");
         $arrFiles = json_encode($this->arrFiles);
-        $web_root = OEGlobalsBag::getInstance()->get('webroot');
+        $web_root = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $collectToken = js_escape(CsrfUtils::collectCsrfToken(session: $session));
         $header_expand_js = <<<EXP

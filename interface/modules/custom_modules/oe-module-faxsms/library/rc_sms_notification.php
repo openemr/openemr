@@ -14,9 +14,11 @@
  * @copyright Copyright (c) 2008 Larry Lart
  * @copyright Copyright (c) 2018-2024 Jerry Padgett
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
 //hack add for command line version
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -84,7 +86,8 @@ if (!empty($runtime['type'])) {
     $TYPE = $runtime['type'] = "SMS"; // default
 }
 
-$CRON_TIME = 150;
+$taskManager = new \OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager();
+$CRON_TIME = $taskManager->getTaskHours(strtolower($TYPE));
 // use service if needed
 if ($TYPE === "SMS") {
     $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
@@ -117,10 +120,6 @@ $bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
 if (!empty($runtime['testrun'])) {
     $bTestRun = 1;
 }
-
-$curr_date = date("Y-m-d");
-$curr_time = time();
-$check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
 $db_sms_msg['type'] = $TYPE;
 $db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
@@ -176,7 +175,7 @@ $db_sms_msg['message'] = $MESSAGE;
                 $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . $SMS_NOTIFICATION_HOUR . " | " . xlt("CRONJOB RUNS EVERY:") . $CRON_TIME . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
 
                 // check in the interval
-                if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
+                if (\OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager::isWithinCronWindow((int) $remain_hour, $CRON_TIME)) {
                     //set message
                     $db_sms_msg['message'] = cron_SetMessage($prow, $db_sms_msg);
                     // send sms to patient - if not in test mode
@@ -207,7 +206,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry(NotificationChannel::SMS, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -252,7 +251,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry(NotificationChannel::EMAIL, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -287,37 +286,36 @@ function isValidPhone($phone): array|bool|string|null
 }
 
 /**
- * Integrate cron functions into this script
+ * Mark a non-recurring appointment as already-notified for a given channel.
  *
- * Borrowed from cron_functions.php. Update status yes if alert send to patient
+ * Only the per-channel alert flag (pc_sendalertsms / pc_sendalertemail) is
+ * updated. pc_apptstatus is intentionally left alone — it holds the real
+ * appointment status set by front-desk staff (Pending, Arrived, etc.) and
+ * must not be overwritten with notification metadata. See #11479.
  *
- * @param string $type
- * @param int    $pid
- * @param int    $pc_eid
- * @param string $recur
- * @return int
+ * Recurring events are intentionally skipped: the pc_sendalertsms /
+ * pc_sendalertemail columns live on the base event row which is shared by
+ * every occurrence. Setting them would suppress reminders for all future
+ * occurrences. Recurring-event dedup is handled in
+ * faxsms_getAlertPatientData() by checking the notification_log keyed on
+ * (pc_eid, pc_eventDate, type).
  */
-function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
+function rc_sms_notification_cron_update_entry(NotificationChannel $channel, int $pid, int $pc_eid, string $recur = ''): void
 {
     global $bTestRun;
 
     if ($bTestRun || (int)trim($recur) > 0) {
-        return 1;
+        return;
     }
 
-    $query = "UPDATE openemr_postcalendar_events SET";
+    $column = match ($channel) {
+        NotificationChannel::SMS   => 'pc_sendalertsms',
+        NotificationChannel::EMAIL => 'pc_sendalertemail',
+    };
 
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
-    } elseif ($type == 'EMAIL') {
-        $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
-    } else {
-        $query .= " pc_sendalertsms='NO' ";
-    }
+    $query = "UPDATE openemr_postcalendar_events SET {$column} = 'YES' WHERE pc_pid = ? AND pc_eid = ?";
 
-    $query .= " where pc_pid=? and pc_eid=? ";
-
-    return sqlStatement($query, [$pid, $pc_eid]);
+    QueryUtils::sqlStatementThrowException($query, [$pid, $pc_eid]);
 }
 
 /**
@@ -338,8 +336,8 @@ function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = ''
 function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificationHour): array
 {
     $where = match ($channel) {
-        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')",
-        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')",
+        NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')",
+        NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')",
     };
     $adj_date = (int)date("H") + $notificationHour;
     $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
@@ -349,11 +347,69 @@ function faxsms_getAlertPatientData(NotificationChannel $channel, int $notificat
         return [];
     }
 
+    // For recurring events, the events-table dedup columns
+    // (pc_sendalertsms/pc_sendalertemail) live on the base event row shared
+    // by all occurrences, so they cannot distinguish individual occurrence
+    // dates. Check the notification_log instead, keyed on
+    // (pc_eid, pc_eventDate, type).
+    // $channel is the PHP enum NotificationChannel ('SMS'/'EMAIL').
+    // notification_log.type is a MySQL enum('SMS','Email'). MySQL enum
+    // comparisons are case-insensitive, so the PHP value matches regardless
+    // of casing differences between the two enums.
+    $channelType = $channel->value;
+
+    // Collect recurring event IDs so we can batch-check notification_log
+    // in a single query instead of one query per occurrence. Use string
+    // keys to match the mixed types from fetchEvents() and notification_log
+    // without requiring casts from mixed.
+    /** @var array<string, true> */
+    $recurringEids = [];
+    foreach ($events as $event) {
+        if (!is_array($event)) {
+            continue;
+        }
+        $recurrtype = $event['pc_recurrtype'] ?? 0;
+        $pcEid = $event['pc_eid'] ?? null;
+        if (is_numeric($recurrtype) && $recurrtype > 0 && is_numeric($pcEid)) {
+            $recurringEids[(string)$pcEid] = true;
+        }
+    }
+
+    /** @var array<string, array<string, true>> */
+    $sentNotifications = [];
+    if ($recurringEids !== []) {
+        $pcEids = array_keys($recurringEids);
+        $placeholders = implode(',', array_fill(0, count($pcEids), '?'));
+        $rows = QueryUtils::fetchRecords(
+            "SELECT pc_eid, pc_eventDate FROM notification_log WHERE type = ? AND pc_eventDate = ? AND pc_eid IN ($placeholders)",
+            array_merge([$channelType, $check_date], $pcEids),
+        );
+        foreach ($rows as $row) {
+            $eid = $row['pc_eid'] ?? null;
+            $date = $row['pc_eventDate'] ?? null;
+            if (is_numeric($eid) && is_string($date)) {
+                $sentNotifications[(string)$eid][$date] = true;
+            }
+        }
+    }
+
     $normalized = [];
     foreach ($events as $event) {
-        if (is_array($event)) {
-            $normalized[] = $event;
+        if (!is_array($event)) {
+            continue;
         }
+        $recurrtype = $event['pc_recurrtype'] ?? 0;
+        $eventDate = $event['pc_eventDate'] ?? '';
+        $pcEid = $event['pc_eid'] ?? null;
+        if (
+            is_numeric($recurrtype) && $recurrtype > 0
+            && is_string($eventDate)
+            && is_numeric($pcEid)
+            && isset($sentNotifications[(string)$pcEid][$eventDate])
+        ) {
+            continue;
+        }
+        $normalized[] = $event;
     }
     return $normalized;
 }

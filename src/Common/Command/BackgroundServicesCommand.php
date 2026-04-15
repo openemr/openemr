@@ -8,7 +8,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -131,7 +131,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         if (!is_string($php)) {
             $php = PHP_BINARY;
         }
-        $fileroot = $this->getGlobalsBag()->getString('fileroot');
+        $globalsBag = $this->getGlobalsBag();
+        $fileroot = $globalsBag->getProjectDir();
         if ($fileroot === '') {
             $io->error('Global "fileroot" is not configured.');
             return Command::FAILURE;

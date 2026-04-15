@@ -166,7 +166,7 @@ class AuthorizationController
         private bool $providerForm = true
     ) {
         $globalsBag = $this->kernel->getGlobalsBag();
-        $this->webroot = $globalsBag->get('webroot', '');
+        $this->webroot = $globalsBag->getWebRoot();
         $this->globalsBag = $globalsBag;
         if (empty($this->session->get('site_id'))) {
             // should never reach this but just in case
@@ -688,13 +688,14 @@ class AuthorizationController
         if ($this->grantType === 'authorization_code') {
             $this->getSystemLogger()->debug(
                 "logging global params",
-                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->globalsBag->get('web_root'), 'site_id' => $this->session->get('site_id')]
+                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->webroot, 'site_id' => $this->session->get('site_id')]
             );
             $fhirServiceConfig = new ServerConfig();
+            $apiBase = $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default');
             $expectedAudience = [
                 $fhirServiceConfig->getFhirUrl(),
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/api",
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
+                $apiBase . "/api",
+                $apiBase . "/portal",
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
@@ -1593,7 +1594,7 @@ class AuthorizationController
      */
     public static function getAuthBaseFullURL(OEGlobalsBag $globalsBag, SessionInterface $session): string
     {
-        $baseUrl = $globalsBag->get('webroot', '') . '/oauth2/' . $session->get('site_id', 'default');
+        $baseUrl = $globalsBag->getWebRoot() . '/oauth2/' . $session->get('site_id', 'default');
         // collect full url and issuing url by using 'site_addr_oath' global
         return $globalsBag->get('site_addr_oath', '') . $baseUrl;
     }

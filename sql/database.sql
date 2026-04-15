@@ -12691,7 +12691,8 @@ INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
 INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
 ('46', '3', 'medical_devices', 'Medical Devices', '0'),
-('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
+('47', '3', 'goals', 'Goals', '0');
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `ccda_field_mapping`

@@ -220,18 +220,13 @@ abstract class AppDispatch
      */
     static function getApiService(string $type)
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-            return self::$_apiService;
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
+        return self::$_apiService;
     }
 
     /**
@@ -242,17 +237,12 @@ abstract class AppDispatch
      */
     static function setApiService(string $type): void
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
     }
 
     /**

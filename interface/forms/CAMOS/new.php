@@ -405,7 +405,10 @@ $i = 0;
 $statement = QueryUtils::sqlStatementThrowException("SELECT id, item, content, subcategory_id FROM {$tbl_camos_item} ORDER BY item");
 /** @var array{id: int, item: ?string, content: ?string, subcategory_id: int} $itemRow */
 while ($itemRow = QueryUtils::fetchArrayFromResultSet($statement)) {
-    echo "array3[" . $i . "] = new Array(" . js_escape($itemRow['item'] ?? '') . ", " . js_escape_protected(strip_tags($itemRow['content'] ?? '', "<b>,<i>"), '\r\n') . ", " . js_escape(strval($itemRow['subcategory_id'])) .
+    // Convert the literal \r\n placeholder stored by CAMOS input handling
+    // back to a real CRLF sequence so json_encode produces correct JS escapes.
+    $content = str_replace('\r\n', "\r\n", strip_tags($itemRow['content'] ?? '', "<b>,<i>"));
+    echo "array3[" . $i . "] = new Array(" . js_escape($itemRow['item'] ?? '') . ", " . js_escape($content) . ", " . js_escape(strval($itemRow['subcategory_id'])) .
     "," . js_escape(strval($itemRow['id'])) . ");\n";
     $i++;
 }
@@ -797,7 +800,7 @@ function click_item() {
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
       //display text in content box
-      f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
+      f2.textarea_content.value= array3[i1][1];
     }
   }
 }

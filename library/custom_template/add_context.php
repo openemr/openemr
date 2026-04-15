@@ -98,7 +98,7 @@ if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
                     document.designation_managment.submit();
                 }
                 else{
-                    alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>");
+                    alert(<?php echo js_escape(xl("Context name can't be empty"));?>);
                 }
             }
             function deleteme(id){
@@ -107,10 +107,10 @@ if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
                 CheckContextLive(id);
                 stat = document.getElementById('stat').value;
                 if(stat==1){
-                    msg = "<?php echo addslashes(xl('This context contains categories, which will be deleted. Do you still want to continue?'));?>";
+                    msg = <?php echo js_escape(xl('This context contains categories, which will be deleted. Do you still want to continue?'));?>;
                 }
                 else{
-                    msg = "<?php echo addslashes(xl('Do you want to delete this?'));?>";
+                    msg = <?php echo js_escape(xl('Do you want to delete this?'));?>;
                 }
                 if(confirm(msg)){
                 document.getElementById('action').value='delete';
@@ -133,7 +133,7 @@ if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
                 document.designation_managment.submit();
                 }
                 else{
-                   alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>");
+                   alert(<?php echo js_escape(xl("Context name can't be empty"));?>);
                 }
             }
             function CheckContextLive(id){

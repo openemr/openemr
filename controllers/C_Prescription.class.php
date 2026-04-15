@@ -746,7 +746,7 @@ class C_Prescription extends Controller
                 if (file_exists($addenumFile)) {
                     $pdf->ezText('');
                     $f = fopen($addenumFile, "r");
-                    while ($line = fgets($f, 1000)) {
+                    while (($line = fgets($f)) !== false) {
                         $pdf->ezText(rtrim($line));
                     }
                 }

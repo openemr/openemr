@@ -32,7 +32,7 @@ class ActionRouter
     public function __construct(protected $controller, protected $action)
     {
         $this->appRoot = Common::base_dir();
-        $this->webRoot = OEGlobalsBag::getInstance()->get('webroot');
+        $this->webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
         $this->templateRoot = Common::template_dir();
     }
 

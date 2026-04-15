@@ -169,6 +169,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                     "Failed to find cpt4 code in codes with code_text. Skipping option_id",
                     ['code_text' => $code_text, 'option_id' => $option_id]
                 );
+                continue;
             }
             $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";
             $codes = QueryUtils::fetchSingleValue($sql, 'codes', [self::LIST_ID_ENCOUNTER_TYPES, $option_id]);
@@ -270,6 +271,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                             'Failed to find cpt4 code in codes with code_text. Skipping option_id',
                             ['code_text' => $code_text, 'option_id' => $option_id]
                         );
+                        continue;
                     }
                     $sql = <<<'SQL'
                     UPDATE list_options SET codes = CONCAT('CPT4:', ?) WHERE list_id = ? AND option_id = ?

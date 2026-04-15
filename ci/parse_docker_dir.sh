@@ -21,9 +21,12 @@ parse() {
   local webserver_template
   local database_template
   local mailpit_template
+  local mysql_image
 
   # Parse docker directory name
   mysql_image=$(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
+  # Strip any @sha256:... digest suffix before splitting on ':'
+  mysql_image="${mysql_image%%@*}"
   IFS=: read -r database db <<< "${mysql_image}"
   IFS=_ read -r webserver php _ <<< "${docker_dir}"
 
@@ -74,8 +77,9 @@ parse() {
     save_node_cache=false
   fi
 
-  # Compose file path (first entry needs to be in ci/ if it has a subdirectory then it breaks things)
-  compose_file="ci/${webserver_template}:ci/${database_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
+  # Compose file path (first entry must be directly in ci/, not a subdirectory,
+  # because Docker Compose resolves all relative paths from the first file's directory)
+  compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
 
   jq -cn \
     --arg compose_file "${compose_file}" \

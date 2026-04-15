@@ -416,7 +416,7 @@ class SMARTAuthorizationController
         $coreTheme = !empty($parts[0]) ? $parts[0] : "style_light";
         $logoService = $this->getLogoService();
         // do we want to expose each of the logos?  These really need to be cached instead of hitting FS each time...
-        $primaryLogo = $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . $logoService->getLogo("core/login/primary");
+        $primaryLogo = $this->globalsBag->get('site_addr_oath') . $this->globalsBag->getKernel()->getWebRoot() . $logoService->getLogo("core/login/primary");
         $context = [
             'logo' => [
                 'primary' => $primaryLogo
