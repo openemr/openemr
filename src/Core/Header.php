@@ -9,6 +9,7 @@
 namespace OpenEMR\Core;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
@@ -187,15 +188,16 @@ class Header
         $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile(OEGlobalsBag::getInstance()->get('fileroot') . "/config/config.yaml");
+        $projectDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
+        $map = self::readConfigFile($projectDir . "/config/config.yaml");
         self::$scripts = [];
         self::$links = [];
 
         self::parseConfigFile($map, $assets);
 
         /* adding custom assets in addition */
-        if (is_file(OEGlobalsBag::getInstance()->get('fileroot') . "/custom/assets/custom.yaml")) {
-            $customMap = self::readConfigFile(OEGlobalsBag::getInstance()->get('fileroot') . "/custom/assets/custom.yaml");
+        if (is_file($projectDir . "/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile($projectDir . "/custom/assets/custom.yaml");
             self::parseConfigFile($customMap, $assets);
         }
 
@@ -215,6 +217,9 @@ class Header
     {
         $foundAssets = [];
         $excludedCount = 0;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $language_direction = $session->get('language_direction');
 
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
@@ -248,7 +253,7 @@ class Header
                     }
                 }
 
-                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($language_direction) && $language_direction == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;
@@ -433,6 +438,10 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace(OEGlobalsBag::getInstance()->get('webroot') . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
+        $uriPath = strtok($_SERVER["REQUEST_URI"], '?') ?: '';
+        $webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
+        return $webRoot !== ''
+            ? str_replace($webRoot . '/', '', $uriPath)
+            : ltrim($uriPath, '/');
     }
 }

@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 //
 
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 if (!extension_loaded("curl")) {
@@ -128,7 +129,7 @@ class RestResponse
         $this->Url = $matches[1];
         $this->QueryString = $matches[2];
         if ($this->HttpStatus != 204) {
-            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText);
+            $this->ResponseXml = XmlUtils::tryLoadString((string) $this->ResponseText);
         }
 
         if ($this->IsError = ($this->HttpStatus >= 400)) {

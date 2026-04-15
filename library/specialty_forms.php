@@ -15,14 +15,14 @@
 require_once(__DIR__ . "/../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$disablePreviousNameAdds = (int)($_SESSION['disablePreviousNameAdds'] ?? 0);
+$disablePreviousNameAdds = (int)($session->get('disablePreviousNameAdds') ?? 0);
 
 $form = trim((string) $_GET['form_handler']);
 echo "<script>var form=" . js_escape($form) . "</script>";
@@ -87,7 +87,7 @@ echo "<script>var form=" . js_escape($form) . "</script>";
     <?php } elseif ($form === 'name_history') { ?>
         <div class="container-fluid">
             <form class="form" id="names_form">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type="hidden" name="pid" value="<?php echo attr($pid); ?>" />
                 <input type="hidden" name="task_name_history" value="save" />
                 <div class="col">

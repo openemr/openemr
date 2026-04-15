@@ -807,7 +807,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->exactly(2))
             ->method('getLine')
-            ->with($mockResource, 1024)
+            ->with($mockResource)
             ->willReturnOnConsecutiveCalls(
                 "CREATE TABLE users;",
                 "INSERT INTO users VALUES (1, 'admin');"
@@ -882,7 +882,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('getLine')
-            ->with($mockResource, 1024)
+            ->with($mockResource)
             ->willReturn("CREATE TABLE users;");
 
         $mockInstaller->expects($this->exactly(3))
@@ -3392,5 +3392,182 @@ class InstallerTest extends TestCase
             ->with("REPLACE INTO globals ( gl_name, gl_index, gl_value ) VALUES ( 'test_monkey', '0', 'sure is' )")
             ->willReturn($mockResult);
         $mockInstaller->upsertCustomGlobals(['test_monkey' => ['index' => 0, 'value' => 'sure is']]);
+    }
+
+    /**
+     * Regression test for #10935.
+     *
+     * load_file() reads the dump file with fgets() and rtrim()s each result.
+     * Before the fix, the rtrim()'d lines were concatenated with no
+     * separator, so a continuation line starting at column 0 would fuse
+     * with the previous token:
+     *
+     *   UPDATE layout_options SET uor = 0
+     *   WHERE form_id = 'DEM'
+     *
+     * became:
+     *
+     *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
+     *
+     * The fix inserts a newline between concatenated lines, restoring
+     * valid token separation and ensuring SQL comments terminate correctly.
+     */
+    public function testLoadFileInsertsNewlineSeparatorBetweenSqlLines(): void
+    {
+        $mockInstaller = $this->buildLoadFileMock();
+        $mockResource = fopen('php://memory', 'w+');
+
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/path/to/test.sql', 'r')
+            ->willReturn($mockResource);
+
+        $eofCallCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('atEndOfFile')
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
+                $eofCallCount++;
+                return $eofCallCount > 3;
+            });
+
+        $mockInstaller->expects($this->exactly(3))
+            ->method('getLine')
+            ->with($mockResource)
+            ->willReturnOnConsecutiveCalls(
+                "UPDATE layout_options SET uor = 0\n",
+                "WHERE form_id = 'DEM' AND seq > 10\n",
+                "AND list_id IS NOT NULL;\n"
+            );
+
+        // Capture the actual SQL statements executed.
+        // Five calls total: SET autocommit=0, START TRANSACTION, the assembled
+        // UPDATE statement, COMMIT, SET autocommit=1.
+        $executedSql = [];
+        $mockInstaller->expects($this->exactly(5))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$executedSql) {
+                $executedSql[] = $sql;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('closeFile')
+            ->with($mockResource)
+            ->willReturn(true);
+
+        $result = $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('OK', $result);
+
+        // The third execute_sql call should be the complete UPDATE statement
+        $completeUpdateStatement = $executedSql[2] ?? '';
+        $this->assertIsString($completeUpdateStatement);
+
+        // Must contain "0\nWHERE" (with newline), not "0WHERE" (fused)
+        $this->assertStringContainsString("0\nWHERE", $completeUpdateStatement);
+        $this->assertStringNotContainsString('0WHERE', $completeUpdateStatement);
+
+        // Must contain "10\nAND" (with newline), not "10AND" (fused)
+        $this->assertStringContainsString("10\nAND", $completeUpdateStatement);
+        $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
+    }
+
+    /**
+     * Verify that a mid-line "--" comment does not swallow the next line.
+     *
+     * Regression test for #11465: when lines are joined with a space,
+     * a trailing "--" comment extends to the end of the single
+     * concatenated line, silently absorbing the continuation clause.
+     * With a newline separator the comment terminates at the line
+     * boundary, preserving the WHERE clause.
+     *
+     * Input (two file lines forming one statement):
+     *
+     *   UPDATE t SET col = 0 -- reset value
+     *   WHERE id = 1;
+     *
+     * Old behaviour (space join):
+     *   "UPDATE t SET col = 0 -- reset value WHERE id = 1;"
+     *   → "--" swallows "WHERE id = 1;" → UPDATE with no WHERE
+     *
+     * New behaviour (newline join):
+     *   "UPDATE t SET col = 0 -- reset value\nWHERE id = 1;"
+     *   → "--" ends at newline → WHERE clause preserved
+     */
+    public function testLoadFileDoesNotSwallowStatementAfterDashDashComment(): void
+    {
+        $mockInstaller = $this->buildLoadFileMock();
+        $mockResource = fopen('php://memory', 'w+');
+
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/path/to/test.sql', 'r')
+            ->willReturn($mockResource);
+
+        $eofCallCount = 0;
+        $mockInstaller->expects($this->exactly(3))
+            ->method('atEndOfFile')
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
+                $eofCallCount++;
+                return $eofCallCount > 2;
+            });
+
+        $mockInstaller->expects($this->exactly(2))
+            ->method('getLine')
+            ->with($mockResource)
+            ->willReturnOnConsecutiveCalls(
+                "UPDATE t SET col = 0 -- reset value\n",
+                "WHERE id = 1;\n"
+            );
+
+        $executedSql = [];
+        $mockInstaller->expects($this->exactly(5))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$executedSql) {
+                $executedSql[] = $sql;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('closeFile')
+            ->with($mockResource)
+            ->willReturn(true);
+
+        $result = $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('OK', $result);
+
+        // executedSql: [SET autocommit=0, START TRANSACTION, UPDATE…, COMMIT, SET autocommit=1]
+        $updateStatement = $executedSql[2] ?? '';
+        $this->assertIsString($updateStatement);
+
+        // The newline must separate the comment from the WHERE clause
+        $this->assertStringContainsString("-- reset value\nWHERE id = 1", $updateStatement);
+        // The comment must not have fused with the WHERE clause
+        $this->assertStringNotContainsString('-- reset value WHERE', $updateStatement);
+        $this->assertStringNotContainsString('-- reset valueWHERE', $updateStatement);
+    }
+
+    /**
+     * Build a partially-mocked Installer for load_file() tests.
+     *
+     * @return Installer&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function buildLoadFileMock(): Installer
+    {
+        return $this->getMockBuilder(Installer::class)
+            ->setConstructorArgs([[
+                'server' => 'localhost',
+                'root' => 'root',
+                'rootpass' => 'password',
+                'port' => '3306',
+                'login' => 'openemr',
+                'pass' => 'openemr',
+                'dbname' => 'openemr'
+            ], new NullLogger()])
+            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
+            ->getMock();
     }
 }

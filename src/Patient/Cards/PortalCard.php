@@ -64,7 +64,6 @@ class PortalCard extends CardModel
     // used in twigs
     private function setOpts()
     {
-        global $GLOBALS;
         global $pid;
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
@@ -86,7 +85,7 @@ class PortalCard extends CardModel
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
-                'portalLoginHref' => OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/create_portallogin.php",
+                'portalLoginHref' => OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),

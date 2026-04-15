@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -43,9 +44,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
         $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
@@ -133,7 +132,8 @@ class NotificationEventListener implements EventSubscriberInterface
     public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event): string
     {
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -205,7 +205,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *   'expiry_interval' => "P2D", // valid for 2 days.
      *   'text_message' => "Please make a payment for your appointment.",
      *   'html_message' => "",
-     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
      *   'actions' => [
      *      'enforce_onetime_use' => true,
      *      'enforce_auth_pin' => true,
@@ -222,7 +222,8 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         // TODO: Move Implement onNotifyUniversalOneTime() method
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
         $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
@@ -363,7 +364,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
-            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+            $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
             $mail->addReplyTo($from, $from_name);
             $mail->setFrom($from, $from);
             $to = $email;

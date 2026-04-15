@@ -59,7 +59,7 @@ class GlobalConfig
     public function getClientSecret()
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
+        return $this->cryptoGen->decryptStandard(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getClientScope()

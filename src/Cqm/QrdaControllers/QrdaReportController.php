@@ -14,6 +14,8 @@ namespace OpenEMR\Cqm\QrdaControllers;
 
 use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
@@ -45,11 +47,11 @@ class QrdaReportController
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
-        if (empty($document)) {
+        if ($document === '') {
             return '';
         }
         if ($type === 'html') {
-            $xml = simplexml_load_string($document);
+            $xml = XmlUtils::loadString($document);
             $xsl = new DOMDocument();
             $xsl->load(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl');
             $proc = new XSLTProcessor();
@@ -356,11 +358,12 @@ class QrdaReportController
         // Clean up temporary directory
         $this->cleanupDirectory($zip_directory);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Log the event
         EventAuditLogger::getInstance()->newEvent(
             "qrda3-export",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "QRDA3 download - " . count($measures) . " measures, " . count($pids) . " patients"
         );
@@ -449,11 +452,12 @@ class QrdaReportController
 
             // Save file locally. Placeholder for future use.
 
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Log the event
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-export",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 "QRDA III Consolidated download - " . count($measures) . " measures"
             );

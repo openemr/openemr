@@ -18,12 +18,12 @@ namespace OpenEMR\Forms\FeeSheet\Review;
 class EncounterInfo
 {
     public function __construct(
-        public $id,
-        public $date
+        public int $id,
+        public string $date
     ) {
     }
 
-    public function getID()
+    public function getID(): int
     {
         return $this->id;
     }

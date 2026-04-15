@@ -10,6 +10,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -31,7 +32,7 @@ $slines = [];
 if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
-    exec("faxstat -r -l -h " . escapeshellarg((string) OEGlobalsBag::getInstance()->get('hylafax_server')), $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -51,7 +52,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = [];
-    exec("faxstat -s -d -l -h " . escapeshellarg((string) OEGlobalsBag::getInstance()->get('hylafax_server')), $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
@@ -62,7 +63,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
     ksort($dlines);
 }
 
-$scandir = OEGlobalsBag::getInstance()->get('scanner_output_directory');
+$scandir = OEGlobalsBag::getInstance()->getString('scanner_output_directory');
 if ($scandir && OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);
@@ -84,6 +85,7 @@ if ($scandir && OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) {
     ksort($slines);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -145,33 +147,33 @@ function refreshme() {
 
 // Process click on filename to view.
 function dodclick(ffname) {
- cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click on Job ID to view.
 function dojclick(jobid) {
- cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process scanned document filename to view.
 function dosvclick(sfname) {
- cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 600, 475,
+ cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
-    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Scanned Dispatch');
+    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 850, 550, '', 'Scanned Dispatch');
 }
 
 </script>
@@ -227,10 +229,10 @@ foreach ($mlines as $matches) {
     $ffbase = basename("/$ffname", '.tif');
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
-    echo "     <td onclick='domclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "     <td onclick='dodclick(" . attr(js_escape($ffname)) . ")'>";
+    echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
+    echo "     <td onclick='domclick(" . attr(js_escape($ffname)) . ")'>";
+    echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($matches[3]) . "</td>\n";
     echo "     <td>" . text($matches[2]) . "</td>\n";
     echo "     <td align='right'>" . text($matches[1]) . "</td>\n";
@@ -268,8 +270,8 @@ foreach ($dlines as $matches) {
 
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
-     "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" .
+    echo "     <td onclick='dojclick(" . attr(js_escape($jobid)) . ")'>" .
+     "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$jobid</a></td>\n";
     echo "     <td>" . text($matches[5]) . "</td>\n";
     echo "     <td>" . text($matches[6]) . "</td>\n";
@@ -298,11 +300,11 @@ foreach ($slines as $sline) {
     $sfname = $sline[0]; // filename
     $sfdate = date('Y-m-d H:i', $sline[9]);
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dosvclick(\"" . attr(addslashes($sfname)) . "\")'>" .
-     "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" .
+    echo "     <td onclick='dosvclick(" . attr(js_escape($sfname)) . ")'>" .
+     "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$sfname</a></td>\n";
-    echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "     <td onclick='dosdclick(" . attr(js_escape($sfname)) . ")'>";
+    echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($sfdate) . "</td>\n";
     echo "     <td align='right'>" . text($sline[7]) . "</td>\n";
     echo "    </tr>\n";

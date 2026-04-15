@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  *  $Id$
  *
@@ -54,8 +56,9 @@ function smarty_function_pc_url($args): void
     $viewtype = strtolower((string) pnVarCleanFromInput('viewtype'));
     // pnVarCleanFromInput('pc_username'); //(CHEMED) replaced by the code below
     //(CHEMED) Facility filtering
-    $pc_username = $_SESSION['pc_username'];
-    $pc_facility = $_SESSION['pc_facility'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username');
+    $pc_facility = $session->get('pc_facility');
     //END (CHEMED)
 
     $category = pnVarCleanFromInput('pc_category');

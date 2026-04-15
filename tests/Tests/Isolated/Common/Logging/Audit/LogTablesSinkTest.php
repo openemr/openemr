@@ -17,14 +17,12 @@ namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 use Doctrine\DBAL\Connection;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\LogTablesSink;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @phpstan-import-type ApiData from Event
  */
-#[CoversClass(LogTablesSink::class)]
 class LogTablesSinkTest extends TestCase
 {
     private Connection&MockObject $connection;

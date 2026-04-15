@@ -15,10 +15,10 @@ require_once(__DIR__ . "/../../interface/globals.php");
 require_once(__DIR__ . "/../clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //set the rule setting for patient (ensure all variables exist)
 if ($_POST['plan'] && $_POST['type'] && $_POST['setting'] && $_POST['patient_id']) {

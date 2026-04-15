@@ -125,6 +125,211 @@ paths:
       security:
         -
           openemr_auth: {  }
+  /api/background_service:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves all registered background services'
+      responses:
+        200:
+          description: 'List of registered background services'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    name:
+                      type: string
+                    title:
+                      type: string
+                    active:
+                      type: boolean
+                    running:
+                      type: boolean
+                    execute_interval:
+                      type: integer
+                    next_run:
+                      type: string
+                      format: date-time
+                  type: object
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/background_service/{name}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a single background service by name'
+      parameters:
+        -
+          name: name
+          in: path
+          description: 'The registered name of the background service.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Background service details'
+          content:
+            application/json:
+              schema:
+                required:
+                  - name
+                  - title
+                  - active
+                  - running
+                  - execute_interval
+                  - next_run
+                properties:
+                  name:
+                    type: string
+                  title:
+                    type: string
+                  active:
+                    type: boolean
+                  running:
+                    type: boolean
+                  execute_interval:
+                    type: integer
+                  next_run:
+                    type: string
+                    format: date-time
+                type: object
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'Background service not found'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: 'Service not found'
+                type: object
+      security:
+        -
+          openemr_auth: {  }
+  '/api/background_service/{name}/run':
+    post:
+      tags:
+        - standard
+      description: 'Triggers execution of a background service'
+      parameters:
+        -
+          name: name
+          in: path
+          description: 'The registered name of the background service.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                force:
+                  description: 'Force execution even if the service is not due to run.'
+                  type: boolean
+              type: object
+              example:
+                force: true
+      responses:
+        200:
+          description: 'Service executed successfully'
+          content:
+            application/json:
+              schema:
+                required:
+                  - service
+                  - status
+                properties:
+                  service:
+                    type: string
+                  status:
+                    type: string
+                type: object
+              example:
+                service: patient-reminder
+                status: executed
+        400:
+          description: 'Invalid JSON payload'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                type: object
+              example:
+                error: 'Invalid JSON payload'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'Background service not found'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                type: object
+              example:
+                error: 'Service not found'
+        409:
+          description: 'Service is already running, not due, or skipped'
+          content:
+            application/json:
+              schema:
+                required:
+                  - service
+                  - status
+                properties:
+                  service:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - already_running
+                      - not_due
+                      - skipped
+                type: object
+              example:
+                service: patient-reminder
+                status: already_running
+        500:
+          description: 'Service execution failed'
+          content:
+            application/json:
+              schema:
+                required:
+                  - service
+                  - status
+                properties:
+                  service:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - error
+                type: object
+              example:
+                service: patient-reminder
+                status: error
+      security:
+        -
+          openemr_auth: {  }
   /api/drug:
     get:
       tags:

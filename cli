@@ -6,6 +6,9 @@ declare(strict_types=1);
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\ConsoleRunner;
 use Firehed\Container\TypedContainerInterface;
+use OpenEMR\Common\Command\{
+    InstallCommand,
+};
 use Symfony\Component\Console\Application;
 
 $container = require_once __DIR__ . '/bootstrap.php';
@@ -22,6 +25,7 @@ file_put_contents(
 );
 
 $application = new Application();
+$application->addCommand($container->get(InstallCommand::class));
 
 // Doctrine Migrations integration
 ConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));

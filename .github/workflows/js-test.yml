@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        node-version: ['22']
+        node-version: ['24']
     steps:
     - name: Checkout code
       uses: actions/checkout@v6

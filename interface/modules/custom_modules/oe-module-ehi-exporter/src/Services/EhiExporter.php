@@ -17,7 +17,9 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
@@ -341,14 +343,13 @@ class EhiExporter
         return $updatedJobTask;
     }
 
-    private function getXmlNode($path)
+    private function getXmlNode(string $path)
     {
         $contents = file_get_contents($path);
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents);
-        return $xml;
+        return XmlUtils::loadString($contents);
     }
 
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask
@@ -478,7 +479,7 @@ class EhiExporter
     {
         $zip = new \ZipArchive();
 
-        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         if (!file_exists($tempDir)) {
             throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }
@@ -555,9 +556,10 @@ class EhiExporter
             throw new ExportException("document category id does not exist in system");
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $higherLevelPath = "";
         $pathDepth = 1;
-        $owner = $_SESSION['authUserID'];  // userID
+        $owner = $session->get('authUserID');  // userID
         $thumbnailTmpLocation = null;
         $dateExpires = null;
         $data = file_get_contents($zipLocation);

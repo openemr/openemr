@@ -10,6 +10,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once dirname(__FILE__, 5) . '/globals.php';
 
@@ -18,9 +19,9 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
     die;
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id']]);
 
 ?>

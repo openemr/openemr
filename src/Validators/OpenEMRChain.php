@@ -21,7 +21,7 @@ class OpenEMRChain extends Chain
     /**
      * @return $this
      */
-    public function listOption($listId)
+    public function listOption(string $listId)
     {
         return $this->addRule(new ListOptionRule($listId));
     }

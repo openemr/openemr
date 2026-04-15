@@ -21,13 +21,11 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
@@ -63,7 +61,7 @@ $data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
-$uid = $session->get('authUserID') ?? null;
+$uid = $session->get('authUserID');
 
 $clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {

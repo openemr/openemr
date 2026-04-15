@@ -41,14 +41,18 @@ class TwigContainer
      */
     public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
-        $this->paths[] = OEGlobalsBag::getInstance()->get('fileroot') . '/templates';
+        if (null !== $kernel) {
+            $this->kernel = $kernel;
+        }
+
+        $globalsBag = OEGlobalsBag::getInstance();
+        $templateRoot = $this->kernel !== null
+            ? $this->kernel->getProjectDir()
+            : $globalsBag->getProjectDir();
+        $this->paths[] = $templateRoot . '/templates';
 
         if (!empty($path)) {
             $this->addPath($path);
-        }
-
-        if (null !== $kernel) {
-            $this->kernel = $kernel;
         }
     }
 

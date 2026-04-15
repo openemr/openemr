@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/globals.php');
@@ -23,6 +24,8 @@ require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxXMLBu
 require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxPage.php');
 
 set_time_limit(0);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function array_key_exists_default($key, $search, $default = null)
 {
@@ -39,7 +42,7 @@ $eRxPage = new eRxPage(
     )
 );
 
-$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
+$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $session->all()))
     ->setDestination(array_key_exists_default('page', $_REQUEST))
     ->setPatientId(array_key_exists_default('pid', $GLOBALS))
     ->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))
@@ -137,7 +140,7 @@ if (count($missingExtensions) > 0) {
         <script>
             <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/restoreSession.php'); ?>
         </script>
-        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->get('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
+        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->getString('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">
             <input type="hidden" id="RxInput" name="RxInput" value="<?php echo attr($xml); ?>">
         </form>
