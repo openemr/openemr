@@ -6017,6 +6017,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/Export/ExportMemoryStreamWriterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$box_14_qualifier_options on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -6070,11 +6075,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$viewBean on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/Export/ExportMemoryStreamWriterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
