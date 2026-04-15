@@ -1897,11 +1897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\:\\:__construct\\(\\) has parameter \\$cgi_variables with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Installer\\:\\:extractFileName\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',

@@ -327,122 +327,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$clone_database \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$collate \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Installer\\:\\:\\$custom_globals \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$dbname \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$development_translations \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$i2faEnable \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$i2faSecret \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$igroup \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Installer\\:\\:\\$ippf_specific \\(string\\) does not accept false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$iufname \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$iuname \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$iuser \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$iuserpass \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$login \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$loginhost \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$new_theme \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$no_root_db_access \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$pass \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$port \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$root \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$rootpass \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$server \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$site \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\:\\:\\$source_site_id \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
