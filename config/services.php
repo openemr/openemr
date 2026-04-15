@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface as TC;
+use Installer;
 use Lcobucci\Clock\SystemClock;
 use Monolog\{
     Formatter\LineFormatter,
@@ -23,6 +24,7 @@ use Monolog\{
 };
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Core\ErrorHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\{
@@ -43,6 +45,9 @@ return [
         installRoot: $c->getString('installRoot'),
         logger: $c->get(LoggerInterface::class),
     ),
+
+    InstallerInterface::class => Installer::class,
+    Installer::class => fn (TC $c) => new Installer([], $c->get(LoggerInterface::class)),
 
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
