@@ -77,8 +77,9 @@ class BillingLogger
         ?ManagerInterface $storageManager = null,
         ?CryptoInterface $cryptoGen = null,
     ) {
-        $this->cryptoGen = $cryptoGen ?? ServiceContainer::getCrypto();
+        $cryptoGen ??= ServiceContainer::getCrypto();
         $storageManager ??= ServiceContainer::getStorageManager();
+        $this->cryptoGen = $cryptoGen;
         $this->filesystem = $storageManager->getStorage(Location::Documents);
 
         if (OEGlobalsBag::getInstance()->get('billing_log_option') == 1) {
