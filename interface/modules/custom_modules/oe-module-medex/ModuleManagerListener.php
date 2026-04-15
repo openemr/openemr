@@ -116,10 +116,19 @@ class ModuleManagerListener extends AbstractModuleActionListener
             : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
         $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
 
-        // Always render setup help inline for pre-install. In AJAX mode, the
-        // installer JS will treat the HTML response as non-JSON and append it
-        // directly into install_upgrade_log, which is more reliable than the
-        // script/modal path for this state.
+        // Temporary diagnostic: for pre-install XHR help clicks, force a
+        // non-success JSON status so the Installer page shows a native alert.
+        // This confirms the click is actually reaching this listener path.
+        if ($showSetup && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'MEDEX HELP TEST REACHED',
+                'output' => '<script>alert("MedEx help path reached");</script>'
+            ]);
+            exit(0);
+        }
+
+        // Always render setup help inline for pre-install for non-XHR access.
         if ($showSetup && file_exists(__DIR__ . '/show_help_setup.php')) {
             include __DIR__ . '/show_help_setup.php';
             exit(0);
