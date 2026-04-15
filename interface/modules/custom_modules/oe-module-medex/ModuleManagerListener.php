@@ -116,30 +116,10 @@ class ModuleManagerListener extends AbstractModuleActionListener
             : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
         $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
 
-        // XHR help clicks in Module Manager should return direct HTML for the modal
-        // body instead of relying on script execution side effects.
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $escapedUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            $escapedTitle = htmlspecialchars($helpTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            header('Content-Type: application/json');
-            $output = <<<HTML
-<div style="margin:12px auto 0;max-width:1100px;height:720px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.12);overflow:hidden;display:flex;flex-direction:column;">
-  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding:10px 12px;font-weight:700;background:#f8fafc;">
-    <span>{$escapedTitle}</span>
-    <button type="button" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;" onclick="var log=document.getElementById('install_upgrade_log');if(log){log.innerHTML='';log.style.display='none';}">Close</button>
-  </div>
-  <iframe src="{$escapedUrl}" title="{$escapedTitle}" style="border:0;width:100%;height:100%;background:#fff;"></iframe>
-</div>
-HTML;
-            echo json_encode([
-                'status' => 'Success',
-                'output' => $output
-            ]);
-            exit(0);
-        }
-
-        // Non-XHR direct navigation: include the setup page inline for pre-install,
-        // otherwise redirect to the richer help center.
+        // Always render setup help inline for pre-install. In AJAX mode, the
+        // installer JS will treat the HTML response as non-JSON and append it
+        // directly into install_upgrade_log, which is more reliable than the
+        // script/modal path for this state.
         if ($showSetup && file_exists(__DIR__ . '/show_help_setup.php')) {
             include __DIR__ . '/show_help_setup.php';
             exit(0);
