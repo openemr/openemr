@@ -8,6 +8,9 @@ on:
       - master
       - rel-*
 
+env:
+  ENVIRONMENT: ci
+
 permissions:
   contents: read
 
