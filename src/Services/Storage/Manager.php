@@ -35,6 +35,6 @@ class Manager implements ManagerInterface
     public function getStorage(Location $location): FilesystemOperator
     {
         return $this->filesystems[$location->name]
-            ?? throw new \RuntimeException("No filesystem registered for {$location->name}");
+            ?? throw new \OutOfBoundsException("No filesystem registered for {$location->name}");
     }
 }

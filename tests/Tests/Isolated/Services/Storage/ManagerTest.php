@@ -35,7 +35,7 @@ final class ManagerTest extends TestCase
     {
         $manager = new Manager();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(\OutOfBoundsException::class);
         $this->expectExceptionMessage('No filesystem registered for Documents');
 
         $manager->getStorage(Location::Documents);
