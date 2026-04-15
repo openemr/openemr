@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7806430c2849c52802daba666d75098f",
+    "content-hash": "199d52cc3c523d715dc376e4a487bff9",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -12380,6 +12380,170 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "composer/semver",
+            "version": "3.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/semver.git",
+                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/semver/zipball/198166618906cb2de69b95d7d47e5fa8aa1b2b95",
+                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.2 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "symfony/phpunit-bridge": "^3 || ^7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Composer\\Semver\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nils Adermann",
+                    "email": "naderman@naderman.de",
+                    "homepage": "http://www.naderman.de"
+                },
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                },
+                {
+                    "name": "Rob Bast",
+                    "email": "rob.bast@gmail.com",
+                    "homepage": "http://robbast.nl"
+                }
+            ],
+            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "keywords": [
+                "semantic",
+                "semver",
+                "validation",
+                "versioning"
+            ],
+            "support": {
+                "irc": "ircs://irc.libera.chat:6697/composer",
+                "issues": "https://github.com/composer/semver/issues",
+                "source": "https://github.com/composer/semver/tree/3.4.4"
+            },
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/composer",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-20T19:15:30+00:00"
+        },
+        {
+            "name": "dcarbone/php-fhir",
+            "version": "v4.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dcarbone/php-fhir.git",
+                "reference": "47438b353cb8e398734a392c40976ee22e12af8d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dcarbone/php-fhir/zipball/47438b353cb8e398734a392c40976ee22e12af8d",
+                "reference": "47438b353cb8e398734a392c40976ee22e12af8d",
+                "shasum": ""
+            },
+            "require": {
+                "composer/semver": "^3.4",
+                "ext-ctype": "*",
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "ext-xmlreader": "*",
+                "ext-xmlwriter": "*",
+                "php": "^8.1",
+                "psr/log": "^3.0"
+            },
+            "replace": {
+                "php-fhir/common": "*",
+                "php-fhir/component-tests": "*",
+                "php-fhir/elements": "*",
+                "php-fhir/object-mapper": "*",
+                "php-fhir/parser": "*",
+                "php-fhir/resources": "*",
+                "php-fhir/utilities": "*"
+            },
+            "require-dev": {
+                "ext-zlib": "*",
+                "monolog/monolog": "^3.2.0",
+                "phpunit/phpunit": "^10.5 || ^11.0",
+                "spatie/temporary-directory": "^1.0 || ^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "files/constants.php",
+                    "files/funcs.php"
+                ],
+                "psr-4": {
+                    "DCarbone\\PHPFHIR\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Carbone",
+                    "email": "daniel.p.carbone@gmail.com",
+                    "homepage": "https://github.com/dcarbone"
+                }
+            ],
+            "description": "Tools for creating PHP classes from the HL7 FHIR Specification",
+            "homepage": "https://github.com/dcarbone/php-fhir",
+            "keywords": [
+                "fhir",
+                "hl7",
+                "php",
+                "php-fhir"
+            ],
+            "support": {
+                "issues": "https://github.com/dcarbone/php-fhir/issues",
+                "source": "https://github.com/dcarbone/php-fhir/tree/v4.0.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dcarbone",
+                    "type": "github"
+                },
+                {
+                    "url": "https://ko-fi.com/dcarbone",
+                    "type": "ko_fi"
+                }
+            ],
+            "time": "2025-11-06T21:46:31+00:00"
+        },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v1.2.0",
