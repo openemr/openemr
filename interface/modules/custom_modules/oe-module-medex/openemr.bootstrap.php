@@ -651,7 +651,43 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         window.__medex_help_button_patched = true;
     }
 
+    function installCaptureInterceptor() {
+        if (window.__medex_capture_interceptor_installed) { return; }
+        window.__medex_capture_interceptor_installed = true;
+        document.addEventListener('click', function (event) {
+            var target = event.target;
+            if (!target || typeof target.closest !== 'function') { return; }
+            var link = target.closest('a');
+            if (!link) { return; }
+            var row = link.closest('tr');
+            if (!row) { return; }
+            var rowText = (row.textContent || '').toLowerCase();
+            var isMedexRow = rowText.indexOf('oe-module-medex') !== -1 || rowText.indexOf('medex module') !== -1;
+            if (!isMedexRow) { return; }
+
+            var onclickText = (link.getAttribute('onclick') || '').toLowerCase();
+            var isHelp = onclickText.indexOf('help_requested') !== -1;
+            var isInstall = onclickText.indexOf("'install'") !== -1;
+            if (!isHelp && !isInstall) { return; }
+
+            var rowId = row.getAttribute('id') || '';
+            var setupUrl = getMedexSetupUrl(rowId);
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+                event.stopImmediatePropagation();
+            }
+            if (typeof window.openModuleHelp === 'function') {
+                window.openModuleHelp(setupUrl, 'MedEx Setup Help');
+            } else {
+                window.location.href = setupUrl;
+            }
+            return false;
+        }, true);
+    }
+
     function patchInstallerPage() {
+        installCaptureInterceptor();
         patchConfigure();
         patchMedexButtons();
     }
