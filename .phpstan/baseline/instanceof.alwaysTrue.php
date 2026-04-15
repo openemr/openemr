@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/ReportManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Instanceof between OpenEMR\\\\FHIR\\\\R4\\\\FHIRResourceContainer and OpenEMR\\\\FHIR\\\\R4\\\\FHIRResourceContainer will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRDomainResource.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\Services\\\\Search\\\\ISearchField and OpenEMR\\\\Services\\\\Search\\\\ISearchField will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
