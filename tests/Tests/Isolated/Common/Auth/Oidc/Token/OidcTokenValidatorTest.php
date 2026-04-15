@@ -15,7 +15,6 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Identity\StandardClaimMapper;
-use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
@@ -75,13 +74,13 @@ final class OidcTokenValidatorTest extends TestCase
         mkdir($this->cacheDir, 0o755, true);
         $this->cache = new FilesystemCache($this->cacheDir);
 
-        $jwksClient = new JwksClient($this->httpClient, $this->cache);
         $this->clock = new FakeClock(new \DateTimeImmutable('2026-01-15T12:00:00Z'));
 
         $this->validator = new OidcTokenValidator(
-            $jwksClient,
+            $this->httpClient,
             new StandardClaimMapper(),
             $this->clock,
+            $this->cache,
         );
 
         $this->params = new OidcValidationParameters(

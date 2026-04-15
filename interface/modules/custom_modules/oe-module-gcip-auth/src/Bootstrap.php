@@ -23,7 +23,6 @@ use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
-use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -200,13 +199,13 @@ final readonly class Bootstrap
         $cache = new FilesystemCache($cacheDir);
 
         $discoveryClient = new OidcDiscoveryClient($httpClient, $cache);
-        $jwksClient = new JwksClient($httpClient, $cache);
         $clock = new SystemClock(new \DateTimeZone('UTC'));
 
         $tokenValidator = new OidcTokenValidator(
-            $jwksClient,
+            $httpClient,
             new GcipClaimMapper(),
             $clock,
+            $cache,
         );
 
         return new GcipAuthHandler(

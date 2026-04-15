@@ -24,7 +24,6 @@ use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
-use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
@@ -110,9 +109,8 @@ if (!is_dir($cacheDir)) {
 $httpClient = new GuzzleHttp\Client(['timeout' => 10]);
 $cache = new FilesystemCache($cacheDir);
 $discoveryClient = new OidcDiscoveryClient($httpClient, $cache);
-$jwksClient = new JwksClient($httpClient, $cache);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
-$tokenValidator = new OidcTokenValidator($jwksClient, new MinimalClaimMapper(), $clock);
+$tokenValidator = new OidcTokenValidator($httpClient, new MinimalClaimMapper(), $clock, $cache);
 
 $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
 

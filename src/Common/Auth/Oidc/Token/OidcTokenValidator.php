@@ -9,7 +9,7 @@
  * Validation steps (in order):
  *  1. Parse JWT and extract header (kid, alg)
  *  2. Reject disallowed algorithms (e.g. "none")
- *  3. Fetch signing key from JWKS (via JwksClient, cached + rotation-aware)
+ *  3. Resolve signing key from JWKS via JsonWebKeySet (cached + rotation-aware)
  *  4. Verify cryptographic signature
  *  5. Verify iss matches expected issuer
  *  6. Verify aud contains expected client ID
@@ -30,7 +30,6 @@ namespace OpenEMR\Common\Auth\Oidc\Token;
 use Lcobucci\Clock\Clock;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsSha256;
 use Lcobucci\JWT\Signer\Rsa\Sha384 as RsSha384;
 use Lcobucci\JWT\Signer\Rsa\Sha512 as RsSha512;
@@ -43,15 +42,20 @@ use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Math\BigInteger;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
+use Psr\Http\Client\ClientInterface;
+use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 
 final readonly class OidcTokenValidator
 {
     public function __construct(
-        private JwksClient $jwksClient,
+        private ClientInterface $httpClient,
         private ClaimMapperInterface $claimMapper,
         private Clock $clock,
+        private ?CacheInterface $cache = null,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -76,7 +80,7 @@ final readonly class OidcTokenValidator
         // Step 1: Parse the JWT
         try {
             $token = (new Parser(new JoseEncoder()))->parse($idToken);
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
             throw new OidcTokenValidationException('Failed to parse ID token', 0, $e);
         }
 
@@ -101,14 +105,19 @@ final readonly class OidcTokenValidator
         }
 
         try {
-            $jwk = $this->jwksClient->getSigningKey($jwksUri, $kid);
-        } catch (JwksException $e) {
+            $jwks = new JsonWebKeySet(
+                $this->httpClient,
+                $jwksUri,
+                null,
+                $this->logger,
+                $this->cache,
+            );
+            $publicKey = $jwks->getSigningKeyAsPem($kid, $alg);
+        } catch (JWKValidatorException $e) {
             throw new OidcTokenValidationException('Failed to retrieve signing key', 0, $e);
         }
 
         // Step 4-7: Verify signature, issuer, audience, time claims
-        $publicKey = $this->jwkToKey($jwk);
-
         $constraints = [
             new SignedWith($signer, $publicKey),
             new IssuedBy($parameters->expectedIssuer),
@@ -145,7 +154,7 @@ final readonly class OidcTokenValidator
 
         try {
             $identity = $this->claimMapper->map($claims);
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException $e) {
             throw new OidcTokenValidationException('Failed to map token claims to identity', 0, $e);
         }
 
@@ -173,46 +182,6 @@ final readonly class OidcTokenValidator
             'RS512' => new RsSha512(),
             default => throw new OidcTokenValidationException("No signer for algorithm: {$alg}"),
         };
-    }
-
-    private function jwkToKey(JsonWebKey $jwk): InMemory
-    {
-        if ($jwk->kty !== 'RSA') {
-            throw new OidcTokenValidationException("Unsupported key type: {$jwk->kty}");
-        }
-
-        $nParam = $jwk->getParameter('n');
-        $eParam = $jwk->getParameter('e');
-
-        if (!is_string($nParam) || !is_string($eParam)) {
-            throw new OidcTokenValidationException('RSA key missing n or e parameter');
-        }
-
-        $n = new BigInteger($this->base64UrlDecode($nParam), 256);
-        $e = new BigInteger($this->base64UrlDecode($eParam), 256);
-
-        /** @var \phpseclib3\Crypt\RSA\PublicKey $rsaKey */
-        $rsaKey = PublicKeyLoader::load(['n' => $n, 'e' => $e]);
-
-        $pem = $rsaKey->toString('PKCS8');
-        assert(is_string($pem) && $pem !== '');
-
-        return InMemory::plainText($pem);
-    }
-
-    private function base64UrlDecode(string $data): string
-    {
-        $remainder = strlen($data) % 4;
-        if ($remainder !== 0) {
-            $data .= str_repeat('=', 4 - $remainder);
-        }
-
-        $decoded = base64_decode(strtr($data, '-_', '+/'), true);
-        if ($decoded === false) {
-            throw new OidcTokenValidationException('Invalid base64url encoding');
-        }
-
-        return $decoded;
     }
 
     /**

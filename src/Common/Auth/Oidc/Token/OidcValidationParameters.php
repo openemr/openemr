@@ -25,13 +25,14 @@ final readonly class OidcValidationParameters
      * @param non-empty-string $expectedAudience   The expected aud claim (your client ID).
      * @param int    $clockSkewSeconds   Allowed clock skew for exp/iat/nbf validation.
      * @param int    $maxTokenAgeSeconds Maximum acceptable age based on iat claim.
-     * @param list<string> $allowedAlgorithms Accepted signing algorithms.
+     * @param list<non-empty-string> $allowedAlgorithms Accepted signing algorithms.
      */
     public function __construct(
         public string $expectedIssuer,
         public string $expectedAudience,
         public int $clockSkewSeconds = self::DEFAULT_CLOCK_SKEW_SECONDS,
         public int $maxTokenAgeSeconds = self::DEFAULT_MAX_TOKEN_AGE_SECONDS,
+        /** @var list<non-empty-string> */
         public array $allowedAlgorithms = ['RS256'],
     ) {
     }
