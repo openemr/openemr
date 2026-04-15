@@ -22,6 +22,7 @@ require_once __DIR__ . '/src/API/OEGlobalsBag_polyfill.php';
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\Core\ModuleManagerEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 // Initialize MedEx base URL from the single source of truth in MedExConfig.
@@ -340,12 +341,23 @@ namespace OpenEMR\Modules\MedEx {
 
 use OpenEMR\Events\Core\ModuleManagerEvent;
 use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . '/src/ModuleManagerListener.php');
-require_once(__DIR__ . '/src/Listeners/MessagesPageListener.php');
-require_once(__DIR__ . '/src/Listeners/PatientTrackerListener.php');
-require_once(__DIR__ . '/src/Listeners/PatientTrackerInjectionListener.php');
 require_once(__DIR__ . '/src/MedExDirectoryManager.php');
+
+$medexOptionalListenerFiles = [
+    __DIR__ . '/src/Listeners/MessagesPageListener.php',
+    __DIR__ . '/src/Listeners/PatientTrackerListener.php',
+    __DIR__ . '/src/Listeners/PatientTrackerInjectionListener.php',
+];
+foreach ($medexOptionalListenerFiles as $medexOptionalListenerFile) {
+    if (is_file($medexOptionalListenerFile)) {
+        require_once($medexOptionalListenerFile);
+    } else {
+        error_log('[MedEx] Optional listener missing, skipping load: ' . basename($medexOptionalListenerFile));
+    }
+}
 
 // Register medex.api service in container when available, so core can fetch a stable service
 if (!empty($GLOBALS['kernel'])) {
@@ -402,6 +414,51 @@ class Bootstrap
     }
 }
 
+function medex_auto_reset_smarty_cache_for_version(string $moduleVersion): void
+{
+    try {
+        $siteDir = rtrim((string)($GLOBALS['OE_SITE_DIR'] ?? ''), '/');
+        if ($siteDir === '' || !is_dir($siteDir)) {
+            return;
+        }
+        $smartyDir = $siteDir . '/documents/smarty';
+        if (!is_dir($smartyDir)) {
+            return;
+        }
+        $markerFile = $smartyDir . '/.medex_smarty_reset_version';
+        $lastVersion = '';
+        if (is_file($markerFile)) {
+            $lastVersion = trim((string)@file_get_contents($markerFile));
+        }
+        if ($lastVersion === $moduleVersion) {
+            return;
+        }
+
+        $targets = [
+            $smartyDir . '/main',
+            $smartyDir . '/modules',
+        ];
+        foreach ($targets as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+            $files = glob($dir . '/%%*');
+            if (!is_array($files)) {
+                continue;
+            }
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                }
+            }
+        }
+        @file_put_contents($markerFile, $moduleVersion);
+        @chmod($markerFile, 0644);
+    } catch (\Throwable $t) {
+        error_log('[MedEx] Smarty auto-reset skipped: ' . $t->getMessage());
+    }
+}
+
 // Register event listeners at file scope (critical for OpenEMR module loading)
 // The $eventDispatcher variable is provided by OpenEMR's ModulesApplication
 if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\EventDispatcher\EventDispatcherInterface) {
@@ -439,39 +496,37 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         $eventDispatcher->addListener(\OpenEMR\Events\Core\ModuleManagerEvent::EVENT_UNINSTALL, [$moduleListener, 'onModuleUninstall']);
     }
 
-    // Register menu whenever the module is installed (even when medex_enable=0)
-    // so admins can always reach the Admin Dashboard / Subscriptions page.
-    if ($isModuleInstalled) {
-        $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, 'oe_module_medex_add_menu_item');
-        $eventDispatcher->addListener(
-            \OpenEMR\Events\Globals\GlobalsInitializedEvent::EVENT_HANDLE,
-            static function ($event): void {
-                \oe_module_medex_add_user_settings($event);
-            }
-        );
-        error_log('[MedEx] Menu listener registered');
+    // Patch Module Manager page behavior even before installation so the MedEx
+    // help/install affordances can open the setup modal directly.
+    register_shutdown_function(function () {
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 
-        // Patch action.js configure() on the Module Manager page to include ?site= in the
-        // AJAX URL. Without it, globals.php returns 400 when the session lacks site_id.
-        // We inject after page load so the override runs after action.js has defined configure().
-        register_shutdown_function(function () {
-            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        // This patch is only for Module Manager installer pages.
+        if (strpos($requestUri, '/interface/modules/zend_modules/public/Installer') === false) {
+            return;
+        }
 
-            // This patch is only for Module Manager installer pages.
-            // Injecting on unrelated pages (like module help) can leak script text into output.
-            if (strpos($requestUri, '/interface/modules/zend_modules/public/Installer') === false) {
-                return;
-            }
-
-            // Skip injection on XHR/AJAX requests — appending a <script> after a JSON
-            // response body breaks JSON.parse() in action.js (help icon, manage, etc.)
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-                return;
-            }
-            echo <<<'JS'
+        // Skip injection on XHR/AJAX requests — appending a <script> after a JSON
+        // response body breaks JSON.parse() in action.js.
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            return;
+        }
+        echo <<<'JS'
 <script>
 (function () {
+    function getSite() {
+        return new URLSearchParams(window.location.search).get('site') || 'default';
+    }
+
+    function getMedexSetupUrl(rowId) {
+        var url = (window.webroot_url || '') + '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' + encodeURIComponent(getSite());
+        if (rowId) {
+            url += '&mod_id=' + encodeURIComponent(rowId);
+        }
+        return url;
+    }
+
     function patchConfigure() {
         if (typeof window.configure !== 'function' || window.__medex_configure_patched) { return; }
         window.__medex_configure_patched = true;
@@ -480,8 +535,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
                 jQuery('.config').hide();
                 jQuery('#ConfigRow_' + id).fadeOut();
             } else {
-                var site = new URLSearchParams(window.location.search).get('site') || 'default';
-                jQuery.post('./Installer/configure?site=' + encodeURIComponent(site), {mod_id: id},
+                jQuery.post('./Installer/configure?site=' + encodeURIComponent(getSite()), {mod_id: id},
                     function (data) {
                         jQuery('.config').hide();
                         jQuery('#ConfigRow_' + id).hide();
@@ -493,15 +547,85 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             }
         };
     }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', patchConfigure);
-    } else {
-        patchConfigure();
+
+    function patchMedexButtons() {
+        if (window.__medex_help_button_patched) { return; }
+        var rows = Array.prototype.slice.call(document.querySelectorAll('tr[id]'));
+        var row = rows.find(function (tr) {
+            var t = (tr.textContent || '').toLowerCase();
+            return t.indexOf('oe-module-medex') !== -1 || t.indexOf('medex module') !== -1;
+        });
+        if (!row) { return; }
+
+        var rowId = row.getAttribute('id') || '';
+        var setupUrl = getMedexSetupUrl(rowId);
+
+        var helpLink = row.querySelector("a[onclick*=\"help_requested\"]");
+        if (helpLink && !helpLink.dataset.medexPatched) {
+            helpLink.dataset.medexPatched = '1';
+            helpLink.onclick = function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                if (typeof window.openModuleHelp === 'function') {
+                    window.openModuleHelp(setupUrl, 'MedEx Setup Help');
+                } else {
+                    window.location.href = setupUrl;
+                }
+                return false;
+            };
+        }
+
+        var installLink = row.querySelector("a[onclick*=\"'install'\"]");
+        if (installLink && !installLink.dataset.medexPatched) {
+            installLink.dataset.medexPatched = '1';
+            installLink.onclick = function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                if (typeof window.openModuleHelp === 'function') {
+                    window.openModuleHelp(setupUrl, 'MedEx Setup Help');
+                } else {
+                    window.location.href = setupUrl;
+                }
+                return false;
+            };
+        }
+
+        window.__medex_help_button_patched = true;
     }
+
+    function patchInstallerPage() {
+        patchConfigure();
+        patchMedexButtons();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', patchInstallerPage);
+    } else {
+        patchInstallerPage();
+    }
+    window.setTimeout(patchInstallerPage, 300);
+    window.setTimeout(patchInstallerPage, 1200);
 })();
 </script>
 JS;
-        });
+    });
+
+    // Register menu whenever the module is installed (even when medex_enable=0)
+    // so admins can always reach the Admin Dashboard / Subscriptions page.
+    if ($isModuleInstalled) {
+        medex_auto_reset_smarty_cache_for_version(Bootstrap::MODULE_VERSION);
+        $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, 'oe_module_medex_add_menu_item');
+        $eventDispatcher->addListener(
+            \OpenEMR\Events\Globals\GlobalsInitializedEvent::EVENT_HANDLE,
+            static function ($event): void {
+                \oe_module_medex_add_user_settings($event);
+            }
+        );
+        error_log('[MedEx] Menu listener registered');
     }
 
     if ($isModuleEnabled) {
@@ -519,8 +643,26 @@ JS;
         // Skip entirely for unauthenticated requests (login page, etc.) — no session means no
         // point registering listeners, and getEnabledServices() would fire a network login() call
         // that adds 1-5s of latency to every pre-auth page load.
+        // Determine auth user robustly across native + Symfony session wrappers.
+        $authUserId = $_SESSION['authUserID'] ?? ($_SESSION['authUser'] ?? null);
+        if (empty($authUserId)) {
+            try {
+                $sessionWrapper = SessionWrapperFactory::getInstance()->getActiveSession();
+                if ($sessionWrapper) {
+                    $authUserId = $sessionWrapper->get('authUserID') ?: $sessionWrapper->get('authUser');
+                }
+            } catch (\Throwable $sessionEx) {
+                error_log('[MedEx] authUserID fallback lookup failed: ' . $sessionEx->getMessage());
+            }
+        }
+
+        // For calendar requests, do not skip entitlement checks just because authUserID is missing.
+        // Some runtimes may not populate this key consistently, while the module credentials remain valid.
+        $currentScriptForAuth = $_SERVER['SCRIPT_NAME'] ?? '';
+        $isCalendarRequestForAuth = strpos($currentScriptForAuth, '/main/calendar/index.php') !== false;
+
         try {
-            if (empty($_SESSION['authUserID'])) {
+            if (empty($authUserId) && !$isCalendarRequestForAuth) {
                 // Not logged in — skip API check entirely. Menu is already registered above
                 // via the pure-DB menu function which needs no network call.
                 error_log('[MedEx] No auth session — skipping getEnabledServices() check');
@@ -627,7 +769,7 @@ JS;
                             // Require explicit per-user opt-in for MedEx Full Calendar.
                             // This prevents unexpected paid-calendar injection on login.
                             $userOptedIn = false;
-                            $userId = $_SESSION['authUserID'] ?? null;
+                            $userId = $authUserId;
                             if ($userId) {
                                 try {
                                     $userPrefRows = sqlStatement(
@@ -850,13 +992,15 @@ HTML;
                 // Check which page we're on
                 if (strpos($currentScript, 'patient_tracker.php') !== false) {
                     // Inject Patient Tracker scripts
-                    $listener = new Listeners\PatientTrackerInjectionListener();
-                    $listener->injectScripts();
+                    if (class_exists(__NAMESPACE__ . '\\Listeners\\PatientTrackerInjectionListener')) {
+                        $listener = new Listeners\PatientTrackerInjectionListener();
+                        $listener->injectScripts();
+                    }
                 } elseif (strpos($currentScript, 'messages.php') !== false) {
                     // Only inject on the main messages page, not on ?go= sub-routes
                     // (SMS_bot, Recalls, addRecall, etc. are standalone pages that exit early)
                     $go = $_REQUEST['go'] ?? '';
-                    if ($go === '') {
+                    if ($go === '' && class_exists(__NAMESPACE__ . '\\Listeners\\MessagesPageListener')) {
                         $listener = new Listeners\MessagesPageListener();
                         $listener->injectScripts();
                     }

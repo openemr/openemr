@@ -185,10 +185,8 @@ class ModuleManagerListener
      * @param mixed $currentActionStatus
      * @return mixed
      */
-    private function help_requested($modId, $currentActionStatus): mixed
+    public function help_requested($modId, $currentActionStatus): mixed
     {
-        error_log('[MedEx Module] help_requested method called');
-
         $modActive = 0;
         $modUiActive = 0;
         try {
@@ -207,38 +205,46 @@ class ModuleManagerListener
         if ($siteId === '') {
             $siteId = 'default';
         }
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId);
-        $stateLabel = 'Pre-Install';
-        if ($modActive === 1) {
-            $stateLabel = 'Active Module';
-        } elseif ($modUiActive === 1) {
-            $stateLabel = 'Setup Needed';
-        }
 
-        $tutorialUrl = MedExConfig::tutorialUrl();
-        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $safeTutorialUrl = htmlspecialchars($tutorialUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $safeState = htmlspecialchars($stateLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $html = <<<HTML
-<div style="position:fixed;inset:0;background:rgba(7,12,22,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div style="max-width:520px;width:100%;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(2,8,23,.25);border:1px solid #dbe6f5;padding:22px 22px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Readiness Gate</div>
-    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Production onboarding only</div>
-    <div style="font-size:14px;color:#4f647d;line-height:1.5;margin-bottom:16px;">
-      Context: <strong>{$safeState}</strong>. MedEx activation requires production readiness and a public HTTPS callback URL.
+        $showSetup = ($modActive !== 1);
+        $helpUrl = $showSetup
+            ? ($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' . urlencode($siteId))
+            : ($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode($siteId));
+        $helpTitle = $showSetup ? 'MedEx Setup Help' : 'MedEx Help Center';
+
+        // AJAX help clicks from Module Manager must return JSON that action.js can append,
+        // allowing the modal launcher script from index.phtml to execute.
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            $escapedUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $escapedTitle = htmlspecialchars($helpTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $overlayId = 'medex-module-help-overlay';
+            $output = <<<HTML
+<div id="{$overlayId}" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div style="width:min(920px,96vw);height:min(720px,92vh);background:#fff;border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding:10px 12px;font-weight:700;">
+      <span>{$escapedTitle}</span>
+      <button type="button" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;" onclick="var ov=document.getElementById('{$overlayId}');if(ov){ov.remove();}var log=document.getElementById('install_upgrade_log');if(log){log.innerHTML='';log.style.display='none';}">×</button>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
-      <a href="{$safeTutorialUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
-    </div>
+    <iframe src="{$escapedUrl}" title="{$escapedTitle}" style="border:0;width:100%;height:100%;"></iframe>
   </div>
 </div>
 HTML;
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'Success',
+                'output' => $output
+            ]);
+            exit(0);
+        }
 
-        // Keep compatibility with caller behavior: emit modern launcher markup
-        // and return success status for Module Manager flow.
-        echo $html;
-        return $currentActionStatus;
+        // Non-AJAX direct access should render the setup helper inline for pre-install/pre-enable
+        // and fall back to redirecting to the help center for active installs.
+        if ($showSetup && file_exists(__DIR__ . '/../show_help_setup.php')) {
+            include __DIR__ . '/../show_help_setup.php';
+            exit(0);
+        }
+        header('Location: ' . $helpUrl);
+        exit(0);
     }
 
     /**

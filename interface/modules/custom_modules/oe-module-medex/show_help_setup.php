@@ -179,6 +179,12 @@ $siteId = (string)($_GET['site'] ?? 'default');
 <div class="wrap">
     <div class="hdr">
         <h2>MedEx Setup Checklist</h2>
+        <p>Use the guided action below to install, enable, and launch onboarding from one place.</p>
+        <div class="act" style="margin-top:10px;">
+            <button type="button" class="act-btn" id="startOnboardingBtn" style="font-size:14px;padding:10px 14px;background:#1d4ed8;color:#fff;border-color:#1d4ed8;">
+                Start Onboarding
+            </button>
+        </div>
     </div>
 
     <div class="steps">
@@ -223,7 +229,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
 </div>
 
 <script>
-    const initStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    let currentStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupStatusUrl = <?php echo json_encode(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
@@ -263,17 +269,43 @@ $siteId = (string)($_GET['site'] ?? 'default');
         window.location.href = url;
     }
 
+    function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function getEffectiveModuleId() {
+        const currentId = parseInt(currentStatus && currentStatus.mod_id ? currentStatus.mod_id : 0, 10);
+        if (currentId > 0) {
+            return currentId;
+        }
+
+        const row = findMedexModuleRow();
+        if (!row) {
+            return 0;
+        }
+
+        const rowId = parseInt(row.getAttribute('id') || '0', 10);
+        if (rowId > 0) {
+            currentStatus = Object.assign({}, currentStatus || {}, { mod_id: rowId });
+            return rowId;
+        }
+
+        return 0;
+    }
+
     async function runManageAction(actionName) {
-        if (!initStatus.mod_id || initStatus.mod_id <= 0) {
+        const moduleId = getEffectiveModuleId();
+        if (!moduleId || moduleId <= 0) {
             throw new Error('Module ID not available');
         }
         const body = new URLSearchParams({
-            modId: String(initStatus.mod_id),
+            modId: String(moduleId),
             modAction: actionName,
             mod_enc_menu: '',
             mod_nick_name: ''
         });
-        const res = await fetch('../../zend_modules/public/Installer/manage', {
+        const manageUrl = '../../zend_modules/public/Installer/manage?site=' + encodeURIComponent(setupSiteId || 'default');
+        const res = await fetch(manageUrl, {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -291,6 +323,69 @@ $siteId = (string)($_GET['site'] ?? 'default');
         }
         if (parsed && parsed.status && String(parsed.status).toLowerCase() !== 'success') {
             throw new Error(String(parsed.status));
+        }
+    }
+
+    async function refreshStatusNow() {
+        const inferred = inferStatusFromModuleRow();
+        if (inferred) {
+            currentStatus = inferred;
+            render(inferred);
+            return inferred;
+        }
+        try {
+            const siteParam = new URLSearchParams(window.location.search).get('site') || 'default';
+            const r = await fetch(setupStatusUrl + '?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
+            if (r.ok) {
+                const j = await r.json();
+                if (j && j.success && j.status) {
+                    currentStatus = j.status;
+                    render(j.status);
+                    return j.status;
+                }
+            }
+        } catch (e) {
+        }
+        return currentStatus;
+    }
+
+    async function waitForStatus(checkFn, attempts, delayMs) {
+        for (let i = 0; i < attempts; i++) {
+            const status = await refreshStatusNow();
+            if (checkFn(status || {})) {
+                return status;
+            }
+            await sleep(delayMs);
+        }
+        throw new Error('Timed out waiting for module state change');
+    }
+
+    async function runOnboardingFlow() {
+        const startBtn = document.getElementById('startOnboardingBtn');
+        const prevText = startBtn ? startBtn.textContent : '';
+        if (startBtn) {
+            startBtn.disabled = true;
+            startBtn.textContent = 'Working...';
+        }
+
+        try {
+            let status = await refreshStatusNow();
+            if (!status || !status.installed) {
+                await runManageAction('install');
+                status = await waitForStatus((s) => !!s.installed, 10, 1200);
+            }
+            if (!status.enabled) {
+                await runManageAction('enable');
+                status = await waitForStatus((s) => !!s.enabled, 10, 1200);
+            }
+            openOnboardingNow();
+        } catch (e) {
+            alert('Onboarding start failed: ' + (e && e.message ? e.message : 'request error'));
+        } finally {
+            if (startBtn) {
+                startBtn.disabled = false;
+                startBtn.textContent = prevText || 'Start Onboarding';
+            }
         }
     }
 
@@ -325,7 +420,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
 
         const nextAction = !installed ? 'install' : (!enabled ? 'enable' : 'configure');
         return {
-            mod_id: initStatus.mod_id || 0,
+            mod_id: parseInt(row.getAttribute('id') || String((currentStatus && currentStatus.mod_id) || 0), 10) || 0,
             installed,
             enabled,
             dashboard_ready: enabled,
@@ -389,7 +484,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
             }
         });
 
-        const id = String(initStatus.mod_id || '');
+        const id = String(getEffectiveModuleId() || '');
+        if (!id) return;
         let html = '';
         if (mode === 'install') {
             html = `<a href="javascript:void(0)" class="link_submit install" onclick="manage('${id}','install');" title="Click Here to Install This module"><input type="button" class="activate" value="Install"></a>`;
@@ -425,6 +521,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
             }
             const j = await r.json();
             if (j && j.success && j.status) {
+                currentStatus = j.status;
                 render(j.status);
             }
         } catch (e) {
@@ -471,8 +568,12 @@ $siteId = (string)($_GET['site'] ?? 'default');
         openOnboardingNow();
     });
 
+    document.getElementById('startOnboardingBtn').addEventListener('click', () => {
+        runOnboardingFlow();
+    });
+
     cleanupInstallerLogEverywhere();
-    render(initStatus);
+    render(currentStatus);
     setInterval(refresh, 2500);
 </script>
 </body>
