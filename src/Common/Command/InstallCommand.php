@@ -1,38 +1,48 @@
 <?php
 
+/**
+ * CLI installer command for OpenEMR.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <eric@opencoreemr.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\Common\Command;
 
 use Installer;
-use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'install')]
+#[AsCommand(name: 'install', description: 'Install OpenEMR (experimental)')]
 class InstallCommand extends Command
 {
     public function __invoke(
         InputInterface $input,
         OutputInterface $output,
-        #[Option] string $dbHost = '127.0.0.1',
-        #[Option] int $dbPort = 3306,
-        #[Option] string $dbUser = '',
-        #[Option] string $dbPassword = '',
-        #[Option] string $dbName = 'openemr',
-        #[Option] string $dbRootUser = 'root',
-        #[Option] string $dbRootPassword = '',
+        #[Option(description: 'Database server hostname')] string $dbHost = '127.0.0.1',
+        #[Option(description: 'Database server port')] int $dbPort = 3306,
+        #[Option(description: 'Database username for OpenEMR')] string $dbUser = '',
+        #[Option(description: 'Database password for OpenEMR')] string $dbPassword = '',
+        #[Option(description: 'Database name')] string $dbName = 'openemr',
+        #[Option(description: 'Database root username')] string $dbRootUser = 'root',
+        #[Option(description: 'Database root password')] string $dbRootPassword = '',
         #[Option(description: 'OpenEMR admin display name')] string $oeAdminName = 'Administrator',
         #[Option(description: 'OpenEMR admin username')] string $oeAdminUsername = 'admin',
         #[Option(description: 'OpenEMR admin password')] string $oeAdminPassword = '',
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        if ($input->isInteractive() && !$io->confirm('This command is experimental. Continue? (--no-interaction will auto-apply "yes")', default: false)) {
+        if ($input->isInteractive() && !$io->confirm('This command is experimental. Continue?', default: false)) {
             return Command::FAILURE;
         }
 
@@ -68,11 +78,10 @@ class InstallCommand extends Command
         );
         $success = $installer->quick_install();
         if (!$success) {
-            $output->writeln('Installation failed:');
-            $output->writeln($installer->error_message);
+            $io->error(['Installation failed:', $installer->error_message]);
             return Command::FAILURE;
         }
-        $output->writeln('OpenEMR has been installed!');
+        $io->success('OpenEMR has been installed!');
         return Command::SUCCESS;
     }
 }
