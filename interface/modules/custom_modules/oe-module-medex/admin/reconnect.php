@@ -11,6 +11,7 @@ if (empty($_GET['site'])) {
 }
 
 require_once(__DIR__ . "/../../../../globals.php");
+require_once(__DIR__ . '/../src/MedExAPI.php');
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -24,11 +25,19 @@ $requestedEmail = trim((string)($_GET['email'] ?? ''));
 $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL LIMIT 1");
 $existingEmail = $requestedEmail !== '' ? $requestedEmail : (string)($prefs['ME_username'] ?? '');
 $webroot = (string)($GLOBALS['webroot'] ?? '');
+$hasCredentials = false;
 
-$targetUrl = $webroot
-    . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site='
-    . urlencode($siteId)
-    . '&tab=settings&local=1&reconnect=1';
+try {
+    $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+    $hasCredentials = $api->isConfigured();
+} catch (\Throwable $e) {
+    $hasCredentials = false;
+}
+
+$targetPath = $hasCredentials
+    ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
+    : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
+$targetUrl = $webroot . $targetPath . '?site=' . urlencode($siteId) . '&reconnect=1';
 if ($existingEmail !== '') {
     $targetUrl .= '&email=' . urlencode($existingEmail);
 }
@@ -105,7 +114,7 @@ if ($targetUrl !== '') {
 <body>
 <div class="wrap">
     <h1><?php echo xlt('Opening MedEx Reconnect'); ?></h1>
-    <p><?php echo xlt('Reconnect is handled from the MedEx module dashboard inside OpenEMR.'); ?></p>
+    <p><?php echo xlt('Reconnect is routed through the MedEx module dashboard entry point, not the local legacy dashboard.'); ?></p>
     <?php if ($existingEmail !== ''): ?>
         <p><strong><?php echo xlt('Account Email'); ?>:</strong> <?php echo text($existingEmail); ?></p>
     <?php endif; ?>
