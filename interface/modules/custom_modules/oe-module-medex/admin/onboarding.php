@@ -372,10 +372,10 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                     <div class="otp-panel" style="margin-top: 0;">
-                        <div class="otp-inline">
+                        <div id="otp-send-row" class="otp-inline">
                             <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
                         </div>
-                        <div class="otp-inline">
+                        <div id="otp-verify-row" class="otp-inline">
                             <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
                             <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
                         </div>
@@ -712,6 +712,12 @@ if ($step > 1 && !$api->isConfigured()) {
             el.text(message);
         }
 
+        function updateOtpUiState() {
+            const controlsVisible = !otpVerified;
+            $("#otp-send-row").toggle(controlsVisible);
+            $("#otp-verify-row").toggle(controlsVisible);
+        }
+
         function ensureActiveSession() {
             if (typeof top !== "undefined" && typeof top.restoreSession === "function") {
                 top.restoreSession();
@@ -734,6 +740,7 @@ if ($step > 1 && !$api->isConfigured()) {
             $("#otp_proof").val("");
             $("#otp_code").val("");
             setOtpStatus(message);
+            updateOtpUiState();
         }
 
         function getCurrentOtpIdentity() {
@@ -771,6 +778,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         otpVerified = true;
                         $("#otp_proof").val(response.otp_proof);
                         setOtpStatus(response.message || "One-time password already verified.", "ok");
+                        updateOtpUiState();
                     }
                     updateStep1SubmitState();
                 }
@@ -1059,10 +1067,12 @@ if ($step > 1 && !$api->isConfigured()) {
                         otpVerified = true;
                         $("#otp_proof").val(response.otp_proof || "");
                         setOtpStatus(response.message || "One-time password verified.", "ok");
+                        updateOtpUiState();
                     } else {
                         otpVerified = false;
                         $("#otp_proof").val("");
                         setOtpStatus(response.error || "One-time password verification failed.", "err");
+                        updateOtpUiState();
                     }
                     updateStep1SubmitState();
                 },
@@ -1070,6 +1080,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     otpVerified = false;
                     $("#otp_proof").val("");
                     setOtpStatus(ajaxErrorMessage(arguments[0], "Unable to verify one-time password due to a request error."), "err");
+                    updateOtpUiState();
                     updateStep1SubmitState();
                 }
             });
@@ -1421,6 +1432,7 @@ if ($step > 1 && !$api->isConfigured()) {
             updateOtpDestinationVisibility();
             syncAgreementCheckboxState();
             restoreOtpStatusForCurrentIdentity();
+            updateOtpUiState();
             updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {
