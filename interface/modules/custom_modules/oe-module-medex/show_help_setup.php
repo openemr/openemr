@@ -203,7 +203,7 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     const currentStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupStatusUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-    const onboardingUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const onboardingUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const retryBtn = document.getElementById('retry-btn');
     const statusEl = document.getElementById('medex-status');
     const notesEl = document.getElementById('medex-notes');

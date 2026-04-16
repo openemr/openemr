@@ -56,6 +56,7 @@ $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
 $privacyUrl = MedExConfig::privacyUrl();
 $siteId = (string)($_GET['site'] ?? 'default');
+$forceOnboarding = !empty($_GET['force_onboarding']);
 $agreementSignUrlBase = 'agreement_sign.php?site=' . urlencode($siteId);
 $sessionCartItems = (isset($_SESSION['medex_cart_items']) && is_array($_SESSION['medex_cart_items'])) ? $_SESSION['medex_cart_items'] : [];
 $sessionCartTotal = isset($_SESSION['medex_cart_total']) ? (float)$_SESSION['medex_cart_total'] : null;
@@ -70,7 +71,7 @@ $pricing = $api->getPricing();
 error_log('[ONBOARDING DEBUG] Pricing data: ' . print_r($pricing, true));
 
 // If already configured and active, redirect to settings
-if ($api->isConfigured() && $api->isActive()) {
+if (!$forceOnboarding && $api->isConfigured() && $api->isActive()) {
     $services = $api->getEnabledServices();
     if (!empty($services)) {
         header('Location: index.php?site=' . urlencode($siteId));

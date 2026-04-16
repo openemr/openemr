@@ -551,7 +551,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
     function getOnboardingUrl() {
         return (window.webroot_url || '') +
             '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?site=' +
-            encodeURIComponent(getSite()) + '&step=1';
+            encodeURIComponent(getSite()) + '&step=1&force_onboarding=1';
     }
 
     function getMedexSetupUrl(rowId) {
