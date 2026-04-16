@@ -81,13 +81,21 @@ readonly class FallbackRouter
         $this->logger->debug("Routing $path");
 
         // Rewrite rules: prefix → handler
-        $handler = $this->getRewriteHandler($path);
-        if ($handler !== null) {
-            $file = realpath($this->installRoot . $handler);
+        $rewrite = $this->getRewriteHandler($path);
+        if ($rewrite !== null) {
+            $file = realpath($this->installRoot . $rewrite['handler']);
             if ($file === false) {
                 throw new OutOfRangeException('Rewrote to a non-existent file');
             }
             $this->logger->debug('Resolved to rewriter {file}', ['file' => $file]);
+
+            // Set _REWRITE_COMMAND to mimic .htaccess behavior. This is read by
+            // HttpRestRequest::createFromGlobals() to set up PATH_INFO correctly.
+            $rewriteCommand = substr($path, strlen($rewrite['prefix']));
+            $rewriteCommand = ltrim($rewriteCommand, '/');
+            // @phpstan-ignore openemr.forbiddenRequestGlobals
+            $_GET['_REWRITE_COMMAND'] = $rewriteCommand;
+
             $this->prepareRuntime($file);
             return $file;
         }
@@ -120,23 +128,40 @@ readonly class FallbackRouter
     }
 
     /**
+     * Prefix-to-handler mappings that mimic historic `.htaccess` rewrites.
+     *
+     * Order matters: specific prefixes must come before general ones.
+     * A null handler means the prefix is explicitly NOT rewritten (e.g., static assets).
+     *
+     * @var array<string, string|null>
+     */
+    private const REWRITE_RULES = [
+        '/apis' => '/apis/dispatch.php',
+        '/oauth2' => '/oauth2/authorize.php',
+        '/meta/health' => '/meta/health/index.php',
+        '/portal/patient/fwk/libs' => null,
+        '/portal/patient' => '/portal/patient/index.php',
+        '/interface/modules/zend_modules/public' => '/interface/modules/zend_modules/public/index.php',
+    ];
+
+    /**
      * Mimic historic `.htaccess` front-controller-likes by mapping requests to
      * their intended entrypoint file.
      *
-     * Returns null if no internal rewrite is required.
+     * @return array{handler: string, prefix: string}|null Returns handler info,
+     *         or null if no internal rewrite is required.
      */
-    private function getRewriteHandler(string $path): ?string
+    private function getRewriteHandler(string $path): ?array
     {
-        // Order matters: specific prefixes before general ones
-        return match (true) {
-            str_starts_with($path, '/apis') => '/apis/dispatch.php',
-            str_starts_with($path, '/oauth2') => '/oauth2/authorize.php',
-            str_starts_with($path, '/meta/health') => '/meta/health/index.php',
-            str_starts_with($path, '/portal/patient/fwk/libs') => null,
-            str_starts_with($path, '/portal/patient') => '/portal/patient/index.php',
-            str_starts_with($path, '/interface/modules/zend_modules/public') => '/interface/modules/zend_modules/public/index.php',
-            default => null,
-        };
+        foreach (self::REWRITE_RULES as $prefix => $handler) {
+            if (str_starts_with($path, $prefix)) {
+                if ($handler === null) {
+                    return null;
+                }
+                return ['handler' => $handler, 'prefix' => $prefix];
+            }
+        }
+        return null;
     }
 
     /**

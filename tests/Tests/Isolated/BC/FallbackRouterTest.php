@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\BC;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
@@ -327,5 +329,66 @@ class FallbackRouterTest extends TestCase
         // /interface exists but has no index.php and no rewrite rule
         $this->expectException(NotFoundHttpException::class);
         $router->performLegacyRouting($this->createRequest('/interface'));
+    }
+
+    /**
+     * Tests that after FallbackRouter sets up $_SERVER, Symfony's Request
+     * correctly calculates basePath for OAuth2 detection.
+     *
+     * @return array<string, array{string, string}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function symfonyBasePathProvider(): array
+    {
+        return [
+            'oauth2 token' => ['/oauth2/default/token', '/oauth2'],
+            'oauth2 registration' => ['/oauth2/default/registration', '/oauth2'],
+            'apis fhir' => ['/apis/default/fhir/Patient', '/apis'],
+        ];
+    }
+
+    #[DataProvider('symfonyBasePathProvider')]
+    public function testSymfonyBasePathAfterRouting(string $requestUri, string $expectedBasePath): void
+    {
+        $installRoot = self::getInstallRoot();
+
+        // Simulate PHP built-in server globals BEFORE routing
+        $_SERVER = [
+            'DOCUMENT_ROOT' => $installRoot,
+            'REQUEST_URI' => $requestUri,
+            'REQUEST_METHOD' => 'POST',
+            'SCRIPT_NAME' => '/public/index.php',
+            'SCRIPT_FILENAME' => $installRoot . '/public/index.php',
+            'PHP_SELF' => '/public/index.php',
+            'HTTP_HOST' => 'localhost:8080',
+            'SERVER_NAME' => 'localhost',
+            'SERVER_PORT' => '8080',
+            'SERVER_PROTOCOL' => 'HTTP/1.1',
+        ];
+
+        // Create PSR-7 request like public/index.php does
+        $psr7Request = ServerRequest::fromGlobals();
+
+        // Route the request - this modifies $_SERVER
+        $router = new FallbackRouter($installRoot, new NullLogger());
+        $router->performLegacyRouting($psr7Request);
+
+        // Capture what FallbackRouter set
+        $scriptNameAfter = $_SERVER['SCRIPT_NAME'];
+        $requestUriAfter = $_SERVER['REQUEST_URI'];
+
+        // Now create Symfony request like oauth2/authorize.php or apis/dispatch.php does
+        $symfonyRequest = HttpRestRequest::createFromGlobals();
+
+        self::assertSame(
+            $expectedBasePath,
+            $symfonyRequest->getBasePath(),
+            sprintf(
+                'basePath mismatch for %s. SCRIPT_NAME=%s, REQUEST_URI=%s',
+                $requestUri,
+                $scriptNameAfter,
+                $requestUriAfter
+            )
+        );
     }
 }
