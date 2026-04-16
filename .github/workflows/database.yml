@@ -106,8 +106,8 @@ jobs:
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "
             SET GLOBAL sql_mode = '';
-            CREATE DATABASE openemr_baseline CHARACTER SET utf8mb4;
-            CREATE DATABASE openemr_doctrine CHARACTER SET utf8mb4;
+            CREATE DATABASE openemr_baseline CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+            CREATE DATABASE openemr_doctrine CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
           "
 
       - name: Configure baseline database
