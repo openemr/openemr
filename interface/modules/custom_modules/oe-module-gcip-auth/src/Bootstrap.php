@@ -18,12 +18,12 @@ namespace OpenEMR\Modules\GcipAuth;
 
 use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
+use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcLoginAuditLogger;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
-use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
-use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcLoginAuditLogger;
 use OpenEMR\Common\Auth\Oidc\Identity\DatabaseLocalUserDirectory;
+use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
