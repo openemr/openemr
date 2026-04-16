@@ -476,7 +476,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:11.8.6@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -496,7 +496,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:11.8.6@sha256:f5644a292224cdf4b6514aca38b3b4436f0b0443d54170a472cd14261f31402d
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -518,7 +518,7 @@ services:
       retries: 3
   mariadb-old:
     restart: always
-    image: mariadb:11.4.10@sha256:bdd77d2a639e5e123025e4c5f7e0a2373b06f733631c57d53034709b23dae807
+    image: mariadb:11.4.10@sha256:3b4dfcc32247eb07adbebec0793afae2a8eafa6860ec523ee56af4d3dec42f7f
     command: [mariadbd, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -536,7 +536,7 @@ services:
       retries: 3
   mariadb-very-old:
     restart: always
-    image: mariadb:10.11.16@sha256:2f2b6bbcdbaf88afe53b76cb8d73927b623559180c5ab15db2049736f32ec590
+    image: mariadb:10.11.16@sha256:407fccb51e710f34752c1a3ef9b936d1f55f38d4ac7fa043b3759742d266fd9a
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -554,7 +554,7 @@ services:
       retries: 3
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.6.25@sha256:62e7c42cb0fd5b2bdf7684e0c7af1e7eb1e840b367ba728f3511d841268058a6
+    image: mariadb:10.6.25@sha256:16092512d3b105aca86586a12c704a89e8f33e369cfc164f00d11baa923504e9
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
