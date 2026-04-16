@@ -72,6 +72,7 @@ class InstallCommand extends Command
             'iuser' => $oeAdminUsername,
             'iuname' => $oeAdminName,
             'iuserpass' => $oeAdminPassword,
+            'igroup' => 'Default',
 
             // == Not user configurable ==
             'site' => 'default', // Only default site supported.
