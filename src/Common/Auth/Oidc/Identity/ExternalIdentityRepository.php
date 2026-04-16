@@ -57,25 +57,20 @@ class ExternalIdentityRepository
     }
 
     /**
-     * Create or update a mapping.
+     * Create or update a mapping atomically.
      *
-     * Uses INSERT ... ON DUPLICATE KEY UPDATE to handle both cases atomically.
+     * Uses INSERT ... ON DUPLICATE KEY UPDATE so a concurrent request
+     * hitting the same unique key (user_id or issuer+external_id) results
+     * in an update rather than a duplicate-key error or a lost-update race.
      */
     public function save(ExternalIdentityMapping $mapping): void
     {
-        $existing = $this->findByUserId($mapping->userId);
-
-        if ($existing !== null) {
-            QueryUtils::sqlStatementThrowException(
-                'UPDATE `' . self::TABLE_NAME . '` SET `issuer` = ?, `external_id` = ?, `email` = ? WHERE `user_id` = ?',
-                [$mapping->issuer, $mapping->externalId, $mapping->email, $mapping->userId],
-            );
-        } else {
-            QueryUtils::sqlStatementThrowException(
-                'INSERT INTO `' . self::TABLE_NAME . '` (`user_id`, `issuer`, `external_id`, `email`) VALUES (?, ?, ?, ?)',
-                [$mapping->userId, $mapping->issuer, $mapping->externalId, $mapping->email],
-            );
-        }
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `' . self::TABLE_NAME . '` (`user_id`, `issuer`, `external_id`, `email`) '
+            . 'VALUES (?, ?, ?, ?) '
+            . 'ON DUPLICATE KEY UPDATE `issuer` = VALUES(`issuer`), `external_id` = VALUES(`external_id`), `email` = VALUES(`email`)',
+            [$mapping->userId, $mapping->issuer, $mapping->externalId, $mapping->email],
+        );
     }
 
     /**
