@@ -1384,18 +1384,9 @@ if ($step > 1 && !$isConfigured) {
                             window.location.reload();
                         });
                     } else if (response.existing_account && response.reconnect_url) {
-                        const safeUrl = $('<div>').text(response.reconnect_url).html();
-                        const safeError = $('<div>').text(response.error || 'A MedEx account already exists for this email.').html();
-                        $("#result").html(
-                            '<div class="alert alert-danger">' +
-                                safeError +
-                                '<div style="margin-top:12px;">' +
-                                    '<a class="btn btn-primary" href="' + safeUrl + '" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">' +
-                                        '<i class="fa fa-refresh"></i> Reconnect' +
-                                    '</a>' +
-                                '</div>' +
-                            '</div>'
-                        );
+                        $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> <?php echo xlj("Opening MedEx Admin Dashboard"); ?>...</div>');
+                        window.location.href = response.reconnect_url;
+                        return;
                     } else {
                         $("#result").html('<div class="alert alert-danger">' + response.error + '</div>');
                     }
