@@ -1886,9 +1886,13 @@ if ($step > 1 && !$isConfigured) {
             let activeAgreementType = null;
 
             function closeAgreementModal() {
+                const agreementType = activeAgreementType;
                 agreementModal.removeClass("show").attr("aria-hidden", "true");
                 agreementFrame.attr("src", "about:blank");
                 activeAgreementType = null;
+                if (agreementType === "terms" || agreementType === "baa") {
+                    restoreSavedAgreementState(agreementType);
+                }
             }
             window.medexCloseAgreementModal = closeAgreementModal;
 
