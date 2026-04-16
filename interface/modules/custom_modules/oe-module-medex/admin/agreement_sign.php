@@ -138,6 +138,9 @@ $practiceName = medexGetPracticeName();
             padding: 18px 20px;
             border-radius: 16px;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 3;
         }
         .eyebrow {
             display: inline-flex;
@@ -161,6 +164,28 @@ $practiceName = medexGetPracticeName();
             font-size: 14px;
             color: #526277;
         }
+        .head-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-top: 12px;
+            border: 1px solid #cfe0fb;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .head-status i {
+            color: #0f4b8f;
+        }
+        .head-status.complete {
+            border-color: #bbf7d0;
+            background: linear-gradient(180deg, #ecfdf5 0%, #f7fff9 100%);
+            color: #166534;
+        }
         .body {
             flex: 1 1 auto;
             overflow-y: auto;
@@ -170,28 +195,6 @@ $practiceName = medexGetPracticeName();
             border-radius: 16px;
             line-height: 1.55;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
-        }
-        .scroll-cue {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 10px 12px;
-            margin-bottom: 10px;
-            border: 1px solid #cfe0fb;
-            border-radius: 10px;
-            background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
-            color: #1e3a8a;
-            font-size: 13px;
-            font-weight: 700;
-        }
-        .scroll-cue i {
-            color: #0f4b8f;
-        }
-        .scroll-cue.complete {
-            border-color: #bbf7d0;
-            background: linear-gradient(180deg, #ecfdf5 0%, #f7fff9 100%);
-            color: #166534;
         }
         .legal-paper {
             background-color: #f4e8cf;
@@ -363,12 +366,12 @@ $practiceName = medexGetPracticeName();
             <div class="eyebrow"><?php echo xlt('Onboarding Agreement'); ?></div>
             <p class="title"><?php echo text($title); ?></p>
             <p class="sub"><?php echo xlt('Version'); ?> <?php echo text($version); ?> • <?php echo xlt('Review and complete your electronic signature to continue onboarding.'); ?></p>
-        </div>
-        <div class="body">
-            <div id="scroll_cue" class="scroll-cue">
+            <div id="scroll_cue" class="head-status">
                 <span><?php echo xlt('Scroll to the bottom of the agreement to unlock signing.'); ?></span>
                 <i class="fa fa-arrow-down" aria-hidden="true"></i>
             </div>
+        </div>
+        <div class="body">
             <div class="legal-paper">
                 <?php if ($agreementHtml !== ''): ?>
                     <?php echo $agreementHtml; ?>
@@ -497,10 +500,17 @@ $practiceName = medexGetPracticeName();
                 const scrollHeight = Math.max(0, bodyEl.scrollHeight || 0);
                 const clientHeight = Math.max(0, bodyEl.clientHeight || 0);
                 const scrollTop = Math.max(0, bodyEl.scrollTop || 0);
-                const remaining = scrollHeight - (scrollTop + clientHeight);
-                if ((scrollHeight - clientHeight) <= 2) {
+                const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
+                const remaining = maxScrollTop - scrollTop;
+                let markerReached = false;
+                if (endMarkerEl) {
+                    const markerRect = endMarkerEl.getBoundingClientRect();
+                    const bodyRect = bodyEl.getBoundingClientRect();
+                    markerReached = markerRect.top <= (bodyRect.bottom - 8);
+                }
+                if (maxScrollTop <= 2) {
                     agreementRead = true;
-                } else if (remaining <= 6) {
+                } else if (remaining <= 24 || markerReached) {
                     agreementRead = true;
                 }
                 updateSignEnabledState();
