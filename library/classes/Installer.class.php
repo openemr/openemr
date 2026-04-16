@@ -1450,6 +1450,10 @@ $config = 1; /////////////
             if (! $this->user_password_is_valid()) {
                 return false;
             }
+
+            if (! $this->igroup_is_valid()) {
+                return false;
+            }
         }
 
         // Validation of mysql database password
