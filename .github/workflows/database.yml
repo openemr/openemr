@@ -10,6 +10,9 @@ on:
       - master
       - rel-*
 
+env:
+  ENVIRONMENT: ci
+
 jobs:
   mysql:
     name: Doctrine Migrations MySQL
