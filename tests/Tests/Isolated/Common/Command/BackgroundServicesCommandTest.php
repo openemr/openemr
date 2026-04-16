@@ -47,8 +47,14 @@ class BackgroundServicesCommandTest extends TestCase
         int $executeInterval = 5,
         string $nextRun = '2026-03-28 10:00:00',
         ?string $lockExpiresAt = null,
+        bool $leaseIsLive = false,
     ): array {
-        // Use string values to match ADOdb runtime behavior (numeric-string)
+        // `leaseIsLive` is intentionally independent of `running` and
+        // `lockExpiresAt` — production SQL derives it from
+        // `lock_expires_at > NOW()`, but tests need to exercise
+        // inconsistent-state rows too (e.g. stuck `running = 1` with an
+        // expired/NULL lease, which is the whole point of GH #11661).
+        // Use string values to match ADOdb runtime behavior (numeric-string).
         return [
             'name' => $name,
             'title' => $title,
@@ -60,7 +66,7 @@ class BackgroundServicesCommandTest extends TestCase
             'require_once' => null,
             'sort_order' => '100',
             'lock_expires_at' => $lockExpiresAt,
-            'lease_is_live' => $lockExpiresAt !== null && $running === 1 ? '1' : '0',
+            'lease_is_live' => $leaseIsLive ? '1' : '0',
         ];
     }
 
@@ -141,19 +147,43 @@ class BackgroundServicesCommandTest extends TestCase
         $this->assertStringContainsString('4h', $tester->getDisplay());
     }
 
-    public function testRunningColumnShowsNoForNegativeOne(): void
+    public function testRunningColumnShowsNoWhenLeaseNotLive(): void
     {
-        // The default value for running in the DB schema is -1
+        // The "Running" column in `list` renders from `lease_is_live`, not
+        // from the legacy `running` column. A row with `running = -1` (the
+        // DB default) and no live lease should show "no".
         $command = new BackgroundServicesCommandStub([
-            self::makeService('svc', 'Service', running: -1),
+            self::makeService('svc', 'Service', running: -1, leaseIsLive: false),
         ]);
         $tester = $this->createTester($command);
 
         $tester->execute(['action' => 'list']);
 
         $output = $tester->getDisplay();
-        // Active is "yes" (default), running should be "no" for -1
+        // Active is "yes" (default), running should be "no" when lease is not live
         $this->assertMatchesRegularExpression('/svc.*yes\s+no/s', $output);
+    }
+
+    public function testRunningColumnShowsNoForStuckLegacyFlagWithoutLiveLease(): void
+    {
+        // Regression guard for GH #11661: a row with the legacy `running`
+        // column stuck at 1 but no live lease (crashed worker) must render
+        // as "no" — the whole point of the fix is that stuck locks don't
+        // display as running forever.
+        $command = new BackgroundServicesCommandStub([
+            self::makeService(
+                'svc',
+                'Service',
+                running: 1,
+                lockExpiresAt: '2020-01-01 00:00:00',
+                leaseIsLive: false,
+            ),
+        ]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'list']);
+
+        $this->assertMatchesRegularExpression('/svc.*yes\s+no/s', $tester->getDisplay());
     }
 
     public function testMinutesToCronSubHour(): void
