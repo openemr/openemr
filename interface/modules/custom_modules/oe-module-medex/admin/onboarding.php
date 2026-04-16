@@ -195,6 +195,29 @@ if ($step > 1 && !$api->isConfigured()) {
             font-size: 12px;
             color: #64748b;
         }
+        .agreement-receipt-actions {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 0 24px;
+        }
+        .agreement-receipt-btn {
+            appearance: none;
+            border: 1px solid #c7d7ec;
+            background: #fff;
+            color: #0f4b8f;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .agreement-receipt-btn:hover {
+            background: #eff6ff;
+        }
         .agreement-modal {
             position: fixed;
             inset: 0;
@@ -409,6 +432,11 @@ if ($step > 1 && !$api->isConfigured()) {
                             </a>
                             (<?php echo xlt("Version"); ?> <?php echo text($termsVersion); ?>)
                         </label>
+                        <div id="terms-receipt-actions" class="agreement-receipt-actions">
+                            <button type="button" id="terms-view-btn" class="agreement-receipt-btn"><i class="fa fa-eye" aria-hidden="true"></i><?php echo xlt("View"); ?></button>
+                            <button type="button" id="terms-download-btn" class="agreement-receipt-btn"><i class="fa fa-file-pdf-o" aria-hidden="true"></i><?php echo xlt("Download PDF"); ?></button>
+                            <button type="button" id="terms-edit-btn" class="agreement-receipt-btn"><i class="fa fa-pencil" aria-hidden="true"></i><?php echo xlt("Edit"); ?></button>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="font-weight:400; margin-bottom: 0;">
@@ -419,6 +447,11 @@ if ($step > 1 && !$api->isConfigured()) {
                             </a>
                             (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
                         </label>
+                        <div id="baa-receipt-actions" class="agreement-receipt-actions">
+                            <button type="button" id="baa-view-btn" class="agreement-receipt-btn"><i class="fa fa-eye" aria-hidden="true"></i><?php echo xlt("View"); ?></button>
+                            <button type="button" id="baa-download-btn" class="agreement-receipt-btn"><i class="fa fa-file-pdf-o" aria-hidden="true"></i><?php echo xlt("Download PDF"); ?></button>
+                            <button type="button" id="baa-edit-btn" class="agreement-receipt-btn"><i class="fa fa-pencil" aria-hidden="true"></i><?php echo xlt("Edit"); ?></button>
+                        </div>
                     </div>
                     <div class="agreement-note">
                         <?php echo xlt("Open each agreement link and complete electronic signature to unlock its checkbox."); ?>
@@ -1281,6 +1314,27 @@ if ($step > 1 && !$api->isConfigured()) {
                 updateStep1SubmitState();
             }
 
+            function agreementReceiptBaseUrl(type, options = {}) {
+                const version = (type === "terms") ? termsVersion : baaVersion;
+                const params = new URLSearchParams({
+                    site: <?php echo json_encode($siteId); ?>,
+                    type: type,
+                    version: version
+                });
+                if (options.edit) {
+                    params.set("edit", "1");
+                }
+                if (options.autodownload) {
+                    params.set("autodownload", "1");
+                }
+                return "agreement_sign.php?" + params.toString();
+            }
+
+            function updateAgreementReceiptActions(type, signed) {
+                const selector = (type === "terms") ? "#terms-receipt-actions" : "#baa-receipt-actions";
+                $(selector).toggle(!!signed);
+            }
+
             function applyAgreementSignature(type, payload) {
                 const signerName = String(payload.signer_name || "").trim();
                 const signerTitle = String(payload.signer_title || "").trim();
@@ -1315,6 +1369,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         }
                         applyAgreementSignature(type, response.payload);
                         markAgreementAccepted(type);
+                        updateAgreementReceiptActions(type, true);
                     }
                 });
             }
@@ -1332,6 +1387,26 @@ if ($step > 1 && !$api->isConfigured()) {
                 agreementModal.addClass("show").attr("aria-hidden", "false");
             }
 
+            function openAgreementView(type) {
+                openAgreementModal(type);
+            }
+
+            function openAgreementEdit(type) {
+                activeAgreementType = type;
+                const signUrl = agreementReceiptBaseUrl(type, { edit: true });
+                if (type === "terms") {
+                    agreementTitle.text("MedEx Terms and Conditions");
+                } else {
+                    agreementTitle.text("MedEx Business Associate Agreement (BAA)");
+                }
+                agreementFrame.attr("src", signUrl);
+                agreementModal.addClass("show").attr("aria-hidden", "false");
+            }
+
+            function openAgreementDownload(type) {
+                window.open(agreementReceiptBaseUrl(type, { autodownload: true }), "_blank", "noopener,noreferrer");
+            }
+
             $("#open-terms-link").on("click", function(e) {
                 e.preventDefault();
                 openAgreementModal("terms", termsUrl);
@@ -1342,6 +1417,24 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#agreement-close-btn").on("click", function() {
                 closeAgreementModal();
+            });
+            $("#terms-view-btn").on("click", function() {
+                openAgreementView("terms");
+            });
+            $("#terms-download-btn").on("click", function() {
+                openAgreementDownload("terms");
+            });
+            $("#terms-edit-btn").on("click", function() {
+                openAgreementEdit("terms");
+            });
+            $("#baa-view-btn").on("click", function() {
+                openAgreementView("baa");
+            });
+            $("#baa-download-btn").on("click", function() {
+                openAgreementDownload("baa");
+            });
+            $("#baa-edit-btn").on("click", function() {
+                openAgreementEdit("baa");
             });
             agreementModal.on("click", function(e) {
                 if (e.target === this) {
@@ -1362,6 +1455,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 if (event.data.action === "signed") {
                     applyAgreementSignature(type, event.data);
                     markAgreementAccepted(type);
+                    updateAgreementReceiptActions(type, true);
                     return;
                 }
                 if (event.data.action === "close") {

@@ -39,6 +39,8 @@ $action = strtolower(trim((string)($_REQUEST['action'] ?? '')));
 if ($action !== '' && !in_array($action, ['save_receipt', 'status'], true)) {
     $action = '';
 }
+$forceEdit = !empty($_GET['edit']);
+$autoDownload = !empty($_GET['autodownload']);
 
 function medexAgreementSession()
 {
@@ -284,7 +286,7 @@ $csrfToken = medexCollectAgreementCsrfToken();
 $agreementHtml = medexFetchAgreementBody($bodyUrl);
 $agreementHtml = medexRemoveLegacyPrintInstruction($agreementHtml);
 $practiceName = medexGetPracticeName();
-$existingReceipt = medexLoadAgreementReceipt($type, $version);
+$existingReceipt = $forceEdit ? null : medexLoadAgreementReceipt($type, $version);
 
 if ($action === 'status') {
     header('Content-Type: application/json');
@@ -692,6 +694,8 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             const agreementType = <?php echo json_encode($type); ?>;
             const agreementCsrfToken = <?php echo json_encode($csrfToken); ?>;
             const initialSignedPayload = <?php echo json_encode($initialSignedPayload); ?>;
+            const forceEdit = <?php echo $forceEdit ? 'true' : 'false'; ?>;
+            const autoDownload = <?php echo $autoDownload ? 'true' : 'false'; ?>;
             const pdfFileBase = agreementType === "terms" ? "MedEX_Terms" : "MedEX_BAA";
             const signedLabel = <?php echo json_encode(xl('Signed')); ?>;
             let signedPayload = null;
@@ -1036,6 +1040,9 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             attestEl.addEventListener("change", updateSignEnabledState);
             if (initialSignedPayload) {
                 applySignedPayload(initialSignedPayload, true);
+                if (autoDownload) {
+                    openPdfDownloadView(initialSignedPayload);
+                }
             }
             evaluateAgreementRead();
             setTimeout(evaluateAgreementRead, 250);
