@@ -421,11 +421,13 @@ if ($step > 1 && !$api->isConfigured()) {
                     <input type="hidden" id="terms_signature_name" name="terms_signature_name" value="">
                     <input type="hidden" id="terms_signer_title" name="terms_signer_title" value="">
                     <input type="hidden" id="terms_signed_at" name="terms_signed_at" value="">
+                    <input type="hidden" id="terms_agreement_version" name="terms_agreement_version" value="<?php echo attr($termsVersion); ?>">
                     <input type="hidden" id="terms_practice_name" name="terms_practice_name" value="">
                     <input type="hidden" id="terms_legal_corporate_name" name="terms_legal_corporate_name" value="">
                     <input type="hidden" id="baa_signature_name" name="baa_signature_name" value="">
                     <input type="hidden" id="baa_signer_title" name="baa_signer_title" value="">
                     <input type="hidden" id="baa_signed_at" name="baa_signed_at" value="">
+                    <input type="hidden" id="baa_agreement_version" name="baa_agreement_version" value="<?php echo attr($baaVersion); ?>">
                     <input type="hidden" id="baa_practice_name" name="baa_practice_name" value="">
                     <input type="hidden" id="baa_legal_corporate_name" name="baa_legal_corporate_name" value="">
                     <div class="form-group" style="margin-bottom: 12px;">
@@ -1139,11 +1141,13 @@ if ($step > 1 && !$api->isConfigured()) {
             const termsSignatureName = ($("#terms_signature_name").val() || "").trim();
             const termsSignerTitle = ($("#terms_signer_title").val() || "").trim();
             const termsSignedAt = ($("#terms_signed_at").val() || "").trim();
+            const termsAgreementVersion = ($("#terms_agreement_version").val() || "").trim() || termsVersion;
             const termsPracticeName = ($("#terms_practice_name").val() || "").trim();
             const termsLegalCorporateName = ($("#terms_legal_corporate_name").val() || "").trim();
             const baaSignatureName = ($("#baa_signature_name").val() || "").trim();
             const baaSignerTitle = ($("#baa_signer_title").val() || "").trim();
             const baaSignedAt = ($("#baa_signed_at").val() || "").trim();
+            const baaAgreementVersion = ($("#baa_agreement_version").val() || "").trim() || baaVersion;
             const baaPracticeName = ($("#baa_practice_name").val() || "").trim();
             const baaLegalCorporateName = ($("#baa_legal_corporate_name").val() || "").trim();
 
@@ -1217,13 +1221,28 @@ if ($step > 1 && !$api->isConfigured()) {
                     baa_signed_at: baaSignedAt,
                     baa_practice_name: baaPracticeName,
                     baa_legal_corporate_name: baaLegalCorporateName,
-                    terms_version: '<?php echo attr_js($termsVersion); ?>',
-                    baa_version: '<?php echo attr_js($baaVersion); ?>'
+                    terms_version: termsAgreementVersion,
+                    baa_version: baaAgreementVersion
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         location.href = 'onboarding.php?step=2&site=<?php echo attr_js($siteId); ?>';
+                    } else if (response.refresh_required) {
+                        const safeError = $('<div>').text(response.error || 'Agreement versions changed. Refresh and review the current agreements.').html();
+                        $("#result").html(
+                            '<div class="alert alert-danger">' +
+                                safeError +
+                                '<div style="margin-top:12px;">' +
+                                    '<button type="button" class="btn btn-primary" id="medex-refresh-onboarding-btn" style="display:inline-flex;align-items:center;gap:8px;">' +
+                                        '<i class="fa fa-refresh"></i> Refresh Agreements' +
+                                    '</button>' +
+                                '</div>' +
+                            '</div>'
+                        );
+                        $("#medex-refresh-onboarding-btn").on("click", function() {
+                            window.location.reload();
+                        });
                     } else if (response.existing_account && response.reconnect_url) {
                         const safeUrl = $('<div>').text(response.reconnect_url).html();
                         const safeError = $('<div>').text(response.error || 'A MedEx account already exists for this email.').html();
@@ -1350,6 +1369,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 const signerName = String(payload.signer_name || "").trim();
                 const signerTitle = String(payload.signer_title || "").trim();
                 const signedAt = String(payload.signed_at || "").trim();
+                const agreementVersion = String(payload.agreement_version || "").trim();
                 if (!signerName || !signedAt) {
                     return;
                 }
@@ -1357,12 +1377,14 @@ if ($step > 1 && !$api->isConfigured()) {
                     $("#terms_signature_name").val(signerName);
                     $("#terms_signer_title").val(signerTitle);
                     $("#terms_signed_at").val(signedAt);
+                    $("#terms_agreement_version").val(agreementVersion || termsVersion);
                     $("#terms_practice_name").val(String(payload.practice_name || "").trim());
                     $("#terms_legal_corporate_name").val(String(payload.legal_corporate_name || "").trim());
                 } else if (type === "baa") {
                     $("#baa_signature_name").val(signerName);
                     $("#baa_signer_title").val(signerTitle);
                     $("#baa_signed_at").val(signedAt);
+                    $("#baa_agreement_version").val(agreementVersion || baaVersion);
                     $("#baa_practice_name").val(String(payload.practice_name || "").trim());
                     $("#baa_legal_corporate_name").val(String(payload.legal_corporate_name || "").trim());
                 }
@@ -1378,6 +1400,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         if (!response || !response.success || !response.signed || !response.payload) {
                             return;
                         }
+                        response.payload.agreement_version = String(response.agreement_version || response.payload.agreement_version || "");
                         applyAgreementSignature(type, response.payload);
                         markAgreementAccepted(type);
                         updateAgreementReceiptActions(type, true);

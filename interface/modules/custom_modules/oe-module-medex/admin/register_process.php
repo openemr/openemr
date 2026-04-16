@@ -546,11 +546,23 @@ try {
     $termsVersion = trim((string)($_POST['terms_version'] ?? MedExConfig::TERMS_VERSION));
     $baaVersion = trim((string)($_POST['baa_version'] ?? MedExConfig::BAA_VERSION));
     if ($termsVersion === '' || $termsVersion !== MedExConfig::TERMS_VERSION) {
-        echo json_encode(['success' => false, 'error' => 'Terms and Conditions version mismatch. Refresh and review current Terms.']);
+        echo json_encode([
+            'success' => false,
+            'refresh_required' => true,
+            'current_terms_version' => MedExConfig::TERMS_VERSION,
+            'current_baa_version' => MedExConfig::BAA_VERSION,
+            'error' => 'Terms and Conditions version mismatch. Refresh and review current Terms.'
+        ]);
         exit;
     }
     if ($baaVersion === '' || $baaVersion !== MedExConfig::BAA_VERSION) {
-        echo json_encode(['success' => false, 'error' => 'Business Associate Agreement version mismatch. Refresh and review current BAA.']);
+        echo json_encode([
+            'success' => false,
+            'refresh_required' => true,
+            'current_terms_version' => MedExConfig::TERMS_VERSION,
+            'current_baa_version' => MedExConfig::BAA_VERSION,
+            'error' => 'Business Associate Agreement version mismatch. Refresh and review current BAA.'
+        ]);
         exit;
     }
 

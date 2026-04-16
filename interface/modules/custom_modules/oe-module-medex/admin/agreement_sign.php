@@ -28,7 +28,8 @@ if (!in_array($type, ['terms', 'baa'], true)) {
     $type = 'terms';
 }
 
-$version = trim((string)($_GET['version'] ?? ($type === 'terms' ? MedExConfig::TERMS_VERSION : MedExConfig::BAA_VERSION)));
+$currentVersion = ($type === 'terms') ? MedExConfig::TERMS_VERSION : MedExConfig::BAA_VERSION;
+$version = $currentVersion;
 $title = ($type === 'terms') ? xlt('MedEx Terms and Conditions') : xlt('MedEx Business Associate Agreement (BAA)');
 $displayUrl = ($type === 'terms') ? MedExConfig::termsUrl() : MedExConfig::baaUrl();
 $informationId = ($type === 'terms') ? 5 : 8;
@@ -546,6 +547,7 @@ if ($action === 'status') {
     echo json_encode([
         'success' => true,
         'signed' => is_array($existingReceipt),
+        'agreement_version' => $version,
         'payload' => is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null,
     ]);
     exit;
@@ -562,6 +564,7 @@ if ($action === 'save_receipt') {
         'source' => 'medex-agreement-signer',
         'action' => 'signed',
         'type' => $type,
+        'agreement_version' => $version,
         'practice_name' => trim((string)($_POST['practice_name'] ?? $practiceName)),
         'legal_corporate_name' => trim((string)($_POST['legal_corporate_name'] ?? '')),
         'signer_name' => trim((string)($_POST['signer_name'] ?? '')),
@@ -576,6 +579,7 @@ if ($action === 'save_receipt') {
     echo json_encode([
         'success' => true,
         'payload' => $payload,
+        'agreement_version' => $version,
         'receipt_uid' => (string)($receipt['receipt_uid'] ?? ''),
         'receipt_status' => (string)($receipt['receipt_status'] ?? 'signed_html'),
         'pdf_origin' => (string)($receipt['pdf_origin'] ?? 'remote_pending'),
@@ -587,6 +591,9 @@ if (is_array($existingReceipt) && trim((string)($existingReceipt['body_html'] ??
     $agreementHtml = (string)$existingReceipt['body_html'];
 }
 $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null;
+if (is_array($initialSignedPayload) && empty($initialSignedPayload['agreement_version'])) {
+    $initialSignedPayload['agreement_version'] = $version;
+}
 if ($artifactOnly) {
     medexRenderAgreementArtifactPage($title, $version, $agreementHtml, $existingReceipt, $autoDownload, $autoPrint);
 }
