@@ -37,7 +37,7 @@ final class Version20260000020211 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('patient_id', Types::INTEGER);
+        $table->addColumn('patient_id', Types::INTEGER, ['comment' => 'fk to patient_data.pid']);
         $table->addColumn('observation_code', Types::STRING, ['length' => 50, 'comment' => 'LOINC code']);
         $table->addColumn('observation_code_text', Types::STRING, [
             'length' => 255,
@@ -53,16 +53,19 @@ final class Version20260000020211 extends AbstractMigration
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to preference_value_sets.answer_code',
         ]);
         $table->addColumn('value_code_system', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to preference_value_sets.answer_system',
         ]);
         $table->addColumn('value_display', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to preference_value_sets.answer_display',
         ]);
         $table->addColumn('value_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('value_boolean', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
@@ -71,6 +74,7 @@ final class Version20260000020211 extends AbstractMigration
             'length' => 20,
             'notnull' => false,
             'default' => 'final',
+            'comment' => 'valid options are final,amended,preliminary',
         ]);
         $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $this->addPrimaryKey($table, 'id');
