@@ -62,6 +62,8 @@ $forceOnboarding = !empty($_GET['force_onboarding']);
 $agreementSignUrlBase = 'agreement_sign.php?site=' . urlencode($siteId);
 $sessionCartItems = (isset($_SESSION['medex_cart_items']) && is_array($_SESSION['medex_cart_items'])) ? $_SESSION['medex_cart_items'] : [];
 $sessionCartTotal = isset($_SESSION['medex_cart_total']) ? (float)$_SESSION['medex_cart_total'] : null;
+$loginData = [];
+$braintreeToken = null;
 $defaultOpenEmrUrl = '';
 if (!empty($_SERVER['HTTP_HOST'])) {
     $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
@@ -73,13 +75,105 @@ if (!empty($_SERVER['HTTP_HOST'])) {
 // before pricing is resolved on the MedEx side.
 if ($isConfigured) {
     try {
-        $api->login(true);
+        $loginData = $api->login(true);
+        $braintreeToken = $loginData['braintree_token'] ?? null;
     } catch (\Throwable $e) {
         error_log('[ONBOARDING DEBUG] Forced login before pricing failed: ' . $e->getMessage());
     }
 }
 $pricing = $api->getPricing(true);
 error_log('[ONBOARDING DEBUG] Pricing data: ' . print_r($pricing, true));
+
+$rawPricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+$availablePricingServices = $rawPricingServices;
+$serviceKeyAliases = [
+    'calendar_view' => ['calendar_view', 'calendar_export'],
+    'calendar_ai' => ['calendar_ai', 'Calendar Service'],
+    'calendar_full' => ['calendar_full', 'FullCalendar'],
+];
+foreach ($serviceKeyAliases as $canonicalKey => $aliases) {
+    foreach ($aliases as $aliasKey) {
+        if (!array_key_exists($aliasKey, $rawPricingServices)) {
+            continue;
+        }
+        $availablePricingServices[$canonicalKey] = $rawPricingServices[$aliasKey];
+        break;
+    }
+}
+$serviceLabels = [];
+$onboardingServices = [];
+$canonicalServiceMap = [
+    'calendar_view' => 'calendar_export',
+    'calendar_export' => 'calendar_export',
+    'calendar_ai' => 'calendar_ai',
+    'Calendar Service' => 'calendar_ai',
+    'calendar_full' => 'calendar_full',
+    'FullCalendar' => 'calendar_full',
+];
+foreach ($availablePricingServices as $serviceKey => $serviceData) {
+    $service = is_array($serviceData ?? null) ? $serviceData : [];
+    $isAvailable = !array_key_exists('available', $service)
+        || $service['available'] === true
+        || $service['available'] === 1
+        || $service['available'] === '1';
+    if (!$isAvailable) {
+        continue;
+    }
+    $canonicalKey = $canonicalServiceMap[(string)$serviceKey] ?? (string)$serviceKey;
+    if (isset($onboardingServices[$canonicalKey])) {
+        continue;
+    }
+    $serviceTitle = trim((string)($service['name'] ?? $canonicalKey));
+    if ($serviceTitle === '') {
+        $serviceTitle = $canonicalKey;
+    }
+    $serviceSlug = strtolower(preg_replace('/[^a-z0-9]+/', '_', $canonicalKey) ?? $canonicalKey);
+    $serviceSlug = trim($serviceSlug, '_');
+    if ($serviceSlug === '') {
+        $serviceSlug = 'service_' . count($onboardingServices);
+    }
+    $normalizedService = $service;
+    $normalizedService['key'] = $canonicalKey;
+    $normalizedService['slug'] = $serviceSlug;
+    $normalizedService['title'] = html_entity_decode($serviceTitle, ENT_QUOTES, 'UTF-8');
+    $normalizedService['requires_provider_selection'] = !empty($service['provider_based']);
+    $normalizedService['requires_facility_selection'] = $canonicalKey === 'appointment_reminders';
+    $onboardingServices[$canonicalKey] = $normalizedService;
+    $serviceLabels[$canonicalKey] = $normalizedService['title'];
+}
+$hasAvailableServices = !empty($onboardingServices);
+$providerCandidates = QueryUtils::fetchRecords("
+    SELECT id, fname, lname, username
+    FROM users
+    WHERE active = 1
+      AND calendar = 1
+    ORDER BY lname, fname, id
+");
+$providerRows = [];
+$providerSeen = [];
+foreach ($providerCandidates as $candidate) {
+    $username = strtolower(trim((string)($candidate['username'] ?? '')));
+    $fname = trim((string)($candidate['fname'] ?? ''));
+    $lname = trim((string)($candidate['lname'] ?? ''));
+    $displayName = trim($lname . ', ' . $fname, ' ,');
+    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
+    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
+        continue;
+    }
+    if (isset($providerSeen[$normalizedName])) {
+        continue;
+    }
+    $providerSeen[$normalizedName] = true;
+    $providerRows[] = [
+        'id' => $candidate['id'],
+        'fname' => $fname,
+        'lname' => $lname,
+    ];
+}
+$facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
+if (empty($facilityRows)) {
+    $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility ORDER BY name");
+}
 
 // If already configured and active, redirect to settings
 if (!$forceOnboarding && $isConfigured && $api->isActive()) {
@@ -545,99 +639,6 @@ if ($step > 1 && !$isConfigured) {
                     return '/' . $unit;
                 };
                 ?>
-                <?php
-                $rawPricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
-                $availablePricingServices = $rawPricingServices;
-                $serviceKeyAliases = [
-                    'calendar_view' => ['calendar_view', 'calendar_export'],
-                    'calendar_ai' => ['calendar_ai', 'Calendar Service'],
-                    'calendar_full' => ['calendar_full', 'FullCalendar'],
-                ];
-                foreach ($serviceKeyAliases as $canonicalKey => $aliases) {
-                    foreach ($aliases as $aliasKey) {
-                        if (!array_key_exists($aliasKey, $rawPricingServices)) {
-                            continue;
-                        }
-                        $availablePricingServices[$canonicalKey] = $rawPricingServices[$aliasKey];
-                        break;
-                    }
-                }
-                $serviceLabels = [];
-                $onboardingServices = [];
-                $canonicalServiceMap = [
-                    'calendar_view' => 'calendar_export',
-                    'calendar_export' => 'calendar_export',
-                    'calendar_ai' => 'calendar_ai',
-                    'Calendar Service' => 'calendar_ai',
-                    'calendar_full' => 'calendar_full',
-                    'FullCalendar' => 'calendar_full',
-                ];
-                foreach ($availablePricingServices as $serviceKey => $serviceData) {
-                    $service = is_array($serviceData ?? null) ? $serviceData : [];
-                    $isAvailable = !array_key_exists('available', $service)
-                        || $service['available'] === true
-                        || $service['available'] === 1
-                        || $service['available'] === '1';
-                    if (!$isAvailable) {
-                        continue;
-                    }
-                    $canonicalKey = $canonicalServiceMap[(string)$serviceKey] ?? (string)$serviceKey;
-                    if (isset($onboardingServices[$canonicalKey])) {
-                        continue;
-                    }
-                    $serviceTitle = trim((string)($service['name'] ?? $canonicalKey));
-                    if ($serviceTitle === '') {
-                        $serviceTitle = $canonicalKey;
-                    }
-                    $serviceSlug = strtolower(preg_replace('/[^a-z0-9]+/', '_', $canonicalKey) ?? $canonicalKey);
-                    $serviceSlug = trim($serviceSlug, '_');
-                    if ($serviceSlug === '') {
-                        $serviceSlug = 'service_' . count($onboardingServices);
-                    }
-                    $normalizedService = $service;
-                    $normalizedService['key'] = $canonicalKey;
-                    $normalizedService['slug'] = $serviceSlug;
-                    $normalizedService['title'] = html_entity_decode($serviceTitle, ENT_QUOTES, 'UTF-8');
-                    $normalizedService['requires_provider_selection'] = !empty($service['provider_based']);
-                    $normalizedService['requires_facility_selection'] = $canonicalKey === 'appointment_reminders';
-                    $onboardingServices[$canonicalKey] = $normalizedService;
-                    $serviceLabels[$canonicalKey] = $normalizedService['title'];
-                }
-                $hasAvailableServices = !empty($onboardingServices);
-                $providerCandidates = QueryUtils::fetchRecords("
-                    SELECT id, fname, lname, username
-                    FROM users
-                    WHERE active = 1
-                      AND calendar = 1
-                    ORDER BY lname, fname, id
-                ");
-                $providerRows = [];
-                $providerSeen = [];
-                foreach ($providerCandidates as $candidate) {
-                    $username = strtolower(trim((string)($candidate['username'] ?? '')));
-                    $fname = trim((string)($candidate['fname'] ?? ''));
-                    $lname = trim((string)($candidate['lname'] ?? ''));
-                    $displayName = trim($lname . ', ' . $fname, ' ,');
-                    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
-                    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
-                        continue;
-                    }
-                    if (isset($providerSeen[$normalizedName])) {
-                        continue;
-                    }
-                    $providerSeen[$normalizedName] = true;
-                    $providerRows[] = [
-                        'id' => $candidate['id'],
-                        'fname' => $fname,
-                        'lname' => $lname,
-                    ];
-                }
-                $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
-                if (empty($facilityRows)) {
-                    $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility ORDER BY name");
-                }
-                ?>
-
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
                 <?php if (!$hasAvailableServices): ?>
                 <div class="alert alert-danger">
@@ -746,54 +747,56 @@ if ($step > 1 && !$isConfigured) {
             <div>
                 <h3><?php echo xlt("Review & Payment"); ?></h3>
                 <p style="color: #666;">
-                    <?php echo xlt("Review your subscription and complete payment to activate your services."); ?>
+                    <?php echo xlt("Review your selected services, adjust them if needed, and activate using the same subscription processor used elsewhere in MedEx."); ?>
                 </p>
 
-                <!-- Cart Summary -->
                 <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <strong><?php echo xlt("Subscription Summary"); ?>:</strong>
                     <ul id="summary-list" style="margin-top: 10px;">
-                        <!-- Populate via JS -->
                     </ul>
                     <div style="border-top: 2px solid #ddd; margin-top: 15px; padding-top: 15px;">
                         <strong><?php echo xlt("Total"); ?>:</strong> <span id="cart-total" style="font-size: 20px; color: #0f4b8f;">$0.00</span>
                     </div>
                 </div>
 
-                <!-- Braintree Payment Form -->
-                <div id="payment-section" style="margin: 30px 0;">
+                <div id="payment-errors" class="alert alert-danger" style="display: none; margin-top: 15px;"></div>
+
+                <div id="payment-section" style="display:none; margin: 30px 0;">
                     <h4 id="payment-section-title"><?php echo xlt("Payment Information"); ?></h4>
-                    <p id="payment-zero-copy" style="display:none; color:#526277; margin:0 0 18px;">
-                        <?php echo xlt("This selection is currently free. No payment method is required to activate it."); ?>
-                    </p>
-                    <form id="payment-form">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
-                        <div class="form-group payment-field-group">
-                            <label for="cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
-                            <input type="text" id="cardholder-name" class="form-control" required>
+                    <div style="border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; background: #fff;">
+                        <div class="form-group">
+                            <label for="medex-cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
+                            <input type="text" id="medex-cardholder-name" class="form-control" autocomplete="cc-name">
                         </div>
-                        <div class="form-group payment-field-group">
+                        <div class="form-group">
                             <label><?php echo xlt("Card Number"); ?></label>
-                            <div id="card-number" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
+                            <div id="medex-card-number" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background:#fff;"></div>
                         </div>
-                        <div class="payment-field-row" style="display: flex; gap: 15px;">
-                            <div class="form-group payment-field-group" style="flex: 1;">
+                        <div style="display:flex; gap:15px;">
+                            <div class="form-group" style="flex:1;">
                                 <label><?php echo xlt("Expiration Date"); ?></label>
-                                <div id="expiration-date" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
+                                <div id="medex-card-expiration" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background:#fff;"></div>
                             </div>
-                            <div class="form-group payment-field-group" style="flex: 1;">
+                            <div class="form-group" style="flex:1;">
                                 <label><?php echo xlt("CVV"); ?></label>
-                                <div id="cvv" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
+                                <div id="medex-card-cvv" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background:#fff;"></div>
                             </div>
                         </div>
-                        <div id="payment-errors" class="alert alert-danger" style="display: none; margin-top: 15px;"></div>
-                        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
-                            <button type="button" class="btn" style="background: #eee;" onclick="location.href='onboarding.php?step=2&site=<?php echo attr_js($siteId); ?>'"><?php echo xlt("Back"); ?></button>
-                            <button type="submit" class="btn btn-primary" id="submit-payment">
-                                <i class="fa fa-lock"></i> <?php echo xlt("Complete Payment & Activate"); ?>
-                            </button>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label><?php echo xlt("Postal Code"); ?></label>
+                            <div id="medex-card-postal" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background:#fff;"></div>
                         </div>
-                    </form>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="payment-submit-btn" style="margin-top: 18px;">
+                        <i class="fa fa-lock"></i> <?php echo xlt("Complete Payment & Activate"); ?>
+                    </button>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+                    <button type="button" class="btn" id="edit-services-btn" style="background: #eee;"><?php echo xlt("Edit Services"); ?></button>
+                    <button type="button" class="btn btn-primary" id="review-changes-btn">
+                        <i class="fa fa-check"></i> <?php echo xlt("Activate Services"); ?>
+                    </button>
                 </div>
             </div>
         <?php endif; ?>
@@ -805,6 +808,17 @@ if ($step > 1 && !$isConfigured) {
         let otpVerified = false;
         let otpStatusRequest = 0;
         const wizardStep = <?php echo (int)$step; ?>;
+        const onboardingDraftStorageKey = 'medex_onboarding_draft';
+        const onboardingServiceDefinitions = <?php echo json_encode($onboardingServices); ?> || {};
+        const onboardingServiceLabels = <?php echo json_encode($serviceLabels); ?> || {};
+        const onboardingServerCart = <?php echo json_encode(['items' => $sessionCartItems, 'total' => $sessionCartTotal]); ?>;
+        window.braintreeToken = <?php echo json_encode($braintreeToken ?? null); ?>;
+        window._medexPayment = window._medexPayment || {
+            token: null,
+            clientInstance: null,
+            hostedFieldsInstance: null,
+            ready: false
+        };
 
         function togglePasswordField(inputSelector, iconSelector) {
             const input = $(inputSelector);
@@ -1351,6 +1365,8 @@ if ($step > 1 && !$isConfigured) {
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
+                        sessionStorage.removeItem(onboardingDraftStorageKey);
+                        sessionStorage.removeItem('medex_onboarding_summary');
                         location.href = 'onboarding.php?step=2&site=<?php echo attr_js($siteId); ?>';
                     } else if (response.refresh_required) {
                         const safeError = $('<div>').text(response.error || 'Agreement versions changed. Refresh and review the current agreements.').html();
@@ -1391,7 +1407,6 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function submitStep2() {
-            // Create cart with MedEx API
             const remindersSelected = $("#service_appointment_reminders").is(':checked');
             const reminderProviders = $("input[name='reminders_providers[]']:checked").length;
             const reminderFacilities = $("input[name='reminders_facilities[]']:checked").length;
@@ -1405,37 +1420,430 @@ if ($step > 1 && !$isConfigured) {
                 return;
             }
 
-            const formData = $("#form-step-2").serialize();
+            const draft = buildOnboardingDraftFromForm();
+            if (!draft.items.length) {
+                $("#result").html('<div class="alert alert-danger"><?php echo xlj("Select at least one service to continue."); ?></div>');
+                return;
+            }
 
-            $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Creating cart...</div>');
+            saveOnboardingDraft(draft);
+            location.href = 'onboarding.php?step=3&site=<?php echo attr_js($siteId); ?>';
+        }
 
-            $.ajax({
-                url: 'create_cart.php?site=<?php echo attr_js($siteId); ?>',
-                type: 'POST',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        const selectedServices = $("input[name='selected_services[]']:checked").map(function() {
-                            return $(this).val();
-                        }).get();
-                        // Store summary for step 3
-                        sessionStorage.setItem('medex_onboarding_summary', JSON.stringify({
-                            reminders: remindersSelected,
-                            provider_count: $("input[name='reminders_providers[]']:checked").length,
-                            facility_count: $("input[name='reminders_facilities[]']:checked").length,
-                            cart_id: response.cart_id,
-                            total: response.total,
-                            services: selectedServices
-                        }));
-                        location.href = 'onboarding.php?step=3&site=<?php echo attr_js($siteId); ?>';
-                    } else {
-                        $("#result").html('<div class="alert alert-danger">' + response.error + '</div>');
-                    }
-                },
-                error: function() {
-                    $("#result").html('<div class="alert alert-danger">Failed to create cart. Please try again.</div>');
+        function buildOnboardingDraftFromForm() {
+            const reminderProviderIds = $("input[name='reminders_providers[]']:checked").map(function() {
+                return parseInt($(this).val(), 10);
+            }).get().filter(Number.isFinite);
+            const reminderFacilityIds = $("input[name='reminders_facilities[]']:checked").map(function() {
+                return parseInt($(this).val(), 10);
+            }).get().filter(Number.isFinite);
+            const items = [];
+            let total = 0;
+
+            $("input[name='selected_services[]']:checked").each(function() {
+                const serviceId = String($(this).val() || '');
+                const definition = onboardingServiceDefinitions[serviceId] || {};
+                const providerBased = !!(definition.provider_based || definition.requires_provider_selection);
+                const quantity = serviceId === 'appointment_reminders'
+                    ? Math.max(reminderProviderIds.length, 0)
+                    : (providerBased ? 1 : 1);
+                const price = parseFloat(definition.price || 0);
+                const effectiveQuantity = providerBased ? Math.max(quantity, 1) : 1;
+                const lineTotal = providerBased ? (price * effectiveQuantity) : price;
+                total += lineTotal;
+                items.push({
+                    serviceId: serviceId,
+                    service: serviceId,
+                    label: String(definition.title || onboardingServiceLabels[serviceId] || serviceId),
+                    quantity: effectiveQuantity,
+                    providerIds: serviceId === 'appointment_reminders' ? reminderProviderIds : [],
+                    facilityIds: serviceId === 'appointment_reminders' ? reminderFacilityIds : [],
+                    providerCount: serviceId === 'appointment_reminders' ? reminderProviderIds.length : effectiveQuantity,
+                    facilityCount: serviceId === 'appointment_reminders' ? reminderFacilityIds.length : 0,
+                    providerBased: providerBased,
+                    price: price,
+                    lineTotal: lineTotal
+                });
+            });
+
+            return {
+                items: items,
+                total: Number(total.toFixed(2))
+            };
+        }
+
+        function saveOnboardingDraft(draft) {
+            const serialized = JSON.stringify(draft || {});
+            sessionStorage.setItem(onboardingDraftStorageKey, serialized);
+            sessionStorage.setItem('medex_onboarding_summary', serialized);
+        }
+
+        function loadOnboardingDraft() {
+            const raw = sessionStorage.getItem(onboardingDraftStorageKey) || sessionStorage.getItem('medex_onboarding_summary');
+            if (!raw) {
+                return null;
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.items)) {
+                    return parsed;
                 }
+            } catch (e) {
+            }
+            return null;
+        }
+
+        function serverCartToDraft() {
+            const items = Array.isArray(onboardingServerCart.items) ? onboardingServerCart.items : [];
+            if (!items.length) {
+                return null;
+            }
+            const draftItems = items.map(function(item) {
+                const serviceId = String(item && item.service ? item.service : '');
+                if (!serviceId) {
+                    return null;
+                }
+                const definition = onboardingServiceDefinitions[serviceId] || {};
+                const quantity = Math.max(parseInt(item.quantity || 1, 10) || 1, 1);
+                const price = parseFloat(definition.price || 0);
+                return {
+                    serviceId: serviceId,
+                    service: serviceId,
+                    label: String(definition.title || onboardingServiceLabels[serviceId] || serviceId),
+                    quantity: quantity,
+                    providerIds: Array.isArray(item.providers) ? item.providers.map(v => parseInt(v, 10)).filter(Number.isFinite) : [],
+                    facilityIds: Array.isArray(item.facilities) ? item.facilities.map(v => parseInt(v, 10)).filter(Number.isFinite) : [],
+                    providerCount: Array.isArray(item.providers) ? item.providers.length : quantity,
+                    facilityCount: Array.isArray(item.facilities) ? item.facilities.length : 0,
+                    providerBased: !!(definition.provider_based || definition.requires_provider_selection),
+                    price: price,
+                    lineTotal: (definition.provider_based || definition.requires_provider_selection) ? (price * quantity) : price
+                };
+            }).filter(Boolean);
+            if (!draftItems.length) {
+                return null;
+            }
+            const total = onboardingServerCart.total !== null && onboardingServerCart.total !== undefined
+                ? parseFloat(onboardingServerCart.total || 0)
+                : draftItems.reduce(function(sum, item) { return sum + parseFloat(item.lineTotal || 0); }, 0);
+            return {
+                items: draftItems,
+                total: Number((Number.isFinite(total) ? total : 0).toFixed(2))
+            };
+        }
+
+        function getActiveOnboardingDraft() {
+            const stored = loadOnboardingDraft();
+            if (stored && stored.items.length) {
+                return stored;
+            }
+            const serverDraft = serverCartToDraft();
+            if (serverDraft && serverDraft.items.length) {
+                saveOnboardingDraft(serverDraft);
+                return serverDraft;
+            }
+            return { items: [], total: 0 };
+        }
+
+        function restoreOnboardingDraftToStep2() {
+            const draft = getActiveOnboardingDraft();
+            if (!draft.items.length) {
+                return;
+            }
+            const reminderItem = draft.items.find(function(item) {
+                return item.serviceId === 'appointment_reminders';
+            }) || null;
+            draft.items.forEach(function(item) {
+                $("#form-step-2 input[name='selected_services[]'][value='" + item.serviceId.replace(/'/g, "\\'") + "']").prop('checked', true);
+            });
+            if (reminderItem) {
+                (reminderItem.providerIds || []).forEach(function(providerId) {
+                    $("input[name='reminders_providers[]'][value='" + providerId + "']").prop('checked', true);
+                });
+                (reminderItem.facilityIds || []).forEach(function(facilityId) {
+                    $("input[name='reminders_facilities[]'][value='" + facilityId + "']").prop('checked', true);
+                });
+            }
+        }
+
+        function renderOnboardingReview(draft) {
+            const items = Array.isArray(draft.items) ? draft.items : [];
+            if (!items.length) {
+                $("#summary-list").html('<li><?php echo xlj("No services selected"); ?></li>');
+                $("#cart-total").text('$0.00');
+                return;
+            }
+            const html = items.map(function(item) {
+                const label = String(item.label || onboardingServiceLabels[item.serviceId] || item.serviceId);
+                let meta = '';
+                if (item.serviceId === 'appointment_reminders') {
+                    const parts = [];
+                    if (item.providerCount) {
+                        parts.push(item.providerCount + ' <?php echo xlj("provider(s)"); ?>');
+                    }
+                    if (item.facilityCount) {
+                        parts.push(item.facilityCount + ' <?php echo xlj("facility(ies)"); ?>');
+                    }
+                    if (parts.length) {
+                        meta = ' <span style="color:#64748b;">(' + parts.join(' • ') + ')</span>';
+                    }
+                }
+                return '<li>' + $('<div>').text(label).html() + meta + '</li>';
+            }).join('');
+            $("#summary-list").html(html);
+            $("#cart-total").text('$' + parseFloat(draft.total || 0).toFixed(2));
+        }
+
+        function buildPendingChangesFromDraft(draft) {
+            const items = Array.isArray(draft.items) ? draft.items : [];
+            return {
+                add: items.map(function(item) {
+                    return {
+                        serviceId: item.serviceId,
+                        service: item.serviceId,
+                        quantity: Math.max(parseInt(item.quantity || 1, 10) || 1, 1),
+                        providerIds: Array.isArray(item.providerIds) ? item.providerIds : []
+                    };
+                }),
+                remove: []
+            };
+        }
+
+        function showOnboardingPaymentError(message) {
+            const safeMessage = String(message || '').trim();
+            if (!safeMessage) {
+                $("#payment-errors").hide().text('');
+                return;
+            }
+            $("#payment-errors").text(safeMessage).show();
+        }
+
+        function setOnboardingActionState(selector, label, disabled, showSpinner) {
+            const $button = $(selector);
+            if (!$button.length) {
+                return;
+            }
+            const safeLabel = $('<div>').text(label).html();
+            const prefix = showSpinner ? '<i class="fa fa-spinner fa-spin"></i> ' : '';
+            $button.prop('disabled', !!disabled).html(prefix + safeLabel);
+        }
+
+        function submitOnboardingChanges(options = {}) {
+            const draft = getActiveOnboardingDraft();
+            if (!draft.items.length) {
+                showOnboardingPaymentError('<?php echo xlj("No services selected. Return to Configure Services."); ?>');
+                return;
+            }
+            window.pendingChanges = buildPendingChangesFromDraft(draft);
+            showOnboardingPaymentError('');
+            setOnboardingActionState('#review-changes-btn', '<?php echo xlj("Activate Services"); ?>', true, true);
+            setOnboardingActionState('#payment-submit-btn', '<?php echo xlj("Complete Payment & Activate"); ?>', true, true);
+
+            const requestData = {
+                add: window.pendingChanges.add,
+                remove: [],
+                use_existing_payment: !!options.useExistingPayment,
+                providers: {}
+            };
+            if (options.paymentNonce) {
+                requestData.payment_nonce = options.paymentNonce;
+            }
+            window.pendingChanges.add.forEach(function(item) {
+                if (Array.isArray(item.providerIds) && item.providerIds.length) {
+                    requestData.providers[item.serviceId] = item.providerIds;
+                }
+            });
+
+            ensureActiveSession();
+            fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/admin/process_subscription.php?site=<?php echo urlencode($siteId); ?>', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error(text || ('HTTP ' + response.status));
+                    });
+                }
+                return response.json();
+            })
+            .then(function(response) {
+                if (!response || !response.success) {
+                    throw new Error((response && response.error) || 'Activation failed.');
+                }
+                sessionStorage.removeItem(onboardingDraftStorageKey);
+                sessionStorage.removeItem('medex_onboarding_summary');
+                window.location.href = 'index.php?site=<?php echo attr_js($siteId); ?>&payment_success=1';
+            })
+            .catch(function(error) {
+                showOnboardingPaymentError(error.message || 'Activation failed.');
+                setOnboardingActionState('#review-changes-btn', '<?php echo xlj("Activate Services"); ?>', false, false);
+                setOnboardingActionState('#payment-submit-btn', '<?php echo xlj("Complete Payment & Activate"); ?>', false, false);
+            });
+        }
+
+        window._medexLoadScript = function(src) {
+            return new Promise(function(resolve, reject) {
+                const existing = Array.from(document.scripts).find(function(scriptTag) {
+                    return scriptTag.src === src;
+                });
+                if (existing) {
+                    if (existing.dataset.loaded === '1') {
+                        resolve();
+                        return;
+                    }
+                    existing.addEventListener('load', function() { resolve(); }, { once: true });
+                    existing.addEventListener('error', function() { reject(new Error('Failed to load ' + src)); }, { once: true });
+                    return;
+                }
+                const scriptTag = document.createElement('script');
+                scriptTag.src = src;
+                scriptTag.async = true;
+                scriptTag.onload = function() {
+                    scriptTag.dataset.loaded = '1';
+                    resolve();
+                };
+                scriptTag.onerror = function() {
+                    reject(new Error('Failed to load ' + src));
+                };
+                document.head.appendChild(scriptTag);
+            });
+        };
+
+        function showOnboardingPaymentSection() {
+            const paymentSection = document.getElementById('payment-section');
+            if (paymentSection) {
+                paymentSection.style.display = 'block';
+                paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function initialiseOnboardingPaymentForm(clientToken) {
+            const payment = window._medexPayment;
+            if (!clientToken) {
+                showOnboardingPaymentError('Payment token missing.');
+                return;
+            }
+            if (payment.ready && payment.token === clientToken) {
+                showOnboardingPaymentSection();
+                return;
+            }
+            payment.ready = false;
+            payment.token = clientToken;
+            showOnboardingPaymentError('');
+
+            Promise.all([
+                window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/client.min.js'),
+                window._medexLoadScript('https://js.braintreegateway.com/web/3.97.2/js/hosted-fields.min.js')
+            ]).then(function() {
+                braintree.client.create({ authorization: clientToken }, function(clientErr, clientInstance) {
+                    if (clientErr) {
+                        showOnboardingPaymentError('Payment setup failed: ' + clientErr.message);
+                        return;
+                    }
+                    payment.clientInstance = clientInstance;
+                    braintree.hostedFields.create({
+                        client: clientInstance,
+                        styles: {
+                            input: { 'font-size': '14px', color: '#1f2937' },
+                            ':focus': { color: '#111827' }
+                        },
+                        fields: {
+                            number: { selector: '#medex-card-number', placeholder: '4111 1111 1111 1111' },
+                            expirationDate: { selector: '#medex-card-expiration', placeholder: 'MM/YY' },
+                            cvv: { selector: '#medex-card-cvv', placeholder: '123' },
+                            postalCode: { selector: '#medex-card-postal', placeholder: 'ZIP / Postal' }
+                        }
+                    }, function(fieldsErr, hostedFieldsInstance) {
+                        if (fieldsErr) {
+                            showOnboardingPaymentError('Card form setup failed: ' + fieldsErr.message);
+                            return;
+                        }
+                        payment.hostedFieldsInstance = hostedFieldsInstance;
+                        payment.ready = true;
+                        showOnboardingPaymentSection();
+                        setOnboardingActionState('#payment-submit-btn', '<?php echo xlj("Complete Payment & Activate"); ?>', false, false);
+                    });
+                });
+            }).catch(function(error) {
+                showOnboardingPaymentError(error.message || 'Payment libraries failed to load.');
+            });
+        }
+
+        function requestOnboardingPaymentForm() {
+            showOnboardingPaymentError('');
+            setOnboardingActionState('#review-changes-btn', '<?php echo xlj("Activate Services"); ?>', true, true);
+            ensureActiveSession();
+            fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/admin/get_braintree_token.php?site=<?php echo urlencode($siteId); ?>', {
+                credentials: 'include'
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(response) {
+                const clientToken = response && (response.clientToken || response.token);
+                if (!response || !response.success || !clientToken) {
+                    throw new Error((response && (response.error || response.message)) || 'Failed to initialize payment form.');
+                }
+                initialiseOnboardingPaymentForm(clientToken);
+            })
+            .catch(function(error) {
+                showOnboardingPaymentError(error.message || 'Failed to initialize payment form.');
+            })
+            .finally(function() {
+                setOnboardingActionState('#review-changes-btn', '<?php echo xlj("Activate Services"); ?>', false, false);
+            });
+        }
+
+        function processOnboardingActivation() {
+            const draft = getActiveOnboardingDraft();
+            const total = parseFloat(draft.total || 0);
+            const hasPaymentOnFile = window.braintreeToken !== null && window.braintreeToken !== undefined && window.braintreeToken !== '';
+
+            if (!draft.items.length) {
+                showOnboardingPaymentError('<?php echo xlj("No services selected. Return to Configure Services."); ?>');
+                return;
+            }
+            if (!Number.isFinite(total) || total <= 0) {
+                submitOnboardingChanges({ useExistingPayment: false });
+                return;
+            }
+            if (hasPaymentOnFile) {
+                submitOnboardingChanges({ useExistingPayment: true });
+                return;
+            }
+            requestOnboardingPaymentForm();
+        }
+
+        function completeOnboardingPayment() {
+            const payment = window._medexPayment;
+            if (!payment || !payment.ready || !payment.hostedFieldsInstance) {
+                showOnboardingPaymentError('Payment form not ready.');
+                return;
+            }
+            const cardholderName = String($("#medex-cardholder-name").val() || '').trim();
+            if (!cardholderName) {
+                showOnboardingPaymentError('Please enter cardholder name.');
+                return;
+            }
+            setOnboardingActionState('#payment-submit-btn', '<?php echo xlj("Complete Payment & Activate"); ?>', true, true);
+            showOnboardingPaymentError('');
+            payment.hostedFieldsInstance.tokenize({
+                cardholderName: cardholderName
+            }, function(error, payload) {
+                if (error) {
+                    showOnboardingPaymentError(error.message || 'Unable to tokenize payment details.');
+                    setOnboardingActionState('#payment-submit-btn', '<?php echo xlj("Complete Payment & Activate"); ?>', false, false);
+                    return;
+                }
+                submitOnboardingChanges({
+                    paymentNonce: payload && payload.nonce ? payload.nonce : '',
+                    useExistingPayment: false
+                });
             });
         }
 
@@ -1635,7 +2043,19 @@ if ($step > 1 && !$isConfigured) {
 
             if (wizardStep === 3) {
                 $("#wizard-progress-fill").css("width", "100%");
+                const draft = getActiveOnboardingDraft();
+                renderOnboardingReview(draft);
+                $("#edit-services-btn").on("click", function() {
+                    location.href = 'onboarding.php?step=2&site=<?php echo attr_js($siteId); ?>';
+                });
+                $("#review-changes-btn").on("click", function() {
+                    processOnboardingActivation();
+                });
+                $("#payment-submit-btn").on("click", function() {
+                    completeOnboardingPayment();
+                });
             } else if (wizardStep === 2) {
+                restoreOnboardingDraftToStep2();
                 syncRemindersConfigPanel();
                 updateStep2Progress();
                 $("#form-step-2 input[type='checkbox']").on("change", function() {
@@ -1733,190 +2153,7 @@ if ($step > 1 && !$isConfigured) {
             restoreSavedAgreementState("baa");
             updateOtpUiState();
             updateStep1SubmitState();
-
-            if (window.location.search.includes('step=3')) {
-                const serverCart = <?php echo json_encode(['items' => $sessionCartItems, 'total' => $sessionCartTotal]); ?>;
-                let summary = {};
-                try {
-                    summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
-                } catch (e) {
-                    summary = {};
-                }
-                if ((!Array.isArray(summary.services) || summary.services.length === 0) && Array.isArray(serverCart.items) && serverCart.items.length) {
-                    summary.services = serverCart.items.map(function(item) {
-                        return item && item.service ? item.service : '';
-                    }).filter(Boolean);
-                    if (typeof summary.total === "undefined" || summary.total === null || summary.total === "") {
-                        summary.total = serverCart.total;
-                    }
-                }
-                let html = '';
-                const serviceLabels = <?php echo json_encode($serviceLabels); ?> || {};
-                if (Array.isArray(summary.services) && summary.services.length) {
-                    summary.services.forEach(function(serviceKey) {
-                        const label = serviceLabels[serviceKey] || serviceKey;
-                        if (serviceKey === 'appointment_reminders') {
-                            const count = summary.provider_count || 0;
-                            html += '<li>' + label + (count ? (' (' + count + ' ' + <?php echo json_encode(xl("providers")); ?> + ')') : '') + '</li>';
-                        } else {
-                            html += '<li>' + label + '</li>';
-                        }
-                    });
-                } else {
-                    if (summary.reminders) html += '<li>' + (serviceLabels.appointment_reminders || 'appointment_reminders') + ' (' + (summary.provider_count || 0) + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
-                }
-                $("#summary-list").html(html || '<li>No services selected</li>');
-
-                // Display total
-                if (summary.total) {
-                    $("#cart-total").text('$' + parseFloat(summary.total).toFixed(2) + ' / <?php echo xlj("month"); ?>');
-                }
-
-                // Initialize Braintree if we have a token
-                initializeBraintree();
-            }
         });
-
-        function initializeBraintree() {
-            const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
-            const total = parseFloat(summary.total || 0);
-            if (!Number.isFinite(total) || total <= 0) {
-                configureZeroDollarActivation();
-                return;
-            }
-
-            // Get Braintree token from session via AJAX
-            ensureActiveSession();
-            $.ajax({
-                url: 'get_braintree_token.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    const token = response && (response.clientToken || response.token);
-                    if (response.success && token) {
-                        setupBraintreeFields(token);
-                    } else {
-                        $("#payment-errors").text('Failed to initialize payment form: ' + (response.error || response.message || 'Unknown error')).show();
-                    }
-                },
-                error: function() {
-                    $("#payment-errors").text('Failed to initialize payment form').show();
-                }
-            });
-        }
-
-        function configureZeroDollarActivation() {
-            $("#payment-section-title").text(<?php echo json_encode(xl("Activate Services")); ?>);
-            $("#payment-zero-copy").show();
-            $(".payment-field-group, .payment-field-row").hide();
-            $("#cardholder-name").prop("required", false);
-            $("#submit-payment").html('<i class="fa fa-check"></i> <?php echo xlj("Activate Services"); ?>');
-            $("#payment-form").off('submit').on('submit', function(e) {
-                e.preventDefault();
-                $("#submit-payment").prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> <?php echo xlj("Activating"); ?>...');
-                $("#payment-errors").hide();
-                processPayment('');
-            });
-        }
-
-        function setupBraintreeFields(clientToken) {
-            braintree.client.create({
-                authorization: clientToken
-            }, function(err, clientInstance) {
-                if (err) {
-                    console.error('Braintree client error:', err);
-                    $("#payment-errors").text('Payment form initialization failed').show();
-                    return;
-                }
-
-                braintree.hostedFields.create({
-                    client: clientInstance,
-                    styles: {
-                        'input': {
-                            'font-size': '15px',
-                            'color': '#333'
-                        }
-                    },
-                    fields: {
-                        number: {
-                            selector: '#card-number',
-                            placeholder: '4111 1111 1111 1111'
-                        },
-                        cvv: {
-                            selector: '#cvv',
-                            placeholder: '123'
-                        },
-                        expirationDate: {
-                            selector: '#expiration-date',
-                            placeholder: 'MM/YY'
-                        }
-                    }
-                }, function(err, hostedFieldsInstance) {
-                    if (err) {
-                        console.error('Hosted Fields error:', err);
-                        $("#payment-errors").text('Payment form setup failed').show();
-                        return;
-                    }
-
-                    // Handle form submission
-                    $("#payment-form").on('submit', function(e) {
-                        e.preventDefault();
-
-                        const cardholderName = $("#cardholder-name").val();
-                        if (!cardholderName) {
-                            $("#payment-errors").text('Please enter cardholder name').show();
-                            return;
-                        }
-
-                        $("#submit-payment").prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
-                        $("#payment-errors").hide();
-
-                        hostedFieldsInstance.tokenize({
-                            cardholderName: cardholderName
-                        }, function(tokenizeErr, payload) {
-                            if (tokenizeErr) {
-                                console.error('Tokenization error:', tokenizeErr);
-                                $("#payment-errors").text('Payment validation failed: ' + tokenizeErr.message).show();
-                                $("#submit-payment").prop('disabled', false).html('<i class="fa fa-lock"></i> <?php echo xlj("Complete Payment & Activate"); ?>');
-                                return;
-                            }
-
-                            // Submit payment to backend
-                            processPayment(payload.nonce);
-                        });
-                    });
-                });
-            });
-        }
-
-        function processPayment(paymentNonce) {
-            const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
-
-            ensureActiveSession();
-            $.ajax({
-                url: 'process_payment.php?site=<?php echo attr_js($siteId); ?>',
-                type: 'POST',
-                data: {
-                    csrf_token_form: $('input[name="csrf_token_form"]').val(),
-                    payment_nonce: paymentNonce,
-                    cart_id: summary.cart_id
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        // Payment successful - redirect to settings/dashboard
-                        window.location.href = 'index.php?site=<?php echo attr_js($siteId); ?>&payment_success=1';
-                    } else {
-                        $("#payment-errors").text('Payment failed: ' + (response.error || 'Unknown error')).show();
-                        $("#submit-payment").prop('disabled', false).html('<i class="fa fa-lock"></i> <?php echo xlj("Complete Payment & Activate"); ?>');
-                    }
-                },
-                error: function() {
-                    $("#payment-errors").text('Payment processing failed. Please try again.').show();
-                    $("#submit-payment").prop('disabled', false).html('<i class="fa fa-lock"></i> <?php echo xlj("Complete Payment & Activate"); ?>');
-                }
-            });
-        }
     </script>
 </body>
 </html>
