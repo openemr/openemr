@@ -9,5 +9,5 @@ if ($siteId === '') {
     $siteId = 'default';
 }
 
-header('Location: index.php?site=' . urlencode($siteId));
+header('Location: index.php?site=' . urlencode($siteId) . '&cloud=1');
 exit;

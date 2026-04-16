@@ -90,9 +90,9 @@ $cloudOnly = !empty($_GET['cloud_only']);
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode((string)$siteId);
 
-// Local module dashboard is the default.
-// Only hand off to the cloud dashboard when explicitly requested.
-if ($isConfigured && $isActive && !empty($_GET['cloud'])) {
+// MedEx SaaS dashboard is the default for configured active accounts.
+// Use ?local=1 only when explicitly troubleshooting the stripped-down module UI.
+if ($isConfigured && $isActive && empty($_GET['local'])) {
     try {
         // Do not force fresh credential login on every page load.
         // Reuse cached session token when valid to avoid unnecessary fallback to
