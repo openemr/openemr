@@ -188,6 +188,7 @@ $practiceName = medexGetPracticeName();
         }
         .body {
             flex: 1 1 auto;
+            min-height: 420px;
             overflow-y: auto;
             background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
             padding: 12px;
@@ -356,6 +357,9 @@ $practiceName = medexGetPracticeName();
         @media (max-width: 760px) {
             .row {
                 grid-template-columns: 1fr;
+            }
+            .body {
+                min-height: 300px;
             }
         }
     </style>
