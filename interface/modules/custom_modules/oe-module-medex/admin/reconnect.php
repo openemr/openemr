@@ -35,7 +35,7 @@ try {
 }
 
 $targetPath = $hasCredentials
-    ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
+    ? '/interface/modules/custom_modules/oe-module-medex/admin/index.php'
     : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
 $targetUrl = $webroot . $targetPath . '?site=' . urlencode($siteId) . '&reconnect=1';
 if ($existingEmail !== '') {

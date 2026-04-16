@@ -136,13 +136,7 @@ if ($isConfigured && $isActive && !empty($_GET['cloud'])) {
 }
 
 if ($cloudOnly) {
-    http_response_code(502);
-    echo '<!doctype html><html><head><meta charset="utf-8"><title>MedEx Admin</title></head><body style="margin:0;background:#f5f8fc;color:#0f172a;font-family:Segoe UI,Tahoma,sans-serif;">';
-    echo '<div style="max-width:760px;margin:56px auto;padding:24px;background:#fff;border:1px solid #dbe5ee;border-radius:12px;">';
-    echo '<h2 style="margin:0 0 12px 0;color:#0f4b8f;">Unable to load MedEx cloud dashboard</h2>';
-    echo '<p style="margin:0 0 16px 0;">Please refresh this page. If the issue continues, reconnect MedEx in Account Settings.</p>';
-    echo '<p style="margin:0;"><a href="' . attr(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site=' . urlencode((string)$siteId) . '&tab=settings&local=1') . '" style="color:#0f4b8f;font-weight:600;">Open Account Settings</a></p>';
-    echo '</div></body></html>';
+    header('Location: index.php?site=' . urlencode((string)$siteId));
     exit;
 }
 

@@ -162,7 +162,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $adminDashboardItem->menu_id = 'medex_admin';
         $adminDashboardItem->label = xlt("Admin Dashboard");
         $adminDashboardPath = $hasCredentials
-            ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
+            ? '/interface/modules/custom_modules/oe-module-medex/admin/index.php'
             : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
         $adminDashboardItem->url = $buildUrl($adminDashboardPath, ['minimal' => 1]);
         $adminDashboardItem->acl_req = ["admin", "super"];
