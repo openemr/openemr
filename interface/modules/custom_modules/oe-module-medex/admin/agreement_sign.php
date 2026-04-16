@@ -114,14 +114,29 @@ function medexRemoveLegacyPrintInstruction(string $html): string
 function medexEnsureAgreementReceiptTable(): void
 {
     QueryUtils::sqlStatementThrowException(
-        "CREATE TABLE IF NOT EXISTS `medex_agreement_receipts` (
+        "CREATE TABLE IF NOT EXISTS `medex_agreement_receipt_records` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `receipt_uid` varchar(64) NOT NULL,
             `agreement_type` varchar(20) NOT NULL,
             `agreement_version` varchar(32) NOT NULL,
+            `practice_name` varchar(255) DEFAULT NULL,
+            `legal_corporate_name` varchar(255) DEFAULT NULL,
+            `signer_name` varchar(255) DEFAULT NULL,
+            `signer_title` varchar(255) DEFAULT NULL,
+            `signed_at` datetime DEFAULT NULL,
+            `payload_sha256` char(64) DEFAULT NULL,
             `payload_json` mediumtext NOT NULL,
             `body_html` mediumtext DEFAULT NULL,
+            `receipt_status` varchar(32) NOT NULL DEFAULT 'signed_html',
+            `pdf_origin` varchar(32) NOT NULL DEFAULT 'remote_pending',
+            `remote_receipt_id` varchar(128) DEFAULT NULL,
+            `remote_pdf_url` text DEFAULT NULL,
+            `local_pdf_path` text DEFAULT NULL,
             `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (`agreement_type`, `agreement_version`)
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_medex_agreement_receipt_uid` (`receipt_uid`),
+            KEY `idx_medex_agreement_receipt_lookup` (`agreement_type`, `agreement_version`, `signed_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         []
     );
@@ -131,9 +146,13 @@ function medexLoadAgreementReceipt(string $type, string $version): ?array
 {
     medexEnsureAgreementReceiptTable();
     $row = QueryUtils::querySingleRow(
-        "SELECT payload_json, body_html, created_at, updated_at
-           FROM medex_agreement_receipts
+        "SELECT receipt_uid, payload_json, body_html, created_at, updated_at,
+                practice_name, legal_corporate_name, signer_name, signer_title,
+                signed_at, receipt_status, pdf_origin, remote_receipt_id,
+                remote_pdf_url, local_pdf_path, payload_sha256
+           FROM medex_agreement_receipt_records
           WHERE agreement_type = ? AND agreement_version = ?
+          ORDER BY COALESCE(signed_at, created_at) DESC, id DESC
           LIMIT 1",
         [$type, $version]
     );
@@ -146,25 +165,78 @@ function medexLoadAgreementReceipt(string $type, string $version): ?array
         return null;
     }
     return [
+        'receipt_uid' => (string)($row['receipt_uid'] ?? ''),
         'payload' => $payload,
         'body_html' => (string)($row['body_html'] ?? ''),
         'created_at' => (string)($row['created_at'] ?? ''),
         'updated_at' => (string)($row['updated_at'] ?? ''),
+        'receipt_status' => (string)($row['receipt_status'] ?? ''),
+        'pdf_origin' => (string)($row['pdf_origin'] ?? ''),
+        'remote_receipt_id' => (string)($row['remote_receipt_id'] ?? ''),
+        'remote_pdf_url' => (string)($row['remote_pdf_url'] ?? ''),
+        'local_pdf_path' => (string)($row['local_pdf_path'] ?? ''),
+        'payload_sha256' => (string)($row['payload_sha256'] ?? ''),
     ];
 }
 
-function medexSaveAgreementReceipt(string $type, string $version, array $payload, string $bodyHtml): void
+function medexSaveAgreementReceipt(string $type, string $version, array $payload, string $bodyHtml): array
 {
     medexEnsureAgreementReceiptTable();
-    QueryUtils::sqlStatementThrowException(
-        "INSERT INTO medex_agreement_receipts (agreement_type, agreement_version, payload_json, body_html, created_at, updated_at)
-         VALUES (?, ?, ?, ?, NOW(), NOW())
-         ON DUPLICATE KEY UPDATE
-            payload_json = VALUES(payload_json),
-            body_html = VALUES(body_html),
-            updated_at = NOW()",
-        [$type, $version, json_encode($payload), $bodyHtml]
+    $payloadJson = json_encode($payload);
+    $payloadHash = hash('sha256', $payloadJson . "\n" . $bodyHtml);
+    $existing = QueryUtils::querySingleRow(
+        "SELECT receipt_uid, payload_json, body_html, created_at, updated_at,
+                receipt_status, pdf_origin, remote_receipt_id, remote_pdf_url,
+                local_pdf_path, payload_sha256
+           FROM medex_agreement_receipt_records
+          WHERE agreement_type = ? AND agreement_version = ? AND payload_sha256 = ?
+          ORDER BY id DESC
+          LIMIT 1",
+        [$type, $version, $payloadHash]
     );
+    if (!empty($existing['receipt_uid'])) {
+        return [
+            'receipt_uid' => (string)$existing['receipt_uid'],
+            'payload' => $payload,
+            'body_html' => (string)($existing['body_html'] ?? ''),
+            'created_at' => (string)($existing['created_at'] ?? ''),
+            'updated_at' => (string)($existing['updated_at'] ?? ''),
+            'receipt_status' => (string)($existing['receipt_status'] ?? ''),
+            'pdf_origin' => (string)($existing['pdf_origin'] ?? ''),
+            'remote_receipt_id' => (string)($existing['remote_receipt_id'] ?? ''),
+            'remote_pdf_url' => (string)($existing['remote_pdf_url'] ?? ''),
+            'local_pdf_path' => (string)($existing['local_pdf_path'] ?? ''),
+            'payload_sha256' => (string)($existing['payload_sha256'] ?? ''),
+        ];
+    }
+
+    $receiptUid = 'agr_' . bin2hex(random_bytes(12));
+    $signedAt = trim((string)($payload['signed_at'] ?? ''));
+    $practiceName = trim((string)($payload['practice_name'] ?? ''));
+    $legalCorporateName = trim((string)($payload['legal_corporate_name'] ?? ''));
+    $signerName = trim((string)($payload['signer_name'] ?? ''));
+    $signerTitle = trim((string)($payload['signer_title'] ?? ''));
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_agreement_receipt_records
+            (receipt_uid, agreement_type, agreement_version, practice_name, legal_corporate_name,
+             signer_name, signer_title, signed_at, payload_sha256, payload_json, body_html,
+             receipt_status, pdf_origin, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'signed_html', 'remote_pending', NOW(), NOW())",
+        [$receiptUid, $type, $version, $practiceName, $legalCorporateName, $signerName, $signerTitle, $signedAt ?: null, $payloadHash, $payloadJson, $bodyHtml]
+    );
+    return medexLoadAgreementReceipt($type, $version) ?? [
+        'receipt_uid' => $receiptUid,
+        'payload' => $payload,
+        'body_html' => $bodyHtml,
+        'created_at' => '',
+        'updated_at' => '',
+        'receipt_status' => 'signed_html',
+        'pdf_origin' => 'remote_pending',
+        'remote_receipt_id' => '',
+        'remote_pdf_url' => '',
+        'local_pdf_path' => '',
+        'payload_sha256' => $payloadHash,
+    ];
 }
 
 function medexFetchAgreementBody(string $url): string
@@ -245,8 +317,14 @@ if ($action === 'save_receipt') {
         echo json_encode(['success' => false, 'error' => 'Missing required signature fields']);
         exit;
     }
-    medexSaveAgreementReceipt($type, $version, $payload, $agreementHtml);
-    echo json_encode(['success' => true, 'payload' => $payload]);
+    $receipt = medexSaveAgreementReceipt($type, $version, $payload, $agreementHtml);
+    echo json_encode([
+        'success' => true,
+        'payload' => $payload,
+        'receipt_uid' => (string)($receipt['receipt_uid'] ?? ''),
+        'receipt_status' => (string)($receipt['receipt_status'] ?? 'signed_html'),
+        'pdf_origin' => (string)($receipt['pdf_origin'] ?? 'remote_pending'),
+    ]);
     exit;
 }
 
