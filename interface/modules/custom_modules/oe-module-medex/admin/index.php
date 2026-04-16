@@ -1451,12 +1451,13 @@ if ($cloudOnly) {
         // Load tab content
         function loadTabContent(tab) {
             const contentDiv = document.getElementById('tab-' + tab);
-            if (!contentDiv || contentDiv.dataset.loaded === 'true') return;
+            if (!contentDiv) return;
+            if (tab !== 'overview' && contentDiv.dataset.loaded === 'true') return;
 
             let endpoint = '';
             switch(tab) {
                 case 'overview':
-                    endpoint = 'api/get_overview.php?site=' + encodeURIComponent(siteId);
+                    endpoint = 'api/get_overview.php?site=' + encodeURIComponent(siteId) + '&_=' + Date.now();
                     break;
                 case 'subscriptions':
                     endpoint = 'api/get_subscriptions.php?site=' + encodeURIComponent(siteId);
@@ -1501,7 +1502,9 @@ if ($cloudOnly) {
 
                         // Set content without scripts
                         contentDiv.innerHTML = tempDiv.innerHTML;
-                        contentDiv.dataset.loaded = 'true';
+                        if (tab !== 'overview') {
+                            contentDiv.dataset.loaded = 'true';
+                        }
 
                         // Execute scripts
                         scripts.forEach((script, index) => {
@@ -1549,7 +1552,7 @@ if ($cloudOnly) {
 
             overviewDiv.innerHTML = '<div class="loading"><i class="fa fa-spinner fa-spin"></i><p><?php echo xla('Loading dashboard...'); ?></p></div>';
 
-            medexFetch('api/get_overview.php', {
+            medexFetch('api/get_overview.php?site=' + encodeURIComponent(siteId) + '&_=' + Date.now(), {
                 credentials: 'same-origin'
             })
                 .then(response => {

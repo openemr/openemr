@@ -11,6 +11,10 @@ require_once(__DIR__ . "/../../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 if (!AclMain::aclCheckCore('admin', 'super')) {
     http_response_code(403);
     echo '<div class="overview-card"><p style="color:#dc3545;">' . xlt('Access denied') . '</p></div>';
