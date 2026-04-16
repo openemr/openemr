@@ -537,7 +537,22 @@ if ($step > 1 && !$isConfigured) {
                     'secure_chat' => $helpBaseUrl . '&topic=secure_chat',
                     'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
                 ];
-                $availablePricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+                $rawPricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+                $availablePricingServices = $rawPricingServices;
+                $serviceKeyAliases = [
+                    'calendar_view' => ['calendar_view', 'calendar_export'],
+                    'calendar_ai' => ['calendar_ai', 'Calendar Service'],
+                    'calendar_full' => ['calendar_full', 'FullCalendar'],
+                ];
+                foreach ($serviceKeyAliases as $canonicalKey => $aliases) {
+                    foreach ($aliases as $aliasKey) {
+                        if (!array_key_exists($aliasKey, $rawPricingServices)) {
+                            continue;
+                        }
+                        $availablePricingServices[$canonicalKey] = $rawPricingServices[$aliasKey];
+                        break;
+                    }
+                }
                 $serviceAvailableForOnboarding = static function (string $serviceKey) use ($availablePricingServices): bool {
                     if (!array_key_exists($serviceKey, $availablePricingServices)) {
                         return false;
@@ -667,7 +682,7 @@ if ($step > 1 && !$isConfigured) {
                         <div class="service-desc"><?php echo xlt("Read-only web calendar with export capabilities for external scheduling systems."); ?></div>
                         <div class="service-price">
                             <?php
-                            $calViewTrial = $pricing['services']['calendar_view']['trial'] ?? null;
+                            $calViewTrial = $availablePricingServices['calendar_view']['trial'] ?? null;
                             if ($calViewTrial && $calViewTrial['enabled']) {
                                 echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
                                 if ($calViewTrial['price'] == 0) {
@@ -676,9 +691,9 @@ if ($step > 1 && !$isConfigured) {
                                     echo "$" . number_format($calViewTrial['price'], 2) . " / " . xlt($calViewTrial['frequency']) . " " . xlt("for") . " " . $calViewTrial['duration'] . " " . xlt($calViewTrial['frequency']) . ($calViewTrial['duration'] > 1 ? "s" : "");
                                 }
                                 echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($pricing['services']['calendar_view']['unit'] ?? ''), 'mo/per calendar')) . "</span>";
+                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($availablePricingServices['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($availablePricingServices['calendar_view']['unit'] ?? ''), 'mo/per calendar')) . "</span>";
                             } else {
-                                echo "$" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($pricing['services']['calendar_view']['unit'] ?? ''), 'mo/per calendar'));
+                                echo "$" . number_format($availablePricingServices['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($availablePricingServices['calendar_view']['unit'] ?? ''), 'mo/per calendar'));
                             }
                             ?>
                         </div>
@@ -700,7 +715,7 @@ if ($step > 1 && !$isConfigured) {
                         <div class="service-desc"><?php echo xlt("Modern web-based calendar and AI-powered automated patient rescheduling."); ?></div>
                         <div class="service-price">
                             <?php
-                            $calendarTrial = $pricing['services']['calendar_ai']['trial'] ?? null;
+                            $calendarTrial = $availablePricingServices['calendar_ai']['trial'] ?? null;
                             if ($calendarTrial && $calendarTrial['enabled']) {
                                 echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
                                 if ($calendarTrial['price'] == 0) {
@@ -709,9 +724,9 @@ if ($step > 1 && !$isConfigured) {
                                     echo "$" . number_format($calendarTrial['price'], 2) . " / " . xlt($calendarTrial['frequency']) . " " . xlt("for") . " " . $calendarTrial['duration'] . " " . xlt($calendarTrial['frequency']) . ($calendarTrial['duration'] > 1 ? "s" : "");
                                 }
                                 echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($pricing['services']['calendar_ai']['unit'] ?? 'mo per provider + usage') . "</span>";
+                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($availablePricingServices['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($availablePricingServices['calendar_ai']['unit'] ?? 'mo per provider + usage') . "</span>";
                             } else {
-                                echo "$" . number_format($pricing['services']['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($pricing['services']['calendar_ai']['unit'] ?? 'mo per provider + usage');
+                                echo "$" . number_format($availablePricingServices['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($availablePricingServices['calendar_ai']['unit'] ?? 'mo per provider + usage');
                             }
                             ?>
                         </div>

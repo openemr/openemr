@@ -70,7 +70,21 @@ try {
     require_once(__DIR__ . '/../src/MedExAPI.php');
     $api = new \OpenEMR\Modules\MedEx\MedExAPI();
     $pricing = $api->getPricing(true);
-    $services = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+    $rawServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+    $services = $rawServices;
+    foreach ([
+        'calendar_view' => ['calendar_view', 'calendar_export'],
+        'calendar_ai' => ['calendar_ai', 'Calendar Service'],
+        'calendar_full' => ['calendar_full', 'FullCalendar'],
+    ] as $canonicalKey => $aliases) {
+        foreach ($aliases as $aliasKey) {
+            if (!array_key_exists($aliasKey, $rawServices)) {
+                continue;
+            }
+            $services[$canonicalKey] = $rawServices[$aliasKey];
+            break;
+        }
+    }
     $serviceIsPurchasable = static function (string $serviceKey) use ($services): bool {
         if (!array_key_exists($serviceKey, $services)) {
             return false;
@@ -126,7 +140,7 @@ try {
         }
         $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 1;
         $cartData['items'][] = [
-            'service' => 'calendar_view',
+            'service' => 'calendar_export',
             'quantity' => $providerCount
         ];
     }
