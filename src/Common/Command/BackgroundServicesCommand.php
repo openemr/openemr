@@ -44,8 +44,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             ->setDefinition(
                 new InputDefinition([
                     new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, or crontab'),
-                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "run")'),
-                    new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run")'),
+                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (for "run"); if omitted, runs all services that are due'),
+                    new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run"; ignored without --name)'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
                 ])
             );
@@ -95,15 +95,16 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
 
     private function handleRun(InputInterface $input, SymfonyStyle $io): int
     {
-        $name = $input->getOption('name');
-        if (!is_string($name) || $name === '') {
-            $io->error('The --name option is required for the "run" action.');
-            return Command::FAILURE;
-        }
-
+        $nameRaw = $input->getOption('name');
+        $name = is_string($nameRaw) && $nameRaw !== '' ? $nameRaw : null;
         $force = (bool) $input->getOption('force');
-        $runner = new BackgroundServiceRunner();
-        $results = $runner->run($name, $force);
+
+        $results = $this->createRunner()->run($name, $force);
+
+        if ($results === []) {
+            $io->info('No background services were due to run.');
+            return Command::SUCCESS;
+        }
 
         foreach ($results as $result) {
             match ($result['status']) {
@@ -117,12 +118,24 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             };
         }
 
-        $status = $results[0]['status'] ?? 'not_found';
-        return match ($status) {
-            'executed' => Command::SUCCESS,
-            'skipped', 'already_running', 'not_due' => 2,
-            default => Command::FAILURE,
-        };
+        // Non-error outcomes are success at the process level. not_due,
+        // already_running, and skipped are expected states during any cron
+        // tick denser than the service interval (or when a prior run is
+        // still in progress), not failures. Only hard errors and not_found
+        // produce a non-zero exit code so Kubernetes CronJobs, systemd, and
+        // cron MAILTO don't treat routine no-ops as failures. See #11664,
+        // #11677, opencoreemr/chart-oce-openemr#114.
+        foreach ($results as $result) {
+            if ($result['status'] === 'error' || $result['status'] === 'not_found') {
+                return Command::FAILURE;
+            }
+        }
+        return Command::SUCCESS;
+    }
+
+    protected function createRunner(): BackgroundServiceRunner
+    {
+        return new BackgroundServiceRunner();
     }
 
     private function handleCrontab(InputInterface $input, SymfonyStyle $io): int
