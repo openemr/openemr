@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Check admin access
@@ -62,8 +63,17 @@ if (!in_array($currentTab, $validTabs)) {
 }
 
 // Get CSRF token (compatible across OpenEMR versions)
-if (empty($session->get('csrf_private_key', null))) {
-    CsrfUtils::setupCsrfKey($session);
+try {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+} catch (\Throwable $e) {
+    $session = null;
+}
+if (!$session || empty($session->get('csrf_private_key', null))) {
+    if ($session) {
+        CsrfUtils::setupCsrfKey($session);
+    } else {
+        CsrfUtils::setupCsrfKey();
+    }
 }
 $csrfToken = '';
 try {
@@ -76,14 +86,18 @@ try {
     $csrfToken = (string) CsrfUtils::collectCsrfToken();
 }
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
+$cloudOnly = !empty($_GET['cloud_only']);
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode((string)$siteId);
 
-// Cloud-hosted dashboard handoff (api.hipaabank.net) via SSO.
-// Use ?local=1 to bypass and view the local OpenEMR-rendered dashboard.
-if ($isConfigured && $isActive && empty($_GET['local'])) {
+// Local module dashboard is the default.
+// Only hand off to the cloud dashboard when explicitly requested.
+if ($isConfigured && $isActive && !empty($_GET['cloud'])) {
     try {
-        $loginData = $api->login(true);
+        // Do not force fresh credential login on every page load.
+        // Reuse cached session token when valid to avoid unnecessary fallback to
+        // the local legacy dashboard during transient credential drift.
+        $loginData = $api->login(false);
         $sessionToken = (string)($loginData['token'] ?? '');
         $practiceId = (string)(
             $loginData['practice_id']
@@ -119,6 +133,17 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
     } catch (\Throwable $e) {
         error_log('[MedEx Admin] Cloud dashboard handoff failed, falling back to local dashboard: ' . $e->getMessage());
     }
+}
+
+if ($cloudOnly) {
+    http_response_code(502);
+    echo '<!doctype html><html><head><meta charset="utf-8"><title>MedEx Admin</title></head><body style="margin:0;background:#f5f8fc;color:#0f172a;font-family:Segoe UI,Tahoma,sans-serif;">';
+    echo '<div style="max-width:760px;margin:56px auto;padding:24px;background:#fff;border:1px solid #dbe5ee;border-radius:12px;">';
+    echo '<h2 style="margin:0 0 12px 0;color:#0f4b8f;">Unable to load MedEx cloud dashboard</h2>';
+    echo '<p style="margin:0 0 16px 0;">Please refresh this page. If the issue continues, reconnect MedEx in Account Settings.</p>';
+    echo '<p style="margin:0;"><a href="' . attr(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site=' . urlencode((string)$siteId) . '&tab=settings&local=1') . '" style="color:#0f4b8f;font-weight:600;">Open Account Settings</a></p>';
+    echo '</div></body></html>';
+    exit;
 }
 
 ?>
@@ -242,6 +267,37 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+        .dashboard-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-sync-header {
+            background: #fff;
+            color: #0f4b8f;
+            border: 1px solid #dbe5ee;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-sync-header:hover:not(:disabled) {
+            background: #f8fbff;
+            border-color: #0f4b8f;
+            box-shadow: 0 2px 4px rgba(15, 75, 143, 0.1);
+        }
+        .btn-sync-header:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-sync-header.syncing i {
+            animation: fa-spin 2s linear infinite;
         }
         .help-center-link {
             display: inline-flex;
@@ -1015,6 +1071,12 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
                 <?php endif; ?>
             </div>
             <div class="dashboard-actions">
+                <?php if ($isActive && $hasActiveSubscriptions): ?>
+                    <button type="button" class="btn btn-sync-header" id="sync-button" onclick="triggerSync(this)" title="<?php echo xla('Sync data with MedEx server'); ?>">
+                        <i class="fa fa-sync-alt"></i>
+                        <?php echo xlt('Sync Now'); ?>
+                    </button>
+                <?php endif; ?>
                 <a
                     href="<?php echo attr($helpCenterUrl); ?>"
                     class="help-center-link"
@@ -1025,16 +1087,6 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
                 </a>
                 <button type="button" class="embedded-close" onclick="closeConfigModal()">
                     <i class="fa fa-times"></i> <?php echo xlt('Close'); ?>
-                </button>
-                <label class="header-toggle-switch" style="color: var(--medex-text); font-size: 14px; margin: 0;">
-                    <input type="checkbox" id="medex_enable_header" value="1" <?php echo ($GLOBALS['medex_enable'] ?? '0') == '1' ? 'checked' : ''; ?> onchange="toggleMedExEnable(this)">
-                    <span style="margin-left: 8px;"><?php echo xlt('MedEx Enabled'); ?></span>
-                </label>
-                <button class="sync-button" id="sync-button" onclick="triggerSync()"
-                    <?php echo (!$isActive || !$hasActiveSubscriptions) ? 'disabled' : ''; ?>
-                    title="<?php echo !$hasActiveSubscriptions ? xla('No active subscriptions to sync') : xla('Sync data with MedEx server'); ?>">
-                    <i class="fa fa-sync-alt"></i>
-                    <?php echo xlt('Sync Now'); ?>
                 </button>
             </div>
         </div>
@@ -1114,6 +1166,7 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
     <script>
         const csrfToken = <?php echo json_encode($csrfToken); ?>;
         const isConfigured = <?php echo json_encode($isConfigured); ?>;
+        const hasActiveSubscriptions = <?php echo json_encode($hasActiveSubscriptions); ?>;
         const currentTab = <?php echo json_encode($currentTab); ?>;
         const siteId = <?php echo json_encode($_SESSION['site_id'] ?? 'default'); ?>;
         const tabContextMap = {
@@ -1217,6 +1270,12 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
             if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
                 top.restoreSession();
             }
+
+            // After restoreSession, the cookie-based session is refreshed,
+            // but our local 'csrfToken' JS variable might be stale if the
+            // server-side secret changed (rare) or if we need to pull a fresh one
+            // from the parent's state. OpenEMR's CSRF is usually stable per session.
+
             return fetch(url, options);
         }
 
@@ -1260,6 +1319,11 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
 
         // Toggle MedEx Enable/Disable
         function toggleMedExEnable(checkbox) {
+            if (!hasActiveSubscriptions && checkbox.checked) {
+                showToast('Activate at least one service before enabling MedEx', 'error');
+                checkbox.checked = false;
+                return;
+            }
             const formData = new FormData();
             formData.append('csrf_token_form', csrfToken);
             formData.append('medex_enable', checkbox.checked ? '1' : '0');
@@ -1290,13 +1354,23 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
         }
 
         // Trigger sync
-        function triggerSync() {
-            const button = document.getElementById('sync-button');
+        function triggerSync(buttonOverride) {
+            if (!hasActiveSubscriptions) {
+                showToast('No active subscriptions to sync', 'error');
+                return;
+            }
+            const button = buttonOverride || document.getElementById('sync-button') || document.getElementById('sync-button-overview');
+            if (!button) {
+                showToast('Sync button unavailable', 'error');
+                return;
+            }
             const icon = button.querySelector('i');
 
             button.disabled = true;
             button.classList.add('syncing');
-            icon.classList.add('fa-spin');
+            if (icon) {
+                icon.classList.add('fa-spin');
+            }
 
             console.log('[MedEx] Triggering sync with CSRF token:', csrfToken ? csrfToken.substring(0, 20) + '...' : 'MISSING');
 
@@ -1346,7 +1420,9 @@ if ($isConfigured && $isActive && empty($_GET['local'])) {
             .finally(() => {
                 button.disabled = false;
                 button.classList.remove('syncing');
-                icon.classList.remove('fa-spin');
+                if (icon) {
+                    icon.classList.remove('fa-spin');
+                }
             });
         }
 
