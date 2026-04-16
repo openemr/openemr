@@ -44,6 +44,7 @@ class InstallCommand extends Command
         #[Option(description: 'OpenEMR admin display name')] string $oeAdminName = 'Administrator',
         #[Option(description: 'OpenEMR admin username')] string $oeAdminUsername = 'admin',
         #[Option(description: 'OpenEMR admin password')] string $oeAdminPassword = '',
+        #[Option(description: 'OpenEMR practice group name')] string $oeAdminGroup = 'Default',
     ): int {
         $io = new SymfonyStyle($input, $output);
 
@@ -72,6 +73,7 @@ class InstallCommand extends Command
             'iuser' => $oeAdminUsername,
             'iuname' => $oeAdminName,
             'iuserpass' => $oeAdminPassword,
+            'igroup' => $oeAdminGroup,
 
             // == Not user configurable ==
             'site' => 'default', // Only default site supported.
