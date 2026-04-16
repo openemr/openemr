@@ -197,23 +197,26 @@ if ($step > 1 && !$api->isConfigured()) {
         .agreement-modal {
             position: fixed;
             inset: 0;
-            background: rgba(2, 6, 23, 0.58);
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0) 34%),
+                rgba(15, 23, 42, 0.58);
             z-index: 10000;
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
+            backdrop-filter: blur(8px);
         }
         .agreement-modal.show {
             display: flex;
         }
         .agreement-modal-panel {
-            width: min(1100px, 98vw);
-            height: min(850px, 96vh);
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 24px 64px rgba(2, 6, 23, 0.45);
+            width: min(1180px, 98vw);
+            height: min(880px, 96vh);
+            background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+            border-radius: 18px;
+            border: 1px solid rgba(191, 213, 239, 0.9);
+            box-shadow: 0 30px 80px rgba(2, 6, 23, 0.34);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -222,16 +225,44 @@ if ($step > 1 && !$api->isConfigured()) {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            background: #0f4b8f;
-            color: #fff;
-            padding: 10px 14px;
-            font-weight: 700;
+            gap: 14px;
+            background: transparent;
+            color: #0f172a;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #dbe7f5;
+        }
+        .agreement-modal-headline {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .agreement-modal-title {
+            font-size: 22px;
+            line-height: 1.15;
+            font-weight: 800;
+            color: #0f4b8f;
+        }
+        .agreement-modal-subtitle {
+            font-size: 13px;
+            color: #526277;
         }
         .agreement-modal-actions {
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        .agreement-close-btn {
+            border: 1px solid #c7d7ec;
+            background: #fff;
+            color: #0f4b8f;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .agreement-close-btn:hover {
+            background: #eff6ff;
         }
         .agreement-frame {
             border: 0;
@@ -239,6 +270,7 @@ if ($step > 1 && !$api->isConfigured()) {
             height: 100%;
             flex: 1 1 auto;
             background: #fff;
+            border-top: 1px solid rgba(255,255,255,0.7);
         }
         @media (max-width: 900px) {
             .onboard-grid { grid-template-columns: 1fr; }
@@ -390,9 +422,12 @@ if ($step > 1 && !$api->isConfigured()) {
             <div id="agreement-modal" class="agreement-modal" aria-hidden="true">
                 <div class="agreement-modal-panel">
                     <div class="agreement-modal-head">
-                        <div id="agreement-modal-title"><?php echo xlt("Agreement"); ?></div>
+                        <div class="agreement-modal-headline">
+                            <div id="agreement-modal-title" class="agreement-modal-title"><?php echo xlt("Agreement"); ?></div>
+                            <div class="agreement-modal-subtitle"><?php echo xlt("Review the agreement, complete the signature fields, and return to onboarding automatically."); ?></div>
+                        </div>
                         <div class="agreement-modal-actions">
-                            <button type="button" id="agreement-close-btn" class="btn" style="background:#e2e8f0;padding:8px 12px;font-size:13px;">
+                            <button type="button" id="agreement-close-btn" class="agreement-close-btn">
                                 <?php echo xlt("Close"); ?>
                             </button>
                         </div>

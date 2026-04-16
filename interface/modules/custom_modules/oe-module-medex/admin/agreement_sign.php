@@ -29,8 +29,9 @@ $version = trim((string)($_GET['version'] ?? ($type === 'terms' ? MedExConfig::T
 $title = ($type === 'terms') ? xlt('MedEx Terms and Conditions') : xlt('MedEx Business Associate Agreement (BAA)');
 $displayUrl = ($type === 'terms') ? MedExConfig::termsUrl() : MedExConfig::baaUrl();
 $informationId = ($type === 'terms') ? 5 : 8;
-$publicAgreementsBase = rtrim(MedExConfig::mainSiteUrl(), '/') . '/cart/upload';
-$bodyUrl = $publicAgreementsBase . '/index.php?route=information/information/agree&information_id=' . $informationId;
+// Use server-side base URL for content fetch (k8s-safe and cluster-safe).
+$fetchBaseUrl = rtrim(MedExConfig::baseUrl(), '/');
+$bodyUrl = $fetchBaseUrl . '/index.php?route=information/information/agree&information_id=' . $informationId;
 function medexGetPracticeName(): string
 {
     $facility = sqlQuery("SELECT name FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1");
@@ -121,36 +122,54 @@ $practiceName = medexGetPracticeName();
             height: 100%;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             color: #0f172a;
-            background: #f8fafc;
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
         }
         .page {
             height: 100%;
             display: flex;
             flex-direction: column;
+            padding: 14px;
+            box-sizing: border-box;
+            gap: 12px;
         }
         .head {
-            border-bottom: 1px solid var(--line);
-            background: #fff;
-            padding: 14px 18px;
+            border: 1px solid #dbe7f5;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            padding: 18px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #0f4b8f;
+            margin-bottom: 8px;
         }
         .title {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 800;
             color: var(--brand);
-            margin: 0 0 4px;
+            margin: 0 0 6px;
         }
         .sub {
             margin: 0;
-            font-size: 13px;
-            color: var(--muted);
+            font-size: 14px;
+            color: #526277;
         }
         .body {
             flex: 1 1 auto;
             overflow-y: auto;
-            background: #fff;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            padding: 12px;
+            border: 1px solid #dbe7f5;
+            border-radius: 16px;
             line-height: 1.55;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
         }
         .legal-paper {
             background-color: #f4e8cf;
@@ -187,17 +206,36 @@ $practiceName = medexGetPracticeName();
             padding: 12px;
         }
         .sign {
-            background: #fff;
-            padding: 14px 18px 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            padding: 18px 20px 20px;
             display: grid;
             gap: 10px;
-            border-top: 1px solid var(--line);
+            border: 1px solid #dbe7f5;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+        }
+        .sign-head {
+            display: grid;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .sign-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #132238;
+            margin: 0;
+        }
+        .sign-copy {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #526277;
         }
         .practice {
             border: 1px solid #dbeafe;
-            background: #eff6ff;
-            border-radius: 8px;
-            padding: 10px 12px;
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+            border-radius: 10px;
+            padding: 12px 14px;
             font-size: 13px;
             color: #1e3a8a;
         }
@@ -213,12 +251,20 @@ $practiceName = medexGetPracticeName();
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 14px;
+            color: #0f172a;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        .input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,.18);
         }
         .note {
-            font-size: 12px;
-            color: var(--muted);
+            font-size: 13px;
+            color: #475569;
         }
         .readiness {
             font-size: 12px;
@@ -241,18 +287,20 @@ $practiceName = medexGetPracticeName();
             font-weight: 700;
         }
         .btn {
-            background: var(--brand);
+            background: linear-gradient(180deg, #0f4b8f 0%, #0a3460 100%);
             color: #fff;
             border: 0;
-            border-radius: 6px;
-            padding: 10px 14px;
+            border-radius: 10px;
+            padding: 11px 16px;
             font-weight: 700;
             cursor: pointer;
             width: fit-content;
+            box-shadow: 0 10px 22px rgba(15, 75, 143, 0.18);
         }
         .btn:disabled {
             background: #94a3b8;
             cursor: not-allowed;
+            box-shadow: none;
         }
         .actions {
             display: flex;
@@ -263,8 +311,8 @@ $practiceName = medexGetPracticeName();
         .btn-secondary {
             min-width: 92px;
             height: 40px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            border: 1px solid #c7d7ec;
             background: #fff;
             color: #0f4b8f;
             cursor: pointer;
@@ -290,6 +338,7 @@ $practiceName = medexGetPracticeName();
 <body>
     <div class="page">
         <div class="head">
+            <div class="eyebrow"><?php echo xlt('Onboarding Agreement'); ?></div>
             <p class="title"><?php echo text($title); ?></p>
             <p class="sub"><?php echo xlt('Version'); ?> <?php echo text($version); ?> • <?php echo xlt('Review and complete your electronic signature to continue onboarding.'); ?></p>
         </div>
@@ -306,6 +355,10 @@ $practiceName = medexGetPracticeName();
             </div>
         </div>
         <div class="sign">
+            <div class="sign-head">
+                <p class="sign-title"><?php echo xlt('Electronic Signature'); ?></p>
+                <p class="sign-copy"><?php echo xlt('Complete the signer details below after reviewing the full agreement. Once signed, onboarding will unlock the related checkbox automatically.'); ?></p>
+            </div>
             <div class="practice">
                 <?php echo xlt('Company'); ?>:
                 <strong id="practice_name_display"><?php echo text($practiceName); ?></strong>
@@ -347,6 +400,7 @@ $practiceName = medexGetPracticeName();
             const agreementTitle = <?php echo json_encode($title); ?>;
             const agreementVersion = <?php echo json_encode($version); ?>;
             const agreementType = <?php echo json_encode($type); ?>;
+            const pdfFileBase = agreementType === "terms" ? "MedEX_Terms" : "MedEX_BAA";
             const signedLabel = <?php echo json_encode(xl('Signed')); ?>;
             let signedPayload = null;
             let agreementRead = false;
@@ -453,7 +507,7 @@ $practiceName = medexGetPracticeName();
 <html>
 <head>
   <meta charset="utf-8">
-  <title>${agreementTitle} - Signed</title>
+  <title>${pdfFileBase}.pdf</title>
   <style>
     body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:24px;line-height:1.5;}
     h1{margin:0 0 8px;color:#0f4b8f;font-size:26px;}
@@ -480,6 +534,7 @@ $practiceName = medexGetPracticeName();
                     w.document.open();
                     w.document.write(printableHtml);
                     w.document.close();
+                    w.document.title = `${pdfFileBase}.pdf`;
                     w.focus();
                     w.print();
                     return;
