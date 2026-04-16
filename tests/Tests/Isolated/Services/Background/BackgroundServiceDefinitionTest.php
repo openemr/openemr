@@ -139,6 +139,32 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertSame($future, $def->lockExpiresAt);
     }
 
+    public function testFromDatabaseRowPrefersSqlComputedLeaseLivenessOverPhpClock(): void
+    {
+        // Simulate PHP and DB clocks disagreeing: lock_expires_at reads as
+        // "far future" by the PHP clock, but the SQL-computed signal says
+        // the lease is not live. The SQL value wins because it shares a
+        // clock/timezone with acquireLock().
+        $farFuturePhpTime = date('Y-m-d H:i:s', time() + 86400);
+        $row = [
+            'name' => 'svc',
+            'title' => 'Service',
+            'function' => 'doWork',
+            'require_once' => null,
+            'execute_interval' => '5',
+            'sort_order' => '100',
+            'active' => '1',
+            'running' => '0',
+            'next_run' => '2026-03-28 10:15:00',
+            'lock_expires_at' => $farFuturePhpTime,
+            'lease_is_live' => '0',
+        ];
+
+        $def = BackgroundServiceDefinition::fromDatabaseRow($row);
+
+        $this->assertFalse($def->running);
+    }
+
     public function testFromDatabaseRowTreatsExpiredLeaseAsNotRunning(): void
     {
         // Worker crashed without releasing its lease; `running = 1` was

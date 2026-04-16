@@ -52,8 +52,11 @@ final readonly class BackgroundServiceDefinition
             // `running` is derived from the lease: a service is only
             // actually running if the lease exists and has not expired.
             // This means stuck locks from crashed workers report as
-            // not-running, matching reality.
-            running: self::leaseIsLive($row['lock_expires_at']),
+            // not-running, matching reality. Prefer the SQL-computed
+            // `lease_is_live` when present (same clock as acquireLock),
+            // falling back to PHP-clock comparison for callers that
+            // didn't select it.
+            running: self::resolveRunning($row),
             nextRun: $row['next_run'],
             lockExpiresAt: $row['lock_expires_at'],
         );
@@ -79,12 +82,33 @@ final readonly class BackgroundServiceDefinition
     }
 
     /**
-     * A lease is "live" when it has a future expiration timestamp.
-     * Treats malformed timestamps as not-live (fail safe — better to
-     * let the next tick attempt to re-acquire than to report a lock
-     * we can't interpret as held).
+     * Resolve whether a service is currently running from a DB row. Prefer
+     * the SQL-computed `lease_is_live` column when present, because it uses
+     * the same clock (MySQL NOW() under whatever session timezone applies)
+     * as acquireLock(). When absent — e.g. for test fixtures built by hand —
+     * fall back to PHP-clock comparison.
+     *
+     * @param BackgroundServicesRow $row
      */
-    private static function leaseIsLive(?string $lockExpiresAt): bool
+    private static function resolveRunning(array $row): bool
+    {
+        $liveFlag = $row['lease_is_live'] ?? null;
+        if ($liveFlag !== null) {
+            return (int) $liveFlag === 1;
+        }
+        return self::leaseIsLiveByPhpClock($row['lock_expires_at']);
+    }
+
+    /**
+     * Fallback for rows without an SQL-computed liveness flag. A lease is
+     * "live" when it has a future expiration timestamp. Treats malformed
+     * timestamps as not-live (fail safe — better to let the next tick
+     * attempt to re-acquire than to report a lock we can't interpret).
+     *
+     * Prefer the SQL-computed column (see `resolveRunning`) to avoid PHP
+     * and DB clock/timezone drift.
+     */
+    private static function leaseIsLiveByPhpClock(?string $lockExpiresAt): bool
     {
         if ($lockExpiresAt === null || $lockExpiresAt === '') {
             return false;

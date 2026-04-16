@@ -205,10 +205,12 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     }
 
     /**
-     * Clear the lease (and legacy running flag) for a service.
+     * Clear the lease (and legacy running flag) for a service. The UPDATE
+     * is executed unconditionally; callers that need to distinguish "already
+     * clear" from "actively cleared" should check lock state beforehand.
      *
-     * Returns the number of rows affected (0 when the service does not
-     * exist, 1 when the lease was cleared).
+     * Returns 1 when the service exists (lease is now clear either way) or
+     * 0 when no service with that name exists.
      */
     protected function clearLease(string $name): int
     {

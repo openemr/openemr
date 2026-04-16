@@ -342,7 +342,8 @@ namespace OpenEMR\Common\Database;
  *   function: string,
  *   require_once: ?string,
  *   sort_order: numeric-string,
- *   lock_expires_at: ?string
+ *   lock_expires_at: ?string,
+ *   lease_is_live?: ?numeric-string
  * }
  *
  * @phpstan-type FormsRow array{
