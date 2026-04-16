@@ -129,8 +129,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $helpCenterUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . rawurlencode($siteId);
 
         $headline = 'MedEx Setup';
-        $summary = 'Use one action here. MedEx will install, enable, and then open onboarding.';
-        $primaryLabel = 'Install and Start Onboarding';
+        $summary = 'Click Install. MedEx will handle the rest automatically.';
+        $primaryLabel = 'Install';
         $primaryAction = "return window.medexRunSetupFlow && window.medexRunSetupFlow('" . self::esc($moduleId) . "','" . self::esc($onboardingUrl) . "', " . $needsInstall . ", " . $needsEnable . ", this);";
         $primaryHint = 'One click';
         $secondaryButton = '';
@@ -145,7 +145,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
             $installDone = '<div class="medex-mm-state medex-mm-done">Installed</div>';
             $installCardClass = '';
             $enableCardClass = ' medex-mm-current';
-            $primaryLabel = 'Enable and Start Onboarding';
+            $primaryLabel = 'Install';
             $primaryHint = 'Almost there';
         }
 
@@ -221,7 +221,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
     } finally {
       if (trigger) {
         trigger.disabled = false;
-        trigger.textContent = trigger.dataset.medexOriginalLabel || 'Install and Start Onboarding';
+        trigger.textContent = trigger.dataset.medexOriginalLabel || 'Install';
       }
     }
     return false;

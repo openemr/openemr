@@ -171,6 +171,28 @@ $practiceName = medexGetPracticeName();
             line-height: 1.55;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
         }
+        .scroll-cue {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border: 1px solid #cfe0fb;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .scroll-cue i {
+            color: #0f4b8f;
+        }
+        .scroll-cue.complete {
+            border-color: #bbf7d0;
+            background: linear-gradient(180deg, #ecfdf5 0%, #f7fff9 100%);
+            color: #166534;
+        }
         .legal-paper {
             background-color: #f4e8cf;
             background-image:
@@ -343,6 +365,10 @@ $practiceName = medexGetPracticeName();
             <p class="sub"><?php echo xlt('Version'); ?> <?php echo text($version); ?> • <?php echo xlt('Review and complete your electronic signature to continue onboarding.'); ?></p>
         </div>
         <div class="body">
+            <div id="scroll_cue" class="scroll-cue">
+                <span><?php echo xlt('Scroll to the bottom of the agreement to unlock signing.'); ?></span>
+                <i class="fa fa-arrow-down" aria-hidden="true"></i>
+            </div>
             <div class="legal-paper">
                 <?php if ($agreementHtml !== ''): ?>
                     <?php echo $agreementHtml; ?>
@@ -394,6 +420,7 @@ $practiceName = medexGetPracticeName();
             const errorEl = document.getElementById("sign_error");
             const okEl = document.getElementById("sign_ok");
             const readinessEl = document.getElementById("readiness_state");
+            const scrollCueEl = document.getElementById("scroll_cue");
             const bodyEl = document.querySelector(".body");
             const endMarkerEl = document.getElementById("agreement-end-marker");
             const practiceName = <?php echo json_encode($practiceName); ?>;
@@ -442,11 +469,19 @@ $practiceName = medexGetPracticeName();
                     readinessEl.textContent = "";
                     readinessEl.style.display = "none";
                     readinessEl.classList.remove("ok");
+                    if (scrollCueEl) {
+                        scrollCueEl.classList.add("complete");
+                        scrollCueEl.innerHTML = '<span>Agreement fully reviewed. You can sign below.</span><i class="fa fa-check-circle" aria-hidden="true"></i>';
+                    }
                     return;
                 }
                 readinessEl.style.display = "block";
-                readinessEl.textContent = "Scroll through the full agreement and complete required fields to enable signing.";
+                readinessEl.textContent = "Scroll to the bottom of the agreement, then complete the signer fields to enable signing.";
                 readinessEl.classList.remove("ok");
+                if (scrollCueEl) {
+                    scrollCueEl.classList.remove("complete");
+                    scrollCueEl.innerHTML = '<span>Scroll to the bottom of the agreement to unlock signing.</span><i class="fa fa-arrow-down" aria-hidden="true"></i>';
+                }
             }
 
             function evaluateAgreementRead() {

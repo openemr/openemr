@@ -196,11 +196,11 @@ $siteId = (string)($_GET['site'] ?? 'default');
 <body>
 <div class="wrap">
     <div class="hdr">
-        <h2>MedEx Setup Checklist</h2>
-        <p>Use one action here. MedEx will install, enable, and then open onboarding.</p>
+        <h2>MedEx Setup</h2>
+        <p>Click Install. MedEx will handle the rest automatically.</p>
         <div class="act" style="margin-top:10px;">
             <button type="button" class="primary-cta" id="startOnboardingBtn">
-                Install and Start Onboarding
+                Install
             </button>
         </div>
     </div>
@@ -265,7 +265,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
 
         const startBtn = document.getElementById('startOnboardingBtn');
         if (startBtn) {
-            startBtn.textContent = status.enabled ? 'Open Onboarding' : 'Install and Start Onboarding';
+            startBtn.textContent = status.enabled ? 'Open Onboarding' : 'Install';
         }
     }
 
