@@ -1329,8 +1329,14 @@ if ($step > 1 && !$api->isConfigured()) {
                 if (options.edit) {
                     params.set("edit", "1");
                 }
+                if (options.artifact) {
+                    params.set("artifact", "1");
+                }
                 if (options.autodownload) {
                     params.set("autodownload", "1");
+                }
+                if (options.autoprint) {
+                    params.set("autoprint", "1");
                 }
                 return "agreement_sign.php?" + params.toString();
             }
@@ -1409,7 +1415,7 @@ if ($step > 1 && !$api->isConfigured()) {
             }
 
             function openAgreementDownload(type) {
-                window.open(agreementReceiptBaseUrl(type, { autodownload: true }), "_blank", "noopener,noreferrer");
+                window.open(agreementReceiptBaseUrl(type, { artifact: true, autodownload: true }), "_blank", "noopener,noreferrer");
             }
 
             $("#open-terms-link").on("click", function(e) {

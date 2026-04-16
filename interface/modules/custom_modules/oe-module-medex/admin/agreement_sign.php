@@ -40,7 +40,9 @@ if ($action !== '' && !in_array($action, ['save_receipt', 'status'], true)) {
     $action = '';
 }
 $forceEdit = !empty($_GET['edit']);
+$artifactOnly = !empty($_GET['artifact']);
 $autoDownload = !empty($_GET['autodownload']);
+$autoPrint = !empty($_GET['autoprint']);
 
 function medexAgreementSession()
 {
@@ -282,6 +284,257 @@ function medexFetchAgreementBody(string $url): string
     return (trim($raw) === '') ? '' : $raw;
 }
 
+function medexFormatAgreementSignedMoments(string $signedAt): array
+{
+    $signedAt = trim($signedAt);
+    if ($signedAt === '') {
+        return [
+            'local' => '',
+            'utc' => '',
+        ];
+    }
+
+    try {
+        $date = new DateTimeImmutable($signedAt);
+        $localZone = new DateTimeZone(date_default_timezone_get() ?: 'UTC');
+        return [
+            'local' => $date->setTimezone($localZone)->format('F j, Y g:i:s A T'),
+            'utc' => $date->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s T'),
+        ];
+    } catch (\Throwable $e) {
+        return [
+            'local' => $signedAt,
+            'utc' => $signedAt,
+        ];
+    }
+}
+
+function medexBuildAgreementCertificateHtml(array $payload, string $title, string $version, array $receipt = []): string
+{
+    $signedMoments = medexFormatAgreementSignedMoments((string)($payload['signed_at'] ?? ''));
+    $companyName = trim((string)($payload['legal_corporate_name'] ?? $payload['practice_name'] ?? ''));
+    $signerName = trim((string)($payload['signer_name'] ?? ''));
+    $signerTitle = trim((string)($payload['signer_title'] ?? ''));
+    $receiptUid = trim((string)($receipt['receipt_uid'] ?? ''));
+    $payloadHash = trim((string)($receipt['payload_sha256'] ?? ''));
+
+    ob_start();
+    ?>
+    <section class="signature-cert">
+        <div class="signature-cert-title"><?php echo xlt('Electronic Signature Certificate'); ?></div>
+        <div class="signature-cert-copy"><?php echo xlt('This agreement was electronically signed and affirmed on behalf of the business identified below.'); ?></div>
+        <div class="signature-grid">
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Legal Business Name'); ?>:</span><?php echo text($companyName); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Signer Name'); ?>:</span><?php echo text($signerName); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Signer Title'); ?>:</span><?php echo text($signerTitle !== '' ? $signerTitle : xl('Not provided')); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Signature Method'); ?>:</span><?php echo xlt('Electronic signature accepted in onboarding flow'); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Signed At'); ?>:</span><?php echo text($signedMoments['local']); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Signed At UTC'); ?>:</span><?php echo text($signedMoments['utc']); ?></div>
+            <div class="signature-row"><span class="meta-label"><?php echo xlt('Agreement'); ?>:</span><?php echo text($title . ' (' . $version . ')'); ?></div>
+            <?php if ($receiptUid !== ''): ?>
+                <div class="signature-row"><span class="meta-label"><?php echo xlt('Receipt UID'); ?>:</span><?php echo text($receiptUid); ?></div>
+            <?php endif; ?>
+            <?php if ($payloadHash !== ''): ?>
+                <div class="signature-row"><span class="meta-label"><?php echo xlt('Receipt Hash'); ?>:</span><?php echo text($payloadHash); ?></div>
+            <?php endif; ?>
+        </div>
+        <div class="signature-attest"><?php echo xlt('Attestation: The signer represented they were authorized to sign this agreement electronically on behalf of the business.'); ?></div>
+    </section>
+    <?php
+    return trim((string)ob_get_clean());
+}
+
+function medexRenderAgreementArtifactPage(string $title, string $version, string $agreementHtml, ?array $receipt, bool $autoDownload, bool $autoPrint): void
+{
+    $payload = is_array($receipt) ? ($receipt['payload'] ?? null) : null;
+    $documentHtml = is_array($receipt) ? trim((string)($receipt['body_html'] ?? '')) : '';
+    if ($documentHtml === '') {
+        $documentHtml = $agreementHtml;
+    }
+    $certificateHtml = is_array($payload)
+        ? medexBuildAgreementCertificateHtml($payload, $title, $version, $receipt ?? [])
+        : '';
+    $printMode = $autoDownload || $autoPrint;
+
+    header('Content-Type: text/html; charset=UTF-8');
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?php echo text($title . ' Receipt'); ?></title>
+        <style>
+            @page { margin: 16mm 14mm; }
+            html, body {
+                margin: 0;
+                padding: 0;
+                background: #edf4ff;
+                color: #0f172a;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+            body {
+                padding: 24px;
+            }
+            .artifact-shell {
+                max-width: 980px;
+                margin: 0 auto;
+            }
+            .artifact-head {
+                margin-bottom: 16px;
+                border: 1px solid #cfe0fb;
+                border-radius: 14px;
+                padding: 18px 20px;
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+            }
+            .artifact-title {
+                margin: 0 0 6px;
+                font-size: 28px;
+                font-weight: 800;
+                color: #0f4b8f;
+            }
+            .artifact-subtitle {
+                margin: 0;
+                color: #526277;
+                font-size: 14px;
+            }
+            .artifact-note {
+                margin-top: 12px;
+                padding: 12px 14px;
+                border: 1px solid #bfdbfe;
+                border-radius: 10px;
+                background: #eff6ff;
+                color: #1d4ed8;
+                font-size: 13px;
+                font-weight: 700;
+            }
+            .artifact-warning {
+                border: 1px solid #fecaca;
+                border-radius: 14px;
+                padding: 18px 20px;
+                background: #fff7ed;
+                color: #9a3412;
+                box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+            }
+            .document-paper {
+                border: 1px solid #b99f6a;
+                border-radius: 8px;
+                padding: 18px 20px;
+                background-color: #f4e8cf;
+                background-image:
+                    radial-gradient(circle at 18% 22%, rgba(110, 82, 35, 0.07) 0, rgba(110, 82, 35, 0) 30%),
+                    radial-gradient(circle at 80% 74%, rgba(110, 82, 35, 0.06) 0, rgba(110, 82, 35, 0) 28%),
+                    repeating-linear-gradient(
+                        0deg,
+                        rgba(84, 61, 24, 0.025) 0px,
+                        rgba(84, 61, 24, 0.025) 1px,
+                        rgba(244, 232, 207, 0) 2px,
+                        rgba(244, 232, 207, 0) 6px
+                    );
+                font-family: "Times New Roman", Times, serif;
+                font-size: 16px;
+                line-height: 1.6;
+                color: #1f1a12;
+                box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+            }
+            .document-paper h2,
+            .document-paper h3,
+            .document-paper h4 {
+                color: #1b1510;
+                font-family: "Times New Roman", Times, serif;
+            }
+            .signature-cert {
+                margin: 0 0 18px;
+                padding: 14px 16px;
+                border: 2px solid #0f4b8f;
+                border-radius: 10px;
+                background: rgba(248, 251, 255, 0.94);
+                page-break-inside: avoid;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+            .signature-cert-title {
+                margin: 0 0 6px;
+                font-size: 18px;
+                font-weight: 800;
+                color: #0f4b8f;
+            }
+            .signature-cert-copy {
+                margin: 0 0 10px;
+                color: #334155;
+                font-size: 13px;
+            }
+            .signature-row {
+                margin: 4px 0;
+                font-size: 13px;
+            }
+            .meta-label {
+                display: inline-block;
+                min-width: 170px;
+                color: #475569;
+                font-weight: 700;
+            }
+            .signature-attest {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #cbd5e1;
+                font-size: 12px;
+                color: #334155;
+                font-style: italic;
+            }
+            @media print {
+                html, body {
+                    background: #fff;
+                }
+                body {
+                    padding: 0;
+                }
+                .artifact-head {
+                    box-shadow: none;
+                }
+                .artifact-note {
+                    display: none;
+                }
+                .document-paper {
+                    box-shadow: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="artifact-shell">
+            <div class="artifact-head">
+                <h1 class="artifact-title"><?php echo text($title); ?></h1>
+                <p class="artifact-subtitle"><?php echo xlt('Agreement version'); ?> <?php echo text($version); ?>.</p>
+                <?php if ($autoDownload): ?>
+                    <div class="artifact-note"><?php echo xlt('Use your browser print dialog to save this signed agreement as a PDF.'); ?></div>
+                <?php endif; ?>
+            </div>
+            <?php if (!is_array($payload) || $documentHtml === ''): ?>
+                <div class="artifact-warning"><?php echo xlt('No signed agreement receipt is available yet for this agreement.'); ?></div>
+            <?php else: ?>
+                <article class="document-paper">
+                    <?php echo $certificateHtml; ?>
+                    <?php echo $documentHtml; ?>
+                    <div style="margin-top:18px;"><?php echo $certificateHtml; ?></div>
+                </article>
+            <?php endif; ?>
+        </div>
+        <?php if ($printMode): ?>
+            <script>
+                window.addEventListener("load", function () {
+                    window.setTimeout(function () {
+                        window.print();
+                    }, 280);
+                });
+            </script>
+        <?php endif; ?>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $csrfToken = medexCollectAgreementCsrfToken();
 $agreementHtml = medexFetchAgreementBody($bodyUrl);
 $agreementHtml = medexRemoveLegacyPrintInstruction($agreementHtml);
@@ -334,6 +587,9 @@ if (is_array($existingReceipt) && trim((string)($existingReceipt['body_html'] ??
     $agreementHtml = (string)$existingReceipt['body_html'];
 }
 $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null;
+if ($artifactOnly) {
+    medexRenderAgreementArtifactPage($title, $version, $agreementHtml, $existingReceipt, $autoDownload, $autoPrint);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -696,6 +952,7 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             const initialSignedPayload = <?php echo json_encode($initialSignedPayload); ?>;
             const forceEdit = <?php echo $forceEdit ? 'true' : 'false'; ?>;
             const autoDownload = <?php echo $autoDownload ? 'true' : 'false'; ?>;
+            const autoPrint = <?php echo $autoPrint ? 'true' : 'false'; ?>;
             const pdfFileBase = agreementType === "terms" ? "MedEX_Terms" : "MedEX_BAA";
             const signedLabel = <?php echo json_encode(xl('Signed')); ?>;
             let signedPayload = null;
@@ -836,141 +1093,30 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                 }
             }
 
-            function buildPrintableDocument(payload, showPdfHint) {
-                const signedAtHuman = formatSignedAt(payload.signed_at);
-                const signedAtIso = String(payload.signed_at || "");
-                const companyName = (payload.legal_corporate_name || payload.practice_name || "");
-                const signerName = String(payload.signer_name || "");
-                const signerTitle = String(payload.signer_title || "");
-                const pdfHintHtml = showPdfHint
-                    ? `<div style="margin:0 0 16px;padding:12px 14px;border:1px solid #dbeafe;border-radius:8px;background:#eff6ff;color:#1e3a8a;font-size:13px;font-weight:600;">Use your browser's Print or Save as PDF option to keep this signed agreement as a PDF receipt.</div>`
-                    : '';
-                const signatureCertificateHtml = `
-  <div class="signature-cert">
-    <div class="signature-cert-title">Electronic Signature Certificate</div>
-    <div class="signature-cert-copy">This agreement was electronically signed and affirmed on behalf of the business identified below.</div>
-    <div class="signature-grid">
-      <div class="signature-row"><span class="meta-label">Legal Business Name:</span>${companyName}</div>
-      <div class="signature-row"><span class="meta-label">Signer Name:</span>${signerName}</div>
-      <div class="signature-row"><span class="meta-label">Signer Title:</span>${signerTitle || "Not provided"}</div>
-      <div class="signature-row"><span class="meta-label">Signature Method:</span>Electronic signature accepted in onboarding flow</div>
-      <div class="signature-row"><span class="meta-label">Signed At:</span>${signedAtHuman}</div>
-      <div class="signature-row"><span class="meta-label">Signed At UTC:</span>${signedAtIso}</div>
-      <div class="signature-row"><span class="meta-label">Agreement:</span>${agreementTitle} (${agreementVersion})</div>
-    </div>
-    <div class="signature-attest">Attestation: The signer represented they were authorized to sign this agreement electronically on behalf of the business.</div>
-  </div>`;
-                return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${pdfFileBase}.pdf</title>
-  <style>
-    @page{margin:18mm 14mm;}
-    body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:24px;line-height:1.5;}
-    h1{margin:0 0 8px;color:#0f4b8f;font-size:26px;}
-    .meta{margin:0 0 16px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;}
-    .meta-row{margin:2px 0;}
-    .meta-label{display:inline-block;min-width:170px;color:#475569;}
-    .agreement{margin-top:14px;}
-    .signature-cert{margin:0 0 18px;padding:14px 16px;border:2px solid #0f4b8f;border-radius:10px;background:#f8fbff;page-break-inside:avoid;}
-    .signature-cert-title{margin:0 0 6px;font-size:18px;font-weight:800;color:#0f4b8f;}
-    .signature-cert-copy{margin:0 0 10px;color:#334155;font-size:13px;}
-    .signature-grid{display:block;}
-    .signature-row{margin:3px 0;font-size:13px;}
-    .signature-attest{margin-top:10px;padding-top:10px;border-top:1px solid #cbd5e1;font-size:12px;color:#334155;font-style:italic;}
-  </style>
-</head>
-<body>
-  <h1>${agreementTitle}</h1>
-  <div class="meta">
-    <div class="meta-row"><span class="meta-label">Company:</span>${companyName}</div>
-    <div class="meta-row"><span class="meta-label">Agreement Version:</span>${agreementVersion}</div>
-    <div class="meta-row"><span class="meta-label">Signer Name:</span>${payload.signer_name || ""}</div>
-    <div class="meta-row"><span class="meta-label">Signer Title:</span>${payload.signer_title || ""}</div>
-    <div class="meta-row"><span class="meta-label">Signed At:</span>${signedAtHuman}</div>
-  </div>
-  ${pdfHintHtml}
-  ${signatureCertificateHtml}
-  <div class="agreement">${getAgreementBodyHtml()}</div>
-  <div style="margin-top:18px;">${signatureCertificateHtml}</div>
-</body>
-</html>`;
+            function buildArtifactUrl(options = {}) {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("action");
+                url.searchParams.delete("edit");
+                url.searchParams.set("artifact", "1");
+                if (options.autodownload) {
+                    url.searchParams.set("autodownload", "1");
+                } else {
+                    url.searchParams.delete("autodownload");
+                }
+                if (options.autoprint) {
+                    url.searchParams.set("autoprint", "1");
+                } else {
+                    url.searchParams.delete("autoprint");
+                }
+                return url.toString();
             }
 
-            function openPrintableDocument(payload) {
-                const printableHtml = buildPrintableDocument(payload, false);
-                const w = window.open("", "_blank", "noopener,noreferrer");
-                if (w) {
-                    w.document.open();
-                    w.document.write(printableHtml);
-                    w.document.close();
-                    w.document.title = `${pdfFileBase}.pdf`;
-                    w.focus();
-                    w.print();
-                    return;
+            function openArtifactDocument(options = {}) {
+                const targetUrl = buildArtifactUrl(options);
+                const opened = window.open(targetUrl, "_blank", "noopener,noreferrer");
+                if (!opened && options.sameWindowFallback) {
+                    window.location.assign(targetUrl);
                 }
-
-                // Popup may be blocked from embedded contexts; print via hidden iframe fallback.
-                const printFrame = document.createElement("iframe");
-                printFrame.style.position = "fixed";
-                printFrame.style.right = "0";
-                printFrame.style.bottom = "0";
-                printFrame.style.width = "0";
-                printFrame.style.height = "0";
-                printFrame.style.border = "0";
-                document.body.appendChild(printFrame);
-
-                const frameDoc = printFrame.contentWindow?.document;
-                if (!frameDoc || !printFrame.contentWindow) {
-                    document.body.removeChild(printFrame);
-                    return;
-                }
-                frameDoc.open();
-                frameDoc.write(printableHtml);
-                frameDoc.close();
-
-                setTimeout(function () {
-                    try {
-                        printFrame.contentWindow.focus();
-                        printFrame.contentWindow.print();
-                    } finally {
-                        setTimeout(function () {
-                            if (printFrame.parentNode) {
-                                printFrame.parentNode.removeChild(printFrame);
-                            }
-                        }, 1000);
-                    }
-                }, 120);
-            }
-
-            function openPdfDownloadView(payload, sameWindow) {
-                const printableHtml = buildPrintableDocument(payload, true);
-                if (sameWindow) {
-                    document.open();
-                    document.write(printableHtml);
-                    document.close();
-                    document.title = `${pdfFileBase}.pdf`;
-                    setTimeout(function () {
-                        try {
-                            window.focus();
-                            window.print();
-                        } catch (e) {
-                        }
-                    }, 180);
-                    return;
-                }
-
-                const w = window.open("", "_blank", "noopener,noreferrer");
-                if (!w) {
-                    return;
-                }
-                w.document.open();
-                w.document.write(printableHtml);
-                w.document.close();
-                w.document.title = `${pdfFileBase}.pdf`;
-                w.focus();
             }
 
             signBtn.addEventListener("click", function () {
@@ -1030,14 +1176,14 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                 if (!signedPayload) {
                     return;
                 }
-                openPrintableDocument(signedPayload);
+                openArtifactDocument({ autoprint: true });
             });
 
             downloadBtn.addEventListener("click", function () {
                 if (!signedPayload) {
                     return;
                 }
-                openPdfDownloadView(signedPayload);
+                openArtifactDocument({ autodownload: true });
             });
 
             closeBtn.addEventListener("click", function () {
@@ -1082,8 +1228,12 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             attestEl.addEventListener("change", updateSignEnabledState);
             if (initialSignedPayload) {
                 applySignedPayload(initialSignedPayload, true);
-                if (autoDownload) {
-                    openPdfDownloadView(initialSignedPayload, true);
+                if (autoDownload || autoPrint) {
+                    openArtifactDocument({
+                        autodownload: autoDownload,
+                        autoprint: autoPrint,
+                        sameWindowFallback: true
+                    });
                 }
             }
             evaluateAgreementRead();
