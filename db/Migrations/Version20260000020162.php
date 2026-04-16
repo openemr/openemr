@@ -37,6 +37,7 @@ final class Version20260000020162 extends AbstractMigration
         $table->addColumn('auth_by_id', Types::INTEGER, ['notnull' => false]);
         $table->addColumn('telemetry_disabled', Types::BOOLEAN, ['notnull' => false, 'comment' => '1 opted out, disabled. NULL ask. 0 use option scopes']);
         $table->addColumn('last_ask_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('last_ask_version', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('options', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON array of scope options']);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
