@@ -1,6 +1,7 @@
-# PHPStan Extension for OpenEMR Database Migration Rules
+# PHPStan Extension for OpenEMR Custom Rules
 #
-# This extension registers custom rules to enforce modern database patterns:
+# This extension registers project-specific rules that enforce modern
+# patterns and forbid legacy or dangerous constructs:
 # 1. Forbid laminas-db usage outside zend_modules
 # 2. Forbid legacy sql.inc.php functions in src/ directory
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
