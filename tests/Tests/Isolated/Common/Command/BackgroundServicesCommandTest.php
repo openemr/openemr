@@ -46,6 +46,7 @@ class BackgroundServicesCommandTest extends TestCase
         int $running = 0,
         int $executeInterval = 5,
         string $nextRun = '2026-03-28 10:00:00',
+        ?string $lockExpiresAt = null,
     ): array {
         // Use string values to match ADOdb runtime behavior (numeric-string)
         return [
@@ -58,6 +59,7 @@ class BackgroundServicesCommandTest extends TestCase
             'function' => 'test_fn',
             'require_once' => null,
             'sort_order' => '100',
+            'lock_expires_at' => $lockExpiresAt,
         ];
     }
 
@@ -212,6 +214,42 @@ class BackgroundServicesCommandTest extends TestCase
 
         $this->assertStringContainsString('0 0 * * *', $tester->getDisplay());
     }
+
+    public function testUnlockRequiresName(): void
+    {
+        $command = new BackgroundServicesCommandStub([]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'unlock']);
+
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $this->assertStringContainsString('--name', $tester->getDisplay());
+    }
+
+    public function testUnlockReportsNotFound(): void
+    {
+        $command = new BackgroundServicesCommandStub([]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'unlock', '--name' => 'ghost']);
+
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $this->assertStringContainsString('not found', $tester->getDisplay());
+    }
+
+    public function testUnlockClearsExistingService(): void
+    {
+        $command = new BackgroundServicesCommandStub([
+            self::makeService('svc', 'Service', running: 1, lockExpiresAt: '2026-03-28 11:00:00'),
+        ]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'unlock', '--name' => 'svc']);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertStringContainsString("Lease cleared for service 'svc'", $tester->getDisplay());
+        $this->assertContains('svc', $command->unlockedServices);
+    }
 }
 
 /**
@@ -221,6 +259,9 @@ class BackgroundServicesCommandTest extends TestCase
  */
 class BackgroundServicesCommandStub extends BackgroundServicesCommand
 {
+    /** @var list<string> */
+    public array $unlockedServices = [];
+
     /**
      * @param list<BackgroundServicesRow> $services
      */
@@ -241,5 +282,15 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
             $this->services,
             fn(array $s) => (int) $s['active'] !== 0 && (int) $s['execute_interval'] > 0,
         ));
+    }
+
+    protected function clearLease(string $name): int
+    {
+        $exists = array_filter($this->services, fn(array $s) => $s['name'] === $name);
+        if ($exists === []) {
+            return 0;
+        }
+        $this->unlockedServices[] = $name;
+        return 1;
     }
 }

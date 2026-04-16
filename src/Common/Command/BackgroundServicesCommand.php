@@ -40,11 +40,11 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         $this
             ->setName('background:services')
-            ->setDescription('List, run, or generate crontab entries for background services')
+            ->setDescription('List, run, unlock, or generate crontab entries for background services')
             ->setDefinition(
                 new InputDefinition([
-                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, or crontab'),
-                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "run")'),
+                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, unlock, or crontab'),
+                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "run" and "unlock")'),
                     new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run")'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
                 ])
@@ -64,6 +64,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return match ($action) {
             'list' => $this->handleList($io),
             'run' => $this->handleRun($input, $io),
+            'unlock' => $this->handleUnlock($input, $io),
             'crontab' => $this->handleCrontab($input, $io),
             default => $this->handleUnknownAction($action, $io),
         };
@@ -170,10 +171,60 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return Command::SUCCESS;
     }
 
+    /**
+     * Clear a service's lease unconditionally.
+     *
+     * Normally not needed — crashed workers' leases expire and are stolen
+     * automatically on the next tick. Use this when a service is genuinely
+     * hung mid-run and an operator has verified it is not making progress
+     * but doesn't want to wait out the lease (see GH #11661).
+     */
+    private function handleUnlock(InputInterface $input, SymfonyStyle $io): int
+    {
+        $name = $input->getOption('name');
+        if (!is_string($name) || $name === '') {
+            $io->error('The --name option is required for the "unlock" action.');
+            return Command::FAILURE;
+        }
+
+        $affected = $this->clearLease($name);
+
+        if ($affected === 0) {
+            $io->error("Service '{$name}' not found.");
+            return Command::FAILURE;
+        }
+
+        $io->success("Lease cleared for service '{$name}'.");
+        return Command::SUCCESS;
+    }
+
     private function handleUnknownAction(string $action, SymfonyStyle $io): int
     {
-        $io->error("Unknown action '{$action}'. Valid actions: list, run, crontab");
+        $io->error("Unknown action '{$action}'. Valid actions: list, run, unlock, crontab");
         return Command::FAILURE;
+    }
+
+    /**
+     * Clear the lease (and legacy running flag) for a service.
+     *
+     * Returns the number of rows affected (0 when the service does not
+     * exist, 1 when the lease was cleared).
+     */
+    protected function clearLease(string $name): int
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `background_services` SET `running` = 0, `lock_expires_at` = NULL WHERE `name` = ?',
+            [$name],
+            true,
+        );
+        // affectedRows() on a no-op UPDATE (e.g. already null/0) returns 0,
+        // which we want: it distinguishes a missing service from a live clear.
+        // Use a separate existence check so "already clear" still reports success.
+        $exists = QueryUtils::fetchRecordsNoLog(
+            'SELECT 1 FROM `background_services` WHERE `name` = ? LIMIT 1',
+            [$name],
+        );
+        return $exists === [] ? 0 : 1;
     }
 
     /**

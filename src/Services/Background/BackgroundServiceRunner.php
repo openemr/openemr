@@ -6,6 +6,12 @@
  * Extracted from library/ajax/execute_background_services.php to enable
  * reuse from CLI tooling and REST API endpoints.
  *
+ * Locking is lease-based: each acquire sets `lock_expires_at` to a future
+ * timestamp and clears it on release. If a worker crashes before releasing
+ * (SIGKILL, OOM, container restart, DB disconnect), the next tick atomically
+ * steals the expired lease, so background services self-recover without
+ * operator intervention. See GH issue #11661.
+ *
  * @package   OpenEMR
  *
  * @link      https://www.open-emr.org
@@ -18,19 +24,42 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Background;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 
 /**
  * @phpstan-import-type BackgroundServicesRow from TableTypes
  */
 class BackgroundServiceRunner
 {
+    /**
+     * Default lease duration floor. Every acquired lease is at least this
+     * long, giving a reasonable recovery window even for short-interval
+     * services (e.g. interval = 1 min should not expire after 2 min).
+     */
+    private const MIN_LEASE_MINUTES = 60;
+
+    /**
+     * Lease duration ceiling. Caps a pathological configuration (e.g.
+     * interval = 1 week) from making a stuck lock unrecoverable for an
+     * unreasonable amount of time.
+     */
+    private const MAX_LEASE_MINUTES = 1440;
+
     private ?string $currentServiceName = null;
 
     private bool $shutdownRegistered = false;
+
+    private readonly LoggerInterface $logger;
+
+    public function __construct(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+    }
 
     /**
      * Run one or all background services.
@@ -40,8 +69,8 @@ class BackgroundServiceRunner
      * @return list<array{name: string, status: string}> Results per service
      *   Possible status values:
      *   - 'executed'        — service ran successfully
-     *   - 'skipped'         — inactive, already running (in-memory check), or manual-mode without --force
-     *   - 'already_running' — another process holds the DB lock (running = 1)
+     *   - 'skipped'         — inactive, or manual-mode without --force
+     *   - 'already_running' — another process holds an unexpired lease
      *   - 'not_due'         — interval has not elapsed yet (NOW() <= next_run)
      *   - 'error'           — exception during lock acquisition or execution
      *   - 'not_found'       — requested service name does not exist
@@ -64,8 +93,10 @@ class BackgroundServiceRunner
         foreach ($services as $service) {
             $name = $service['name'];
 
-            // ADOdb returns string values; use loose comparison for DB row checks
-            if ($service['active'] == 0 || $service['running'] == 1) {
+            // ADOdb returns string values; use loose comparison for DB row checks.
+            // Note: the `running` column is not consulted here — acquireLock()
+            // is authoritative and can steal a lease left by a crashed worker.
+            if ($service['active'] == 0) {
                 $results[] = ['name' => $name, 'status' => 'skipped'];
                 continue;
             }
@@ -107,6 +138,10 @@ class BackgroundServiceRunner
     /**
      * Register a shutdown handler that releases the lock if the process exits
      * abnormally during service execution. Called automatically by run().
+     *
+     * Shutdown handlers do NOT fire on SIGKILL, OOM kill, container restart,
+     * host crash, or fatal DB connection loss. For those cases, the lease
+     * expires naturally and acquireLock() steals it on the next tick.
      */
     public function registerShutdownHandler(): void
     {
@@ -145,11 +180,16 @@ class BackgroundServiceRunner
     }
 
     /**
-     * Attempt to acquire the running lock for a service.
+     * Attempt to acquire a lease on the service.
+     *
+     * The acquire is atomic: the UPDATE matches only when no lease is held,
+     * or the existing lease has expired. An expired lease is stolen (a
+     * previous worker crashed before releasing) and a warning is logged so
+     * operators get a signal instead of silent self-healing.
      *
      * Returns null on success (lock acquired), or a reason string when the
      * lock could not be acquired:
-     *   - 'already_running' — another process holds the lock (running = 1)
+     *   - 'already_running' — another process holds an unexpired lease
      *   - 'not_due'         — the service interval has not elapsed yet
      *
      * @param BackgroundServicesRow $service
@@ -157,59 +197,116 @@ class BackgroundServiceRunner
      */
     protected function acquireLock(array $service, bool $force): ?string
     {
-        $sql = 'UPDATE background_services SET running = 1, next_run = NOW() + INTERVAL ?'
-            . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
+        $leaseMinutes = $this->computeLeaseMinutes($service);
+        $priorExpiry = $this->readLeaseExpiry($service['name']);
 
-        QueryUtils::sqlStatementThrowException($sql, [$service['execute_interval'], $service['name']], true);
+        // Atomic acquire-or-steal. The UPDATE matches only when:
+        //   - no lease is held (lock_expires_at IS NULL), or
+        //   - the existing lease has expired (prior worker crashed)
+        // and, unless --force, the service is due (NOW() > next_run).
+        $sql = 'UPDATE background_services'
+            . ' SET running = 1,'
+            . '     lock_expires_at = NOW() + INTERVAL ? MINUTE,'
+            . '     next_run = NOW() + INTERVAL ? MINUTE'
+            . ' WHERE name = ?'
+            . '   AND (lock_expires_at IS NULL OR lock_expires_at < NOW())'
+            . ($force ? '' : ' AND NOW() > next_run');
+
+        QueryUtils::sqlStatementThrowException(
+            $sql,
+            [$leaseMinutes, (int) $service['execute_interval'], $service['name']],
+            true,
+        );
 
         if (QueryUtils::affectedRows() >= 1) {
+            if ($priorExpiry !== null) {
+                // We stole a lease from a crashed worker. Operators should
+                // see a signal, not silent self-healing — almost always this
+                // indicates an OOM kill, SIGKILL, or container restart.
+                $this->logger->warning(
+                    'Background service lease recovered from crashed worker.',
+                    [
+                        'service' => $service['name'],
+                        'prior_lease_expired_at' => $priorExpiry,
+                    ],
+                );
+            }
             return null;
         }
 
-        // Distinguish why the lock was not acquired: is the service already
-        // running (another process holds the lock) or is it simply not yet due?
-        $row = QueryUtils::querySingleRow(
-            'SELECT running FROM background_services WHERE name = ?',
-            [$service['name']],
-            false,
-        );
-
-        if ($row === false) {
+        // Distinguish why we failed: lease still live, or just not yet due?
+        $currentExpiry = $this->readLeaseExpiry($service['name']);
+        if ($currentExpiry === false) {
             return 'error';
         }
-
-        if (($row['running'] ?? '0') === '1') {
+        if ($currentExpiry !== null) {
             return 'already_running';
         }
-
         return $force ? 'already_running' : 'not_due';
     }
 
     protected function releaseLock(string $serviceName): void
     {
         QueryUtils::sqlStatementThrowException(
-            'UPDATE background_services SET running = 0 WHERE name = ?',
+            'UPDATE background_services SET running = 0, lock_expires_at = NULL WHERE name = ?',
             [$serviceName],
             true,
         );
     }
 
     /**
+     * Read the current lease expiration for a service.
+     *
+     * Returns the stored timestamp string when a lease exists, null when
+     * no lease is held, and false when the row is missing entirely (which
+     * callers treat as an error).
+     *
+     * @return string|false|null
+     */
+    private function readLeaseExpiry(string $serviceName): string|false|null
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT lock_expires_at FROM background_services WHERE name = ?',
+            [$serviceName],
+            false,
+        );
+
+        if ($row === false) {
+            return false;
+        }
+
+        $value = $row['lock_expires_at'] ?? null;
+        return is_string($value) ? $value : null;
+    }
+
+    /**
+     * Compute the lease duration for a service. At least MIN_LEASE_MINUTES,
+     * at most MAX_LEASE_MINUTES, otherwise 2x the execution interval so that
+     * a normal run comfortably fits inside its lease.
+     *
+     * @param BackgroundServicesRow $service
+     */
+    private function computeLeaseMinutes(array $service): int
+    {
+        $proposed = max(self::MIN_LEASE_MINUTES, ((int) $service['execute_interval']) * 2);
+        return min($proposed, self::MAX_LEASE_MINUTES);
+    }
+
+    /**
      * Release a lock, swallowing exceptions so cleanup failures don't break
      * orchestration or crash shutdown handlers.
      *
-     * Note: If the underlying DB update to clear the `running` flag fails,
-     * the lock will remain set and this runner will continue to skip the
-     * service on subsequent runs. In that case, the stuck lock must be
-     * cleared manually or by a separate lock-recovery mechanism.
+     * If the underlying DB update fails, the lease remains set; the next
+     * tick will see it expire naturally and recover — no manual operator
+     * intervention required.
      */
     private function safeReleaseLock(string $serviceName): void
     {
         try {
             $this->releaseLock($serviceName);
         } catch (\Throwable) {
-            // Best-effort only: on failure the `running` flag remains set and
-            // must be cleared manually or by a separate recovery mechanism.
+            // Best-effort only: the lease expires naturally and is stolen
+            // on the next tick, so no operator intervention is required.
         }
     }
 

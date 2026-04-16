@@ -117,3 +117,8 @@
 ALTER TABLE `form_eye_antseg`
   MODIFY COLUMN OSCONJ text;
 #EndIf
+
+#IfMissingColumn background_services lock_expires_at
+ALTER TABLE `background_services`
+  ADD COLUMN `lock_expires_at` datetime DEFAULT NULL COMMENT 'Lease expiration (UTC). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.';
+#EndIf

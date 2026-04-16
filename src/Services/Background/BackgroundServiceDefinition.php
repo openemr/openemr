@@ -32,6 +32,7 @@ final readonly class BackgroundServiceDefinition
         public readonly bool $active = false,
         public readonly bool $running = false,
         public readonly ?string $nextRun = null,
+        public readonly ?string $lockExpiresAt = null,
     ) {
     }
 
@@ -48,8 +49,13 @@ final readonly class BackgroundServiceDefinition
             executeInterval: (int) $row['execute_interval'],
             sortOrder: (int) $row['sort_order'],
             active: (int) $row['active'] !== 0,
-            running: (int) $row['running'] > 0,
+            // `running` is derived from the lease: a service is only
+            // actually running if the lease exists and has not expired.
+            // This means stuck locks from crashed workers report as
+            // not-running, matching reality.
+            running: self::leaseIsLive($row['lock_expires_at']),
             nextRun: $row['next_run'],
+            lockExpiresAt: $row['lock_expires_at'],
         );
     }
 
@@ -68,6 +74,22 @@ final readonly class BackgroundServiceDefinition
             'function' => $this->function,
             'require_once' => $this->requireOnce,
             'sort_order' => (string) $this->sortOrder,
+            'lock_expires_at' => $this->lockExpiresAt,
         ];
+    }
+
+    /**
+     * A lease is "live" when it has a future expiration timestamp.
+     * Treats malformed timestamps as not-live (fail safe — better to
+     * let the next tick attempt to re-acquire than to report a lock
+     * we can't interpret as held).
+     */
+    private static function leaseIsLive(?string $lockExpiresAt): bool
+    {
+        if ($lockExpiresAt === null || $lockExpiresAt === '') {
+            return false;
+        }
+        $expiry = strtotime($lockExpiresAt);
+        return $expiry !== false && $expiry > time();
     }
 }

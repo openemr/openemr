@@ -75,6 +75,7 @@ class BackgroundServiceDefinitionTest extends TestCase
             'active' => '1',
             'running' => '0',
             'next_run' => '2026-03-28 10:15:00',
+            'lock_expires_at' => null,
         ];
 
         $def = BackgroundServiceDefinition::fromDatabaseRow($row);
@@ -88,6 +89,7 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertTrue($def->active);
         $this->assertFalse($def->running);
         $this->assertSame('2026-03-28 10:15:00', $def->nextRun);
+        $this->assertNull($def->lockExpiresAt);
     }
 
     public function testFromDatabaseRowWithNullRequireOnce(): void
@@ -102,6 +104,7 @@ class BackgroundServiceDefinitionTest extends TestCase
             'active' => '0',
             'running' => '0',
             'next_run' => '1970-01-01 00:00:00',
+            'lock_expires_at' => null,
         ];
 
         $def = BackgroundServiceDefinition::fromDatabaseRow($row);
@@ -109,6 +112,55 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertNull($def->requireOnce);
         $this->assertSame('1970-01-01 00:00:00', $def->nextRun);
         $this->assertFalse($def->active);
+    }
+
+    public function testFromDatabaseRowDerivesRunningFromLiveLease(): void
+    {
+        // A lease far in the future -> running reports true.
+        $future = date('Y-m-d H:i:s', time() + 600);
+        $row = [
+            'name' => 'svc',
+            'title' => 'Service',
+            'function' => 'doWork',
+            'require_once' => null,
+            'execute_interval' => '5',
+            'sort_order' => '100',
+            'active' => '1',
+            // Stale `running` flag: DB still says running=1, but the
+            // authoritative signal is the lease expiration.
+            'running' => '1',
+            'next_run' => '2026-03-28 10:15:00',
+            'lock_expires_at' => $future,
+        ];
+
+        $def = BackgroundServiceDefinition::fromDatabaseRow($row);
+
+        $this->assertTrue($def->running);
+        $this->assertSame($future, $def->lockExpiresAt);
+    }
+
+    public function testFromDatabaseRowTreatsExpiredLeaseAsNotRunning(): void
+    {
+        // Worker crashed without releasing its lease; `running = 1` was
+        // never cleared. The lease is expired, so `running` must be false.
+        $past = date('Y-m-d H:i:s', time() - 600);
+        $row = [
+            'name' => 'svc',
+            'title' => 'Service',
+            'function' => 'doWork',
+            'require_once' => null,
+            'execute_interval' => '5',
+            'sort_order' => '100',
+            'active' => '1',
+            'running' => '1',
+            'next_run' => '2026-03-28 10:15:00',
+            'lock_expires_at' => $past,
+        ];
+
+        $def = BackgroundServiceDefinition::fromDatabaseRow($row);
+
+        $this->assertFalse($def->running);
+        $this->assertSame($past, $def->lockExpiresAt);
     }
 
     public function testToArray(): void
@@ -135,10 +187,12 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertSame('50', $array['sort_order']);
         $this->assertSame('1', $array['active']);
         $this->assertSame('0', $array['running']);
+        $this->assertNull($array['lock_expires_at']);
     }
 
     public function testRoundTrip(): void
     {
+        $future = date('Y-m-d H:i:s', time() + 3600);
         $original = new BackgroundServiceDefinition(
             name: 'roundtrip',
             title: 'Roundtrip Test',
@@ -149,6 +203,7 @@ class BackgroundServiceDefinitionTest extends TestCase
             active: true,
             running: true,
             nextRun: '2026-03-28 12:00:00',
+            lockExpiresAt: $future,
         );
 
         $restored = BackgroundServiceDefinition::fromDatabaseRow($original->toArray());
@@ -162,5 +217,6 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertSame($original->active, $restored->active);
         $this->assertSame($original->running, $restored->running);
         $this->assertSame($original->nextRun, $restored->nextRun);
+        $this->assertSame($original->lockExpiresAt, $restored->lockExpiresAt);
     }
 }

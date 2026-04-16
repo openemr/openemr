@@ -122,8 +122,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
  <tbody>  <!-- added for better print-ability -->
 <?php
 
-$res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
-  " FROM `background_services` ORDER BY `sort_order`");
+// `is_busy` reflects the live lease rather than the legacy `running` flag
+// so stuck locks from crashed workers render as not-busy (see GH #11661).
+$res = sqlStatement(
+    "SELECT *,"
+    . " (`next_run` - INTERVAL `execute_interval` MINUTE) AS `last_run_start`,"
+    . " (`lock_expires_at` IS NOT NULL AND `lock_expires_at` > NOW()) AS `is_busy`"
+    . " FROM `background_services`"
+    . " ORDER BY `sort_order`"
+);
 while ($row = sqlFetchArray($res)) {
     ?>
   <tr>
@@ -143,7 +150,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>
 
-          <td align='center'><?php echo ($row['running'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
+          <td align='center'><?php echo ($row['is_busy']) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
           <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
