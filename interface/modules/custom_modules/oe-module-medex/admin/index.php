@@ -2,9 +2,9 @@
 /**
  * MedEx Admin entry point.
  *
- * Production module behavior is SaaS-first. This file no longer renders the
- * legacy local dashboard. It only performs MedEx SSO handoff or routes the
- * user to onboarding/reconnect when the account is not ready.
+ * Production module behavior is SaaS-first. This local page is only a thin,
+ * same-origin shell so OpenEMR can label the MedEx tab correctly while the
+ * actual dashboard runs in the hosted MedEx application inside an iframe.
  */
 
 if (empty($_GET['site'])) {
@@ -121,8 +121,6 @@ try {
             . '?site=' . urlencode($siteId)
             . '&tab=' . urlencode($tab)
             . '&sso_token=' . urlencode(base64_encode(json_encode($payload)));
-        header('Location: ' . $cloudUrl);
-        exit;
     }
 
     $errorMessage = xlt('Unable to create a valid MedEx dashboard session.');
@@ -142,9 +140,14 @@ $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/a
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MedEx Admin</title>
+    <title>MedEx Dashboard</title>
     <style>
+        html, body { height: 100%; }
         body { margin: 0; background: #f5f8fc; color: #0f172a; font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
+        .title { display: none; }
+        .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+        .frame-wrap { flex: 1 1 auto; min-height: 0; background: #eaf1f8; }
+        .frame-wrap iframe { display: block; width: 100%; height: 100%; min-height: 100vh; border: 0; background: #fff; }
         .shell { max-width: 760px; margin: 72px auto; padding: 28px; background: #fff; border: 1px solid #dbe5ee; border-radius: 14px; box-shadow: 0 14px 36px rgba(15, 75, 143, 0.08); }
         h1 { margin: 0 0 10px; font-size: 30px; color: #0f4b8f; }
         p { margin: 0 0 14px; line-height: 1.55; color: #334155; }
@@ -156,6 +159,18 @@ $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/a
     </style>
 </head>
 <body>
+<div class="title"><?php echo xlt('MedEx Dashboard'); ?></div>
+<?php if ($cloudUrl !== ''): ?>
+<div class="app-shell">
+    <div class="frame-wrap">
+        <iframe
+            src="<?php echo attr($cloudUrl); ?>"
+            title="<?php echo attr(xlt('MedEx Dashboard')); ?>"
+            referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+    </div>
+</div>
+<?php else: ?>
 <div class="shell">
     <h1><?php echo xlt('MedEx Admin'); ?></h1>
     <p><?php echo xlt('The legacy local dashboard has been removed from this module.'); ?></p>
@@ -165,5 +180,6 @@ $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/a
         <a class="btn btn-secondary" href="<?php echo attr($onboardingUrl); ?>"><?php echo xlt('Open Onboarding'); ?></a>
     </div>
 </div>
+<?php endif; ?>
 </body>
 </html>
