@@ -190,8 +190,24 @@ if ($step > 1 && !$isConfigured) {
             .service-config-grid { grid-template-columns: 1fr; }
         }
 
-        .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
+        .provider-list { max-height: 170px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; background: #fff; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
+        .selection-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .selection-toolbar-copy { font-size: 12px; color: #64748b; font-weight: 600; }
+        .selection-toolbar-actions { display: flex; gap: 8px; }
+        .selection-link-btn { appearance: none; border: 0; background: transparent; color: #0f4b8f; font-size: 12px; font-weight: 700; padding: 0; cursor: pointer; }
+        .selection-link-btn:hover { color: #0a3460; text-decoration: underline; }
+        .billing-summary-card { margin-top: 24px; border: 1px solid #d8e5f3; border-radius: 14px; padding: 18px 20px; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); }
+        .billing-summary-title { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #132238; }
+        .billing-summary-copy { margin: 0 0 14px; font-size: 13px; color: #526277; }
+        .billing-summary-list { list-style: none; padding: 0; margin: 0; }
+        .billing-summary-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 0; border-top: 1px solid #e2e8f0; }
+        .billing-summary-item:first-child { border-top: 0; padding-top: 0; }
+        .billing-summary-item-name { font-weight: 700; color: #132238; }
+        .billing-summary-item-meta { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .billing-summary-item-amount { font-weight: 800; color: #0f4b8f; white-space: nowrap; }
+        .billing-summary-total { margin-top: 14px; padding-top: 14px; border-top: 2px solid #d8e5f3; display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 800; color: #132238; }
+        .billing-summary-empty { font-size: 13px; color: #64748b; }
         .onboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
         .panel-card { border: 1px solid #d8e5f3; border-radius: 14px; padding: 22px; background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); transition: all 0.2s ease; }
         .panel-card:hover { box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06); border-color: #bfd5ef; }
@@ -534,6 +550,7 @@ if ($step > 1 && !$isConfigured) {
                     'reminders' => $helpBaseUrl . '&topic=reminders',
                     'calendar_view' => $helpBaseUrl . '&topic=calendar_view',
                     'calendar_ai' => $helpBaseUrl . '&topic=calendar_ai',
+                    'calendar_full' => $helpBaseUrl . '&topic=calendar_full',
                     'secure_chat' => $helpBaseUrl . '&topic=secure_chat',
                     'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
                 ];
@@ -558,14 +575,18 @@ if ($step > 1 && !$isConfigured) {
                         return false;
                     }
                     $service = is_array($availablePricingServices[$serviceKey] ?? null) ? $availablePricingServices[$serviceKey] : [];
-                    return !array_key_exists('available', $service) || $service['available'] !== false;
+                    if (array_key_exists('available', $service)) {
+                        return $service['available'] === true || $service['available'] === 1 || $service['available'] === '1';
+                    }
+                    return true;
                 };
                 $showAppointmentReminders = $serviceAvailableForOnboarding('appointment_reminders');
                 $showCalendarView = $serviceAvailableForOnboarding('calendar_view');
                 $showCalendarAi = $serviceAvailableForOnboarding('calendar_ai');
+                $showCalendarFull = $serviceAvailableForOnboarding('calendar_full');
                 $showSecureChat = $serviceAvailableForOnboarding('secure_chat');
                 $showPdfManagement = $serviceAvailableForOnboarding('pdf_management');
-                $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showSecureChat || $showPdfManagement;
+                $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showCalendarFull || $showSecureChat || $showPdfManagement;
                 $providerCandidates = QueryUtils::fetchRecords("
                     SELECT id, fname, lname, username
                     FROM users
@@ -641,6 +662,13 @@ if ($step > 1 && !$isConfigured) {
                             <div class="service-config-grid">
                                 <div class="service-config-group">
                                     <label><?php echo xlt("Providers"); ?></label>
+                                    <div class="selection-toolbar">
+                                        <span class="selection-toolbar-copy"><?php echo xlt("Select the providers included in reminder billing."); ?></span>
+                                        <div class="selection-toolbar-actions">
+                                            <button type="button" class="selection-link-btn" data-select-group="providers" data-select-action="all"><?php echo xlt("Select all"); ?></button>
+                                            <button type="button" class="selection-link-btn" data-select-group="providers" data-select-action="none"><?php echo xlt("Deselect"); ?></button>
+                                        </div>
+                                    </div>
                                     <div class="provider-list">
                                         <?php foreach ($providerRows as $row): ?>
                                             <div class="provider-item">
@@ -652,6 +680,13 @@ if ($step > 1 && !$isConfigured) {
                                 </div>
                                 <div class="service-config-group">
                                     <label><?php echo xlt("Facilities"); ?></label>
+                                    <div class="selection-toolbar">
+                                        <span class="selection-toolbar-copy"><?php echo xlt("Select the facilities included in reminders."); ?></span>
+                                        <div class="selection-toolbar-actions">
+                                            <button type="button" class="selection-link-btn" data-select-group="facilities" data-select-action="all"><?php echo xlt("Select all"); ?></button>
+                                            <button type="button" class="selection-link-btn" data-select-group="facilities" data-select-action="none"><?php echo xlt("Deselect"); ?></button>
+                                        </div>
+                                    </div>
                                     <div class="provider-list">
                                         <?php foreach ($facilityRows as $facility): ?>
                                             <div class="provider-item">
@@ -734,6 +769,25 @@ if ($step > 1 && !$isConfigured) {
                 </div>
                 <?php endif; ?>
 
+                <?php if ($showCalendarFull): ?>
+                <!-- Full Calendar -->
+                <div class="service-card">
+                    <input type="checkbox" name="service_calendar_full" id="service_calendar_full">
+                    <div class="service-info">
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("Full Calendar"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_full']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Full Calendar Help"); ?>" aria-label="<?php echo xla("Full Calendar Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="service-desc"><?php echo xlt("Embedded full calendar experience for MedEx scheduling workflows."); ?></div>
+                        <div class="service-price">
+                            <?php echo "$" . number_format($availablePricingServices['calendar_full']['price'] ?? 0, 2) . " " . text($formatUnit(($availablePricingServices['calendar_full']['unit'] ?? ''), 'mo')); ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($showSecureChat): ?>
                 <!-- Secure Chat -->
                 <div class="service-card">
@@ -799,6 +853,16 @@ if ($step > 1 && !$isConfigured) {
                     </div>
                 </div>
                 <?php endif; ?>
+
+                <div class="billing-summary-card">
+                    <h4 class="billing-summary-title"><?php echo xlt("Billing Summary"); ?></h4>
+                    <p class="billing-summary-copy"><?php echo xlt("This shows what will be added to the cart based on the services and provider counts you choose here."); ?></p>
+                    <div id="billing-summary-lines" class="billing-summary-empty"><?php echo xlt("No services selected yet."); ?></div>
+                    <div class="billing-summary-total">
+                        <span><?php echo xlt("Estimated Monthly Total"); ?></span>
+                        <span id="billing-summary-total">$0.00 / <?php echo xlt("month"); ?></span>
+                    </div>
+                </div>
 
                 <div style="margin-top: 30px; display: flex; justify-content: space-between;">
                     <button type="button" class="btn" style="background: #eee;" onclick="location.href='onboarding.php?step=1&site=<?php echo attr_js($siteId); ?>'"><?php echo xlt("Back"); ?></button>
@@ -1164,6 +1228,74 @@ if ($step > 1 && !$isConfigured) {
         function syncRemindersConfigPanel() {
             const selected = $("#service_reminders").is(":checked");
             $("#reminders-config-panel").toggleClass("show", selected);
+            updateBillingSummary();
+        }
+
+        function updateBillingSummary() {
+            const serviceCatalog = <?php echo json_encode([
+                'appointment_reminders' => $availablePricingServices['appointment_reminders'] ?? null,
+                'calendar_view' => $availablePricingServices['calendar_view'] ?? null,
+                'calendar_ai' => $availablePricingServices['calendar_ai'] ?? null,
+                'calendar_full' => $availablePricingServices['calendar_full'] ?? null,
+                'secure_chat' => $availablePricingServices['secure_chat'] ?? null,
+                'pdf_management' => $availablePricingServices['pdf_management'] ?? null,
+            ]); ?> || {};
+            const serviceLabels = {
+                appointment_reminders: <?php echo json_encode(xl("Reminders & Recalls")); ?>,
+                calendar_view: <?php echo json_encode(xl("Calendar View & Export")); ?>,
+                calendar_ai: <?php echo json_encode(xl("Calendar & AI Rescheduler")); ?>,
+                calendar_full: <?php echo json_encode(xl("Full Calendar")); ?>,
+                secure_chat: <?php echo json_encode(xl("Secure Chat")); ?>,
+                pdf_management: <?php echo json_encode(xl("PDF Form Management")); ?>
+            };
+            const summaryLines = [];
+            let total = 0;
+            const checkedProviders = $("input[name='reminders_providers[]']:checked").length;
+            const checkedFacilities = $("input[name='reminders_facilities[]']:checked").length;
+
+            function pushLine(serviceKey, quantity, meta) {
+                const service = serviceCatalog[serviceKey] || {};
+                const unitPrice = parseFloat(service.price || 0);
+                const providerBased = !!service.provider_based;
+                const effectiveQty = providerBased ? Math.max(quantity, 0) : (quantity > 0 ? quantity : 1);
+                const lineTotal = providerBased ? unitPrice * effectiveQty : (quantity > 0 ? unitPrice : 0);
+                total += lineTotal;
+                summaryLines.push(
+                    '<div class="billing-summary-item">' +
+                        '<div>' +
+                            '<div class="billing-summary-item-name">' + $('<div>').text(serviceLabels[serviceKey] || serviceKey).html() + '</div>' +
+                            (meta ? '<div class="billing-summary-item-meta">' + $('<div>').text(meta).html() + '</div>' : '') +
+                        '</div>' +
+                        '<div class="billing-summary-item-amount">$' + lineTotal.toFixed(2) + '</div>' +
+                    '</div>'
+                );
+            }
+
+            if ($("#service_reminders").is(":checked") && checkedProviders > 0) {
+                pushLine('appointment_reminders', checkedProviders, checkedProviders + ' <?php echo xlj("provider(s) selected"); ?>' + (checkedFacilities > 0 ? ' • ' + checkedFacilities + ' <?php echo xlj("facility(ies) selected"); ?>' : ''));
+            }
+            if ($("#service_calendar_view").is(":checked")) {
+                pushLine('calendar_view', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            }
+            if ($("#service_calendar_ai").is(":checked")) {
+                pushLine('calendar_ai', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            }
+            if ($("#service_calendar_full").is(":checked")) {
+                pushLine('calendar_full', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            }
+            if ($("#service_chat").is(":checked")) {
+                pushLine('secure_chat', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            }
+            if ($("#service_pdf").is(":checked")) {
+                pushLine('pdf_management', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            }
+
+            if (summaryLines.length) {
+                $("#billing-summary-lines").html('<div class="billing-summary-list">' + summaryLines.join('') + '</div>');
+            } else {
+                $("#billing-summary-lines").html('<div class="billing-summary-empty"><?php echo xlj("No services selected yet."); ?></div>');
+            }
+            $("#billing-summary-total").text('$' + total.toFixed(2) + ' / <?php echo xlj("month"); ?>');
         }
 
         function sendOtp() {
@@ -1438,6 +1570,7 @@ if ($step > 1 && !$isConfigured) {
                         if ($("#service_reminders").is(':checked')) selectedServices.push('appointment_reminders');
                         if ($("#service_calendar_view").is(':checked')) selectedServices.push('calendar_view');
                         if ($("#service_calendar_ai").is(':checked')) selectedServices.push('calendar_ai');
+                        if ($("#service_calendar_full").is(':checked')) selectedServices.push('calendar_full');
                         if ($("#service_chat").is(':checked')) selectedServices.push('secure_chat');
                         if ($("#service_pdf").is(':checked')) selectedServices.push('pdf_management');
                         // Store summary for step 3
@@ -1445,9 +1578,11 @@ if ($step > 1 && !$isConfigured) {
                             reminders: $("#service_reminders").is(':checked'),
                             calendar_view: $("#service_calendar_view").is(':checked'),
                             calendar_ai: $("#service_calendar_ai").is(':checked'),
+                            calendar_full: $("#service_calendar_full").is(':checked'),
                             chat: $("#service_chat").is(':checked'),
                             pdf: $("#service_pdf").is(':checked'),
                             provider_count: $("input[name='reminders_providers[]']:checked").length,
+                            facility_count: $("input[name='reminders_facilities[]']:checked").length,
                             cart_id: response.cart_id,
                             total: response.total,
                             services: selectedServices
@@ -1667,6 +1802,19 @@ if ($step > 1 && !$isConfigured) {
                         syncRemindersConfigPanel();
                     }
                     updateStep2Progress();
+                    updateBillingSummary();
+                });
+                $(document).on("change", "input[name='reminders_providers[]'], input[name='reminders_facilities[]']", function() {
+                    updateBillingSummary();
+                    updateStep2Progress();
+                });
+                $(document).on("click", "[data-select-group][data-select-action]", function() {
+                    const group = $(this).attr("data-select-group");
+                    const action = $(this).attr("data-select-action");
+                    const selector = group === "providers" ? "input[name='reminders_providers[]']" : "input[name='reminders_facilities[]']";
+                    $(selector).prop("checked", action === "all");
+                    updateBillingSummary();
+                    updateStep2Progress();
                 });
                 $("#form-step-2 .service-card").on("click", function(e) {
                     const $target = $(e.target);
@@ -1678,6 +1826,7 @@ if ($step > 1 && !$isConfigured) {
                         $serviceToggle.prop("checked", !$serviceToggle.prop("checked")).trigger("change");
                     }
                 });
+                updateBillingSummary();
             }
 
             $("#toggle-password").on("click", function() {
@@ -1765,6 +1914,7 @@ if ($step > 1 && !$isConfigured) {
                     appointment_reminders: <?php echo json_encode(xl("Reminders & Recalls")); ?>,
                     calendar_view: <?php echo json_encode(xl("Calendar View & Export")); ?>,
                     calendar_ai: <?php echo json_encode(xl("Calendar & AI Rescheduler")); ?>,
+                    calendar_full: <?php echo json_encode(xl("Full Calendar")); ?>,
                     secure_chat: <?php echo json_encode(xl("Secure Chat")); ?>,
                     pdf_management: <?php echo json_encode(xl("PDF Form Management")); ?>
                 };
@@ -1782,6 +1932,7 @@ if ($step > 1 && !$isConfigured) {
                     if (summary.reminders) html += '<li>' + <?php echo xlj("Reminders & Recalls"); ?> + ' (' + (summary.provider_count || 0) + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
                     if (summary.calendar_view) html += '<li>' + <?php echo xlj("Calendar View & Export"); ?> + '</li>';
                     if (summary.calendar_ai) html += '<li>' + <?php echo xlj("Calendar & AI Rescheduler"); ?> + '</li>';
+                    if (summary.calendar_full) html += '<li>' + <?php echo xlj("Full Calendar"); ?> + '</li>';
                     if (summary.chat) html += '<li>' + <?php echo xlj("Secure Chat"); ?> + '</li>';
                     if (summary.pdf) html += '<li>' + <?php echo xlj("PDF Form Management"); ?> + '</li>';
                 }

@@ -90,7 +90,10 @@ try {
             return false;
         }
         $service = is_array($services[$serviceKey] ?? null) ? $services[$serviceKey] : [];
-        return !array_key_exists('available', $service) || $service['available'] !== false;
+        if (array_key_exists('available', $service)) {
+            return $service['available'] === true || $service['available'] === 1 || $service['available'] === '1';
+        }
+        return true;
     };
 
     // Build cart data from form submission
@@ -129,6 +132,18 @@ try {
         $cartData['items'][] = [
             'service' => 'calendar_ai',
             'quantity' => $providerCount
+        ];
+    }
+
+    // Service: Full Calendar
+    if (isset($_POST['service_calendar_full']) && $_POST['service_calendar_full'] === 'on') {
+        if (!$serviceIsPurchasable('calendar_full')) {
+            echo json_encode(['success' => false, 'error' => 'Full Calendar is not available for this account.']);
+            exit;
+        }
+        $cartData['items'][] = [
+            'service' => 'calendar_full',
+            'quantity' => 1
         ];
     }
 
