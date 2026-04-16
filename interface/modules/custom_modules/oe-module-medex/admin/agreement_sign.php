@@ -18,6 +18,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
+const MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS = 14400;
+
 if (!AclMain::aclCheckCore('admin', 'super')) {
     echo "<html><body>" . xlt('Access denied') . "</body></html>";
     exit;
@@ -182,6 +184,26 @@ function medexLoadAgreementReceipt(string $type, string $version): ?array
         'local_pdf_path' => (string)($row['local_pdf_path'] ?? ''),
         'payload_sha256' => (string)($row['payload_sha256'] ?? ''),
     ];
+}
+
+function medexIsAgreementReceiptFresh(?array $receipt): bool
+{
+    if (!is_array($receipt)) {
+        return false;
+    }
+    $payload = is_array($receipt['payload'] ?? null) ? $receipt['payload'] : [];
+    $signedAtRaw = trim((string)($payload['signed_at'] ?? ''));
+    if ($signedAtRaw === '') {
+        $signedAtRaw = trim((string)($receipt['created_at'] ?? ''));
+    }
+    if ($signedAtRaw === '') {
+        return false;
+    }
+    $signedAtTs = strtotime($signedAtRaw);
+    if ($signedAtTs === false || $signedAtTs <= 0) {
+        return false;
+    }
+    return (time() - $signedAtTs) <= MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS;
 }
 
 function medexSaveAgreementReceipt(string $type, string $version, array $payload, string $bodyHtml): array
@@ -540,12 +562,15 @@ $practiceName = medexGetPracticeName();
 $existingReceipt = $forceEdit ? null : medexLoadAgreementReceipt($type, $version);
 
 if ($action === 'status') {
+    $isFresh = medexIsAgreementReceiptFresh($existingReceipt);
     header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
-        'signed' => is_array($existingReceipt),
+        'signed' => $isFresh,
+        'expired' => is_array($existingReceipt) && !$isFresh,
+        'verification_window_seconds' => MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS,
         'agreement_version' => $version,
-        'payload' => is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null,
+        'payload' => $isFresh && is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null,
     ]);
     exit;
 }

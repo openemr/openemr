@@ -54,6 +54,7 @@ if ($session) {
 }
 $termsVersion = MedExConfig::TERMS_VERSION;
 $baaVersion = MedExConfig::BAA_VERSION;
+$onboardingVerificationWindowSeconds = 14400;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
 $privacyUrl = MedExConfig::privacyUrl();
@@ -823,6 +824,7 @@ if ($step > 1 && !$isConfigured) {
     <script>
         let otpVerified = false;
         let otpStatusRequest = 0;
+        const onboardingVerificationWindowSeconds = <?php echo (int)$onboardingVerificationWindowSeconds; ?>;
         const wizardStep = <?php echo (int)$step; ?>;
         const onboardingDraftStorageKey = 'medex_onboarding_draft';
         const onboardingServiceDefinitions = <?php echo json_encode($onboardingServices); ?> || {};
@@ -1077,11 +1079,29 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function isTermsCompleted() {
-            return $("#terms_completed").val() === "1";
+            if ($("#terms_completed").val() !== "1") {
+                return false;
+            }
+            return isAgreementStillFresh($("#terms_signed_at").val());
         }
 
         function isBaaCompleted() {
-            return $("#baa_completed").val() === "1";
+            if ($("#baa_completed").val() !== "1") {
+                return false;
+            }
+            return isAgreementStillFresh($("#baa_signed_at").val());
+        }
+
+        function isAgreementStillFresh(rawTimestamp) {
+            const value = String(rawTimestamp || "").trim();
+            if (!value) {
+                return false;
+            }
+            const signedMs = Date.parse(value);
+            if (!Number.isFinite(signedMs) || signedMs <= 0) {
+                return false;
+            }
+            return (Date.now() - signedMs) <= (onboardingVerificationWindowSeconds * 1000);
         }
 
         function syncAgreementCheckboxState() {
@@ -1943,9 +1963,20 @@ if ($step > 1 && !$isConfigured) {
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        if (!response || !response.success || !response.signed || !response.payload) {
-                            return;
+                    if (!response || !response.success || !response.signed || !response.payload) {
+                        if (response && response.expired) {
+                            if (type === "terms") {
+                                $("#terms_completed").val("0");
+                                $("#TERMS_yes").prop("checked", false);
+                            } else if (type === "baa") {
+                                $("#baa_completed").val("0");
+                                $("#BusAgree_yes").prop("checked", false);
+                            }
+                            syncAgreementCheckboxState();
+                            updateStep1SubmitState();
                         }
+                        return;
+                    }
                         response.payload.agreement_version = String(response.agreement_version || response.payload.agreement_version || "");
                         applyAgreementSignature(type, response.payload);
                         markAgreementAccepted(type);

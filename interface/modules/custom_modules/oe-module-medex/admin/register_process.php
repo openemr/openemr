@@ -17,6 +17,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
+const MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS = 14400;
+
 function medexIsPrivateHost(string $host): bool
 {
     $host = strtolower(trim($host));
@@ -483,6 +485,19 @@ function medexClearOtpSession(): void
     unset($_SESSION[$key]);
 }
 
+function medexIsRecentOnboardingTimestamp(string $rawTimestamp): bool
+{
+    $rawTimestamp = trim($rawTimestamp);
+    if ($rawTimestamp === '') {
+        return false;
+    }
+    $ts = strtotime($rawTimestamp);
+    if ($ts === false || $ts <= 0) {
+        return false;
+    }
+    return (time() - $ts) <= MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS;
+}
+
 // Set JSON response header
 header('Content-Type: application/json');
 
@@ -599,6 +614,22 @@ try {
             'current_terms_version' => MedExConfig::TERMS_VERSION,
             'current_baa_version' => MedExConfig::BAA_VERSION,
             'error' => 'Business Associate Agreement version mismatch. Refresh and review current BAA.'
+        ]);
+        exit;
+    }
+    $termsSignedAt = trim((string)($_POST['terms_signed_at'] ?? ''));
+    if (!medexIsRecentOnboardingTimestamp($termsSignedAt)) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Terms and Conditions signature expired. Re-open and sign the current Terms again.'
+        ]);
+        exit;
+    }
+    $baaSignedAt = trim((string)($_POST['baa_signed_at'] ?? ''));
+    if (!medexIsRecentOnboardingTimestamp($baaSignedAt)) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Business Associate Agreement signature expired. Re-open and sign the current BAA again.'
         ]);
         exit;
     }
