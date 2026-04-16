@@ -27,16 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class sms_clickatell constructor invoked with 3 parameters, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class sms_tmb4 constructor invoked with 3 parameters, 2 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class GenericRouter constructor invoked with 0 parameters, 3 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',

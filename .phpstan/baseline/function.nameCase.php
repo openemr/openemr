@@ -122,26 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function cron_GetNotificationData\\(\\) with incorrect case\\: cron_getNotificationData$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function cron_SetMessage\\(\\) with incorrect case\\: cron_setmessage$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function cron_GetNotificationData\\(\\) with incorrect case\\: cron_getNotificationData$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function cron_SetMessage\\(\\) with incorrect case\\: cron_setmessage$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function define\\(\\) with incorrect case\\: DEFINE$#',
     'count' => 7,
     'path' => __DIR__ . '/../../portal/account/index_reset.php',

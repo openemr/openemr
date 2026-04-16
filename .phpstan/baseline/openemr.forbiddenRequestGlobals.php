@@ -4147,21 +4147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_SERVER is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_SERVER is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_SERVER is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',

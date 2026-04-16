@@ -16322,56 +16322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$EMAIL_NOTIFICATION_HOUR might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$data_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patient_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smsgateway_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$SMS_NOTIFICATION_HOUR might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$data_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patient_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smsgateway_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$result might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$token_database might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',

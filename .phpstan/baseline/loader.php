@@ -77,7 +77,6 @@ return ['includes' => [
     __DIR__ . '/isset.variable.php',
     __DIR__ . '/logicalAnd.alwaysFalse.php',
     __DIR__ . '/logicalAnd.leftAlwaysTrue.php',
-    __DIR__ . '/match.unhandled.php',
     __DIR__ . '/method.alreadyNarrowedType.php',
     __DIR__ . '/method.childParameterType.php',
     __DIR__ . '/method.childReturnType.php',

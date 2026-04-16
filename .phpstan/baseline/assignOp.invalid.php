@@ -1847,11 +1847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
