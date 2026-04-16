@@ -1,7 +1,7 @@
 <?php
 /**
- * MedEx Setup Help (pre-install / pre-enable)
- * Rendered inside the Module Manager help modal iframe.
+ * MedEx installer bridge.
+ * If any path still lands here, do the work immediately and move into onboarding.
  */
 
 if (empty($_GET['site'])) {
@@ -30,30 +30,20 @@ function medexSetupStatus(): array
         []
     ) ?: [];
 
-    $sqlRun = (int)($row['sql_run'] ?? 0);
-    $modId = (int)($row['mod_id'] ?? 0);
-    $modActive = (int)($row['mod_active'] ?? 0);
-    $modUiActive = (int)($row['mod_ui_active'] ?? 0);
+    $sqlRun = (int) ($row['sql_run'] ?? 0);
+    $modId = (int) ($row['mod_id'] ?? 0);
+    $modActive = (int) ($row['mod_active'] ?? 0);
+    $modUiActive = (int) ($row['mod_ui_active'] ?? 0);
 
     $installed = ($sqlRun === 1);
-    $enabled = ($modActive === 1);
-    $dashboardReady = $enabled;
-
-    $nextAction = 'install';
-    if (!$installed) {
-        $nextAction = 'install';
-    } elseif (!$enabled) {
-        $nextAction = 'enable';
-    } else {
-        $nextAction = 'configure';
-    }
+    $enabled = ($modActive === 1 || $modUiActive === 1);
 
     return [
         'mod_id' => $modId,
         'installed' => $installed,
         'enabled' => $enabled,
-        'dashboard_ready' => $dashboardReady,
-        'next_action' => $nextAction,
+        'dashboard_ready' => $enabled,
+        'next_action' => !$installed ? 'install' : (!$enabled ? 'enable' : 'configure'),
     ];
 }
 
@@ -64,484 +54,288 @@ if (($_GET['action'] ?? '') === 'status') {
 }
 
 $status = medexSetupStatus();
-$siteId = (string)($_GET['site'] ?? 'default');
+$siteId = (string) ($_GET['site'] ?? 'default');
+$webroot = (string) ($GLOBALS['webroot'] ?? '');
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MedEx Setup</title>
+    <title>Starting MedEx</title>
     <style>
         :root {
+            --bg1: #f8fbff;
+            --bg2: #eaf3ff;
             --ink: #0f172a;
             --muted: #475569;
-            --line: #dbeafe;
-            --ok: #047857;
-            --todo: #0f4b8f;
-            --bg: #f8fbff;
+            --line: #bfdbfe;
+            --brand: #1d4ed8;
+            --brand2: #0ea5e9;
+            --ok: #15803d;
+            --err: #b91c1c;
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
             font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            background: radial-gradient(circle at top, #ffffff 0%, var(--bg1) 45%, var(--bg2) 100%);
             color: var(--ink);
-            background: var(--bg);
         }
-        .wrap {
-            padding: 16px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .hdr {
-            margin-bottom: 14px;
-        }
-        .hdr h2 {
-            margin: 0 0 6px;
-            font-size: 24px;
-            color: #0f4b8f;
-        }
-        .hdr p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-        .steps {
-            display: grid;
-            gap: 10px;
-        }
-        .step {
-            display: grid;
-            grid-template-columns: 28px 1fr;
-            gap: 10px;
+        .shell {
+            width: min(640px, 100%);
+            background: rgba(255,255,255,.92);
             border: 1px solid var(--line);
-            border-radius: 10px;
-            background: #fff;
-            padding: 12px;
+            border-radius: 18px;
+            box-shadow: 0 24px 60px rgba(15, 75, 143, 0.12);
+            padding: 28px 26px 24px;
         }
-        .step.current {
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 10px;
         }
-        .icon {
-            width: 28px;
-            height: 28px;
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.15;
+            color: #0f3f75;
+        }
+        p {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .progress {
+            margin-top: 20px;
+            height: 14px;
             border-radius: 999px;
+            overflow: hidden;
+            background: #dbeafe;
+            border: 1px solid #c7ddff;
+        }
+        .progress-bar {
+            width: 34%;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--brand) 0%, var(--brand2) 55%, #38bdf8 100%);
+            background-size: 200% 100%;
+            animation: slide 1.1s linear infinite;
+        }
+        .status {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: 800;
-            margin-top: 2px;
-            border: 1px solid #93c5fd;
-            color: var(--todo);
-            background: #eff6ff;
-        }
-        .step.done .icon {
-            border-color: #86efac;
-            color: var(--ok);
-            background: #ecfdf5;
-        }
-        .step h3 {
-            margin: 0 0 4px;
-            font-size: 16px;
-        }
-        .step p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.45;
-        }
-        .step .state {
-            margin-top: 6px;
-            font-size: 12px;
+            gap: 12px;
+            margin-top: 18px;
+            font-size: 17px;
             font-weight: 700;
-            color: #1d4ed8;
+            color: #0f172a;
         }
-        .step.done .state {
-            color: var(--ok);
+        .status::before {
+            content: "";
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            border: 3px solid #93c5fd;
+            border-top-color: var(--brand);
+            animation: spin .8s linear infinite;
+            flex: 0 0 auto;
         }
-        .step .act {
+        .status.done::before {
+            animation: none;
+            border-color: var(--ok);
+            background: var(--ok);
+            box-shadow: inset 0 0 0 4px #dcfce7;
+        }
+        .status.error::before {
+            animation: none;
+            border-color: var(--err);
+            background: var(--err);
+            box-shadow: inset 0 0 0 4px #fee2e2;
+        }
+        .notes {
             margin-top: 8px;
+            font-size: 14px;
+            color: var(--muted);
+            min-height: 22px;
         }
-        .act-btn {
-            border: 1px solid #93c5fd;
+        .retry {
+            display: none;
+            margin-top: 18px;
+            border: 1px solid var(--brand);
             background: #eff6ff;
-            color: #1d4ed8;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-        .act-btn:hover {
-            background: #dbeafe;
-        }
-        .primary-cta {
-            margin-top: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #1d4ed8;
-            background: #1d4ed8;
-            color: #fff;
+            color: var(--brand);
             border-radius: 10px;
+            padding: 10px 14px;
             font-size: 14px;
             font-weight: 700;
-            padding: 10px 14px;
             cursor: pointer;
+        }
+        .retry.show { display: inline-flex; }
+        @keyframes slide {
+            0% { transform: translateX(-55%); background-position: 0 0; }
+            100% { transform: translateX(230%); background-position: 200% 0; }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-<div class="wrap">
-    <div class="hdr">
-        <h2>MedEx Setup</h2>
-        <p>Click Install. MedEx will handle the rest automatically.</p>
-        <div class="act" style="margin-top:10px;">
-            <button type="button" class="primary-cta" id="startOnboardingBtn">
-                Install
-            </button>
-        </div>
-    </div>
-
-    <div class="steps">
-        <div id="step-install" class="step">
-            <div class="icon">1</div>
-            <div>
-                <h3>Install the module</h3>
-                <p>Register the MedEx database objects and prepare the module.</p>
-                <div class="state"></div>
-            </div>
-        </div>
-
-        <div id="step-enable" class="step">
-            <div class="icon">2</div>
-            <div>
-                <h3>Enable the module</h3>
-                <p>Activate MedEx automatically as part of setup.</p>
-                <div class="state"></div>
-            </div>
-        </div>
-
-        <div id="step-configure" class="step">
-            <div class="icon">3</div>
-            <div>
-                <h3>Open onboarding</h3>
-                <p>Launch the intake flow immediately after setup completes.</p>
-                <div class="state"></div>
-            </div>
-        </div>
-
-    </div>
-
+<div class="shell">
+    <div class="eyebrow">MedEx</div>
+    <h1>Starting onboarding</h1>
+    <p>MedEx is finishing installation in the background. Onboarding will open automatically.</p>
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="status" id="medex-status">Preparing MedEx...</div>
+    <div class="notes" id="medex-notes">Please wait while MedEx installs, enables, and moves into onboarding.</div>
+    <button type="button" class="retry" id="retry-btn">Try again</button>
 </div>
-
 <script>
-    let currentStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const currentStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-    const setupStatusUrl = <?php echo json_encode(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const setupStatusUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const onboardingUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const retryBtn = document.getElementById('retry-btn');
+    const statusEl = document.getElementById('medex-status');
+    const notesEl = document.getElementById('medex-notes');
+    let running = false;
 
-    function setStep(stepId, done, doneText) {
-        const step = document.getElementById(stepId);
-        if (!step) return;
-        step.classList.toggle('done', !!done);
-        const state = step.querySelector('.state');
-        if (state) {
-            state.textContent = done ? doneText : '';
+    function setStatus(text, notes, state) {
+        statusEl.textContent = text;
+        statusEl.classList.remove('done', 'error');
+        if (state === 'done' || state === 'error') {
+            statusEl.classList.add(state);
         }
+        notesEl.textContent = notes || '';
+        retryBtn.classList.toggle('show', state === 'error');
     }
 
-    function render(status) {
-        setStep('step-install', status.installed, 'Done');
-        setStep('step-enable', status.enabled, 'Done');
-        setStep('step-configure', status.enabled, 'Ready');
-        const installStep = document.getElementById('step-install');
-        const enableStep = document.getElementById('step-enable');
-        const configureStep = document.getElementById('step-configure');
-        if (installStep) installStep.classList.toggle('current', !status.installed);
-        if (enableStep) enableStep.classList.toggle('current', !!status.installed && !status.enabled);
-        if (configureStep) configureStep.classList.toggle('current', !!status.enabled);
-
-        const startBtn = document.getElementById('startOnboardingBtn');
-        if (startBtn) {
-            startBtn.textContent = status.enabled ? 'Open Onboarding' : 'Install';
-        }
+    function keepSessionAlive() {
+        try {
+            if (window.top && typeof window.top.restoreSession === 'function') {
+                window.top.restoreSession();
+                return;
+            }
+        } catch (e) {}
+        try {
+            if (window.parent && typeof window.parent.restoreSession === 'function') {
+                window.parent.restoreSession();
+            }
+        } catch (e) {}
     }
 
-    function openOnboardingNow() {
-        const url = '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' + encodeURIComponent(setupSiteId || 'default');
-        // Keep navigation in the current context (no new top-window jumps).
-        window.location.href = url;
+    function getModuleId() {
+        const qsId = parseInt(new URLSearchParams(window.location.search).get('mod_id') || '0', 10);
+        if (qsId > 0) {
+            return qsId;
+        }
+        const statusId = parseInt(currentStatus && currentStatus.mod_id ? currentStatus.mod_id : 0, 10);
+        return statusId > 0 ? statusId : 0;
     }
 
-    function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    async function fetchStatus() {
+        const url = setupStatusUrl + '?action=status&site=' + encodeURIComponent(setupSiteId || 'default');
+        const response = await fetch(url, { cache: 'no-store', credentials: 'same-origin' });
+        if (!response.ok) {
+            throw new Error('Unable to read MedEx module status.');
+        }
+        const payload = await response.json();
+        if (!payload || !payload.success || !payload.status) {
+            throw new Error('Invalid MedEx status response.');
+        }
+        return payload.status;
     }
 
-    function getEffectiveModuleId() {
-        const currentId = parseInt(currentStatus && currentStatus.mod_id ? currentStatus.mod_id : 0, 10);
-        if (currentId > 0) {
-            return currentId;
+    async function runManageAction(action) {
+        const moduleId = getModuleId();
+        if (!moduleId) {
+            throw new Error('MedEx module ID is unavailable.');
         }
-
-        const row = findMedexModuleRow();
-        if (!row) {
-            return 0;
-        }
-
-        const rowId = parseInt(row.getAttribute('id') || '0', 10);
-        if (rowId > 0) {
-            currentStatus = Object.assign({}, currentStatus || {}, { mod_id: rowId });
-            return rowId;
-        }
-
-        return 0;
-    }
-
-    async function runManageAction(actionName) {
-        const moduleId = getEffectiveModuleId();
-        if (!moduleId || moduleId <= 0) {
-            throw new Error('Module ID not available');
-        }
+        keepSessionAlive();
         const body = new URLSearchParams({
             modId: String(moduleId),
-            modAction: actionName,
+            modAction: action,
             mod_enc_menu: '',
             mod_nick_name: ''
         });
-        const manageUrl = '../../zend_modules/public/Installer/manage?site=' + encodeURIComponent(setupSiteId || 'default');
-        const res = await fetch(manageUrl, {
+        const response = await fetch('../../zend_modules/public/Installer/manage?site=' + encodeURIComponent(setupSiteId || 'default'), {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
             body: body.toString()
         });
-        if (!res.ok) {
-            throw new Error('Installer/manage request failed');
+        if (!response.ok) {
+            throw new Error('MedEx ' + action + ' request failed.');
         }
-        const txt = await res.text();
+        const raw = await response.text();
         let parsed = null;
         try {
-            parsed = JSON.parse(txt);
-        } catch (e) {
-            // Some installs may emit plain text; status polling is source of truth.
-        }
-        if (parsed && parsed.status && String(parsed.status).toLowerCase() !== 'success') {
-            throw new Error(String(parsed.status));
+            parsed = JSON.parse(raw);
+        } catch (e) {}
+        if (parsed && String(parsed.status || '').toUpperCase() !== 'SUCCESS') {
+            throw new Error(parsed.status || ('MedEx ' + action + ' failed.'));
         }
     }
 
-    async function refreshStatusNow() {
-        const inferred = inferStatusFromModuleRow();
-        if (inferred) {
-            currentStatus = inferred;
-            render(inferred);
-            return inferred;
-        }
-        try {
-            const siteParam = new URLSearchParams(window.location.search).get('site') || 'default';
-            const r = await fetch(setupStatusUrl + '?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
-            if (r.ok) {
-                const j = await r.json();
-                if (j && j.success && j.status) {
-                    currentStatus = j.status;
-                    render(j.status);
-                    return j.status;
-                }
-            }
-        } catch (e) {
-        }
-        return currentStatus;
-    }
-
-    async function waitForStatus(checkFn, attempts, delayMs) {
+    async function waitFor(checkFn, attempts, delayMs) {
         for (let i = 0; i < attempts; i++) {
-            const status = await refreshStatusNow();
-            if (checkFn(status || {})) {
+            const status = await fetchStatus();
+            if (checkFn(status)) {
                 return status;
             }
-            await sleep(delayMs);
+            await new Promise((resolve) => window.setTimeout(resolve, delayMs));
         }
-        throw new Error('Timed out waiting for module state change');
+        throw new Error('Timed out waiting for MedEx to finish setup.');
     }
 
-    async function runOnboardingFlow() {
-        const startBtn = document.getElementById('startOnboardingBtn');
-        const prevText = startBtn ? startBtn.textContent : '';
-        if (startBtn) {
-            startBtn.disabled = true;
-            startBtn.textContent = 'Working...';
-        }
-
+    function redirectToOnboarding() {
+        keepSessionAlive();
         try {
-            let status = await refreshStatusNow();
-            if (!status || !status.installed) {
-                await runManageAction('install');
-                status = await waitForStatus((s) => !!s.installed, 10, 1200);
-            }
-            if (!status.enabled) {
-                await runManageAction('enable');
-                status = await waitForStatus((s) => !!s.enabled, 10, 1200);
-            }
-            openOnboardingNow();
-        } catch (e) {
-            alert('Onboarding start failed: ' + (e && e.message ? e.message : 'request error'));
-        } finally {
-            if (startBtn) {
-                startBtn.disabled = false;
-                startBtn.textContent = prevText || 'Start Onboarding';
-            }
-        }
-    }
-
-    function inferStatusFromModuleRow() {
-        const topDoc = (window.top && window.top.document) ? window.top.document : document;
-        const rows = Array.from(topDoc.querySelectorAll('tr'));
-        const row = rows.find((tr) => {
-            const t = (tr.textContent || '').toLowerCase();
-            return t.includes('oe-module-medex') || t.includes('medex module');
-        });
-        if (!row) {
-            return null;
-        }
-
-        const text = (row.textContent || '').toLowerCase();
-        const hasInstall = text.includes('install');
-        const hasEnable = text.includes('enable');
-        const hasDisable = text.includes('disable');
-
-        let installed = true;
-        let enabled = false;
-        if (hasInstall && !hasEnable && !hasDisable) {
-            installed = false;
-            enabled = false;
-        } else if (hasEnable && !hasDisable) {
-            installed = true;
-            enabled = false;
-        } else if (hasDisable) {
-            installed = true;
-            enabled = true;
-        }
-
-        const nextAction = !installed ? 'install' : (!enabled ? 'enable' : 'configure');
-        return {
-            mod_id: parseInt(row.getAttribute('id') || String((currentStatus && currentStatus.mod_id) || 0), 10) || 0,
-            installed,
-            enabled,
-            dashboard_ready: enabled,
-            next_action: nextAction
-        };
-    }
-
-    function getFrameDocs() {
-        const docs = [];
-        const add = (d) => {
-            if (!d) return;
-            if (!docs.includes(d)) docs.push(d);
-        };
-        try { add(document); } catch (e) {}
-        try { add(window.parent && window.parent.document ? window.parent.document : null); } catch (e) {}
-        try { add(window.top && window.top.document ? window.top.document : null); } catch (e) {}
-        return docs;
-    }
-
-    function cleanupInstallerLogEverywhere() {
-        getFrameDocs().forEach((d) => {
-            try {
-                const log = d.getElementById('install_upgrade_log');
-                if (log) {
-                    log.innerHTML = '';
-                    log.style.display = 'none';
-                }
-            } catch (e) {}
-        });
-    }
-
-    function findMedexModuleRow() {
-        for (const d of getFrameDocs()) {
-            try {
-                const byId = d.querySelector(`tr#${String((currentStatus && currentStatus.mod_id) || '')}`);
-                if (byId) return byId;
-                const rows = Array.from(d.querySelectorAll('tr'));
-                const row = rows.find((tr) => {
-                    const t = (tr.textContent || '').toLowerCase();
-                    return t.includes('oe-module-medex') || t.includes('medex module');
-                });
-                if (row) return row;
-            } catch (e) {}
-        }
-        return null;
-    }
-
-    function setRowActionButton(mode) {
-        const row = findMedexModuleRow();
-        if (!row) return;
-        const cells = row.querySelectorAll('td');
-        if (!cells || cells.length < 9) return;
-        const actionCell = cells[8];
-        if (!actionCell) return;
-
-        const links = Array.from(actionCell.querySelectorAll('a[onclick*="manage("]'));
-        links.forEach((a) => {
-            const txt = (a.getAttribute('onclick') || '').toLowerCase();
-            if (txt.includes("'install'") || txt.includes("'enable'") || txt.includes("'disable'")) {
-                a.remove();
-            }
-        });
-
-        const id = String(getEffectiveModuleId() || '');
-        if (!id) return;
-        let html = '';
-        if (mode === 'install') {
-            html = `<a href="javascript:void(0)" class="link_submit install" onclick="manage('${id}','install');" title="Click Here to Install This module"><input type="button" class="activate" value="Install"></a>`;
-        } else if (mode === 'enable') {
-            html = `<a href="javascript:void(0)" class="link_submit inactive" onclick="manage('${id}','enable');" title="Click Here to Enable This module"><input type="button" class="activate" value="Enable"></a>`;
-        } else {
-            html = `<a href="javascript:void(0)" class="link_submit active" onclick="manage('${id}','disable');" title="Click Here to Disable This module"><input type="button" class="deactivate" value="Disable"></a>`;
-        }
-        actionCell.insertAdjacentHTML('afterbegin', html);
-    }
-
-    function setRowStatusLabel(label) {
-        const row = findMedexModuleRow();
-        if (!row) return;
-        const cells = row.querySelectorAll('td');
-        if (!cells || cells.length < 4) return;
-        cells[3].textContent = label;
-    }
-
-    async function refresh() {
-        cleanupInstallerLogEverywhere();
-        const inferred = inferStatusFromModuleRow();
-        if (inferred) {
-            render(inferred);
-            return;
-        }
-        // Fallback once if row is not found.
-        try {
-            const siteParam = new URLSearchParams(window.location.search).get('site') || 'default';
-            const r = await fetch(setupStatusUrl + '?action=status&site=' + encodeURIComponent(siteParam), { cache: 'no-store', credentials: 'same-origin' });
-            if (r.status === 401) {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = onboardingUrl;
                 return;
             }
-            const j = await r.json();
-            if (j && j.success && j.status) {
-                currentStatus = j.status;
-                render(j.status);
+        } catch (e) {}
+        window.location.href = onboardingUrl;
+    }
+
+    async function runFlow() {
+        if (running) {
+            return;
+        }
+        running = true;
+        retryBtn.classList.remove('show');
+        try {
+            let status = await fetchStatus();
+            if (!status.installed) {
+                setStatus('Installing MedEx...', 'Module files and database objects are being prepared now.');
+                await runManageAction('install');
+                status = await waitFor((value) => !!value.installed, 12, 1200);
             }
-        } catch (e) {
-            // Keep last known state visible.
+            if (!status.enabled) {
+                setStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.');
+                await runManageAction('enable');
+                status = await waitFor((value) => !!value.enabled, 12, 1200);
+            }
+            setStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
+            window.setTimeout(redirectToOnboarding, 350);
+        } catch (error) {
+            running = false;
+            setStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
         }
     }
 
-    document.getElementById('startOnboardingBtn').addEventListener('click', () => {
-        runOnboardingFlow();
-    });
-
-    cleanupInstallerLogEverywhere();
-    render(currentStatus);
-    setInterval(refresh, 2500);
+    retryBtn.addEventListener('click', runFlow);
+    window.addEventListener('load', runFlow);
 </script>
 </body>
 </html>
