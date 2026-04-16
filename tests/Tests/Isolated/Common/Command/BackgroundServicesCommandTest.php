@@ -248,6 +248,47 @@ class BackgroundServicesCommandTest extends TestCase
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
     }
 
+    /**
+     * --force without --name must be dropped before reaching the runner. The
+     * CLI help documents --force as "ignored without --name" because honoring
+     * it in the run-all path would flip BackgroundServiceRunner::getServices()
+     * to `WHERE 1` (including manual-mode services) and bypass the interval
+     * check for every service, contradicting the run-all semantics.
+     */
+    public function testRunAllDueIgnoresForceFlag(): void
+    {
+        $command = new BackgroundServicesCommandStub(services: [], runnerResults: []);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'run', '--force' => true]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertNotNull($command->runner);
+        $this->assertNull($command->runner->lastServiceName);
+        $this->assertFalse($command->runner->lastForce);
+        $this->assertStringContainsString('--force is ignored without --name', $tester->getDisplay());
+    }
+
+    /**
+     * --force with an explicit --name flows through to the runner unchanged;
+     * this is the documented escape hatch for manual-mode services.
+     */
+    public function testRunWithNameForwardsForceFlag(): void
+    {
+        $command = new BackgroundServicesCommandStub(
+            services: [],
+            runnerResults: [['name' => 'phimail', 'status' => 'executed']],
+        );
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'run', '--name' => 'phimail', '--force' => true]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertNotNull($command->runner);
+        $this->assertSame('phimail', $command->runner->lastServiceName);
+        $this->assertTrue($command->runner->lastForce);
+    }
+
     public function testUnknownAction(): void
     {
         $command = new BackgroundServicesCommandStub([]);
@@ -368,6 +409,8 @@ class BackgroundServicesCommandTest extends TestCase
  */
 class BackgroundServicesCommandStub extends BackgroundServicesCommand
 {
+    public ?BackgroundServiceRunnerFixture $runner = null;
+
     /**
      * @param list<BackgroundServicesRow> $services
      * @param list<array{name: string, status: string}> $runnerResults
@@ -395,15 +438,24 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
 
     protected function createRunner(): BackgroundServiceRunner
     {
-        return new BackgroundServiceRunnerFixture($this->runnerResults);
+        $this->runner ??= new BackgroundServiceRunnerFixture($this->runnerResults);
+        return $this->runner;
     }
 }
 
 /**
  * Runner fixture that returns a canned results array without touching the DB.
+ *
+ * Records the arguments of the last run() call so tests can assert that the
+ * command layer forwarded them correctly (e.g., dropping --force when no
+ * --name was given).
  */
 class BackgroundServiceRunnerFixture extends BackgroundServiceRunner
 {
+    public ?string $lastServiceName = null;
+
+    public ?bool $lastForce = null;
+
     /**
      * @param list<array{name: string, status: string}> $results
      */
@@ -413,6 +465,8 @@ class BackgroundServiceRunnerFixture extends BackgroundServiceRunner
 
     public function run(?string $serviceName = null, bool $force = false): array
     {
+        $this->lastServiceName = $serviceName;
+        $this->lastForce = $force;
         return $this->results;
     }
 }

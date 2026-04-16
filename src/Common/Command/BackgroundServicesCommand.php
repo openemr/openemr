@@ -97,7 +97,18 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         $nameRaw = $input->getOption('name');
         $name = is_string($nameRaw) && $nameRaw !== '' ? $nameRaw : null;
-        $force = (bool) $input->getOption('force');
+        $forceRequested = (bool) $input->getOption('force');
+
+        // --force is only meaningful when targeting a specific --name. Without
+        // a name, honoring --force would switch BackgroundServiceRunner into
+        // "all services including manual-mode, ignore intervals" mode, which
+        // contradicts the documented "runs all services that are due"
+        // semantics and the help text. Warn and drop the flag so the run-all
+        // path is always a pure cron-equivalent advance.
+        if ($name === null && $forceRequested) {
+            $io->warning('--force is ignored without --name; running only services that are due.');
+        }
+        $force = $name !== null && $forceRequested;
 
         $results = $this->createRunner()->run($name, $force);
 
