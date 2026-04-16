@@ -23,6 +23,42 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 require_once(__DIR__ . '/../src/MedExAPI.php');
 
+function medexResolveOpenEmrBaseUrlAdmin(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+
+    $basePath = '';
+    $scriptName = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $interfacePos = strpos($scriptName, '/interface/');
+    if ($interfacePos !== false) {
+        $basePath = rtrim(substr($scriptName, 0, $interfacePos), '/');
+    }
+
+    if ($basePath === '') {
+        $webRoot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
+        if ($webRoot !== '') {
+            $basePath = '/' . $webRoot;
+        }
+    }
+
+    if ($basePath === '') {
+        $siteAddr = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
+        if ($siteAddr !== '') {
+            $siteParts = parse_url($siteAddr);
+            $sitePath = trim((string)($siteParts['path'] ?? ''), '/');
+            if ($sitePath !== '') {
+                $basePath = '/' . $sitePath;
+            }
+        }
+    }
+
+    return $scheme . '://' . $host . $basePath;
+}
+
 $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 $tab = trim((string)($_GET['tab'] ?? 'overview'));
 if ($tab === '') {
@@ -59,10 +95,9 @@ try {
     }
 
     if ($sessionToken !== '' && $practiceId !== '') {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
-        $webRoot = rtrim((string)($GLOBALS['webroot'] ?? ''), '/');
-        $openEmrBaseUrl = ($host !== '') ? ($scheme . '://' . $host . $webRoot) : '';
+        $openEmrBaseUrl = medexResolveOpenEmrBaseUrlAdmin();
+        $callbackTokenRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1");
+        $callbackToken = trim((string)($callbackTokenRow['gl_value'] ?? ''));
         $payload = [
             'practice_id' => $practiceId,
             'session_token' => $sessionToken,
@@ -72,6 +107,9 @@ try {
             'openemr_base_url' => $openEmrBaseUrl,
             'site' => $siteId,
         ];
+        if ($callbackToken !== '') {
+            $payload['callback_token'] = $callbackToken;
+        }
         if ($reconnect) {
             $payload['reconnect'] = 1;
         }

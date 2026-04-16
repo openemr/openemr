@@ -31,6 +31,43 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 // Load MedEx API
 require_once(__DIR__ . '/../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+
+function medexResolveOpenEmrBaseUrlOnboarding(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+
+    $basePath = '';
+    $scriptName = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $interfacePos = strpos($scriptName, '/interface/');
+    if ($interfacePos !== false) {
+        $basePath = rtrim(substr($scriptName, 0, $interfacePos), '/');
+    }
+
+    if ($basePath === '') {
+        $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
+        if ($webroot !== '') {
+            $basePath = '/' . $webroot;
+        }
+    }
+
+    if ($basePath === '') {
+        $siteAddr = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
+        if ($siteAddr !== '') {
+            $siteParts = parse_url($siteAddr);
+            $sitePath = trim((string)($siteParts['path'] ?? ''), '/');
+            if ($sitePath !== '') {
+                $basePath = '/' . $sitePath;
+            }
+        }
+    }
+
+    return $scheme . '://' . $host . $basePath;
+}
+
 $step = $_GET['step'] ?? '1';
 $isConfigured = $api->isConfigured();
 $session = null;
@@ -65,11 +102,7 @@ $sessionCartItems = (isset($_SESSION['medex_cart_items']) && is_array($_SESSION[
 $sessionCartTotal = isset($_SESSION['medex_cart_total']) ? (float)$_SESSION['medex_cart_total'] : null;
 $loginData = [];
 $braintreeToken = null;
-$defaultOpenEmrUrl = '';
-if (!empty($_SERVER['HTTP_HOST'])) {
-    $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
-    $defaultOpenEmrUrl = 'https://' . $_SERVER['HTTP_HOST'] . ($webroot !== '' ? '/' . $webroot : '');
-}
+$defaultOpenEmrUrl = medexResolveOpenEmrBaseUrlOnboarding();
 
 // Fetch pricing from API for step 2.
 // For configured accounts, force a fresh login first so customer_group_id is current

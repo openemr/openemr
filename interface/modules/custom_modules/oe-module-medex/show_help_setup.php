@@ -55,8 +55,8 @@ function medexSetupStatus(): array
         'enabled' => $enabled,
         'configured' => $configured,
         'active' => $active,
-        'dashboard_ready' => ($enabled && $configured),
-        'next_action' => !$installed ? 'install' : (!$enabled ? 'enable' : ($configured ? 'dashboard' : 'configure')),
+        'dashboard_ready' => $configured,
+        'next_action' => $configured ? 'dashboard' : (!$installed ? 'install' : (!$enabled ? 'enable' : 'configure')),
     ];
 }
 
