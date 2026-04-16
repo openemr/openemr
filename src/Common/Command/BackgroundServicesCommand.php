@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
@@ -30,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServicesCommand extends Command implements IGlobalsAware
 {
@@ -85,7 +85,10 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
                 $s['name'],
                 $s['title'],
                 (int) $s['active'] !== 0 ? 'yes' : 'no',
-                (int) $s['running'] === 1 ? 'yes' : 'no',
+                // Prefer the SQL-computed liveness flag over the legacy
+                // `running` column so stuck locks from crashed workers
+                // don't display as "yes" indefinitely.
+                (int) ($s['lease_is_live'] ?? $s['running']) === 1 ? 'yes' : 'no',
                 $this->formatInterval((int) $s['execute_interval']),
                 $s['next_run'],
             ], $services),
@@ -230,25 +233,34 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * SQL-computed liveness flag (`lease_is_live`) is selected alongside
+     * the row so display/listing uses the same clock as acquireLock().
+     */
+    private const SELECT_WITH_LEASE_LIVE =
+        'SELECT background_services.*,'
+        . ' (lock_expires_at IS NOT NULL AND lock_expires_at > NOW()) AS lease_is_live'
+        . ' FROM background_services';
+
+    /**
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services ORDER BY sort_order',
+            self::SELECT_WITH_LEASE_LIVE . ' ORDER BY sort_order',
             [],
         );
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchActiveServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services WHERE active = 1 AND execute_interval > 0 ORDER BY sort_order',
+            self::SELECT_WITH_LEASE_LIVE . ' WHERE active = 1 AND execute_interval > 0 ORDER BY sort_order',
             [],
         );
     }

@@ -198,7 +198,13 @@ class BackgroundServiceRunner
     protected function acquireLock(array $service, bool $force): ?string
     {
         $leaseMinutes = $this->computeLeaseMinutes($service);
-        $priorExpiry = $this->readLeaseExpiry($service['name']);
+        // Best-effort "prior lease" signal reused from the row we already
+        // have. If the value turns out to be stale (another worker cleared
+        // or acquired between our fetch and the UPDATE below), the only
+        // cost is a missed or extra warning log — the atomic UPDATE still
+        // arbitrates who wins. A dedicated pre-read would not be fully
+        // race-free either, and it costs an extra round-trip per tick.
+        $priorExpiry = $service['lock_expires_at'];
 
         // Atomic acquire-or-steal. The UPDATE matches only when:
         //   - no lease is held (lock_expires_at IS NULL), or
@@ -258,28 +264,6 @@ class BackgroundServiceRunner
             [$serviceName],
             true,
         );
-    }
-
-    /**
-     * Read the current lease expiration for a service, used to detect
-     * the prior state before attempting an acquire. Returns the stored
-     * timestamp string when a lease exists (expired or live) or null
-     * when no lease is held or the row is missing.
-     */
-    private function readLeaseExpiry(string $serviceName): ?string
-    {
-        $row = QueryUtils::querySingleRow(
-            'SELECT lock_expires_at FROM background_services WHERE name = ?',
-            [$serviceName],
-            false,
-        );
-
-        if (!is_array($row)) {
-            return null;
-        }
-
-        $value = $row['lock_expires_at'] ?? null;
-        return is_string($value) ? $value : null;
     }
 
     /**
