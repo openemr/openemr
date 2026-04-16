@@ -180,8 +180,16 @@ class MyMailer extends PHPMailer
      */
     function emailMethod(): void
     {
-        global $HTML_CHARSET;
-        $this->CharSet = $HTML_CHARSET;
+        // OpenEMR is hardcoded to UTF-8 (see interface/globals.php). Set it
+        // explicitly rather than reading the legacy $HTML_CHARSET global,
+        // which is not reliably defined in every entry point. PHPUnit, for
+        // example, loads its bootstrap via `include_once` inside a method
+        // scope, so the `$HTML_CHARSET = "UTF-8"` assignment in globals.php
+        // never escapes to global scope there. A null CharSet makes PHPMailer
+        // emit encoded-word subject headers with an empty charset declaration
+        // (=??Q?...?=) and triggers strlen(null) / strtolower(null)
+        // deprecations from PHPMailer on PHP 8.2+.
+        $this->CharSet = PHPMailer::CHARSET_UTF8;
         switch (OEGlobalsBag::getInstance()->get('EMAIL_METHOD')) {
             case "PHPMAIL":
                 $this->Mailer = "mail";
