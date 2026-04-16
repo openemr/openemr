@@ -198,6 +198,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .agreement-receipt-actions {
             display: none;
             flex-wrap: wrap;
+            align-items: center;
             gap: 8px;
             margin: 10px 0 0 24px;
         }
@@ -213,7 +214,11 @@ if ($step > 1 && !$api->isConfigured()) {
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
+            min-height: 34px;
+            line-height: 1.1;
+            vertical-align: middle;
         }
         .agreement-receipt-btn:hover {
             background: #eff6ff;

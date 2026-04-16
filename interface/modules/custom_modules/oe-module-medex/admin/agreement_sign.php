@@ -945,8 +945,23 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                 }, 120);
             }
 
-            function openPdfDownloadView(payload) {
+            function openPdfDownloadView(payload, sameWindow) {
                 const printableHtml = buildPrintableDocument(payload, true);
+                if (sameWindow) {
+                    document.open();
+                    document.write(printableHtml);
+                    document.close();
+                    document.title = `${pdfFileBase}.pdf`;
+                    setTimeout(function () {
+                        try {
+                            window.focus();
+                            window.print();
+                        } catch (e) {
+                        }
+                    }, 180);
+                    return;
+                }
+
                 const w = window.open("", "_blank", "noopener,noreferrer");
                 if (!w) {
                     return;
@@ -1068,7 +1083,7 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             if (initialSignedPayload) {
                 applySignedPayload(initialSignedPayload, true);
                 if (autoDownload) {
-                    openPdfDownloadView(initialSignedPayload);
+                    openPdfDownloadView(initialSignedPayload, true);
                 }
             }
             evaluateAgreementRead();
