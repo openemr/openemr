@@ -123,12 +123,11 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
             border: 1px solid #c7ddff;
         }
         .progress-bar {
-            width: 34%;
+            width: 10%;
             height: 100%;
             border-radius: 999px;
             background: linear-gradient(90deg, var(--brand) 0%, var(--brand2) 55%, #38bdf8 100%);
-            background-size: 200% 100%;
-            animation: slide 1.1s linear infinite;
+            transition: width .9s ease;
         }
         .status {
             display: flex;
@@ -180,10 +179,6 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
             cursor: pointer;
         }
         .retry.show { display: inline-flex; }
-        @keyframes slide {
-            0% { transform: translateX(-55%); background-position: 0 0; }
-            100% { transform: translateX(230%); background-position: 200% 0; }
-        }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -194,7 +189,7 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     <div class="eyebrow">MedEx</div>
     <h1>Starting onboarding</h1>
     <p>MedEx is finishing installation in the background. Onboarding will open automatically.</p>
-    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="progress"><div class="progress-bar" id="medex-progress-bar"></div></div>
     <div class="status" id="medex-status">Preparing MedEx...</div>
     <div class="notes" id="medex-notes">Please wait while MedEx installs, enables, and moves into onboarding.</div>
     <button type="button" class="retry" id="retry-btn">Try again</button>
@@ -205,17 +200,21 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     const setupStatusUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const onboardingUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const retryBtn = document.getElementById('retry-btn');
+    const progressBar = document.getElementById('medex-progress-bar');
     const statusEl = document.getElementById('medex-status');
     const notesEl = document.getElementById('medex-notes');
     let running = false;
 
-    function setStatus(text, notes, state) {
+    function setStatus(text, notes, state, percent) {
         statusEl.textContent = text;
         statusEl.classList.remove('done', 'error');
         if (state === 'done' || state === 'error') {
             statusEl.classList.add(state);
         }
         notesEl.textContent = notes || '';
+        if (typeof percent === 'number' && progressBar) {
+            progressBar.style.width = Math.max(8, Math.min(100, percent)) + '%';
+        }
         retryBtn.classList.toggle('show', state === 'error');
     }
 
@@ -317,20 +316,24 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
         try {
             let status = await fetchStatus();
             if (!status.installed) {
-                setStatus('Installing MedEx...', 'Module files and database objects are being prepared now.');
+                setStatus('Installing MedEx...', 'Module files and database objects are being prepared now.', '', 26);
                 await runManageAction('install');
                 status = await waitFor((value) => !!value.installed, 12, 1200);
+                setStatus('Installed', 'MedEx install is complete. Starting enable next.', '', 58);
+                await new Promise((resolve) => window.setTimeout(resolve, 550));
             }
             if (!status.enabled) {
-                setStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.');
+                setStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.', '', 78);
                 await runManageAction('enable');
                 status = await waitFor((value) => !!value.enabled, 12, 1200);
+                setStatus('Enabled', 'Module activation is complete. Preparing onboarding.', '', 92);
+                await new Promise((resolve) => window.setTimeout(resolve, 650));
             }
-            setStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
+            setStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done', 100);
             window.setTimeout(redirectToOnboarding, 1600);
         } catch (error) {
             running = false;
-            setStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
+            setStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error', 100);
         }
     }
 

@@ -140,6 +140,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
   function medexSetStatus(text, note, state) {
     var status = document.getElementById('medex-mm-status');
     var notes = document.getElementById('medex-mm-notes');
+    var bar = document.getElementById('medex-mm-progress-bar');
+    var percent = arguments.length > 3 ? arguments[3] : null;
     if (status) {
       status.textContent = text;
       status.classList.remove('medex-mm-status-done', 'medex-mm-status-error');
@@ -150,12 +152,15 @@ class ModuleManagerListener extends AbstractModuleActionListener
     if (notes) {
       notes.textContent = note || '';
     }
+    if (bar && typeof percent === 'number') {
+      bar.style.width = Math.max(8, Math.min(100, percent)) + '%';
+    }
   }
   window.medexRunSetupFlow = async function (moduleId, onboardingUrl, needsInstall, needsEnable, trigger) {
     if (!moduleId || !window.fetch) {
       return false;
     }
-    medexSetStatus('Starting MedEx...', 'Preparing install and onboarding now.');
+    medexSetStatus('Starting MedEx...', 'Preparing install and onboarding now.', '', 14);
     if (trigger) {
       trigger.disabled = true;
       trigger.style.display = 'none';
@@ -191,19 +196,23 @@ class ModuleManagerListener extends AbstractModuleActionListener
         }
       };
       if (needsInstall) {
-        medexSetStatus('Installing MedEx...', 'Module files and database objects are being prepared.');
+        medexSetStatus('Installing MedEx...', 'Module files and database objects are being prepared.', '', 26);
         await postAction('install');
+        medexSetStatus('Installed', 'MedEx install is complete. Starting enable next.', '', 58);
+        await new Promise(function(resolve){ window.setTimeout(resolve, 550); });
       }
       if (needsEnable) {
-        medexSetStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.');
+        medexSetStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.', '', 78);
         await postAction('enable');
+        medexSetStatus('Enabled', 'Module activation is complete. Preparing onboarding.', '', 92);
+        await new Promise(function(resolve){ window.setTimeout(resolve, 650); });
       }
-      medexSetStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
+      medexSetStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done', 100);
       window.setTimeout(function () {
         window.location.href = onboardingUrl;
       }, 1600);
     } catch (error) {
-      medexSetStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
+      medexSetStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error', 100);
       if (trigger) {
         trigger.style.display = '';
         trigger.disabled = false;
@@ -222,7 +231,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
 .medex-mm-head h2{margin:0 0 8px;font-size:28px;line-height:1.15;color:#0f4b8f}
 .medex-mm-head p{margin:0;color:#475569;font-size:15px;line-height:1.6}
 .medex-mm-progress{margin-top:18px;height:14px;border-radius:999px;overflow:hidden;background:#dbeafe;border:1px solid #c7ddff}
-.medex-mm-progress-bar{width:34%;height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);background-size:200% 100%;animation:medex-mm-slide 1.1s linear infinite}
+.medex-mm-progress-bar{width:10%;height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);transition:width .9s ease}
 .medex-mm-status{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:17px;font-weight:700;color:#0f172a}
 .medex-mm-status::before{content:"";width:20px;height:20px;border-radius:999px;border:3px solid #93c5fd;border-top-color:#1d4ed8;animation:medex-mm-spin .8s linear infinite;flex:0 0 auto}
 .medex-mm-status.medex-mm-status-done::before{animation:none;border-color:#15803d;background:#15803d;box-shadow:inset 0 0 0 4px #dcfce7}
@@ -230,7 +239,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
 .medex-mm-notes{margin-top:8px;color:#475569;font-size:14px;line-height:1.55;min-height:22px}
 .medex-mm-actions{margin-top:18px}
 .medex-mm-btn{display:none;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid #1d4ed8;background:#eff6ff;color:#1d4ed8 !important;text-decoration:none;font-weight:700;cursor:pointer}
-@keyframes medex-mm-slide{0%{transform:translateX(-55%);background-position:0 0}100%{transform:translateX(230%);background-position:200% 0}}
 @keyframes medex-mm-spin{to{transform:rotate(360deg)}}
 </style>
 <div class="medex-mm-wrap">
@@ -239,7 +247,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
     <p>MedEx is finishing installation in the background. Onboarding will open automatically.</p>
   </div>
   <div class="medex-mm-progress">
-    <div class="medex-mm-progress-bar"></div>
+    <div id="medex-mm-progress-bar" class="medex-mm-progress-bar"></div>
   </div>
   <div id="medex-mm-status" class="medex-mm-status">Preparing MedEx...</div>
   <div id="medex-mm-notes" class="medex-mm-notes">Please wait while MedEx installs, enables, and moves into onboarding.</div>

@@ -576,8 +576,8 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             + '.medex-progress-body{padding:0 18px 18px;}'
             + '.medex-progress-copy{color:#1e3a5f;font-size:14px;line-height:1.5;margin:0 0 14px;}'
             + '.medex-progress-track{position:relative;height:12px;background:#dbeafe;border-radius:999px;overflow:hidden;}'
-            + '.medex-progress-bar{height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);'
-            + 'background-size:200% 100%;animation:medex-progress-slide 1.2s linear infinite;}'
+            + '.medex-progress-bar{height:100%;width:10%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);'
+            + 'transition:width .9s ease;}'
             + '.medex-progress-status{display:flex;align-items:center;gap:10px;padding:14px 0 6px;color:#0f172a;font-size:15px;font-weight:600;}'
             + '.medex-progress-status::before{content:\"\";width:18px;height:18px;border-radius:999px;border:3px solid #93c5fd;'
             + 'border-top-color:#1d4ed8;animation:medex-spinner .75s linear infinite;flex:0 0 auto;}'
@@ -586,7 +586,6 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             + '.medex-progress-notes{font-size:13px;color:#475569;line-height:1.5;}'
             + '.medex-row-busy{opacity:.72;}'
             + '.medex-row-busy a{pointer-events:none;}'
-            + '@keyframes medex-progress-slide{0%{transform:translateX(-55%);background-position:0 0;}100%{transform:translateX(220%);background-position:200% 0;}}'
             + '@keyframes medex-spinner{to{transform:rotate(360deg);}}';
         document.head.appendChild(style);
     }
@@ -603,6 +602,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         if (shell) {
             return {
                 log: log,
+                bar: shell.querySelector('.medex-progress-bar'),
                 status: shell.querySelector('.medex-progress-status'),
                 notes: shell.querySelector('.medex-progress-notes')
             };
@@ -619,15 +619,19 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             + '</div>';
         return {
             log: log,
+            bar: log.querySelector('.medex-progress-bar'),
             status: log.querySelector('.medex-progress-status'),
             notes: log.querySelector('.medex-progress-notes')
         };
     }
 
-    function updateProgress(statusText, notesText, state) {
+    function updateProgress(statusText, notesText, state, percent) {
         var panel = ensureProgressPanel();
         if (!panel) {
             return;
+        }
+        if (panel.bar && typeof percent === 'number') {
+            panel.bar.style.width = Math.max(8, Math.min(100, percent)) + '%';
         }
         if (panel.status) {
             panel.status.textContent = statusText;
@@ -639,6 +643,12 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         if (panel.notes) {
             panel.notes.textContent = notesText;
         }
+    }
+
+    function wait(ms) {
+        return new Promise(function (resolve) {
+            window.setTimeout(resolve, ms);
+        });
     }
 
     function setRowBusy(row, isBusy) {
@@ -721,14 +731,22 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         }
         window.__medex_install_running = true;
         setRowBusy(row, true);
-        updateProgress('Installing MedEx files...', 'The module is being installed now. Onboarding opens automatically after enable completes.');
+        updateProgress('Installing MedEx...', 'Preparing module files and database objects now.', '', 24);
         postManageAction(rowId, 'install')
             .then(function () {
-                updateProgress('Enabling MedEx...', 'Install is complete. Finalizing module activation now.');
+                updateProgress('Installed', 'MedEx install is complete. Starting enable next.', '', 56);
+                return wait(550);
+            })
+            .then(function () {
+                updateProgress('Enabling MedEx...', 'Finalizing module activation now.', '', 76);
                 return postManageAction(rowId, 'enable');
             })
             .then(function () {
-                updateProgress('Opening onboarding...', 'MedEx is ready. Redirecting into onboarding now.', 'done');
+                updateProgress('Enabled', 'Module activation is complete. Preparing onboarding.', '', 92);
+                return wait(650);
+            })
+            .then(function () {
+                updateProgress('Opening onboarding...', 'MedEx is ready. Redirecting into onboarding now.', 'done', 100);
                 window.setTimeout(function () {
                     window.location.href = getOnboardingUrl();
                 }, 1600);
@@ -736,7 +754,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             .catch(function (error) {
                 window.__medex_install_running = false;
                 setRowBusy(row, false);
-                updateProgress('MedEx setup needs attention.', error && error.message ? error.message : 'The install sequence did not complete.', 'error');
+                updateProgress('MedEx setup needs attention.', error && error.message ? error.message : 'The install sequence did not complete.', 'error', 100);
             });
         return false;
     }
