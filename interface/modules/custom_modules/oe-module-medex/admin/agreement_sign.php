@@ -656,6 +656,9 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
             <div id="sign_ok" class="ok"><?php echo xlt('Electronic signature recorded.'); ?></div>
             <div class="actions">
                 <button type="button" id="sign_btn" class="btn" disabled><?php echo xlt('Sign'); ?></button>
+                <button type="button" id="download_btn" class="btn-secondary" title="<?php echo xla('Open signed agreement for PDF download'); ?>" disabled>
+                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i> <?php echo xlt('Download PDF'); ?>
+                </button>
                 <button type="button" id="print_btn" class="btn-secondary" title="<?php echo xla('Print or download signed agreement'); ?>" disabled>
                     <i class="fa fa-print" aria-hidden="true"></i> <?php echo xlt('Print'); ?>
                 </button>
@@ -670,6 +673,7 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
     <script>
         (function () {
             const signBtn = document.getElementById("sign_btn");
+            const downloadBtn = document.getElementById("download_btn");
             const printBtn = document.getElementById("print_btn");
             const closeBtn = document.getElementById("close_btn");
             const legalCorporateNameEl = document.getElementById("legal_corporate_name");
@@ -815,6 +819,7 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                 setOk(true);
                 signBtn.disabled = true;
                 signBtn.textContent = signedLabel;
+                downloadBtn.disabled = false;
                 printBtn.disabled = false;
                 closeBtn.style.display = "inline-flex";
                 legalCorporateNameEl.readOnly = true;
@@ -827,10 +832,13 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                 }
             }
 
-            function openPrintableDocument(payload) {
+            function buildPrintableDocument(payload, showPdfHint) {
                 const signedAtHuman = formatSignedAt(payload.signed_at);
                 const companyName = (payload.legal_corporate_name || payload.practice_name || "");
-                const printableHtml = `
+                const pdfHintHtml = showPdfHint
+                    ? `<div style="margin:0 0 16px;padding:12px 14px;border:1px solid #dbeafe;border-radius:8px;background:#eff6ff;color:#1e3a8a;font-size:13px;font-weight:600;">Use your browser's Print or Save as PDF option to keep this signed agreement as a PDF receipt.</div>`
+                    : '';
+                return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -854,9 +862,14 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
     <div class="meta-row"><span class="meta-label">Signer Title:</span>${payload.signer_title || ""}</div>
     <div class="meta-row"><span class="meta-label">Signed At:</span>${signedAtHuman}</div>
   </div>
+  ${pdfHintHtml}
   <div class="agreement">${getAgreementBodyHtml()}</div>
 </body>
 </html>`;
+            }
+
+            function openPrintableDocument(payload) {
+                const printableHtml = buildPrintableDocument(payload, false);
                 const w = window.open("", "_blank", "noopener,noreferrer");
                 if (w) {
                     w.document.open();
@@ -899,6 +912,19 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                         }, 1000);
                     }
                 }, 120);
+            }
+
+            function openPdfDownloadView(payload) {
+                const printableHtml = buildPrintableDocument(payload, true);
+                const w = window.open("", "_blank", "noopener,noreferrer");
+                if (!w) {
+                    return;
+                }
+                w.document.open();
+                w.document.write(printableHtml);
+                w.document.close();
+                w.document.title = `${pdfFileBase}.pdf`;
+                w.focus();
             }
 
             signBtn.addEventListener("click", function () {
@@ -959,6 +985,13 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
                     return;
                 }
                 openPrintableDocument(signedPayload);
+            });
+
+            downloadBtn.addEventListener("click", function () {
+                if (!signedPayload) {
+                    return;
+                }
+                openPdfDownloadView(signedPayload);
             });
 
             closeBtn.addEventListener("click", function () {
