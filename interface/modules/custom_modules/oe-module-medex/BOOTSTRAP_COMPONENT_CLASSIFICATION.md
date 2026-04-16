@@ -15,6 +15,12 @@ This is not a final deletion list. It is a packaging and refactor map.
 
 ## Classification Rules
 
+### Default Bias
+
+- If a file can run on `medex-api`, move it there.
+- Keep code in the local OpenEMR module only when OpenEMR itself requires local execution.
+- Assume all proprietary/business logic should be removed from the customer server unless proven otherwise.
+
 ### `KEEP_IN_BOOTSTRAP`
 
 Files required for module discovery, install, enable, ACL/session-aware routing, onboarding handoff, local entitlement checks, and component lifecycle management.
@@ -129,6 +135,11 @@ These should be reduced to launchers or status bridges, not full local feature i
 Reason:
 - The module already contains explicit documentation saying `splash.php`, `onboarding.php`, and `register.php` are deprecated in favor of SaaS.
 - These flows should not remain large local UIs. Keep only enough local code to launch SaaS and persist returned tokens/state.
+- `admin/onboarding_otp.php`, `admin/register_process.php`, and `admin/agreement_sign.php` are currently still local for flow reliability, but architecturally they should be collapsed into API calls and remote pages.
+- The target state is:
+  - local wrapper page
+  - local callback endpoint if needed
+  - remote MedEx-owned workflow
 
 ### Dashboard tab content that should become remote
 
@@ -218,6 +229,41 @@ Reason:
 - `public/calendar/set_calendar_preference.php`
 - `public/calendar/stream_events.php`
 - `public/calendar/templates.php`
+
+## Immediate Cut Order
+
+This is the practical next sequence for reducing the customer module.
+
+1. `admin/onboarding_otp.php`
+   - move OTP issuance, verification, expiry policy, and persistence to `medex-api`
+   - keep only local AJAX bridge/session keepalive if OpenEMR requires it
+
+2. `admin/agreement_sign.php`
+   - move agreement body/source/rendering and signing workflow to `medex-api`
+   - keep only iframe/modal launcher locally
+
+3. `admin/register_process.php`
+   - move registration/reconnect/account decision logic to `medex-api`
+   - keep only local request forwarding plus returned-setting persistence
+
+4. `admin/onboarding.php`
+   - reduce to a launcher/container for MedEx-hosted onboarding
+   - remove local business rules and pricing/service assembly
+
+5. `admin/create_cart.php`, `admin/process_payment.php`, `admin/process_subscription.php`
+   - replace with SaaS checkout/subscription orchestration
+
+## Non-Negotiable Local-Only Set
+
+These are the files that still justify being on the customer server.
+
+- module registration/listener files
+- local OpenEMR callback receivers
+- local settings persistence needed by OpenEMR
+- entitlement/component install adapters
+- minimal help/install launchers
+
+Everything else should be presumed removable or remote.
 - `public/calendar/update_event.php`
 - `src/Listeners/CalendarInjectionListener.php`
 - `src/Listeners/CalendarInterceptListener.php`

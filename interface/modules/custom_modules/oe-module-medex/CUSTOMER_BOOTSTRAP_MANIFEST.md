@@ -14,6 +14,19 @@ It answers three packaging questions:
 2. What should be delivered later as subscription components?
 3. What must never ship in the customer bootstrap ZIP?
 
+## Controlling Rule
+
+Default decision:
+
+- if a file is not required to run inside OpenEMR itself, it does not belong in the customer module
+- business logic, account logic, OTP policy, agreement rendering, pricing, subscription logic, reconnect policy, and proprietary workflows belong on `medex-api`
+- the local module should be only:
+  - OpenEMR integration glue
+  - local callbacks/adapters
+  - minimal UI wrappers that launch or embed MedEx-hosted flows
+
+This means the bootstrap ZIP should be treated as a thin client, not a product copy.
+
 ## Package Name
 
 Initial package:
@@ -48,16 +61,11 @@ These files stay in the initial local package.
 - `admin/help_center.php`
 - `admin/manual_config.php`
 - `admin/splash.php`
-- `admin/register.php`
-- `admin/onboarding.php`
-- `admin/register_process.php`
 - `admin/reconnect.php`
 - `admin/disconnect.php`
 - `admin/reset_connection.php`
 - `admin/save_preferences.php`
 - `admin/sync_practice.php`
-- `admin/create_cart.php`
-- `admin/process_payment.php`
 
 ### Bootstrap public pages
 
@@ -215,6 +223,45 @@ These may remain locally, but only as thin redirect/iframe/SSO bridge pages. The
 Packaging rule:
 - do not ship these as full local business logic in the bootstrap ZIP
 - if temporarily needed, replace them with small wrappers and keep only the wrappers
+
+## Immediate Extraction Targets
+
+These are the highest-value files to shrink next. They currently work, but they are too heavy to remain as customer-side logic.
+
+### Move to `medex-api`, keep only wrappers locally
+
+- `admin/onboarding.php`
+- `admin/register.php`
+- `admin/register_process.php`
+- `admin/onboarding_otp.php`
+- `admin/onboarding_validate_url.php`
+- `admin/agreement_sign.php`
+- `admin/create_cart.php`
+- `admin/process_payment.php`
+- `admin/process_subscription.php`
+
+Required local residue after extraction:
+
+- session-safe launcher page
+- OpenEMR CSRF/session bridge
+- callback receiver(s)
+- minimal success/failure handoff
+- local persistence only when OpenEMR must store returned identifiers/settings
+
+### Stay local, but thin down hard
+
+- `openemr.bootstrap.php`
+- `ModuleManagerListener.php`
+- `show_help_setup.php`
+- `admin/index.php`
+- `admin/reconnect.php`
+- `admin/disconnect.php`
+- `admin/reset_connection.php`
+- `admin/save_preferences.php`
+- `admin/sync_practice.php`
+- `public/callback.php`
+
+These should remain, but only as integration/control-plane code, not business logic.
 
 ## Never Ship In Customer Bootstrap ZIP
 
