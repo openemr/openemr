@@ -63,6 +63,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     // and by getEnabledServices() (always writes, even empty). Do NOT fall back to
     // last_services_result which can be stale and cause ghost menu items.
     $enabledServices = [];
+    $rawEnabledServices = [];
     $hasCredentials = false;
     $hasLiveSessionToken = false;
     try {
@@ -100,6 +101,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
             $status = json_decode($statusRecord['status'], true);
             if (isset($status['enabled_services']) && is_array($status['enabled_services'])) {
                 $enabledServices = $status['enabled_services'];
+                $rawEnabledServices = $status['enabled_services'];
             }
         }
 
@@ -137,14 +139,18 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         return false;
     };
     
+    $hasCompletedOnboarding = $hasCredentials && !empty($rawEnabledServices);
+    if (!$hasCompletedOnboarding) {
+        error_log('[MedEx] Skipping menu injection because onboarding is not complete');
+        $event->setMenu($menu);
+        return $event;
+    }
+
     $hasReminders = $isServiceEnabled('appointment_reminders');
     $hasSecureChat = $isServiceEnabled('secure_chat');
     $hasPdfManagement = $isServiceEnabled('pdf_management');
     $hasTeleHealth = $isServiceEnabled('TeleHealth') || $isServiceEnabled('telehealth');
     $hasAnyService = !empty($enabledServices); // true only when at least one subscription is active
-
-    // Check if user is admin
-    $isAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
 
     // Create top-level MedEx menu
     $medexTopMenu = new \stdClass();
@@ -156,25 +162,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     $medexTopMenu->children = [];
     $medexTopMenu->acl_req = ["patients", "demo"]; // Basic access - anyone with patient access
 
-    // 1. Admin Dashboard (ONLY for admins)
-    if ($isAdmin) {
-        $adminDashboardItem = new \stdClass();
-        $adminDashboardItem->requirement = 0;
-        $adminDashboardItem->target = 'med';
-        $adminDashboardItem->menu_id = 'medex_admin';
-        $adminDashboardItem->label = xlt("Admin Dashboard");
-        // Navigation gate:
-        // credentials present -> dashboard (token can refresh on demand);
-        // no credentials -> onboarding splash.
-        $adminDashboardPath = $hasCredentials
-            ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
-            : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
-        $adminDashboardItem->url = $buildUrl($adminDashboardPath, ['minimal' => 1]);
-        $adminDashboardItem->acl_req = ["admin", "super"];
-        $medexTopMenu->children[] = $adminDashboardItem;
-    }
-
-    // 2. SMS Bot (ONLY when appointment_reminders subscription exists)
+    // 1. SMS Bot (ONLY when appointment_reminders subscription exists)
     if ($hasReminders) {
         $smsBotItem = new \stdClass();
         $smsBotItem->requirement = 0;
@@ -186,7 +174,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $medexTopMenu->children[] = $smsBotItem;
     }
 
-    // 3. Secure Chat (patient search → send link via text/email → chat)
+    // 2. Secure Chat (patient search → send link via text/email → chat)
     if ($hasSecureChat) {
         $secureChatItem = new \stdClass();
         $secureChatItem->requirement = 0;
@@ -208,7 +196,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $medexTopMenu->children[] = $portalMessagesItem;
     }
 
-    // 4. PDF Filler (ONLY when pdf_management subscription exists)
+    // 3. PDF Filler (ONLY when pdf_management subscription exists)
     if ($hasPdfManagement) {
         $pdfFillerItem = new \stdClass();
         $pdfFillerItem->requirement = 0;
@@ -220,7 +208,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $medexTopMenu->children[] = $pdfFillerItem;
     }
 
-    // 6. TeleHealth (when telehealth subscription exists)
+    // 4. TeleHealth (when telehealth subscription exists)
     if ($hasTeleHealth) {
         $telehealthItem = new \stdClass();
         $telehealthItem->requirement = 0;
@@ -233,7 +221,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $medexTopMenu->children[] = $telehealthItem;
     }
 
-    // 6. Calendar Feeds — visible to anyone with calendar ACL (patients/appt),
+    // 5. Calendar Feeds — visible to anyone with calendar ACL (patients/appt),
     // matching the same gate as the OpenEMR calendar and FullCalendar events API.
     // authorized=1 means "billing provider" and is NOT the right gate here;
     // front-desk staff and nurses with calendar access must also be able to subscribe.
