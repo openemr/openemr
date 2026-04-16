@@ -20,6 +20,7 @@ use Doctrine\DBAL\Types\Types;
  */
 final class CustomTypes
 {
+    public const MEDIUMINT = 'mediumint';
     public const TIMESTAMP = 'timestamp';
     public const TINYINT = 'tinyint';
 
@@ -34,6 +35,7 @@ final class CustomTypes
         Type::overrideType(Types::BOOLEAN, BooleanType::class);
 
         // Add custom types
+        Type::addType(self::MEDIUMINT, MediumintType::class);
         Type::addType(self::TIMESTAMP, TimestampType::class);
         Type::addType(self::TINYINT, TinyintType::class);
     }

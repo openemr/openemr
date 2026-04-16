@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
 /**
@@ -53,7 +54,7 @@ final class Version20260000010055 extends AbstractMigration
         $table->addColumn('pc_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('pc_hometext', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pc_comments', Types::INTEGER, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('pc_counter', Types::INTEGER, ['notnull' => false, 'unsigned' => true, 'default' => 0]);
+        $table->addColumn('pc_counter', CustomTypes::MEDIUMINT, ['notnull' => false, 'unsigned' => true, 'default' => 0]);
         $table->addColumn('pc_topic', Types::INTEGER, ['default' => 1]);
         $table->addColumn('pc_informant', Types::STRING, [
             'length' => 20,
