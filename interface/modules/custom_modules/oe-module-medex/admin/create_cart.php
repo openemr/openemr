@@ -69,6 +69,15 @@ if (!$csrfOk) {
 try {
     require_once(__DIR__ . '/../src/MedExAPI.php');
     $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+    $pricing = $api->getPricing(true);
+    $services = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+    $serviceIsPurchasable = static function (string $serviceKey) use ($services): bool {
+        if (!array_key_exists($serviceKey, $services)) {
+            return false;
+        }
+        $service = is_array($services[$serviceKey] ?? null) ? $services[$serviceKey] : [];
+        return !array_key_exists('available', $service) || $service['available'] !== false;
+    };
 
     // Build cart data from form submission
     $cartData = [
@@ -77,6 +86,10 @@ try {
 
     // Service: Reminders & Recalls
     if (isset($_POST['service_reminders']) && $_POST['service_reminders'] === 'on') {
+        if (!$serviceIsPurchasable('appointment_reminders')) {
+            echo json_encode(['success' => false, 'error' => 'Reminders & Recalls is not available for this account.']);
+            exit;
+        }
         $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 0;
         $facilityCount = isset($_POST['reminders_facilities']) ? count($_POST['reminders_facilities']) : 0;
         if ($providerCount > 0 && $facilityCount > 0) {
@@ -94,6 +107,10 @@ try {
 
     // Service: Calendar & AI Rescheduler
     if (isset($_POST['service_calendar_ai']) && $_POST['service_calendar_ai'] === 'on') {
+        if (!$serviceIsPurchasable('calendar_ai')) {
+            echo json_encode(['success' => false, 'error' => 'Calendar & AI Rescheduler is not available for this account.']);
+            exit;
+        }
         $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 1;
         $cartData['items'][] = [
             'service' => 'calendar_ai',
@@ -103,6 +120,10 @@ try {
 
     // Service: Calendar View & Export
     if (isset($_POST['service_calendar_view']) && $_POST['service_calendar_view'] === 'on') {
+        if (!$serviceIsPurchasable('calendar_view')) {
+            echo json_encode(['success' => false, 'error' => 'Calendar View & Export is not available for this account.']);
+            exit;
+        }
         $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 1;
         $cartData['items'][] = [
             'service' => 'calendar_view',
@@ -112,6 +133,10 @@ try {
 
     // Service: Secure Chat (practice-wide)
     if (isset($_POST['service_chat']) && $_POST['service_chat'] === 'on') {
+        if (!$serviceIsPurchasable('secure_chat')) {
+            echo json_encode(['success' => false, 'error' => 'Secure Chat is not available for this account.']);
+            exit;
+        }
         $cartData['items'][] = [
             'service' => 'secure_chat',
             'quantity' => 1
@@ -120,6 +145,10 @@ try {
 
     // Service: PDF Form Management (practice-wide)
     if (isset($_POST['service_pdf']) && $_POST['service_pdf'] === 'on') {
+        if (!$serviceIsPurchasable('pdf_management')) {
+            echo json_encode(['success' => false, 'error' => 'PDF Form Management is not available for this account.']);
+            exit;
+        }
         $cartData['items'][] = [
             'service' => 'pdf_management',
             'quantity' => 1
@@ -138,8 +167,6 @@ try {
 
     // Compatibility path: api/oemr/create_cart endpoint no longer exists.
     // Build a local cart summary for step 3 and complete activation via api/oemr/subscribe in process_payment.php.
-    $pricing = $api->getPricing(true);
-    $services = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
     $total = 0.0;
 
     foreach ($cartData['items'] as $item) {

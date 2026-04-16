@@ -32,6 +32,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 require_once(__DIR__ . '/../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $step = $_GET['step'] ?? '1';
+$isConfigured = $api->isConfigured();
 $session = null;
 if (class_exists(SessionWrapperFactory::class)) {
     try {
@@ -67,12 +68,21 @@ if (!empty($_SERVER['HTTP_HOST'])) {
     $defaultOpenEmrUrl = 'https://' . $_SERVER['HTTP_HOST'] . ($webroot !== '' ? '/' . $webroot : '');
 }
 
-// Fetch pricing from API for step 2
-$pricing = $api->getPricing();
+// Fetch pricing from API for step 2.
+// For configured accounts, force a fresh login first so customer_group_id is current
+// before pricing is resolved on the MedEx side.
+if ($isConfigured) {
+    try {
+        $api->login(true);
+    } catch (\Throwable $e) {
+        error_log('[ONBOARDING DEBUG] Forced login before pricing failed: ' . $e->getMessage());
+    }
+}
+$pricing = $api->getPricing(true);
 error_log('[ONBOARDING DEBUG] Pricing data: ' . print_r($pricing, true));
 
 // If already configured and active, redirect to settings
-if (!$forceOnboarding && $api->isConfigured() && $api->isActive()) {
+if (!$forceOnboarding && $isConfigured && $api->isActive()) {
     $services = $api->getEnabledServices();
     if (!empty($services)) {
         header('Location: index.php?site=' . urlencode($siteId));
@@ -81,7 +91,7 @@ if (!$forceOnboarding && $api->isConfigured() && $api->isActive()) {
 }
 
 // Stage 2 & 3 require registration first
-if ($step > 1 && !$api->isConfigured()) {
+if ($step > 1 && !$isConfigured) {
     header('Location: onboarding.php?step=1&site=' . urlencode($siteId));
     exit;
 }
@@ -528,11 +538,18 @@ if ($step > 1 && !$api->isConfigured()) {
                     'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
                 ];
                 $availablePricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
-                $showAppointmentReminders = array_key_exists('appointment_reminders', $availablePricingServices);
-                $showCalendarView = array_key_exists('calendar_view', $availablePricingServices);
-                $showCalendarAi = array_key_exists('calendar_ai', $availablePricingServices);
-                $showSecureChat = array_key_exists('secure_chat', $availablePricingServices);
-                $showPdfManagement = array_key_exists('pdf_management', $availablePricingServices);
+                $serviceAvailableForOnboarding = static function (string $serviceKey) use ($availablePricingServices): bool {
+                    if (!array_key_exists($serviceKey, $availablePricingServices)) {
+                        return false;
+                    }
+                    $service = is_array($availablePricingServices[$serviceKey] ?? null) ? $availablePricingServices[$serviceKey] : [];
+                    return !array_key_exists('available', $service) || $service['available'] !== false;
+                };
+                $showAppointmentReminders = $serviceAvailableForOnboarding('appointment_reminders');
+                $showCalendarView = $serviceAvailableForOnboarding('calendar_view');
+                $showCalendarAi = $serviceAvailableForOnboarding('calendar_ai');
+                $showSecureChat = $serviceAvailableForOnboarding('secure_chat');
+                $showPdfManagement = $serviceAvailableForOnboarding('pdf_management');
                 $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showSecureChat || $showPdfManagement;
                 $providerCandidates = QueryUtils::fetchRecords("
                     SELECT id, fname, lname, username
