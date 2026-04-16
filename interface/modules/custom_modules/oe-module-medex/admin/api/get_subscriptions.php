@@ -119,11 +119,29 @@ error_log('[get_subscriptions.php] Pricing data: ' . json_encode($pricing));
 error_log('[get_subscriptions.php] Campaigns data: ' . json_encode($campaigns));
 error_log('[get_subscriptions.php] Number of campaigns: ' . count($campaigns));
 
-// Get active providers
-$providers = sqlStatement("SELECT id, fname, lname FROM users WHERE authorized=1 AND active=1 ORDER BY lname, fname");
+// Get active calendar providers and match onboarding filtering:
+// skip admin/non-provider rows and dedupe repeated names.
+$providers = sqlStatement("SELECT id, fname, lname, username FROM users WHERE active=1 AND calendar=1 ORDER BY lname, fname, id");
 $providerList = [];
+$providerSeen = [];
 while ($row = sqlFetchArray($providers)) {
-    $providerList[] = $row;
+    $username = strtolower(trim((string)($row['username'] ?? '')));
+    $fname = trim((string)($row['fname'] ?? ''));
+    $lname = trim((string)($row['lname'] ?? ''));
+    $displayName = trim($lname . ', ' . $fname, ' ,');
+    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
+    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
+        continue;
+    }
+    if (isset($providerSeen[$normalizedName])) {
+        continue;
+    }
+    $providerSeen[$normalizedName] = true;
+    $providerList[] = [
+        'id' => $row['id'],
+        'fname' => $fname,
+        'lname' => $lname,
+    ];
 }
 
 // Get selected providers from prefs — same row selection logic as save_preferences.php
@@ -142,7 +160,7 @@ while ($row = sqlFetchArray($facilities)) {
     $facilityList[] = $row;
 }
 
-// Get Appointment Categories for AI Scheduler
+// Get Appointment Categories for Scheduler
 $categoriesRes = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
 $apptCategories = [];
 while ($row = sqlFetchArray($categoriesRes)) {
@@ -182,7 +200,7 @@ $serviceUiMeta = [
     ],
     'calendar_ai' => [
         'icon'        => 'fas fa-robot',
-        'description' => 'Smart scheduling suggestions and optimization. AI Rescheduling Bot',
+        'description' => 'Calendar Services: category setup, calendar export, rescheduler options, and cancellation list rules.',
     ],
     'pdf_management' => [
         'icon'        => 'fas fa-file-pdf',
@@ -246,6 +264,11 @@ foreach ($serviceSources as $svcId => $priceInfo) {
     }
 
     $serviceName = $priceInfo['name'] ?? ucwords(str_replace('_', ' ', $svcId));
+    if (is_string($serviceName)) {
+        // Keep internal service ids out of end-user labels (e.g. "Full Calendar calendar_full").
+        $serviceName = preg_replace('/[\(\[]?\s*' . preg_quote($svcId, '/') . '\s*[\)\]]?/i', ' ', $serviceName);
+        $serviceName = trim(preg_replace('/\s+/', ' ', (string)$serviceName));
+    }
     if (
         $svcId === 'appointment_reminders'
         && (
@@ -256,6 +279,13 @@ foreach ($serviceSources as $svcId => $priceInfo) {
     ) {
         // Legacy API payloads may still label this as "a la carte".
         $serviceName = 'Automated Reminders';
+    }
+    if ($svcId === 'calendar_ai') {
+        // Force consistent left-menu label regardless of upstream OpenCart naming.
+        $serviceName = 'Calendar';
+    }
+    if ($svcId === 'calendar_full') {
+        $serviceName = 'Full Calendar';
     }
 
     $serviceDefinitions[$svcId] = [
@@ -291,6 +321,13 @@ if (!$isDemoCustomer) {
             error_log('[get_subscriptions.php] Hiding unavailable service from non-demo customer: ' . $svcId);
         }
     }
+}
+
+// Calendar billing bundle: Calendar is the single billable service.
+// Calendar Export remains functionally part of the Calendar service and
+// should not appear as a separate subscription/billing line item.
+if (isset($serviceDefinitions['calendar_ai']) && isset($serviceDefinitions['calendar_export'])) {
+    unset($serviceDefinitions['calendar_export']);
 }
 
 // $apiPricing from getSubscriptions() never contains a 'pricing' key — removing dead override.
@@ -1053,9 +1090,20 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                         <?php error_log('[get_subscriptions] INSIDE calendar_export block'); ?>
                         <!-- Calendar Export / CalDAV Settings - Create Filtered Feeds -->
                         <?php
-                            // Get CalDAV base URL
-                            $caldavBaseUrl = str_replace('/cart/upload', '', $api->getBaseUrl());
-                            $caldavFeedUrl = $caldavBaseUrl . '/cart/api/calendar_feed.php';
+                            // Build local OpenEMR calendar feed URL (module endpoint, not MedEx API endpoint)
+                            $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+                            $proto = strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+                            if ($proto === '') {
+                                $https = (string)($_SERVER['HTTPS'] ?? '');
+                                $proto = (!empty($https) && strtolower($https) !== 'off') ? 'https' : 'http';
+                            } else {
+                                $proto = trim(explode(',', $proto)[0]);
+                            }
+                            if ($proto !== 'https') {
+                                $proto = 'https';
+                            }
+                            $openemrBase = ($host !== '') ? ($proto . '://' . $host . rtrim((string)($GLOBALS['webroot'] ?? ''), '/')) : '';
+                            $caldavFeedUrl = $openemrBase . '/interface/modules/custom_modules/oe-module-medex/public/calendar_feed.php';
                             
                             // Get practice info for CalDAV auth
                             $practiceEmail = '';
@@ -1071,14 +1119,26 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             // Get existing calendar feeds from LOCAL database (source of truth)
                             // MedEx API is just a mirror - local table is authoritative
                             $existingFeeds = [];
+                            $currentOpenEmrUserId = (int)($_SESSION['authUserID'] ?? 0);
                             try {
-                                // Query local medex_calendar_feeds table
-                                $feedStmt = sqlStatement(
-                                    "SELECT id, token, name, providers, facilities, provider_names, facility_names, 
-                                            openemr_user_id, openemr_username, created_at
-                                     FROM medex_calendar_feeds 
-                                     ORDER BY created_at DESC"
-                                );
+                                // Match "My Calendar Feeds" scope: show feeds owned by current OpenEMR user.
+                                if ($currentOpenEmrUserId > 0) {
+                                    $feedStmt = sqlStatement(
+                                        "SELECT id, token, name, providers, facilities, provider_names, facility_names,
+                                                openemr_user_id, openemr_username, created_at
+                                         FROM medex_calendar_feeds
+                                         WHERE openemr_user_id = ?
+                                         ORDER BY created_at DESC",
+                                        [$currentOpenEmrUserId]
+                                    );
+                                } else {
+                                    $feedStmt = sqlStatement(
+                                        "SELECT id, token, name, providers, facilities, provider_names, facility_names,
+                                                openemr_user_id, openemr_username, created_at
+                                         FROM medex_calendar_feeds
+                                         WHERE 1 = 0"
+                                    );
+                                }
                                 
                                 while ($feed = sqlFetchArray($feedStmt)) {
                                     // Decode JSON fields
@@ -1498,416 +1558,75 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                         </button>
 
                         <?php elseif ($serviceId === 'calendar_ai'): ?>
-                        <!-- ============================================
-                             AI SCHEDULING ASSISTANT — Sub-tool Router
-                             ============================================ -->
-
-                        <!-- VIEW: Sub-tool Selector (default when clicking Edit) -->
-                        <div id="ai-subtool-selector" style="grid-column: 1 / -1;">
-                            <div class="medex-breadcrumb">
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-th"></i> <?php echo xlt('Dashboard'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-cogs"></i> <?php echo xlt('Services'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-current">
-                                    <i class="fas fa-robot"></i> <?php echo xlt('AI Scheduling Assistant'); ?>
-                                </span>
-                            </div>
-
-                            <div style="text-align: center; margin-bottom: 24px;">
-                                <h4 style="margin: 0 0 6px 0; font-size: 20px; color: #333;">
-                                    <i class="fas fa-robot" style="color: #9c27b0;"></i>
-                                    <?php echo xlt('AI Scheduling Assistant'); ?>
-                                </h4>
-                                <p style="color: #666; font-size: 13px; margin: 0;"><?php echo xlt('Choose a tool to get started'); ?></p>
-                            </div>
-
-                            <div class="subtool-selector">
-                                <!-- Card 1: AI Rescheduler -->
-                                <div class="subtool-card" onclick="showAiSubtool('rescheduler')">
-                                    <div class="subtool-card-icon" style="background: #e3f2fd; color: #1976d2;">
-                                        <i class="fas fa-calendar-check"></i>
-                                    </div>
-                                    <div class="subtool-card-title"><?php echo xlt('AI Rescheduler'); ?></div>
-                                    <div class="subtool-card-desc">
-                                        <?php echo xlt('Track patient reschedules, view statistics, and monitor AI-assisted appointment changes in real time.'); ?>
-                                    </div>
-                                    <span class="subtool-card-action" style="background: linear-gradient(135deg, #1976d2, #1565c0);">
-                                        <i class="fas fa-arrow-right"></i> <?php echo xlt('Open Rescheduler'); ?>
-                                    </span>
-                                </div>
-
-                                <!-- Card 2: Template Builder -->
-                                <div class="subtool-card" onclick="showAiSubtool('template')">
-                                    <div class="subtool-card-icon" style="background: #f3e5f5; color: #9c27b0;">
-                                        <i class="fas fa-magic"></i>
-                                    </div>
-                                    <div class="subtool-card-title"><?php echo xlt('Template Builder'); ?></div>
-                                    <div class="subtool-card-desc">
-                                        <?php echo xlt('Build scheduling templates by interviewing Claude AI, analyze historical patterns, or manage published batches.'); ?>
-                                    </div>
-                                    <span class="subtool-card-action" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
-                                        <i class="fas fa-arrow-right"></i> <?php echo xlt('Open Template Builder'); ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- VIEW: AI Rescheduler (hidden by default) -->
-                        <div id="ai-subtool-rescheduler" style="display: none; grid-column: 1 / -1;">
-                            <div class="medex-breadcrumb">
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-th"></i> <?php echo xlt('Dashboard'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-cogs"></i> <?php echo xlt('Services'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-item" onclick="showAiSubtool('selector')">
-                                    <i class="fas fa-robot"></i> <?php echo xlt('AI Scheduling'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-current">
-                                    <i class="fas fa-calendar-check"></i> <?php echo xlt('AI Rescheduler'); ?>
-                                </span>
-                            </div>
-
-                            <!-- Reschedule Activity Table -->
-                            <div class="expanded-selector-section" style="border-color: #1976d2; margin-bottom: 20px;">
-                                <h4><i class="fas fa-robot" style="color: #1976d2;"></i> <?php echo xlt('AI Reschedule Activity'); ?></h4>
-                                <p style="color: #666; margin-bottom: 15px;">
-                                    <?php echo xlt('Track patients who have rescheduled appointments through the AI assistant.'); ?>
-                                </p>
-                                <div id="ai-reschedule-dashboard" style="max-height: 400px; overflow-y: auto;">
-                                    <table style="width: 100%; border-collapse: collapse;">
-                                        <thead>
-                                            <tr style="background: #f5f5f5; text-align: left;">
-                                                <th style="padding: 10px; border-bottom: 2px solid #ddd;"><?php echo xlt('Patient'); ?></th>
-                                                <th style="padding: 10px; border-bottom: 2px solid #ddd;"><?php echo xlt('Original Appt'); ?></th>
-                                                <th style="padding: 10px; border-bottom: 2px solid #ddd;"><?php echo xlt('New Appt'); ?></th>
-                                                <th style="padding: 10px; border-bottom: 2px solid #ddd;"><?php echo xlt('Changed'); ?></th>
-                                                <th style="padding: 10px; border-bottom: 2px solid #ddd;"><?php echo xlt('Actions'); ?></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="5" style="padding: 30px; text-align: center; color: #999;">
-                                                    <i class="fas fa-calendar-alt" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
-                                                    <?php echo xlt('No AI-assisted reschedules yet.'); ?><br>
-                                                    <small><?php echo xlt('Reschedule activity will appear here when patients use the AI assistant.'); ?></small>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Reschedule Statistics -->
-                            <div class="expanded-selector-section" style="border-color: #1976d2;">
-                                <h4><i class="fas fa-chart-line" style="color: #1976d2;"></i> <?php echo xlt('Reschedule Statistics'); ?></h4>
-                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; text-align: center;">
-                                    <div style="padding: 15px; background: #e3f2fd; border-radius: 6px;">
-                                        <div style="font-size: 24px; font-weight: bold; color: #1976d2;">0</div>
-                                        <div style="font-size: 12px; color: #666;"><?php echo xlt('Total Reschedules'); ?></div>
-                                    </div>
-                                    <div style="padding: 15px; background: #e8f5e9; border-radius: 6px;">
-                                        <div style="font-size: 24px; font-weight: bold; color: #388e3c;">0</div>
-                                        <div style="font-size: 12px; color: #666;"><?php echo xlt('This Month'); ?></div>
-                                    </div>
-                                    <div style="padding: 15px; background: #fff3e0; border-radius: 6px;">
-                                        <div style="font-size: 24px; font-weight: bold; color: #f57c00;">0</div>
-                                        <div style="font-size: 12px; color: #666;"><?php echo xlt('Avoided No-Shows'); ?></div>
-                                    </div>
-                                    <div style="padding: 15px; background: #fce4ec; border-radius: 6px;">
-                                        <div style="font-size: 24px; font-weight: bold; color: #c2185b;">$0</div>
-                                        <div style="font-size: 12px; color: #666;"><?php echo xlt('Revenue Saved'); ?></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- VIEW: Template Builder (hidden by default) -->
-                        <div id="ai-subtool-template" style="display: none; grid-column: 1 / -1;">
-                            <div class="medex-breadcrumb">
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-th"></i> <?php echo xlt('Dashboard'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
-                                    <i class="fas fa-cogs"></i> <?php echo xlt('Services'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-item" onclick="showAiSubtool('selector')">
-                                    <i class="fas fa-robot"></i> <?php echo xlt('AI Scheduling'); ?>
-                                </span>
-                                <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-                                <span class="medex-breadcrumb-current">
-                                    <i class="fas fa-magic"></i> <?php echo xlt('Template Builder'); ?>
-                                </span>
-                            </div>
-
-                            <!-- Template Builder Tabs -->
-                            <div class="expanded-selector-section" style="border-color: #9c27b0; background: #f3e5f5;">
-                                <h4><i class="fas fa-magic" style="color: #9c27b0;"></i> <?php echo xlt('AI Template Builder (Claude)'); ?></h4>
-                                <p style="color: #555; margin-bottom: 20px;">
-                                    <?php echo xlt('Analyze history or build new AI-optimized caching templates for the Scheduler Bot.'); ?>
-                                </p>
-
-                                <!-- Tabs for Mode Selection -->
-                                <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
-                                    <button onclick="switchAiMode('analyze')" id="btn-mode-analyze" class="btn btn-sm" style="background: #9c27b0; color: white; margin-right: 5px;">
-                                        <i class="fas fa-chart-line"></i> <?php echo xlt('Analyze History'); ?>
-                                    </button>
-                                    <button onclick="switchAiMode('new')" id="btn-mode-new" class="btn btn-sm" style="background: #dbe5ee; color: #333; margin-right: 5px;">
-                                        <i class="fas fa-comments"></i> <?php echo xlt('Schedule Interview'); ?>
-                                    </button>
-                                    <button onclick="switchAiMode('batches')" id="btn-mode-batches" class="btn btn-sm" style="background: #dbe5ee; color: #333;">
-                                        <i class="fas fa-history"></i> <?php echo xlt('Batch History'); ?>
-                                    </button>
-                                </div>
-
-                                <!-- MODE: Analyze History (Existing) -->
-                                <div id="ai-mode-analyze" style="display: block;">
-                                    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;">
-                                        <div style="flex: 1; min-width: 200px;">
-                                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;"><?php echo xlt('Optimization Strategy'); ?></label>
-                                            <select id="ai-template-type" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
-                                                <option value="wave"><?php echo xlt('Wave Scheduling (High Volume)'); ?></option>
-                                                <option value="modified_wave"><?php echo xlt('Modified Wave (Balanced)'); ?></option>
-                                                <option value="cluster"><?php echo xlt('Cluster Scheduling (Specialty)'); ?></option>
-                                                <option value="double_book"><?php echo xlt('Strategic Double Booking'); ?></option>
-                                                <option value="open_access"><?php echo xlt('Open Access / Same Day'); ?></option>
-                                            </select>
-                                        </div>
-                                        <div style="flex: 1; min-width: 200px;">
-                                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;"><?php echo xlt('Analysis Period'); ?></label>
-                                            <select id="ai-analysis-period" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
-                                                <option value="30"><?php echo xlt('Last 30 Days'); ?></option>
-                                                <option value="90" selected><?php echo xlt('Last 90 Days'); ?></option>
-                                                <option value="180"><?php echo xlt('Last 6 Months'); ?></option>
-                                                <option value="365"><?php echo xlt('Last Year'); ?></option>
-                                            </select>
-                                        </div>
-                                        <button type="button" onclick="runAiOptimization()" class="btn btn-primary" style="background: #9c27b0; border: none; height: 40px;">
-                                            <i class="fas fa-brain"></i> <?php echo xlt('Analyze & Suggest Templates'); ?>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- MODE: Schedule Interview (AI Conversation) -->
-                                <div id="ai-mode-new" style="display: none;">
-                                    <?php
-                                    // Fetch Providers for Dropdown
-                                    $prov_res = sqlStatement("SELECT id, fname, lname FROM users WHERE authorized = 1 AND active = 1 ORDER BY lname, fname");
-                                    ?>
-
-                                    <!-- AI Interview: Provider Selection (only manual step) -->
-                                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
-                                        <div style="display: flex; gap: 15px; align-items: flex-start;">
-                                            <div style="flex: 1;">
-                                                <label style="font-size: 12px; font-weight: bold;"><?php echo xlt('Select Provider(s)'); ?>:</label>
-                                                <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 5px; border-radius: 4px; background: #fff;">
-                                                    <?php foreach ($providerList as $aiProv): ?>
-                                                    <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 2px;">
-                                                        <input type="checkbox" name="ai_providers" value="<?php echo attr($aiProv['id']); ?>" onchange="updateInterviewProvider()">
-                                                        <?php echo text($aiProv['lname'] . ', ' . $aiProv['fname']); ?>
-                                                    </label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <label style="font-size: 12px; font-weight: bold;"><?php echo xlt('Location(s)'); ?>:</label>
-                                                <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 5px; border-radius: 4px; background: #fff;">
-                                                    <?php foreach ($facilityList as $aiFac): ?>
-                                                    <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 2px;">
-                                                        <input type="checkbox" name="ai_facilities" value="<?php echo attr($aiFac['id']); ?>" checked>
-                                                        <?php echo text($aiFac['name']); ?>
-                                                    </label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <label style="font-size: 12px; font-weight: bold;"><?php echo xlt('Categories'); ?>:</label>
-                                                <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 5px; border-radius: 4px; background: #fff;">
-                                                    <?php foreach ($apptCategories as $cat): ?>
-                                                    <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 2px;">
-                                                        <input type="checkbox" name="ai_cats" value="<?php echo attr($cat['pc_catid']); ?>" checked>
-                                                        <?php echo text($cat['pc_catname']); ?>
-                                                    </label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- AI Interview Chat Panel -->
-                                    <div style="background: white; border-radius: 8px; border: 2px solid #9c27b0; overflow: hidden;">
-                                        <!-- Chat Header -->
-                                        <div style="background: linear-gradient(135deg, #9c27b0, #7b1fa2); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <strong><i class="fas fa-robot"></i> <?php echo xlt('MedEx Schedule Interview'); ?></strong>
-                                                <div style="font-size: 11px; opacity: 0.8;" id="ai-interview-provider-label">Select a provider above to begin</div>
-                                            </div>
-                                            <div style="display: flex; gap: 8px;">
-                                                <button onclick="resetInterview()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none;" title="Start Over">
-                                                    <i class="fas fa-refresh"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Chat Messages -->
-                                        <div id="ai-interview-chat" style="height: 350px; overflow-y: auto; padding: 15px; background: #f9f9f9;">
-                                            <div class="ai-msg" style="margin-bottom: 12px;">
-                                                <div style="display: flex; gap: 8px; align-items: flex-start;">
-                                                    <div style="width: 28px; height: 28px; background: #9c27b0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">
-                                                        <i class="fas fa-robot"></i>
-                                                    </div>
-                                                    <div style="background: white; padding: 10px 14px; border-radius: 4px 12px 12px 12px; border: 1px solid #dbe5ee; max-width: 85%; font-size: 13px; line-height: 1.5;">
-                                                        <?php echo xlt("Hi! I'm the MedEx Schedule Assistant. Select a provider above and I'll interview you about their scheduling preferences. I'll ask about work days, hours, appointment types, lunch breaks, surgery blocks, and any special rules — just answer naturally."); ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Chat Input -->
-                                        <div style="border-top: 1px solid #ddd; padding: 10px 15px; background: white; display: flex; gap: 8px; align-items: center;">
-                                            <button onclick="startInterviewVoice()" id="ai-interview-mic-btn" style="background: #9c27b0; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; flex-shrink: 0;" title="<?php echo xla('Speak your answer'); ?>">
-                                                <i class="fas fa-microphone"></i>
-                                            </button>
-                                            <input type="text" id="ai-interview-input" class="form-control" placeholder="<?php echo xla('Type your answer or click the microphone...'); ?>" style="font-size: 13px; border-radius: 20px;"
-                                                onkeydown="if(event.key==='Enter'){sendInterviewMessage(); event.preventDefault();}">
-                                            <button onclick="sendInterviewMessage()" class="btn btn-primary" style="background: #9c27b0; border: none; border-radius: 20px; padding: 6px 16px; flex-shrink: 0;">
-                                                <i class="fas fa-paper-plane"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Extracted Schedule Summary (populated by AI) -->
-                                    <div id="ai-interview-summary" style="display: none; background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #a5d6a7; margin-top: 15px;">
-                                        <h5 style="margin-top: 0; color: #2e7d32;"><i class="fas fa-check-circle"></i> <?php echo xlt('Schedule Profile Extracted'); ?></h5>
-                                        <div id="ai-interview-summary-content" style="font-size: 13px;"></div>
-                                        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-                                            <button onclick="switchAiMode('analyze')" class="btn btn-secondary">
-                                                <?php echo xlt('Cancel'); ?>
-                                            </button>
-                                            <button onclick="publishFromInterview()" class="btn btn-primary" style="background: #9c27b0; border: none; min-width: 200px;">
-                                                <i class="fas fa-upload"></i> <?php echo xlt('Publish to Calendar'); ?>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="ai-optimization-results" style="display: none; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dbe5ee; margin-top: 20px;">
-                                    <div style="text-align: center; padding: 40px; color: #666;" id="ai-loading">
-                                        <i class="fas fa-spinner fa-spin fa-3x" style="color: #9c27b0; margin-bottom: 15px;"></i>
-                                        <p><?php echo xlt('Claude AI is analyzing your schedule patterns and generating templates...'); ?></p>
-                                    </div>
-                                    <div id="ai-results-content" style="display: none;">
-                                        <!-- Results will be injected here -->
-                                    </div>
-                                </div>
-
-                                <!-- MODE: Batch History (Undo) -->
-                                <div id="ai-mode-batches" style="display: none;">
-                                    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-                                        <h5 style="margin: 0;"><i class="fas fa-history" style="color: #9c27b0;"></i> <?php echo xlt('AI Schedule Batch History'); ?></h5>
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="loadAiBatchHistory()">
-                                            <i class="fas fa-refresh"></i> <?php echo xlt('Refresh'); ?>
-                                        </button>
-                                    </div>
-                                    <p style="color: #666; font-size: 12px; margin-bottom: 15px;">
-                                        <?php echo xlt('Batches can be undone within 24 hours of creation. Events that have been booked by a patient are preserved.'); ?>
-                                    </p>
-                                    <div id="ai-batch-list" style="min-height: 60px;">
-                                        <div style="text-align: center; padding: 30px; color: #999;">
-                                            <i class="fas fa-spinner fa-spin"></i> <?php echo xlt('Loading batch history...'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <script>
-                        // =============================================
-                        // AI Sub-tool Navigation
-                        // =============================================
-                        function showAiSubtool(tool) {
-                            const selector = document.getElementById('ai-subtool-selector');
-                            const rescheduler = document.getElementById('ai-subtool-rescheduler');
-                            const template = document.getElementById('ai-subtool-template');
-
-                            // Hide all
-                            selector.style.display = 'none';
-                            rescheduler.style.display = 'none';
-                            template.style.display = 'none';
-
-                            // Show requested
-                            if (tool === 'rescheduler') {
-                                rescheduler.style.display = 'block';
-                            } else if (tool === 'template') {
-                                template.style.display = 'block';
-                            } else {
-                                // 'selector' or default
-                                selector.style.display = 'block';
+                        <?php
+                            $aiSchedulerUrl = '';
+                            try {
+                                $sessionToken = (string)($loginData['token'] ?? '');
+                                $practiceId = (string)($loginData['practice_id'] ?? ($loginData['practice']['P_PID'] ?? ''));
+                                if ($practiceId === '') {
+                                    $pref = sqlQuery("SELECT MedEx_id FROM medex_prefs WHERE MedEx_id IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1");
+                                    $practiceId = (string)($pref['MedEx_id'] ?? '');
+                                }
+                                if ($sessionToken !== '' && $practiceId !== '') {
+                                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                                    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+                                    $webRoot = rtrim((string)($GLOBALS['webroot'] ?? ''), '/');
+                                    $openEmrBaseUrl = ($host !== '') ? ($scheme . '://' . $host . $webRoot) : '';
+                                    $siteId = (string)($_SESSION['site_id'] ?? 'default');
+                                    $ssoPayload = [
+                                        'practice_id' => $practiceId,
+                                        'session_token' => $sessionToken,
+                                        'timestamp' => time(),
+                                        'nonce' => bin2hex(random_bytes(16)),
+                                        'source' => 'openemr_dashboard',
+                                        'openemr_base_url' => $openEmrBaseUrl,
+                                        'site' => $siteId
+                                    ];
+                                    $ssoToken = base64_encode(json_encode($ssoPayload));
+                                    $aiSchedulerUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl()
+                                        . '/index.php?route=calendar/dashboard'
+                                        . '&embed=1'
+                                        . '&site=' . urlencode($siteId)
+                                        . '&sso_token=' . urlencode($ssoToken);
+                                }
+                            } catch (\Throwable $e) {
+                                error_log('[MedEx Admin] Failed to build calendar AI URL: ' . $e->getMessage());
                             }
-
-                            // Scroll to top of expanded view
-                            const card = document.querySelector('.service-card[data-service="calendar_ai"]');
-                            if (card) card.scrollTop = 0;
-                        }
-
-                        // Legacy stubs
-                        function updateStrategyDesc() {}
-                        function updateHolidayOptions() {}
-
-                        function switchAiMode(mode) {
-                            const analyzeDiv = document.getElementById('ai-mode-analyze');
-                            const newDiv = document.getElementById('ai-mode-new');
-                            const batchesDiv = document.getElementById('ai-mode-batches');
-                            const btnAnalyze = document.getElementById('btn-mode-analyze');
-                            const btnNew = document.getElementById('btn-mode-new');
-                            const btnBatches = document.getElementById('btn-mode-batches');
-                            const resultsDiv = document.getElementById('ai-optimization-results');
-
-                            resultsDiv.style.display = 'none';
-
-                            [btnAnalyze, btnNew, btnBatches].forEach(btn => {
-                                btn.style.background = '#dbe5ee';
-                                btn.style.color = '#333';
-                            });
-
-                            analyzeDiv.style.display = 'none';
-                            newDiv.style.display = 'none';
-                            batchesDiv.style.display = 'none';
-
-                            if (mode === 'analyze') {
-                                analyzeDiv.style.display = 'block';
-                                btnAnalyze.style.background = '#9c27b0';
-                                btnAnalyze.style.color = 'white';
-                            } else if (mode === 'batches') {
-                                batchesDiv.style.display = 'block';
-                                btnBatches.style.background = '#9c27b0';
-                                btnBatches.style.color = 'white';
-                                loadAiBatchHistory();
-                            } else {
-                                newDiv.style.display = 'block';
-                                btnNew.style.background = '#9c27b0';
-                                btnNew.style.color = 'white';
-                            }
-                        }
-
-                        function toggleCheckboxes(name, checked) {
-                            const boxes = document.getElementsByName(name);
-                            for(let i=0; i<boxes.length; i++) {
-                                boxes[i].checked = checked;
-                            }
-                        }
-                        </script>
+                        ?>
+                        <div class="medex-breadcrumb" style="grid-column: 1 / -1;">
+                            <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
+                                <i class="fas fa-th"></i> <?php echo xlt('Dashboard'); ?>
+                            </span>
+                            <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                            <span class="medex-breadcrumb-item" onclick="closeExpandedView('calendar_ai')">
+                                <i class="fas fa-cogs"></i> <?php echo xlt('Services'); ?>
+                            </span>
+                            <span class="medex-breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                            <span class="medex-breadcrumb-current">
+                                <i class="fas fa-calendar-alt"></i> <?php echo xlt('Calendar'); ?>
+                            </span>
+                            <span style="margin-left: auto;">
+                                <button type="button" onclick="closeExpandedView('calendar_ai')" class="btn btn-sm" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 12px; font-weight: 600; font-size: 12px;">
+                                    <i class="fas fa-times"></i> <?php echo xlt('Close'); ?>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="expanded-selector-section" style="grid-column: 1 / -1;">
+                            <h4><i class="fas fa-calendar-alt"></i> <?php echo xlt('Calendar'); ?></h4>
+                            <p style="margin-bottom: 16px;">
+                                <?php echo xlt('Open Calendar Services to manage appointment categories, build schedules, configure patient rescheduling, and manage cancellation list rules.'); ?>
+                            </p>
+                            <?php if ($aiSchedulerUrl !== ''): ?>
+                                <a href="<?php echo attr($aiSchedulerUrl); ?>" target="_blank" rel="noopener" onclick="if(typeof top!=='undefined'&&typeof top.restoreSession==='function')top.restoreSession();" class="btn btn-primary" style="background: #0f4b8f; border-color: #0f4b8f;">
+                                    <i class="fas fa-external-link-alt"></i> <?php echo xlt('Open Calendar Services'); ?>
+                                </a>
+                            <?php else: ?>
+                                <div class="alert alert-warning" style="margin-bottom: 0;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <?php echo xlt('Unable to build secure scheduler link. Refresh the dashboard and try again.'); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                         
                         <?php elseif ($serviceId === 'pdf_management'): ?>
                         <!-- PDF Management - Opens externally, this is just a fallback -->
@@ -2558,20 +2277,19 @@ function deleteCalendarFeed(feedId) {
             if (window.showToast) {
                 window.showToast('Calendar feed deleted', 'success');
             }
-            // Remove from DOM
-            const feedItem = document.querySelector(`.calendar-feed-item[data-feed-id="${feedId}"]`);
-            if (feedItem) {
-                feedItem.remove();
+            // Remove table row from DOM (calendar export admin table view)
+            const feedRow = document.querySelector(`#feeds-table tr[data-feed-id="${feedId}"]`);
+            if (feedRow) {
+                feedRow.remove();
             }
-            // Check if any feeds left
-            const remaining = document.querySelectorAll('.calendar-feed-item');
-            if (remaining.length === 0) {
-                document.getElementById('existing-calendar-feeds').innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border-radius: 8px;">
-                        <i class="fas fa-calendar-plus" style="font-size: 32px; margin-bottom: 10px; color: #ccc;"></i>
-                        <p style="margin: 0;">No calendar feeds created yet. Create one below.</p>
-                    </div>
-                `;
+            const countEl = document.getElementById('feeds-count');
+            if (countEl) {
+                const current = parseInt(countEl.textContent || '0', 10) || 0;
+                countEl.textContent = String(Math.max(0, current - 1));
+            }
+            const remainingRows = document.querySelectorAll('#feeds-table tbody tr');
+            if (remainingRows.length === 0) {
+                location.reload();
             }
         } else {
             if (window.showToast) {
@@ -3246,7 +2964,7 @@ function getServiceName(serviceId) {
         'secure_chat': 'Secure Patient Chat',
         'calendar_export': 'Calendar Export',
         'calendar_full': 'Full Calendar View',
-        'calendar_ai': 'AI Scheduling Assistant',
+        'calendar_ai': 'Calendar',
         'pdf_management': 'PDF Form Management',
         'vfax': 'vFax',
         'whatsapp': 'WhatsApp Integration',

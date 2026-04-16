@@ -139,18 +139,11 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         return false;
     };
     
-    $hasCompletedOnboarding = $hasCredentials && !empty($rawEnabledServices);
-    if (!$hasCompletedOnboarding) {
-        error_log('[MedEx] Skipping menu injection because onboarding is not complete');
-        $event->setMenu($menu);
-        return $event;
-    }
-
+    $isAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
     $hasReminders = $isServiceEnabled('appointment_reminders');
     $hasSecureChat = $isServiceEnabled('secure_chat');
     $hasPdfManagement = $isServiceEnabled('pdf_management');
     $hasTeleHealth = $isServiceEnabled('TeleHealth') || $isServiceEnabled('telehealth');
-    $hasAnyService = !empty($enabledServices); // true only when at least one subscription is active
 
     // Create top-level MedEx menu
     $medexTopMenu = new \stdClass();
@@ -161,6 +154,20 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     // $medexTopMenu->icon = 'fa-comment-medical';
     $medexTopMenu->children = [];
     $medexTopMenu->acl_req = ["patients", "demo"]; // Basic access - anyone with patient access
+
+    if ($isAdmin) {
+        $adminDashboardItem = new \stdClass();
+        $adminDashboardItem->requirement = 0;
+        $adminDashboardItem->target = 'med';
+        $adminDashboardItem->menu_id = 'medex_admin';
+        $adminDashboardItem->label = xlt("Admin Dashboard");
+        $adminDashboardPath = $hasCredentials
+            ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
+            : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
+        $adminDashboardItem->url = $buildUrl($adminDashboardPath, ['minimal' => 1]);
+        $adminDashboardItem->acl_req = ["admin", "super"];
+        $medexTopMenu->children[] = $adminDashboardItem;
+    }
 
     // 1. SMS Bot (ONLY when appointment_reminders subscription exists)
     if ($hasReminders) {
