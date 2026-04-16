@@ -1,15 +1,8 @@
 <?php
 /**
- * Get Overview Dashboard Data
- *
- * Returns system status, subscription summary, and stats
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * Minimal MedEx overview for the stripped-down OpenEMR module.
  */
 
-// Ensure site parameter exists to prevent "Site ID is missing" errors
 if (empty($_GET['site'])) {
     $_GET['site'] = 'default';
 }
@@ -18,111 +11,85 @@ require_once(__DIR__ . "/../../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-// Check admin access
 if (!AclMain::aclCheckCore('admin', 'super')) {
     http_response_code(403);
-    echo '<div class="overview-card"><p style="color: #dc3545;">' . xlt('Access denied') . '</p></div>';
+    echo '<div class="overview-card"><p style="color:#dc3545;">' . xlt('Access denied') . '</p></div>';
     exit;
 }
 
-// Load MedEx API
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
-// Get system status
 $isConfigured = $api->isConfigured();
 $isActive = $api->isActive();
+$siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+
 try {
-    // Force fresh login so overview uses the same subscription truth
-    // as the Services tab (avoids stale enabled_services in session cache).
     $loginData = $api->login(true);
-} catch (\Exception $e) {
-    $loginData = []; // Not configured or invalid credentials - proceed gracefully
+} catch (\Throwable $e) {
+    $loginData = [];
 }
-$medexUsername = $loginData['email'] ?? null;
-$creditBalance = (float)($loginData['credit_balance'] ?? 0.00);
-$rechargeData = is_array($loginData['recharge'] ?? null) ? $loginData['recharge'] : [];
-$rechargeOn = (int)($rechargeData['recharge_on'] ?? 0) === 1;
-$rechargePoint = (float)($rechargeData['recharge_point'] ?? 20.00);
-$rechargeAmount = (float)($rechargeData['recharge_amt'] ?? 0.00);
+
+$medexUsername = trim((string)($loginData['email'] ?? ''));
+if ($medexUsername === '') {
+    $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1");
+    $medexUsername = trim((string)($prefs['ME_username'] ?? ''));
+}
 $isDemoCustomer = in_array((int)($loginData['customer_group_id'] ?? 0), [3, 7], true);
 
-// Fallback to ME_username from medex_prefs if login data not available
-if (!$medexUsername) {
-    $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL LIMIT 1");
-    $medexUsername = $prefs['ME_username'] ?? null;
-}
-
-// Get last sync time
 $lastSync = sqlQuery("SELECT MedEx_lastupdated FROM medex_prefs LIMIT 1");
-$lastSyncTime = $lastSync['MedEx_lastupdated'] ?? null;
-$lastSyncFormatted = $lastSyncTime ? date('M j, Y g:i A', strtotime($lastSyncTime)) : 'Never';
-$minutesAgo = $lastSyncTime ? round((time() - strtotime($lastSyncTime)) / 60) : null;
+$lastSyncTime = trim((string)($lastSync['MedEx_lastupdated'] ?? ''));
+$lastSyncFormatted = $lastSyncTime !== '' ? date('M j, Y g:i A', strtotime($lastSyncTime)) : xlt('Never');
 
-// Fallback catalog prices removed — prices come from oc_product_recurring via getPricing().
-// Hardcoded prices go stale whenever OpenCart admin changes a recurring plan.
-
-// Get subscriptions — getSubscriptions() returns a wrapper array with keys
-// 'subscriptions', 'active_services', 'pricing', 'customer_group_id'.
-// Iterate over the nested 'subscriptions' map, not the top-level wrapper.
 $subscriptionsData = $api->getSubscriptions();
-$subscriptions = $subscriptionsData['subscriptions'] ?? [];
+$subscriptions = is_array($subscriptionsData['subscriptions'] ?? null) ? $subscriptionsData['subscriptions'] : [];
 $activeServiceKeys = array_values((array)($subscriptionsData['active_services'] ?? []));
-$hasActiveSubscriptions = !empty($activeServiceKeys);
 
-// Pull live prices from DB (same source as Services page) — force=true bypasses cache.
-$livePricing = $api->getPricing(true);
-$livePricingServices = $livePricing['services'] ?? [];
-
-$activeSubscriptions = [];
-$totalMonthlyCost = 0;
-
-// Fallback for older payloads missing active_services.
 if (empty($activeServiceKeys)) {
     foreach ($subscriptions as $key => $sub) {
         if (($sub['active'] ?? false) === true && ($sub['status'] ?? '') === 'active') {
-            $activeServiceKeys[] = $key;
+            $activeServiceKeys[] = (string)$key;
         }
     }
 }
-$hasActiveSubscriptions = !empty($activeServiceKeys);
 
+$livePricing = $api->getPricing(true);
+$livePricingServices = is_array($livePricing['services'] ?? null) ? $livePricing['services'] : [];
+$serviceNames = [];
+foreach ($livePricingServices as $svcKey => $svcData) {
+    $serviceNames[(string)$svcKey] = trim((string)($svcData['name'] ?? ''));
+}
+
+$activeSubscriptions = [];
+$totalMonthlyCost = 0.0;
 foreach ($activeServiceKeys as $key) {
-    // Keep Overview aligned with Services tab: only display/count services
-    // that exist in the current pricing/service catalog payload.
     if (!array_key_exists($key, $livePricingServices)) {
         continue;
     }
 
     $sub = is_array($subscriptions[$key] ?? null) ? $subscriptions[$key] : ['service_key' => $key, 'status' => 'active', 'active' => true];
-
-    // Mirror Services tab filtering so counts/labels stay consistent.
     $isAvailableFromApi = $livePricingServices[$key]['available'] ?? null;
     $isComingSoon = (bool)($livePricingServices[$key]['coming_soon'] ?? false);
     if (!$isDemoCustomer && ($isAvailableFromApi === false || ($isComingSoon && $isAvailableFromApi !== true))) {
         continue;
     }
 
-    // Prefer live price from oc_product_recurring; fall back to subscription's own price field.
     $livePrice = $livePricingServices[$key]['price'] ?? null;
-    $resolvedPrice = ($livePrice !== null && $livePrice > 0) ? $livePrice : (float)($sub['price'] ?? 0);
+    $resolvedPrice = ($livePrice !== null && $livePrice > 0) ? (float)$livePrice : (float)($sub['price'] ?? 0);
     $sub['resolved_price'] = $resolvedPrice;
     $activeSubscriptions[$key] = $sub;
     $totalMonthlyCost += $resolvedPrice;
 }
 
-$activeServiceKeyLookup = array_fill_keys($activeServiceKeys, true);
-$hasMessagingSubscription = isset($activeServiceKeyLookup['appointment_reminders'])
-    || isset($activeServiceKeyLookup['recall_campaigns']);
-$campaigns = [];
+$hasActiveSubscriptions = !empty($activeSubscriptions);
+$activeServiceKeyLookup = array_fill_keys(array_keys($activeSubscriptions), true);
+$hasMessagingSubscription = isset($activeServiceKeyLookup['appointment_reminders']) || isset($activeServiceKeyLookup['recall_campaigns']);
 $campaignCount = 0;
 if ($hasMessagingSubscription) {
     $campaigns = $api->getCampaigns();
     if (is_array($campaigns)) {
         foreach ($campaigns as $campaign) {
-            if (is_array($campaign) && !empty($campaign)) {
-                $campaignCount++;
-            } elseif ($campaign !== null && $campaign !== '' && $campaign !== false) {
+            if ((is_array($campaign) && !empty($campaign)) || (!is_array($campaign) && $campaign !== null && $campaign !== '' && $campaign !== false)) {
                 $campaignCount++;
             }
         }
@@ -130,481 +97,280 @@ if ($hasMessagingSubscription) {
 }
 $showCampaignStats = $hasMessagingSubscription && $campaignCount > 0;
 
-// Get stats (last 30 days)
-$thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
-
 $messagesSentCount = 0;
 $confirmedCount = 0;
 $confirmRate = 0;
 $pendingCount = 0;
 $eventsCount = 0;
 if ($showCampaignStats) {
-    // Messages sent
-    $messagesSent = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ?", [$thirtyDaysAgo]);
+    $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
+    $messagesSent = sqlQuery("SELECT COUNT(*) AS count FROM medex_outgoing WHERE msg_date >= ?", [$thirtyDaysAgo]);
     $messagesSentCount = (int)($messagesSent['count'] ?? 0);
 
-    // Confirmed appointments (replies with 'CONFIRMED' status)
-    $confirmedAppts = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ? AND msg_reply LIKE '%CONFIRM%'", [$thirtyDaysAgo]);
+    $confirmedAppts = sqlQuery("SELECT COUNT(*) AS count FROM medex_outgoing WHERE msg_date >= ? AND msg_reply LIKE '%CONFIRM%'", [$thirtyDaysAgo]);
     $confirmedCount = (int)($confirmedAppts['count'] ?? 0);
     $confirmRate = $messagesSentCount > 0 ? round(($confirmedCount / $messagesSentCount) * 100) : 0;
 
-    // Scheduled/pending messages waiting to go out
-    $pendingMessages = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_date > NOW() AND (msg_reply IS NULL OR msg_reply = '')");
+    $pendingMessages = sqlQuery("SELECT COUNT(*) AS cnt FROM medex_outgoing WHERE msg_date > NOW() AND (msg_reply IS NULL OR msg_reply = '')");
     $pendingCount = (int)($pendingMessages['cnt'] ?? 0);
 
-    // Upcoming appointments only matter once campaigns exist.
-    $upcomingEvents = sqlQuery("SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_eventDate >= CURDATE() AND pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)");
+    $upcomingEvents = sqlQuery("SELECT COUNT(*) AS count FROM openemr_postcalendar_events WHERE pc_eventDate >= CURDATE() AND pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)");
     $eventsCount = (int)($upcomingEvents['count'] ?? 0);
 }
-
-// Service names from live API (OpenCart product descriptions) — no hardcoding.
-// Falls back to slug-formatted key when API is unavailable.
-$serviceNames = [];
-foreach ($livePricingServices as $svcKey => $svcData) {
-    if (!empty($svcData['name'])) {
-        $serviceNames[$svcKey] = $svcData['name'];
+?>
+<style>
+.medex-overview-shell {
+    display: grid;
+    gap: 18px;
+}
+.medex-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 18px;
+}
+@media (max-width: 980px) {
+    .medex-overview-grid {
+        grid-template-columns: 1fr;
     }
 }
-
-?>
-
-<style>
-.ov-toggle-switch input[type="checkbox"] {
-    position: relative;
-    width: 40px;
-    height: 22px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: #cbd5e1;
-    border: 1px solid #94a3b8;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-.ov-toggle-switch input[type="checkbox"]:checked {
-    background: #4ade80;
-    border-color: #22c55e;
-}
-.ov-toggle-switch input[type="checkbox"]::before {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+.medex-overview-card {
     background: #fff;
-    top: 2px;
-    left: 2px;
-    transition: left 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    border: 1px solid #dbe5ee;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 10px 24px rgba(15, 75, 143, 0.08);
 }
-.ov-toggle-switch input[type="checkbox"]:checked::before {
-    left: 20px;
-}
-.ov-account-box {
-    margin-top: 10px;
-    padding: 12px;
-    background: #f8fbff;
-    border-radius: 8px;
-    border: 1px solid #c7dff3;
-}
-.ov-actions-row {
-    margin-top: 10px;
+.medex-overview-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    color: #0f172a;
     display: flex;
+    align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
 }
-.ov-btn-link {
-    text-decoration: none;
+.medex-overview-card h3 i {
+    color: #0f4b8f;
+}
+.medex-status-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-.ov-btn-link.primary {
-    background: #0f4b8f;
-    color: #fff;
-}
-.ov-btn-link.neutral {
-    background: #475569;
-    color: #fff;
-}
-.ov-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.ov-recharge-box {
-    margin-top: 12px;
-    background: #f8fbff;
-    border: 1px solid #dbe5ee;
-    border-radius: 8px;
-    padding: 10px;
-}
-.ov-field-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-}
-.ov-field-row label {
-    font-size: 12px;
-    color: #475569;
-    min-width: 80px;
-    font-weight: 600;
-}
-.ov-field-row input {
-    width: 100%;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 7px 8px;
-}
-.ov-quick-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-.ov-system-controls {
-    margin-top: 12px;
-    background: #f8fbff;
-    border: 1px solid #dbe5ee;
-    border-radius: 8px;
-    padding: 10px;
-}
-.ov-system-controls-head {
+    padding: 8px 12px;
+    border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
-    color: #1c4568;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
 }
-.ov-system-controls-row {
+.medex-status-pill.connected {
+    background: #dcfce7;
+    color: #166534;
+}
+.medex-status-pill.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.medex-meta-list {
+    display: grid;
+    gap: 12px;
+}
+.medex-meta-row {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 16px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
 }
-.ov-enable-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #334155;
+.medex-meta-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+.medex-meta-label {
+    color: #64748b;
     font-size: 13px;
     font-weight: 600;
 }
-.ov-sync-btn {
-    border: 1px solid #0f4b8f;
-    background: #0f4b8f;
-    color: #fff;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 12px;
+.medex-meta-value {
+    color: #0f172a;
+    font-size: 14px;
     font-weight: 700;
+    text-align: right;
+}
+.medex-service-list {
+    display: grid;
+    gap: 12px;
+}
+.medex-service-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.medex-service-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+.medex-service-name {
+    color: #0f172a;
+    font-weight: 700;
+}
+.medex-service-price {
+    color: #0f4b8f;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.medex-overview-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+.medex-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    border: 0;
     cursor: pointer;
 }
-.ov-sync-btn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+.medex-btn-primary {
+    background: #0f4b8f;
+    color: #fff;
+}
+.medex-btn-secondary {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.medex-empty-note {
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+}
+.medex-activity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 12px;
+}
+@media (max-width: 640px) {
+    .medex-activity-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.medex-activity-item {
+    border: 1px solid #dbe5ee;
+    border-radius: 12px;
+    padding: 14px;
+    background: #f8fbff;
+}
+.medex-activity-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.medex-activity-value {
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 8px;
+}
+.medex-activity-subtext {
+    color: #16a34a;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
 }
 </style>
-
-<div class="overview-grid">
-    <!-- System Information Card -->
-    <div class="overview-card">
-        <h3><i class="fa fa-server"></i> <?php echo xlt('System Information'); ?></h3>
-
-        <?php if (!$isActive): ?>
-            <div class="status-badge error">
-                <i class="fa fa-exclamation-circle"></i>
-                <?php echo xlt('Not Connected'); ?>
-            </div>
-            <?php if ($medexUsername && $hasActiveSubscriptions): ?>
-                <div class="ov-actions-row">
-                    <a href="reconnect.php" class="ov-btn-link primary">
-                        <i class="fa fa-refresh"></i> <?php echo xlt('Reconnect Account'); ?>
-                    </a>
-                    <a href="manual_config.php" class="ov-btn-link neutral">
-                        <i class="fa fa-wrench"></i> <?php echo xlt('Manual Config'); ?>
-                    </a>
-                </div>
-            <?php endif; ?>
-        <?php endif; ?>
-
-        <?php if ($medexUsername): ?>
-            <div class="ov-account-box">
-                <i class="fa fa-user" style="color: #0f4b8f;"></i>
-                <strong><?php echo xlt('Account:'); ?></strong>
-                <span style="margin-left: 5px;"><?php echo text($medexUsername); ?></span>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($hasActiveSubscriptions): ?>
-            <div class="ov-system-controls">
-                <div class="ov-system-controls-head"><?php echo xlt('System Controls'); ?></div>
-                <div class="ov-system-controls-row">
-                    <label class="ov-enable-label">
-                        <input type="checkbox" id="medex_enable_overview" value="1" <?php echo ($GLOBALS['medex_enable'] ?? '0') == '1' ? 'checked' : ''; ?>
-                            title="<?php echo xla('Enable or disable MedEx module'); ?>"
-                            onchange="if (window.parent && typeof window.parent.toggleMedExEnable === 'function') { window.parent.toggleMedExEnable(this); } else if (typeof toggleMedExEnable === 'function') { toggleMedExEnable(this); }">
-                        <span><?php echo xlt('MedEx Enabled'); ?></span>
-                    </label>
-                    <button class="ov-sync-btn" id="sync-button-overview"
-                        onclick="if (window.parent && typeof window.parent.triggerSync === 'function') { window.parent.triggerSync(this); } else if (typeof triggerSync === 'function') { triggerSync(this); }"
-                        <?php echo !$isActive ? 'disabled' : ''; ?>
-                        title="<?php echo xla('Sync data with MedEx server'); ?>">
-                        <i class="fa fa-sync-alt"></i>
-                        <?php echo xlt('Sync Now'); ?>
-                    </button>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="ov-system-controls">
-                <div class="ov-system-controls-head"><?php echo xlt('System Controls'); ?></div>
-                <div style="font-size:13px;color:#64748b;">
-                    <?php echo xlt('Enable and reconnect controls appear after at least one MedEx service is active.'); ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <div style="margin-top: 15px;">
-            <div class="stat-item">
-                <span class="stat-label"><i class="fa fa-clock"></i> <?php echo xlt('Last Sync'); ?></span>
-                <span class="stat-value" style="font-size: 14px; color: #666;">
-                    <?php
-                    if ($minutesAgo !== null) {
-                        if ($minutesAgo < 1) {
-                            echo xlt('Just now');
-                        } elseif ($minutesAgo < 60) {
-                            echo $minutesAgo . ' ' . xlt('min ago');
-                        } else {
-                            $hours = round($minutesAgo / 60);
-                            echo $hours . ' ' . xlt('hr') . ($hours != 1 ? 's' : '') . ' ' . xlt('ago');
-                        }
-                    } else {
-                        echo xlt('Never');
-                    }
-                    ?>
-                </span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><i class="fa fa-calendar"></i> <?php echo xlt('Next Sync'); ?></span>
-                <span class="stat-value" style="font-size: 14px; color: #666;">
-                    <?php
-                    if ($minutesAgo !== null && $minutesAgo < 60) {
-                        echo (60 - $minutesAgo) . ' ' . xlt('min');
-                    } else {
-                        echo xlt('On next change');
-                    }
-                    ?>
-                </span>
-            </div>
-        </div>
+<?php if (!$isConfigured): ?>
+<div class="medex-overview-card">
+    <h3><i class="fa fa-exclamation-circle"></i> <?php echo xlt('Setup Required'); ?></h3>
+    <p class="medex-empty-note"><?php echo xlt('MedEx is not configured yet. Complete onboarding to activate the module.'); ?></p>
+    <div class="medex-overview-actions">
+        <a href="splash.php?site=<?php echo attr_url($siteId); ?>" class="medex-btn medex-btn-primary"><i class="fa fa-rocket"></i> <?php echo xlt('Start Onboarding'); ?></a>
     </div>
-
-    <!-- Billing Snapshot Card -->
-    <div class="overview-card">
-        <h3><i class="fa fa-receipt"></i> <?php echo xlt('Billing Snapshot'); ?></h3>
-
-        <?php if (empty($activeSubscriptions)): ?>
-            <p style="color: #999; font-size: 14px; margin-bottom: 20px;">
-                <?php echo xlt('No recurring subscriptions'); ?>
-            </p>
-            <a href="?tab=subscriptions" style="text-decoration: none; color: #0f4b8f; font-weight: 500;">
-                <i class="fa fa-plus-circle"></i> <?php echo xlt('Add Services'); ?>
-            </a>
-        <?php else: ?>
-            <div style="margin-bottom: 15px;">
-                <?php foreach ($activeSubscriptions as $key => $sub): ?>
-                    <div class="stat-item">
-                        <span class="stat-label">
-                            <i class="fa fa-check" style="color: #28a745; font-size: 12px;"></i>
-                            <?php echo xlt($serviceNames[$key] ?? ucwords(str_replace('_', ' ', $key))); ?>
-                            <?php if (!empty($sub['provider_count']) && $sub['provider_count'] > 0): ?>
-                                <span style="font-size: 12px; color: #999;">(<?php echo $sub['provider_count']; ?> provider<?php echo $sub['provider_count'] != 1 ? 's' : ''; ?>)</span>
-                            <?php endif; ?>
-                        </span>
-                        <span class="stat-value" style="font-size: 14px;">
-                            $<?php echo number_format($sub['resolved_price'] ?? 0, 2); ?>/mo
-                        </span>
-                    </div>
-                <?php endforeach; ?>
+</div>
+<?php else: ?>
+<div class="medex-overview-shell">
+    <div class="medex-overview-grid">
+        <section class="medex-overview-card">
+            <h3><i class="fa fa-id-badge"></i> <?php echo xlt('Account'); ?></h3>
+            <div class="medex-status-pill <?php echo $isActive ? 'connected' : 'pending'; ?>">
+                <i class="fa <?php echo $isActive ? 'fa-check-circle' : 'fa-clock-o'; ?>"></i>
+                <?php echo $isActive ? xlt('Connected') : xlt('Pending Activation'); ?>
             </div>
-            <div style="padding-top: 15px; border-top: 2px solid #dbe5ee; display: flex; justify-content: space-between; align-items: center;">
-                <strong><?php echo xlt('Total'); ?>:</strong>
-                <strong style="font-size: 18px; color: #0f4b8f;">$<?php echo number_format($totalMonthlyCost, 2); ?>/mo</strong>
-            </div>
-            <a href="?tab=subscriptions" style="display: inline-block; margin-top: 15px; text-decoration: none; color: #0f4b8f; font-weight: 500;">
-                <?php echo xlt('Manage Billing'); ?> <i class="fa fa-arrow-right"></i>
-            </a>
-        <?php endif; ?>
-
-        <div style="margin-top:15px; padding-top:15px; border-top:2px solid #dbe5ee;">
-            <div class="ov-header-row" style="margin-bottom:8px;">
-                <strong style="color:#1c4568;"><i class="fa fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?></strong>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <?php if (!$isDemoCustomer): ?>
-                        <label class="ov-toggle-switch" title="<?php echo xla('Toggle auto-refill on or off'); ?>" style="margin:0;">
-                            <input type="checkbox" id="ov-recharge-on-toggle" <?php echo $rechargeOn ? 'checked' : ''; ?> onchange="ovToggleRechargeFields()">
-                        </label>
-                    <?php endif; ?>
+            <div class="medex-meta-list">
+                <div class="medex-meta-row">
+                    <div class="medex-meta-label"><?php echo xlt('Email'); ?></div>
+                    <div class="medex-meta-value"><?php echo text($medexUsername !== '' ? $medexUsername : xlt('Not available')); ?></div>
+                </div>
+                <div class="medex-meta-row">
+                    <div class="medex-meta-label"><?php echo xlt('Last Sync'); ?></div>
+                    <div class="medex-meta-value"><?php echo text($lastSyncFormatted); ?></div>
+                </div>
+                <div class="medex-meta-row">
+                    <div class="medex-meta-label"><?php echo xlt('Module Status'); ?></div>
+                    <div class="medex-meta-value"><?php echo $hasActiveSubscriptions ? xlt('Active Services Ready') : xlt('No Active Services'); ?></div>
                 </div>
             </div>
+        </section>
 
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Current Balance (as of last sync)'); ?></span>
-                <span class="stat-value" id="ov-credit-balance">$<?php echo number_format($creditBalance, 2); ?></span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Auto-Refill Threshold'); ?></span>
-                <span class="stat-value">$<?php echo number_format($rechargePoint, 2); ?></span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Auto-Refill Amount'); ?></span>
-                <span class="stat-value">$<?php echo number_format($rechargeAmount, 2); ?></span>
-            </div>
-
-            <?php if ($isDemoCustomer): ?>
-                <div style="margin-top: 12px; font-size: 12px; color: #0c5460; background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 6px; padding: 8px;">
-                    <i class="fa fa-info-circle"></i> <?php echo xlt('Demo account: billing and auto-refill are bypassed.'); ?>
-                </div>
+        <section class="medex-overview-card">
+            <h3><i class="fa fa-shopping-cart"></i> <?php echo xlt('Subscriptions'); ?></h3>
+            <?php if (!$hasActiveSubscriptions): ?>
+                <p class="medex-empty-note"><?php echo xlt('No recurring MedEx services are active for this practice yet.'); ?></p>
             <?php else: ?>
-                <div class="ov-recharge-box">
-                    <div id="ov-recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
-                        <div class="ov-field-row">
-                            <label for="ov-recharge-point"><?php echo xlt('Threshold'); ?></label>
-                            <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>">
+                <div class="medex-service-list">
+                    <?php foreach ($activeSubscriptions as $key => $sub): ?>
+                        <div class="medex-service-row">
+                            <div class="medex-service-name"><?php echo xlt($serviceNames[$key] !== '' ? $serviceNames[$key] : ucwords(str_replace('_', ' ', (string)$key))); ?></div>
+                            <div class="medex-service-price">$<?php echo number_format((float)($sub['resolved_price'] ?? 0), 2); ?></div>
                         </div>
-                        <div class="ov-field-row" style="margin-bottom:10px;">
-                            <label for="ov-recharge-amt"><?php echo xlt('Amount'); ?></label>
-                            <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>">
-                        </div>
+                    <?php endforeach; ?>
+                    <div class="medex-service-row">
+                        <div class="medex-service-name"><?php echo xlt('Current Total'); ?></div>
+                        <div class="medex-service-price">$<?php echo number_format($totalMonthlyCost, 2); ?></div>
                     </div>
-
-                    <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#0f4b8f; color:#fff; border:none; border-radius:4px; font-weight:600;">
-                        <i class="fa fa-save"></i> <?php echo xlt('Save Auto-Refill'); ?>
-                    </button>
-                    <div id="ov-recharge-status-msg" style="display:none; margin-top:8px; font-size:12px;"></div>
                 </div>
             <?php endif; ?>
-        </div>
+            <div class="medex-overview-actions">
+                <a href="#" class="medex-btn medex-btn-primary" onclick="if (window.parent && typeof window.parent.switchToTab === 'function') { return window.parent.switchToTab('subscriptions'); } if (typeof switchToTab === 'function') { return switchToTab('subscriptions'); } window.location.href='index.php?site=<?php echo attr_js($siteId); ?>&tab=subscriptions'; return false;"><i class="fa fa-arrow-right"></i> <?php echo xlt('Open Services'); ?></a>
+            </div>
+        </section>
     </div>
 
     <?php if ($hasMessagingSubscription): ?>
-    <div class="overview-card">
-        <h3><i class="fa fa-chart-line"></i> <?php echo xlt('Quick Stats'); ?></h3>
-
-        <?php if (!$showCampaignStats): ?>
-            <p style="color:#64748b; font-size:14px; margin:0 0 10px 0;">
-                <?php echo xlt('Quick stats appear after your first messaging campaign is configured.'); ?>
-            </p>
-        <?php else: ?>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Messages Sent'); ?> <span style="font-size:10px;color:#999;">(30d)</span></span>
-                <span class="stat-value"><?php echo number_format($messagesSentCount); ?></span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Confirmed'); ?></span>
-                <span class="stat-value">
-                    <?php echo number_format($confirmedCount); ?>
-                    <span style="font-size: 12px; color: #28a745; font-weight: normal;">(<?php echo $confirmRate; ?>%)</span>
-                </span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Scheduled'); ?></span>
-                <span class="stat-value" style="color: <?php echo $pendingCount > 0 ? '#0f4b8f' : '#999'; ?>;"><?php echo number_format($pendingCount); ?></span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label"><?php echo xlt('Upcoming Appts'); ?> <span style="font-size:10px;color:#999;">(7d)</span></span>
-                <span class="stat-value"><?php echo number_format($eventsCount); ?></span>
-            </div>
-        </div>
-        <?php endif; ?>
-
-    </div>
+        <section class="medex-overview-card">
+            <h3><i class="fa fa-comments"></i> <?php echo xlt('Messaging Activity'); ?></h3>
+            <?php if (!$showCampaignStats): ?>
+                <p class="medex-empty-note"><?php echo xlt('Messaging activity appears after your first campaign is configured.'); ?></p>
+            <?php else: ?>
+                <div class="medex-activity-grid">
+                    <div class="medex-activity-item">
+                        <div class="medex-activity-label"><?php echo xlt('Messages Sent'); ?></div>
+                        <div class="medex-activity-value"><?php echo number_format($messagesSentCount); ?></div>
+                    </div>
+                    <div class="medex-activity-item">
+                        <div class="medex-activity-label"><?php echo xlt('Confirmed'); ?></div>
+                        <div class="medex-activity-value"><?php echo number_format($confirmedCount); ?></div>
+                        <div class="medex-activity-subtext"><?php echo text($confirmRate); ?>%</div>
+                    </div>
+                    <div class="medex-activity-item">
+                        <div class="medex-activity-label"><?php echo xlt('Scheduled'); ?></div>
+                        <div class="medex-activity-value"><?php echo number_format($pendingCount); ?></div>
+                    </div>
+                    <div class="medex-activity-item">
+                        <div class="medex-activity-label"><?php echo xlt('Upcoming Appointments'); ?></div>
+                        <div class="medex-activity-value"><?php echo number_format($eventsCount); ?></div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </section>
     <?php endif; ?>
-
 </div>
-
-<script>
-function ovToggleRechargeFields() {
-    const on = document.getElementById('ov-recharge-on-toggle').checked;
-    const fields = document.getElementById('ov-recharge-fields');
-    if (fields) {
-        fields.style.display = on ? 'block' : 'none';
-    }
-}
-
-function ovSaveRechargeSettings() {
-    const msg = document.getElementById('ov-recharge-status-msg');
-    const on = document.getElementById('ov-recharge-on-toggle') ? (document.getElementById('ov-recharge-on-toggle').checked ? 1 : 0) : 0;
-    const point = document.getElementById('ov-recharge-point') ? parseFloat(document.getElementById('ov-recharge-point').value) || 0 : 0;
-    const amt = document.getElementById('ov-recharge-amt') ? parseInt(document.getElementById('ov-recharge-amt').value) || 0 : 0;
-
-    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
-        top.restoreSession();
-    }
-
-    fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/admin/update_recharge.php?site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'recharge_on=' + encodeURIComponent(on) +
-              '&recharge_point=' + encodeURIComponent(point) +
-              '&recharge_amt=' + encodeURIComponent(amt)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!msg) {
-            return;
-        }
-        msg.style.display = 'block';
-        if (data.success) {
-            msg.style.color = '#28a745';
-            msg.innerHTML = '<i class="fa fa-check-circle"></i> <?php echo xlt('Saved.'); ?>';
-            if (data.credit_balance !== undefined) {
-                const balEl = document.getElementById('ov-credit-balance');
-                if (balEl) {
-                    balEl.textContent = '$' + parseFloat(data.credit_balance).toFixed(2);
-                }
-            }
-            setTimeout(() => { msg.style.display = 'none'; }, 2500);
-        } else {
-            msg.style.color = '#dc3545';
-            msg.innerHTML = '<i class="fa fa-exclamation-circle"></i> ' + (data.error || '<?php echo xlt('Save failed.'); ?>');
-        }
-    })
-    .catch(() => {
-        if (!msg) {
-            return;
-        }
-        msg.style.display = 'block';
-        msg.style.color = '#dc3545';
-        msg.innerHTML = '<i class="fa fa-exclamation-circle"></i> <?php echo xlt('Network error.'); ?>';
-    });
-}
-</script>
-
-<!-- Quick Actions -->
-<div class="overview-card" style="margin-top: 20px;">
-    <h3><i class="fa fa-bolt"></i> <?php echo xlt('Quick Actions'); ?></h3>
-    <div class="ov-quick-actions">
-        <a href="?tab=subscriptions" style="padding: 12px 24px; background: #0f4b8f; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa fa-plus-circle"></i>
-            <?php echo xlt('Add Services'); ?>
-        </a>
-        <a href="?tab=settings" style="padding: 12px 24px; background: white; color: #0f4b8f; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #0f4b8f; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa fa-cog"></i>
-            <?php echo xlt('Configure Settings'); ?>
-        </a>
-        <a href="../public/dashboard.php" target="_blank" style="padding: 12px 24px; background: white; color: #0f4b8f; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #0f4b8f; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa fa-external-link-alt"></i>
-            <?php echo xlt('Full Dashboard'); ?>
-        </a>
-    </div>
-</div>
+<?php endif; ?>
