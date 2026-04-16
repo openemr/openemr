@@ -68,6 +68,7 @@ $minutesAgo = $lastSyncTime ? round((time() - strtotime($lastSyncTime)) / 60) : 
 $subscriptionsData = $api->getSubscriptions();
 $subscriptions = $subscriptionsData['subscriptions'] ?? [];
 $activeServiceKeys = array_values((array)($subscriptionsData['active_services'] ?? []));
+$hasActiveSubscriptions = !empty($activeServiceKeys);
 
 // Pull live prices from DB (same source as Services page) — force=true bypasses cache.
 $livePricing = $api->getPricing(true);
@@ -84,6 +85,7 @@ if (empty($activeServiceKeys)) {
         }
     }
 }
+$hasActiveSubscriptions = !empty($activeServiceKeys);
 
 foreach ($activeServiceKeys as $key) {
     // Keep Overview aligned with Services tab: only display/count services
@@ -109,25 +111,51 @@ foreach ($activeServiceKeys as $key) {
     $totalMonthlyCost += $resolvedPrice;
 }
 
+$activeServiceKeyLookup = array_fill_keys($activeServiceKeys, true);
+$hasMessagingSubscription = isset($activeServiceKeyLookup['appointment_reminders'])
+    || isset($activeServiceKeyLookup['recall_campaigns']);
+$campaigns = [];
+$campaignCount = 0;
+if ($hasMessagingSubscription) {
+    $campaigns = $api->getCampaigns();
+    if (is_array($campaigns)) {
+        foreach ($campaigns as $campaign) {
+            if (is_array($campaign) && !empty($campaign)) {
+                $campaignCount++;
+            } elseif ($campaign !== null && $campaign !== '' && $campaign !== false) {
+                $campaignCount++;
+            }
+        }
+    }
+}
+$showCampaignStats = $hasMessagingSubscription && $campaignCount > 0;
+
 // Get stats (last 30 days)
 $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
 
-// Messages sent
-$messagesSent = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ?", [$thirtyDaysAgo]);
-$messagesSentCount = $messagesSent['count'] ?? 0;
+$messagesSentCount = 0;
+$confirmedCount = 0;
+$confirmRate = 0;
+$pendingCount = 0;
+$eventsCount = 0;
+if ($showCampaignStats) {
+    // Messages sent
+    $messagesSent = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ?", [$thirtyDaysAgo]);
+    $messagesSentCount = (int)($messagesSent['count'] ?? 0);
 
-// Confirmed appointments (replies with 'CONFIRMED' status)
-$confirmedAppts = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ? AND msg_reply LIKE '%CONFIRM%'", [$thirtyDaysAgo]);
-$confirmedCount = $confirmedAppts['count'] ?? 0;
-$confirmRate = $messagesSentCount > 0 ? round(($confirmedCount / $messagesSentCount) * 100) : 0;
+    // Confirmed appointments (replies with 'CONFIRMED' status)
+    $confirmedAppts = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE msg_date >= ? AND msg_reply LIKE '%CONFIRM%'", [$thirtyDaysAgo]);
+    $confirmedCount = (int)($confirmedAppts['count'] ?? 0);
+    $confirmRate = $messagesSentCount > 0 ? round(($confirmedCount / $messagesSentCount) * 100) : 0;
 
-// Scheduled/pending messages waiting to go out
-$pendingMessages = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_date > NOW() AND (msg_reply IS NULL OR msg_reply = '')");
-$pendingCount = (int)($pendingMessages['cnt'] ?? 0);
+    // Scheduled/pending messages waiting to go out
+    $pendingMessages = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_date > NOW() AND (msg_reply IS NULL OR msg_reply = '')");
+    $pendingCount = (int)($pendingMessages['cnt'] ?? 0);
 
-// Calendar events (from integrated calendar) - next 7 days
-$upcomingEvents = sqlQuery("SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_eventDate >= CURDATE() AND pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)");
-$eventsCount = $upcomingEvents['count'] ?? 0;
+    // Upcoming appointments only matter once campaigns exist.
+    $upcomingEvents = sqlQuery("SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_eventDate >= CURDATE() AND pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)");
+    $eventsCount = (int)($upcomingEvents['count'] ?? 0);
+}
 
 // Service names from live API (OpenCart product descriptions) — no hardcoding.
 // Falls back to slug-formatted key when API is unavailable.
@@ -241,19 +269,61 @@ foreach ($livePricingServices as $svcKey => $svcData) {
     gap: 15px;
     flex-wrap: wrap;
 }
+.ov-system-controls {
+    margin-top: 12px;
+    background: #f8fbff;
+    border: 1px solid #dbe5ee;
+    border-radius: 8px;
+    padding: 10px;
+}
+.ov-system-controls-head {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1c4568;
+    margin-bottom: 8px;
+}
+.ov-system-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ov-enable-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+}
+.ov-sync-btn {
+    border: 1px solid #0f4b8f;
+    background: #0f4b8f;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.ov-sync-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
 </style>
 
 <div class="overview-grid">
-    <!-- System Status Card -->
+    <!-- System Information Card -->
     <div class="overview-card">
-        <h3><i class="fa fa-server"></i> <?php echo xlt('System Status'); ?></h3>
+        <h3><i class="fa fa-server"></i> <?php echo xlt('System Information'); ?></h3>
 
         <?php if (!$isActive): ?>
             <div class="status-badge error">
                 <i class="fa fa-exclamation-circle"></i>
                 <?php echo xlt('Not Connected'); ?>
             </div>
-            <?php if ($medexUsername): ?>
+            <?php if ($medexUsername && $hasActiveSubscriptions): ?>
                 <div class="ov-actions-row">
                     <a href="reconnect.php" class="ov-btn-link primary">
                         <i class="fa fa-refresh"></i> <?php echo xlt('Reconnect Account'); ?>
@@ -270,6 +340,34 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                 <i class="fa fa-user" style="color: #0f4b8f;"></i>
                 <strong><?php echo xlt('Account:'); ?></strong>
                 <span style="margin-left: 5px;"><?php echo text($medexUsername); ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($hasActiveSubscriptions): ?>
+            <div class="ov-system-controls">
+                <div class="ov-system-controls-head"><?php echo xlt('System Controls'); ?></div>
+                <div class="ov-system-controls-row">
+                    <label class="ov-enable-label">
+                        <input type="checkbox" id="medex_enable_overview" value="1" <?php echo ($GLOBALS['medex_enable'] ?? '0') == '1' ? 'checked' : ''; ?>
+                            title="<?php echo xla('Enable or disable MedEx module'); ?>"
+                            onchange="if (window.parent && typeof window.parent.toggleMedExEnable === 'function') { window.parent.toggleMedExEnable(this); } else if (typeof toggleMedExEnable === 'function') { toggleMedExEnable(this); }">
+                        <span><?php echo xlt('MedEx Enabled'); ?></span>
+                    </label>
+                    <button class="ov-sync-btn" id="sync-button-overview"
+                        onclick="if (window.parent && typeof window.parent.triggerSync === 'function') { window.parent.triggerSync(this); } else if (typeof triggerSync === 'function') { triggerSync(this); }"
+                        <?php echo !$isActive ? 'disabled' : ''; ?>
+                        title="<?php echo xla('Sync data with MedEx server'); ?>">
+                        <i class="fa fa-sync-alt"></i>
+                        <?php echo xlt('Sync Now'); ?>
+                    </button>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="ov-system-controls">
+                <div class="ov-system-controls-head"><?php echo xlt('System Controls'); ?></div>
+                <div style="font-size:13px;color:#64748b;">
+                    <?php echo xlt('Enable and reconnect controls appear after at least one MedEx service is active.'); ?>
+                </div>
             </div>
         <?php endif; ?>
 
@@ -308,13 +406,13 @@ foreach ($livePricingServices as $svcKey => $svcData) {
         </div>
     </div>
 
-    <!-- Active Subscriptions Card -->
+    <!-- Billing Snapshot Card -->
     <div class="overview-card">
-        <h3><i class="fa fa-shopping-cart"></i> <?php echo xlt('Active Subscriptions'); ?></h3>
+        <h3><i class="fa fa-receipt"></i> <?php echo xlt('Billing Snapshot'); ?></h3>
 
         <?php if (empty($activeSubscriptions)): ?>
             <p style="color: #999; font-size: 14px; margin-bottom: 20px;">
-                <?php echo xlt('No active subscriptions'); ?>
+                <?php echo xlt('No recurring subscriptions'); ?>
             </p>
             <a href="?tab=subscriptions" style="text-decoration: none; color: #0f4b8f; font-weight: 500;">
                 <i class="fa fa-plus-circle"></i> <?php echo xlt('Add Services'); ?>
@@ -341,15 +439,70 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                 <strong style="font-size: 18px; color: #0f4b8f;">$<?php echo number_format($totalMonthlyCost, 2); ?>/mo</strong>
             </div>
             <a href="?tab=subscriptions" style="display: inline-block; margin-top: 15px; text-decoration: none; color: #0f4b8f; font-weight: 500;">
-                <?php echo xlt('Manage Subscriptions'); ?> <i class="fa fa-arrow-right"></i>
+                <?php echo xlt('Manage Billing'); ?> <i class="fa fa-arrow-right"></i>
             </a>
         <?php endif; ?>
+
+        <div style="margin-top:15px; padding-top:15px; border-top:2px solid #dbe5ee;">
+            <div class="ov-header-row" style="margin-bottom:8px;">
+                <strong style="color:#1c4568;"><i class="fa fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?></strong>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <?php if (!$isDemoCustomer): ?>
+                        <label class="ov-toggle-switch" title="<?php echo xla('Toggle auto-refill on or off'); ?>" style="margin:0;">
+                            <input type="checkbox" id="ov-recharge-on-toggle" <?php echo $rechargeOn ? 'checked' : ''; ?> onchange="ovToggleRechargeFields()">
+                        </label>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <span class="stat-label"><?php echo xlt('Current Balance (as of last sync)'); ?></span>
+                <span class="stat-value" id="ov-credit-balance">$<?php echo number_format($creditBalance, 2); ?></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><?php echo xlt('Auto-Refill Threshold'); ?></span>
+                <span class="stat-value">$<?php echo number_format($rechargePoint, 2); ?></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><?php echo xlt('Auto-Refill Amount'); ?></span>
+                <span class="stat-value">$<?php echo number_format($rechargeAmount, 2); ?></span>
+            </div>
+
+            <?php if ($isDemoCustomer): ?>
+                <div style="margin-top: 12px; font-size: 12px; color: #0c5460; background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 6px; padding: 8px;">
+                    <i class="fa fa-info-circle"></i> <?php echo xlt('Demo account: billing and auto-refill are bypassed.'); ?>
+                </div>
+            <?php else: ?>
+                <div class="ov-recharge-box">
+                    <div id="ov-recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
+                        <div class="ov-field-row">
+                            <label for="ov-recharge-point"><?php echo xlt('Threshold'); ?></label>
+                            <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>">
+                        </div>
+                        <div class="ov-field-row" style="margin-bottom:10px;">
+                            <label for="ov-recharge-amt"><?php echo xlt('Amount'); ?></label>
+                            <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#0f4b8f; color:#fff; border:none; border-radius:4px; font-weight:600;">
+                        <i class="fa fa-save"></i> <?php echo xlt('Save Auto-Refill'); ?>
+                    </button>
+                    <div id="ov-recharge-status-msg" style="display:none; margin-top:8px; font-size:12px;"></div>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 
-    <!-- Quick Stats Card -->
+    <?php if ($hasMessagingSubscription): ?>
     <div class="overview-card">
         <h3><i class="fa fa-chart-line"></i> <?php echo xlt('Quick Stats'); ?></h3>
 
+        <?php if (!$showCampaignStats): ?>
+            <p style="color:#64748b; font-size:14px; margin:0 0 10px 0;">
+                <?php echo xlt('Quick stats appear after your first messaging campaign is configured.'); ?>
+            </p>
+        <?php else: ?>
         <div class="stats-grid">
             <div class="stat-item">
                 <span class="stat-label"><?php echo xlt('Messages Sent'); ?> <span style="font-size:10px;color:#999;">(30d)</span></span>
@@ -371,67 +524,10 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                 <span class="stat-value"><?php echo number_format($eventsCount); ?></span>
             </div>
         </div>
-
-    </div>
-
-    <!-- A La Carte Credits Card -->
-    <div class="overview-card">
-        <div class="ov-header-row">
-            <h3 style="margin:0;">
-                <i class="fa fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?>
-            </h3>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <a
-                    href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>"
-                    onclick="return window.confirm('MedEx onboarding is production-only. Continue to readiness checklist?');"
-                    title="<?php echo xla('Pay-as-you-go credits for SMS/voice/email usage. Auto-refill tops up credits when balance falls below your threshold.'); ?>"
-                    style="color:#0f4b8f; text-decoration:none; font-size:15px;"
-                ><i class="fa fa-question-circle"></i></a>
-                <?php if (!$isDemoCustomer): ?>
-                    <label class="ov-toggle-switch" title="<?php echo xla('Toggle auto-refill on or off'); ?>" style="margin:0;">
-                        <input type="checkbox" id="ov-recharge-on-toggle" <?php echo $rechargeOn ? 'checked' : ''; ?> onchange="ovToggleRechargeFields()">
-                    </label>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="stat-item">
-            <span class="stat-label"><?php echo xlt('Current Balance (as of last sync)'); ?></span>
-            <span class="stat-value" id="ov-credit-balance">$<?php echo number_format($creditBalance, 2); ?></span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label"><?php echo xlt('Refill Threshold'); ?></span>
-            <span class="stat-value">$<?php echo number_format($rechargePoint, 2); ?></span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label"><?php echo xlt('Refill Amount'); ?></span>
-            <span class="stat-value">$<?php echo number_format($rechargeAmount, 2); ?></span>
-        </div>
-
-        <?php if ($isDemoCustomer): ?>
-            <div style="margin-top: 12px; font-size: 12px; color: #0c5460; background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 6px; padding: 8px;">
-                <i class="fa fa-info-circle"></i> <?php echo xlt('Demo account: billing and auto-refill are bypassed.'); ?>
-            </div>
-        <?php else: ?>
-            <div class="ov-recharge-box">
-                <div id="ov-recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
-                    <div class="ov-field-row">
-                        <label for="ov-recharge-point"><?php echo xlt('Threshold'); ?></label>
-                        <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>">
-                    </div>
-                    <div class="ov-field-row" style="margin-bottom:10px;">
-                        <label for="ov-recharge-amt"><?php echo xlt('Amount'); ?></label>
-                        <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>">
-                    </div>
-                </div>
-
-                <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#0f4b8f; color:#fff; border:none; border-radius:4px; font-weight:600;">
-                    <i class="fa fa-save"></i> <?php echo xlt('Save Auto-Refill'); ?>
-                </button>
-                <div id="ov-recharge-status-msg" style="display:none; margin-top:8px; font-size:12px;"></div>
-            </div>
         <?php endif; ?>
+
     </div>
+    <?php endif; ?>
 
 </div>
 
