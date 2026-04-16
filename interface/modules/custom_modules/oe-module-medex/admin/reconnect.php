@@ -31,6 +31,10 @@ $success = '';
 // Get existing email from medex_prefs
 $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL LIMIT 1");
 $existingEmail = $prefs['ME_username'] ?? '';
+$requestedEmail = trim((string)($_GET['email'] ?? ''));
+if ($requestedEmail !== '') {
+    $existingEmail = $requestedEmail;
+}
 
 // Build externally reachable OpenEMR base URL for reconnect payload.
 $forwardedProto = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0] ?? '');

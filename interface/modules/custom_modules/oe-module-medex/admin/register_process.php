@@ -321,6 +321,32 @@ function medexIsAutoApprovalFailureMessage(string $message): bool
     return false;
 }
 
+function medexIsExistingAccountMessage(string $message): bool
+{
+    $m = strtolower(trim($message));
+    if ($m === '') {
+        return false;
+    }
+    $needles = [
+        'already exists',
+        'already registered',
+        'already have an account',
+        'account already exists',
+        'email already',
+        'user already',
+        'duplicate email',
+        'duplicate user',
+        'existing account',
+        'account exists',
+    ];
+    foreach ($needles as $needle) {
+        if (strpos($m, $needle) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function medexNormalizeSmsDestination(string $sms): string
 {
     $sms = trim($sms);
@@ -592,6 +618,22 @@ $acceptedAtUtc = gmdate('Y-m-d H:i:s');
 
 // Attempt registration
 $result = $api->register($data);
+
+if (empty($result['success']) && !empty($result['error']) && medexIsExistingAccountMessage((string)$result['error'])) {
+    $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['site'] ?? 'default'));
+    if ($siteId === '') {
+        $siteId = 'default';
+    }
+    $webroot = (string)($GLOBALS['webroot'] ?? '');
+    $result['existing_account'] = true;
+    $result['reconnect_url'] = $webroot
+        . '/interface/modules/custom_modules/oe-module-medex/admin/reconnect.php?site='
+        . rawurlencode($siteId)
+        . '&email=' . rawurlencode($email);
+    if (empty($result['error']) || medexIsExistingAccountMessage((string)$result['error'])) {
+        $result['error'] = 'A MedEx account already exists for this email. Reconnect it instead.';
+    }
+}
 
 // If registration successful, perform initial practice sync
 if (!empty($result['success'])) {

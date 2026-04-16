@@ -312,6 +312,12 @@ if ($step > 1 && !$api->isConfigured()) {
                             <?php echo xlt("Enter the email and password that will own this MedEx setup."); ?><br>
                             <?php echo xlt("This account will be used to complete onboarding and manage services later."); ?>
                         </p>
+                        <p style="margin:0 0 18px; font-size:14px; color:#526277;">
+                            <?php echo xlt("Already have a MedEx account?"); ?>
+                            <a href="reconnect.php?site=<?php echo attr_url($siteId); ?>" style="font-weight:700; color:#0f4b8f; text-decoration:underline;">
+                                <?php echo xlt("Reconnect it instead."); ?>
+                            </a>
+                        </p>
                         <div class="form-group">
                             <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
@@ -1120,6 +1126,19 @@ if ($step > 1 && !$api->isConfigured()) {
                 success: function(response) {
                     if (response.success) {
                         location.href = 'onboarding.php?step=2&site=<?php echo attr_js($siteId); ?>';
+                    } else if (response.existing_account && response.reconnect_url) {
+                        const safeUrl = $('<div>').text(response.reconnect_url).html();
+                        const safeError = $('<div>').text(response.error || 'A MedEx account already exists for this email.').html();
+                        $("#result").html(
+                            '<div class="alert alert-danger">' +
+                                safeError +
+                                '<div style="margin-top:12px;">' +
+                                    '<a class="btn btn-primary" href="' + safeUrl + '" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">' +
+                                        '<i class="fa fa-refresh"></i> Reconnect Existing Account' +
+                                    '</a>' +
+                                '</div>' +
+                            '</div>'
+                        );
                     } else {
                         $("#result").html('<div class="alert alert-danger">' + response.error + '</div>');
                     }
