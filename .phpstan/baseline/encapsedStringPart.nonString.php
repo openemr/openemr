@@ -462,11 +462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$tmp_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$encounter_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
@@ -2344,11 +2339,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$BS_COL_CLASS \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$field_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
@@ -5407,11 +5397,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$web_root \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$relationship \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/CareTeamViewCard.php',
@@ -5465,21 +5450,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$this\\-\\>templateData\\[\'field_name_value_array\'\\]\\[\'clinical_notes\'\\]\\[\\$i\\]\\[\'author_address\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$note\\[\'caption\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$note\\[\'id\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$this\\-\\>title \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$error\\-\\>code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

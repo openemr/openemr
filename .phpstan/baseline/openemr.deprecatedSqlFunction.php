@@ -1963,7 +1963,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
@@ -6272,11 +6272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sql_upgrade.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Lcobucci\\\\Clock\\\\SystemClock\\:\\:fromSystemTimezone\\(\\) is deprecated\\. Use ServiceContainer\\:\\:getClock\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/BC/ServiceContainer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
@@ -7054,21 +7049,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:rollbackTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:startTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:commitTransaction\\(\\) is deprecated\\. Use QueryUtils\\:\\:inTransaction\\(\\) wrapper instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DecisionSupportInterventionService.php',
 ];
 $ignoreErrors[] = [
@@ -7344,26 +7324,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlInsert\\(\\) instead of sqlInsert\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
@@ -7620,11 +7580,6 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) instead of sqlQueryNoLog\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/TrustedUserService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',

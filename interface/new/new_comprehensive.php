@@ -23,6 +23,7 @@ require_once("$srcdir/patientvalidation.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Layouts\SearchClass;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -46,22 +47,6 @@ getLayoutProperties('DEM', $grparr, '*');
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-
-// Determine layout field search treatment from its data type:
-// 1 = text field
-// 2 = select list
-// 0 = not searchable
-//
-function getSearchClass($data_type)
-{
-    return match ($data_type) {
-        // facilities
-        1, 10, 11, 12, 13, 14, 26, 35 => 2,
-        // date
-        2, 3, 4 => 1,
-        default => 0,
-    };
-}
 
 $fres = getLayoutRes($SHORT_FORM);
 ?>
@@ -328,26 +313,26 @@ function searchme() {
 $lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    $data_type = $lrow['data_type'];
-    $fldname = "form_$field_id";
-    switch (getSearchClass($data_type)) {
-        case 1:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && trimlen(f." . attr($fldname) . ".value) > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".value);\n" .
-            " }\n";
-            break;
-        case 2:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && f." . attr($fldname) . ".selectedIndex > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".options[f." . attr($fldname) . ".selectedIndex].value);\n" .
-            " }\n";
-            break;
+    $fldname = "form_{$field_id}";
+    $af = attr($fldname);
+    $ai = attr($field_id);
+    [$hasValue, $getValue] = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [null, null],
+        SearchClass::TextField => ["trimlen(f.{$af}.value) > 0", "f.{$af}.value"],
+        SearchClass::SelectList => ["f.{$af}.selectedIndex > 0", "f.{$af}.options[f.{$af}.selectedIndex].value"],
+    };
+    if ($hasValue !== null) {
+        printf(<<<'FMT'
+ if (f.%s.style.backgroundColor != '' && %s) {
+  url += '&%s=' + encodeURIComponent(%s);
+ }
+
+FMT, $af, $hasValue, $ai, $getValue);
     }
 }
 ?>
@@ -902,19 +887,19 @@ $(function () {
 <?php
 $lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    switch (getSearchClass($lrow['data_type'])) {
-        case 1:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { toggleSearch(this); });\n";
-            break;
-        case 2:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { selClick(this); });\n";
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").blur(function() { selBlur(this); });\n";
-            break;
+    $bindings = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [],
+        SearchClass::TextField => [['click', 'toggleSearch']],
+        SearchClass::SelectList => [['click', 'selClick'], ['blur', 'selBlur']],
+    };
+    $sel = js_escape("#form_" . $field_id);
+    foreach ($bindings as [$event, $handler]) {
+        printf('    $(%s).%s(function() { %s(this); });' . "\n", $sel, $event, $handler);
     }
 }
 ?>

@@ -48,6 +48,8 @@ class AuthorizationControllerTest extends TestCase
         $coreKernel = $this->createMock(Kernel::class);
         $coreKernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
+        $coreKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 4));
+        $coreKernel->method('getWebRoot')->willReturn('');
         /** @var array<string, mixed> $globalParams */
         $globalParams = array_merge([
             'kernel' => $coreKernel,

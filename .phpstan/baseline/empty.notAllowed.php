@@ -1248,7 +1248,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 18,
+    'count' => 16,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
 ];
 $ignoreErrors[] = [
@@ -1493,7 +1493,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
 ];
 $ignoreErrors[] = [
@@ -2944,11 +2944,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/js/xl/datatables-net.js.php',
 ];
 $ignoreErrors[] = [
@@ -4083,17 +4078,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEHttpKernel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
 ];
 $ignoreErrors[] = [
@@ -4274,11 +4264,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/OAuth2DiscoveryController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/SkipAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
@@ -4438,11 +4423,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
@@ -4468,7 +4448,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
@@ -5248,7 +5228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
@@ -5263,7 +5243,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
 ];
 $ignoreErrors[] = [
@@ -5408,6 +5388,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',
 ];
@@ -5475,11 +5460,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationPatientServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',

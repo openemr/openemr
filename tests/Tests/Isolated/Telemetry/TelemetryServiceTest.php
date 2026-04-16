@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Services\SoftwareVersion;
 use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
@@ -26,6 +26,24 @@ use Psr\Log\LoggerInterface;
 
 class TelemetryServiceTest extends TestCase
 {
+    private bool $hadKernel;
+    private mixed $originalKernel;
+
+    protected function setUp(): void
+    {
+        $this->hadKernel = array_key_exists('kernel', $GLOBALS);
+        $this->originalKernel = $GLOBALS['kernel'] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->hadKernel) {
+            $GLOBALS['kernel'] = $this->originalKernel;
+        } else {
+            unset($GLOBALS['kernel']);
+        }
+    }
+
     public function testIsTelemetryEnabledReturnsTrueWhenTelemetryDisabledIsZero(): void
     {
         $mockRepository = $this->createMock(TelemetryRepository::class);
@@ -255,10 +273,8 @@ class TelemetryServiceTest extends TestCase
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up webroot to test the normalization behavior
-        $globalsBag = OEGlobalsBag::getInstance();
-        $originalWebroot = $globalsBag->get('webroot');
-        $globalsBag->set('webroot', '/openemr');
+        // Set up a Kernel with webroot to test URL normalization
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
 
         $data = [
             'eventType' => 'click',
@@ -282,9 +298,6 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
-
-        // Restore original webroot
-        $globalsBag->set('webroot', $originalWebroot);
     }
 
     public function testReportClickEventHandlesMissingOptionalFields(): void
@@ -673,10 +686,8 @@ class TelemetryServiceTest extends TestCase
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up empty webroot to test the fallback behavior
-        $globalsBag = OEGlobalsBag::getInstance();
-        $originalWebroot = $globalsBag->get('webroot');
-        $globalsBag->set('webroot', '');
+        // Set up a Kernel with empty webroot to test the fallback behavior
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '');
 
         $data = [
             'eventType' => 'click',
@@ -700,13 +711,12 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
-
-        // Restore original webroot
-        $globalsBag->set('webroot', $originalWebroot);
     }
 
     public function testReportClickEventNormalizesUrlWithFragmentOnly(): void
     {
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
+
         $mockRepository = $this->createMock(TelemetryRepository::class);
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
         $mockLogger = $this->createMock(LoggerInterface::class);

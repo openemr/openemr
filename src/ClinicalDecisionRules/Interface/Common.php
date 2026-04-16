@@ -81,22 +81,22 @@ class Common
 
     public static function base_url(): string
     {
-        return OEGlobalsBag::getInstance()->get('webroot') . '/interface/super/rules';
+        return OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/super/rules';
     }
 
     public static function src_dir(): string
     {
-        return OEGlobalsBag::getInstance()->get('srcdir');
+        return OEGlobalsBag::getInstance()->getKernel()->getSrcDir();
     }
 
     public static function template_dir(): string
     {
-        return OEGlobalsBag::getInstance()->get('template_dir') . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
+        return OEGlobalsBag::getInstance()->getKernel()->getTemplateDir() . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
     }
 
     public static function base_dir(): string
     {
-        return OEGlobalsBag::getInstance()->get('incdir') . '/super/rules/';
+        return OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . '/super/rules/';
     }
 
     public static function library_dir(): string

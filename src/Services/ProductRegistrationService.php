@@ -18,7 +18,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
+require_once(__DIR__ . '/../../interface/product_registration/exceptions/generic_product_registration_exception.php');
 
 class ProductRegistrationService
 {

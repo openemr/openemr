@@ -1,0 +1,37 @@
+<?php
+
+namespace OpenEMR\Tests\Isolated\Common\Uuid;
+
+use OpenEMR\Common\Uuid\UuidRegistry;
+use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\UuidFactory;
+
+/**
+ * Uuid Registry Tests
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class UuidRegistryTest extends TestCase
+{
+    private $uuidFactory;
+
+    protected function setUp(): void
+    {
+        $this->uuidFactory = new UuidFactory();
+    }
+
+    /**
+     * Tests bi-directional uuid conversions
+     */
+    public function testUuidConversions(): void
+    {
+        $stringValue = $this->uuidFactory->uuid4()->toString();
+        $byteValue = UuidRegistry::uuidToBytes($stringValue);
+        $this->assertEquals(UuidRegistry::uuidToBytes($stringValue), $byteValue);
+        $this->assertEquals($stringValue, UuidRegistry::uuidToString($byteValue));
+    }
+}

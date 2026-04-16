@@ -1,6 +1,6 @@
 services:
   redis-master:
-    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
+    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
     container_name: redis-master
     command: ["redis-server", "/etc/redis/redis.conf"]
     volumes:
@@ -13,19 +13,19 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
+    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
     container_name: redis-replica-1
     command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
     volumes:
     - ./redis/redis.conf:/etc/redis/redis.conf
   redis-replica-2:
-    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
+    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
     container_name: redis-replica-2
     command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
     volumes:
     - ./redis/redis.conf:/etc/redis/redis.conf
   sentinel-1:
-    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
+    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
     container_name: sentinel-1
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     volumes:
@@ -34,7 +34,7 @@ services:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:7.2@sha256:27e0239308d65d349a9ab04b41ffe67598d65aea6c15da5a330673ff7f949868
+    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
     container_name: sentinel-2
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     volumes:
@@ -164,7 +164,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:145.0.7632.109@sha256:36474a4c56765ec3d04dc4cbac57a021e0d88e89fdb5dca297a50f1100279c1a
+    image: selenium/standalone-chromium:147.0.7727.55@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"
@@ -184,7 +184,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:latest@sha256:b5a8ef9cc40df3724699c1cd738b9cfad4b87b8f7e0ddbdec73528b5b0a8260d
+    image: phpmyadmin:latest@sha256:96096b1a03f287e424506646200d27a8a8f8e2e1fb9d4bd750ca2e2294b2e909
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:

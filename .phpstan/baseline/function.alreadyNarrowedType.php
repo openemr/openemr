@@ -312,7 +312,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\> will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_array\\(\\) with array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DeviceService.php',
 ];

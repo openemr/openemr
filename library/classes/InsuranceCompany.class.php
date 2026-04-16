@@ -12,7 +12,7 @@
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

@@ -3712,8 +3712,8 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                 echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
-                                            if (!empty($PMSFH[0]['medical_problem'])) {
-                                                foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
+                                            if (!empty($PMSFH[0]['PMH'])) {
+                                                foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
                                                         $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";

@@ -55,9 +55,33 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     ) {
     }
 
+    protected function getKernel(): ?Kernel
+    {
+        if ($this->kernel !== null) {
+            return $this->kernel;
+        }
+        if ($this->globals->hasKernel()) {
+            $this->kernel = $this->globals->getKernel();
+            return $this->kernel;
+        }
+        return null;
+    }
+
     public function getGlobals(): array
     {
+        $kernel = $this->getKernel();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($kernel !== null) {
+            return [
+                'assets_dir' => $kernel->getAssetsRelative(),
+                'srcdir' => $kernel->getSrcDir(),
+                'rootdir' => $kernel->getRootDir(),
+                'webroot' => $kernel->getWebRoot(),
+                'assetVersion' => $this->globals->get('v_js_includes'),
+                'session' => $session->all(),
+            ];
+        }
+        // Fallback for contexts where the Kernel is not available (e.g. tests)
         return [
             'assets_dir' => $this->globals->get('assets_static_relative'),
             'srcdir' => $this->globals->get('srcdir'),
@@ -196,7 +220,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
                     $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
                     echo "$($selector).datetimepicker({";
-                    require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    $srcDir = $this->getKernel()?->getSrcDir() ?? $this->globals->getString('srcdir');
+                    require($srcDir . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                     echo "})";
                     return ob_get_clean();
                 }
@@ -205,7 +230,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'DateToYYYYMMDD_js',
                 function () {
                     ob_start();
-                    require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php";
+                    $srcDir = $this->getKernel()?->getSrcDir() ?? $this->globals->getString('srcdir');
+                    require $srcDir . "/formatting_DateToYYYYMMDD_js.js.php";
                     return ob_get_clean();
                 }
             ),
@@ -235,7 +261,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'oemHelpIcon',
                 function () {
                     // this setups a variable called $help_icon... strange
-                    require OEGlobalsBag::getInstance()->get('srcdir') . "/display_help_icon_inc.php";
+                    $srcDir = $this->getKernel()?->getSrcDir() ?? $this->globals->getString('srcdir');
+                    require $srcDir . "/display_help_icon_inc.php";
                     return $help_icon ?? '';
                 }
             ),

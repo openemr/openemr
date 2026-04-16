@@ -2417,11 +2417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$templateId on SimpleXMLElement\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$acl_version on string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
@@ -3460,51 +3455,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$type on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$BootstrapSQL on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Charset on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ConnectionString on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$DBName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Multibyte on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Password on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TablePrefix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Type on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Username on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
@@ -5172,16 +5122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$documentElement on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$textContent on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -6077,6 +6017,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/Export/ExportMemoryStreamWriterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$box_14_qualifier_options on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -6130,11 +6075,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$viewBean on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/Export/ExportMemoryStreamWriterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

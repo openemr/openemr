@@ -2512,11 +2512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getSearchClass may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function default_gen_hl7_order may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
