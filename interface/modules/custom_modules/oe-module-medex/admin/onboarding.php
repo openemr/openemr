@@ -729,7 +729,7 @@ if ($step > 1 && !$isConfigured) {
                     <div id="billing-summary-lines" class="billing-summary-empty"><?php echo xlt("No services selected yet."); ?></div>
                     <div class="billing-summary-total">
                         <span><?php echo xlt("Estimated Monthly Total"); ?></span>
-                        <span id="billing-summary-total">$0.00 / <?php echo xlt("month"); ?></span>
+                        <span id="billing-summary-total">$0.00</span>
                     </div>
                 </div>
 
@@ -1142,7 +1142,7 @@ if ($step > 1 && !$isConfigured) {
             } else {
                 $("#billing-summary-lines").html('<div class="billing-summary-empty"><?php echo xlj("No services selected yet."); ?></div>');
             }
-            $("#billing-summary-total").text('$' + total.toFixed(2) + ' / <?php echo xlj("month"); ?>');
+            $("#billing-summary-total").text('$' + total.toFixed(2));
         }
 
         function sendOtp() {
