@@ -1267,6 +1267,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 agreementFrame.attr("src", "about:blank");
                 activeAgreementType = null;
             }
+            window.medexCloseAgreementModal = closeAgreementModal;
 
             function markAgreementAccepted(type) {
                 if (type === "terms") {

@@ -695,6 +695,14 @@ $practiceName = medexGetPracticeName();
             });
 
             closeBtn.addEventListener("click", function () {
+                try {
+                    if (window.parent && window.parent !== window && typeof window.parent.medexCloseAgreementModal === "function") {
+                        window.parent.medexCloseAgreementModal();
+                        return;
+                    }
+                } catch (e) {
+                    // Cross-frame access can fail; fall back to postMessage below.
+                }
                 const payload = {
                     source: "medex-agreement-signer",
                     action: "close",
