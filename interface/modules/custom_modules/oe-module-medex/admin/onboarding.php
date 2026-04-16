@@ -315,7 +315,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         <p style="margin:0 0 18px; font-size:14px; color:#526277;">
                             <?php echo xlt("Already have a MedEx account?"); ?>
                             <a href="reconnect.php?site=<?php echo attr_url($siteId); ?>" style="font-weight:700; color:#0f4b8f; text-decoration:underline;">
-                                <?php echo xlt("Reconnect it instead."); ?>
+                                <?php echo xlt("Reconnect."); ?>
                             </a>
                         </p>
                         <div class="form-group">
@@ -1134,7 +1134,7 @@ if ($step > 1 && !$api->isConfigured()) {
                                 safeError +
                                 '<div style="margin-top:12px;">' +
                                     '<a class="btn btn-primary" href="' + safeUrl + '" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">' +
-                                        '<i class="fa fa-refresh"></i> Reconnect Existing Account' +
+                                        '<i class="fa fa-refresh"></i> Reconnect' +
                                     '</a>' +
                                 '</div>' +
                             '</div>'
