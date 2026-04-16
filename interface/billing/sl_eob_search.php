@@ -654,6 +654,7 @@ if (
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$language_direction = $session->get('language_direction'); // fetch before output starts
 ?>
 <html>
 <head>
