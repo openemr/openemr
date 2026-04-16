@@ -274,6 +274,7 @@ class AuthUtils
      */
     private function confirmUserPassword($username, &$password)
     {
+        error_log("[DEBUG] confirmUserPassword: starting for username=$username");
         // Set variables for log
         if ($this->loginAuth) {
             $event = 'login';
@@ -296,6 +297,7 @@ class AuthUtils
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
             if (!$returnArray['pass']) {
+                error_log("[DEBUG] confirmUserPassword: IP blocked");
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 if ($returnArray['force_block']) {
                     EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
@@ -315,6 +317,7 @@ class AuthUtils
 
         // Check to ensure username and password are not empty
         if (empty($username) || empty($password)) {
+            error_log("[DEBUG] confirmUserPassword: empty username or password");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
@@ -328,7 +331,9 @@ class AuthUtils
         // Check to ensure user exists and is active
         $getUserSQL = "select `id`, `authorized`, `see_auth`, `active` from `users` where BINARY `username` = ?";
         $userInfo = privQuery($getUserSQL, [$username]);
+        error_log("[DEBUG] confirmUserPassword: userInfo query result: " . json_encode($userInfo));
         if (empty($userInfo) || empty($userInfo['id'])) {
+            error_log("[DEBUG] confirmUserPassword: user not found");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
@@ -338,6 +343,7 @@ class AuthUtils
             $this->preventTimingAttack();
             return false;
         } elseif ($userInfo['active'] != 1) {
+            error_log("[DEBUG] confirmUserPassword: user not active");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
