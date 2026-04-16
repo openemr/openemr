@@ -125,43 +125,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $moduleId = (string)$state['mod_id'];
         $needsInstall = !$state['installed'] ? 'true' : 'false';
         $needsEnable = !$state['enabled'] ? 'true' : 'false';
-        $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&site=' . rawurlencode($siteId);
-        $helpCenterUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . rawurlencode($siteId);
-
-        $headline = 'MedEx Setup';
-        $summary = 'Click Install. MedEx will handle the rest automatically.';
-        $primaryLabel = 'Install';
-        $primaryAction = "return window.medexRunSetupFlow && window.medexRunSetupFlow('" . self::esc($moduleId) . "','" . self::esc($onboardingUrl) . "', " . $needsInstall . ", " . $needsEnable . ", this);";
-        $primaryHint = 'One click';
-        $secondaryButton = '';
-        $installDone = '';
-        $enableDone = '';
-        $onboardingReady = '';
-        $installCardClass = ' medex-mm-current';
-        $enableCardClass = '';
-        $onboardingCardClass = '';
-
-        if ($state['installed']) {
-            $installDone = '<div class="medex-mm-state medex-mm-done">Installed</div>';
-            $installCardClass = '';
-            $enableCardClass = ' medex-mm-current';
-            $primaryLabel = 'Install';
-            $primaryHint = 'Almost there';
-        }
-
-        if ($state['enabled']) {
-            $enableDone = '<div class="medex-mm-state medex-mm-done">Enabled</div>';
-            $headline = 'MedEx Onboarding';
-            $summary = 'The module is enabled. Launch the intake flow from here.';
-            $primaryLabel = 'Open Onboarding';
-            $primaryAction = "window.location.href='" . self::esc($onboardingUrl) . "'; return false;";
-            $primaryHint = 'Ready';
-            $onboardingReady = '<div class="medex-mm-state medex-mm-ready">Ready</div>';
-            $secondaryButton = '<a class="medex-mm-btn medex-mm-btn-secondary" href="' . self::esc($helpCenterUrl) . '">Open Help Center</a>';
-            $installCardClass = '';
-            $enableCardClass = '';
-            $onboardingCardClass = ' medex-mm-current';
-        }
+        $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' . rawurlencode($siteId);
 
         return <<<HTML
 <script>
@@ -170,21 +134,38 @@ class ModuleManagerListener extends AbstractModuleActionListener
   if (log) {
     log.style.display = 'block';
     log.style.height = 'auto';
-    log.style.minHeight = '240px';
+    log.style.minHeight = '220px';
     log.style.overflowY = 'visible';
+  }
+  function medexSetStatus(text, note, state) {
+    var status = document.getElementById('medex-mm-status');
+    var notes = document.getElementById('medex-mm-notes');
+    if (status) {
+      status.textContent = text;
+      status.classList.remove('medex-mm-status-done', 'medex-mm-status-error');
+      if (state === 'done' || state === 'error') {
+        status.classList.add(state === 'done' ? 'medex-mm-status-done' : 'medex-mm-status-error');
+      }
+    }
+    if (notes) {
+      notes.textContent = note || '';
+    }
   }
   window.medexRunSetupFlow = async function (moduleId, onboardingUrl, needsInstall, needsEnable, trigger) {
     if (!moduleId || !window.fetch) {
       return false;
     }
+    medexSetStatus('Starting MedEx...', 'Preparing install and onboarding now.');
     if (trigger) {
       trigger.disabled = true;
-      trigger.dataset.medexOriginalLabel = trigger.textContent || '';
-      trigger.textContent = 'Working...';
+      trigger.style.display = 'none';
     }
     try {
       var site = new URLSearchParams(window.location.search).get('site') || 'default';
       var postAction = async function(actionName) {
+        if (typeof top.restoreSession === 'function') {
+          top.restoreSession();
+        }
         var body = new URLSearchParams({
           modId: String(moduleId),
           modAction: actionName,
@@ -210,68 +191,58 @@ class ModuleManagerListener extends AbstractModuleActionListener
         }
       };
       if (needsInstall) {
+        medexSetStatus('Installing MedEx...', 'Module files and database objects are being prepared.');
         await postAction('install');
       }
       if (needsEnable) {
+        medexSetStatus('Enabling MedEx...', 'Install is complete. Activating MedEx now.');
         await postAction('enable');
       }
+      medexSetStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
       window.location.href = onboardingUrl;
     } catch (error) {
-      alert('MedEx setup failed: ' + (error && error.message ? error.message : 'request error'));
-    } finally {
+      medexSetStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
       if (trigger) {
+        trigger.style.display = '';
         trigger.disabled = false;
-        trigger.textContent = trigger.dataset.medexOriginalLabel || 'Install';
+        trigger.textContent = 'Retry';
       }
     }
     return false;
   };
+  window.setTimeout(function () {
+    window.medexRunSetupFlow('{$moduleId}', '{$onboardingUrl}', {$needsInstall}, {$needsEnable}, document.getElementById('medex-mm-retry'));
+  }, 50);
 })();
 </script>
 <style>
-.medex-mm-wrap{max-width:980px;margin:14px auto;padding:18px 20px;border:1px solid #cfe0fb;border-radius:14px;background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);box-shadow:0 14px 28px rgba(15,75,143,.08);color:#0f172a}
-.medex-mm-head h2{margin:0 0 6px;font-size:24px;line-height:1.2;color:#0f4b8f}
-.medex-mm-head p{margin:0;color:#475569;font-size:14px}
-.medex-mm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
-.medex-mm-card{background:#fff;border:1px solid #d8e5fa;border-radius:12px;padding:14px}
-.medex-mm-card.medex-mm-current{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.18)}
-.medex-mm-card h3{margin:0 0 6px;font-size:16px;color:#0f172a}
-.medex-mm-card p{margin:0;color:#475569;font-size:13px;line-height:1.45}
-.medex-mm-state{margin-top:8px;font-size:12px;font-weight:700}
-.medex-mm-done{color:#047857}
-.medex-mm-ready{color:#1d4ed8}
-.medex-mm-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
-.medex-mm-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:9px;border:1px solid #1d4ed8;background:#1d4ed8;color:#fff !important;text-decoration:none;font-weight:700;cursor:pointer}
-.medex-mm-btn-secondary{background:#fff;color:#1d4ed8 !important;border-color:#93c5fd}
-.medex-mm-hint{font-size:12px;font-weight:700;color:#1d4ed8}
-@media (max-width:900px){.medex-mm-grid{grid-template-columns:1fr}}
+.medex-mm-wrap{max-width:720px;margin:14px auto;padding:24px 24px 22px;border:1px solid #cfe0fb;border-radius:18px;background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);box-shadow:0 18px 42px rgba(15,75,143,.10);color:#0f172a}
+.medex-mm-head h2{margin:0 0 8px;font-size:28px;line-height:1.15;color:#0f4b8f}
+.medex-mm-head p{margin:0;color:#475569;font-size:15px;line-height:1.6}
+.medex-mm-progress{margin-top:18px;height:14px;border-radius:999px;overflow:hidden;background:#dbeafe;border:1px solid #c7ddff}
+.medex-mm-progress-bar{width:34%;height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);background-size:200% 100%;animation:medex-mm-slide 1.1s linear infinite}
+.medex-mm-status{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:17px;font-weight:700;color:#0f172a}
+.medex-mm-status::before{content:"";width:20px;height:20px;border-radius:999px;border:3px solid #93c5fd;border-top-color:#1d4ed8;animation:medex-mm-spin .8s linear infinite;flex:0 0 auto}
+.medex-mm-status.medex-mm-status-done::before{animation:none;border-color:#15803d;background:#15803d;box-shadow:inset 0 0 0 4px #dcfce7}
+.medex-mm-status.medex-mm-status-error::before{animation:none;border-color:#b91c1c;background:#b91c1c;box-shadow:inset 0 0 0 4px #fee2e2}
+.medex-mm-notes{margin-top:8px;color:#475569;font-size:14px;line-height:1.55;min-height:22px}
+.medex-mm-actions{margin-top:18px}
+.medex-mm-btn{display:none;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid #1d4ed8;background:#eff6ff;color:#1d4ed8 !important;text-decoration:none;font-weight:700;cursor:pointer}
+@keyframes medex-mm-slide{0%{transform:translateX(-55%);background-position:0 0}100%{transform:translateX(230%);background-position:200% 0}}
+@keyframes medex-mm-spin{to{transform:rotate(360deg)}}
 </style>
 <div class="medex-mm-wrap">
   <div class="medex-mm-head">
-    <h2>{$headline}</h2>
-    <p>{$summary}</p>
+    <h2>Starting onboarding</h2>
+    <p>MedEx is finishing installation in the background. Onboarding will open automatically.</p>
   </div>
-  <div class="medex-mm-grid">
-    <div class="medex-mm-card{$installCardClass}">
-      <h3>1. Install</h3>
-      <p>Register the MedEx database objects and mark the module as installed.</p>
-      {$installDone}
-    </div>
-    <div class="medex-mm-card{$enableCardClass}">
-      <h3>2. Enable</h3>
-      <p>Activate the module so MedEx pages and services can load normally.</p>
-      {$enableDone}
-    </div>
-    <div class="medex-mm-card{$onboardingCardClass}">
-      <h3>3. Onboarding</h3>
-      <p>Launch the MedEx intake flow and continue account setup.</p>
-      {$onboardingReady}
-    </div>
+  <div class="medex-mm-progress">
+    <div class="medex-mm-progress-bar"></div>
   </div>
+  <div id="medex-mm-status" class="medex-mm-status">Preparing MedEx...</div>
+  <div id="medex-mm-notes" class="medex-mm-notes">Please wait while MedEx installs, enables, and moves into onboarding.</div>
   <div class="medex-mm-actions">
-    <button type="button" class="medex-mm-btn" onclick="{$primaryAction}">{$primaryLabel}</button>
-    {$secondaryButton}
-    <span class="medex-mm-hint">{$primaryHint}</span>
+    <button id="medex-mm-retry" type="button" class="medex-mm-btn" onclick="return window.medexRunSetupFlow && window.medexRunSetupFlow('{$moduleId}','{$onboardingUrl}', {$needsInstall}, {$needsEnable}, this);">Retry</button>
   </div>
 </div>
 HTML;
