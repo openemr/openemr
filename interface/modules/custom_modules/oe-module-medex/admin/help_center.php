@@ -72,8 +72,36 @@ $topicHelp = [
             xlt('Configure template-level permissions before production rollout.'),
         ],
     ],
+    'onboarding_url' => [
+        'title' => xlt('Onboarding URL and Callback Guide'),
+        'summary' => xlt('Callback verification requires a public HTTPS OpenEMR URL in production.'),
+        'points' => [
+            xlt('Production: use an HTTPS FQDN that resolves publicly and allows inbound port 443.'),
+            xlt('Developer test: enable MedEx onboarding developer mode only for non-production testing.'),
+            xlt('For local Docker/localhost, use a tunnel URL (Cloudflare Tunnel or ngrok) as your OpenEMR URL.'),
+        ],
+        'commands' => [
+            "sqlQuery(\"REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_onboarding_dev_mode', 0, '1')\");",
+            "cloudflared tunnel --url http://localhost:8300",
+            "ngrok http 8300",
+        ],
+    ],
 ];
 $activeTopic = $topicHelp[$topic] ?? null;
+if (is_array($activeTopic)) {
+    $decodeHelpValue = static function ($value) use (&$decodeHelpValue) {
+        if (is_array($value)) {
+            return array_map($decodeHelpValue, $value);
+        }
+        return html_entity_decode((string)$value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    };
+    $activeTopic = $decodeHelpValue($activeTopic);
+}
+$hasActiveTopic = is_array($activeTopic);
+$leftPanelTitle = $hasActiveTopic ? (string)($activeTopic['title'] ?? xl('Service Help')) : xlt('Onboarding Preview');
+$leftPanelSubtitle = $hasActiveTopic
+    ? (string)($activeTopic['summary'] ?? xl('Review this MedEx service before enabling it.'))
+    : xlt('Preview the onboarding process step by step before account activation.');
 
 $host = (string)($_SERVER['HTTP_HOST'] ?? '');
 $proto = (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
@@ -243,6 +271,102 @@ foreach ($readinessChecklist as $readinessItem) {
             overflow: hidden;
             height: 100%;
         }
+        .detail-doc {
+            height: 100%;
+            padding: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0) 30%),
+                linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .detail-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--brand);
+        }
+        .detail-head {
+            padding-bottom: 14px;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .detail-title {
+            margin: 8px 0 8px;
+            font-size: 34px;
+            line-height: 1.05;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .detail-summary {
+            margin: 0;
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 780px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+        .detail-card {
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            padding: 18px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 75, 143, 0.05);
+        }
+        .detail-card h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #0f4b8f;
+        }
+        .detail-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .detail-list li {
+            margin: 8px 0;
+        }
+        .detail-note {
+            margin: 0;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .detail-status {
+            display: grid;
+            gap: 10px;
+        }
+        .detail-status-row {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: #f8fbff;
+        }
+        .detail-status-label {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: #0f4b8f;
+            margin-bottom: 4px;
+        }
+        .detail-status-copy {
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.5;
+        }
         .video-box iframe {
             width: 100%;
             height: 100%;
@@ -396,12 +520,27 @@ foreach ($readinessChecklist as $readinessItem) {
         .topic-points li {
             margin: 5px 0;
         }
+        .topic-code {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 1px solid #c7d9ee;
+            border-radius: 10px;
+            background: #f1f7ff;
+            font-family: Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            color: #17324d;
+            overflow-x: auto;
+            white-space: pre;
+        }
         @media (max-width: 1000px) {
             .hero {
                 grid-template-columns: 1fr;
             }
             .grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
             }
         }
         @media (max-width: 700px) {
@@ -416,9 +555,9 @@ foreach ($readinessChecklist as $readinessItem) {
     <div class="hero">
         <section class="panel help-left">
             <h1 class="title"><?php echo xlt('MedEx Help'); ?></h1>
-            <h2 class="section-head"><?php echo xlt('Onboarding Preview'); ?></h2>
+            <h2 class="section-head"><?php echo text($leftPanelTitle); ?></h2>
             <p class="subtitle">
-                <?php echo xlt('Preview the onboarding process step by step before account activation.'); ?>
+                <?php echo text($leftPanelSubtitle); ?>
             </p>
             <?php if ($activeTopic): ?>
                 <section class="topic-panel">
@@ -429,6 +568,11 @@ foreach ($readinessChecklist as $readinessItem) {
                             <li><?php echo text($point); ?></li>
                         <?php endforeach; ?>
                     </ul>
+                    <?php if (!empty($activeTopic['commands']) && is_array($activeTopic['commands'])): ?>
+                        <?php foreach ($activeTopic['commands'] as $cmd): ?>
+                            <div class="topic-code"><?php echo text($cmd); ?></div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </section>
             <?php endif; ?>
             <div class="bottom-dock">
@@ -457,16 +601,58 @@ foreach ($readinessChecklist as $readinessItem) {
             </div>
         </section>
         <section class="panel help-right">
-            <div class="video-box">
-                <?php if ($hasTutorial): ?>
-                    <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
-                <?php else: ?>
-                    <div class="video-fallback">
-                        <h3 style="margin:0 0 8px;color:#fff;"><?php echo xlt('Tutorial Video'); ?></h3>
-                        <p style="margin:0;"><?php echo xlt('Video link is not configured yet. Use the step-by-step cards below, then contact support for narrated walkthrough access.'); ?></p>
+            <?php if ($hasActiveTopic): ?>
+                <div class="detail-doc">
+                    <div class="detail-head">
+                        <div class="detail-kicker"><?php echo xlt('Service Help'); ?></div>
+                        <h2 class="detail-title"><?php echo text($activeTopic['title']); ?></h2>
+                        <p class="detail-summary"><?php echo text($activeTopic['summary']); ?></p>
                     </div>
-                <?php endif; ?>
-            </div>
+                    <div class="detail-grid">
+                        <section class="detail-card">
+                            <h3><?php echo xlt('What This Service Does'); ?></h3>
+                            <ul class="detail-list">
+                                <?php foreach (($activeTopic['points'] ?? []) as $point): ?>
+                                    <li><?php echo text($point); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
+                        <section class="detail-status">
+                            <div class="detail-status-row">
+                                <div class="detail-status-label"><?php echo xlt('In Onboarding'); ?></div>
+                                <div class="detail-status-copy"><?php echo xlt('Select the service first. If configuration is required, MedEx will expand the extra choices before the cart step.'); ?></div>
+                            </div>
+                            <div class="detail-status-row">
+                                <div class="detail-status-label"><?php echo xlt('After Activation'); ?></div>
+                                <div class="detail-status-copy"><?php echo xlt('Detailed behavior, templates, and workflow rules are managed from the MedEx service area after onboarding is complete.'); ?></div>
+                            </div>
+                            <div class="detail-status-row">
+                                <div class="detail-status-label"><?php echo xlt('Need More Detail'); ?></div>
+                                <div class="detail-status-copy"><?php echo xlt('Use the service help icon from onboarding whenever you need this service-specific overview again.'); ?></div>
+                            </div>
+                        </section>
+                    </div>
+                    <?php if (!empty($activeTopic['commands']) && is_array($activeTopic['commands'])): ?>
+                        <section class="detail-card">
+                            <h3><?php echo xlt('Reference Commands'); ?></h3>
+                            <?php foreach ($activeTopic['commands'] as $cmd): ?>
+                                <div class="topic-code"><?php echo text($cmd); ?></div>
+                            <?php endforeach; ?>
+                        </section>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <div class="video-box">
+                    <?php if ($hasTutorial): ?>
+                        <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
+                    <?php else: ?>
+                        <div class="video-fallback">
+                            <h3 style="margin:0 0 8px;color:#fff;"><?php echo xlt('Tutorial Video'); ?></h3>
+                            <p style="margin:0;"><?php echo xlt('Video link is not configured yet. Use the step-by-step cards below, then contact support for narrated walkthrough access.'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </section>
     </div>
 </div>
