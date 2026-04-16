@@ -256,8 +256,8 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['abook_type'], 'abook_type');
-        $table->addUniqueIndex(['uuid'], 'uuid');
         $table->addUniqueIndex(['google_signin_email'], 'google_signin_email');
+        $table->addUniqueIndex(['uuid'], 'uuid');
 
         $this->createTable($table);
     }
