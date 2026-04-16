@@ -66,7 +66,29 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     $rawEnabledServices = [];
     $hasCredentials = false;
     $hasLiveSessionToken = false;
+    $moduleMenuEnabled = false;
+    $medexGloballyEnabled = false;
     try {
+        $moduleRow = sqlQuery(
+            "SELECT mod_active, mod_ui_active
+               FROM modules
+              WHERE mod_directory = 'oe-module-medex'
+              ORDER BY mod_id DESC
+              LIMIT 1"
+        );
+        $moduleMenuEnabled = !empty($moduleRow) && (
+            (int)($moduleRow['mod_active'] ?? 0) === 1 ||
+            (int)($moduleRow['mod_ui_active'] ?? 0) === 1
+        );
+
+        $globalRow = sqlQuery(
+            "SELECT gl_value
+               FROM globals
+              WHERE gl_name = 'medex_enable'
+              LIMIT 1"
+        );
+        $medexGloballyEnabled = ((string)($globalRow['gl_value'] ?? '0') === '1');
+
         $medexPrefsColumns = [];
         $columnResult = sqlStatement("SHOW COLUMNS FROM medex_prefs");
         while ($columnRow = sqlFetchArray($columnResult)) {
@@ -121,6 +143,14 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     } catch (\Throwable $e) {
         error_log('[MedEx] Error fetching enabled services: ' . $e->getMessage());
     }
+
+    $canInjectServiceMenus = $moduleMenuEnabled
+        && $medexGloballyEnabled
+        && $hasCredentials
+        && $hasLiveSessionToken;
+    if (!$canInjectServiceMenus) {
+        $enabledServices = [];
+    }
     
     // Helper function to check if service is enabled (handles both array and object formats)
     $isServiceEnabled = function($service) use ($enabledServices) {
@@ -140,10 +170,10 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     };
     
     $isAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
-    $hasReminders = $isServiceEnabled('appointment_reminders');
-    $hasSecureChat = $isServiceEnabled('secure_chat');
-    $hasPdfManagement = $isServiceEnabled('pdf_management');
-    $hasTeleHealth = $isServiceEnabled('TeleHealth') || $isServiceEnabled('telehealth');
+    $hasReminders = $canInjectServiceMenus && $isServiceEnabled('appointment_reminders');
+    $hasSecureChat = $canInjectServiceMenus && $isServiceEnabled('secure_chat');
+    $hasPdfManagement = $canInjectServiceMenus && $isServiceEnabled('pdf_management');
+    $hasTeleHealth = $canInjectServiceMenus && ($isServiceEnabled('TeleHealth') || $isServiceEnabled('telehealth'));
 
     // Create top-level MedEx menu
     $medexTopMenu = new \stdClass();
@@ -153,7 +183,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     $medexTopMenu->label = xlt("MedEx");
     // $medexTopMenu->icon = 'fa-comment-medical';
     $medexTopMenu->children = [];
-    $medexTopMenu->acl_req = ["patients", "demo"]; // Basic access - anyone with patient access
+    $medexTopMenu->acl_req = $canInjectServiceMenus ? ["patients", "demo"] : ["admin", "super"];
 
     if ($isAdmin) {
         $adminDashboardItem = new \stdClass();
@@ -233,7 +263,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     // authorized=1 means "billing provider" and is NOT the right gate here;
     // front-desk staff and nurses with calendar access must also be able to subscribe.
     $hasCalendarAcl = \OpenEMR\Common\Acl\AclMain::aclCheckCore('patients', 'appt');
-    if ($isServiceEnabled('calendar_export') && $hasCalendarAcl) {
+    if ($canInjectServiceMenus && $isServiceEnabled('calendar_export') && $hasCalendarAcl) {
         $calendarFeedsItem = new \stdClass();
         $calendarFeedsItem->requirement = 0;
         $calendarFeedsItem->target = 'med';
