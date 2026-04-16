@@ -544,12 +544,201 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         return new URLSearchParams(window.location.search).get('site') || 'default';
     }
 
+    function getManageUrl() {
+        return './Installer/manage?site=' + encodeURIComponent(getSite());
+    }
+
+    function getOnboardingUrl() {
+        return (window.webroot_url || '') +
+            '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?site=' +
+            encodeURIComponent(getSite()) + '&step=1';
+    }
+
     function getMedexSetupUrl(rowId) {
         var url = (window.webroot_url || '') + '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' + encodeURIComponent(getSite());
         if (rowId) {
             url += '&mod_id=' + encodeURIComponent(rowId);
         }
         return url;
+    }
+
+    function ensureProgressStyles() {
+        if (document.getElementById('medex-install-progress-style')) {
+            return;
+        }
+        var style = document.createElement('style');
+        style.id = 'medex-install-progress-style';
+        style.textContent = ''
+            + '#install_upgrade_log.medex-progress-log{display:block !important;padding:0;background:transparent;border:0;box-shadow:none;}'
+            + '.medex-progress-shell{max-width:980px;margin:12px auto 0;background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);'
+            + 'border:1px solid #bfd7fb;border-radius:14px;box-shadow:0 16px 36px rgba(15,75,143,.12);overflow:hidden;}'
+            + '.medex-progress-head{padding:14px 18px 10px;color:#0f3f75;font-size:20px;font-weight:700;}'
+            + '.medex-progress-body{padding:0 18px 18px;}'
+            + '.medex-progress-copy{color:#1e3a5f;font-size:14px;line-height:1.5;margin:0 0 14px;}'
+            + '.medex-progress-track{position:relative;height:12px;background:#dbeafe;border-radius:999px;overflow:hidden;}'
+            + '.medex-progress-bar{height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 55%,#38bdf8 100%);'
+            + 'background-size:200% 100%;animation:medex-progress-slide 1.2s linear infinite;}'
+            + '.medex-progress-status{display:flex;align-items:center;gap:10px;padding:14px 0 6px;color:#0f172a;font-size:15px;font-weight:600;}'
+            + '.medex-progress-status::before{content:\"\";width:18px;height:18px;border-radius:999px;border:3px solid #93c5fd;'
+            + 'border-top-color:#1d4ed8;animation:medex-spinner .75s linear infinite;flex:0 0 auto;}'
+            + '.medex-progress-status.done::before{border-color:#16a34a;background:#16a34a;animation:none;box-shadow:inset 0 0 0 4px #dcfce7;}'
+            + '.medex-progress-status.error::before{border-color:#dc2626;background:#dc2626;animation:none;box-shadow:inset 0 0 0 4px #fee2e2;}'
+            + '.medex-progress-notes{font-size:13px;color:#475569;line-height:1.5;}'
+            + '.medex-row-busy{opacity:.72;}'
+            + '.medex-row-busy a{pointer-events:none;}'
+            + '@keyframes medex-progress-slide{0%{transform:translateX(-55%);background-position:0 0;}100%{transform:translateX(220%);background-position:200% 0;}}'
+            + '@keyframes medex-spinner{to{transform:rotate(360deg);}}';
+        document.head.appendChild(style);
+    }
+
+    function ensureProgressPanel() {
+        ensureProgressStyles();
+        var log = document.getElementById('install_upgrade_log');
+        if (!log) {
+            return null;
+        }
+        log.classList.add('medex-progress-log');
+        log.style.display = 'block';
+        var shell = log.querySelector('.medex-progress-shell');
+        if (shell) {
+            return {
+                log: log,
+                status: shell.querySelector('.medex-progress-status'),
+                notes: shell.querySelector('.medex-progress-notes')
+            };
+        }
+        log.innerHTML = ''
+            + '<div class="medex-progress-shell">'
+            + '  <div class="medex-progress-head">Installing MedEx</div>'
+            + '  <div class="medex-progress-body">'
+            + '    <p class="medex-progress-copy">MedEx is being installed and enabled now. Onboarding will open automatically when setup is ready.</p>'
+            + '    <div class="medex-progress-track"><div class="medex-progress-bar"></div></div>'
+            + '    <div class="medex-progress-status">Preparing MedEx installation...</div>'
+            + '    <div class="medex-progress-notes">Please wait. This page will continue directly into onboarding.</div>'
+            + '  </div>'
+            + '</div>';
+        return {
+            log: log,
+            status: log.querySelector('.medex-progress-status'),
+            notes: log.querySelector('.medex-progress-notes')
+        };
+    }
+
+    function updateProgress(statusText, notesText, state) {
+        var panel = ensureProgressPanel();
+        if (!panel) {
+            return;
+        }
+        if (panel.status) {
+            panel.status.textContent = statusText;
+            panel.status.classList.remove('done', 'error');
+            if (state === 'done' || state === 'error') {
+                panel.status.classList.add(state);
+            }
+        }
+        if (panel.notes) {
+            panel.notes.textContent = notesText;
+        }
+    }
+
+    function setRowBusy(row, isBusy) {
+        if (!row) {
+            return;
+        }
+        row.classList.toggle('medex-row-busy', !!isBusy);
+        Array.prototype.forEach.call(row.querySelectorAll('a, button, input, select'), function (el) {
+            if (isBusy) {
+                el.dataset.medexDisabled = el.getAttribute('aria-disabled') || '';
+                el.setAttribute('aria-disabled', 'true');
+                if ('disabled' in el) {
+                    el.disabled = true;
+                }
+            } else {
+                if ('disabled' in el) {
+                    el.disabled = false;
+                }
+                if (el.dataset.medexDisabled) {
+                    el.setAttribute('aria-disabled', el.dataset.medexDisabled);
+                } else {
+                    el.removeAttribute('aria-disabled');
+                }
+                delete el.dataset.medexDisabled;
+            }
+        });
+    }
+
+    function getManagePayload(rowId, action) {
+        var payload = {
+            modId: rowId,
+            modAction: action
+        };
+        var encMenu = document.getElementById('mod_enc_menu');
+        var nickname = document.getElementById('mod_nick_name_' + rowId);
+        payload.mod_enc_menu = encMenu ? encMenu.value : '';
+        payload.mod_nick_name = nickname ? nickname.value : '';
+        return payload;
+    }
+
+    function postManageAction(rowId, action) {
+        if (typeof top.restoreSession === 'function') {
+            top.restoreSession();
+        }
+        return new Promise(function (resolve, reject) {
+            jQuery.ajax({
+                type: 'POST',
+                url: getManageUrl(),
+                data: getManagePayload(rowId, action),
+                beforeSend: function () {
+                    jQuery('.modal').show();
+                },
+                success: function (data) {
+                    var parsed;
+                    try {
+                        parsed = typeof data === 'string' ? JSON.parse(data) : data;
+                    } catch (error) {
+                        reject(new Error('MedEx installer returned an unexpected response.'));
+                        return;
+                    }
+                    if (!parsed || String(parsed.status || '').toUpperCase() !== 'SUCCESS') {
+                        reject(new Error(parsed && parsed.status ? parsed.status : 'MedEx ' + action + ' failed.'));
+                        return;
+                    }
+                    resolve(parsed);
+                },
+                error: function (xhr) {
+                    reject(new Error('MedEx ' + action + ' failed with HTTP ' + (xhr && xhr.status ? xhr.status : 'error') + '.'));
+                },
+                complete: function () {
+                    jQuery('.modal').hide();
+                }
+            });
+        });
+    }
+
+    function runMedexInstall(rowId, row) {
+        if (!rowId || window.__medex_install_running) {
+            return false;
+        }
+        window.__medex_install_running = true;
+        setRowBusy(row, true);
+        updateProgress('Installing MedEx files...', 'The module is being installed now. Onboarding opens automatically after enable completes.');
+        postManageAction(rowId, 'install')
+            .then(function () {
+                updateProgress('Enabling MedEx...', 'Install is complete. Finalizing module activation now.');
+                return postManageAction(rowId, 'enable');
+            })
+            .then(function () {
+                updateProgress('Opening onboarding...', 'MedEx is ready. Redirecting into onboarding now.', 'done');
+                window.setTimeout(function () {
+                    window.location.href = getOnboardingUrl();
+                }, 450);
+            })
+            .catch(function (error) {
+                window.__medex_install_running = false;
+                setRowBusy(row, false);
+                updateProgress('MedEx setup needs attention.', error && error.message ? error.message : 'The install sequence did not complete.', 'error');
+            });
+        return false;
     }
 
     function patchConfigure() {
@@ -627,7 +816,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         var installLink = row.querySelector("a[onclick*=\"'install'\"]");
         if (installLink && !installLink.dataset.medexPatched) {
             installLink.dataset.medexPatched = '1';
-            installLink.setAttribute('href', setupUrl);
+            installLink.setAttribute('href', '#');
             installLink.setAttribute('target', '_self');
             installLink.setAttribute('onclick', 'return false;');
             installLink.onclick = function (event) {
@@ -638,12 +827,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
                         event.stopImmediatePropagation();
                     }
                 }
-                if (typeof window.openModuleHelp === 'function') {
-                    window.openModuleHelp(setupUrl, 'MedEx Setup Help');
-                } else {
-                    window.location.href = setupUrl;
-                }
-                return false;
+                return runMedexInstall(rowId, row);
             };
         }
 
@@ -675,6 +859,9 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             event.stopPropagation();
             if (typeof event.stopImmediatePropagation === 'function') {
                 event.stopImmediatePropagation();
+            }
+            if (isInstall) {
+                return runMedexInstall(rowId, row);
             }
             if (typeof window.openModuleHelp === 'function') {
                 window.openModuleHelp(setupUrl, 'MedEx Setup Help');
