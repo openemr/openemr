@@ -12,6 +12,9 @@ if (empty($_GET['site'])) {
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
@@ -32,6 +35,56 @@ $informationId = ($type === 'terms') ? 5 : 8;
 // Use server-side base URL for content fetch (k8s-safe and cluster-safe).
 $fetchBaseUrl = rtrim(MedExConfig::baseUrl(), '/');
 $bodyUrl = $fetchBaseUrl . '/index.php?route=information/information/agree&information_id=' . $informationId;
+$action = strtolower(trim((string)($_REQUEST['action'] ?? '')));
+if ($action !== '' && !in_array($action, ['save_receipt', 'status'], true)) {
+    $action = '';
+}
+
+function medexAgreementSession()
+{
+    if (!class_exists(SessionWrapperFactory::class)) {
+        return null;
+    }
+    try {
+        return SessionWrapperFactory::getInstance()->getActiveSession();
+    } catch (\Throwable $e) {
+        return null;
+    }
+}
+
+function medexCollectAgreementCsrfToken(): string
+{
+    $session = medexAgreementSession();
+    if ($session) {
+        if (empty($session->get('csrf_private_key', null))) {
+            CsrfUtils::setupCsrfKey($session);
+        }
+        return (string) CsrfUtils::collectCsrfToken(session: $session);
+    }
+    if (empty($_SESSION['csrf_private_key'] ?? null)) {
+        CsrfUtils::setupCsrfKey();
+    }
+    return (string) CsrfUtils::collectCsrfToken('default');
+}
+
+function medexVerifyAgreementCsrfToken(string $token): bool
+{
+    $session = medexAgreementSession();
+    if ($token === '') {
+        return false;
+    }
+    try {
+        if ($session) {
+            return CsrfUtils::verifyCsrfToken(token: $token, subject: 'default', session: $session) ||
+                CsrfUtils::verifyCsrfToken(token: $token, subject: 'api', session: $session);
+        }
+        return CsrfUtils::verifyCsrfToken($token, 'default') ||
+            CsrfUtils::verifyCsrfToken($token, 'api');
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+
 function medexGetPracticeName(): string
 {
     $facility = sqlQuery("SELECT name FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1");
@@ -56,6 +109,62 @@ function medexRemoveLegacyPrintInstruction(string $html): string
         $html = preg_replace($pattern, '', $html) ?? $html;
     }
     return $html;
+}
+
+function medexEnsureAgreementReceiptTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_agreement_receipts` (
+            `agreement_type` varchar(20) NOT NULL,
+            `agreement_version` varchar(32) NOT NULL,
+            `payload_json` mediumtext NOT NULL,
+            `body_html` mediumtext DEFAULT NULL,
+            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`agreement_type`, `agreement_version`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexLoadAgreementReceipt(string $type, string $version): ?array
+{
+    medexEnsureAgreementReceiptTable();
+    $row = QueryUtils::querySingleRow(
+        "SELECT payload_json, body_html, created_at, updated_at
+           FROM medex_agreement_receipts
+          WHERE agreement_type = ? AND agreement_version = ?
+          LIMIT 1",
+        [$type, $version]
+    );
+    $payloadRaw = (string)($row['payload_json'] ?? '');
+    if ($payloadRaw === '') {
+        return null;
+    }
+    $payload = json_decode($payloadRaw, true);
+    if (!is_array($payload)) {
+        return null;
+    }
+    return [
+        'payload' => $payload,
+        'body_html' => (string)($row['body_html'] ?? ''),
+        'created_at' => (string)($row['created_at'] ?? ''),
+        'updated_at' => (string)($row['updated_at'] ?? ''),
+    ];
+}
+
+function medexSaveAgreementReceipt(string $type, string $version, array $payload, string $bodyHtml): void
+{
+    medexEnsureAgreementReceiptTable();
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_agreement_receipts (agreement_type, agreement_version, payload_json, body_html, created_at, updated_at)
+         VALUES (?, ?, ?, ?, NOW(), NOW())
+         ON DUPLICATE KEY UPDATE
+            payload_json = VALUES(payload_json),
+            body_html = VALUES(body_html),
+            updated_at = NOW()",
+        [$type, $version, json_encode($payload), $bodyHtml]
+    );
 }
 
 function medexFetchAgreementBody(string $url): string
@@ -99,9 +208,52 @@ function medexFetchAgreementBody(string $url): string
     return (trim($raw) === '') ? '' : $raw;
 }
 
+$csrfToken = medexCollectAgreementCsrfToken();
 $agreementHtml = medexFetchAgreementBody($bodyUrl);
 $agreementHtml = medexRemoveLegacyPrintInstruction($agreementHtml);
 $practiceName = medexGetPracticeName();
+$existingReceipt = medexLoadAgreementReceipt($type, $version);
+
+if ($action === 'status') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'signed' => is_array($existingReceipt),
+        'payload' => is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null,
+    ]);
+    exit;
+}
+
+if ($action === 'save_receipt') {
+    header('Content-Type: application/json');
+    $token = trim((string)($_POST['csrf_token_form'] ?? ''));
+    if (!medexVerifyAgreementCsrfToken($token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid security token']);
+        exit;
+    }
+    $payload = [
+        'source' => 'medex-agreement-signer',
+        'action' => 'signed',
+        'type' => $type,
+        'practice_name' => trim((string)($_POST['practice_name'] ?? $practiceName)),
+        'legal_corporate_name' => trim((string)($_POST['legal_corporate_name'] ?? '')),
+        'signer_name' => trim((string)($_POST['signer_name'] ?? '')),
+        'signer_title' => trim((string)($_POST['signer_title'] ?? '')),
+        'signed_at' => trim((string)($_POST['signed_at'] ?? '')),
+    ];
+    if ($payload['legal_corporate_name'] === '' || $payload['signer_name'] === '' || $payload['signed_at'] === '') {
+        echo json_encode(['success' => false, 'error' => 'Missing required signature fields']);
+        exit;
+    }
+    medexSaveAgreementReceipt($type, $version, $payload, $agreementHtml);
+    echo json_encode(['success' => true, 'payload' => $payload]);
+    exit;
+}
+
+if (is_array($existingReceipt) && trim((string)($existingReceipt['body_html'] ?? '')) !== '') {
+    $agreementHtml = (string)$existingReceipt['body_html'];
+}
+$initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'] ?? null) : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -456,6 +608,8 @@ $practiceName = medexGetPracticeName();
             const agreementTitle = <?php echo json_encode($title); ?>;
             const agreementVersion = <?php echo json_encode($version); ?>;
             const agreementType = <?php echo json_encode($type); ?>;
+            const agreementCsrfToken = <?php echo json_encode($csrfToken); ?>;
+            const initialSignedPayload = <?php echo json_encode($initialSignedPayload); ?>;
             const pdfFileBase = agreementType === "terms" ? "MedEX_Terms" : "MedEX_BAA";
             const signedLabel = <?php echo json_encode(xl('Signed')); ?>;
             let signedPayload = null;
@@ -570,6 +724,31 @@ $practiceName = medexGetPracticeName();
                 return bodyEl ? bodyEl.innerHTML : "";
             }
 
+            function applySignedPayload(payload, announceParent) {
+                if (!payload) {
+                    return;
+                }
+                signedPayload = payload;
+                legalCorporateNameEl.value = String(payload.legal_corporate_name || payload.practice_name || "");
+                signerNameEl.value = String(payload.signer_name || "");
+                signerTitleEl.value = String(payload.signer_title || "");
+                attestEl.checked = true;
+                setError(false);
+                setOk(true);
+                signBtn.disabled = true;
+                signBtn.textContent = signedLabel;
+                printBtn.disabled = false;
+                closeBtn.style.display = "inline-flex";
+                legalCorporateNameEl.readOnly = true;
+                signerNameEl.readOnly = true;
+                signerTitleEl.readOnly = true;
+                attestEl.disabled = true;
+                updateSignEnabledState();
+                if (announceParent && window.parent && window.parent !== window) {
+                    window.parent.postMessage(payload, "*");
+                }
+            }
+
             function openPrintableDocument(payload) {
                 const signedAtHuman = formatSignedAt(payload.signed_at);
                 const companyName = (payload.legal_corporate_name || payload.practice_name || "");
@@ -659,17 +838,6 @@ $practiceName = medexGetPracticeName();
                     setError(true);
                     return;
                 }
-                setError(false);
-                setOk(true);
-                signBtn.disabled = true;
-                signBtn.textContent = signedLabel;
-                printBtn.disabled = false;
-                closeBtn.style.display = "inline-flex";
-                legalCorporateNameEl.readOnly = true;
-                signerNameEl.readOnly = true;
-                signerTitleEl.readOnly = true;
-                attestEl.disabled = true;
-
                 const payload = {
                     source: "medex-agreement-signer",
                     action: "signed",
@@ -680,11 +848,32 @@ $practiceName = medexGetPracticeName();
                     signer_title: signerTitle,
                     signed_at: new Date().toISOString()
                 };
-                signedPayload = payload;
-
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage(payload, "*");
-                }
+                fetch(window.location.pathname + window.location.search + (window.location.search ? "&" : "?") + "action=save_receipt", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    credentials: "same-origin",
+                    body: new URLSearchParams({
+                        csrf_token_form: agreementCsrfToken,
+                        practice_name: String(payload.practice_name || ""),
+                        legal_corporate_name: String(payload.legal_corporate_name || ""),
+                        signer_name: String(payload.signer_name || ""),
+                        signer_title: String(payload.signer_title || ""),
+                        signed_at: String(payload.signed_at || "")
+                    }).toString()
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (response) {
+                    if (!response || !response.success || !response.payload) {
+                        throw new Error((response && response.error) ? response.error : "Unable to save signed receipt.");
+                    }
+                    applySignedPayload(response.payload, true);
+                }).catch(function (error) {
+                    setOk(false);
+                    setError(true);
+                    errorEl.textContent = error && error.message ? error.message : "Unable to save signed receipt.";
+                });
             });
 
             printBtn.addEventListener("click", function () {
@@ -734,6 +923,9 @@ $practiceName = medexGetPracticeName();
             legalCorporateNameEl.addEventListener("input", updateSignEnabledState);
             signerNameEl.addEventListener("input", updateSignEnabledState);
             attestEl.addEventListener("change", updateSignEnabledState);
+            if (initialSignedPayload) {
+                applySignedPayload(initialSignedPayload, true);
+            }
             evaluateAgreementRead();
             setTimeout(evaluateAgreementRead, 250);
             setTimeout(evaluateAgreementRead, 800);

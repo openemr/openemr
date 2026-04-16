@@ -1303,6 +1303,22 @@ if ($step > 1 && !$api->isConfigured()) {
                 }
             }
 
+            function restoreSavedAgreementState(type) {
+                const version = (type === "terms") ? termsVersion : baaVersion;
+                $.ajax({
+                    url: agreementSignUrlBase + "&type=" + encodeURIComponent(type) + "&version=" + encodeURIComponent(version) + "&action=status",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (!response || !response.success || !response.signed || !response.payload) {
+                            return;
+                        }
+                        applyAgreementSignature(type, response.payload);
+                        markAgreementAccepted(type);
+                    }
+                });
+            }
+
             function openAgreementModal(type, displayUrl) {
                 activeAgreementType = type;
                 const version = (type === "terms") ? termsVersion : baaVersion;
@@ -1436,6 +1452,8 @@ if ($step > 1 && !$api->isConfigured()) {
             updateOtpDestinationVisibility();
             syncAgreementCheckboxState();
             restoreOtpStatusForCurrentIdentity();
+            restoreSavedAgreementState("terms");
+            restoreSavedAgreementState("baa");
             updateOtpUiState();
             updateStep1SubmitState();
 
