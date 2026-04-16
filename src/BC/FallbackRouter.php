@@ -13,7 +13,10 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use OutOfRangeException;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\{
+    ServerRequestInterface,
+    UriInterface,
+};
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -71,8 +74,9 @@ readonly class FallbackRouter
      *
      * @throws NotFoundHttpException if the path cannot be resolved or is blocked
      */
-    public function performLegacyRouting(UriInterface $uri): ?string
+    public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
+        $uri = $request->getUri();
         $path = $uri->getPath();
         $this->logger->debug("Routing $path");
 
