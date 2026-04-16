@@ -29,9 +29,31 @@ class BackgroundServiceRegistry
     /**
      * Register or update a background service (idempotent upsert).
      *
-     * The ON DUPLICATE KEY UPDATE intentionally does NOT update `active`.
-     * This preserves the admin's enable/disable decision. Use setActive()
-     * to change a service's enabled state.
+     * ## Policy for the `active` flag: first install wins
+     *
+     * The `active` value from `$definition` is respected on initial INSERT
+     * and is never overwritten on subsequent upserts:
+     *
+     * - **Fresh row (no existing service with this name):** the
+     *   `$definition->active` value is written to the database. A module
+     *   can ship its default enabled state this way.
+     * - **Existing row:** title, function, require_once, execute_interval,
+     *   and sort_order are all updated, but `active` is left untouched.
+     *   This preserves any explicit enable/disable decision an admin has
+     *   made through the UI or via a prior migration.
+     *
+     * Consequence: two installs of the same module version can end up with
+     * different `active` values depending on whether the service existed
+     * before. This is intentional — runtime state belongs to the operator,
+     * not to the module package, and a module upgrade must not silently
+     * re-enable a service an admin has turned off.
+     *
+     * Modules that need to flip a service's active state on upgrade (for
+     * example, a security-driven kill switch) should call `setActive()`
+     * explicitly from a migration step, so the decision is reviewable at
+     * the call site rather than buried in package defaults.
+     *
+     * @see BackgroundServiceRegistry::setActive()
      */
     public function register(BackgroundServiceDefinition $definition): void
     {
