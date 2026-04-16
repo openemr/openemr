@@ -22,7 +22,7 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
 use Psr\SimpleCache\CacheInterface;
 
-final readonly class OidcDiscoveryClient
+readonly class OidcDiscoveryClient
 {
     private const WELL_KNOWN_PATH = '/.well-known/openid-configuration';
     private const CACHE_KEY_PREFIX = 'oidc_discovery_';

@@ -14,7 +14,7 @@ namespace OpenEMR\Common\Auth\Oidc\Identity;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-final class ExternalIdentityRepository
+class ExternalIdentityRepository
 {
     public const TABLE_NAME = 'oidc_external_identity';
 

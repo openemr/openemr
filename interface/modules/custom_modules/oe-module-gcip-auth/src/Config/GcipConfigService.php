@@ -16,7 +16,7 @@ namespace OpenEMR\Modules\GcipAuth\Config;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-final class GcipConfigService
+class GcipConfigService
 {
     public const TABLE_NAME = 'module_gcip_config';
 

@@ -49,7 +49,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
-final readonly class OidcTokenValidator
+readonly class OidcTokenValidator
 {
     public function __construct(
         private ClientInterface $httpClient,
