@@ -18,7 +18,24 @@ namespace OpenEMR\Services\Background;
 use OpenEMR\Common\Database\TableTypes;
 
 /**
+ * The `lease_is_live` field is computed at query time by BackgroundServiceRegistry
+ * (e.g. `lock_expires_at > NOW() AS lease_is_live`) and is intentionally NOT part
+ * of the generated `BackgroundServicesRow` schema because it is not a table column.
+ *
  * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-type BackgroundServicesQueryRow BackgroundServicesRow|array{
+ *   name: string,
+ *   title: string,
+ *   active: numeric-string,
+ *   running: numeric-string,
+ *   next_run: string,
+ *   execute_interval: numeric-string,
+ *   function: string,
+ *   require_once: ?string,
+ *   sort_order: numeric-string,
+ *   lock_expires_at: ?string,
+ *   lease_is_live: ?numeric-string
+ * }
  */
 final readonly class BackgroundServiceDefinition
 {
@@ -37,7 +54,7 @@ final readonly class BackgroundServiceDefinition
     }
 
     /**
-     * @param BackgroundServicesRow $row
+     * @param BackgroundServicesQueryRow $row
      */
     public static function fromDatabaseRow(array $row): self
     {
@@ -88,7 +105,7 @@ final readonly class BackgroundServiceDefinition
      * as acquireLock(). When absent — e.g. for test fixtures built by hand —
      * fall back to PHP-clock comparison.
      *
-     * @param BackgroundServicesRow $row
+     * @param BackgroundServicesQueryRow $row
      */
     private static function resolveRunning(array $row): bool
     {
