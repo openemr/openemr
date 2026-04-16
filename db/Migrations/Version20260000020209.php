@@ -44,125 +44,146 @@ final class Version20260000020209 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('updated_at', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)']);
+        $table->addColumn('updated_at', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to users.id user that created this record',
         ]);
         $table->addColumn('updated_by', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to users.id user that last modified this record',
         ]);
         $table->addColumn('assessment_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('screening_tool', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_instruments represents the assessment tool used to administer this assessment',
         ]);
         $table->addColumn('assessor', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to users.username the user that administered the assessment',
         ]);
         $table->addColumn('food_insecurity', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
         ]);
         $table->addColumn('food_insecurity_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('housing_instability', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_housing_worry',
         ]);
         $table->addColumn('housing_instability_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('transportation_insecurity', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_transportation_barrier',
         ]);
         $table->addColumn('transportation_insecurity_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('utilities_insecurity', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_utilities_shutoff',
         ]);
         $table->addColumn('utilities_insecurity_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('interpersonal_safety', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
         ]);
         $table->addColumn('interpersonal_safety_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('financial_strain', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
         ]);
         $table->addColumn('financial_strain_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('social_isolation', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_social_isolation_freq',
         ]);
         $table->addColumn('social_isolation_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('childcare_needs', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_childcare_needs',
         ]);
         $table->addColumn('childcare_needs_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('digital_access', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_digital_access',
         ]);
         $table->addColumn('digital_access_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('employment_status', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
         ]);
         $table->addColumn('education_level', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_education_level',
         ]);
         $table->addColumn('caregiver_status', Types::STRING, [
             'length' => 20,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
         ]);
         $table->addColumn('veteran_status', Types::STRING, [
             'length' => 20,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
         ]);
         $table->addColumn('pregnancy_status', Types::STRING, [
             'length' => 20,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=pregnancy_status',
         ]);
         $table->addColumn('pregnancy_edd', Types::DATE_MUTABLE, [
             'notnull' => false,
             'default' => null,
+            'comment' => 'Estimated due date for pregnancy',
         ]);
         $table->addColumn('pregnancy_intent', Types::STRING, [
             'length' => 32,
             'notnull' => false,
             'default' => null,
-            'comment' => 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
+            'comment' => 'fk to list_options.option_id WHERE list_id=pregnancy_intent Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
         ]);
         $table->addColumn('postpartum_status', Types::STRING, [
             'length' => 20,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=postpartum_status',
         ]);
         $table->addColumn('postpartum_end', Types::DATE_MUTABLE, [
             'notnull' => false,
             'default' => null,
+            'comment' => 'PostPartum end date',
         ]);
         $table->addColumn('goals', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('interventions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
@@ -173,6 +194,7 @@ final class Version20260000020209 extends AbstractMigration
             'length' => 50,
             'notnull' => false,
             'default' => null,
+            'comment' => 'fk to list_options.option_id WHERE list_id=disability_status',
         ]);
         $table->addColumn('disability_status_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('disability_scale', Types::TEXT, ['notnull' => false, 'length' => 65535]);
@@ -180,13 +202,13 @@ final class Version20260000020209 extends AbstractMigration
             'length' => 50,
             'notnull' => false,
             'default' => null,
-            'comment' => 'LOINC 88122-7 response',
+            'comment' => 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
         ]);
         $table->addColumn('hunger_q2', Types::STRING, [
             'length' => 50,
             'notnull' => false,
             'default' => null,
-            'comment' => 'LOINC 88123-5 response',
+            'comment' => 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
         ]);
         $table->addColumn('hunger_score', Types::INTEGER, [
             'notnull' => false,
