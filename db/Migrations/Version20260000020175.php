@@ -42,7 +42,7 @@ final class Version20260000020175 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('r_created', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'PatientID from pat_data']);
+        $table->addColumn('r_created', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'PatientID from pat_data']);
         $this->addPrimaryKey($table, 'r_ID');
         $table->addUniqueIndex(['r_PRACTID', 'r_pid'], 'r_PRACTID');
 
