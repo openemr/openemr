@@ -692,6 +692,7 @@ if ($step > 1 && !$api->isConfigured()) {
 
     <script>
         let otpVerified = false;
+        let otpStatusRequest = 0;
         const wizardStep = <?php echo (int)$step; ?>;
 
         function togglePasswordField(inputSelector, iconSelector) {
@@ -728,6 +729,54 @@ if ($step > 1 && !$api->isConfigured()) {
             return fallbackMessage;
         }
 
+        function resetLocalOtpVerification(message = "Send and verify your one-time password before continuing.") {
+            otpVerified = false;
+            $("#otp_proof").val("");
+            $("#otp_code").val("");
+            setOtpStatus(message);
+        }
+
+        function getCurrentOtpIdentity() {
+            const channel = $("#otp_channel").val();
+            const email = ($("#email").val() || "").trim();
+            const sms = (channel === "sms") ? normalizeSmsForE164($("#otp_sms_destination").val() || "") : "";
+            const destination = (channel === "sms") ? sms : email;
+            return { channel, email, sms, destination };
+        }
+
+        function restoreOtpStatusForCurrentIdentity() {
+            const identity = getCurrentOtpIdentity();
+            if (!validateOtpDestination(identity.channel, identity.email, identity.sms)) {
+                return;
+            }
+
+            const requestId = ++otpStatusRequest;
+            ensureActiveSession();
+            $.ajax({
+                url: 'onboarding_otp.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    csrf_token_form: $('input[name="csrf_token_form"]').val(),
+                    action: 'status',
+                    otp_channel: identity.channel,
+                    email: identity.email,
+                    otp_sms_destination: identity.sms
+                },
+                success: function(response) {
+                    if (requestId !== otpStatusRequest) {
+                        return;
+                    }
+                    if (response.success && response.verified && response.otp_proof) {
+                        otpVerified = true;
+                        $("#otp_proof").val(response.otp_proof);
+                        setOtpStatus(response.message || "One-time password already verified.", "ok");
+                    }
+                    updateStep1SubmitState();
+                }
+            });
+        }
+
         function updateOtpDestinationVisibility() {
             const channel = $("#otp_channel").val();
             if (channel === "sms") {
@@ -737,11 +786,9 @@ if ($step > 1 && !$api->isConfigured()) {
                 $("#otp_sms_destination").val("");
                 clearFieldError("#otp_sms_destination", "#otp-sms-error");
             }
-            otpVerified = false;
-            $("#otp_proof").val("");
-            $("#otp_code").val("");
-            setOtpStatus("Send and verify your one-time password before continuing.");
+            resetLocalOtpVerification();
             updateOtpConsentCopy();
+            restoreOtpStatusForCurrentIdentity();
             updateStep1SubmitState();
         }
 
@@ -972,9 +1019,11 @@ if ($step > 1 && !$api->isConfigured()) {
                     } else {
                         setOtpStatus(response.error || "Unable to send one-time password.", "err");
                     }
+                    updateStep1SubmitState();
                 },
                 error: function() {
                     setOtpStatus(ajaxErrorMessage(arguments[0], "Unable to send one-time password due to a request error."), "err");
+                    updateStep1SubmitState();
                 }
             });
         }
@@ -1330,12 +1379,14 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#email").on("blur", function() {
                 validateEmailField(true);
+                restoreOtpStatusForCurrentIdentity();
                 updateStep1SubmitState();
             });
             $("#email").on("input", function() {
                 if (validateEmailField(false)) {
                     clearFieldError("#email", "#email-error");
                 }
+                resetLocalOtpVerification();
                 updateStep1SubmitState();
             });
             $("#password").on("blur", function() {
@@ -1358,15 +1409,18 @@ if ($step > 1 && !$api->isConfigured()) {
                 if ($("#otp_channel").val() === "sms") {
                     validateSmsField(true);
                 }
+                restoreOtpStatusForCurrentIdentity();
             });
             $("#otp_sms_destination").on("input", function() {
                 clearFieldError("#otp_sms_destination", "#otp-sms-error");
+                resetLocalOtpVerification();
             });
             $("#TERMS_yes, #BusAgree_yes").on("change", function() {
                 updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
             syncAgreementCheckboxState();
+            restoreOtpStatusForCurrentIdentity();
             updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {

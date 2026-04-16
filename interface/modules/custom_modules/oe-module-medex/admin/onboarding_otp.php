@@ -16,41 +16,146 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 header('Content-Type: application/json');
+
+const MEDEX_OTP_CODE_TTL_SECONDS = 600;
+const MEDEX_OTP_VERIFIED_TTL_SECONDS = 14400;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     echo json_encode(['success' => false, 'error' => 'Access denied']);
     exit;
 }
 
-if (empty($session->get('csrf_private_key', null))) {
-    CsrfUtils::setupCsrfKey($session);
+$session = null;
+if (class_exists(SessionWrapperFactory::class)) {
+    try {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    } catch (\Throwable $e) {
+        $session = null;
+    }
+}
+
+if ($session) {
+    if (empty($session->get('csrf_private_key', null))) {
+        CsrfUtils::setupCsrfKey($session);
+    }
+} else {
+    if (empty($_SESSION['csrf_private_key'] ?? null)) {
+        CsrfUtils::setupCsrfKey();
+    }
 }
 $csrfToken = trim((string)($_POST['csrf_token_form'] ?? ''));
 $csrfOk = false;
 if ($csrfToken !== '') {
     try {
-        if ($session instanceof \Symfony\Component\HttpFoundation\Session\SessionInterface) {
-            $csrfOk = CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'default') ||
-                CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'api');
+        if ($session) {
+            $csrfOk = CsrfUtils::verifyCsrfToken(token: $csrfToken, subject: 'default', session: $session) ||
+                CsrfUtils::verifyCsrfToken(token: $csrfToken, subject: 'api', session: $session);
         } else {
             $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
                 CsrfUtils::verifyCsrfToken($csrfToken, 'api');
         }
     } catch (\Throwable $e) {
-        $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
-            CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+        $csrfOk = false;
     }
 }
 if (!$csrfOk) {
-    echo json_encode(['success' => false, 'error' => 'Invalid security token']);
+    $freshToken = '';
+    try {
+        if ($session) {
+            $freshToken = (string) CsrfUtils::collectCsrfToken(subject: 'default', session: $session);
+        } else {
+            $freshToken = (string) CsrfUtils::collectCsrfToken('default');
+        }
+    } catch (\Throwable $e) {
+        $freshToken = '';
+    }
+    echo json_encode(['success' => false, 'error' => 'Invalid security token', 'csrf_token' => $freshToken]);
     exit;
 }
 
 function medexOtpSessionKey(): string
 {
     return 'medex_onboarding_otp';
+}
+
+function medexOtpActorKey(): string
+{
+    $site = strtolower(trim((string)($_SESSION['site_id'] ?? $_GET['site'] ?? 'default')));
+    $user = strtolower(trim((string)($_SESSION['authUserID'] ?? $_SESSION['authUser'] ?? '')));
+    return hash('sha256', $site . '|' . $user);
+}
+
+function medexOtpStateKey(string $channel, string $destination, string $email): string
+{
+    $identity = medexOtpActorKey() . '|' . strtolower(trim($channel)) . '|' . strtolower(trim($destination)) . '|' . strtolower(trim($email));
+    return hash('sha256', $identity);
+}
+
+function medexEnsureOtpStateTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_onboarding_otp_state` (
+            `state_key` varchar(64) NOT NULL,
+            `state_json` mediumtext NOT NULL,
+            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`state_key`),
+            KEY `idx_updated_at` (`updated_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexSaveOtpStateToDb(array $state): void
+{
+    $channel = (string)($state['channel'] ?? '');
+    $destination = (string)($state['destination'] ?? '');
+    $email = (string)($state['email'] ?? '');
+    if ($channel === '' || $destination === '') {
+        return;
+    }
+    medexEnsureOtpStateTable();
+    $stateKey = medexOtpStateKey($channel, $destination, $email);
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_onboarding_otp_state (state_key, state_json, updated_at)
+         VALUES (?, ?, NOW())
+         ON DUPLICATE KEY UPDATE state_json = VALUES(state_json), updated_at = NOW()",
+        [$stateKey, json_encode($state)]
+    );
+}
+
+function medexLoadOtpStateFromDb(string $channel, string $destination, string $email): ?array
+{
+    if ($channel === '' || $destination === '') {
+        return null;
+    }
+    medexEnsureOtpStateTable();
+    $stateKey = medexOtpStateKey($channel, $destination, $email);
+    $row = QueryUtils::querySingleRow(
+        "SELECT state_json FROM medex_onboarding_otp_state WHERE state_key = ? LIMIT 1",
+        [$stateKey]
+    );
+    $raw = (string)($row['state_json'] ?? '');
+    if ($raw === '') {
+        return null;
+    }
+    $decoded = json_decode($raw, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
+function medexDeleteOtpStateFromDb(string $channel, string $destination, string $email): void
+{
+    if ($channel === '' || $destination === '') {
+        return;
+    }
+    medexEnsureOtpStateTable();
+    $stateKey = medexOtpStateKey($channel, $destination, $email);
+    QueryUtils::sqlStatementThrowException(
+        "DELETE FROM medex_onboarding_otp_state WHERE state_key = ?",
+        [$stateKey]
+    );
 }
 
 function medexGetOtpState()
@@ -77,7 +182,7 @@ function medexSetOtpState(array $state): void
     $_SESSION[$key] = $state;
 }
 
-function medexClearOtpState(): void
+function medexClearOtpState(?string $channel = null, ?string $destination = null, ?string $email = null): void
 {
     global $session;
     $key = medexOtpSessionKey();
@@ -85,6 +190,9 @@ function medexClearOtpState(): void
         $session->remove($key);
     }
     unset($_SESSION[$key]);
+    if (!empty($channel) && !empty($destination)) {
+        medexDeleteOtpStateFromDb((string)$channel, (string)$destination, (string)($email ?? ''));
+    }
 }
 
 function medexNormalizeOtpChannel(string $channel): string
@@ -360,7 +468,7 @@ function medexSendOtpThroughApi(string $channel, string $destination, string $co
 }
 
 $action = strtolower(trim((string)($_POST['action'] ?? '')));
-if (!in_array($action, ['send', 'verify'], true)) {
+if (!in_array($action, ['send', 'verify', 'status'], true)) {
     echo json_encode(['success' => false, 'error' => 'Invalid action']);
     exit;
 }
@@ -382,6 +490,56 @@ if ($destination === '') {
     } else {
         echo json_encode(['success' => false, 'error' => 'Valid SMS number is required in +15551234567 format']);
     }
+    exit;
+}
+
+if ($action === 'status') {
+    $state = medexGetOtpState();
+    if (!is_array($state)) {
+        $state = medexLoadOtpStateFromDb($channel, $destination, $email);
+        if (is_array($state)) {
+            medexSetOtpState($state);
+        }
+    }
+
+    if (!is_array($state)) {
+        echo json_encode(['success' => true, 'verified' => false]);
+        exit;
+    }
+
+    $verifiedExpiresAt = (int)($state['verified_expires_at'] ?? 0);
+    $codeExpiresAt = (int)($state['expires_at'] ?? 0);
+    $isExpired = false;
+    if (!empty($state['verified'])) {
+        $isExpired = ($verifiedExpiresAt > 0 && $verifiedExpiresAt < time());
+    } else {
+        $isExpired = ($codeExpiresAt > 0 && $codeExpiresAt < time());
+    }
+
+    if ($isExpired) {
+        medexClearOtpState($channel, $destination, $email);
+        echo json_encode(['success' => true, 'verified' => false]);
+        exit;
+    }
+
+    if (!empty($state['verified']) && !empty($state['proof'])) {
+        echo json_encode([
+            'success' => true,
+            'verified' => true,
+            'otp_proof' => (string)$state['proof'],
+            'message' => 'One-time password already verified. You can continue onboarding.',
+            'verified_expires_at' => $verifiedExpiresAt,
+        ]);
+        exit;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'verified' => false,
+        'message' => ($codeExpiresAt > time())
+            ? 'One-time password sent. Enter the code to continue.'
+            : 'Send and verify your one-time password before continuing.'
+    ]);
     exit;
 }
 
@@ -430,17 +588,21 @@ if ($action === 'send') {
 
     medexAuditOtpDecision('send', $channel, $destination, ($channel === 'sms' ? '1' : ''), 'allow', 'sent');
 
-    medexSetOtpState([
+    $sendState = [
         'channel' => $channel,
         'destination' => $destination,
         'email' => $email,
         'code_hash' => password_hash($code, PASSWORD_DEFAULT),
         'sent_at' => time(),
-        'expires_at' => time() + (10 * 60),
+        'expires_at' => time() + MEDEX_OTP_CODE_TTL_SECONDS,
         'attempts' => 0,
         'verified' => false,
+        'verified_at' => 0,
+        'verified_expires_at' => 0,
         'proof' => '',
-    ]);
+    ];
+    medexSetOtpState($sendState);
+    medexSaveOtpStateToDb($sendState);
 
     $response = ['success' => true, 'message' => 'One-time password sent.'];
     if ($debugOtpCode !== '') {
@@ -452,6 +614,9 @@ if ($action === 'send') {
 
 $state = medexGetOtpState();
 if (!is_array($state)) {
+    $state = medexLoadOtpStateFromDb($channel, $destination, $email);
+}
+if (!is_array($state)) {
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'no_state');
     echo json_encode(['success' => false, 'error' => 'Send one-time password first']);
     exit;
@@ -461,8 +626,19 @@ if (($state['channel'] ?? '') !== $channel || ($state['destination'] ?? '') !== 
     echo json_encode(['success' => false, 'error' => 'One-time password destination has changed. Send a new code.']);
     exit;
 }
+if (!empty($state['verified']) && !empty($state['proof'])) {
+    $verifiedExpiresAt = (int)($state['verified_expires_at'] ?? 0);
+    if ($verifiedExpiresAt > time()) {
+        echo json_encode([
+            'success' => true,
+            'otp_proof' => (string)$state['proof'],
+            'message' => 'One-time password already verified.'
+        ]);
+        exit;
+    }
+}
 if ((int)($state['expires_at'] ?? 0) < time()) {
-    medexClearOtpState();
+    medexClearOtpState($channel, $destination, $email);
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'expired');
     echo json_encode(['success' => false, 'error' => 'One-time password expired. Send a new code.']);
     exit;
@@ -478,7 +654,7 @@ if (!preg_match('/^\d{6}$/', $code)) {
 $attempts = (int)($state['attempts'] ?? 0) + 1;
 $state['attempts'] = $attempts;
 if ($attempts > 5) {
-    medexClearOtpState();
+    medexClearOtpState($channel, $destination, $email);
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'too_many_attempts');
     echo json_encode(['success' => false, 'error' => 'Too many invalid attempts. Send a new one-time password.']);
     exit;
@@ -486,6 +662,7 @@ if ($attempts > 5) {
 
 if (!password_verify($code, (string)($state['code_hash'] ?? ''))) {
     medexSetOtpState($state);
+    medexSaveOtpStateToDb($state);
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'incorrect_code');
     echo json_encode(['success' => false, 'error' => 'Incorrect one-time password']);
     exit;
@@ -494,8 +671,10 @@ if (!password_verify($code, (string)($state['code_hash'] ?? ''))) {
 $proof = bin2hex(random_bytes(16));
 $state['verified'] = true;
 $state['verified_at'] = time();
+$state['verified_expires_at'] = time() + MEDEX_OTP_VERIFIED_TTL_SECONDS;
 $state['proof'] = $proof;
 medexSetOtpState($state);
+medexSaveOtpStateToDb($state);
 medexAuditOtpDecision('verify', $channel, $destination, '', 'allow', 'verified');
 
 echo json_encode([

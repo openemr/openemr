@@ -356,6 +356,37 @@ function medexNormalizeSmsDestination(string $sms): string
     return '';
 }
 
+function medexOtpActorKey(): string
+{
+    $site = strtolower(trim((string)($_SESSION['site_id'] ?? $_GET['site'] ?? 'default')));
+    $user = strtolower(trim((string)($_SESSION['authUserID'] ?? $_SESSION['authUser'] ?? '')));
+    return hash('sha256', $site . '|' . $user);
+}
+
+function medexOtpStateKey(string $channel, string $destination, string $email): string
+{
+    $identity = medexOtpActorKey() . '|' . strtolower(trim($channel)) . '|' . strtolower(trim($destination)) . '|' . strtolower(trim($email));
+    return hash('sha256', $identity);
+}
+
+function medexLoadOtpStateFromDb(string $channel, string $destination, string $email): ?array
+{
+    if ($channel === '' || $destination === '') {
+        return null;
+    }
+
+    $row = QueryUtils::querySingleRow(
+        "SELECT state_json FROM medex_onboarding_otp_state WHERE state_key = ? LIMIT 1",
+        [medexOtpStateKey($channel, $destination, $email)]
+    );
+    $raw = (string)($row['state_json'] ?? '');
+    if ($raw === '') {
+        return null;
+    }
+    $decoded = json_decode($raw, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
 function medexValidateOtpProof(string $email, string $channel, string $smsDestination, string $proof): array
 {
     global $session;
@@ -369,6 +400,10 @@ function medexValidateOtpProof(string $email, string $channel, string $smsDestin
         $state = is_array($raw) ? $raw : null;
     }
     if (!is_array($state)) {
+        $destination = ($channel === 'email') ? $email : $smsDestination;
+        $state = medexLoadOtpStateFromDb($channel, $destination, $email);
+    }
+    if (!is_array($state)) {
         return [false, 'Send and verify your one-time password before continuing'];
     }
     if (empty($state['verified']) || empty($state['proof'])) {
@@ -377,7 +412,12 @@ function medexValidateOtpProof(string $email, string $channel, string $smsDestin
     if (!hash_equals((string)$state['proof'], $proof)) {
         return [false, 'One-time password verification proof is invalid'];
     }
-    if (!empty($state['expires_at']) && (int)$state['expires_at'] < time()) {
+    $verifiedExpiresAt = (int)($state['verified_expires_at'] ?? 0);
+    if ($verifiedExpiresAt > 0) {
+        if ($verifiedExpiresAt < time()) {
+            return [false, 'One-time password expired. Send and verify a new code'];
+        }
+    } elseif (!empty($state['expires_at']) && (int)$state['expires_at'] < time()) {
         return [false, 'One-time password expired. Send and verify a new code'];
     }
     if (($state['channel'] ?? '') !== $channel) {
