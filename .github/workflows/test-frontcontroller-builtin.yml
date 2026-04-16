@@ -9,6 +9,9 @@ on:
     #   - '.github/workflows/test-frontcontroller.yml'
   workflow_dispatch:
 
+env:
+  ENVIRONMENT: ci
+
 permissions:
   contents: read
 
@@ -48,24 +51,23 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: ./.github/actions/setup-php-composer
         with:
           php-version: '8.5'
 
-      - name: Install composer dependencies
-        run: composer install --prefer-dist --no-progress
-        working-directory: .
-
-      - name: Install OpenEMR
-        env:
-          OPENEMR_ENABLE_INSTALLER_AUTO: "1"
-        run: php -f contrib/util/installScripts/InstallerAuto.php
-              rootpass=root
-              server=127.0.0.1
-              loginhost=%
-              login=ci
-              pass=topsecret
-              dbname=openemr_test
+      - name: Run CLI installer
+        run: ./cli install
+            --db-root-user=root
+            --db-root-password=root
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --no-interaction
+            -vvv
 
       - name: Configure globals for API
         run: |
@@ -99,9 +101,10 @@ jobs:
           SELENIUM_BASE_URL: http://localhost:8080
           SELENIUM_HOST: localhost
           SELENIUM_USE_GRID: "true"
-        run: |
-          php -d memory_limit=4G vendor/bin/phpunit \
-            --testsuite ${{ matrix.suite }} \
+        run: php
+            -d memory_limit=4G
+            vendor/bin/phpunit
+            --testsuite ${{ matrix.suite }}
             --log-junit junit-${{ matrix.suite }}.xml
 
       - name: Show server stdout

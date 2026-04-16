@@ -2,11 +2,11 @@ name: Test Front Controller
 
 on:
   pull_request:
-    paths:
-      - 'docker/frontcontroller/**'
-      - 'config/**'
-      - 'public/index.php'
-      - '.github/workflows/test-frontcontroller.yml'
+    # paths:
+    #   - 'docker/frontcontroller/**'
+    #   - 'config/**'
+    #   - 'public/index.php'
+    #   - '.github/workflows/test-frontcontroller.yml'
   workflow_dispatch:
 
 permissions:
@@ -72,15 +72,31 @@ jobs:
       #       sleep 2
       #     done
 
-      - name: Install OpenEMR
-        run: |
-          docker compose exec \
-            --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
-            php-fpm \
-            php -f contrib/util/installScripts/InstallerAuto.php \
-              rootpass=root \
-              server=mysql \
-              loginhost=%
+      - name: Run CLI installer
+        run: docker compose exec php-fpm
+          --env ENVIRONMENT=ci
+          ./cli install
+            --db-root-user=root
+            --db-root-password=root
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --no-interaction
+            -vvv
+
+#       - name: Install OpenEMR
+#         run: |
+#           docker compose exec \
+#             --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
+#             php-fpm \
+#             php -f contrib/util/installScripts/InstallerAuto.php \
+#               rootpass=root \
+#               server=mysql \
+#               loginhost=%
 
       - name: Configure globals for API
         run: |
