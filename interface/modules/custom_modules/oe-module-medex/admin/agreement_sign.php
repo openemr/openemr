@@ -507,9 +507,6 @@ function medexRenderAgreementArtifactPage(string $title, string $version, string
             <div class="artifact-head">
                 <h1 class="artifact-title"><?php echo text($title); ?></h1>
                 <p class="artifact-subtitle"><?php echo xlt('Agreement version'); ?> <?php echo text($version); ?>.</p>
-                <?php if ($autoDownload): ?>
-                    <div class="artifact-note"><?php echo xlt('Use your browser print dialog to save this signed agreement as a PDF.'); ?></div>
-                <?php endif; ?>
             </div>
             <?php if (!is_array($payload) || $documentHtml === ''): ?>
                 <div class="artifact-warning"><?php echo xlt('No signed agreement receipt is available yet for this agreement.'); ?></div>
