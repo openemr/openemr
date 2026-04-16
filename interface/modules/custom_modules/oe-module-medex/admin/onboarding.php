@@ -147,7 +147,7 @@ $providerCandidates = QueryUtils::fetchRecords("
     FROM users
     WHERE active = 1
       AND calendar = 1
-    ORDER BY lname, fname, id
+    ORDER BY username, id DESC
 ");
 $providerRows = [];
 $providerSeen = [];
@@ -156,20 +156,36 @@ foreach ($providerCandidates as $candidate) {
     $fname = trim((string)($candidate['fname'] ?? ''));
     $lname = trim((string)($candidate['lname'] ?? ''));
     $displayName = trim($lname . ', ' . $fname, ' ,');
-    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
-    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
+    $normalizedName = strtolower(trim((string)(preg_replace('/\s+/', ' ', $displayName) ?? $displayName)));
+    if (
+        $username === ''
+        || in_array($username, ['admin', 'oe-system', 'phimail-service', 'portal-user'], true)
+        || $normalizedName === ''
+        || in_array($normalizedName, ['admin', 'administrator', 'system operation user', 'patient portal user'], true)
+    ) {
         continue;
     }
-    if (isset($providerSeen[$normalizedName])) {
+    if (isset($providerSeen[$username])) {
         continue;
     }
-    $providerSeen[$normalizedName] = true;
+    $providerSeen[$username] = true;
     $providerRows[] = [
         'id' => $candidate['id'],
         'fname' => $fname,
         'lname' => $lname,
     ];
 }
+usort($providerRows, static function (array $a, array $b): int {
+    $cmp = strcasecmp((string)($a['lname'] ?? ''), (string)($b['lname'] ?? ''));
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+    $cmp = strcasecmp((string)($a['fname'] ?? ''), (string)($b['fname'] ?? ''));
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+    return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+});
 $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
 if (empty($facilityRows)) {
     $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility ORDER BY name");

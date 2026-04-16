@@ -120,8 +120,8 @@ error_log('[get_subscriptions.php] Campaigns data: ' . json_encode($campaigns));
 error_log('[get_subscriptions.php] Number of campaigns: ' . count($campaigns));
 
 // Get active calendar providers and match onboarding filtering:
-// skip admin/non-provider rows and dedupe repeated names.
-$providers = sqlStatement("SELECT id, fname, lname, username FROM users WHERE active=1 AND calendar=1 ORDER BY lname, fname, id");
+// skip system users and collapse duplicate usernames to a single provider row.
+$providers = sqlStatement("SELECT id, fname, lname, username FROM users WHERE active=1 AND calendar=1 ORDER BY username, id DESC");
 $providerList = [];
 $providerSeen = [];
 while ($row = sqlFetchArray($providers)) {
@@ -129,20 +129,36 @@ while ($row = sqlFetchArray($providers)) {
     $fname = trim((string)($row['fname'] ?? ''));
     $lname = trim((string)($row['lname'] ?? ''));
     $displayName = trim($lname . ', ' . $fname, ' ,');
-    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
-    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
+    $normalizedName = strtolower(trim((string)(preg_replace('/\s+/', ' ', $displayName) ?? $displayName)));
+    if (
+        $username === ''
+        || in_array($username, ['admin', 'oe-system', 'phimail-service', 'portal-user'], true)
+        || $normalizedName === ''
+        || in_array($normalizedName, ['admin', 'administrator', 'system operation user', 'patient portal user'], true)
+    ) {
         continue;
     }
-    if (isset($providerSeen[$normalizedName])) {
+    if (isset($providerSeen[$username])) {
         continue;
     }
-    $providerSeen[$normalizedName] = true;
+    $providerSeen[$username] = true;
     $providerList[] = [
         'id' => $row['id'],
         'fname' => $fname,
         'lname' => $lname,
     ];
 }
+usort($providerList, static function (array $a, array $b): int {
+    $cmp = strcasecmp((string)($a['lname'] ?? ''), (string)($b['lname'] ?? ''));
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+    $cmp = strcasecmp((string)($a['fname'] ?? ''), (string)($b['fname'] ?? ''));
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+    return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+});
 
 // Get selected providers from prefs — same row selection logic as save_preferences.php
 // Must use ORDER BY MedEx_lastupdated DESC to match the row that was last written.

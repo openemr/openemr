@@ -140,7 +140,8 @@ class MedExConfig
                     $namespace = trim((string)file_get_contents($nsFile));
                 }
             }
-            if ($namespace !== '') {
+            $internalNamespaces = ['openemr', 'openemr-dev', 'openemr-704'];
+            if ($namespace !== '' && in_array($namespace, $internalNamespaces, true)) {
                 return 'https://openemr.' . $namespace . '.svc.cluster.local';
             }
         }
