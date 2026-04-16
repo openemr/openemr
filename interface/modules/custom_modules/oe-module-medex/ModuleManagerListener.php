@@ -158,14 +158,21 @@ class ModuleManagerListener extends AbstractModuleActionListener
   }
   function medexOpenTarget(url) {
     try {
-      if (window.top && window.top.frames && window.top.frames.med) {
-        window.top.frames.med.location.href = url;
+      if (window.top && window.top.left_nav && typeof window.top.left_nav.loadFrame === 'function') {
+        var site = new URLSearchParams(window.location.search).get('site') || 'default';
+        window.top.left_nav.loadFrame(
+          'medex_onboarding',
+          'med',
+          'modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' + encodeURIComponent(site)
+        );
         return;
       }
     } catch (e) {}
     try {
-      window.open(url, 'med');
-      return;
+      if (window.top && window.top.frames && window.top.frames.med) {
+        window.top.frames.med.location.href = url;
+        return;
+      }
     } catch (e) {}
     window.location.href = url;
   }

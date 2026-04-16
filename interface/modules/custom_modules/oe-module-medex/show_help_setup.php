@@ -299,14 +299,20 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     function redirectToOnboarding() {
         keepSessionAlive();
         try {
-            if (window.top && window.top.frames && window.top.frames.med) {
-                window.top.frames.med.location.href = onboardingUrl;
+            if (window.top && window.top.left_nav && typeof window.top.left_nav.loadFrame === 'function') {
+                window.top.left_nav.loadFrame(
+                    'medex_onboarding',
+                    'med',
+                    'modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' + encodeURIComponent(setupSiteId || 'default')
+                );
                 return;
             }
         } catch (e) {}
         try {
-            window.open(onboardingUrl, 'med');
-            return;
+            if (window.top && window.top.frames && window.top.frames.med) {
+                window.top.frames.med.location.href = onboardingUrl;
+                return;
+            }
         } catch (e) {}
         window.location.href = onboardingUrl;
     }

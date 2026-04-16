@@ -554,16 +554,41 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             encodeURIComponent(getSite()) + '&step=1&force_onboarding=1';
     }
 
+    function getInterfaceFramePath(url) {
+        if (!url) {
+            return '';
+        }
+        var normalized = String(url);
+        try {
+            normalized = new URL(normalized, window.location.origin).pathname +
+                (new URL(normalized, window.location.origin).search || '');
+        } catch (e) {}
+        var webroot = window.webroot_url || '';
+        if (webroot && normalized.indexOf(webroot) === 0) {
+            normalized = normalized.slice(webroot.length);
+        }
+        normalized = normalized.replace(/^\/+/, '/');
+        if (normalized.indexOf('/interface/') === 0) {
+            normalized = normalized.slice('/interface/'.length);
+        }
+        return normalized.replace(/^\/+/, '');
+    }
+
     function openInMedexTarget(url) {
+        try {
+            if (window.top && window.top.left_nav && typeof window.top.left_nav.loadFrame === 'function') {
+                var framePath = getInterfaceFramePath(url);
+                if (framePath) {
+                    window.top.left_nav.loadFrame('medex_onboarding', 'med', framePath);
+                    return;
+                }
+            }
+        } catch (e) {}
         try {
             if (window.top && window.top.frames && window.top.frames.med) {
                 window.top.frames.med.location.href = url;
                 return;
             }
-        } catch (e) {}
-        try {
-            window.open(url, 'med');
-            return;
         } catch (e) {}
         window.location.href = url;
     }
