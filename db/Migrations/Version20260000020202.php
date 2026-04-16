@@ -60,7 +60,7 @@ final class Version20260000020202 extends AbstractMigration
         $table->addColumn('profile', Types::TEXT, ['notnull' => false, 'length' => 255, 'comment' => 'profile of scope for this token']);
         $table->addColumn('onetime_actions', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON array of actions that can be performed with this token']);
         $this->addPrimaryKey($table, 'id');
-        $table->addIndex(['pid', 'onetime_token'], 'pid', [], ['lengths' => [null, 255]]);
+        $table->addIndex(['pid', 'onetime_token'], 'pid', [], ['lengths' => [null, 32]]);
 
         $this->createTable($table);
     }
