@@ -46,7 +46,11 @@ class GroupExportFhirApiTest extends TestCase
             'Authorization' => 'Bearer ' . $this->testClient->getAccessToken()
         ]);
         $actualResult = $this->testClient->get("/apis/default/fhir/Group/" . $groupId . '/$export');
-        $this->assertEquals(Response::HTTP_ACCEPTED, $actualResult->getStatusCode());
+        $this->assertEquals(
+            Response::HTTP_ACCEPTED,
+            $actualResult->getStatusCode(),
+            'Expected 202, got ' . $actualResult->getStatusCode() . '. Body: ' . $actualResult->getBody()
+        );
         $this->assertNotEmpty($actualResult->getHeaders()['Content-Location'][0], "Content-Location header should be populatd");
         // because everything happens synchronously in this test, we can check the content location
         $request =  HttpRestRequest::create($actualResult->getHeaders()['Content-Location'][0]);
