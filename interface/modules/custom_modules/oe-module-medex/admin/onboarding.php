@@ -756,29 +756,32 @@ if ($step > 1 && !$isConfigured) {
                         <!-- Populate via JS -->
                     </ul>
                     <div style="border-top: 2px solid #ddd; margin-top: 15px; padding-top: 15px;">
-                        <strong><?php echo xlt("Total"); ?>:</strong> <span id="cart-total" style="font-size: 20px; color: #0f4b8f;">$0.00 / <?php echo xlt("month"); ?></span>
+                        <strong><?php echo xlt("Total"); ?>:</strong> <span id="cart-total" style="font-size: 20px; color: #0f4b8f;">$0.00</span>
                     </div>
                 </div>
 
                 <!-- Braintree Payment Form -->
-                <div style="margin: 30px 0;">
-                    <h4><?php echo xlt("Payment Information"); ?></h4>
+                <div id="payment-section" style="margin: 30px 0;">
+                    <h4 id="payment-section-title"><?php echo xlt("Payment Information"); ?></h4>
+                    <p id="payment-zero-copy" style="display:none; color:#526277; margin:0 0 18px;">
+                        <?php echo xlt("This selection is currently free. No payment method is required to activate it."); ?>
+                    </p>
                     <form id="payment-form">
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
-                        <div class="form-group">
+                        <div class="form-group payment-field-group">
                             <label for="cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
                             <input type="text" id="cardholder-name" class="form-control" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group payment-field-group">
                             <label><?php echo xlt("Card Number"); ?></label>
                             <div id="card-number" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
                         </div>
-                        <div style="display: flex; gap: 15px;">
-                            <div class="form-group" style="flex: 1;">
+                        <div class="payment-field-row" style="display: flex; gap: 15px;">
+                            <div class="form-group payment-field-group" style="flex: 1;">
                                 <label><?php echo xlt("Expiration Date"); ?></label>
                                 <div id="expiration-date" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
                             </div>
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group payment-field-group" style="flex: 1;">
                                 <label><?php echo xlt("CVV"); ?></label>
                                 <div id="cvv" style="height: 45px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
                             </div>
@@ -1775,7 +1778,15 @@ if ($step > 1 && !$isConfigured) {
         });
 
         function initializeBraintree() {
+            const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
+            const total = parseFloat(summary.total || 0);
+            if (!Number.isFinite(total) || total <= 0) {
+                configureZeroDollarActivation();
+                return;
+            }
+
             // Get Braintree token from session via AJAX
+            ensureActiveSession();
             $.ajax({
                 url: 'get_braintree_token.php',
                 type: 'GET',
@@ -1791,6 +1802,20 @@ if ($step > 1 && !$isConfigured) {
                 error: function() {
                     $("#payment-errors").text('Failed to initialize payment form').show();
                 }
+            });
+        }
+
+        function configureZeroDollarActivation() {
+            $("#payment-section-title").text(<?php echo json_encode(xl("Activate Services")); ?>);
+            $("#payment-zero-copy").show();
+            $(".payment-field-group, .payment-field-row").hide();
+            $("#cardholder-name").prop("required", false);
+            $("#submit-payment").html('<i class="fa fa-check"></i> <?php echo xlj("Activate Services"); ?>');
+            $("#payment-form").off('submit').on('submit', function(e) {
+                e.preventDefault();
+                $("#submit-payment").prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> <?php echo xlj("Activating"); ?>...');
+                $("#payment-errors").hide();
+                processPayment('');
             });
         }
 
@@ -1867,6 +1892,7 @@ if ($step > 1 && !$isConfigured) {
         function processPayment(paymentNonce) {
             const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
 
+            ensureActiveSession();
             $.ajax({
                 url: 'process_payment.php?site=<?php echo attr_js($siteId); ?>',
                 type: 'POST',
