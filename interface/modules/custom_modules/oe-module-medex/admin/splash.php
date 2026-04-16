@@ -29,10 +29,6 @@ $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 $minimal = !empty($_GET['minimal']);
 $localOnly = !empty($_GET['local']);
 $webroot = (string)($GLOBALS['webroot'] ?? '');
-$fallbackSettingsUrl = $webroot
-    . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site='
-    . urlencode($siteId)
-    . '&tab=settings&local=1';
 $fallbackStatusUrl = $webroot
     . '/interface/modules/custom_modules/oe-module-medex/public/status.php?site='
     . urlencode($siteId);
@@ -138,9 +134,6 @@ if (!$localOnly && $targetUrl !== '') {
     <div class="actions">
         <a class="btn btn-primary" href="<?php echo attr($targetUrl); ?>">
             <?php echo text($connected ? xlt('Open Dashboard') : xlt('Start Registration')); ?>
-        </a>
-        <a class="btn btn-secondary" href="<?php echo attr($fallbackSettingsUrl); ?>">
-            <?php echo text(xlt('Open Local Settings')); ?>
         </a>
         <a class="btn btn-secondary" href="<?php echo attr($fallbackStatusUrl); ?>">
             <?php echo text(xlt('Open Status')); ?>
