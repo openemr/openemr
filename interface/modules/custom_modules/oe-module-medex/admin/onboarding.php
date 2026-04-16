@@ -508,6 +508,13 @@ if ($step > 1 && !$api->isConfigured()) {
                     'secure_chat' => $helpBaseUrl . '&topic=secure_chat',
                     'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
                 ];
+                $availablePricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
+                $showAppointmentReminders = array_key_exists('appointment_reminders', $availablePricingServices);
+                $showCalendarView = array_key_exists('calendar_view', $availablePricingServices);
+                $showCalendarAi = array_key_exists('calendar_ai', $availablePricingServices);
+                $showSecureChat = array_key_exists('secure_chat', $availablePricingServices);
+                $showPdfManagement = array_key_exists('pdf_management', $availablePricingServices);
+                $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showSecureChat || $showPdfManagement;
                 ?>
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
@@ -515,14 +522,30 @@ if ($step > 1 && !$api->isConfigured()) {
                     <aside class="step2-help-panel">
                         <div class="step2-help-title"><?php echo xlt("Step 2 Help"); ?></div>
                         <ul class="step2-help-list">
-                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Reminders & Recalls Help"); ?></a></li>
-                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar View & Export Help"); ?></a></li>
-                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar & AI Rescheduler Help"); ?></a></li>
-                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Secure Chat Help"); ?></a></li>
-                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("PDF Form Management Help"); ?></a></li>
+                            <?php if ($showAppointmentReminders): ?>
+                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Reminders & Recalls Help"); ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($showCalendarView): ?>
+                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar View & Export Help"); ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($showCalendarAi): ?>
+                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar & AI Rescheduler Help"); ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($showSecureChat): ?>
+                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Secure Chat Help"); ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($showPdfManagement): ?>
+                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("PDF Form Management Help"); ?></a></li>
+                            <?php endif; ?>
                         </ul>
                     </aside>
                     <div>
+                <?php if (!$hasAvailableServices): ?>
+                <div class="alert alert-danger">
+                    <?php echo xlt("No MedEx services are currently available for this account."); ?>
+                </div>
+                <?php endif; ?>
+                <?php if ($showAppointmentReminders): ?>
                 <!-- Reminders & Recalls -->
                 <div class="service-card">
                     <input type="checkbox" name="service_reminders" id="service_reminders" checked>
@@ -560,7 +583,9 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($showCalendarView): ?>
                 <!-- Calendar View/Export -->
                 <div class="service-card">
                     <input type="checkbox" name="service_calendar_view" id="service_calendar_view">
@@ -586,7 +611,9 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($showCalendarAi): ?>
                 <!-- Calendar & AI Rescheduler -->
                 <div class="service-card">
                     <input type="checkbox" name="service_calendar_ai" id="service_calendar_ai">
@@ -612,7 +639,9 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($showSecureChat): ?>
                 <!-- Secure Chat -->
                 <div class="service-card">
                     <input type="checkbox" name="service_chat" id="service_chat">
@@ -638,7 +667,9 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($showPdfManagement): ?>
                 <!-- PDF Form Management -->
                 <div class="service-card">
                     <input type="checkbox" name="service_pdf" id="service_pdf">
@@ -664,10 +695,13 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <div style="margin-top: 30px; display: flex; justify-content: space-between;">
                     <button type="button" class="btn" style="background: #eee;" onclick="location.href='onboarding.php?step=1&site=<?php echo attr_js($siteId); ?>'"><?php echo xlt("Back"); ?></button>
-                    <button type="button" class="btn btn-primary" onclick="submitStep2()"><?php echo xlt("Next: Activation & Payment"); ?> <i class="fa fa-arrow-right"></i></button>
+                    <?php if ($hasAvailableServices): ?>
+                        <button type="button" class="btn btn-primary" onclick="submitStep2()"><?php echo xlt("Next: Activation & Payment"); ?> <i class="fa fa-arrow-right"></i></button>
+                    <?php endif; ?>
                 </div>
                     </div>
                 </div>
