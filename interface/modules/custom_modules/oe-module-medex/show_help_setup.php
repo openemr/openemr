@@ -9,9 +9,11 @@ if (empty($_GET['site'])) {
 }
 
 require_once(__DIR__ . '/../../../globals.php');
+require_once(__DIR__ . '/src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Modules\MedEx\MedExAPI;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     http_response_code(403);
@@ -37,13 +39,24 @@ function medexSetupStatus(): array
 
     $installed = ($sqlRun === 1);
     $enabled = ($modActive === 1 || $modUiActive === 1);
+    $configured = false;
+    $active = false;
+
+    try {
+        $api = new MedExAPI();
+        $configured = $api->isConfigured();
+        $active = $api->isActive();
+    } catch (\Throwable $e) {
+    }
 
     return [
         'mod_id' => $modId,
         'installed' => $installed,
         'enabled' => $enabled,
-        'dashboard_ready' => $enabled,
-        'next_action' => !$installed ? 'install' : (!$enabled ? 'enable' : 'configure'),
+        'configured' => $configured,
+        'active' => $active,
+        'dashboard_ready' => ($enabled && $configured),
+        'next_action' => !$installed ? 'install' : (!$enabled ? 'enable' : ($configured ? 'dashboard' : 'configure')),
     ];
 }
 
@@ -199,6 +212,7 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupStatusUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const onboardingUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const dashboardUrl = <?php echo json_encode($webroot . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site=' . urlencode($siteId), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const retryBtn = document.getElementById('retry-btn');
     const progressBar = document.getElementById('medex-progress-bar');
     const statusEl = document.getElementById('medex-status');
@@ -296,25 +310,33 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
         throw new Error('Timed out waiting for MedEx to finish setup.');
     }
 
-    function redirectToOnboarding() {
+    function redirectWithinMed(url, navId) {
         keepSessionAlive();
         try {
             if (window.top && window.top.left_nav && typeof window.top.left_nav.loadFrame === 'function') {
                 window.top.left_nav.loadFrame(
-                    'medex_onboarding',
+                    navId,
                     'med',
-                    'modules/custom_modules/oe-module-medex/admin/onboarding.php?step=1&force_onboarding=1&site=' + encodeURIComponent(setupSiteId || 'default')
+                    url.replace(/^.*\/interface\//, '')
                 );
                 return;
             }
         } catch (e) {}
         try {
             if (window.top && window.top.frames && window.top.frames.med) {
-                window.top.frames.med.location.href = onboardingUrl;
+                window.top.frames.med.location.href = url;
                 return;
             }
         } catch (e) {}
-        window.location.href = onboardingUrl;
+        window.location.href = url;
+    }
+
+    function redirectToOnboarding() {
+        redirectWithinMed(onboardingUrl, 'medex_onboarding');
+    }
+
+    function redirectToDashboard() {
+        redirectWithinMed(dashboardUrl, 'medex_admin');
     }
 
     async function runFlow() {
@@ -325,6 +347,11 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
         retryBtn.classList.remove('show');
         try {
             let status = await fetchStatus();
+            if (status.dashboard_ready) {
+                setStatus('Opening MedEx Dashboard...', 'This practice is already onboarded. Loading the dashboard now.', 'done', 100);
+                window.setTimeout(redirectToDashboard, 1400);
+                return;
+            }
             if (!status.installed) {
                 setStatus('Installing MedEx...', 'Module files and database objects are being prepared now.', '', 26);
                 await runManageAction('install');
@@ -338,6 +365,12 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
                 status = await waitFor((value) => !!value.enabled, 12, 1200);
                 setStatus('Enabled', 'Module activation is complete. Preparing onboarding.', '', 92);
                 await new Promise((resolve) => window.setTimeout(resolve, 650));
+            }
+            status = await fetchStatus();
+            if (status.dashboard_ready) {
+                setStatus('Opening MedEx Dashboard...', 'Install and enable are complete. Loading the dashboard now.', 'done', 100);
+                window.setTimeout(redirectToDashboard, 1600);
+                return;
             }
             setStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done', 100);
             window.setTimeout(redirectToOnboarding, 1600);
