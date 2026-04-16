@@ -100,87 +100,38 @@ try {
     $cartData = [
         'items' => []
     ];
+    $selectedServices = $_POST['selected_services'] ?? [];
+    if (!is_array($selectedServices)) {
+        $selectedServices = [$selectedServices];
+    }
+    $selectedServices = array_values(array_unique(array_filter(array_map(static fn($value) => trim((string)$value), $selectedServices))));
+    $providerCount = isset($_POST['reminders_providers']) && is_array($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 0;
+    $facilityCount = isset($_POST['reminders_facilities']) && is_array($_POST['reminders_facilities']) ? count($_POST['reminders_facilities']) : 0;
 
-    // Service: Reminders & Recalls
-    if (isset($_POST['service_reminders']) && $_POST['service_reminders'] === 'on') {
-        if (!$serviceIsPurchasable('appointment_reminders')) {
-            echo json_encode(['success' => false, 'error' => 'Reminders & Recalls is not available for this account.']);
+    foreach ($selectedServices as $serviceKey) {
+        if (!$serviceIsPurchasable($serviceKey)) {
+            echo json_encode(['success' => false, 'error' => $serviceKey . ' is not available for this account.']);
             exit;
         }
-        $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 0;
-        $facilityCount = isset($_POST['reminders_facilities']) ? count($_POST['reminders_facilities']) : 0;
-        if ($providerCount > 0 && $facilityCount > 0) {
+        if ($serviceKey === 'appointment_reminders') {
+            if ($providerCount < 1 || $facilityCount < 1) {
+                echo json_encode(['success' => false, 'error' => 'Select at least one provider and one facility for appointment reminders.']);
+                exit;
+            }
             $cartData['items'][] = [
                 'service' => 'appointment_reminders',
                 'quantity' => $providerCount,
                 'providers' => $_POST['reminders_providers'],
                 'facilities' => $_POST['reminders_facilities']
             ];
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Select at least one provider and one facility for Reminders & Recalls.']);
-            exit;
+            continue;
         }
-    }
 
-    // Service: Calendar & AI Rescheduler
-    if (isset($_POST['service_calendar_ai']) && $_POST['service_calendar_ai'] === 'on') {
-        if (!$serviceIsPurchasable('calendar_ai')) {
-            echo json_encode(['success' => false, 'error' => 'Calendar & AI Rescheduler is not available for this account.']);
-            exit;
-        }
-        $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 1;
+        $serviceMeta = is_array($services[$serviceKey] ?? null) ? $services[$serviceKey] : [];
+        $quantity = !empty($serviceMeta['provider_based']) ? max($providerCount, 1) : 1;
         $cartData['items'][] = [
-            'service' => 'calendar_ai',
-            'quantity' => $providerCount
-        ];
-    }
-
-    // Service: Full Calendar
-    if (isset($_POST['service_calendar_full']) && $_POST['service_calendar_full'] === 'on') {
-        if (!$serviceIsPurchasable('calendar_full')) {
-            echo json_encode(['success' => false, 'error' => 'Full Calendar is not available for this account.']);
-            exit;
-        }
-        $cartData['items'][] = [
-            'service' => 'calendar_full',
-            'quantity' => 1
-        ];
-    }
-
-    // Service: Calendar View & Export
-    if (isset($_POST['service_calendar_view']) && $_POST['service_calendar_view'] === 'on') {
-        if (!$serviceIsPurchasable('calendar_view')) {
-            echo json_encode(['success' => false, 'error' => 'Calendar View & Export is not available for this account.']);
-            exit;
-        }
-        $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 1;
-        $cartData['items'][] = [
-            'service' => 'calendar_export',
-            'quantity' => $providerCount
-        ];
-    }
-
-    // Service: Secure Chat (practice-wide)
-    if (isset($_POST['service_chat']) && $_POST['service_chat'] === 'on') {
-        if (!$serviceIsPurchasable('secure_chat')) {
-            echo json_encode(['success' => false, 'error' => 'Secure Chat is not available for this account.']);
-            exit;
-        }
-        $cartData['items'][] = [
-            'service' => 'secure_chat',
-            'quantity' => 1
-        ];
-    }
-
-    // Service: PDF Form Management (practice-wide)
-    if (isset($_POST['service_pdf']) && $_POST['service_pdf'] === 'on') {
-        if (!$serviceIsPurchasable('pdf_management')) {
-            echo json_encode(['success' => false, 'error' => 'PDF Form Management is not available for this account.']);
-            exit;
-        }
-        $cartData['items'][] = [
-            'service' => 'pdf_management',
-            'quantity' => 1
+            'service' => $serviceKey,
+            'quantity' => $quantity
         ];
     }
 

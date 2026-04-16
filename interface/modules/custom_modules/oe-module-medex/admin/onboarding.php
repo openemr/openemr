@@ -546,14 +546,6 @@ if ($step > 1 && !$isConfigured) {
                 };
                 ?>
                 <?php
-                $serviceHelpLinks = [
-                    'reminders' => $helpBaseUrl . '&topic=reminders',
-                    'calendar_view' => $helpBaseUrl . '&topic=calendar_view',
-                    'calendar_ai' => $helpBaseUrl . '&topic=calendar_ai',
-                    'calendar_full' => $helpBaseUrl . '&topic=calendar_full',
-                    'secure_chat' => $helpBaseUrl . '&topic=secure_chat',
-                    'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
-                ];
                 $rawPricingServices = is_array($pricing['services'] ?? null) ? $pricing['services'] : [];
                 $availablePricingServices = $rawPricingServices;
                 $serviceKeyAliases = [
@@ -570,23 +562,48 @@ if ($step > 1 && !$isConfigured) {
                         break;
                     }
                 }
-                $serviceAvailableForOnboarding = static function (string $serviceKey) use ($availablePricingServices): bool {
-                    if (!array_key_exists($serviceKey, $availablePricingServices)) {
-                        return false;
+                $serviceLabels = [];
+                $onboardingServices = [];
+                $canonicalServiceMap = [
+                    'calendar_view' => 'calendar_export',
+                    'calendar_export' => 'calendar_export',
+                    'calendar_ai' => 'calendar_ai',
+                    'Calendar Service' => 'calendar_ai',
+                    'calendar_full' => 'calendar_full',
+                    'FullCalendar' => 'calendar_full',
+                ];
+                foreach ($availablePricingServices as $serviceKey => $serviceData) {
+                    $service = is_array($serviceData ?? null) ? $serviceData : [];
+                    $isAvailable = !array_key_exists('available', $service)
+                        || $service['available'] === true
+                        || $service['available'] === 1
+                        || $service['available'] === '1';
+                    if (!$isAvailable) {
+                        continue;
                     }
-                    $service = is_array($availablePricingServices[$serviceKey] ?? null) ? $availablePricingServices[$serviceKey] : [];
-                    if (array_key_exists('available', $service)) {
-                        return $service['available'] === true || $service['available'] === 1 || $service['available'] === '1';
+                    $canonicalKey = $canonicalServiceMap[(string)$serviceKey] ?? (string)$serviceKey;
+                    if (isset($onboardingServices[$canonicalKey])) {
+                        continue;
                     }
-                    return true;
-                };
-                $showAppointmentReminders = $serviceAvailableForOnboarding('appointment_reminders');
-                $showCalendarView = $serviceAvailableForOnboarding('calendar_view');
-                $showCalendarAi = $serviceAvailableForOnboarding('calendar_ai');
-                $showCalendarFull = $serviceAvailableForOnboarding('calendar_full');
-                $showSecureChat = $serviceAvailableForOnboarding('secure_chat');
-                $showPdfManagement = $serviceAvailableForOnboarding('pdf_management');
-                $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showCalendarFull || $showSecureChat || $showPdfManagement;
+                    $serviceTitle = trim((string)($service['name'] ?? $canonicalKey));
+                    if ($serviceTitle === '') {
+                        $serviceTitle = $canonicalKey;
+                    }
+                    $serviceSlug = strtolower(preg_replace('/[^a-z0-9]+/', '_', $canonicalKey) ?? $canonicalKey);
+                    $serviceSlug = trim($serviceSlug, '_');
+                    if ($serviceSlug === '') {
+                        $serviceSlug = 'service_' . count($onboardingServices);
+                    }
+                    $normalizedService = $service;
+                    $normalizedService['key'] = $canonicalKey;
+                    $normalizedService['slug'] = $serviceSlug;
+                    $normalizedService['title'] = html_entity_decode($serviceTitle, ENT_QUOTES, 'UTF-8');
+                    $normalizedService['requires_provider_selection'] = !empty($service['provider_based']);
+                    $normalizedService['requires_facility_selection'] = $canonicalKey === 'appointment_reminders';
+                    $onboardingServices[$canonicalKey] = $normalizedService;
+                    $serviceLabels[$canonicalKey] = $normalizedService['title'];
+                }
+                $hasAvailableServices = !empty($onboardingServices);
                 $providerCandidates = QueryUtils::fetchRecords("
                     SELECT id, fname, lname, username
                     FROM users
@@ -627,37 +644,39 @@ if ($step > 1 && !$isConfigured) {
                     <?php echo xlt("No MedEx services are currently available for this account."); ?>
                 </div>
                 <?php endif; ?>
-                <?php if ($showAppointmentReminders): ?>
-                <!-- Reminders & Recalls -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_reminders" id="service_reminders">
+                <?php foreach ($onboardingServices as $service): ?>
+                    <?php
+                    $serviceKey = (string)($service['key'] ?? '');
+                    $serviceSlug = (string)($service['slug'] ?? '');
+                    $serviceTitle = (string)($service['title'] ?? $serviceKey);
+                    $servicePrice = isset($service['price']) ? (float)$service['price'] : 0.0;
+                    $serviceUnit = (string)($service['unit'] ?? '');
+                    $providerBased = !empty($service['requires_provider_selection']);
+                    $requiresFacilities = !empty($service['requires_facility_selection']);
+                    $serviceHelpUrl = $helpBaseUrl . '&topic=' . rawurlencode($serviceKey);
+                    $serviceDescription = $providerBased
+                        ? xlt("This service is billed by the number of providers you include during onboarding.")
+                        : xlt("This service is billed once for the practice.");
+                    if ($requiresFacilities) {
+                        $serviceDescription = xlt("This service is billed by provider and needs both provider and facility selections during onboarding.");
+                    }
+                    ?>
+                <div class="service-card" data-service-key="<?php echo attr($serviceKey); ?>" data-service-label="<?php echo attr($serviceTitle); ?>" data-service-price="<?php echo attr((string)$servicePrice); ?>" data-provider-based="<?php echo attr($providerBased ? '1' : '0'); ?>" data-requires-facility="<?php echo attr($requiresFacilities ? '1' : '0'); ?>">
+                    <input type="checkbox" name="selected_services[]" value="<?php echo attr($serviceKey); ?>" id="service_<?php echo attr($serviceSlug); ?>">
                     <div class="service-info">
                         <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("Reminders & Recalls"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Reminders & Recalls Help"); ?>" aria-label="<?php echo xla("Reminders & Recalls Help"); ?>">
+                            <div class="service-title"><?php echo text($serviceTitle); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpUrl); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo attr($serviceTitle . ' ' . xlt('Help')); ?>" aria-label="<?php echo attr($serviceTitle . ' ' . xlt('Help')); ?>">
                                 <i class="fa fa-question" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="service-desc"><?php echo xlt("Automated appointment reminders (SMS/Email/Voice) and comprehensive Recall Board management."); ?></div>
+                        <div class="service-desc"><?php echo text($serviceDescription); ?></div>
                         <div class="service-price">
-                            <?php
-                            $reminderTrial = $pricing['services']['appointment_reminders']['trial'] ?? null;
-                            if ($reminderTrial && $reminderTrial['enabled']) {
-                                echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
-                                if ($reminderTrial['price'] == 0) {
-                                    echo $reminderTrial['duration'] . " " . xlt($reminderTrial['frequency']) . ($reminderTrial['duration'] > 1 ? "s" : "") . " " . xlt("free");
-                                } else {
-                                    echo "$" . number_format($reminderTrial['price'], 2) . " / " . xlt($reminderTrial['frequency']) . " " . xlt("for") . " " . $reminderTrial['duration'] . " " . xlt($reminderTrial['frequency']) . ($reminderTrial['duration'] > 1 ? "s" : "");
-                                }
-                                echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " " . text($formatUnit(($pricing['services']['appointment_reminders']['unit'] ?? ''), 'mo/per provider')) . "</span>";
-                            } else {
-                                echo "$" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " " . text($formatUnit(($pricing['services']['appointment_reminders']['unit'] ?? ''), 'mo/per provider'));
-                            }
-                            ?>
+                            <?php echo "$" . number_format($servicePrice, 2) . " " . text($formatUnit($serviceUnit, $providerBased ? 'mo/per provider' : 'mo')); ?>
                         </div>
+                        <?php if ($requiresFacilities): ?>
                         <div id="reminders-config-panel" class="service-config-panel">
-                            <p class="service-config-title"><?php echo xlt("Configure Reminders & Recalls"); ?></p>
+                            <p class="service-config-title"><?php echo xlt("Configure Service"); ?></p>
                             <p class="service-config-copy"><?php echo xlt("Choose which providers and facilities should be included before this service is added to the cart."); ?></p>
                             <div class="service-config-grid">
                                 <div class="service-config-group">
@@ -699,160 +718,10 @@ if ($step > 1 && !$isConfigured) {
                             </div>
                             <div class="service-config-note"><?php echo xlt("Select at least one provider and one facility to continue with reminders."); ?></div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
-
-                <?php if ($showCalendarView): ?>
-                <!-- Calendar View/Export -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_calendar_view" id="service_calendar_view">
-                    <div class="service-info">
-                        <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("Calendar View & Export"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Calendar View & Export Help"); ?>" aria-label="<?php echo xla("Calendar View & Export Help"); ?>">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="service-desc"><?php echo xlt("Read-only web calendar with export capabilities for external scheduling systems."); ?></div>
-                        <div class="service-price">
-                            <?php
-                            $calViewTrial = $availablePricingServices['calendar_view']['trial'] ?? null;
-                            if ($calViewTrial && $calViewTrial['enabled']) {
-                                echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
-                                if ($calViewTrial['price'] == 0) {
-                                    echo $calViewTrial['duration'] . " " . xlt($calViewTrial['frequency']) . ($calViewTrial['duration'] > 1 ? "s" : "") . " " . xlt("free");
-                                } else {
-                                    echo "$" . number_format($calViewTrial['price'], 2) . " / " . xlt($calViewTrial['frequency']) . " " . xlt("for") . " " . $calViewTrial['duration'] . " " . xlt($calViewTrial['frequency']) . ($calViewTrial['duration'] > 1 ? "s" : "");
-                                }
-                                echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($availablePricingServices['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($availablePricingServices['calendar_view']['unit'] ?? ''), 'mo/per calendar')) . "</span>";
-                            } else {
-                                echo "$" . number_format($availablePricingServices['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($availablePricingServices['calendar_view']['unit'] ?? ''), 'mo/per calendar'));
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <?php if ($showCalendarAi): ?>
-                <!-- Calendar & AI Rescheduler -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_calendar_ai" id="service_calendar_ai">
-                    <div class="service-info">
-                        <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("Calendar & AI Rescheduler"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Calendar & AI Rescheduler Help"); ?>" aria-label="<?php echo xla("Calendar & AI Rescheduler Help"); ?>">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="service-desc"><?php echo xlt("Modern web-based calendar and AI-powered automated patient rescheduling."); ?></div>
-                        <div class="service-price">
-                            <?php
-                            $calendarTrial = $availablePricingServices['calendar_ai']['trial'] ?? null;
-                            if ($calendarTrial && $calendarTrial['enabled']) {
-                                echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
-                                if ($calendarTrial['price'] == 0) {
-                                    echo $calendarTrial['duration'] . " " . xlt($calendarTrial['frequency']) . ($calendarTrial['duration'] > 1 ? "s" : "") . " " . xlt("free");
-                                } else {
-                                    echo "$" . number_format($calendarTrial['price'], 2) . " / " . xlt($calendarTrial['frequency']) . " " . xlt("for") . " " . $calendarTrial['duration'] . " " . xlt($calendarTrial['frequency']) . ($calendarTrial['duration'] > 1 ? "s" : "");
-                                }
-                                echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($availablePricingServices['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($availablePricingServices['calendar_ai']['unit'] ?? 'mo per provider + usage') . "</span>";
-                            } else {
-                                echo "$" . number_format($availablePricingServices['calendar_ai']['price'] ?? 4.95, 2) . " / " . xlt($availablePricingServices['calendar_ai']['unit'] ?? 'mo per provider + usage');
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <?php if ($showCalendarFull): ?>
-                <!-- Full Calendar -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_calendar_full" id="service_calendar_full">
-                    <div class="service-info">
-                        <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("Full Calendar"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_full']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Full Calendar Help"); ?>" aria-label="<?php echo xla("Full Calendar Help"); ?>">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="service-desc"><?php echo xlt("Embedded full calendar experience for MedEx scheduling workflows."); ?></div>
-                        <div class="service-price">
-                            <?php echo "$" . number_format($availablePricingServices['calendar_full']['price'] ?? 0, 2) . " " . text($formatUnit(($availablePricingServices['calendar_full']['unit'] ?? ''), 'mo')); ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <?php if ($showSecureChat): ?>
-                <!-- Secure Chat -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_chat" id="service_chat">
-                    <div class="service-info">
-                        <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("Secure Chat (Practice-wide)"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Secure Chat Help"); ?>" aria-label="<?php echo xla("Secure Chat Help"); ?>">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="service-desc"><?php echo xlt("HIPAA-compliant two-way messaging for all staff and patients."); ?></div>
-                        <div class="service-price">
-                            <?php
-                            $chatTrial = $pricing['services']['secure_chat']['trial'] ?? null;
-                            if ($chatTrial && $chatTrial['enabled']) {
-                                echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
-                                if ($chatTrial['price'] == 0) {
-                                    echo $chatTrial['duration'] . " " . xlt($chatTrial['frequency']) . ($chatTrial['duration'] > 1 ? "s" : "") . " " . xlt("free");
-                                } else {
-                                    echo "$" . number_format($chatTrial['price'], 2) . " / " . xlt($chatTrial['frequency']) . " " . xlt("for") . " " . $chatTrial['duration'] . " " . xlt($chatTrial['frequency']) . ($chatTrial['duration'] > 1 ? "s" : "");
-                                }
-                                echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['secure_chat']['price'] ?? 4.95, 2) . xlt($pricing['services']['secure_chat']['unit'] ?? '/mo') . "</span>";
-                            } else {
-                                echo "$" . number_format($pricing['services']['secure_chat']['price'] ?? 4.95, 2) . xlt($pricing['services']['secure_chat']['unit'] ?? '/mo');
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <?php if ($showPdfManagement): ?>
-                <!-- PDF Form Management -->
-                <div class="service-card">
-                    <input type="checkbox" name="service_pdf" id="service_pdf">
-                    <div class="service-info">
-                        <div class="service-title-row">
-                            <div class="service-title"><?php echo xlt("PDF Form Management"); ?></div>
-                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("PDF Form Management Help"); ?>" aria-label="<?php echo xla("PDF Form Management Help"); ?>">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="service-desc"><?php echo xlt("Digital form filling, signature capture, and AI data extraction."); ?></div>
-                        <div class="service-price">
-                            <?php
-                            $pdfTrial = $pricing['services']['pdf_management']['trial'] ?? null;
-                            if ($pdfTrial && $pdfTrial['enabled']) {
-                                echo "<span style='color: #28a745; font-weight: 600;'>" . xlt("Trial:") . " ";
-                                if ($pdfTrial['price'] == 0) {
-                                    echo $pdfTrial['duration'] . " " . xlt($pdfTrial['frequency']) . ($pdfTrial['duration'] > 1 ? "s" : "") . " " . xlt("free");
-                                } else {
-                                    echo "$" . number_format($pdfTrial['price'], 2) . " / " . xlt($pdfTrial['frequency']) . " " . xlt("for") . " " . $pdfTrial['duration'] . " " . xlt($pdfTrial['frequency']) . ($pdfTrial['duration'] > 1 ? "s" : "");
-                                }
-                                echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['pdf_management']['price'] ?? 4.95, 2) . xlt($pricing['services']['pdf_management']['unit'] ?? '/mo') . "</span>";
-                            } else {
-                                echo "$" . number_format($pricing['services']['pdf_management']['price'] ?? 4.95, 2) . xlt($pricing['services']['pdf_management']['unit'] ?? '/mo');
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
 
                 <div class="billing-summary-card">
                     <h4 class="billing-summary-title"><?php echo xlt("Billing Summary"); ?></h4>
@@ -1215,8 +1084,8 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function updateStep2Progress() {
-            const anyServiceSelected = $("#form-step-2 input[type='checkbox'][name^='service_']:checked").length > 0;
-            const remindersSelected = $("#service_reminders").is(":checked");
+            const anyServiceSelected = $("input[name='selected_services[]']:checked").length > 0;
+            const remindersSelected = $("#service_appointment_reminders").is(":checked");
             const remindersProvidersReady = $("input[name='reminders_providers[]']:checked").length > 0;
             const remindersFacilitiesReady = $("input[name='reminders_facilities[]']:checked").length > 0;
             const remindersReady = !remindersSelected || (remindersProvidersReady && remindersFacilitiesReady);
@@ -1226,44 +1095,29 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function syncRemindersConfigPanel() {
-            const selected = $("#service_reminders").is(":checked");
+            const selected = $("#service_appointment_reminders").is(":checked");
             $("#reminders-config-panel").toggleClass("show", selected);
             updateBillingSummary();
         }
 
         function updateBillingSummary() {
-            const serviceCatalog = <?php echo json_encode([
-                'appointment_reminders' => $availablePricingServices['appointment_reminders'] ?? null,
-                'calendar_view' => $availablePricingServices['calendar_view'] ?? null,
-                'calendar_ai' => $availablePricingServices['calendar_ai'] ?? null,
-                'calendar_full' => $availablePricingServices['calendar_full'] ?? null,
-                'secure_chat' => $availablePricingServices['secure_chat'] ?? null,
-                'pdf_management' => $availablePricingServices['pdf_management'] ?? null,
-            ]); ?> || {};
-            const serviceLabels = {
-                appointment_reminders: <?php echo json_encode(xl("Reminders & Recalls")); ?>,
-                calendar_view: <?php echo json_encode(xl("Calendar View & Export")); ?>,
-                calendar_ai: <?php echo json_encode(xl("Calendar & AI Rescheduler")); ?>,
-                calendar_full: <?php echo json_encode(xl("Full Calendar")); ?>,
-                secure_chat: <?php echo json_encode(xl("Secure Chat")); ?>,
-                pdf_management: <?php echo json_encode(xl("PDF Form Management")); ?>
-            };
             const summaryLines = [];
             let total = 0;
             const checkedProviders = $("input[name='reminders_providers[]']:checked").length;
             const checkedFacilities = $("input[name='reminders_facilities[]']:checked").length;
 
-            function pushLine(serviceKey, quantity, meta) {
-                const service = serviceCatalog[serviceKey] || {};
-                const unitPrice = parseFloat(service.price || 0);
-                const providerBased = !!service.provider_based;
+            function pushLine($card, quantity, meta) {
+                const serviceKey = String($card.data('serviceKey') || '');
+                const serviceLabel = String($card.data('serviceLabel') || serviceKey);
+                const unitPrice = parseFloat($card.data('servicePrice') || 0);
+                const providerBased = String($card.data('providerBased') || '0') === '1';
                 const effectiveQty = providerBased ? Math.max(quantity, 0) : (quantity > 0 ? quantity : 1);
                 const lineTotal = providerBased ? unitPrice * effectiveQty : (quantity > 0 ? unitPrice : 0);
                 total += lineTotal;
                 summaryLines.push(
                     '<div class="billing-summary-item">' +
                         '<div>' +
-                            '<div class="billing-summary-item-name">' + $('<div>').text(serviceLabels[serviceKey] || serviceKey).html() + '</div>' +
+                            '<div class="billing-summary-item-name">' + $('<div>').text(serviceLabel || serviceKey).html() + '</div>' +
                             (meta ? '<div class="billing-summary-item-meta">' + $('<div>').text(meta).html() + '</div>' : '') +
                         '</div>' +
                         '<div class="billing-summary-item-amount">$' + lineTotal.toFixed(2) + '</div>' +
@@ -1271,24 +1125,17 @@ if ($step > 1 && !$isConfigured) {
                 );
             }
 
-            if ($("#service_reminders").is(":checked") && checkedProviders > 0) {
-                pushLine('appointment_reminders', checkedProviders, checkedProviders + ' <?php echo xlj("provider(s) selected"); ?>' + (checkedFacilities > 0 ? ' • ' + checkedFacilities + ' <?php echo xlj("facility(ies) selected"); ?>' : ''));
-            }
-            if ($("#service_calendar_view").is(":checked")) {
-                pushLine('calendar_view', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
-            }
-            if ($("#service_calendar_ai").is(":checked")) {
-                pushLine('calendar_ai', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
-            }
-            if ($("#service_calendar_full").is(":checked")) {
-                pushLine('calendar_full', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
-            }
-            if ($("#service_chat").is(":checked")) {
-                pushLine('secure_chat', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
-            }
-            if ($("#service_pdf").is(":checked")) {
-                pushLine('pdf_management', 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
-            }
+            $("input[name='selected_services[]']:checked").each(function() {
+                const $card = $(this).closest('.service-card');
+                const serviceKey = String($card.data('serviceKey') || '');
+                if (serviceKey === 'appointment_reminders') {
+                    if (checkedProviders > 0) {
+                        pushLine($card, checkedProviders, checkedProviders + ' <?php echo xlj("provider(s) selected"); ?>' + (checkedFacilities > 0 ? ' • ' + checkedFacilities + ' <?php echo xlj("facility(ies) selected"); ?>' : ''));
+                    }
+                    return;
+                }
+                pushLine($card, 1, <?php echo json_encode(xl("Practice-wide service")); ?>);
+            });
 
             if (summaryLines.length) {
                 $("#billing-summary-lines").html('<div class="billing-summary-list">' + summaryLines.join('') + '</div>');
@@ -1542,7 +1389,7 @@ if ($step > 1 && !$isConfigured) {
 
         function submitStep2() {
             // Create cart with MedEx API
-            const remindersSelected = $("#service_reminders").is(':checked');
+            const remindersSelected = $("#service_appointment_reminders").is(':checked');
             const reminderProviders = $("input[name='reminders_providers[]']:checked").length;
             const reminderFacilities = $("input[name='reminders_facilities[]']:checked").length;
 
@@ -1566,21 +1413,12 @@ if ($step > 1 && !$isConfigured) {
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        const selectedServices = [];
-                        if ($("#service_reminders").is(':checked')) selectedServices.push('appointment_reminders');
-                        if ($("#service_calendar_view").is(':checked')) selectedServices.push('calendar_view');
-                        if ($("#service_calendar_ai").is(':checked')) selectedServices.push('calendar_ai');
-                        if ($("#service_calendar_full").is(':checked')) selectedServices.push('calendar_full');
-                        if ($("#service_chat").is(':checked')) selectedServices.push('secure_chat');
-                        if ($("#service_pdf").is(':checked')) selectedServices.push('pdf_management');
+                        const selectedServices = $("input[name='selected_services[]']:checked").map(function() {
+                            return $(this).val();
+                        }).get();
                         // Store summary for step 3
                         sessionStorage.setItem('medex_onboarding_summary', JSON.stringify({
-                            reminders: $("#service_reminders").is(':checked'),
-                            calendar_view: $("#service_calendar_view").is(':checked'),
-                            calendar_ai: $("#service_calendar_ai").is(':checked'),
-                            calendar_full: $("#service_calendar_full").is(':checked'),
-                            chat: $("#service_chat").is(':checked'),
-                            pdf: $("#service_pdf").is(':checked'),
+                            reminders: remindersSelected,
                             provider_count: $("input[name='reminders_providers[]']:checked").length,
                             facility_count: $("input[name='reminders_facilities[]']:checked").length,
                             cart_id: response.cart_id,
@@ -1798,7 +1636,7 @@ if ($step > 1 && !$isConfigured) {
                 syncRemindersConfigPanel();
                 updateStep2Progress();
                 $("#form-step-2 input[type='checkbox']").on("change", function() {
-                    if (this.id === "service_reminders") {
+                    if (this.id === "service_appointment_reminders") {
                         syncRemindersConfigPanel();
                     }
                     updateStep2Progress();
@@ -1821,7 +1659,7 @@ if ($step > 1 && !$isConfigured) {
                     if ($target.closest("input, a, button, select, textarea, label, .provider-list, .service-config-panel").length) {
                         return;
                     }
-                    const $serviceToggle = $(this).children("input[type='checkbox'][name^='service_']").first();
+                    const $serviceToggle = $(this).children("input[type='checkbox'][name='selected_services[]']").first();
                     if ($serviceToggle.length) {
                         $serviceToggle.prop("checked", !$serviceToggle.prop("checked")).trigger("change");
                     }
@@ -1910,14 +1748,7 @@ if ($step > 1 && !$isConfigured) {
                     }
                 }
                 let html = '';
-                const serviceLabels = {
-                    appointment_reminders: <?php echo json_encode(xl("Reminders & Recalls")); ?>,
-                    calendar_view: <?php echo json_encode(xl("Calendar View & Export")); ?>,
-                    calendar_ai: <?php echo json_encode(xl("Calendar & AI Rescheduler")); ?>,
-                    calendar_full: <?php echo json_encode(xl("Full Calendar")); ?>,
-                    secure_chat: <?php echo json_encode(xl("Secure Chat")); ?>,
-                    pdf_management: <?php echo json_encode(xl("PDF Form Management")); ?>
-                };
+                const serviceLabels = <?php echo json_encode($serviceLabels); ?> || {};
                 if (Array.isArray(summary.services) && summary.services.length) {
                     summary.services.forEach(function(serviceKey) {
                         const label = serviceLabels[serviceKey] || serviceKey;
@@ -1929,12 +1760,7 @@ if ($step > 1 && !$isConfigured) {
                         }
                     });
                 } else {
-                    if (summary.reminders) html += '<li>' + <?php echo xlj("Reminders & Recalls"); ?> + ' (' + (summary.provider_count || 0) + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
-                    if (summary.calendar_view) html += '<li>' + <?php echo xlj("Calendar View & Export"); ?> + '</li>';
-                    if (summary.calendar_ai) html += '<li>' + <?php echo xlj("Calendar & AI Rescheduler"); ?> + '</li>';
-                    if (summary.calendar_full) html += '<li>' + <?php echo xlj("Full Calendar"); ?> + '</li>';
-                    if (summary.chat) html += '<li>' + <?php echo xlj("Secure Chat"); ?> + '</li>';
-                    if (summary.pdf) html += '<li>' + <?php echo xlj("PDF Form Management"); ?> + '</li>';
+                    if (summary.reminders) html += '<li>' + (serviceLabels.appointment_reminders || 'appointment_reminders') + ' (' + (summary.provider_count || 0) + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
                 }
                 $("#summary-list").html(html || '<li>No services selected</li>');
 
