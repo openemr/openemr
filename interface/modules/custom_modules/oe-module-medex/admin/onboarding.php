@@ -308,7 +308,10 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="panel-card full-width-card">
                         <div class="section-kicker"><?php echo xlt("Step 1"); ?></div>
                         <h3 class="section-title"><?php echo xlt("Create the administrator account"); ?></h3>
-                        <p class="section-intro"><?php echo xlt("Enter the email and password that will own this MedEx setup. This account will be used to complete onboarding and manage services later."); ?></p>
+                        <p class="section-intro">
+                            <?php echo xlt("Enter the email and password that will own this MedEx setup."); ?><br>
+                            <?php echo xlt("This account will be used to complete onboarding and manage services later."); ?>
+                        </p>
                         <div class="form-group">
                             <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
