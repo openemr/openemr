@@ -222,9 +222,11 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             [$name],
             true,
         );
-        // affectedRows() on a no-op UPDATE (e.g. already null/0) returns 0,
-        // which we want: it distinguishes a missing service from a live clear.
-        // Use a separate existence check so "already clear" still reports success.
+        // The UPDATE runs unconditionally; its affected-row count would
+        // report 0 for "already clear" and 1 for "actively cleared",
+        // which is a distinction the caller doesn't care about. A
+        // dedicated existence check lets us report "not found" vs
+        // "service exists (lease is clear either way)".
         $exists = QueryUtils::fetchRecordsNoLog(
             'SELECT 1 FROM `background_services` WHERE `name` = ? LIMIT 1',
             [$name],

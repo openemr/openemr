@@ -78,7 +78,7 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
     public function testAcquireFailsWhenLiveLeaseHeld(): void
     {
         $this->insertService();
-        $this->setLeaseExpiry(date('Y-m-d H:i:s', time() + 600)); // 10 min future
+        $this->setLeaseExpiryMinutesFromNow(10); // live
 
         $result = $this->runner->callAcquireLock($this->fetchRow(), force: true);
 
@@ -88,15 +88,23 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
     public function testAcquireStealsExpiredLease(): void
     {
         $this->insertService();
-        $this->setLeaseExpiry(date('Y-m-d H:i:s', time() - 600)); // 10 min past
+        $this->setLeaseExpiryMinutesFromNow(-10); // expired
 
         $result = $this->runner->callAcquireLock($this->fetchRow(), force: true);
 
         $this->assertNull($result, 'Expired lease must be stolen on next acquire');
         $row = $this->fetchRow();
         $this->assertNotNull($row['lock_expires_at']);
-        // New lease must be in the future, not the stale one we set.
-        $this->assertGreaterThan(time(), (int) strtotime((string) $row['lock_expires_at']));
+        // New lease must be live by the DB's own clock. Issue NOW() in
+        // SQL rather than comparing against PHP's time() to avoid
+        // clock/timezone drift between the app and the DB session.
+        $liveRow = QueryUtils::querySingleRow(
+            'SELECT 1 AS live FROM `background_services`'
+            . ' WHERE `name` = ? AND `lock_expires_at` > NOW()',
+            [self::TEST_SERVICE],
+            false,
+        );
+        $this->assertIsArray($liveRow, 'New lease must be in the future per DB clock');
     }
 
     public function testReleaseClearsLease(): void
@@ -113,7 +121,7 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
 
     public function testAcquireReturnsNotDueWhenIntervalNotElapsed(): void
     {
-        $this->insertService(nextRun: date('Y-m-d H:i:s', time() + 600));
+        $this->insertService(nextRunMinutesFromNow: 10);
 
         $result = $this->runner->callAcquireLock($this->fetchRow(), force: false);
 
@@ -125,30 +133,45 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
         // Regression guard: a service with an expired (stale) lease AND
         // a future next_run should report 'not_due' rather than
         // 'already_running'. The stale timestamp is not a live lease.
-        $this->insertService(nextRun: date('Y-m-d H:i:s', time() + 600));
-        $this->setLeaseExpiry(date('Y-m-d H:i:s', time() - 600));
+        $this->insertService(nextRunMinutesFromNow: 10);
+        $this->setLeaseExpiryMinutesFromNow(-10);
 
         $result = $this->runner->callAcquireLock($this->fetchRow(), force: false);
 
         $this->assertSame('not_due', $result);
     }
 
-    private function insertService(string $nextRun = '1970-01-01 00:00:00'): void
+    /**
+     * Insert the test service with next_run relative to the DB's NOW().
+     * Uses SQL arithmetic rather than PHP's time() so the test shares a
+     * clock with acquireLock().
+     *
+     * @param int $nextRunMinutesFromNow Positive for future, negative for
+     *   past (e.g. -100000 for "long past, always due").
+     */
+    private function insertService(int $nextRunMinutesFromNow = -100000): void
     {
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO `background_services`'
             . ' (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `sort_order`)'
-            . ' VALUES (?, ?, 1, 0, ?, 5, ?, 100)',
-            [self::TEST_SERVICE, 'Runner Lease Test', $nextRun, 'phpinfo'],
+            . ' VALUES (?, ?, 1, 0, NOW() + INTERVAL ? MINUTE, 5, ?, 100)',
+            [self::TEST_SERVICE, 'Runner Lease Test', $nextRunMinutesFromNow, 'phpinfo'],
             true,
         );
     }
 
-    private function setLeaseExpiry(string $expiresAt): void
+    /**
+     * Set the lease expiration relative to the DB's NOW(). Positive for a
+     * live lease, negative for an expired one. Uses SQL arithmetic so the
+     * test shares a clock with acquireLock().
+     */
+    private function setLeaseExpiryMinutesFromNow(int $minutesFromNow): void
     {
         QueryUtils::sqlStatementThrowException(
-            'UPDATE `background_services` SET `running` = 1, `lock_expires_at` = ? WHERE `name` = ?',
-            [$expiresAt, self::TEST_SERVICE],
+            'UPDATE `background_services`'
+            . ' SET `running` = 1, `lock_expires_at` = NOW() + INTERVAL ? MINUTE'
+            . ' WHERE `name` = ?',
+            [$minutesFromNow, self::TEST_SERVICE],
             true,
         );
     }
