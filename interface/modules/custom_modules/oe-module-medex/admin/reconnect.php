@@ -1,10 +1,9 @@
 <?php
 /**
- * MedEx hosted reconnect/sign-in launcher.
+ * MedEx local reconnect launcher.
  *
- * Local reconnect-by-register was invalid and triggered suspicious repeat
- * registration handling upstream. Returning customers must sign in through the
- * hosted MedEx application instead of re-registering from OpenEMR.
+ * Reconnect should stay inside the OpenEMR module dashboard rather than
+ * redirecting to the hosted legacy MedEx site.
  */
 
 if (empty($_GET['site'])) {
@@ -12,8 +11,6 @@ if (empty($_GET['site'])) {
 }
 
 require_once(__DIR__ . "/../../../../globals.php");
-require_once(__DIR__ . '/../src/MedExConfig.php');
-
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -23,24 +20,20 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
-$localOnly = !empty($_GET['local']);
 $requestedEmail = trim((string)($_GET['email'] ?? ''));
 $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL LIMIT 1");
 $existingEmail = $requestedEmail !== '' ? $requestedEmail : (string)($prefs['ME_username'] ?? '');
 $webroot = (string)($GLOBALS['webroot'] ?? '');
 
-$targetUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl()
-    . '/index.php?route=account/login&embed=1&site=' . urlencode($siteId);
+$targetUrl = $webroot
+    . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site='
+    . urlencode($siteId)
+    . '&tab=settings&local=1&reconnect=1';
 if ($existingEmail !== '') {
     $targetUrl .= '&email=' . urlencode($existingEmail);
 }
 
-$fallbackSettingsUrl = $webroot
-    . '/interface/modules/custom_modules/oe-module-medex/admin/index.php?site='
-    . urlencode($siteId)
-    . '&tab=settings&local=1';
-
-if (!$localOnly && $targetUrl !== '') {
+if ($targetUrl !== '') {
     header('Location: ' . $targetUrl);
     exit;
 }
@@ -112,16 +105,15 @@ if (!$localOnly && $targetUrl !== '') {
 <body>
 <div class="wrap">
     <h1><?php echo xlt('Opening MedEx Reconnect'); ?></h1>
-    <p><?php echo xlt('Returning MedEx customers must sign in through the hosted MedEx application to reconnect this OpenEMR server.'); ?></p>
+    <p><?php echo xlt('Reconnect is handled from the MedEx module dashboard inside OpenEMR.'); ?></p>
     <?php if ($existingEmail !== ''): ?>
         <p><strong><?php echo xlt('Account Email'); ?>:</strong> <?php echo text($existingEmail); ?></p>
     <?php endif; ?>
-    <p><?php echo xlt('If redirect does not happen automatically, use one of the links below.'); ?></p>
+    <p><?php echo xlt('If redirect does not happen automatically, use the link below.'); ?></p>
     <div class="actions">
-        <a class="btn btn-primary" href="<?php echo attr($targetUrl); ?>"><?php echo xlt('Open MedEx Sign-In'); ?></a>
-        <a class="btn btn-secondary" href="<?php echo attr($fallbackSettingsUrl); ?>"><?php echo xlt('Open Local Settings'); ?></a>
+        <a class="btn btn-primary" href="<?php echo attr($targetUrl); ?>"><?php echo xlt('Open MedEx Dashboard'); ?></a>
     </div>
-    <p class="meta"><?php echo xlt('This launcher replaces the old local reconnect form to avoid duplicate registration attempts.'); ?></p>
+    <p class="meta"><?php echo xlt('This launcher keeps reconnect inside the local MedEx module.'); ?></p>
 </div>
 </body>
 </html>
