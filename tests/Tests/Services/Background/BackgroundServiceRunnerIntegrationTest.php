@@ -70,7 +70,9 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
             $row['lock_expires_at'],
             'Successful acquire must set lock_expires_at',
         );
-        $this->assertSame('1', $row['running']);
+        // The `running` column is derived/legacy; compare as int because
+        // Doctrine DBAL 4 may return tinyint as int rather than numeric-string.
+        $this->assertSame(1, (int) $row['running']);
     }
 
     public function testAcquireFailsWhenLiveLeaseHeld(): void
@@ -106,7 +108,7 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
 
         $row = $this->fetchRow();
         $this->assertNull($row['lock_expires_at']);
-        $this->assertSame('0', $row['running']);
+        $this->assertSame(0, (int) $row['running']);
     }
 
     public function testAcquireReturnsNotDueWhenIntervalNotElapsed(): void
