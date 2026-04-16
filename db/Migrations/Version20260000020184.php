@@ -63,11 +63,7 @@ final class Version20260000020184 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('OSCONJ', Types::STRING, [
-            'length' => 25,
-            'notnull' => false,
-            'default' => null,
-        ]);
+        $table->addColumn('OSCONJ', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ODCONJ', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ODCORNEA', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('OSCORNEA', Types::TEXT, ['notnull' => false, 'length' => 65535]);
