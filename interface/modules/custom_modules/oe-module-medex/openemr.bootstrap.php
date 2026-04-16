@@ -741,6 +741,23 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         return false;
     }
 
+    function patchManage() {
+        if (typeof window.manage !== 'function' || window.__medex_manage_patched) {
+            return;
+        }
+        window.__medex_manage_patched = true;
+        var originalManage = window.manage;
+        window.manage = function (id, action) {
+            var row = document.getElementById(String(id));
+            var rowText = row ? (row.textContent || '').toLowerCase() : '';
+            var isMedexRow = rowText.indexOf('oe-module-medex') !== -1 || rowText.indexOf('medex module') !== -1;
+            if (isMedexRow && action === 'install') {
+                return runMedexInstall(String(id), row);
+            }
+            return originalManage.apply(this, arguments);
+        };
+    }
+
     function patchConfigure() {
         if (typeof window.configure !== 'function' || window.__medex_configure_patched) { return; }
         window.__medex_configure_patched = true;
@@ -873,6 +890,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
     }
 
     function patchInstallerPage() {
+        patchManage();
         installCaptureInterceptor();
         patchConfigure();
         patchMedexButtons();
