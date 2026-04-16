@@ -100,8 +100,6 @@ if ($step > 1 && !$api->isConfigured()) {
         body { background: linear-gradient(180deg, #eef4fb 0%, #f8fafc 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .wizard-container { max-width: 1100px; margin: 50px auto; background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid #dbe7f5; box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08); }
         .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
-        .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
-        .wizard-back-link:hover { color: #0f4b8f; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
         .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #e0e0e0; z-index: 1; }
         .wizard-progress-fill { position: absolute; top: 15px; left: 0; height: 2px; width: 0%; background: #0f4b8f; z-index: 1; transition: width 0.25s ease; }
@@ -333,9 +331,6 @@ if ($step > 1 && !$api->isConfigured()) {
 <body>
     <div class="wizard-container">
         <div class="wizard-header">
-            <a href="../show_help_setup.php?site=<?php echo attr_url($siteId); ?>" class="wizard-back-link">
-                <i class="fa fa-arrow-left"></i> <?php echo xlt("Back to Overview"); ?>
-            </a>
             <div style="font-size: 2rem; font-weight: 800; color: #0f4b8f; margin-bottom: 15px;">MedEx</div>
             <h2><?php echo xlt("Practice Onboarding"); ?></h2>
         </div>
@@ -539,7 +534,34 @@ if ($step > 1 && !$api->isConfigured()) {
                 $showSecureChat = array_key_exists('secure_chat', $availablePricingServices);
                 $showPdfManagement = array_key_exists('pdf_management', $availablePricingServices);
                 $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showSecureChat || $showPdfManagement;
-                $providerRows = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE authorized = 1 AND active = 1 ORDER BY lname, fname");
+                $providerCandidates = QueryUtils::fetchRecords("
+                    SELECT id, fname, lname, username
+                    FROM users
+                    WHERE active = 1
+                      AND calendar = 1
+                    ORDER BY lname, fname, id
+                ");
+                $providerRows = [];
+                $providerSeen = [];
+                foreach ($providerCandidates as $candidate) {
+                    $username = strtolower(trim((string)($candidate['username'] ?? '')));
+                    $fname = trim((string)($candidate['fname'] ?? ''));
+                    $lname = trim((string)($candidate['lname'] ?? ''));
+                    $displayName = trim($lname . ', ' . $fname, ' ,');
+                    $normalizedName = strtolower(preg_replace('/\s+/', ' ', $displayName) ?? $displayName);
+                    if ($username === 'admin' || $normalizedName === 'admin' || $normalizedName === '') {
+                        continue;
+                    }
+                    if (isset($providerSeen[$normalizedName])) {
+                        continue;
+                    }
+                    $providerSeen[$normalizedName] = true;
+                    $providerRows[] = [
+                        'id' => $candidate['id'],
+                        'fname' => $fname,
+                        'lname' => $lname,
+                    ];
+                }
                 $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
                 if (empty($facilityRows)) {
                     $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility ORDER BY name");
