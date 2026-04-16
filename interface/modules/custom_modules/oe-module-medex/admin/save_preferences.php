@@ -44,6 +44,19 @@ try {
 
     // Handle global configuration settings
     if (isset($_POST['medex_enable'])) {
+        $requestedEnable = ((string)$_POST['medex_enable'] === '1');
+        if ($requestedEnable) {
+            require_once(__DIR__ . '/../src/MedExAPI.php');
+            $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+            $enabledServices = $api->getEnabledServices(true);
+            if (empty($enabledServices)) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Activate at least one service before enabling MedEx'
+                ]);
+                exit;
+            }
+        }
         \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_enable', 0, ?)", [$_POST['medex_enable']]);
     }
 
@@ -87,9 +100,22 @@ try {
         [$bill_notify_email]
     );
 
-    // Background services removed; sync frequency is managed by the module externally.
     if (isset($_POST['execute_interval'])) {
-        // Previously stored in background_services; no-op now.
+        $executeInterval = max(0, (int)$_POST['execute_interval']);
+        try {
+            $bgRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+                "SELECT name FROM background_services WHERE name = 'MedEx' LIMIT 1",
+                []
+            );
+            if ($bgRow) {
+                \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+                    "UPDATE background_services SET execute_interval = ? WHERE name = 'MedEx'",
+                    [$executeInterval]
+                );
+            }
+        } catch (\Throwable $e) {
+            error_log('[MedEx save_preferences] Failed to persist execute_interval: ' . $e->getMessage());
+        }
     }
 
     // Get current preferences or create new row
@@ -151,37 +177,71 @@ try {
     }
 
     if ($existing) {
+        $existingId = (int)($existing['id'] ?? 0);
         // Update existing preferences
-        \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
-            "UPDATE medex_prefs SET
-                ME_facilities = ?,
-                ME_providers = ?,
-                ME_hipaa_default_override = ?,
-                MSGS_default_yes = ?,
-                LABELS_local = ?,
-                LABELS_choice = ?,
-                POSTCARDS_local = ?,
-                POSTCARDS_remote = ?,
-                postcard_top = ?,
-                PHONE_country_code = ?,
-                sms_bot_phone_style = ?,
-                MedEx_lastupdated = NOW()
-            WHERE ME_username = ?",
-            [
-                $facilities,
-                $providers,
-                $hipaa_override,
-                $msgs_default,
-                $labels_local,
-                $labels_choice,
-                $postcards_local,
-                $postcards_remote,
-                $postcard_top,
-                $phone_country,
-                $sms_style,
-                $existing['ME_username']
-            ]
-        );
+        if ($existingId > 0) {
+            \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+                "UPDATE medex_prefs SET
+                    ME_facilities = ?,
+                    ME_providers = ?,
+                    ME_hipaa_default_override = ?,
+                    MSGS_default_yes = ?,
+                    LABELS_local = ?,
+                    LABELS_choice = ?,
+                    POSTCARDS_local = ?,
+                    POSTCARDS_remote = ?,
+                    postcard_top = ?,
+                    PHONE_country_code = ?,
+                    sms_bot_phone_style = ?,
+                    MedEx_lastupdated = NOW()
+                WHERE id = ?",
+                [
+                    $facilities,
+                    $providers,
+                    $hipaa_override,
+                    $msgs_default,
+                    $labels_local,
+                    $labels_choice,
+                    $postcards_local,
+                    $postcards_remote,
+                    $postcard_top,
+                    $phone_country,
+                    $sms_style,
+                    $existingId
+                ]
+            );
+        } else {
+            \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+                "UPDATE medex_prefs SET
+                    ME_facilities = ?,
+                    ME_providers = ?,
+                    ME_hipaa_default_override = ?,
+                    MSGS_default_yes = ?,
+                    LABELS_local = ?,
+                    LABELS_choice = ?,
+                    POSTCARDS_local = ?,
+                    POSTCARDS_remote = ?,
+                    postcard_top = ?,
+                    PHONE_country_code = ?,
+                    sms_bot_phone_style = ?,
+                    MedEx_lastupdated = NOW()
+                WHERE ME_username = ?",
+                [
+                    $facilities,
+                    $providers,
+                    $hipaa_override,
+                    $msgs_default,
+                    $labels_local,
+                    $labels_choice,
+                    $postcards_local,
+                    $postcards_remote,
+                    $postcard_top,
+                    $phone_country,
+                    $sms_style,
+                    $existing['ME_username']
+                ]
+            );
+        }
     } else {
         // Insert new preferences (shouldn't happen if registered, but handle it)
         \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
@@ -229,8 +289,8 @@ try {
 
         error_log('[MedEx save_preferences] API isConfigured=' . ($api->isConfigured() ? 'true' : 'false') . ', isEnabled=' . ($api->isEnabled() ? 'true' : 'false'));
 
-        if ($api->isConfigured() && $api->isEnabled()) {
-            error_log('[MedEx save_preferences] API is configured and enabled, proceeding...');
+        if ($api->isConfigured()) {
+            error_log('[MedEx save_preferences] API is configured, proceeding...');
             // Only perform full sync if facilities or providers actually changed
             if ($facilities_changed || $providers_changed) {
                 $practiceService = new \OpenEMR\Modules\MedEx\Services\PracticeService($api);

@@ -1559,7 +1559,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
 
                         <?php elseif ($serviceId === 'calendar_ai'): ?>
                         <?php
-                            $aiSchedulerUrl = '';
+                            $calendarServicesUrl = '';
                             try {
                                 $sessionToken = (string)($loginData['token'] ?? '');
                                 $practiceId = (string)($loginData['practice_id'] ?? ($loginData['practice']['P_PID'] ?? ''));
@@ -1583,14 +1583,15 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                                         'site' => $siteId
                                     ];
                                     $ssoToken = base64_encode(json_encode($ssoPayload));
-                                    $aiSchedulerUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl()
+                                    $calendarServicesUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl()
                                         . '/index.php?route=calendar/dashboard'
+                                        . '&view=services'
                                         . '&embed=1'
                                         . '&site=' . urlencode($siteId)
                                         . '&sso_token=' . urlencode($ssoToken);
                                 }
                             } catch (\Throwable $e) {
-                                error_log('[MedEx Admin] Failed to build calendar AI URL: ' . $e->getMessage());
+                                error_log('[MedEx Admin] Failed to build calendar services URL: ' . $e->getMessage());
                             }
                         ?>
                         <div class="medex-breadcrumb" style="grid-column: 1 / -1;">
@@ -1616,8 +1617,8 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             <p style="margin-bottom: 16px;">
                                 <?php echo xlt('Open Calendar Services to manage appointment categories, build schedules, configure patient rescheduling, and manage cancellation list rules.'); ?>
                             </p>
-                            <?php if ($aiSchedulerUrl !== ''): ?>
-                                <a href="<?php echo attr($aiSchedulerUrl); ?>" target="_blank" rel="noopener" onclick="if(typeof top!=='undefined'&&typeof top.restoreSession==='function')top.restoreSession();" class="btn btn-primary" style="background: #0f4b8f; border-color: #0f4b8f;">
+                            <?php if ($calendarServicesUrl !== ''): ?>
+                                <a href="<?php echo attr($calendarServicesUrl); ?>" target="_blank" rel="noopener" onclick="if(typeof top!=='undefined'&&typeof top.restoreSession==='function')top.restoreSession();" class="btn btn-primary" style="background: #0f4b8f; border-color: #0f4b8f;">
                                     <i class="fas fa-external-link-alt"></i> <?php echo xlt('Open Calendar Services'); ?>
                                 </a>
                             <?php else: ?>
