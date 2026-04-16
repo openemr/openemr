@@ -11,14 +11,18 @@
 declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface;
-use GuzzleHttp\Psr7\ServerRequest;
+use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 assert($container instanceof TypedContainerInterface);
 
-$request = ServerRequest::fromGlobals();
+// Build a minimal URI from $_SERVER without consuming php://input (the request
+// body). Legacy handlers read the body themselves, so we must not consume it.
+// @phpstan-ignore openemr.forbiddenRequestGlobals
+$requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+$uri = new Uri($requestUri);
 
 // Guard against non-web requests, e.g. PHP_SAPI === 'cli'?
 
@@ -37,7 +41,7 @@ $logger->debug('Request routed through front-controller ({sapi})', [
 // if router would 404/405, fall back to below?
 
 $router = $container->get(FallbackRouter::class);
-$fileToInclude = $router->performLegacyRouting($request);
+$fileToInclude = $router->performLegacyRouting($uri);
 if ($fileToInclude === null) {
     // PHP shouldn't handle static assets, etc. Returning false allows the
     // built-in webserver (`php -S`) to handle it. With a properly-configured
@@ -74,7 +78,7 @@ register_shutdown_function(function ()  use ($logger) {
 // are fine, but the raw variables don't get defined when called from a function
 //
 // But at minimum, clean up the vars from _this_ file.
-unset($container, $request, $logger, $router);
+unset($container, $uri, $logger, $router);
 // Turn off strict-mode error handler for fallback code (see bootstrap addition
 // and #11411)
 restore_error_handler();
