@@ -139,7 +139,7 @@ class BackgroundServiceRestController
     }
 
     #[OA\Post(
-        path: '/api/background_service/run',
+        path: '/api/background_service/$run',
         description: 'Advances any background services that are due to run. Cannot force-run a specific service and cannot bypass intervals. Returns HTTP 200 with a per-service results array regardless of individual outcomes — the runner is always correct to invoke, and `not_due` / `already_running` / `skipped` are expected states, not errors.',
         tags: ['standard'],
         responses: [
