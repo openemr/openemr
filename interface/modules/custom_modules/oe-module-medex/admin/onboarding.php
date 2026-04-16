@@ -143,20 +143,26 @@ if ($step > 1 && !$api->isConfigured()) {
         .service-card { border: 2px solid #e0e0e0; padding: 20px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px; transition: all 0.2s ease; background: #fff; }
         .service-card:hover { border-color: #667eea; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
         .service-info { flex: 1; }
-        .service-title { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .service-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+        .service-title { font-size: 17px; font-weight: 600; color: #333; margin: 0; }
+        .service-help-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            border-radius: 999px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #0f4b8f;
+            text-decoration: none;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55);
+        }
+        .service-help-link:hover { background: #dbeafe; color: #0a3460; text-decoration: none; }
+        .service-help-link:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .service-desc { font-size: 13px; color: #666; line-height: 1.5; }
         .service-price { font-size: 14px; color: #0f4b8f; font-weight: 600; margin-top: 8px; }
-        .step2-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; align-items: start; }
-        .step2-help-panel { border: 1px solid #dbeafe; border-radius: 10px; background: #ffffff; padding: 14px; position: sticky; top: 14px; }
-        .step2-help-title { font-size: 16px; font-weight: 700; color: #0f4b8f; margin-bottom: 8px; }
-        .step2-help-list { list-style: none; margin: 0; padding: 0; }
-        .step2-help-list li { margin: 0 0 6px; }
-        .step2-help-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #0f4b8f; text-decoration: none; }
-        .step2-help-link:hover { text-decoration: underline; color: #0a3460; }
-        @media (max-width: 980px) {
-            .step2-layout { grid-template-columns: 1fr; }
-            .step2-help-panel { position: static; }
-        }
 
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
@@ -518,28 +524,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 ?>
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
-                <div class="step2-layout">
-                    <aside class="step2-help-panel">
-                        <div class="step2-help-title"><?php echo xlt("Step 2 Help"); ?></div>
-                        <ul class="step2-help-list">
-                            <?php if ($showAppointmentReminders): ?>
-                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Reminders & Recalls Help"); ?></a></li>
-                            <?php endif; ?>
-                            <?php if ($showCalendarView): ?>
-                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar View & Export Help"); ?></a></li>
-                            <?php endif; ?>
-                            <?php if ($showCalendarAi): ?>
-                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar & AI Rescheduler Help"); ?></a></li>
-                            <?php endif; ?>
-                            <?php if ($showSecureChat): ?>
-                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Secure Chat Help"); ?></a></li>
-                            <?php endif; ?>
-                            <?php if ($showPdfManagement): ?>
-                                <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("PDF Form Management Help"); ?></a></li>
-                            <?php endif; ?>
-                        </ul>
-                    </aside>
-                    <div>
                 <?php if (!$hasAvailableServices): ?>
                 <div class="alert alert-danger">
                     <?php echo xlt("No MedEx services are currently available for this account."); ?>
@@ -550,7 +534,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="service-card">
                     <input type="checkbox" name="service_reminders" id="service_reminders" checked>
                     <div class="service-info">
-                        <div class="service-title"><?php echo xlt("Reminders & Recalls"); ?></div>
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("Reminders & Recalls"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Reminders & Recalls Help"); ?>" aria-label="<?php echo xla("Reminders & Recalls Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <div class="service-desc"><?php echo xlt("Automated appointment reminders (SMS/Email/Voice) and comprehensive Recall Board management."); ?></div>
                         <div class="service-price">
                             <?php
@@ -590,7 +579,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="service-card">
                     <input type="checkbox" name="service_calendar_view" id="service_calendar_view">
                     <div class="service-info">
-                        <div class="service-title"><?php echo xlt("Calendar View & Export"); ?></div>
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("Calendar View & Export"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Calendar View & Export Help"); ?>" aria-label="<?php echo xla("Calendar View & Export Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <div class="service-desc"><?php echo xlt("Read-only web calendar with export capabilities for external scheduling systems."); ?></div>
                         <div class="service-price">
                             <?php
@@ -618,7 +612,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="service-card">
                     <input type="checkbox" name="service_calendar_ai" id="service_calendar_ai">
                     <div class="service-info">
-                        <div class="service-title"><?php echo xlt("Calendar & AI Rescheduler"); ?></div>
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("Calendar & AI Rescheduler"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Calendar & AI Rescheduler Help"); ?>" aria-label="<?php echo xla("Calendar & AI Rescheduler Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <div class="service-desc"><?php echo xlt("Modern web-based calendar and AI-powered automated patient rescheduling."); ?></div>
                         <div class="service-price">
                             <?php
@@ -646,7 +645,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="service-card">
                     <input type="checkbox" name="service_chat" id="service_chat">
                     <div class="service-info">
-                        <div class="service-title"><?php echo xlt("Secure Chat (Practice-wide)"); ?></div>
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("Secure Chat (Practice-wide)"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("Secure Chat Help"); ?>" aria-label="<?php echo xla("Secure Chat Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <div class="service-desc"><?php echo xlt("HIPAA-compliant two-way messaging for all staff and patients."); ?></div>
                         <div class="service-price">
                             <?php
@@ -674,7 +678,12 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="service-card">
                     <input type="checkbox" name="service_pdf" id="service_pdf">
                     <div class="service-info">
-                        <div class="service-title"><?php echo xlt("PDF Form Management"); ?></div>
+                        <div class="service-title-row">
+                            <div class="service-title"><?php echo xlt("PDF Form Management"); ?></div>
+                            <a class="service-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo xla("PDF Form Management Help"); ?>" aria-label="<?php echo xla("PDF Form Management Help"); ?>">
+                                <i class="fa fa-question" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <div class="service-desc"><?php echo xlt("Digital form filling, signature capture, and AI data extraction."); ?></div>
                         <div class="service-price">
                             <?php
@@ -702,8 +711,6 @@ if ($step > 1 && !$api->isConfigured()) {
                     <?php if ($hasAvailableServices): ?>
                         <button type="button" class="btn btn-primary" onclick="submitStep2()"><?php echo xlt("Next: Activation & Payment"); ?> <i class="fa fa-arrow-right"></i></button>
                     <?php endif; ?>
-                </div>
-                    </div>
                 </div>
             </form>
 
