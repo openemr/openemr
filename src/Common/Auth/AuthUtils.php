@@ -357,7 +357,9 @@ class AuthUtils
         // Check to ensure user is in a group (and collect the group name)
         $userService = new UserService();
         $authGroup = $userService->getAuthGroupForUser($username);
+        error_log("[DEBUG] confirmUserPassword: authGroup=$authGroup");
         if (empty($authGroup)) {
+            error_log("[DEBUG] confirmUserPassword: user not in group");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
@@ -370,6 +372,7 @@ class AuthUtils
 
         // Check to ensure user is in a acl group
         if (AclExtended::aclGetGroupTitles($username) == 0) {
+            error_log("[DEBUG] confirmUserPassword: user not in ACL group");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
@@ -385,7 +388,9 @@ class AuthUtils
             " FROM `users_secure`" .
             " WHERE BINARY `username` = ?";
         $userSecure = privQuery($getUserSecureSQL, [$username]);
+        error_log("[DEBUG] confirmUserPassword: userSecure result: " . json_encode($userSecure ? ['id' => $userSecure['id'], 'has_password' => !empty($userSecure['password'])] : false));
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
+            error_log("[DEBUG] confirmUserPassword: user credentials not found");
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
