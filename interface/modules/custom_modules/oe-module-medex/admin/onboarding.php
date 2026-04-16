@@ -1347,6 +1347,9 @@ if ($step > 1 && !$api->isConfigured()) {
                     markAgreementAccepted(type);
                     return;
                 }
+                if (event.data.action === "close") {
+                    closeAgreementModal();
+                }
             });
             $(document).on("keydown", function(e) {
                 if (e.key === "Escape" && agreementModal.hasClass("show")) {

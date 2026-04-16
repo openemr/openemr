@@ -354,6 +354,24 @@ $practiceName = medexGetPracticeName();
             background: #f1f5f9;
             cursor: not-allowed;
         }
+        .btn-danger {
+            min-width: 92px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #dc2626;
+            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 10px 22px rgba(185, 28, 28, 0.18);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+        }
         @media (max-width: 760px) {
             .row {
                 grid-template-columns: 1fr;
@@ -411,6 +429,9 @@ $practiceName = medexGetPracticeName();
                 <button type="button" id="print_btn" class="btn-secondary" title="<?php echo xla('Print or download signed agreement'); ?>" disabled>
                     <i class="fa fa-print" aria-hidden="true"></i> <?php echo xlt('Print'); ?>
                 </button>
+                <button type="button" id="close_btn" class="btn-danger" title="<?php echo xla('Close signed agreement'); ?>">
+                    <i class="fa fa-times" aria-hidden="true"></i> <?php echo xlt('Close'); ?>
+                </button>
             </div>
             <div id="readiness_state" class="readiness"><?php echo xlt('Scroll through the full agreement and complete required fields to enable signing.'); ?></div>
         </div>
@@ -420,6 +441,7 @@ $practiceName = medexGetPracticeName();
         (function () {
             const signBtn = document.getElementById("sign_btn");
             const printBtn = document.getElementById("print_btn");
+            const closeBtn = document.getElementById("close_btn");
             const legalCorporateNameEl = document.getElementById("legal_corporate_name");
             const signerNameEl = document.getElementById("signer_name");
             const signerTitleEl = document.getElementById("signer_title");
@@ -642,6 +664,7 @@ $practiceName = medexGetPracticeName();
                 signBtn.disabled = true;
                 signBtn.textContent = signedLabel;
                 printBtn.disabled = false;
+                closeBtn.style.display = "inline-flex";
                 legalCorporateNameEl.readOnly = true;
                 signerNameEl.readOnly = true;
                 signerTitleEl.readOnly = true;
@@ -669,6 +692,19 @@ $practiceName = medexGetPracticeName();
                     return;
                 }
                 openPrintableDocument(signedPayload);
+            });
+
+            closeBtn.addEventListener("click", function () {
+                const payload = {
+                    source: "medex-agreement-signer",
+                    action: "close",
+                    type: agreementType
+                };
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(payload, "*");
+                    return;
+                }
+                window.close();
             });
 
             if (bodyEl) {
