@@ -234,12 +234,18 @@ class BackgroundServiceRunner
             return null;
         }
 
-        // Distinguish why we failed: lease still live, or just not yet due?
-        $currentExpiry = $this->readLeaseExpiry($service['name']);
-        if ($currentExpiry === false) {
-            return 'error';
-        }
-        if ($currentExpiry !== null) {
+        // Distinguish why the UPDATE failed: is a LIVE lease held, or
+        // is the lease expired/null and the service simply not yet due?
+        // Checking `lock_expires_at > NOW()` in SQL ensures an expired
+        // lease does not get misreported as 'already_running' when the
+        // true reason is 'not_due'.
+        $liveLease = QueryUtils::querySingleRow(
+            'SELECT 1 AS live FROM background_services'
+            . ' WHERE name = ? AND lock_expires_at > NOW()',
+            [$service['name']],
+            false,
+        );
+        if (is_array($liveLease)) {
             return 'already_running';
         }
         return $force ? 'already_running' : 'not_due';
@@ -255,15 +261,12 @@ class BackgroundServiceRunner
     }
 
     /**
-     * Read the current lease expiration for a service.
-     *
-     * Returns the stored timestamp string when a lease exists, null when
-     * no lease is held, and false when the row is missing entirely (which
-     * callers treat as an error).
-     *
-     * @return string|false|null
+     * Read the current lease expiration for a service, used to detect
+     * the prior state before attempting an acquire. Returns the stored
+     * timestamp string when a lease exists (expired or live) or null
+     * when no lease is held or the row is missing.
      */
-    private function readLeaseExpiry(string $serviceName): string|false|null
+    private function readLeaseExpiry(string $serviceName): ?string
     {
         $row = QueryUtils::querySingleRow(
             'SELECT lock_expires_at FROM background_services WHERE name = ?',
@@ -271,8 +274,8 @@ class BackgroundServiceRunner
             false,
         );
 
-        if ($row === false) {
-            return false;
+        if (!is_array($row)) {
+            return null;
         }
 
         $value = $row['lock_expires_at'] ?? null;

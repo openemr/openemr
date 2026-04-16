@@ -120,6 +120,19 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
         $this->assertSame('not_due', $result);
     }
 
+    public function testAcquireReportsNotDueEvenWhenExpiredLeasePresent(): void
+    {
+        // Regression guard: a service with an expired (stale) lease AND
+        // a future next_run should report 'not_due' rather than
+        // 'already_running'. The stale timestamp is not a live lease.
+        $this->insertService(nextRun: date('Y-m-d H:i:s', time() + 600));
+        $this->setLeaseExpiry(date('Y-m-d H:i:s', time() - 600));
+
+        $result = $this->runner->callAcquireLock($this->fetchRow(), force: false);
+
+        $this->assertSame('not_due', $result);
+    }
+
     private function insertService(string $nextRun = '1970-01-01 00:00:00'): void
     {
         QueryUtils::sqlStatementThrowException(
