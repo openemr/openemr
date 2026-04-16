@@ -156,6 +156,19 @@ class ModuleManagerListener extends AbstractModuleActionListener
       bar.style.width = Math.max(8, Math.min(100, percent)) + '%';
     }
   }
+  function medexOpenTarget(url) {
+    try {
+      if (window.top && window.top.frames && window.top.frames.med) {
+        window.top.frames.med.location.href = url;
+        return;
+      }
+    } catch (e) {}
+    try {
+      window.open(url, 'med');
+      return;
+    } catch (e) {}
+    window.location.href = url;
+  }
   window.medexRunSetupFlow = async function (moduleId, onboardingUrl, needsInstall, needsEnable, trigger) {
     if (!moduleId || !window.fetch) {
       return false;
@@ -209,7 +222,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
       }
       medexSetStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done', 100);
       window.setTimeout(function () {
-        window.location.href = onboardingUrl;
+        medexOpenTarget(onboardingUrl);
       }, 1600);
     } catch (error) {
       medexSetStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error', 100);

@@ -554,6 +554,20 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             encodeURIComponent(getSite()) + '&step=1&force_onboarding=1';
     }
 
+    function openInMedexTarget(url) {
+        try {
+            if (window.top && window.top.frames && window.top.frames.med) {
+                window.top.frames.med.location.href = url;
+                return;
+            }
+        } catch (e) {}
+        try {
+            window.open(url, 'med');
+            return;
+        } catch (e) {}
+        window.location.href = url;
+    }
+
     function getMedexSetupUrl(rowId) {
         var url = (window.webroot_url || '') + '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=' + encodeURIComponent(getSite());
         if (rowId) {
@@ -748,7 +762,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
             .then(function () {
                 updateProgress('Opening onboarding...', 'MedEx is ready. Redirecting into onboarding now.', 'done', 100);
                 window.setTimeout(function () {
-                    window.location.href = getOnboardingUrl();
+                    openInMedexTarget(getOnboardingUrl());
                 }, 1600);
             })
             .catch(function (error) {

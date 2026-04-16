@@ -299,10 +299,14 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
     function redirectToOnboarding() {
         keepSessionAlive();
         try {
-            if (window.parent && window.parent !== window) {
-                window.parent.location.href = onboardingUrl;
+            if (window.top && window.top.frames && window.top.frames.med) {
+                window.top.frames.med.location.href = onboardingUrl;
                 return;
             }
+        } catch (e) {}
+        try {
+            window.open(onboardingUrl, 'med');
+            return;
         } catch (e) {}
         window.location.href = onboardingUrl;
     }
