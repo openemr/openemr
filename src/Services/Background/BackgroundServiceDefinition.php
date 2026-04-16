@@ -15,15 +15,15 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Background;
 
-use OpenEMR\Common\Database\TableTypes;
-
 /**
- * The `lease_is_live` field is computed at query time by BackgroundServiceRegistry
- * (e.g. `lock_expires_at > NOW() AS lease_is_live`) and is intentionally NOT part
- * of the generated `BackgroundServicesRow` schema because it is not a table column.
+ * The `lease_is_live` field is computed at query time (e.g.
+ * `lock_expires_at > NOW() AS lease_is_live`) and is intentionally NOT part
+ * of the generated `BackgroundServicesRow` schema because it is not a table
+ * column. All callers of `fromDatabaseRow()` MUST include it so liveness is
+ * always derived from the DB clock — never from PHP's `time()`, which can
+ * drift from the MySQL session timezone.
  *
- * @phpstan-import-type BackgroundServicesRow from TableTypes
- * @phpstan-type BackgroundServicesQueryRow BackgroundServicesRow|array{
+ * @phpstan-type BackgroundServicesQueryRow array{
  *   name: string,
  *   title: string,
  *   active: numeric-string,
@@ -66,21 +66,19 @@ final readonly class BackgroundServiceDefinition
             executeInterval: (int) $row['execute_interval'],
             sortOrder: (int) $row['sort_order'],
             active: (int) $row['active'] !== 0,
-            // `running` is derived from the lease: a service is only
-            // actually running if the lease exists and has not expired.
-            // This means stuck locks from crashed workers report as
-            // not-running, matching reality. Prefer the SQL-computed
-            // `lease_is_live` when present (same clock as acquireLock),
-            // falling back to PHP-clock comparison for callers that
-            // didn't select it.
-            running: self::resolveRunning($row),
+            // `running` reflects the live lease — not the legacy `running`
+            // column, which can be stale (e.g. set to 1 by a worker that
+            // crashed before release). `lease_is_live` is computed in SQL
+            // using the DB's own clock, so reporting matches what
+            // acquireLock() will enforce.
+            running: (int) ($row['lease_is_live'] ?? 0) === 1,
             nextRun: $row['next_run'],
             lockExpiresAt: $row['lock_expires_at'],
         );
     }
 
     /**
-     * @return BackgroundServicesRow
+     * @return BackgroundServicesQueryRow
      */
     public function toArray(): array
     {
@@ -95,42 +93,9 @@ final readonly class BackgroundServiceDefinition
             'require_once' => $this->requireOnce,
             'sort_order' => (string) $this->sortOrder,
             'lock_expires_at' => $this->lockExpiresAt,
+            // Emit the SQL-computed flag so a round-tripped row reports the
+            // same liveness after fromDatabaseRow() re-constructs it.
+            'lease_is_live' => $this->running ? '1' : '0',
         ];
-    }
-
-    /**
-     * Resolve whether a service is currently running from a DB row. Prefer
-     * the SQL-computed `lease_is_live` column when present, because it uses
-     * the same clock (MySQL NOW() under whatever session timezone applies)
-     * as acquireLock(). When absent — e.g. for test fixtures built by hand —
-     * fall back to PHP-clock comparison.
-     *
-     * @param BackgroundServicesQueryRow $row
-     */
-    private static function resolveRunning(array $row): bool
-    {
-        $liveFlag = $row['lease_is_live'] ?? null;
-        if ($liveFlag !== null) {
-            return (int) $liveFlag === 1;
-        }
-        return self::leaseIsLiveByPhpClock($row['lock_expires_at']);
-    }
-
-    /**
-     * Fallback for rows without an SQL-computed liveness flag. A lease is
-     * "live" when it has a future expiration timestamp. Treats malformed
-     * timestamps as not-live (fail safe — better to let the next tick
-     * attempt to re-acquire than to report a lock we can't interpret).
-     *
-     * Prefer the SQL-computed column (see `resolveRunning`) to avoid PHP
-     * and DB clock/timezone drift.
-     */
-    private static function leaseIsLiveByPhpClock(?string $lockExpiresAt): bool
-    {
-        if ($lockExpiresAt === null || $lockExpiresAt === '') {
-            return false;
-        }
-        $expiry = strtotime($lockExpiresAt);
-        return $expiry !== false && $expiry > time();
     }
 }

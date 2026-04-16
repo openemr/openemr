@@ -99,8 +99,11 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
         // SQL rather than comparing against PHP's time() to avoid
         // clock/timezone drift between the app and the DB session.
         $liveRow = QueryUtils::querySingleRow(
-            'SELECT 1 AS live FROM `background_services`'
-            . ' WHERE `name` = ? AND `lock_expires_at` > NOW()',
+            <<<'SQL'
+            SELECT 1 AS live
+              FROM `background_services`
+             WHERE `name` = ? AND `lock_expires_at` > NOW()
+            SQL,
             [self::TEST_SERVICE],
             false,
         );
@@ -152,9 +155,11 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
     private function insertService(int $nextRunMinutesFromNow = -100000): void
     {
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO `background_services`'
-            . ' (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `sort_order`)'
-            . ' VALUES (?, ?, 1, 0, NOW() + INTERVAL ? MINUTE, 5, ?, 100)',
+            <<<'SQL'
+            INSERT INTO `background_services`
+                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `sort_order`)
+            VALUES (?, ?, 1, 0, NOW() + INTERVAL ? MINUTE, 5, ?, 100)
+            SQL,
             [self::TEST_SERVICE, 'Runner Lease Test', $nextRunMinutesFromNow, 'phpinfo'],
             true,
         );
@@ -168,9 +173,12 @@ class BackgroundServiceRunnerIntegrationTest extends TestCase
     private function setLeaseExpiryMinutesFromNow(int $minutesFromNow): void
     {
         QueryUtils::sqlStatementThrowException(
-            'UPDATE `background_services`'
-            . ' SET `running` = 1, `lock_expires_at` = NOW() + INTERVAL ? MINUTE'
-            . ' WHERE `name` = ?',
+            <<<'SQL'
+            UPDATE `background_services`
+               SET `running` = 1,
+                   `lock_expires_at` = NOW() + INTERVAL ? MINUTE
+             WHERE `name` = ?
+            SQL,
             [$minutesFromNow, self::TEST_SERVICE],
             true,
         );

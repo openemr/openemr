@@ -210,13 +210,17 @@ class BackgroundServiceRunner
         //   - no lease is held (lock_expires_at IS NULL), or
         //   - the existing lease has expired (prior worker crashed)
         // and, unless --force, the service is due (NOW() > next_run).
-        $sql = 'UPDATE background_services'
-            . ' SET running = 1,'
-            . '     lock_expires_at = NOW() + INTERVAL ? MINUTE,'
-            . '     next_run = NOW() + INTERVAL ? MINUTE'
-            . ' WHERE name = ?'
-            . '   AND (lock_expires_at IS NULL OR lock_expires_at < NOW())'
-            . ($force ? '' : ' AND NOW() > next_run');
+        $sql = <<<'SQL'
+            UPDATE background_services
+               SET running = 1,
+                   lock_expires_at = NOW() + INTERVAL ? MINUTE,
+                   next_run = NOW() + INTERVAL ? MINUTE
+             WHERE name = ?
+               AND (lock_expires_at IS NULL OR lock_expires_at < NOW())
+            SQL;
+        if (!$force) {
+            $sql .= "\n   AND NOW() > next_run";
+        }
 
         QueryUtils::sqlStatementThrowException(
             $sql,
@@ -246,8 +250,11 @@ class BackgroundServiceRunner
         // lease does not get misreported as 'already_running' when the
         // true reason is 'not_due'.
         $liveLease = QueryUtils::querySingleRow(
-            'SELECT 1 AS live FROM background_services'
-            . ' WHERE name = ? AND lock_expires_at > NOW()',
+            <<<'SQL'
+            SELECT 1 AS live
+              FROM background_services
+             WHERE name = ? AND lock_expires_at > NOW()
+            SQL,
             [$service['name']],
             false,
         );
@@ -257,6 +264,16 @@ class BackgroundServiceRunner
         return $force ? 'already_running' : 'not_due';
     }
 
+    /**
+     * Release the lease for a service by clearing `lock_expires_at` (and
+     * the legacy `running` flag).
+     *
+     * @throws \OpenEMR\Common\Database\SqlQueryException when the UPDATE
+     *         cannot be executed — e.g. the DB connection is dead, the
+     *         table/column is missing, or a deadlock aborted the statement.
+     *         Orchestration callers that must survive cleanup failures
+     *         should call safeReleaseLock() instead.
+     */
     protected function releaseLock(string $serviceName): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -280,12 +297,20 @@ class BackgroundServiceRunner
     }
 
     /**
-     * Release a lock, swallowing exceptions so cleanup failures don't break
-     * orchestration or crash shutdown handlers.
+     * Release a lock, swallowing the expected cleanup-path failures from
+     * `releaseLock()` so they don't break orchestration or crash shutdown
+     * handlers. Specifically, this absorbs:
      *
-     * If the underlying DB update fails, the lease remains set; the next
-     * tick will see it expire naturally and recover — no manual operator
-     * intervention required.
+     *   - `SqlQueryException` — transient DB errors (dropped connection,
+     *     deadlock, lock-wait timeout) that happen mid-cleanup.
+     *   - `\Error` subclasses from QueryUtils initialization during a
+     *     fatal shutdown (PDO gone, container half-torn-down, etc.)
+     *     where the runtime is already unwinding.
+     *
+     * The catch is `\Throwable` intentionally — shutdown handlers run in
+     * contexts where even a TypeError must not propagate, and losing the
+     * release is not a correctness problem: the lease expires on its own
+     * and the next tick recovers it.
      */
     private function safeReleaseLock(string $serviceName): void
     {

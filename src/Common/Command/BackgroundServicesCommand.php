@@ -18,6 +18,7 @@ namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Background\BackgroundServiceDefinition;
+use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
@@ -190,9 +191,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             return Command::FAILURE;
         }
 
-        $affected = $this->clearLease($name);
-
-        if ($affected === 0) {
+        if (!$this->clearLease($name)) {
             $io->error("Service '{$name}' not found.");
             return Command::FAILURE;
         }
@@ -212,10 +211,10 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
      * is executed unconditionally; callers that need to distinguish "already
      * clear" from "actively cleared" should check lock state beforehand.
      *
-     * Returns 1 when the service exists (lease is now clear either way) or
-     * 0 when no service with that name exists.
+     * Returns true when the service exists (its lease is now clear either
+     * way), or false when no service with that name exists.
      */
-    protected function clearLease(string $name): int
+    protected function clearLease(string $name): bool
     {
         QueryUtils::sqlStatementThrowException(
             'UPDATE `background_services` SET `running` = 0, `lock_expires_at` = NULL WHERE `name` = ?',
@@ -231,17 +230,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             'SELECT 1 FROM `background_services` WHERE `name` = ? LIMIT 1',
             [$name],
         );
-        return $exists === [] ? 0 : 1;
+        return $exists !== [];
     }
-
-    /**
-     * SQL-computed liveness flag (`lease_is_live`) is selected alongside
-     * the row so display/listing uses the same clock as acquireLock().
-     */
-    private const SELECT_WITH_LEASE_LIVE =
-        'SELECT background_services.*,'
-        . ' (lock_expires_at IS NOT NULL AND lock_expires_at > NOW()) AS lease_is_live'
-        . ' FROM background_services';
 
     /**
      * @return list<BackgroundServicesQueryRow>
@@ -250,7 +240,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            self::SELECT_WITH_LEASE_LIVE . ' ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' ORDER BY sort_order',
             [],
         );
     }
@@ -262,7 +252,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            self::SELECT_WITH_LEASE_LIVE . ' WHERE active = 1 AND execute_interval > 0 ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' WHERE `active` = 1 AND `execute_interval` > 0 ORDER BY `sort_order`',
             [],
         );
     }

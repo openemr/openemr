@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Command;
 
 use OpenEMR\Common\Command\BackgroundServicesCommand;
-use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
@@ -23,7 +23,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 #[Group('isolated')]
 #[Group('background-services')]
@@ -37,7 +37,7 @@ class BackgroundServicesCommandTest extends TestCase
     }
 
     /**
-     * @return BackgroundServicesRow
+     * @return BackgroundServicesQueryRow
      */
     private static function makeService(
         string $name,
@@ -60,6 +60,7 @@ class BackgroundServicesCommandTest extends TestCase
             'require_once' => null,
             'sort_order' => '100',
             'lock_expires_at' => $lockExpiresAt,
+            'lease_is_live' => $lockExpiresAt !== null && $running === 1 ? '1' : '0',
         ];
     }
 
@@ -255,7 +256,7 @@ class BackgroundServicesCommandTest extends TestCase
 /**
  * Stub that provides fixture data instead of hitting the database.
  *
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServicesCommandStub extends BackgroundServicesCommand
 {
@@ -263,7 +264,7 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
     public array $unlockedServices = [];
 
     /**
-     * @param list<BackgroundServicesRow> $services
+     * @param list<BackgroundServicesQueryRow> $services
      */
     public function __construct(private readonly array $services = [])
     {
@@ -284,13 +285,13 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
         ));
     }
 
-    protected function clearLease(string $name): int
+    protected function clearLease(string $name): bool
     {
         $exists = array_filter($this->services, fn(array $s) => $s['name'] === $name);
         if ($exists === []) {
-            return 0;
+            return false;
         }
         $this->unlockedServices[] = $name;
-        return 1;
+        return true;
     }
 }

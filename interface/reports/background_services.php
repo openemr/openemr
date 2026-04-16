@@ -14,6 +14,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -124,14 +125,14 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // `is_busy` reflects the live lease rather than the legacy `running` flag
 // so stuck locks from crashed workers render as not-busy (see GH #11661).
-$res = sqlStatement(
-    "SELECT *,"
-    . " (`next_run` - INTERVAL `execute_interval` MINUTE) AS `last_run_start`,"
-    . " (`lock_expires_at` IS NOT NULL AND `lock_expires_at` > NOW()) AS `is_busy`"
-    . " FROM `background_services`"
-    . " ORDER BY `sort_order`"
-);
-while ($row = sqlFetchArray($res)) {
+$rows = QueryUtils::fetchRecordsNoLog(<<<'SQL'
+    SELECT *,
+           (`next_run` - INTERVAL `execute_interval` MINUTE) AS `last_run_start`,
+           (`lock_expires_at` IS NOT NULL AND `lock_expires_at` > NOW()) AS `is_busy`
+      FROM `background_services`
+     ORDER BY `sort_order`
+    SQL, []);
+foreach ($rows as $row) {
     ?>
   <tr>
       <td align='center'><?php echo xlt($row['title']); ?></td>
@@ -172,7 +173,7 @@ while ($row = sqlFetchArray($res)) {
 
   </tr>
     <?php
-} // $row = sqlFetchArray($res) while
+} // foreach $rows
 ?>
 </tbody>
 </table>
