@@ -78,12 +78,17 @@ try {
     // Service: Reminders & Recalls
     if (isset($_POST['service_reminders']) && $_POST['service_reminders'] === 'on') {
         $providerCount = isset($_POST['reminders_providers']) ? count($_POST['reminders_providers']) : 0;
-        if ($providerCount > 0) {
+        $facilityCount = isset($_POST['reminders_facilities']) ? count($_POST['reminders_facilities']) : 0;
+        if ($providerCount > 0 && $facilityCount > 0) {
             $cartData['items'][] = [
                 'service' => 'appointment_reminders',
                 'quantity' => $providerCount,
-                'providers' => $_POST['reminders_providers']
+                'providers' => $_POST['reminders_providers'],
+                'facilities' => $_POST['reminders_facilities']
             ];
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Select at least one provider and one facility for Reminders & Recalls.']);
+            exit;
         }
     }
 

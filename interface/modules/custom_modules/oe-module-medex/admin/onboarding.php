@@ -17,6 +17,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExConfig;
@@ -163,6 +164,23 @@ if ($step > 1 && !$api->isConfigured()) {
         .service-help-link:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .service-desc { font-size: 13px; color: #666; line-height: 1.5; }
         .service-price { font-size: 14px; color: #0f4b8f; font-weight: 600; margin-top: 8px; }
+        .service-config-panel {
+            display: none;
+            margin-top: 16px;
+            padding: 16px 18px;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+        }
+        .service-config-panel.show { display: block; }
+        .service-config-title { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: #0f4b8f; }
+        .service-config-copy { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: #475569; }
+        .service-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .service-config-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: #1e293b; }
+        .service-config-note { margin-top: 10px; font-size: 12px; color: #64748b; }
+        @media (max-width: 760px) {
+            .service-config-grid { grid-template-columns: 1fr; }
+        }
 
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
@@ -521,6 +539,11 @@ if ($step > 1 && !$api->isConfigured()) {
                 $showSecureChat = array_key_exists('secure_chat', $availablePricingServices);
                 $showPdfManagement = array_key_exists('pdf_management', $availablePricingServices);
                 $hasAvailableServices = $showAppointmentReminders || $showCalendarView || $showCalendarAi || $showSecureChat || $showPdfManagement;
+                $providerRows = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE authorized = 1 AND active = 1 ORDER BY lname, fname");
+                $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
+                if (empty($facilityRows)) {
+                    $facilityRows = QueryUtils::fetchRecords("SELECT id, name FROM facility ORDER BY name");
+                }
                 ?>
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
@@ -532,7 +555,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <?php if ($showAppointmentReminders): ?>
                 <!-- Reminders & Recalls -->
                 <div class="service-card">
-                    <input type="checkbox" name="service_reminders" id="service_reminders" checked>
+                    <input type="checkbox" name="service_reminders" id="service_reminders">
                     <div class="service-info">
                         <div class="service-title-row">
                             <div class="service-title"><?php echo xlt("Reminders & Recalls"); ?></div>
@@ -558,17 +581,34 @@ if ($step > 1 && !$api->isConfigured()) {
                             }
                             ?>
                         </div>
-
-                        <div id="provider-selection-reminders" style="margin-top: 15px;">
-                            <label><?php echo xlt("Select Providers for Reminders"); ?>:</label>
-                            <div class="provider-list">
-                                <?php
-                                $res = sqlStatement("SELECT id, fname, lname FROM users WHERE authorized=1 AND active=1 ORDER BY lname");
-                                while ($row = sqlFetchArray($res)) {
-                                    echo "<div class='provider-item'><input type='checkbox' name='reminders_providers[]' value='{$row['id']}'> {$row['lname']}, {$row['fname']}</div>";
-                                }
-                                ?>
+                        <div id="reminders-config-panel" class="service-config-panel">
+                            <p class="service-config-title"><?php echo xlt("Configure Reminders & Recalls"); ?></p>
+                            <p class="service-config-copy"><?php echo xlt("Choose which providers and facilities should be included before this service is added to the cart."); ?></p>
+                            <div class="service-config-grid">
+                                <div class="service-config-group">
+                                    <label><?php echo xlt("Providers"); ?></label>
+                                    <div class="provider-list">
+                                        <?php foreach ($providerRows as $row): ?>
+                                            <div class="provider-item">
+                                                <input type="checkbox" name="reminders_providers[]" value="<?php echo attr((string)($row['id'] ?? '')); ?>">
+                                                <?php echo text(trim((string)($row['lname'] ?? '') . ', ' . (string)($row['fname'] ?? ''))); ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <div class="service-config-group">
+                                    <label><?php echo xlt("Facilities"); ?></label>
+                                    <div class="provider-list">
+                                        <?php foreach ($facilityRows as $facility): ?>
+                                            <div class="provider-item">
+                                                <input type="checkbox" name="reminders_facilities[]" value="<?php echo attr((string)($facility['id'] ?? '')); ?>">
+                                                <?php echo text((string)($facility['name'] ?? '')); ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="service-config-note"><?php echo xlt("Select at least one provider and one facility to continue with reminders."); ?></div>
                         </div>
                     </div>
                 </div>
@@ -1059,10 +1099,17 @@ if ($step > 1 && !$api->isConfigured()) {
         function updateStep2Progress() {
             const anyServiceSelected = $("#form-step-2 input[type='checkbox'][name^='service_']:checked").length > 0;
             const remindersSelected = $("#service_reminders").is(":checked");
-            const providerReady = !remindersSelected || $("input[name='reminders_providers[]']:checked").length > 0;
-            const completed = (anyServiceSelected ? 1 : 0) + (providerReady ? 1 : 0);
+            const remindersProvidersReady = $("input[name='reminders_providers[]']:checked").length > 0;
+            const remindersFacilitiesReady = $("input[name='reminders_facilities[]']:checked").length > 0;
+            const remindersReady = !remindersSelected || (remindersProvidersReady && remindersFacilitiesReady);
+            const completed = (anyServiceSelected ? 1 : 0) + (remindersReady ? 1 : 0);
             const pct = 50 + Math.round((completed / 2) * 50);
             $("#wizard-progress-fill").css("width", pct + "%");
+        }
+
+        function syncRemindersConfigPanel() {
+            const selected = $("#service_reminders").is(":checked");
+            $("#reminders-config-panel").toggleClass("show", selected);
         }
 
         function sendOtp() {
@@ -1309,6 +1356,19 @@ if ($step > 1 && !$api->isConfigured()) {
 
         function submitStep2() {
             // Create cart with MedEx API
+            const remindersSelected = $("#service_reminders").is(':checked');
+            const reminderProviders = $("input[name='reminders_providers[]']:checked").length;
+            const reminderFacilities = $("input[name='reminders_facilities[]']:checked").length;
+
+            if (remindersSelected && reminderProviders < 1) {
+                $("#result").html('<div class="alert alert-danger">Select at least one provider for Reminders &amp; Recalls.</div>');
+                return;
+            }
+            if (remindersSelected && reminderFacilities < 1) {
+                $("#result").html('<div class="alert alert-danger">Select at least one facility for Reminders &amp; Recalls.</div>');
+                return;
+            }
+
             const formData = $("#form-step-2").serialize();
 
             $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Creating cart...</div>');
@@ -1546,13 +1606,17 @@ if ($step > 1 && !$api->isConfigured()) {
             if (wizardStep === 3) {
                 $("#wizard-progress-fill").css("width", "100%");
             } else if (wizardStep === 2) {
+                syncRemindersConfigPanel();
                 updateStep2Progress();
                 $("#form-step-2 input[type='checkbox']").on("change", function() {
+                    if (this.id === "service_reminders") {
+                        syncRemindersConfigPanel();
+                    }
                     updateStep2Progress();
                 });
                 $("#form-step-2 .service-card").on("click", function(e) {
                     const $target = $(e.target);
-                    if ($target.closest("input, a, button, select, textarea, label, .provider-list").length) {
+                    if ($target.closest("input, a, button, select, textarea, label, .provider-list, .service-config-panel").length) {
                         return;
                     }
                     const $serviceToggle = $(this).children("input[type='checkbox'][name^='service_']").first();
