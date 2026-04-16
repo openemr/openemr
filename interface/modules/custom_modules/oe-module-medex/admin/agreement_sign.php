@@ -838,10 +838,28 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
 
             function buildPrintableDocument(payload, showPdfHint) {
                 const signedAtHuman = formatSignedAt(payload.signed_at);
+                const signedAtIso = String(payload.signed_at || "");
                 const companyName = (payload.legal_corporate_name || payload.practice_name || "");
+                const signerName = String(payload.signer_name || "");
+                const signerTitle = String(payload.signer_title || "");
                 const pdfHintHtml = showPdfHint
                     ? `<div style="margin:0 0 16px;padding:12px 14px;border:1px solid #dbeafe;border-radius:8px;background:#eff6ff;color:#1e3a8a;font-size:13px;font-weight:600;">Use your browser's Print or Save as PDF option to keep this signed agreement as a PDF receipt.</div>`
                     : '';
+                const signatureCertificateHtml = `
+  <div class="signature-cert">
+    <div class="signature-cert-title">Electronic Signature Certificate</div>
+    <div class="signature-cert-copy">This agreement was electronically signed and affirmed on behalf of the business identified below.</div>
+    <div class="signature-grid">
+      <div class="signature-row"><span class="meta-label">Legal Business Name:</span>${companyName}</div>
+      <div class="signature-row"><span class="meta-label">Signer Name:</span>${signerName}</div>
+      <div class="signature-row"><span class="meta-label">Signer Title:</span>${signerTitle || "Not provided"}</div>
+      <div class="signature-row"><span class="meta-label">Signature Method:</span>Electronic signature accepted in onboarding flow</div>
+      <div class="signature-row"><span class="meta-label">Signed At:</span>${signedAtHuman}</div>
+      <div class="signature-row"><span class="meta-label">Signed At UTC:</span>${signedAtIso}</div>
+      <div class="signature-row"><span class="meta-label">Agreement:</span>${agreementTitle} (${agreementVersion})</div>
+    </div>
+    <div class="signature-attest">Attestation: The signer represented they were authorized to sign this agreement electronically on behalf of the business.</div>
+  </div>`;
                 return `
 <!DOCTYPE html>
 <html>
@@ -849,12 +867,19 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
   <meta charset="utf-8">
   <title>${pdfFileBase}.pdf</title>
   <style>
+    @page{margin:18mm 14mm;}
     body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:24px;line-height:1.5;}
     h1{margin:0 0 8px;color:#0f4b8f;font-size:26px;}
     .meta{margin:0 0 16px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;}
     .meta-row{margin:2px 0;}
     .meta-label{display:inline-block;min-width:170px;color:#475569;}
     .agreement{margin-top:14px;}
+    .signature-cert{margin:0 0 18px;padding:14px 16px;border:2px solid #0f4b8f;border-radius:10px;background:#f8fbff;page-break-inside:avoid;}
+    .signature-cert-title{margin:0 0 6px;font-size:18px;font-weight:800;color:#0f4b8f;}
+    .signature-cert-copy{margin:0 0 10px;color:#334155;font-size:13px;}
+    .signature-grid{display:block;}
+    .signature-row{margin:3px 0;font-size:13px;}
+    .signature-attest{margin-top:10px;padding-top:10px;border-top:1px solid #cbd5e1;font-size:12px;color:#334155;font-style:italic;}
   </style>
 </head>
 <body>
@@ -867,7 +892,9 @@ $initialSignedPayload = is_array($existingReceipt) ? ($existingReceipt['payload'
     <div class="meta-row"><span class="meta-label">Signed At:</span>${signedAtHuman}</div>
   </div>
   ${pdfHintHtml}
+  ${signatureCertificateHtml}
   <div class="agreement">${getAgreementBodyHtml()}</div>
+  <div style="margin-top:18px;">${signatureCertificateHtml}</div>
 </body>
 </html>`;
             }
