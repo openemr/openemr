@@ -240,11 +240,7 @@ class ApiTestClient
             "Accept" => "application/json",
             "Content-Type" => "application/x-www-form-urlencoded"
         ];
-        fwrite(STDERR, "[DEBUG] Requesting token at: {$authURL}/token with client_id={$this->client_id}\n");
         $authResponse = $this->post($authURL . '/token', $authBody, false);
-        $tokenResponseBody = (string) $authResponse->getBody();
-        fwrite(STDERR, "[DEBUG] Token response status: " . $authResponse->getStatusCode() . "\n");
-        fwrite(STDERR, "[DEBUG] Token response body: " . substr($tokenResponseBody, 0, 500) . "\n");
         // set headers back to default
         $this->headers = [
             "Accept" => "application/json",
@@ -252,7 +248,7 @@ class ApiTestClient
         ];
         if ($authResponse->getStatusCode() === 200) {
             /** @var \stdClass&object{access_token: string, id_token: string, refresh_token: string|null} $responseBody */
-            $responseBody = json_decode($tokenResponseBody);
+            $responseBody = json_decode((string) $authResponse->getBody());
             $this->setBearer("Bearer " . $responseBody->access_token);
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
@@ -260,7 +256,7 @@ class ApiTestClient
         } else {
             $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
             /** @var \stdClass|null $errorBody */
-            $errorBody = json_decode($tokenResponseBody);
+            $errorBody = json_decode((string) $authResponse->getBody());
             if (isset($errorBody->error)) {
                 $errorMessage .= " - " . $errorBody->error;
             }
@@ -270,7 +266,6 @@ class ApiTestClient
             if (isset($errorBody->hint)) {
                 $errorMessage .= ": " . $errorBody->hint;
             }
-            fwrite(STDERR, "[DEBUG] Token error: {$errorMessage}\n");
         }
 
         return $authResponse;
@@ -286,34 +281,25 @@ class ApiTestClient
             "contacts" => ["me@example.org", "them@example.org"],
             "scope" => implode(' ', 'private' !== $client ? self::PUBLIC_CLIENT_SCOPES : self::ALL_SCOPES),
         ];
-        fwrite(STDERR, "[DEBUG] Registering client at: {$authURL}/registration\n");
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
-        $clientResponseBodyRaw = (string) $clientResponse->getBody();
-        fwrite(STDERR, "[DEBUG] Registration response status: " . $clientResponse->getStatusCode() . "\n");
-        fwrite(STDERR, "[DEBUG] Registration response body: " . substr($clientResponseBodyRaw, 0, 500) . "\n");
         if ($clientResponse->getStatusCode() >= 400) {
-            throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode() . " body: " . $clientResponseBodyRaw);
+            throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
+        $clientResponseBodyRaw = (string) $clientResponse->getBody();
 
         /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            throw new \RuntimeException("Client registration response could not be decoded: " . $clientResponseBodyRaw);
+            throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
-        fwrite(STDERR, "[DEBUG] Got client_id: {$this->client_id}\n");
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
         $clientRepository->setSystemLogger(new NullLogger());
         $clientEntity = $clientRepository->getClientEntity($this->client_id);
-        fwrite(STDERR, "[DEBUG] ClientRepository lookup result: " . ($clientEntity ? 'found' : 'NOT FOUND') . "\n");
-        if ($clientEntity === false) {
-            throw new \RuntimeException("Client was registered via HTTP but not found in database! client_id={$this->client_id}");
-        }
         assert($clientEntity instanceof ClientEntity);
         $clientRepository->saveIsEnabled($clientEntity, true);
-        fwrite(STDERR, "[DEBUG] Client enabled successfully\n");
     }
 
     /**

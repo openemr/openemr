@@ -88,14 +88,9 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
      */
     protected function getAccountByPassword(UserEntity $user, $userrole, $username, $password, $email = ''): bool
     {
-        $oauthPwGrant = OEGlobalsBag::getInstance()->get('oauth_password_grant');
-        error_log("[DEBUG] getAccountByPassword: userrole=$userrole, username=$username, oauth_password_grant=$oauthPwGrant");
-        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && (($oauthPwGrant == 1) || ($oauthPwGrant == 3))) {
-            error_log("[DEBUG] getAccountByPassword: entering user auth block");
+        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && ((OEGlobalsBag::getInstance()->get('oauth_password_grant') == 1) || (OEGlobalsBag::getInstance()->get('oauth_password_grant') == 3))) {
             $auth = new AuthUtils('api');
-            $confirmResult = $auth->confirmPassword($username, $password);
-            error_log("[DEBUG] getAccountByPassword: confirmPassword result=" . ($confirmResult ? 'true' : 'false'));
-            if ($confirmResult) {
+            if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
                 UuidRegistry::createMissingUuidsForTables(['users']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
