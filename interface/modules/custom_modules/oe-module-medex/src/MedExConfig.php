@@ -132,20 +132,6 @@ class MedExConfig
             return rtrim((string)$GLOBALS['medex_callback_base_url'], '/');
         }
 
-        if (!empty(getenv('KUBERNETES_SERVICE_HOST'))) {
-            $namespace = trim((string)getenv('POD_NAMESPACE'));
-            if ($namespace === '') {
-                $nsFile = '/var/run/secrets/kubernetes.io/serviceaccount/namespace';
-                if (is_readable($nsFile)) {
-                    $namespace = trim((string)file_get_contents($nsFile));
-                }
-            }
-            $internalNamespaces = ['openemr', 'openemr-dev', 'openemr-704'];
-            if ($namespace !== '' && in_array($namespace, $internalNamespaces, true)) {
-                return 'https://openemr.' . $namespace . '.svc.cluster.local';
-            }
-        }
-
         $fallback = $publicBaseUrl
             ?? ($GLOBALS['site_addr_oath'] ?? null)
             ?? ($GLOBALS['webroot'] ?? null)
