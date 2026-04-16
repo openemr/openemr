@@ -731,7 +731,7 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
                 updateProgress('Opening onboarding...', 'MedEx is ready. Redirecting into onboarding now.', 'done');
                 window.setTimeout(function () {
                     window.location.href = getOnboardingUrl();
-                }, 450);
+                }, 1600);
             })
             .catch(function (error) {
                 window.__medex_install_running = false;

@@ -199,7 +199,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
         await postAction('enable');
       }
       medexSetStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
-      window.location.href = onboardingUrl;
+      window.setTimeout(function () {
+        window.location.href = onboardingUrl;
+      }, 1600);
     } catch (error) {
       medexSetStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
       if (trigger) {

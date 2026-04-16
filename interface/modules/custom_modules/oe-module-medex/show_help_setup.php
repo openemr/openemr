@@ -327,7 +327,7 @@ $webroot = (string) ($GLOBALS['webroot'] ?? '');
                 status = await waitFor((value) => !!value.enabled, 12, 1200);
             }
             setStatus('Opening onboarding...', 'MedEx is ready. Moving into onboarding now.', 'done');
-            window.setTimeout(redirectToOnboarding, 350);
+            window.setTimeout(redirectToOnboarding, 1600);
         } catch (error) {
             running = false;
             setStatus('MedEx setup needs attention.', error && error.message ? error.message : 'The automatic setup did not complete.', 'error');
