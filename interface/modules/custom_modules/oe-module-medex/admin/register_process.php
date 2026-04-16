@@ -74,6 +74,40 @@ function medexNormalizeOpenEmrBaseUrl(string $url): string
     return $scheme . '://' . $host . $port . ($path !== '' ? '/' . $path : '');
 }
 
+function medexResolveClientIp(): string
+{
+    $candidateHeaders = [
+        'HTTP_CF_CONNECTING_IP',
+        'HTTP_X_FORWARDED_FOR',
+        'HTTP_X_REAL_IP',
+        'HTTP_X_CLIENT_IP',
+        'REMOTE_ADDR',
+    ];
+
+    $parsedIps = [];
+    foreach ($candidateHeaders as $header) {
+        $raw = trim((string)($_SERVER[$header] ?? ''));
+        if ($raw === '') {
+            continue;
+        }
+        $parts = ($header === 'HTTP_X_FORWARDED_FOR') ? explode(',', $raw) : [$raw];
+        foreach ($parts as $part) {
+            $ip = trim($part);
+            if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP)) {
+                $parsedIps[] = $ip;
+            }
+        }
+    }
+
+    foreach ($parsedIps as $ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return $ip;
+        }
+    }
+
+    return $parsedIps[0] ?? '';
+}
+
 function medexBuildCallbackUrl(string $openEmrBaseUrl): array
 {
     $baseUrl = medexNormalizeOpenEmrBaseUrl($openEmrBaseUrl);
@@ -630,7 +664,7 @@ $providerCountRow = sqlQuery("SELECT COUNT(*) AS c FROM users WHERE authorized =
 $facilityCountRow = sqlQuery("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1");
 $insuranceCountRow = sqlQuery("SELECT COUNT(*) AS c FROM insurance_companies");
 $siteUrl = $openEmrBaseUrl;
-$requestIp = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+$requestIp = medexResolveClientIp();
 $requestUserAgent = substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? '')), 0, 255);
 $acceptedAtUtc = gmdate('Y-m-d H:i:s');
 
