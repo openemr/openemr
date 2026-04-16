@@ -43,6 +43,40 @@ class MedExAPI
     // Pricing DB cache TTL (7 days) — pricing changes rarely; cached on initial connect
     private const PRICING_CACHE_TTL = 604800;
 
+    private function resolveForwardedClientIp(): string
+    {
+        $candidateHeaders = [
+            'HTTP_CF_CONNECTING_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_REAL_IP',
+            'HTTP_X_CLIENT_IP',
+            'REMOTE_ADDR',
+        ];
+
+        $parsedIps = [];
+        foreach ($candidateHeaders as $header) {
+            $raw = trim((string)($_SERVER[$header] ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+            $parts = ($header === 'HTTP_X_FORWARDED_FOR') ? explode(',', $raw) : [$raw];
+            foreach ($parts as $part) {
+                $ip = trim($part);
+                if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP)) {
+                    $parsedIps[] = $ip;
+                }
+            }
+        }
+
+        foreach ($parsedIps as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $ip;
+            }
+        }
+
+        return $parsedIps[0] ?? '';
+    }
+
     /**
      * Constructor
      * Loads configuration from globals or database
@@ -750,6 +784,16 @@ class MedExAPI
                 'verify' => false, // Disable SSL verification (match old behavior)
                 'http_errors' => false // Don't throw on 4xx/5xx responses
             ]);
+
+            $forwardedClientIp = $this->resolveForwardedClientIp();
+            if ($forwardedClientIp !== '') {
+                $http = $http->usingHeaders([
+                    'X-Forwarded-For' => $forwardedClientIp,
+                    'X-Real-IP' => $forwardedClientIp,
+                    'CF-Connecting-IP' => $forwardedClientIp,
+                ]);
+                error_log("[MedEx] Forwarding client IP to API: " . $forwardedClientIp);
+            }
 
             // Debug logging - log params being sent
             error_log("[MedEx] Request endpoint: " . $endpoint);
@@ -1574,8 +1618,27 @@ class MedExAPI
         try {
             error_log('[MedEx] Starting practice data sync...');
 
-            // Build callback URL
-            $callback = 'https://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . '/interface/modules/custom_modules/oe-module-medex/';
+            // Build callback URL using public-facing base URL.
+            // In K8s/reverse-proxy environments $_SERVER['SERVER_NAME'] is an internal
+            // hostname; use the 'medex_callback_base_url' global (set to the public URL,
+            // e.g. https://emr-704.hipaabank.net) to override it.
+            $callbackBase = \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl(
+                $GLOBALS['site_addr_oath']
+                    ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'))
+            );
+            $callbackToken = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
+                "SELECT gl_value FROM globals WHERE gl_name = ?",
+                'gl_value',
+                ['medex_callback_token']
+            ) ?? '';
+            $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? 'default'));
+            if ($callbackSiteId === '') {
+                $callbackSiteId = 'default';
+            }
+            $callback = rtrim($callbackBase, '/')
+                . '/interface/modules/custom_modules/oe-module-medex/public/callback.php'
+                . '?token=' . rawurlencode($callbackToken)
+                . '&site=' . rawurlencode($callbackSiteId);
 
             // Get selected providers from preferences
             $prefs = sqlQuery("SELECT ME_providers, ME_facilities FROM medex_prefs LIMIT 1");

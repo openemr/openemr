@@ -94,7 +94,8 @@ class PracticeService
         if ($siteId === '') {
             $siteId = 'default';
         }
-        $callback_url = $site_addr . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token . '&site=' . rawurlencode($siteId);
+        $callback_base = \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl((string)$site_addr);
+        $callback_url = $callback_base . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token . '&site=' . rawurlencode($siteId);
         $data['callback_url'] = $callback_url;
 
         // Get enabled providers

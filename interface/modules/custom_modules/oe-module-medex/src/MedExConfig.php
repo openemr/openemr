@@ -120,6 +120,40 @@ class MedExConfig
     }
 
     /**
+     * Returns the callback base URL used for MedEx -> OpenEMR server-to-server calls.
+     *
+     * In Kubernetes, public ingress hostnames for per-environment EMRs may reset when
+     * reached from another pod in the same cluster. Use the in-cluster OpenEMR service
+     * DNS for callback transport while leaving site_url/public browser links unchanged.
+     */
+    public static function callbackBaseUrl(?string $publicBaseUrl = null): string
+    {
+        if (!empty($GLOBALS['medex_callback_base_url'])) {
+            return rtrim((string)$GLOBALS['medex_callback_base_url'], '/');
+        }
+
+        if (!empty(getenv('KUBERNETES_SERVICE_HOST'))) {
+            $namespace = trim((string)getenv('POD_NAMESPACE'));
+            if ($namespace === '') {
+                $nsFile = '/var/run/secrets/kubernetes.io/serviceaccount/namespace';
+                if (is_readable($nsFile)) {
+                    $namespace = trim((string)file_get_contents($nsFile));
+                }
+            }
+            if ($namespace !== '') {
+                return 'https://openemr.' . $namespace . '.svc.cluster.local';
+            }
+        }
+
+        $fallback = $publicBaseUrl
+            ?? ($GLOBALS['site_addr_oath'] ?? null)
+            ?? ($GLOBALS['webroot'] ?? null)
+            ?? self::publicBaseUrl();
+
+        return rtrim((string)$fallback, '/');
+    }
+
+    /**
      * Returns the root of the MedEx server (strips /cart/upload).
      * Use this for links to customer-facing pages: tutorial, terms, BAA, subscriptions.
      * e.g. https://api.hipaabank.net

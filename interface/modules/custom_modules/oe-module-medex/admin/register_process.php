@@ -132,7 +132,8 @@ function medexBuildCallbackUrl(string $openEmrBaseUrl): array
     if ($siteId === '') {
         $siteId = 'default';
     }
-    $callbackUrl = rtrim($baseUrl, '/') .
+    $callbackBaseUrl = MedExConfig::callbackBaseUrl($baseUrl);
+    $callbackUrl = rtrim($callbackBaseUrl, '/') .
         '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' .
         rawurlencode($token) .
         '&site=' . rawurlencode($siteId);
