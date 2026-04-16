@@ -76,7 +76,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('race', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('ethnicity', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('religion', Types::STRING, ['length' => 40, 'default' => '']);
-        $table->addColumn('interpretter', Types::STRING, [
+        $table->addColumn('interpreter', Types::STRING, [
             'length' => 255,
             'default' => '',
             'comment' => 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter',
@@ -199,6 +199,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Sex at birth']);
         $table->addColumn('tribal_affiliations', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('sex_identified', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Patient reported current sex']);
+        $table->addColumn('pronoun', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addIndex(['lname', 'fname'], 'idx_patient_name');
         $table->addIndex(['DOB'], 'idx_patient_dob');
