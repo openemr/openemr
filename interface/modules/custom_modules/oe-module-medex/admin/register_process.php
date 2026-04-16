@@ -372,6 +372,8 @@ function medexIsExistingAccountMessage(string $message): bool
         'duplicate user',
         'existing account',
         'account exists',
+        'ip address mismatch',
+        'ip mismatch',
     ];
     foreach ($needles as $needle) {
         if (strpos($m, $needle) !== false) {
