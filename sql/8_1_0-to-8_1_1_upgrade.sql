@@ -117,3 +117,7 @@
 ALTER TABLE `form_eye_antseg`
   MODIFY COLUMN OSCONJ text;
 #EndIf
+
+#IfNotColumnType questionnaire_repository active tinyint(1)
+ALTER TABLE `questionnaire_repository` MODIFY `active` tinyint(1) NOT NULL DEFAULT 1;
+#EndIf

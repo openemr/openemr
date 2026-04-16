@@ -14322,7 +14322,7 @@ CREATE TABLE `questionnaire_repository` (
     `name` varchar(255) DEFAULT NULL,
     `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
     `profile` varchar(255) DEFAULT NULL,
-    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
     `status` varchar(31) DEFAULT NULL,
     `source_url` text,
     `code` varchar(255) DEFAULT NULL,
