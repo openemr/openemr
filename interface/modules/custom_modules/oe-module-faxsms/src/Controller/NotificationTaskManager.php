@@ -60,6 +60,11 @@ class NotificationTaskManager
     /**
      * Creates or updates the background Notification task.
      *
+     * $hours is the execution interval in whole hours. When $hours is 0
+     * (the default), the existing DB interval is read via getTaskHours()
+     * and used instead. The value stored in `background_services.execute_interval`
+     * is always in minutes, so both branches convert hours -> minutes.
+     *
      * Returns true when a new service row was created, false when an
      * existing row was updated (or when $type is invalid). Uses
      * BackgroundServiceRegistry so the admin's enable/disable toggle is
@@ -77,7 +82,12 @@ class NotificationTaskManager
             return false;
         }
 
-        $total_minutes = empty($hours) ? $this->getTaskHours($type) : $hours * 60;
+        // Callers treat $hours as an integer number of hours, but legacy
+        // code paths pass strings from $_POST. Normalize to int and fall
+        // back to the stored DB interval when no explicit value is given.
+        $hoursInt = is_numeric($hours) ? (int) $hours : 0;
+        $intervalHours = $hoursInt > 0 ? $hoursInt : $this->getTaskHours($type);
+        $total_minutes = $intervalHours * 60;
 
         $registry = new BackgroundServiceRegistry();
         $isNew = !$registry->exists($name);
@@ -86,7 +96,7 @@ class NotificationTaskManager
             title: 'Scheduled Automated Notifications',
             function: $fn,
             requireOnce: '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php',
-            executeInterval: (int) $total_minutes,
+            executeInterval: $total_minutes,
             sortOrder: 100,
             active: false,
         ));
