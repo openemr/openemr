@@ -37,7 +37,7 @@ final class Version20260000020210 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('patient_id', Types::INTEGER, ['comment' => 'fk to patient_data.pid']);
+        $table->addColumn('patient_id', Types::INTEGER);
         $table->addColumn('observation_code', Types::STRING, ['length' => 50, 'comment' => 'LOINC code']);
         $table->addColumn('observation_code_text', Types::STRING, [
             'length' => 255,
