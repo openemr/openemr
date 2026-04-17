@@ -75,6 +75,12 @@ class BulkAPITestClient extends ApiTestClient
         }
 
         $oauthTokenUrl = $this->baseUrl . $authURL . '/token';
+        fwrite(STDERR, "\n=== BULK AUTH DEBUG ===\n");
+        fwrite(STDERR, "baseUrl: {$this->baseUrl}\n");
+        fwrite(STDERR, "authURL: {$authURL}\n");
+        fwrite(STDERR, "tokenUrl: {$oauthTokenUrl}\n");
+        fwrite(STDERR, "client_id: {$this->client_id}\n");
+        fwrite(STDERR, "========================\n");
         /** @var InMemory $privateKey */
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $privateKey,
@@ -116,6 +122,8 @@ class BulkAPITestClient extends ApiTestClient
      */
     public function registerClient(string $authURL, $jwks): ClientEntity
     {
+        fwrite(STDERR, "\n=== REGISTER CLIENT DEBUG ===\n");
+        fwrite(STDERR, "Registration URL: {$authURL}/registration\n");
         $clientBody = [
             "application_type" => 'private',
             "redirect_uris" => ["https://client.example.org/callback"],
