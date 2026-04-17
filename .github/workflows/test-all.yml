@@ -97,7 +97,7 @@ jobs:
               display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
               save_composer_cache: .output.save_composer_cache,
               save_node_cache: .output.save_node_cache
-            }) | map(select(.php == "8.2" or (.php == "8.5" and .db == "8.0"))) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+            }) | map(select(.php == "8.2" or (.php == "8.5" and (.db | startswith("8.0"))))) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
         else
           # For PRs with full mode or pushes: include all configurations
           ci/parse_docker_dir.sh "${dirs[@]}" |
