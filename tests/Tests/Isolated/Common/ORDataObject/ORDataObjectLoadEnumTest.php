@@ -164,7 +164,7 @@ class ORDataObjectLoadEnumTest extends TestCase
     {
         return new class ($columns) {
             /** @param list<object> $columns */
-            public function __construct(private array $columns)
+            public function __construct(private readonly array $columns)
             {
             }
 
