@@ -62,20 +62,38 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertNull($def->nextRun);
     }
 
+    /**
+     * @return array{name: string, title: string, function: string, require_once: ?string, execute_interval: numeric-string, sort_order: numeric-string, active: numeric-string, running: numeric-string, next_run: string, lock_expires_at: ?string, lease_is_live: ?numeric-string}
+     */
+    private static function row(
+        string $name = 'svc',
+        bool $active = true,
+        ?string $lockExpiresAt = null,
+        bool $leaseIsLive = false,
+        string $nextRun = '2026-03-28 10:15:00',
+        int $executeInterval = 5,
+    ): array {
+        return [
+            'name' => $name,
+            'title' => 'Service',
+            'function' => 'doWork',
+            'require_once' => null,
+            'execute_interval' => (string) $executeInterval,
+            'sort_order' => '100',
+            'active' => $active ? '1' : '0',
+            'running' => $leaseIsLive ? '1' : '0',
+            'next_run' => $nextRun,
+            'lock_expires_at' => $lockExpiresAt,
+            'lease_is_live' => $leaseIsLive ? '1' : '0',
+        ];
+    }
+
     public function testFromDatabaseRow(): void
     {
-        // Use string values to match ADOdb runtime behavior (numeric-string)
-        $row = [
-            'name' => 'phimail',
-            'title' => 'phiMail Direct Messaging',
-            'function' => 'phimail_check',
-            'require_once' => '/library/phimail.php',
-            'execute_interval' => '5',
-            'sort_order' => '100',
-            'active' => '1',
-            'running' => '0',
-            'next_run' => '2026-03-28 10:15:00',
-        ];
+        $row = self::row(name: 'phimail', executeInterval: 5);
+        $row['title'] = 'phiMail Direct Messaging';
+        $row['function'] = 'phimail_check';
+        $row['require_once'] = '/library/phimail.php';
 
         $def = BackgroundServiceDefinition::fromDatabaseRow($row);
 
@@ -88,27 +106,47 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertTrue($def->active);
         $this->assertFalse($def->running);
         $this->assertSame('2026-03-28 10:15:00', $def->nextRun);
+        $this->assertNull($def->lockExpiresAt);
     }
 
     public function testFromDatabaseRowWithNullRequireOnce(): void
     {
-        $row = [
-            'name' => 'svc',
-            'title' => 'Service',
-            'function' => 'doWork',
-            'require_once' => null,
-            'execute_interval' => '10',
-            'sort_order' => '200',
-            'active' => '0',
-            'running' => '0',
-            'next_run' => '1970-01-01 00:00:00',
-        ];
+        $row = self::row(active: false, nextRun: '1970-01-01 00:00:00', executeInterval: 10);
 
         $def = BackgroundServiceDefinition::fromDatabaseRow($row);
 
         $this->assertNull($def->requireOnce);
         $this->assertSame('1970-01-01 00:00:00', $def->nextRun);
         $this->assertFalse($def->active);
+    }
+
+    public function testFromDatabaseRowReportsRunningWhenLeaseIsLive(): void
+    {
+        // The SQL-computed `lease_is_live` is authoritative — not the
+        // legacy `running` column, not a PHP-side comparison of
+        // `lock_expires_at` against `time()`. A worker crash that leaves
+        // `running = 1` but no live lease reports as running=false.
+        $future = '2099-01-01 00:00:00';
+        $row = self::row(lockExpiresAt: $future, leaseIsLive: true);
+
+        $def = BackgroundServiceDefinition::fromDatabaseRow($row);
+
+        $this->assertTrue($def->running);
+        $this->assertSame($future, $def->lockExpiresAt);
+    }
+
+    public function testFromDatabaseRowReportsNotRunningWhenLeaseExpired(): void
+    {
+        // Stale lease left by a crashed worker: lock_expires_at is set,
+        // `running` column still says 1, but `lease_is_live` is 0 because
+        // the DB evaluated `lock_expires_at > NOW()` as false.
+        $past = '1999-01-01 00:00:00';
+        $row = self::row(lockExpiresAt: $past, leaseIsLive: false);
+
+        $def = BackgroundServiceDefinition::fromDatabaseRow($row);
+
+        $this->assertFalse($def->running);
+        $this->assertSame($past, $def->lockExpiresAt);
     }
 
     public function testToArray(): void
@@ -135,6 +173,8 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertSame('50', $array['sort_order']);
         $this->assertSame('1', $array['active']);
         $this->assertSame('0', $array['running']);
+        $this->assertSame('0', $array['lease_is_live']);
+        $this->assertNull($array['lock_expires_at']);
     }
 
     public function testRoundTrip(): void
@@ -149,6 +189,7 @@ class BackgroundServiceDefinitionTest extends TestCase
             active: true,
             running: true,
             nextRun: '2026-03-28 12:00:00',
+            lockExpiresAt: '2099-01-01 00:00:00',
         );
 
         $restored = BackgroundServiceDefinition::fromDatabaseRow($original->toArray());
@@ -162,5 +203,6 @@ class BackgroundServiceDefinitionTest extends TestCase
         $this->assertSame($original->active, $restored->active);
         $this->assertSame($original->running, $restored->running);
         $this->assertSame($original->nextRun, $restored->nextRun);
+        $this->assertSame($original->lockExpiresAt, $restored->lockExpiresAt);
     }
 }

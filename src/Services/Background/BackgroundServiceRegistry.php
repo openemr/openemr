@@ -19,10 +19,9 @@ declare(strict_types=1);
 namespace OpenEMR\Services\Background;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\TableTypes;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServiceRegistry
 {
@@ -71,13 +70,26 @@ class BackgroundServiceRegistry
     }
 
     /**
+     * Projection that derives lease liveness in SQL so the "running"
+     * signal uses the same clock (and time_zone) as acquireLock(), rather
+     * than PHP's clock via `time()` + `strtotime()`. Public so callers
+     * outside the registry (e.g. the CLI command) can reuse the same
+     * projection without duplicating the expression.
+     */
+    public const SELECT_WITH_LEASE_LIVE = <<<'SQL'
+        SELECT `background_services`.*,
+               (`lock_expires_at` IS NOT NULL AND `lock_expires_at` > NOW()) AS `lease_is_live`
+          FROM `background_services`
+        SQL;
+
+    /**
      * Get a single service by name, or null if not found.
      */
     public function get(string $name): ?BackgroundServiceDefinition
     {
-        /** @var list<BackgroundServicesRow> $rows */
+        /** @var list<BackgroundServicesQueryRow> $rows */
         $rows = QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM `background_services` WHERE `name` = ?',
+            self::SELECT_WITH_LEASE_LIVE . ' WHERE `name` = ?',
             [$name],
         );
 
@@ -95,7 +107,7 @@ class BackgroundServiceRegistry
      */
     public function list(?bool $activeFilter = null): array
     {
-        $sql = 'SELECT * FROM `background_services`';
+        $sql = self::SELECT_WITH_LEASE_LIVE;
         $binds = [];
 
         if ($activeFilter !== null) {
@@ -105,7 +117,7 @@ class BackgroundServiceRegistry
 
         $sql .= ' ORDER BY `sort_order`';
 
-        /** @var list<BackgroundServicesRow> $rows */
+        /** @var list<BackgroundServicesQueryRow> $rows */
         $rows = QueryUtils::fetchRecordsNoLog($sql, $binds);
 
         return array_map(

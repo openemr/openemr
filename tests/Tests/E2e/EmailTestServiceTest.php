@@ -57,15 +57,6 @@ class EmailTestServiceTest extends TestCase
     #[Test]
     public function directSendDeliversEmail(): void
     {
-        self::markTestSkipped(
-            'Send reports success but the message never arrives in Mailpit. '
-            . 'PHPMailer triggers strlen(null) / strtolower(null) deprecations '
-            . 'on this path, suggesting a null field somewhere in the direct '
-            . 'send. Re-enable after diagnosing (dump Mailpit state on '
-            . 'timeout to determine whether the email arrives with a '
-            . 'different subject or not at all).'
-        );
-
         $results = $this->service->test(
             EmailTestData::TEST_SENDER,
             EmailTestData::TEST_RECIPIENT,
@@ -103,14 +94,6 @@ class EmailTestServiceTest extends TestCase
     #[Test]
     public function queueTemplatedInsertsAndDelivers(): void
     {
-        self::markTestSkipped(
-            'Queue reports success but the templated message never arrives '
-            . 'in Mailpit after emailServiceRun(). Sibling queueInsertsAndDelivers '
-            . '(non-templated) passes with the same flush path, so the issue is '
-            . 'specific to template rendering — likely a null subject/body in '
-            . 'the templated output (see concurrent PHPMailer null-deprecations).'
-        );
-
         $results = $this->service->test(
             EmailTestData::TEST_SENDER,
             EmailTestData::TEST_RECIPIENT,

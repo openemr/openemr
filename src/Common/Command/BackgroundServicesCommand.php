@@ -17,7 +17,8 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
+use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
@@ -30,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServicesCommand extends Command implements IGlobalsAware
 {
@@ -40,11 +41,11 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         $this
             ->setName('background:services')
-            ->setDescription('List, run, or generate crontab entries for background services')
+            ->setDescription('List, run, unlock, or generate crontab entries for background services')
             ->setDefinition(
                 new InputDefinition([
-                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, or crontab'),
-                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (for "run"); if omitted, runs all services that are due'),
+                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, unlock, or crontab'),
+                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "unlock"; for "run", if omitted, runs all services that are due)'),
                     new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run"; ignored without --name)'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
                 ])
@@ -64,6 +65,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return match ($action) {
             'list' => $this->handleList($io),
             'run' => $this->handleRun($input, $io),
+            'unlock' => $this->handleUnlock($input, $io),
             'crontab' => $this->handleCrontab($input, $io),
             default => $this->handleUnknownAction($action, $io),
         };
@@ -84,7 +86,10 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
                 $s['name'],
                 $s['title'],
                 (int) $s['active'] !== 0 ? 'yes' : 'no',
-                (int) $s['running'] === 1 ? 'yes' : 'no',
+                // Prefer the SQL-computed liveness flag over the legacy
+                // `running` column so stuck locks from crashed workers
+                // don't display as "yes" indefinitely.
+                (int) ($s['lease_is_live'] ?? $s['running']) === 1 ? 'yes' : 'no',
                 $this->formatInterval((int) $s['execute_interval']),
                 $s['next_run'],
             ], $services),
@@ -194,32 +199,84 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return Command::SUCCESS;
     }
 
+    /**
+     * Clear a service's lease unconditionally.
+     *
+     * Normally not needed — crashed workers' leases expire and are stolen
+     * automatically on the next tick. Use this when a service is genuinely
+     * hung mid-run and an operator has verified it is not making progress
+     * but doesn't want to wait out the lease (see GH #11661).
+     */
+    private function handleUnlock(InputInterface $input, SymfonyStyle $io): int
+    {
+        $name = $input->getOption('name');
+        if (!is_string($name) || $name === '') {
+            $io->error('The --name option is required for the "unlock" action.');
+            return Command::FAILURE;
+        }
+
+        if (!$this->clearLease($name)) {
+            $io->error("Service '{$name}' not found.");
+            return Command::FAILURE;
+        }
+
+        $io->success("Lease cleared for service '{$name}'.");
+        return Command::SUCCESS;
+    }
+
     private function handleUnknownAction(string $action, SymfonyStyle $io): int
     {
-        $io->error("Unknown action '{$action}'. Valid actions: list, run, crontab");
+        $io->error("Unknown action '{$action}'. Valid actions: list, run, unlock, crontab");
         return Command::FAILURE;
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * Clear the lease (and legacy running flag) for a service. The UPDATE
+     * is executed unconditionally; callers that need to distinguish "already
+     * clear" from "actively cleared" should check lock state beforehand.
+     *
+     * Returns true when the service exists (its lease is now clear either
+     * way), or false when no service with that name exists.
+     */
+    protected function clearLease(string $name): bool
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `background_services` SET `running` = 0, `lock_expires_at` = NULL WHERE `name` = ?',
+            [$name],
+            true,
+        );
+        // The UPDATE runs unconditionally; its affected-row count would
+        // report 0 for "already clear" and 1 for "actively cleared",
+        // which is a distinction the caller doesn't care about. A
+        // dedicated existence check lets us report "not found" vs
+        // "service exists (lease is clear either way)".
+        $exists = QueryUtils::fetchRecordsNoLog(
+            'SELECT 1 FROM `background_services` WHERE `name` = ? LIMIT 1',
+            [$name],
+        );
+        return $exists !== [];
+    }
+
+    /**
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' ORDER BY sort_order',
             [],
         );
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchActiveServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services WHERE active = 1 AND execute_interval > 0 ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' WHERE `active` = 1 AND `execute_interval` > 0 ORDER BY `sort_order`',
             [],
         );
     }
