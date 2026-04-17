@@ -178,11 +178,13 @@ class ORDataObject
         } else {
             // DEBUG: trace _load_enum behavior
             error_log(sprintf(
-                '[DEBUG _load_enum] table=%s field=%s db=%s db_class=%s',
+                '[DEBUG _load_enum] table=%s field=%s db=%s db_class=%s fetchMode=%s ADODB_FETCH_MODE=%s',
                 $this->_table ?? '(null)',
                 $field_name,
                 $this->_db->database ?? '(null)',
                 $this->_db !== null ? get_class($this->_db) : '(null)',
+                $this->_db->fetchMode ?? '(null)',
+                $GLOBALS['ADODB_FETCH_MODE'] ?? '(undefined)',
             ));
 
             $cols = $this->_db->MetaColumns($this->_table);
