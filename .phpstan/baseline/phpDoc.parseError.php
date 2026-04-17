@@ -2398,36 +2398,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(c mixed  Unicode character\\.\\)\\: Unexpected token "mixed", expected variable at offset 64 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(from mixed  The source/sender address\\)\\: Unexpected token "mixed", expected variable at offset 93 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  Input text of message\\.\\)\\: Unexpected token "mixed", expected variable at offset 79 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  The text content of the message\\)\\: Unexpected token "mixed", expected variable at offset 144 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(to mixed  The destination address\\.\\)\\: Unexpected token "mixed", expected variable at offset 43 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(token mixed  The 16 character voucher number\\.\\)\\: Unexpected token "mixed", expected variable at offset 60 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(type audit array params for portal audits
         \\$audit \\= Array\\(\\);
         \\$audit\\[\'patient_id\'\\]\\="";

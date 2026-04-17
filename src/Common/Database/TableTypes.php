@@ -341,7 +341,8 @@ namespace OpenEMR\Common\Database;
  *   execute_interval: numeric-string,
  *   function: string,
  *   require_once: ?string,
- *   sort_order: numeric-string
+ *   sort_order: numeric-string,
+ *   lock_expires_at: ?string
  * }
  *
  * @phpstan-type FormsRow array{

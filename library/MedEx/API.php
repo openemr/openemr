@@ -125,9 +125,14 @@ class Practice extends Base
     {
         $fields2 = [];
         $fields3 = [];
-        $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
-        $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
-        $fields2['callback_url'] = $callback;
+        // Build the callback URL from the globally-configured site address
+        // rather than inferring it from $_SERVER. $_SERVER is unavailable when
+        // this service runs via `bin/console background:services run`, which
+        // is the supported non-browser entry point. qualified_site_addr is
+        // composed from site_addr_oath + webroot in interface/globals.php and
+        // respects operator configuration in either environment.
+        $fields2['callback_url'] = OEGlobalsBag::getInstance()->getString('qualified_site_addr')
+            . '/library/MedEx/MedEx.php';
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlQuery($sqlQuery);
         $providers = explode('|', (string) $my_status['ME_providers']);

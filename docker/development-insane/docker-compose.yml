@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:5c5e4ef2223fa1e7ae2ab492f065d403022d0b46c11a329d37161acc9ec349ea
+    image: openemr/openemr:flex-edge@sha256:21437494230170b6d6bd3c6bf246a562e66db86d444933b7b4eea23e3b5359f6
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:5c5e4ef2223fa1e7ae2ab492f065d403022d0b46c11a329d37161acc9ec349ea
+    image: openemr/openemr:flex-edge@sha256:21437494230170b6d6bd3c6bf246a562e66db86d444933b7b4eea23e3b5359f6
     ports:
     - 8098:80
     - 9098:443
@@ -825,7 +825,7 @@ services:
       retries: 3
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.29.6@sha256:0b5c5f7ffd3c93474baa7fd3869c1462e5a3d03256ed0933dfc0e7d81d794036
+    image: axllent/mailpit:v1.29.7@sha256:757f22b56c1da03570afdb3d259effe5091018008a81bbedc8158cee7e16fdbc
     ports:
     - 8025:8025    # Web UI and API
     - 1025:1025    # SMTP server
