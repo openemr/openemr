@@ -49,7 +49,7 @@ class GroupExportFhirApiTest extends TestCase
 
         // If server returned 500, try to get stack trace from server error log
         $serverTrace = '';
-        if ($actualResult->getStatusCode() === 500) {
+        if ($actualResult->getStatusCode() !== Response::HTTP_ACCEPTED) {
             $runnerTemp = getenv('RUNNER_TEMP');
             if ($runnerTemp !== false) {
                 $logFile = $runnerTemp . '/php-server.out.log';
