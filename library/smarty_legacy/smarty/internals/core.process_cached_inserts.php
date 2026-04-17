@@ -26,6 +26,10 @@ function smarty_core_process_cached_inserts($params, &$smarty)
         }
 
         $args = unserialize($insert_args[$i], ['allowed_classes' => false]);
+        if (!is_array($args) || !isset($args['name']) || !is_string($args['name']) || $args['name'] === '') {
+            // corrupt cached insert, skip
+            continue;
+        }
         $name = $args['name'];
 
         if (isset($args['script'])) {
@@ -45,6 +49,10 @@ function smarty_core_process_cached_inserts($params, &$smarty)
             }
         }
 
+        if (!isset($smarty->_plugins['insert'][$name][0])) {
+            // insert plugin no longer registered, skip
+            continue;
+        }
         $function_name = $smarty->_plugins['insert'][$name][0];
         if (empty($args['assign'])) {
             $replace = $function_name($args, $smarty);

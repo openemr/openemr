@@ -999,7 +999,17 @@ class PatientService extends BaseService
         // We only want the pid value so we can fetch the data from patient_data...
         //
         $pids = [];
-        foreach (($res) ? unserialize($res['patients'], ['allowed_classes' => false]) : [] as $v) {
+        if (!is_array($res) || !is_string($res['patients'] ?? null)) {
+            return $pids;
+        }
+        $patients = unserialize($res['patients'], ['allowed_classes' => false]);
+        if (!is_array($patients)) {
+            return $pids;
+        }
+        foreach ($patients as $v) {
+            if (!is_array($v) || !isset($v['pid'])) {
+                continue;
+            }
             $pids[]['pid'] = $v['pid'];
         }
         return($pids);

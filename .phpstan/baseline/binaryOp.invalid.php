@@ -15292,11 +15292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'insert_\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
@@ -15305,11 +15300,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\!\\(\\\\\\\\\\{nocache\\\\\\\\\\:\\(\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between int\\<1, max\\> and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \',\' results in an error\\.$#',

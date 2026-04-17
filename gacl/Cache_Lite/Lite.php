@@ -446,8 +446,10 @@ class Cache_Lite
         if ($this->_caching) {
             if ($data = $this->get($id, $group, $doNotTestCacheValidity)) {
                 $array = unserialize($data, ['allowed_classes' => false]);
-                $this->_memoryCachingCounter = $array['counter'];
-                $this->_memoryCachingArray = $array['array'];
+                if (is_array($array) && isset($array['counter'], $array['array'])) {
+                    $this->_memoryCachingCounter = $array['counter'];
+                    $this->_memoryCachingArray = $array['array'];
+                }
             }
         }
     }

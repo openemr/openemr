@@ -53,6 +53,15 @@ function smarty_core_read_cache_file(&$params, &$smarty)
     $_info_start = strpos((string) $_contents, "\n") + 1;
     $_info_len = (int)substr((string) $_contents, 0, $_info_start - 1);
     $_cache_info = unserialize(substr((string) $_contents, $_info_start, $_info_len), ['allowed_classes' => false]);
+    if (
+        !is_array($_cache_info)
+        || !isset($_cache_info['timestamp'], $_cache_info['template'])
+        || !is_numeric($_cache_info['timestamp'])
+        || !is_array($_cache_info['template'])
+    ) {
+        // corrupt cache header, regenerate
+        return false;
+    }
     $params['results'] = substr((string) $_contents, $_info_start + $_info_len);
 
     if ($smarty->caching == 2 && isset ($_cache_info['expires'])){

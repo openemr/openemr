@@ -3097,17 +3097,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_inclusion_depth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_debug_info on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
 ];
@@ -3118,7 +3108,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$debugging on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
 ];
 $ignoreErrors[] = [

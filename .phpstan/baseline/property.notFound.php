@@ -437,6 +437,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_inclusion_depth\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_smarty_debug_info\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$debugging\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$booleanize\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
