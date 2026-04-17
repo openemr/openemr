@@ -50,7 +50,7 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
 $container = AutoDetect::instance('config');
 
 $handler = $container->get(ErrorHandler::class);
-/* $handler->installErrorHandler(E_ALL); */
-/* $handler->installExceptionHandler(); */
+$handler->installErrorHandler(E_ALL);
+$handler->installExceptionHandler();
 
 return $container;
