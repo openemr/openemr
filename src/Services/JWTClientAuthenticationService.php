@@ -300,12 +300,6 @@ class JWTClientAuthenticationService
                         'claims' => $token->claims()->all()
                     ]
                 );
-                // DEBUG: Log to stderr for CI visibility
-                error_log("=== JWT VALIDATION FAILED ===");
-                error_log("Expected audience: " . $this->authTokenUrl);
-                error_log("JWT aud claim: " . json_encode($token->claims()->get('aud')));
-                error_log("Exception: " . $exception->getMessage());
-                error_log("=============================");
 
                 // Per ONC Inferno requirements, use 400 status instead of 401
                 $oauthException = new OAuthServerException(

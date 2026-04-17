@@ -32,12 +32,7 @@ class GroupExportFhirApiTest extends TestCase
 
     public function testGroupExportWithNonExistingGroupId(): void
     {
-        $authResponse = $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
-        fwrite(STDERR, "\n=== AUTH DEBUG ===\n");
-        fwrite(STDERR, "Auth status: " . $authResponse->getStatusCode() . "\n");
-        fwrite(STDERR, "Auth body: " . $authResponse->getBody() . "\n");
-        fwrite(STDERR, "Access token set: " . ($this->testClient->getAccessToken() ? 'YES' : 'NO') . "\n");
-        fwrite(STDERR, "==================\n");
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
         // the audience and internal oauth server url need to match, if the internal oauth server is not the same as the external
         // phpunit endpoint location we are going to have issues with the test client not being able to get an access token.
 //        $this->markTestIncomplete("Incomplete until we figure out how to deal with localhost differences in test environments and inferno environments.");
