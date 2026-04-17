@@ -199,10 +199,10 @@ class ORDataObject
                 error_log('[DEBUG _load_enum] MetaColumns returned: ' . gettype($cols));
             }
 
+            $enum = [];
             if ((is_array($cols) && !empty($cols)) || ($cols && !$cols->EOF)) {
                 //why is there a foreach here? at some point later there will be a scheme to autoload all enums
                 //for an object rather than 1x1 manually as it is now
-                $enum = null; // DEBUG: initialize to track if we find it
                 foreach ($cols as $col) {
                     if ($col->name == $field_name && $col->type == "enum") {
                         for ($idx = 0; $idx < count($col->enums); $idx++) {
@@ -216,8 +216,10 @@ class ORDataObject
                     }
                 }
 
-                if ($enum === null) {
+                if ($enum === []) {
                     error_log('[DEBUG _load_enum] No matching enum column found for ' . $field_name);
+                    // Return early to prevent TypeError in PHP 8.4+ on array_unshift with non-array
+                    return $enum;
                 }
 
                 array_unshift($enum, " ");
