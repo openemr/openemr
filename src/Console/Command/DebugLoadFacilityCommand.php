@@ -6,9 +6,9 @@ namespace OpenEMR\Console\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use OpenEMR\Entities\Facility;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'debug:load-facility')]
@@ -19,9 +19,15 @@ class DebugLoadFacilityCommand extends Command
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $facility = $this->em->find(Facility::class, 52);
+    public function __invoke(
+        #[Argument] string $id,
+        OutputInterface $output,
+    ): int {
+        $facility = $this->em->find(Facility::class, $id);
+        if ($facility === null) {
+            $output->writeln("No facility $id");
+            return Command::FAILURE;
+        }
         $facility->name = base64_encode(random_bytes(8));
         $facility->color = '#CAC89D';
         print_r($facility);
