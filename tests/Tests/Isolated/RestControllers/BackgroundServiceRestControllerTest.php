@@ -29,14 +29,20 @@ class BackgroundServiceRestControllerTest extends TestCase
             ['name' => 'phimail', 'status' => 'executed'],
             ['name' => 'Email_Service', 'status' => 'not_due'],
         ];
-        $controller = new BackgroundServiceRestController(
-            runner: new BackgroundServiceRunnerFixture($results),
-        );
+        $runner = new BackgroundServiceRunnerFixture($results);
+        $controller = new BackgroundServiceRestController(runner: $runner);
 
         $response = $controller->runAllDue();
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame(['results' => $results], $this->decodeJsonBody($response));
+        // Lock the runAllDue() contract: it must advance only services that
+        // are due (name=null) and must never bypass intervals (force=false).
+        // ACL-gating was deliberately skipped at the route level on the
+        // understanding that the endpoint's effect is bounded to cron-equivalent
+        // behavior; a regression here would break that guarantee.
+        $this->assertNull($runner->lastServiceName);
+        $this->assertFalse($runner->lastForce);
     }
 
     public function testRunAllDueReturnsEmptyResultsWhenNothingDue(): void
@@ -88,9 +94,16 @@ class BackgroundServiceRestControllerTest extends TestCase
 
 /**
  * Runner fixture that returns a canned results array without touching the DB.
+ *
+ * Records the arguments of the last run() call so tests can assert that the
+ * controller forwarded them correctly (runAllDue must always pass null/false).
  */
 class BackgroundServiceRunnerFixture extends BackgroundServiceRunner
 {
+    public ?string $lastServiceName = null;
+
+    public ?bool $lastForce = null;
+
     /**
      * @param list<array{name: string, status: string}> $results
      */
@@ -100,6 +113,8 @@ class BackgroundServiceRunnerFixture extends BackgroundServiceRunner
 
     public function run(?string $serviceName = null, bool $force = false): array
     {
+        $this->lastServiceName = $serviceName;
+        $this->lastForce = $force;
         return $this->results;
     }
 }
