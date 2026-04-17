@@ -104,14 +104,15 @@ echo "<br /><br />";
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
 $globalsBag = OEGlobalsBag::getInstance();
+$oeKernel = $globalsBag->getKernel();
 $getParams = [];
 try {
     $restRequest = HttpRestRequest::create('/fhir/Organization', 'GET');
     $restRequest->setRequestUserRole("users");
-    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getString('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
+    $sessionFactory = new HttpSessionFactory($restRequest, $oeKernel->getWebRoot(), HttpSessionFactory::SESSION_TYPE_CORE);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
-    $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
+    $kernel = new OEHttpKernel($oeKernel->getEventDispatcher(), new ControllerResolver());
     $kernel->setSystemLogger(ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new FhirRouteFinder($kernel);

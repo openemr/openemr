@@ -55,7 +55,7 @@ jobs:
         # Generate types from database.sql
         php bin/generate-phpstan-types.php sql/database.sql \
           patient_data users form_encounter insurance_data billing \
-          background_services forms form_vitals \
+          background_services forms form_vitals layout_options \
           > src/Common/Database/TableTypes.php
 
         # Append CAMOS form types (tables defined in form-specific SQL, not database.sql)

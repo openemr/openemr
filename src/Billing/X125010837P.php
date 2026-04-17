@@ -1293,6 +1293,7 @@ class X125010837P
 
             // Segment REF*F8 (Other Payer Claim Control Number).
             if ($claim->medicaidOriginalReference()) {
+                ++$edicount;
                 $out .= "REF" . "*" . "F8" . "*" . $claim->medicaidOriginalReference();
                 $out .= "~\n";
             }

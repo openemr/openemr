@@ -5,7 +5,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -45,25 +45,26 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertSame('skipped', $results[0]['status']);
     }
 
-    public function testRunSkipsAlreadyRunningService(): void
-    {
-        $runner = new BackgroundServiceRunnerStub(services: [
-            self::makeService('svc1', running: true),
-        ]);
-        $results = $runner->run('svc1');
-
-        $this->assertSame('skipped', $results[0]['status']);
-    }
-
-    public function testRunReturnsLockedWhenLockFails(): void
+    public function testRunReturnsAlreadyRunningWhenLockFailsDueToRunningProcess(): void
     {
         $runner = new BackgroundServiceRunnerStub(
             services: [self::makeService('svc1')],
-            lockResult: false,
+            lockFailureReason: 'already_running',
         );
         $results = $runner->run('svc1');
 
-        $this->assertSame('locked', $results[0]['status']);
+        $this->assertSame('already_running', $results[0]['status']);
+    }
+
+    public function testRunReturnsNotDueWhenLockFailsDueToInterval(): void
+    {
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            lockFailureReason: 'not_due',
+        );
+        $results = $runner->run('svc1');
+
+        $this->assertSame('not_due', $results[0]['status']);
     }
 
     public function testRunExecutesServiceSuccessfully(): void
@@ -149,20 +150,21 @@ class BackgroundServiceRunnerTest extends TestCase
     private static function makeService(
         string $name,
         bool $active = true,
-        bool $running = false,
         int $executeInterval = 5,
+        ?string $lockExpiresAt = null,
     ): array {
         // Use string values to match ADOdb runtime behavior (numeric-string)
         return [
             'name' => $name,
             'title' => $name,
             'active' => $active ? '1' : '0',
-            'running' => $running ? '1' : '0',
+            'running' => $lockExpiresAt !== null ? '1' : '0',
             'next_run' => '2020-01-01 00:00:00',
             'execute_interval' => (string) $executeInterval,
             'function' => 'test_function_' . $name,
             'require_once' => null,
             'sort_order' => '100',
+            'lock_expires_at' => $lockExpiresAt,
         ];
     }
 }
@@ -179,11 +181,12 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
 
     /**
      * @param list<BackgroundServicesRow> $services
+     * @param string|null $lockFailureReason Null means lock acquired; a string is the failure reason returned to run()
      * @param (\Closure(BackgroundServicesRow): void)|null $executeCallback
      */
     public function __construct(
         private readonly array $services = [],
-        private readonly bool $lockResult = true,
+        private readonly ?string $lockFailureReason = null,
         private readonly ?\Closure $executeCallback = null,
     ) {
     }
@@ -199,9 +202,9 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         return $this->services;
     }
 
-    protected function acquireLock(array $service, bool $force): bool
+    protected function acquireLock(array $service, bool $force): ?string
     {
-        return $this->lockResult;
+        return $this->lockFailureReason;
     }
 
     protected function releaseLock(string $serviceName): void

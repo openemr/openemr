@@ -2687,8 +2687,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
+                onkeyup='maskkeyup(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
+                onblur='maskblur(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
         />
         </td>
     </tr>

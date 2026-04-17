@@ -42,16 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaTargetFactory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$scopes \\(array\\|string\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomRefreshTokenGrant\\:\\:validateScopes\\(\\) should be contravariant with parameter \\$scopes \\(array\\|string\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Grant\\\\AbstractGrant\\:\\:validateScopes\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
@@ -67,29 +57,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\AppointmentService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\AppointmentService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -118,11 +88,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$map \\(array\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:queryFields\\(\\) should be contravariant with parameter \\$map \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:queryFields\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
@@ -167,19 +132,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\CarePlanService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\CarePlanService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\CareTeamService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\CareTeamService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -187,19 +142,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ConditionService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ConditionService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -207,19 +152,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\DeviceService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DeviceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\DeviceService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DeviceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\DocumentService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\DocumentService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -227,19 +162,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\DrugSalesService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\DrugSalesService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\DrugService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\DrugService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -247,19 +172,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\EmployerService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EmployerService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\EmployerService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EmployerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\) of method OpenEMR\\\\Services\\\\EncounterService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\EncounterService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -762,19 +677,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -782,19 +687,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\InsuranceService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\InsuranceService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -802,19 +697,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|string\\>\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\PatientAdvanceDirectiveService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PatientAdvanceDirectiveService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -822,19 +707,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\PatientService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PatientService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -842,19 +717,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\|string\\) of method OpenEMR\\\\Services\\\\PersonService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PersonService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PersonService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PersonService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -862,19 +727,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\PractitionerService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\PractitionerService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ProcedureProviderService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureProviderService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ProcedureProviderService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -882,24 +737,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ProcedureProviderService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ProcedureService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\ProcedureService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ProcedureService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -907,19 +747,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|string\\>\\) of method OpenEMR\\\\Services\\\\SDOH\\\\HistorySdohService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SDOH/HistorySdohService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\SDOH\\\\HistorySdohService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SDOH/HistorySdohService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
@@ -927,29 +757,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\SurgeryService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\SurgeryService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\VitalsCalculatedService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\VitalsCalculatedService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\VitalsService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VitalsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\VitalsService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',

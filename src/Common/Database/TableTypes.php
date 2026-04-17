@@ -341,7 +341,8 @@ namespace OpenEMR\Common\Database;
  *   execute_interval: numeric-string,
  *   function: string,
  *   require_once: ?string,
- *   sort_order: numeric-string
+ *   sort_order: numeric-string,
+ *   lock_expires_at: ?string
  * }
  *
  * @phpstan-type FormsRow array{
@@ -391,6 +392,30 @@ namespace OpenEMR\Common\Database;
  *   ped_head_circ: ?numeric-string,
  *   inhaled_oxygen_concentration: ?numeric-string,
  *   last_updated: string
+ * }
+ *
+ * @phpstan-type LayoutOptionsRow array{
+ *   form_id: string,
+ *   field_id: string,
+ *   group_id: string,
+ *   title: ?string,
+ *   seq: numeric-string,
+ *   data_type: numeric-string,
+ *   uor: numeric-string,
+ *   fld_length: numeric-string,
+ *   max_length: numeric-string,
+ *   list_id: string,
+ *   titlecols: numeric-string,
+ *   datacols: numeric-string,
+ *   default_value: string,
+ *   edit_options: string,
+ *   description: ?string,
+ *   fld_rows: numeric-string,
+ *   list_backup_id: string,
+ *   source: string,
+ *   conditions: ?string,
+ *   validation: ?string,
+ *   codes: string
  * }
  *
  * @phpstan-type FormCAMOSRow array{

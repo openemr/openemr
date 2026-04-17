@@ -86,7 +86,7 @@ class SphereRevert
         $this->client = new Client(['base_uri' => Sphere::TRUSTEE_API_URL]);
 
         // Calculate the OpenEMR server returnUrl
-        $this->returnUrl = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('web_root') . '/sphere/initial_response.php';
+        $this->returnUrl = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/sphere/initial_response.php';
     }
 
     /**
@@ -264,7 +264,7 @@ class SphereRevert
             function processSphereRevert(token, front, action, transId, uuidTx) {
                 // Note that the returnUrl needs to match the returnurl that is created in getToken() function, so
                 //  if modify this, also need to modify there
-                let returnUrl = ' . js_escape(OEGlobalsBag::getInstance()->get("site_addr_oath") . OEGlobalsBag::getInstance()->get("web_root")) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken($session, 'sphere_revert')) . ';
+                let returnUrl = ' . js_escape(OEGlobalsBag::getInstance()->get("site_addr_oath") . OEGlobalsBag::getInstance()->getKernel()->getWebRoot()) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken($session, 'sphere_revert')) . ';
                 let mainUrl = ' . js_escape(Sphere::TRUSTEE_API_URL) . ' + "payment.php?aggregators=1&aggregator1=" + ' . js_escape(Sphere::AGGREGATOR_ID) . ' + "&transid=" + encodeURIComponent(transId) + "&token=" + encodeURIComponent(token) + "&action=" + encodeURIComponent(action) + "&returnurl=" + encodeURIComponent(returnUrl);
                 dlgopen(mainUrl, "_blank", 950, 650, "", "Sphere " + action, {allowExternal: true});
             }

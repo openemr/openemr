@@ -21,10 +21,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Path in include\\(\\) "getmxrr\\.php" is not a file or it does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

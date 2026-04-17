@@ -105,7 +105,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/billing/get_claim_file.php?' .
+        $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
             'key=' . urlencode((string) $filename) .
             '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .

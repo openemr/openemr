@@ -21,7 +21,7 @@ class RuleTemplateExtension
                 <option id="<?php echo attr($option['id']); ?>"
                         value="<?php echo attr($option['id']); ?>"
                     <?php echo $args['value'] == $option['id'] ? "SELECTED" : "" ?>>
-                    <?php echo xlt($option['label']); ?>
+                    <?php echo text(is_string($option['label'] ?? null) ? $option['label'] : ''); ?>
                 </option>
             <?php } ?>
 
@@ -78,7 +78,7 @@ class RuleTemplateExtension
 
     public static function timeunit_select($args)
     {
-        require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+        require_once(OEGlobalsBag::getInstance()->getKernel()->getSrcDir() . "/options.inc.php");
 
         return generate_select_list(
             $args['name'],
@@ -95,7 +95,7 @@ class RuleTemplateExtension
 
     public static function getLabel($value, $list_id)
     {
-        require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+        require_once(OEGlobalsBag::getInstance()->getKernel()->getSrcDir() . "/options.inc.php");
 
         // get from list_options
         $result = generate_display_field(['data_type' => '1','list_id' => $list_id], $value);
