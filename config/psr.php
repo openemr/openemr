@@ -13,7 +13,7 @@
 declare(strict_types=1);
 
 use Lcobucci\Clock\SystemClock;
-use OpenEMR\Common\Logging\SystemLogger;
+use Monolog\Logger;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
@@ -28,7 +28,7 @@ use OpenEMR\Common\Http\Psr17Factory;
 
 return [
     // PSR-3
-    LoggerInterface::class => SystemLogger::class,
+    LoggerInterface::class => Logger::class,
 
     // PSR-17
     RequestFactoryInterface::class => Psr17Factory::class,

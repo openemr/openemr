@@ -31,7 +31,7 @@ class MenuItems extends \ArrayObject
      * @return void
      * @throws InvalidArgumentException if $entry object does not implement MenuItemInterface
      */
-    public static function validateEntry($entry): void
+    public static function validateEntry(mixed $entry): void
     {
         if (is_array($entry)) {
             if (count($entry) > 0) {
@@ -47,7 +47,7 @@ class MenuItems extends \ArrayObject
         }
     }
 
-    public function offsetSet($key, $value): void
+    public function offsetSet(mixed $key, mixed $value): void
     {
         static::validateEntry($value);
 

@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
@@ -253,8 +254,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $special = false;
         $trim = true;
         $progress = 0;
-        while (!feof($fd)) {
-            $line = fgets($fd, 2048);
+        while (($line = fgets($fd)) !== false) {
             $line = rtrim($line);
 
             $progress += strlen($line);
@@ -786,6 +786,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
+            // Insert a space separator between concatenated lines so a
+            // continuation line starting at column 0 cannot fuse with the
+            // previous token (same bug class as #10935 in Installer). fgets()
+            // is unbounded, so every call returns a complete logical line
+            // and the separator is always safe to insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
             $query .= $line;
 
             if (str_ends_with(trim($query), ';')) {
@@ -1094,9 +1102,11 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function clickOptionsMigrate()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = (string) $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");
@@ -1410,7 +1420,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    private function updateLayoutEditOptions(string $mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
@@ -1431,9 +1441,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
                     $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos((string)$mode, 'add') !== false) {
+                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos((string)$mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {
@@ -1480,7 +1490,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
-        return intval($versionRecord['v_database'] ?? 0);
+        return $versionRecord['v_database'];
     }
 
     protected function migrateCareTeamsV1ToV2()

@@ -24,46 +24,46 @@ class UserUpdatedEvent extends Event
 
     /**
      * UserUpdatedEvent constructor.
-     * @param $dataBeforeUpdate
-     * @param $newUserData
+     * @param array<string, mixed> $dataBeforeUpdate
+     * @param array<string, mixed> $newUserData
      */
-    public function __construct(private $dataBeforeUpdate, private $newUserData)
+    public function __construct(private array $dataBeforeUpdate, private array $newUserData)
     {
     }
 
     /**
-     * @return mixed
+     * @return array<string, mixed>
      */
-    public function getDataBeforeUpdate()
+    public function getDataBeforeUpdate(): array
     {
         return $this->dataBeforeUpdate;
     }
 
     /**
-     * @param mixed $dataBeforeUpdate
+     * @param array<string, mixed> $dataBeforeUpdate
      */
-    public function setDataBeforeUpdate($dataBeforeUpdate): void
+    public function setDataBeforeUpdate(array $dataBeforeUpdate): void
     {
         $this->dataBeforeUpdate = $dataBeforeUpdate;
     }
 
     /**
-     * @return mixed
+     * @return array<string, mixed>
      */
-    public function getNewUserData()
+    public function getNewUserData(): array
     {
         return $this->newUserData;
     }
 
     /**
-     * @param mixed $newUserData
+     * @param array<string, mixed> $newUserData
      */
-    public function setNewUserData($newUserData): void
+    public function setNewUserData(array $newUserData): void
     {
         $this->newUserData = $newUserData;
     }
 
-    public function getUserId()
+    public function getUserId(): mixed
     {
         return $this->newUserData['id'] ?? null;
     }

@@ -17,6 +17,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
@@ -261,12 +262,12 @@ class ReceiveHl7Results
         // We'll need the document category IDs for any embedded documents.
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [OEGlobalsBag::getInstance()->get('lab_results_category_name')]
+            [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]
         );
         if (empty($catrow['id'])) {
             return $this->rhl7LogMsg(
                 xl('Document category for lab results does not exist') .
-                ': ' . OEGlobalsBag::getInstance()->get('lab_results_category_name'),
+                ': ' . OEGlobalsBag::getInstance()->getString('lab_results_category_name'),
                 true
             );
         } else {
@@ -274,7 +275,7 @@ class ReceiveHl7Results
             $mdm_category_id = $results_category_id;
             $catrow = sqlQuery(
                 "SELECT id FROM categories WHERE name = ?",
-                [OEGlobalsBag::getInstance()->get('gbl_mdm_category_name')]
+                [OEGlobalsBag::getInstance()->getString('gbl_mdm_category_name')]
             );
             if (!empty($catrow['id'])) {
                 $mdm_category_id = $catrow['id'];
@@ -686,32 +687,37 @@ class ReceiveHl7Results
                         $lkup = $this->lookupTestCode($lab_id, $in_procedure_code);
                         $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
                         $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
-                        sqlBeginTrans();
-                        $procedure_order_seq = sqlQuery(
-                            "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code " .
-                            "WHERE procedure_order_id = ? ",
-                            [$in_orderid]
-                        );
-                        sqlInsert(
-                            "INSERT INTO procedure_order_code SET " .
-                            "procedure_order_id = ?, " .
-                            "procedure_order_seq = ?, " .
-                            "procedure_code = ?, " .
-                            "procedure_name = ?, " .
-                            "procedure_type = ?, " .
-                            "transport = ?, " .
-                            "procedure_source = '2'",
-                            [
-                                $in_orderid,
-                                $procedure_order_seq['increment'],
-                                $in_procedure_code,
-                                $in_procedure_name,
-                                $code_type,
-                                $code_transport
-                            ]
-                        );
-                        $pcrow = sqlQuery($pcquery, $pcqueryargs);
-                        sqlCommitTrans();
+                        $pcrow = QueryUtils::inTransaction(function () use ($in_orderid, $in_procedure_code, $in_procedure_name, $code_type, $code_transport, $pcquery, $pcqueryargs) {
+                            $procedure_order_seq = sqlQuery(
+                                <<<'SQL'
+                                SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS increment
+                                FROM procedure_order_code
+                                WHERE procedure_order_id = ?
+                                SQL,
+                                [$in_orderid]
+                            );
+                            sqlInsert(
+                                <<<'SQL'
+                                INSERT INTO procedure_order_code SET
+                                    procedure_order_id = ?,
+                                    procedure_order_seq = ?,
+                                    procedure_code = ?,
+                                    procedure_name = ?,
+                                    procedure_type = ?,
+                                    transport = ?,
+                                    procedure_source = '2'
+                                SQL,
+                                [
+                                    $in_orderid,
+                                    $procedure_order_seq['increment'],
+                                    $in_procedure_code,
+                                    $in_procedure_name,
+                                    $code_type,
+                                    $code_transport,
+                                ]
+                            );
+                            return sqlQuery($pcquery, $pcqueryargs);
+                        });
                     } else {
                         // Dry run, make a dummy procedure_order_code row.
                         $pcrow = [
@@ -1061,10 +1067,11 @@ class ReceiveHl7Results
         if ($fatal) {
             $rhl7_return['mssgs'][] = '*' . $msg;
             $rhl7_return['fatal'] = true;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "lab-results-error",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 0,
                 $msg
             );
@@ -1535,7 +1542,9 @@ class ReceiveHl7Results
             return;
         }
 
-        $message_sender = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $message_sender = $authUser;
         $message_group = 'Default';
         $authorized = '0';
         $activity = '1';
@@ -1546,7 +1555,7 @@ class ReceiveHl7Results
         }
 
         if (!$assigned_to) {
-            $assigned_to = $_SESSION['authUser'];
+            $assigned_to = $authUser;
         }
         $notify = $assigned_to; //@todo get user lookup
 
@@ -1660,7 +1669,7 @@ class ReceiveHl7Results
     private function hl7Crypt($content)
     {
         if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, KeySource::Database);
+            $content = (ServiceContainer::getCrypto())->encryptStandard($content, keySource: KeySource::Database);
         }
 
         return $content;

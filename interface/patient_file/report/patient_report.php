@@ -24,6 +24,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
@@ -43,6 +44,8 @@ $auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
 $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
@@ -393,6 +396,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
+                                                    // AI-generated code (Claude Code) - start
+                                                    // Print any forms not in the registry (e.g. custom LBF layouts)
+                                                    foreach ($html_strings as $key => $toprint) {
+                                                        if (!in_array($key, $registry_form_name, true)) {
+                                                            foreach ($toprint as $item) {
+                                                                print $item;
+                                                            }
+                                                        }
+                                                    }
+                                                    // AI-generated code (Claude Code) - end
                                                     $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
@@ -459,6 +472,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                             }
                                         }
+                                        // AI-generated code (Claude Code) - start
+                                        // Print any forms not in the registry (e.g. custom LBF layouts)
+                                        foreach ($html_strings as $key => $toprint) {
+                                            if (!in_array($key, $registry_form_name, true)) {
+                                                foreach ($toprint as $item) {
+                                                    print $item;
+                                                }
+                                            }
+                                        }
+                                        // AI-generated code (Claude Code) - end
                                         ?>
 
                                         <?php
@@ -630,7 +653,7 @@ $(function () {
         // there's a lot of ways to do this but for now, we'll go with this!
         top.restoreSession();
         let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
-            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken() ?>");
+            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken(session: $session) ?>");
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',

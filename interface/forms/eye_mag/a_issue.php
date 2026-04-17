@@ -25,6 +25,7 @@ TODO: Code cleanup */
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -43,16 +44,18 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 $pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?
 // The Coding Engine does not look at encounters and issue linkage, yet.  It could and perhaps should.
-$encounter = 0 + (empty($_REQUEST['encounter']) ? $_SESSION['encounter'] : $_REQUEST['encounter']);
+$encounter = 0 + (empty($_REQUEST['encounter']) ? $session->get('encounter') : $_REQUEST['encounter']);
 
 $issue = $_REQUEST['issue'] ?? '';
 $deletion = $_REQUEST['deletion'] ?? '';
 $form_save = $_REQUEST['form_save'] ?? '';
 if (!$pid) {
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
 }
 
 $form_id = $_REQUEST['form_id'];
@@ -75,7 +78,7 @@ if (
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID = findProvider($pid, $encounter);
-if (!($_SESSION['providerID'] ?? '') && $providerID) {
+if (!($session->get('providerID') ?? '') && $providerID) {
     SessionUtil::setSession('providerID', $providerID);
 }
 
@@ -120,7 +123,7 @@ foreach (explode(',', $given) as $item) {
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
         $i = '0';
-
+        $providerID = $session->get('providerID');
         foreach ($PMSFH[0] as $key => $value) {
             echo " aopts['" . attr($key) . "'] = [];\n";
             $local = '1';
@@ -128,7 +131,7 @@ foreach (explode(',', $given) as $item) {
             if ($key == "PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 20", [
                     "medical_problem",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -139,7 +142,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Medication") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "medication",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
@@ -151,7 +154,7 @@ foreach (explode(',', $given) as $item) {
     subtype = '' and pid in (select pid from form_encounter where provider_id =?
     and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "surgery",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -162,7 +165,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Allergy") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "allergy",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
@@ -172,7 +175,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "POH") { // POH medical group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
@@ -180,7 +183,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "POS") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -189,7 +192,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Eye Meds") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq FROM `lists` WHERE `type` LIKE 'medication' and subtype = 'eye' and pid in ( select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medication_issue_list' and subtype = 'eye'");
@@ -499,12 +502,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert(<?php echo js_escape(xl('Please Enter End Date greater than Begin Date!')); ?>);
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
+                    alert(<?php echo js_escape(xl('Please enter a title!')); ?>);
                     return false;
                 }
             }
@@ -624,36 +627,29 @@ foreach (explode(',', $given) as $item) {
                         $checked = " checked='checked' ";
                     }
 
-                    $key_short_title = $key;
-                    if ($key == "Medication") {
-                        $key_short_title = "Meds";
-                        $title = "Medications";
-                    }
-
-                    if ($key == "Problem") {
-                        $key_short_title = "PMH";
-                        $title = "Past Medical History";
-                    }
-
-                    if ($key == "Surgery") {
-                        $key_short_title = "Surg";
-                        $title = "Past Surgical History";
-                    }
-
-                    if ($key == "SOCH") {
-                        $key_short_title = "Soc";
-                        $title = "Social History";
-                    }
-                    if ($key == "Allergy") {
-                        $key_short_title = "All";
-                        $title = "Allergies";
-                    }
-                    if ($key == "Eye Meds") {
-                        $key_short_title = "EyeM";
-                        $title = "Eye Medications";
-                    }
-
-                    $HELLO[attr($key) ] = '<input type="radio" name="form_type" id="PMSFH_' . attr($key) . '" value="' . attr($key) . '" ' . $checked . ' onclick="top.restoreSession();newtype(\'' . attr($key) . '\');" /><span>' . '<label class="input-helper input-helper--checkbox" for="PMSFH_' . attr($key) . '" title="' . xla($title ?? '') . '" />' . xlt($key_short_title) . '</label></span>&nbsp;';
+                    // Translate fixed section labels with literal xla()/xlt() so
+                    // translation does not depend on the translate_lists global.
+                    [$titleAttr, $shortTitleText] = match ($key) {
+                        "Medication" => [xla("Medications"), xlt("Meds")],
+                        "Surgery"    => [xla("Past Surgical History"), xlt("Surg")],
+                        "SOCH"       => [xla("Social History"), xlt("Soc")],
+                        "Allergy"    => [xla("Allergies"), xlt("All")],
+                        "Eye Meds"   => [xla("Eye Medications"), xlt("EyeM")],
+                        "PMH"        => [xla("Past Medical History"), xlt("PMH")],
+                        "POH"        => ['', xlt("POH")],
+                        "POS"        => ['', xlt("POS")],
+                        "FH"         => ['', xlt("FH")],
+                        "ROS"        => ['', xlt("ROS")],
+                        default      => ['', is_string($key) ? text($key) : ''],
+                    };
+                    $keyAttr = attr($key);
+                    $inputId = "PMSFH_{$keyAttr}";
+                    $HELLO[$keyAttr] = <<<HTML
+                        <input type="radio" name="form_type" id="{$inputId}" value="{$keyAttr}" {$checked} onclick="top.restoreSession();newtype('{$keyAttr}');" />
+                        <span>
+                            <label class="input-helper input-helper--checkbox" for="{$inputId}" title="{$titleAttr}">{$shortTitleText}</label>
+                        </span>&nbsp;
+                        HTML;
                 }
 
 //put them in the desired display order
@@ -766,7 +762,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
                     <tr id='row_eye_med'>
                         <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Eye Med'); ?>:</strong></td>
-                        <td colspan="3"><?php echo $irow['subtype'] ?? ''; ?>
+                        <td colspan="3"><?php echo text($irow['subtype'] ?? ''); ?>
                             <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1' <?php
                             if (($irow['subtype'] ?? '') == 'eye') {
                                 echo " checked";

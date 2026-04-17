@@ -10,7 +10,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -50,15 +50,15 @@ function processRecaptcha($gRecaptchaResponse): bool
         ServiceContainer::getLogger()->error("processRecaptcha function: gRecaptchaResponse is empty, so unable to verify recaptcha");
         return false;
     }
-    if (empty($globalsBag->get('google_recaptcha_site_key'))) {
+    if (empty($globalsBag->getString('google_recaptcha_site_key'))) {
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_site_key is empty, so unable to verify recaptcha");
         return false;
     }
-    if (empty($globalsBag->get('google_recaptcha_secret_key'))) {
+    if (empty($globalsBag->getString('google_recaptcha_secret_key'))) {
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard($globalsBag->get('google_recaptcha_secret_key'));
+    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
     if (empty($googleRecaptchaSecretKey)) {
         ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
@@ -98,7 +98,7 @@ function processRecaptcha($gRecaptchaResponse): bool
 //  (this is done so a bad actor can not see if certain patients exist in the instance)
 function verifyEmail(string $languageChoice, string $fname, string $mname, string $lname, string $dob, string $email): bool
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $globalsBag = OEGlobalsBag::getInstance();
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
@@ -190,9 +190,9 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         }
 
         // create $encoded_link
-        $site_addr = $globalsBag->get('portal_onsite_two_address');
+        $site_addr = $globalsBag->getString('portal_onsite_two_address');
         $site_id = $session->get('site_id');
-        if (stripos((string) $site_addr, (string) $site_id) === false) {
+        if (stripos($site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $site_id
@@ -213,7 +213,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
     if ($emailPrepSend) {
         // send email
         $mail = new MyMailer();
-        $email_sender = $globalsBag->get('patient_reminder_sender_email');
+        $email_sender = $globalsBag->getString('patient_reminder_sender_email');
         $mail->AddReplyTo($email_sender, $email_sender);
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($email, ($fname . ' ' . $lname));
@@ -343,7 +343,7 @@ function saveInsurance($pid): void
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $globalsBag = OEGlobalsBag::getInstance();
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
@@ -405,9 +405,9 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             return false;
         }
     }
-    $site_addr = $globalsBag->get('portal_onsite_two_address');
+    $site_addr = $globalsBag->getString('portal_onsite_two_address');
     $site_id = $session->get('site_id');
-    if (stripos((string) $site_addr, (string) $site_id) === false) {
+    if (stripos($site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
             'site' => $site_id
@@ -454,7 +454,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $fhirServerConfig = new ServerConfig();
 
     $data = [
-        'portal_onsite_two_address' => $globalsBag->get('portal_onsite_two_address')
+        'portal_onsite_two_address' => $globalsBag->getString('portal_onsite_two_address')
         ,'pin' => $pin
         ,'encoded_link' => $encoded_link
         ,'fhir_address' => $fhirServerConfig->getFhirUrl()
@@ -467,7 +467,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $pt_name = text($newpd['fname'] . ' ' . $newpd['lname']);
     $pt_email = text($newpd['email']);
     $email_subject = xlt('Access Your Patient Portal') . ' / ' . xlt('3rd Party API Access');
-    $email_sender = $globalsBag->get('patient_reminder_sender_email');
+    $email_sender = $globalsBag->getString('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
@@ -512,7 +512,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 //  just not store the insurance info in worst case scenario).
 function getPidHolder($preventRaceCondition = false): int
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $tokenIdHolder = $session->get('token_id_holder');
     if (empty($tokenIdHolder)) {
         ServiceContainer::getLogger()->debug("getPidHolder function failed because token_id_holder session variable was not set");
@@ -537,12 +537,6 @@ function getPidHolder($preventRaceCondition = false): int
 
 function cleanupRegistrationSession(): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
-    $session->remove('patient_portal_onsite_two');
-    $session->remove('authUser');
-    $session->remove('pid');
-    $session->remove('site_id');
-    $session->remove('register');
-    $session->remove('register_silo_ajax');
+    SessionUtil::unsetSession(['patient_portal_onsite_two', 'authUser', 'pid', 'site_id', 'register', 'register_silo_ajax']);
     SessionUtil::portalSessionCookieDestroy();
 }

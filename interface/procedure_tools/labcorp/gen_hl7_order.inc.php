@@ -10,7 +10,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,6 +39,7 @@ require_once("$webserver_root/custom/code_types.inc.php");
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function hl7Race($s)
 {
@@ -746,11 +747,12 @@ function labcorp_send_hl7_order($ppid, $out)
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Falling through to here indicates success.
     EventAuditLogger::getInstance()->newEvent(
         "proc_order_xmit",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "ID: $msgid Protocol: $protocol Host: $remote_host"
     );

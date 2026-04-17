@@ -41,7 +41,7 @@ class CoverageValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid & type are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
         array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT);
@@ -147,8 +147,8 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_street')->lengthBetween(2, 255);
                 $context->required('subscriber_postal_code')->lengthBetween(2, 255);
                 $context->required('subscriber_city')->lengthBetween(2, 255);
-                $context->required('subscriber_state')->listOption(OEGlobalsBag::getInstance()->get('state_list'));
-                $context->optional('subscriber_country')->listOption(OEGlobalsBag::getInstance()->get('country_list'));
+                $context->required('subscriber_state')->listOption(OEGlobalsBag::getInstance()->getString('state_list'));
+                $context->optional('subscriber_country')->listOption(OEGlobalsBag::getInstance()->getString('country_list'));
                 $context->optional('subscriber_phone')->lengthBetween(2, 255);
                 $context->required('subscriber_sex')->listOption('sex');
                 $context->required('accept_assignment')->inArray(['TRUE', 'FALSE']);
@@ -157,8 +157,8 @@ class CoverageValidator extends BaseValidator
                 $context->optional('subscriber_employer')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_street')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_postal_code')->lengthBetween(2, 255);
-                $context->optional('subscriber_employer_state')->listOption(OEGlobalsBag::getInstance()->get('state_list'));
-                $context->optional('subscriber_employer_country')->listOption(OEGlobalsBag::getInstance()->get('country_list'));
+                $context->optional('subscriber_employer_state')->listOption(OEGlobalsBag::getInstance()->getString('state_list'));
+                $context->optional('subscriber_employer_country')->listOption(OEGlobalsBag::getInstance()->getString('country_list'));
                 $context->optional('subscriber_employer_city')->lengthBetween(2, 255);
                 $context->optional('copay')->lengthBetween(2, 255);
                 $context->required('date')->datetime('Y-m-d')

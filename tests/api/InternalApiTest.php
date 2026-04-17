@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
@@ -30,6 +31,7 @@ use OpenEMR\RestControllers\Finder\StandardRouteFinder;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -42,7 +44,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
                 url: '../../apis/default/api/facility',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -58,7 +60,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 })
             })
             .then(response => response.json())
@@ -98,15 +100,15 @@ echo "<br /><br />";
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
 $globalsBag = OEGlobalsBag::getInstance();
+$oeKernel = $globalsBag->getKernel();
 $getParams = [];
 try {
     $restRequest = HttpRestRequest::create('/api/facility', 'GET');
     $restRequest->setRequestUserRole("users");
-    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getString('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
+    $sessionFactory = new HttpSessionFactory($restRequest, $oeKernel->getWebRoot(), HttpSessionFactory::SESSION_TYPE_CORE);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
-    $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
+    $kernel = new OEHttpKernel($oeKernel->getEventDispatcher(), new ControllerResolver());
     $kernel->setSystemLogger(ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);

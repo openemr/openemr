@@ -29,22 +29,22 @@ class EncounterMenuEvent extends Event
      * EncounterMenuEvent constructor takes a multidimensional array
      * of menu items.
      *
-     * @param array $menu
+     * @param array<string, mixed> $menu
      */
     public function __construct(private array $menu = [])
     {
     }
 
     /**
-     * @return mixed
+     * @return array<string, mixed>
      */
-    public function getMenuData()
+    public function getMenuData(): array
     {
         return $this->menu;
     }
 
     /**
-     * @param mixed $menu
+     * @param array<string, mixed> $menu
      */
     public function setMenuData(array $menu): void
     {

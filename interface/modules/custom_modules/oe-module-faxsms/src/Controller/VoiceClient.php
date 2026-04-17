@@ -30,7 +30,7 @@ class VoiceClient extends AppDispatch
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->cacheDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
@@ -67,7 +67,7 @@ class VoiceClient extends AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
         return json_decode($decrypt, true);
     }
 

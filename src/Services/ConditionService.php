@@ -39,7 +39,7 @@ class ConditionService extends BaseService
         $this->conditionValidator = new ConditionValidator();
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
@@ -112,21 +112,54 @@ class ConditionService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
+
+        // Validate puuid before converting to TokenSearchField
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
+            $isValidPatient = $this->conditionValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['puuid'],
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
+
+        // Validate condition_uuid before converting to TokenSearchField
+        if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
+            $isValidCondition = $this->conditionValidator->validateId(
+                'uuid',
+                self::CONDITION_TABLE,
+                $search['condition_uuid'],
+                true
+            );
+            if ($isValidCondition !== true) {
+                return $isValidCondition;
+            }
+        }
 
         // override puuid with the token search field
         // standard api will send a string which needs to be a token to be converted to the binary field value
         // FHIR api will send an already populated TokenSearchField
-        if (!empty($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+            unset($search['puuid']);
+        }
+
+        // override condition_uuid with token search field for binary comparison
+        if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
+            $newSearch['condition_uuid'] = new TokenSearchField('condition_uuid', $search['condition_uuid'], true);
+            unset($search['condition_uuid']);
         }
 
         foreach ($search as $key => $value) {

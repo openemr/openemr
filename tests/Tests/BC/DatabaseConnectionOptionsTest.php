@@ -4,7 +4,7 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -74,8 +74,9 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
+        $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
+            $attrSslCa => '/path/to/ca.pem',
         ], $params['driverOptions'] ?? null);
     }
 
@@ -96,10 +97,13 @@ class DatabaseConnectionOptionsTest extends TestCase
 
         $params = $options->toDbalParams();
 
+        $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
+        $attrSslCert = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CERT : PDO::MYSQL_ATTR_SSL_CERT;
+        $attrSslKey = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_KEY : PDO::MYSQL_ATTR_SSL_KEY;
         self::assertSame([
-            PDO::MYSQL_ATTR_SSL_CA => '/path/to/ca.pem',
-            PDO::MYSQL_ATTR_SSL_CERT => '/path/to/cert.pem',
-            PDO::MYSQL_ATTR_SSL_KEY => '/path/to/key.pem',
+            $attrSslCa => '/path/to/ca.pem',
+            $attrSslCert => '/path/to/cert.pem',
+            $attrSslKey => '/path/to/key.pem',
         ], $params['driverOptions'] ?? null);
     }
 

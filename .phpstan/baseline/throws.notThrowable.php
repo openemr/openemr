@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @throws with type OpenEMR\\\\Common\\\\Crypto\\\\InvalidArgumentException is not subtype of Throwable$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Crypto/KeyVersion.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @throws with type OpenEMR\\\\Menu\\\\InvalidArgumentException is not subtype of Throwable$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',

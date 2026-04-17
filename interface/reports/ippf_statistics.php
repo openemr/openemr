@@ -19,14 +19,14 @@ require_once("../../library/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Might want something different here.
@@ -787,7 +787,8 @@ function process_ma_code($row): void
   // One row for each service category.
   //
     if ($form_by === '101') {
-        if (!empty($row['lo_title'])) {
+        if (is_string($row['lo_title'] ?? null) && $row['lo_title'] !== '') {
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             $key = xl($row['lo_title']);
         }
     } elseif ($form_by === '102') { // Specific Services. One row for each MA code.
@@ -1053,7 +1054,7 @@ $(function () {
 <h2><?php echo $report_title; ?></h2>
 
 <form name='theform' method='post' action='ippf_statistics.php?t=<?php echo attr_url($report_type); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
 

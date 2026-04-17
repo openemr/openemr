@@ -70,7 +70,7 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 $recorder = new Recorder();
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
@@ -492,7 +492,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     global $TAXES_AFTER_ADJUSTMENT;
     global $facilityService, $alertmsg;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {
@@ -575,7 +575,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     function deleteme() {
         const params = new URLSearchParams({
             billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         });
         dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
         return false;
@@ -1392,7 +1392,7 @@ function write_form_line_ippf(
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
-        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
         echo "<input type='text' name='line[$lino][adjust]' size='6'";
         echo " value='" . attr(formatMoneyNumber($adjust)) . "'";
         // Modifying discount requires the acct/disc permission.
@@ -1502,9 +1502,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // On a save, do the following:
     // Flag this form's drug_sales and billing items as billed.
@@ -2288,7 +2286,7 @@ if (!empty($_GET['framed'])) {
 echo "' onsubmit='return validate()'>\n";
 echo "<input type='hidden' name='form_pid' value='" . attr($patient_id) . "' />\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 
@@ -2679,7 +2677,7 @@ if (!$current_irnumber) {
         </td>
     </tr>
         <?php
-    } elseif (!empty(OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number'))) {
+    } elseif (!empty(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
         ?>
     <tr>
@@ -2689,8 +2687,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>")'
+                onkeyup='maskkeyup(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
+                onblur='maskblur(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
         />
         </td>
     </tr>

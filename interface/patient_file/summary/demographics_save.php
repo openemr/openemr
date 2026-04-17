@@ -22,6 +22,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Services\ContactAddressService;
@@ -32,9 +33,8 @@ use OpenEMR\Services\ContactTelecomService;
 // Initialize logger
 $logger = ServiceContainer::getLogger();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 global $pid;
 
@@ -191,7 +191,7 @@ while ($frow = sqlFetchArray($fres)) {
 try {
     updatePatientData($pid, $newdata['patient_data']);
     if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
-        updateEmployerData($pid, [], $newdata['employer_data']);
+        updateEmployerData($pid, $newdata['employer_data'], false, $newdata['patient_data']);
     }
 } catch (\Throwable $e) {
     $logger->error("Error updating patient/employer data", [

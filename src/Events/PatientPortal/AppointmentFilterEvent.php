@@ -25,23 +25,27 @@ class AppointmentFilterEvent extends Event
     public const EVENT_NAME = 'home.appointment.filter';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $dbRecord;
+    private array $dbRecord;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $appointment;
+    private array $appointment;
 
-    public function __construct($dbRecord, $appointment)
+    /**
+     * @param array<string, mixed> $dbRecord
+     * @param array<string, mixed> $appointment
+     */
+    public function __construct(array $dbRecord, array $appointment)
     {
         $this->setDbRecord($dbRecord);
         $this->setAppointment($appointment);
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getDbRecord(): array
     {
@@ -49,7 +53,7 @@ class AppointmentFilterEvent extends Event
     }
 
     /**
-     * @param array $dbRecord
+     * @param array<string, mixed> $dbRecord
      * @return AppointmentFilterEvent
      */
     public function setDbRecord(array $dbRecord): AppointmentFilterEvent
@@ -59,7 +63,7 @@ class AppointmentFilterEvent extends Event
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getAppointment(): array
     {
@@ -67,7 +71,7 @@ class AppointmentFilterEvent extends Event
     }
 
     /**
-     * @param array $appointment
+     * @param array<string, mixed> $appointment
      * @return AppointmentFilterEvent
      */
     public function setAppointment(array $appointment): AppointmentFilterEvent

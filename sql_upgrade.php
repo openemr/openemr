@@ -17,12 +17,14 @@
 
 /* @TODO add language selection. needs RTL testing */
 
-\OpenEMR\Core\OEGlobalsBag::getInstance()->set('ongoing_sql_upgrade', true);
+// Set these via $GLOBALS before the autoloader is available (interface/globals.php
+// loads it later). The globals bag picks them up once globals.php runs.
+$GLOBALS['ongoing_sql_upgrade'] = true;
 
 if (php_sapi_name() === 'cli') {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
-    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('force_simple_sql_upgrade', true);
+    $GLOBALS['force_simple_sql_upgrade'] = true;
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
@@ -43,20 +45,22 @@ if (ob_get_level() === 0) {
 
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
-\OpenEMR\Core\OEGlobalsBag::getInstance()->set('connection_pooling_off', true); // force off database connection pooling
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+$skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
-// Force logging off
-OEGlobalsBag::getInstance()->set("enable_auditlog", 0);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $versions = [];
 $sqldir = "$webserver_root/sql";
@@ -79,7 +83,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->get('language_default') ?? '']);
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -94,10 +98,11 @@ if (count($result2 ?? []) == 1) {
     $defaultLangName = "English";
 }
 
-$_SESSION['language_choice'] = $defaultLangID;
-$_SESSION['language_direction'] = $direction ?? '';
-CsrfUtils::setupCsrfKey();
-session_write_close();
+SessionUtil::setSession([
+    'language_choice' => $defaultLangID,
+    'language_direction' => $direction ?? '',
+]);
+CsrfUtils::setupCsrfKey($session);
 
 $sqlUpgradeService = new SQLUpgradeService();
 
@@ -131,7 +136,7 @@ header('Content-type: text/html; charset=utf-8');
             // start polling
             let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
             let data = new FormData;
-            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('sqlupgrade')); ?>);
+            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
             data.append("poll", currentVersion);
 
             let response = await fetch(url, {

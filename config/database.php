@@ -38,6 +38,8 @@ use Doctrine\ORM\{
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Common\Database\ConnectionManager;
+use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\{
     Doctrine\UuidBinaryType,
@@ -45,11 +47,26 @@ use Ramsey\Uuid\{
 };
 
 return [
-    // DBAL
-    Connection::class => function (TC $c) {
+    // Connection Manager - manages named connections with different middleware
+    ConnectionManager::class => function (TC $c) {
+        $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
-        return DriverManager::getConnection($opts->toDbalParams());
+
+        // Main connection: middleware will be added here
+        $manager->register(ConnectionType::Main, fn () =>
+            DriverManager::getConnection($opts->toDbalParams()));
+
+        // Audit connection: no middleware, used by EventAuditLogger and some
+        // application bootstrapping
+        $manager->register(ConnectionType::NonAudited, fn () =>
+            DriverManager::getConnection($opts->toDbalParams()));
+
+        return $manager;
     },
+
+    // DBAL - delegates to ConnectionManager
+    Connection::class => fn (TC $c) =>
+        $c->get(ConnectionManager::class)->get(ConnectionType::Main),
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
