@@ -88,15 +88,16 @@ jobs:
         dirs=( "${dirs[@]#ci/}" )
 
         if [[ "${IS_PULL_REQUEST}" = 'true' && "${FULL_TEST_MODE}" != 'true' ]]; then
-          # For PRs without full mode: filter to only PHP 8.2 configurations
+          # For PRs without full mode: filter to PHP 8.2 + select others for comparison
           ci/parse_docker_dir.sh "${dirs[@]}" |
             jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
               docker_dir: .output.docker_dir,
               php: .output.php,
+              db: .output.db,
               display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
               save_composer_cache: .output.save_composer_cache,
               save_node_cache: .output.save_node_cache
-            }) | map(select(.php == "8.2")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+            }) | map(select(.php == "8.2" or (.php == "8.5" and .db == "8.0"))) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
         else
           # For PRs with full mode or pushes: include all configurations
           ci/parse_docker_dir.sh "${dirs[@]}" |
