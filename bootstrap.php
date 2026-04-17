@@ -50,12 +50,7 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
 $container = AutoDetect::instance('config');
 
 $handler = $container->get(ErrorHandler::class);
-// Don't install error handler for web SAPIs - legacy code can't handle strict
-// error-to-exception conversion, and it will be removed by public/index.php
-// anyway. CLI is fine since it doesn't go through legacy paths.
-if (PHP_SAPI === 'cli') {
-    $handler->installErrorHandler(E_ALL);
-}
+$handler->installErrorHandler(E_ALL);
 $handler->installExceptionHandler();
 
 return $container;
