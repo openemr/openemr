@@ -47,6 +47,8 @@ use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 return [
     "GET /api/facility" => function (HttpRestRequest $request) {
@@ -694,9 +696,9 @@ return [
         if (is_string($body) && $body !== '') {
             $decoded = json_decode($body, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                return new \Symfony\Component\HttpFoundation\JsonResponse(
+                return new JsonResponse(
                     ['error' => 'Invalid JSON payload'],
-                    \Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST,
+                    Response::HTTP_BAD_REQUEST,
                 );
             }
             $data = is_array($decoded) ? $decoded : [];
@@ -729,8 +731,18 @@ return [
     },
     "POST /api/admin/users" => static function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        /** @var array<string, mixed> $data */
-        $data = (array) (json_decode((string) file_get_contents("php://input")));
+        $body = file_get_contents("php://input");
+        $data = [];
+        if (is_string($body) && $body !== '') {
+            $decoded = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new JsonResponse(
+                    ['error' => 'Invalid JSON payload'],
+                    Response::HTTP_BAD_REQUEST,
+                );
+            }
+            $data = is_array($decoded) ? $decoded : [];
+        }
         return (new UserManagementRestController())->post($data, $request);
     },
 ];

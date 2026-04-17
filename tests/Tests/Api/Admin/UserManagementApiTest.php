@@ -423,6 +423,13 @@ class UserManagementApiTest extends TestCase
     #[Test]
     public function testPostWithValidFacilityIdSucceeds(): void
     {
+        /** @var array{id: int|string}|false $facility */
+        $facility = QueryUtils::querySingleRow("SELECT id FROM facility ORDER BY id LIMIT 1");
+        if ($facility === false) {
+            self::markTestSkipped('No facility records available in the test database');
+        }
+        $facilityId = (string) $facility['id'];
+
         $adminPass = getenv("OE_PASS", true) ?: "pass";
         $username = "phpunit_fac_" . bin2hex(random_bytes(4));
         $response = $this->testClient->post(self::API_ENDPOINT, [
@@ -431,7 +438,7 @@ class UserManagementApiTest extends TestCase
             "admin_password" => $adminPass,
             "fname" => "Facility",
             "lname" => "User",
-            "facility_id" => "3",
+            "facility_id" => $facilityId,
             "access_group" => ["Physicians"],
         ]);
 
