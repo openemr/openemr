@@ -73,7 +73,7 @@ jobs:
           --coverage-text
           --coverage-clover clover.xml
           --log-junit junit.xml
-          --testsuite ${{ suite }}
+          --testsuite ${{ matrix.suite }}
 
       - name: Upload coverage
         uses: codecov/codecov-action@v6
@@ -87,5 +87,5 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           flags: ${{ matrix.suite }}
-          report-type: test_results
+          report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
