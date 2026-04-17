@@ -162,6 +162,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset 0 on array\\<string, int\\> on left side of \\?\\? does not exist\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Document.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 0 on array\\<string, int\\> on left side of \\?\\? does not exist\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/X12Partner.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'height\' on array\\{0\\: int\\<0, max\\>, 1\\: int\\<0, max\\>, 2\\: int, 3\\: string, mime\\: string, channels\\?\\: int, bits\\?\\: int\\} on left side of \\?\\? does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
