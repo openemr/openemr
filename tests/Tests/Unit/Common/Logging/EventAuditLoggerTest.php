@@ -137,7 +137,6 @@ final class EventAuditLoggerTest extends TestCase
         $this->eventAuditLogger = new EventAuditLogger(
             sinks: [],
             cryptoGen: ServiceContainer::getCrypto(),
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -520,7 +519,6 @@ final class EventAuditLoggerTest extends TestCase
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
             cryptoGen: $this->createMock(CryptoGen::class),
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -570,7 +568,6 @@ final class EventAuditLoggerTest extends TestCase
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
             cryptoGen: $cryptoMock,
-            cipherSuite: null,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -677,7 +674,6 @@ final class EventAuditLoggerTest extends TestCase
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
             cryptoGen: $cryptoMock,
-            cipherSuite: null,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,

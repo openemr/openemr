@@ -68,7 +68,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink1, $sink2],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -104,7 +103,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -142,7 +140,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -173,7 +170,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -195,7 +191,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -230,7 +225,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$failingSink, $successSink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -268,7 +262,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -308,7 +301,6 @@ class EventAuditLoggerTest extends TestCase
         $logger = new EventAuditLogger(
             sinks: [$sink],
             cryptoGen: $this->crypto,
-            cipherSuite: null,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
