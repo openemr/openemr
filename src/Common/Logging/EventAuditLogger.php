@@ -24,7 +24,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
-use OpenEMR\Encryption\CipherSuite;
+use OpenEMR\Encryption\CipherSuiteInterface;
 use Psr\Clock\ClockInterface;
 use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -102,7 +102,7 @@ class EventAuditLogger
     public function __construct(
         private readonly array $sinks,
         private readonly ?CryptoInterface $cryptoGen,
-        private readonly ?CipherSuite $cipherSuite,
+        private readonly ?CipherSuiteInterface $cipherSuite,
         private readonly bool $shouldEncrypt,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
+use InvalidArgumentException;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
@@ -21,6 +22,7 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Encryption\CipherSuiteInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -322,6 +324,60 @@ class EventAuditLoggerTest extends TestCase
             group: 'testgroup',
             comments: 'Test comments',
             patientId: 'NULL',
+        );
+    }
+
+    public function testConstructorThrowsWhenBothCryptoProvidersAreNull(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('CipherSuite or CryptoGen MUST be provided');
+
+        new EventAuditLogger(
+            sinks: [],
+            cryptoGen: null,
+            cipherSuite: null,
+            shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+    }
+
+    public function testRecordLogItemEncryptsCommentsViaCipherSuite(): void
+    {
+        $cipherSuite = $this->createMock(CipherSuiteInterface::class);
+        $cipherSuite->expects($this->once())
+            ->method('encrypt')
+            ->with('Sensitive data')
+            ->willReturn('ciphersuite-encrypted:Sensitive data');
+
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->with(self::callback(function (Event $event): bool {
+                self::assertSame('ciphersuite-encrypted:Sensitive data', $event->comments);
+                return true;
+            }))
+            ->willReturn(true);
+
+        $logger = new EventAuditLogger(
+            sinks: [$sink],
+            cryptoGen: null,
+            cipherSuite: $cipherSuite,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->recordLogItem(
+            success: 1,
+            event: 'login',
+            user: 'testuser',
+            group: 'testgroup',
+            comments: 'Sensitive data',
         );
     }
 }
