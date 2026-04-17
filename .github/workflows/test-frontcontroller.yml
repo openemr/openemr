@@ -92,9 +92,6 @@ jobs:
         working-directory: .
         env:
           OPENEMR_BASE_URL_API: http://localhost:8080
-          # SELENIUM_BASE_URL: http://localhost:8080
-          # SELENIUM_HOST: localhost
-          # SELENIUM_USE_GRID: "true"
         run: vendor/bin/phpunit
             --testsuite ${{ matrix.suite }}
             --log-junit junit-${{ matrix.suite }}.xml
