@@ -60,7 +60,7 @@ class ORDataObject
         $sql = "INSERT INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
         $fields = QueryUtils::listTableFields($this->_table);
-        $db = get_db();
+        $db = $this->_db;
         $pkeys = $db->MetaPrimaryKeys($this->_table);
         $setClause = "";
 
