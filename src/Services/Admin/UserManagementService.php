@@ -79,6 +79,11 @@ class UserManagementService extends UserService
      */
     public function getOneByUuid(string $uuid): ProcessingResult
     {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
         return $this->searchUsers(['uuid' => UuidRegistry::uuidToBytes($uuid)]);
     }
 
@@ -109,8 +114,8 @@ class UserManagementService extends UserService
         $npi = trim(self::strVal($data['npi'] ?? ''));
         $taxonomy = trim(self::strVal($data['taxonomy'] ?? ''));
         $specialty = trim(self::strVal($data['specialty'] ?? ''));
-        $calendar = ($data['calendar'] ?? false) ? 1 : 0;
-        $portalUser = ($data['portal_user'] ?? false) ? 1 : 0;
+        $calendar = self::intVal($data['calendar'] ?? 0);
+        $portalUser = self::intVal($data['portal_user'] ?? 0);
         $federaltaxid = trim(self::strVal($data['federaltaxid'] ?? ''));
         $stateLicenseNumber = trim(self::strVal($data['state_license_number'] ?? ''));
         $federaldrugid = trim(self::strVal($data['federaldrugid'] ?? ''));
