@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
-use OpenEMR\Common\Command\{
+use OpenEMR\Console\Command\{
     DebugLoadFacilityCommand,
     InstallCommand,
 };

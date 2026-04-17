@@ -158,6 +158,52 @@ paths:
       security:
         -
           openemr_auth: {  }
+  /api/background_service/$run:
+    post:
+      tags:
+        - standard
+      description: 'Advances any background services that are due to run. Cannot force-run a specific service and cannot bypass intervals. Returns HTTP 200 with a per-service results array regardless of individual outcomes — the runner is always correct to invoke, and `not_due` / `already_running` / `skipped` are expected states, not errors.'
+      responses:
+        200:
+          description: 'Per-service results (may be empty if no services were due)'
+          content:
+            application/json:
+              schema:
+                required:
+                  - results
+                properties:
+                  results:
+                    type: array
+                    items:
+                      required:
+                        - name
+                        - status
+                      properties:
+                        name:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - executed
+                            - skipped
+                            - already_running
+                            - not_due
+                            - error
+                      type: object
+                type: object
+              example:
+                results:
+                  -
+                    name: phimail
+                    status: executed
+                  -
+                    name: Email_Service
+                    status: not_due
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/api/background_service/{name}':
     get:
       tags:

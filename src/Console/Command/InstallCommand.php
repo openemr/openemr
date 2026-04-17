@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Command;
+namespace OpenEMR\Console\Command;
 
 use OpenEMR\Common\Installer\InstallerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
