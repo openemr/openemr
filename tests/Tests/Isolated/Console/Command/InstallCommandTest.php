@@ -10,10 +10,10 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\Common\Command;
+namespace OpenEMR\Tests\Isolated\Console\Command;
 
-use OpenEMR\Common\Command\InstallCommand;
 use OpenEMR\Common\Installer\InstallerInterface;
+use OpenEMR\Console\Command\InstallCommand;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
