@@ -44,6 +44,7 @@ jobs:
       - name: Setup PHP and Composer
         uses: ./.github/actions/setup-php-composer
         with:
+          coverage: true
           php-version: ${{ matrix.php }}
 
       - name: Run CLI installer
@@ -67,3 +68,24 @@ jobs:
             | grep -q "1"
 
       # TODO: actually run the test suite. For now, just verifying installer.
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit
+          --coverage-text
+          --coverage-clover clover.xml
+          --log-junit junit.xml
+          --testsuite ${{ suite }}
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v6
+        if: ${{ !cancelled() }}
+        with:
+          flags: ${{ matrix.suite }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: codecov/codecov-action@v6
+        if: ${{ !cancelled() }}
+        with:
+          flags: ${{ matrix.suite }}
+          report-type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
