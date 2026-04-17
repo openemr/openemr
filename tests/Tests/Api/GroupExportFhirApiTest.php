@@ -52,7 +52,7 @@ class GroupExportFhirApiTest extends TestCase
         if ($actualResult->getStatusCode() === 500) {
             $runnerTemp = getenv('RUNNER_TEMP');
             if ($runnerTemp !== false) {
-                $logFile = $runnerTemp . '/php-server.err.log';
+                $logFile = $runnerTemp . '/php-server.out.log';
                 if (file_exists($logFile)) {
                     $serverTrace = "\n\n--- Server Error Log (last 200 lines) ---\n" . implode("\n", array_slice(file($logFile, FILE_IGNORE_NEW_LINES), -200));
                 }
