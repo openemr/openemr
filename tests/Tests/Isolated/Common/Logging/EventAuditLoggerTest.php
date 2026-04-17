@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
-use InvalidArgumentException;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
@@ -67,7 +66,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink1, $sink2],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -102,7 +101,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -139,7 +138,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -169,7 +168,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -190,7 +189,7 @@ class EventAuditLoggerTest extends TestCase
     {
         $logger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -224,7 +223,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$failingSink, $successSink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -261,7 +260,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -300,7 +299,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -316,23 +315,6 @@ class EventAuditLoggerTest extends TestCase
             group: 'testgroup',
             comments: 'Test comments',
             patientId: 'NULL',
-        );
-    }
-
-    public function testConstructorThrowsWhenBothCryptoProvidersAreNull(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('CipherSuite or CryptoGen MUST be provided');
-
-        new EventAuditLogger(
-            sinks: [],
-            cryptoGen: null,
-            cipherSuite: null,
-            shouldEncrypt: false,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
         );
     }
 
@@ -355,8 +337,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: null,
-            cipherSuite: $cipherSuite,
+            crypto: $cipherSuite,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
