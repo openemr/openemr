@@ -219,7 +219,7 @@ class BackgroundServiceRunner
                AND (lock_expires_at IS NULL OR lock_expires_at < NOW())
             SQL;
         if (!$force) {
-            $sql .= "\n   AND NOW() > next_run";
+            $sql .= ' AND NOW() > next_run';
         }
 
         QueryUtils::sqlStatementThrowException(
