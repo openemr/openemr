@@ -56,6 +56,7 @@ use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
+use OpenEMR\Patient\Cards\NursingCard;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
@@ -1587,6 +1588,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
+                    $sectionRenderEvents->addCard(new NursingCard((int)$pid));
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     $t = $twig->getTwig();

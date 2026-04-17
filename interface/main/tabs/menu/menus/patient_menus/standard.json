@@ -118,5 +118,15 @@
         "label": "Modules",
         "children": [],
         "requirement": 0
+    },
+    {
+        "label": "Nursing",
+        "menu_id": "nursing",
+        "target": "main",
+        "on_click": "top.restoreSession()",
+        "url": "interface/tableros/lista_internados.php",
+        "pid": "false",
+        "children": [],
+        "requirement": 0
     }
 ]

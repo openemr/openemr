@@ -1,0 +1,60 @@
+{#
+Nursing admission card for the patient dashboard.
+
+@author       g0tazu
+@copyright    Copyright (c) 2026 g0tazu
+@package      OpenEMR
+#}
+
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="pl-1">
+    {% if admission %}
+        <table class="table table-sm table-borderless mb-1">
+            <tbody>
+                {% if admission.nro_registro %}
+                <tr>
+                    <td class="font-weight-bold w-50">{{ "Reg. #"|xlt }}</td>
+                    <td>{{ admission.nro_registro|text }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="font-weight-bold">{{ "Admission Date"|xlt }}</td>
+                    <td>{{ admission.admission_date|text }}</td>
+                </tr>
+                {% if admission.departamento %}
+                <tr>
+                    <td class="font-weight-bold">{{ "Department"|xlt }}</td>
+                    <td>{{ admission.departamento|text }}</td>
+                </tr>
+                {% endif %}
+                {% if admission.servicio %}
+                <tr>
+                    <td class="font-weight-bold">{{ "Service"|xlt }}</td>
+                    <td>{{ admission.servicio|text }}</td>
+                </tr>
+                {% endif %}
+                {% if admission.cuarto or admission.cama %}
+                <tr>
+                    <td class="font-weight-bold">{{ "Room / Bed"|xlt }}</td>
+                    <td>{{ admission.cuarto|text }}{% if admission.cuarto and admission.cama %} / {% endif %}{{ admission.cama|text }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <div class="mt-1">
+            <a class="btn btn-sm btn-outline-primary"
+               href="{{ webroot|attr }}/interface/tableros/editar_internado.php?id={{ admission.encounter_id|attr_url }}"
+               onclick="top.restoreSession()">
+                <i class="fa fa-edit"></i>&nbsp;{{ "Edit Admission"|xlt }}
+            </a>
+        </div>
+    {% else %}
+        <p class="text-muted pl-1 mb-1">{{ "No active inpatient admission."|xlt }}</p>
+    {% endif %}
+
+    {% if prependedInjection is defined %}{{ prependedInjection|raw }}{% endif %}
+    {% if appendedInjection is defined %}{{ appendedInjection|raw }}{% endif %}
+</div>
+{% endblock %}
