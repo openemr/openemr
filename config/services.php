@@ -28,7 +28,6 @@ use Monolog\{
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Installer\InstallerInterface;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\ErrorHandler;
 use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\Services\Storage\{
@@ -93,6 +92,4 @@ return [
     Psr17Factory::class,
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
-
-    SystemLogger::class => fn (TC $c) => new SystemLogger($c->get(Level::class)),
 ];
