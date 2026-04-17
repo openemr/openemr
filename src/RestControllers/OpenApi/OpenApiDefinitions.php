@@ -173,6 +173,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'fhir', description: 'FHIR R4 API')]
 #[OA\Tag(name: 'standard', description: 'Standard OpenEMR API')]
+#[OA\Tag(name: 'standard-admin', description: 'Standard Admin OpenEMR API')]
 #[OA\Tag(name: 'standard-patient', description: 'Standard Patient Portal OpenEMR API')]
 
 #[OA\Parameter(

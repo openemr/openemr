@@ -6,56 +6,129 @@ servers:
   -
     url: /apis/default/
 paths:
-  /api/allergy:
+  /api/admin/users:
     get:
       tags:
-        - standard
-      description: 'Retrieves a list of allergies'
+        - standard-admin
+      description: 'Retrieves a list of users with admin-level detail (username, authorized, ACL groups)'
       parameters:
         -
-          name: lists.pid
+          name: fname
           in: query
-          description: 'The uuid for the patient.'
           required: false
           schema:
             type: string
         -
-          name: lists.id
+          name: lname
           in: query
-          description: 'The uuid for the allergy.'
           required: false
           schema:
             type: string
         -
-          name: title
+          name: username
           in: query
-          description: 'The title for the allergy.'
           required: false
           schema:
             type: string
         -
-          name: begdate
+          name: active
           in: query
-          description: 'The start date for the allergy.'
           required: false
           schema:
             type: string
         -
-          name: enddate
+          name: authorized
           in: query
-          description: 'The end date for the allergy.'
-          required: false
-          schema:
-            type: string
-        -
-          name: diagnosis
-          in: query
-          description: 'The diagnosis for the allergy.'
           required: false
           schema:
             type: string
       responses:
         200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - standard-admin
+      description: 'Creates a new user (requires admin/super ACL)'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - username
+                - password
+                - admin_password
+                - fname
+                - lname
+                - access_group
+              properties:
+                username:
+                  type: string
+                password:
+                  description: 'Password for the new user'
+                  type: string
+                admin_password:
+                  description: 'Current password of the authenticated admin performing this action'
+                  type: string
+                fname:
+                  type: string
+                lname:
+                  type: string
+                mname:
+                  type: string
+                suffix:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                authorized:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                facility_id:
+                  type: integer
+                billing_facility_id:
+                  type: integer
+                npi:
+                  type: string
+                  maxLength: 15
+                taxonomy:
+                  type: string
+                specialty:
+                  type: string
+                calendar:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                portal_user:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                federaltaxid:
+                  type: string
+                state_license_number:
+                  type: string
+                federaldrugid:
+                  type: string
+                upin:
+                  type: string
+                access_group:
+                  type: array
+                  items:
+                    type: string
+                groupname:
+                  type: string
+              type: object
+      responses:
+        201:
           $ref: '#/components/responses/standard'
         400:
           $ref: '#/components/responses/badrequest'
@@ -64,30 +137,134 @@ paths:
       security:
         -
           openemr_auth: {  }
-  '/api/allergy/{auuid}':
-    get:
+  '/api/admin/users/{uuid}':
+    delete:
       tags:
-        - standard
-      description: 'Retrieves a single allergy by their uuid'
+        - standard-admin
+      description: 'Deactivates a user (soft delete, sets active=0). Requires admin/super ACL.'
       parameters:
         -
-          name: auuid
+          name: uuid
           in: path
-          description: 'The uuid for the allergy.'
           required: true
           schema:
             type: string
       responses:
         200:
           $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
+      security:
+        -
+          openemr_auth: {  }
+    get:
+      tags:
+        - standard-admin
+      description: 'Retrieves a single user by UUID with admin-level detail'
+      parameters:
+        -
+          name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - standard-admin
+      description: 'Updates an existing user (requires admin/super ACL)'
+      parameters:
+        -
+          name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                fname:
+                  type: string
+                lname:
+                  type: string
+                mname:
+                  type: string
+                suffix:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                authorized:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                active:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                facility_id:
+                  type: integer
+                billing_facility_id:
+                  type: integer
+                npi:
+                  type: string
+                  maxLength: 15
+                taxonomy:
+                  type: string
+                specialty:
+                  type: string
+                calendar:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                portal_user:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                federaltaxid:
+                  type: string
+                state_license_number:
+                  type: string
+                federaldrugid:
+                  type: string
+                upin:
+                  type: string
+                access_group:
+                  type: array
+                  items:
+                    type: string
+              type: object
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
         400:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
       security:
         -
           openemr_auth: {  }
-  /api/appointment:
+  /api/allergy:
     get:
       tags:
         - standard
@@ -327,6 +504,164 @@ paths:
               example:
                 service: patient-reminder
                 status: error
+      security:
+        -
+          openemr_auth: {  }
+  /api/drug:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all drugs'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/drug/{uuid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a drug'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the drug.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/facility:
+    get:
+      tags:
+        - standard
+      description: 'Returns a single facility.'
+      description: 'Retrieves a list of allergies'
+      parameters:
+        -
+          name: lists.pid
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+        -
+          name: lists.id
+          in: query
+          description: 'The uuid for the allergy.'
+          required: false
+          schema:
+            type: string
+        -
+          name: title
+          in: query
+          description: 'The title for the allergy.'
+          required: false
+          schema:
+            type: string
+        -
+          name: begdate
+          in: query
+          description: 'The start date for the allergy.'
+          required: false
+          schema:
+            type: string
+        -
+          name: enddate
+          in: query
+          description: 'The end date for the allergy.'
+          required: false
+          schema:
+            type: string
+        -
+          name: diagnosis
+          in: query
+          description: 'The diagnosis for the allergy.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/allergy/{auuid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a single allergy by their uuid'
+      parameters:
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/appointment:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves all appointments'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/appointment/{eid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves an appointment'
+      parameters:
+        -
+          name: eid
+          in: path
+          description: 'The eid for the appointment.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: {  }
@@ -10306,6 +10641,9 @@ tags:
   -
     name: standard
     description: 'Standard OpenEMR API'
+  -
+    name: standard-admin
+    description: 'Standard Admin OpenEMR API'
   -
     name: standard-patient
     description: 'Standard Patient Portal OpenEMR API'
