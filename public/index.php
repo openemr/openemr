@@ -79,6 +79,5 @@ unset($container, $request, $logger, $router);
 // Turn off strict-mode error handler for fallback code (see bootstrap addition
 // and #11411)
 restore_error_handler();
-restore_exception_handler();
 
 require $fileToInclude;
