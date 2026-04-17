@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\ConsoleRunner;
 use Firehed\Container\TypedContainerInterface;
-use OpenEMR\Common\Command\{
+use OpenEMR\Console\Command\{
     InstallCommand,
 };
 use Symfony\Component\Console\Application;
