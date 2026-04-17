@@ -46,6 +46,7 @@ if ($fileToInclude === null) {
 }
 
 $logger->debug('Routed to {file}', ['file' => $fileToInclude]);
+error_log('[DEBUG public/index.php] Routed to ' . $fileToInclude);
 
 /*
  * At some point in the future, the front-controller will be require. Adding

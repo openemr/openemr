@@ -176,10 +176,31 @@ class ORDataObject
         ) {
             return OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name];
         } else {
+            // DEBUG: trace _load_enum behavior
+            error_log(sprintf(
+                '[DEBUG _load_enum] table=%s field=%s db=%s db_class=%s',
+                $this->_table ?? '(null)',
+                $field_name,
+                $this->_db->database ?? '(null)',
+                $this->_db !== null ? get_class($this->_db) : '(null)',
+            ));
+
             $cols = $this->_db->MetaColumns($this->_table);
+
+            // DEBUG: log MetaColumns result
+            if ($cols === false) {
+                error_log('[DEBUG _load_enum] MetaColumns returned false');
+            } elseif (is_array($cols)) {
+                $colNames = array_map(fn($c) => $c->name . ':' . $c->type, $cols);
+                error_log('[DEBUG _load_enum] MetaColumns returned ' . count($cols) . ' cols: ' . implode(', ', $colNames));
+            } else {
+                error_log('[DEBUG _load_enum] MetaColumns returned: ' . gettype($cols));
+            }
+
             if ((is_array($cols) && !empty($cols)) || ($cols && !$cols->EOF)) {
                 //why is there a foreach here? at some point later there will be a scheme to autoload all enums
                 //for an object rather than 1x1 manually as it is now
+                $enum = null; // DEBUG: initialize to track if we find it
                 foreach ($cols as $col) {
                     if ($col->name == $field_name && $col->type == "enum") {
                         for ($idx = 0; $idx < count($col->enums); $idx++) {
@@ -187,9 +208,14 @@ class ORDataObject
                         }
 
                         $enum = $col->enums;
+                        error_log('[DEBUG _load_enum] Found enum column, values: ' . implode(', ', $enum));
                         //for future use
                         //$enum[$col->name] = $enum_types[1];
                     }
+                }
+
+                if ($enum === null) {
+                    error_log('[DEBUG _load_enum] No matching enum column found for ' . $field_name);
                 }
 
                 array_unshift($enum, " ");
