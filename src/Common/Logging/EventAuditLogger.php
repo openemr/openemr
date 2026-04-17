@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Common\Logging;
 
-use InvalidArgumentException;
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
@@ -86,8 +85,7 @@ class EventAuditLogger
 
         return new self(
             sinks: $sinks,
-            cryptoGen: ServiceContainer::getCrypto(),
-            cipherSuite: null,
+            crypto: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
@@ -101,17 +99,13 @@ class EventAuditLogger
      */
     public function __construct(
         private readonly array $sinks,
-        private readonly ?CryptoInterface $cryptoGen,
-        private readonly ?CipherSuiteInterface $cipherSuite,
+        private readonly CipherSuiteInterface|CryptoInterface $crypto,
         private readonly bool $shouldEncrypt,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
         private readonly ClockInterface $clock,
     ) {
-        if ($cryptoGen === null && $cipherSuite === null) {
-            throw new InvalidArgumentException('CipherSuite or CryptoGen MUST be provided, both were null');
-        }
     }
 
     /**
@@ -815,12 +809,10 @@ class EventAuditLogger
 
     private function encrypt(#[SensitiveParameter] string $plaintext): string
     {
-        if ($this->cipherSuite !== null) {
-            return $this->cipherSuite->encrypt($plaintext);
-        } elseif ($this->cryptoGen !== null) {
-            return $this->cryptoGen->encryptStandard($plaintext);
+        if ($this->crypto instanceof CipherSuiteInterface) {
+            return $this->crypto->encrypt($plaintext);
         } else {
-            throw new InvalidArgumentException('Both crypto paths are null');
+            return $this->crypto->encryptStandard($plaintext);
         }
     }
 }
