@@ -734,15 +734,16 @@ return [
         $body = file_get_contents("php://input");
         $data = [];
         if (is_string($body) && $body !== '') {
-            $decoded = json_decode($body, true);
+            $data = json_decode($body, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return new JsonResponse(
                     ['error' => 'Invalid JSON payload'],
                     Response::HTTP_BAD_REQUEST,
                 );
             }
-            $data = is_array($decoded) ? $decoded : [];
         }
+        /** @var array<string, mixed> $data */
+        $data = is_array($data) ? $data : [];
         return (new UserManagementRestController())->post($data, $request);
     },
 ];
