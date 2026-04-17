@@ -176,7 +176,7 @@ class ORDataObject
      */
     protected function _load_enum(string $field_name, bool $blank = true): array
     {
-        if (empty($this->_table)) {
+        if ($this->_table === null || $this->_table === '') {
             return [];
         }
 
