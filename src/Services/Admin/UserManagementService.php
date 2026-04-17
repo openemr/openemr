@@ -27,6 +27,14 @@ use OpenEMR\Validators\ProcessingResult;
 
 class UserManagementService extends UserService
 {
+    /** @var list<string> Database column names that can be updated via PUT. */
+    public const UPDATABLE_FIELDS = [
+        'fname', 'lname', 'mname', 'suffix', 'email', 'authorized',
+        'facility_id', 'billing_facility_id', 'npi', 'taxonomy', 'specialty',
+        'federaltaxid', 'state_license_number', 'federaldrugid', 'upin',
+        'calendar', 'portal_user', 'active',
+    ];
+
     private readonly UserValidator $userValidator;
 
     public function __construct()
@@ -228,7 +236,15 @@ class UserManagementService extends UserService
             // Insert into groups
             QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
 
-            // Set ACL groups
+            // Validate and set ACL groups
+            $invalidGroups = $this->validateAccessGroups($accessGroup);
+            if ($invalidGroups !== []) {
+                QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
+                $processingResult->setValidationMessages([
+                    'access_group' => ['Invalid access group(s): ' . implode(', ', $invalidGroups)],
+                ]);
+                return $processingResult;
+            }
             AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
 
             // Audit log
@@ -273,13 +289,24 @@ class UserManagementService extends UserService
      *
      * @param string $uuid UUID of the user to update
      * @param array<string, mixed> $data Fields to update
+     * @param string $authenticatedUserUuid UUID of the currently authenticated user (self-deactivation guard)
      * @return ProcessingResult
      */
-    public function updateUser(string $uuid, array $data): ProcessingResult
+    public function updateUser(string $uuid, array $data, string $authenticatedUserUuid): ProcessingResult
     {
         if (!UuidRegistry::isValidStringUUID($uuid)) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
+
+        if (
+            $uuid === $authenticatedUserUuid
+            && array_key_exists('active', $data)
+            && in_array($data['active'], [0, '0'], true)
+        ) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['active' => ['Cannot deactivate your own account']]);
             return $processingResult;
         }
 
@@ -365,12 +392,21 @@ class UserManagementService extends UserService
                 }
             }
 
-            // Update ACL groups if provided
+            // Validate and update ACL groups if provided
             if ($accessGroup !== null) {
+                $invalidGroups = $this->validateAccessGroups($accessGroup);
+                if ($invalidGroups !== []) {
+                    QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
+                    $processingResult = new ProcessingResult();
+                    $processingResult->setValidationMessages([
+                        'access_group' => ['Invalid access group(s): ' . implode(', ', $invalidGroups)],
+                    ]);
+                    return $processingResult;
+                }
+
                 $fname = isset($data['fname']) ? trim(self::strVal($data['fname'])) : null;
                 $mname = isset($data['mname']) ? trim(self::strVal($data['mname'])) : null;
                 $lname = isset($data['lname']) ? trim(self::strVal($data['lname'])) : null;
-                // Fetch existing values for any name fields not provided in the update
                 if ($fname === null || $mname === null || $lname === null) {
                     $currentUser = QueryUtils::querySingleRow("SELECT fname, mname, lname FROM users WHERE id = ?", [$userId]);
                     if (is_array($currentUser)) {
@@ -409,14 +445,20 @@ class UserManagementService extends UserService
      * Deactivate a user (soft delete: set active=0).
      *
      * @param string $uuid UUID of the user to deactivate
+     * @param string $authenticatedUserUuid UUID of the currently authenticated user (self-deactivation guard)
      * @return ProcessingResult
      */
-    public function deactivateUser(string $uuid): ProcessingResult
+    public function deactivateUser(string $uuid, string $authenticatedUserUuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
         if (!UuidRegistry::isValidStringUUID($uuid)) {
             $processingResult->setValidationMessages(['uuid' => ['Invalid UUID format']]);
+            return $processingResult;
+        }
+
+        if ($uuid === $authenticatedUserUuid) {
+            $processingResult->setValidationMessages(['uuid' => ['Cannot deactivate your own account']]);
             return $processingResult;
         }
 
@@ -463,12 +505,7 @@ class UserManagementService extends UserService
      */
     private function buildSetClause(array $data): array
     {
-        $allowedFields = [
-            'fname', 'lname', 'mname', 'suffix', 'email', 'authorized',
-            'facility_id', 'billing_facility_id', 'npi', 'taxonomy', 'specialty',
-            'federaltaxid', 'state_license_number', 'federaldrugid', 'upin',
-            'calendar', 'portal_user', 'active',
-        ];
+        $allowedFields = self::UPDATABLE_FIELDS;
 
         $setParts = [];
         /** @var list<string|int> $bind */
@@ -533,5 +570,23 @@ class UserManagementService extends UserService
         } else {
             $record['acl_groups'] = [];
         }
+    }
+
+    /**
+     * @param list<string> $groupTitles
+     * @return list<string> Invalid titles (empty if all valid)
+     */
+    private function validateAccessGroups(array $groupTitles): array
+    {
+        /** @var array<int|string, string> $validTitleMap */
+        $validTitleMap = AclExtended::aclGetGroupTitleList();
+        $validTitles = array_values($validTitleMap);
+        $invalid = [];
+        foreach ($groupTitles as $title) {
+            if (!in_array($title, $validTitles, true)) {
+                $invalid[] = $title;
+            }
+        }
+        return $invalid;
     }
 }

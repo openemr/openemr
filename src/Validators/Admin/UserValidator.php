@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Validators\Admin;
 
+use OpenEMR\Services\Admin\UserManagementService;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
@@ -25,7 +26,6 @@ class UserValidator extends BaseValidator
     {
         parent::configureValidator();
 
-        /** @phpstan-ignore method.nonObject (BaseValidator::$validator is untyped) */
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
@@ -64,7 +64,6 @@ class UserValidator extends BaseValidator
             }
         );
 
-        /** @phpstan-ignore method.nonObject (BaseValidator::$validator is untyped) */
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
             function (Validator $context): void {
@@ -126,12 +125,7 @@ class UserValidator extends BaseValidator
             }
 
             // Require at least one recognized updatable field
-            $updatableFields = [
-                'fname', 'lname', 'mname', 'suffix', 'email', 'authorized',
-                'facility_id', 'billing_facility_id', 'npi', 'taxonomy', 'specialty',
-                'federaltaxid', 'state_license_number', 'federaldrugid', 'upin',
-                'calendar', 'portal_user', 'active', 'access_group',
-            ];
+            $updatableFields = [...UserManagementService::UPDATABLE_FIELDS, 'access_group'];
             $providedFields = array_intersect_key($dataFields, array_flip($updatableFields));
             if ($providedFields === []) {
                 $result->setValidationMessages(['_general' => ['At least one updatable field must be provided']]);

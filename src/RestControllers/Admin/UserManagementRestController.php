@@ -40,6 +40,15 @@ class UserManagementRestController
         $this->service = new UserManagementService();
     }
 
+    private function getAuthenticatedUserUuid(HttpRestRequest $request): string
+    {
+        $uuid = $request->getRequestUserUUIDString();
+        if ($uuid === null) {
+            throw new \RuntimeException('Admin endpoints require an authenticated user with a UUID');
+        }
+        return $uuid;
+    }
+
     /**
      * @param array<string, mixed> $search
      */
@@ -199,7 +208,7 @@ class UserManagementRestController
     )]
     public function put(string $uuid, array $data, HttpRestRequest $request): ResponseInterface
     {
-        $processingResult = $this->service->updateUser($uuid, $data);
+        $processingResult = $this->service->updateUser($uuid, $data, $this->getAuthenticatedUserUuid($request));
         /** @var list<mixed> $resultData */
         $resultData = $processingResult->getData();
         if (!$processingResult->hasErrors() && count($resultData) === 0 && $processingResult->isValid()) {
@@ -229,10 +238,10 @@ class UserManagementRestController
     )]
     public function delete(string $uuid, HttpRestRequest $request): ResponseInterface
     {
-        $processingResult = $this->service->deactivateUser($uuid);
+        $processingResult = $this->service->deactivateUser($uuid, $this->getAuthenticatedUserUuid($request));
         /** @var list<mixed> $data */
         $data = $processingResult->getData();
-        if (!$processingResult->hasErrors() && count($data) === 0) {
+        if (!$processingResult->hasErrors() && count($data) === 0 && $processingResult->isValid()) {
             return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
         }
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);

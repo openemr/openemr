@@ -947,4 +947,108 @@ class UserManagementApiTest extends TestCase
         $this->assertCount(0, $validationErrors);
         $this->assertNotEmpty($data);
     }
+
+    // ─── Self-deactivation guard tests ──────────────────────────────
+
+    #[Test]
+    public function testDeleteSelfDeactivationReturns400(): void
+    {
+        $response = $this->testClient->get(self::USER_ENDPOINT);
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        /** @var string $selfUuid */
+        $selfUuid = $data["uuid"];
+
+        $response = $this->testClient->delete(self::API_ENDPOINT, $selfUuid);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('uuid', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutSelfDeactivateReturns400(): void
+    {
+        $response = $this->testClient->get(self::USER_ENDPOINT);
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        /** @var string $selfUuid */
+        $selfUuid = $data["uuid"];
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $selfUuid, [
+            "active" => 0,
+        ]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('active', $validationErrors);
+    }
+
+    // ─── Access group validation tests ──────────────────────────────
+
+    #[Test]
+    public function testPostInvalidAccessGroupReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => "phpunit_badacl_" . bin2hex(random_bytes(4)),
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Bad",
+            "lname" => "ACLGroup",
+            "access_group" => ["NonExistentGroup"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('access_group', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutInvalidAccessGroupReturns400(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "access_group" => ["NonExistentGroup"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('access_group', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutMixedValidInvalidAccessGroupReturns400(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "access_group" => ["Physicians", "TotallyFakeGroup"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('access_group', $validationErrors);
+    }
 }
