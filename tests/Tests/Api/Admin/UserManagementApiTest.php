@@ -950,15 +950,29 @@ class UserManagementApiTest extends TestCase
 
     // ─── Self-deactivation guard tests ──────────────────────────────
 
+    /**
+     * Resolve the authenticated user's UUID by looking up their username
+     * via the admin list endpoint.
+     */
+    private function getAuthenticatedUserUuid(): string
+    {
+        $username = getenv("OE_USER", true) ?: "admin";
+        $response = $this->testClient->get(self::API_ENDPOINT, ["username" => $username]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var list<array<string, mixed>> $data */
+        $data = $body["data"] ?? [];
+        $this->assertNotEmpty($data, 'Authenticated admin user not found via admin list endpoint');
+        /** @var string $uuid */
+        $uuid = $data[0]["uuid"];
+        return $uuid;
+    }
+
     #[Test]
     public function testDeleteSelfDeactivationReturns400(): void
     {
-        $response = $this->testClient->get(self::USER_ENDPOINT);
-        $body = $this->decodeResponse($response);
-        /** @var array<string, mixed> $data */
-        $data = $body["data"] ?? [];
-        /** @var string $selfUuid */
-        $selfUuid = $data["uuid"];
+        $selfUuid = $this->getAuthenticatedUserUuid();
 
         $response = $this->testClient->delete(self::API_ENDPOINT, $selfUuid);
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
@@ -973,12 +987,7 @@ class UserManagementApiTest extends TestCase
     #[Test]
     public function testPutSelfDeactivateReturns400(): void
     {
-        $response = $this->testClient->get(self::USER_ENDPOINT);
-        $body = $this->decodeResponse($response);
-        /** @var array<string, mixed> $data */
-        $data = $body["data"] ?? [];
-        /** @var string $selfUuid */
-        $selfUuid = $data["uuid"];
+        $selfUuid = $this->getAuthenticatedUserUuid();
 
         $response = $this->testClient->put(self::API_ENDPOINT, $selfUuid, [
             "active" => 0,
