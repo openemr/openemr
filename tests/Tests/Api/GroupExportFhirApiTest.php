@@ -46,7 +46,24 @@ class GroupExportFhirApiTest extends TestCase
             'Authorization' => 'Bearer ' . $this->testClient->getAccessToken()
         ]);
         $actualResult = $this->testClient->get("/apis/default/fhir/Group/" . $groupId . '/$export');
-        $this->assertEquals(Response::HTTP_ACCEPTED, $actualResult->getStatusCode());
+
+        // If server returned 500, try to get stack trace from server error log
+        $serverTrace = '';
+        if ($actualResult->getStatusCode() === 500) {
+            $runnerTemp = getenv('RUNNER_TEMP');
+            if ($runnerTemp !== false) {
+                $logFile = $runnerTemp . '/php-server.out.log';
+                if (file_exists($logFile)) {
+                    $serverTrace = "\n\n--- Server Error Log (last 200 lines) ---\n" . implode("\n", array_slice(file($logFile, FILE_IGNORE_NEW_LINES), -200));
+                }
+            }
+        }
+
+        $this->assertEquals(
+            Response::HTTP_ACCEPTED,
+            $actualResult->getStatusCode(),
+            'Expected 202, got ' . $actualResult->getStatusCode() . '. Body: ' . $actualResult->getBody() . $serverTrace
+        );
         $this->assertNotEmpty($actualResult->getHeaders()['Content-Location'][0], "Content-Location header should be populatd");
         // because everything happens synchronously in this test, we can check the content location
         $request =  HttpRestRequest::create($actualResult->getHeaders()['Content-Location'][0]);
