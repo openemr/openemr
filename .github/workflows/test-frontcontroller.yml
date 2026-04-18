@@ -2,30 +2,126 @@ name: Test Front Controller
 
 on:
   pull_request:
-    # paths:
-    #   - 'docker/frontcontroller/**'
-    #   - 'config/**'
-    #   - 'public/index.php'
-    #   - '.github/workflows/test-frontcontroller.yml'
-  workflow_dispatch:
+    # All PRs
+  push:
+    branches:
+      - master
+
+env:
+  ENVIRONMENT: ci
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: ${{ matrix.webserver }} / ${{ matrix.suite }}
+  built-in:
+    name: Built-in webserver ${{ matrix.php }} / ${{ matrix.suite }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        webserver:
-          - nginx
-          # - apache-fpm
-          # - apache-modphp
+        php:
+          - 8.2
+          - 8.3
+          - 8.4
+          - 8.5
         suite:
           - api
-          # - e2e
+
+    services:
+      # Future: Matrix here too?
+      database:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: topsecret
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Run CLI installer
+        run: ./cli install
+            --db-root-user=root
+            --db-root-password=root
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --no-interaction
+            -vvv
+
+      - name: Configure globals for API
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
+            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
+            UPDATE globals SET gl_value = 'http://localhost:8080' WHERE gl_name = 'site_addr_oath';
+          "
+
+      - name: Start server (bg)
+        env:
+          ENVIRONMENT: ci
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
+
+      - name: Wait for webserver
+        run: curl
+          --retry-connrefused
+          --retry 30
+          --retry-delay 1
+          --fail
+          --silent
+          --show-error
+          --output /dev/null
+          http://127.0.0.1:8080/
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:8080
+
+        run: vendor/bin/phpunit
+            --testsuite ${{ matrix.suite }}
+            --log-junit junit-${{ matrix.suite }}.xml
+
+      - name: Show server stdout
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.out.log"
+
+      - name: Show server stderr
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.err.log"
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+
+  # GHA runners include these, maybe we can use them instead of the docker stuff?
+  nginx:
+    runs-on: ubuntu-24.04
+    # strategy:
     defaults:
       run:
         working-directory: docker/frontcontroller
@@ -42,39 +138,15 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: ./.github/actions/setup-php-composer
         with:
-          php-version: '8.5'
-
-      - name: Install composer dependencies
-        run: composer install --prefer-dist --no-progress
-        working-directory: .
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
+          php-version: ${{ matrix.php }}
 
       - name: Build and start services
         run: docker compose up --detach --build ${{ matrix.webserver }}
-        # run: |
-        #   docker compose up -d --build --wait --wait-timeout 120 ${{ matrix.webserver }}
-
-      # - name: Show running containers
-      #   run: docker compose ps
-
-      # - name: Wait for MySQL
-      #   run: |
-      #     for i in {1..30}; do
-      #       if docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; then
-      #         echo "MySQL is ready"
-      #         break
-      #       fi
-      #       echo "Waiting for MySQL... ($i/30)"
-      #       sleep 2
-      #     done
 
       - name: Run CLI installer
         run: docker compose exec php-fpm
-          --env ENVIRONMENT=ci
           ./cli install
             --db-root-user=root
             --db-root-password=root
@@ -87,28 +159,7 @@ jobs:
             --oe-admin-password=pass
             --no-interaction
             -vvv
-
-#       - name: Install OpenEMR
-#         run: |
-#           docker compose exec \
-#             --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
-#             php-fpm \
-#             php -f contrib/util/installScripts/InstallerAuto.php \
-#               rootpass=root \
-#               server=mysql \
-#               loginhost=%
-
-      - name: Configure globals for API
-        run: |
-          docker compose exec -T mysql mysql -u root -proot openemr -e "
-            INSERT INTO product_registration (opt_out) VALUES (1);
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
-            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
-          "
-
+      # Secondary config (update globals)
       - name: Get webserver port
         id: port
         run: |
@@ -118,27 +169,9 @@ jobs:
 
       - name: Verify webserver responds
         run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
-
-      - name: Run ${{ matrix.suite }} tests
-        working-directory: .
-        env:
-          OPENEMR_BASE_URL_API: http://localhost:${{ steps.port.outputs.port }}
+#
           SELENIUM_BASE_URL: http://localhost:${{ steps.port.outputs.port }}
           SELENIUM_HOST: localhost
           SELENIUM_USE_GRID: "true"
-        run: |
-          php -d memory_limit=4G vendor/bin/phpunit \
-            --testsuite ${{ matrix.suite }} \
-            --log-junit junit-${{ matrix.suite }}.xml
-
-      # - name: Upload test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v7
-      #   with:
-      #     name: junit-${{ matrix.webserver }}-${{ matrix.suite }}
-      #     path: junit-*.xml
-      #     if-no-files-found: ignore
-
-      # - name: Show logs on failure
-      #   if: failure()
-      #   run: docker compose logs
+  # apache-fpm:
+  # apache-modphp:
