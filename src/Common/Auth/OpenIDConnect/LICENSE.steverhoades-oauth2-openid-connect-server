@@ -9,7 +9,6 @@ Files ported under this license (paths relative to this file):
   - Entities/ClaimSetEntity.php
   - Entities/ClaimSetEntityInterface.php
   - Entities/ClaimSetInterface.php
-  - Entities/ScopeInterface.php
   - Repositories/ClaimSetRepositoryInterface.php
   - Repositories/IdentityProviderInterface.php
 
