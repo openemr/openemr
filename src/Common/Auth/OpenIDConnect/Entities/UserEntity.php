@@ -14,10 +14,10 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
 {
@@ -61,10 +61,10 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws OAuthServerException
      */
-    public function getClaims()
+    public function getClaims(): array
     {
         $claims = [];
         // TODO: @adunsulag as far as I can tell the UserEntity class is only used w/o the client_credentials grant type

@@ -30,13 +30,15 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClaimExtractor;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
-use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
+use OpenEMR\Common\Auth\OpenIDConnect\OEIdTokenResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
@@ -70,8 +72,6 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use OpenIDConnectServer\ClaimExtractor;
-use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -648,22 +648,16 @@ class AuthorizationController
 
         // OpenID Connect Response Type
         $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
-        $responseType = new IdTokenSMARTResponse(
+        $responseType = new OEIdTokenResponse(
             $this->globalsBag,
             $this->session,
             $this->getUserRepository(),
             new ClaimExtractor($customClaim),
             new SMARTSessionTokenContextBuilder($this->getServerConfig(), $this->session)
         );
-        $responseType->setSystemLogger($this->getSystemLogger());
+        $responseType->setLogger($this->getSystemLogger());
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';
-        }
-
-        // responseType is cloned inside the league auth server so we have to handle changes here before we send
-        // into the $authServer the $responseType
-        if ($this->grantType === 'authorization_code') {
-            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
         }
 
         $authServer = new AuthorizationServer(
@@ -905,7 +899,9 @@ class AuthorizationController
         $request->request->remove('password');
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
         $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
-        $user = $this->getUserRepository()->getUserEntityByIdentifier($session->get('user_id'));
+        $sessionUserId = $session->get('user_id');
+        assert(is_string($sessionUserId));
+        $user = $this->getUserRepository()->getUserEntityByIdentifier($sessionUserId);
         $session->set('claims', $user->getClaims());
         // need to redirect to patient select if we have a launch context && this isn't a patient login
 
@@ -1187,7 +1183,9 @@ class AuthorizationController
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
-            $user = $this->getUserRepository()->getUserEntityByIdentifier($this->session->get('user_id'));
+            $sessionUserId = $this->session->get('user_id');
+            assert(is_string($sessionUserId));
+            $user = $this->getUserRepository()->getUserEntityByIdentifier($sessionUserId);
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
             $result = $server->completeAuthorizationRequest($authRequest, $response);

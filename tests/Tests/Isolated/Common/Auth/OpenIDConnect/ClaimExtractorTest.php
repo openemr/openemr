@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Unit tests for OpenEMR\Common\Auth\OpenIDConnect\ClaimExtractor.
  *
@@ -9,6 +7,8 @@ declare(strict_types=1);
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @copyright Copyright (c) 2026 Milan Zivkovic <zivkovic.milan@gmail.com>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Auth\OpenIDConnect;
 

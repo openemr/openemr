@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Contract for objects that expose an OpenID Connect claim set.
  *
@@ -16,6 +14,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2018 Steve Rhoades <sedonami@gmail.com>
  * @copyright Copyright (c) 2026 Milan Zivkovic <zivkovic.milan@gmail.com>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 

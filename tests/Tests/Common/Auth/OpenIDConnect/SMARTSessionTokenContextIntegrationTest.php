@@ -11,7 +11,7 @@
 
 /**
  * Integration tests for SMART on FHIR session token context handling between
- * SMARTSessionTokenContextBuilder and IdTokenSMARTResponse classes.
+ * SMARTSessionTokenContextBuilder and OEIdTokenResponse classes.
  *
  * AI-GENERATED CODE: This integration test suite was generated using Claude AI assistant
  * on August 15, 2025 to test the complete workflow of SMART launch contexts, including EHR launch,
@@ -34,8 +34,11 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClaimExtractor;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
+use OpenEMR\Common\Auth\OpenIDConnect\OEIdTokenResponse;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityProviderInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -44,9 +47,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
-use OpenIDConnectServer\ClaimExtractor;
-use OpenIDConnectServer\Entities\ClaimSetInterface;
-use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -57,7 +57,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
 {
     private Session $session;
     private SMARTSessionTokenContextBuilder $contextBuilder;
-    private IdTokenSMARTResponse $idTokenResponse;
+    private OEIdTokenResponse $idTokenResponse;
     private OEGlobalsBag $globalsBag;
     private MockObject $identityProvider;
     private MockObject $claimExtractor;
@@ -109,7 +109,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             ->willReturn([]);
         $this->logger = $this->createMock(SystemLogger::class);
 
-        $this->idTokenResponse = new IdTokenSMARTResponse(
+        $this->idTokenResponse = new OEIdTokenResponse(
             $this->globalsBag,
             $this->session,
             $this->identityProvider,
@@ -118,7 +118,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         );
 
         $this->contextBuilder->setSystemLogger($this->logger);
-        $this->idTokenResponse->setSystemLogger($this->logger);
+        $this->idTokenResponse->setLogger($this->logger);
 
         $cryptKey = $this->createMock(CryptKey::class);
         $cryptKey->method('getKeyPath')
@@ -175,7 +175,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         $this->assertIsArray($context['fhirContext']);
         $this->assertStringContainsString('smart-style', $context['smart_style_url']);
 
-        // Now test integration with IdTokenSMARTResponse
+        // Now test integration with OEIdTokenResponse
         $this->idTokenResponse->setContextForNewTokens($context);
 
         $accessToken = $this->createMockAccessTokenWithScopes($scopes);
@@ -218,7 +218,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         $this->assertTrue($context['need_patient_banner']);
         $this->assertStringContainsString('smart-style', $context['smart_style_url']);
 
-        // Test integration with IdTokenSMARTResponse
+        // Test integration with OEIdTokenResponse
         $this->idTokenResponse->setContextForNewTokens($context);
 
         $accessToken = $this->createMockAccessTokenWithScopes($scopes);
@@ -331,7 +331,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
     {
         $scopes = [
             $this->createMockScope('openid'),
-            $this->createMockScope(IdTokenSMARTResponse::SCOPE_OFFLINE_ACCESS)
+            $this->createMockScope(OEIdTokenResponse::SCOPE_OFFLINE_ACCESS)
         ];
 
         $accessToken = $this->createMockAccessTokenWithScopes($scopes);
@@ -398,7 +398,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Build context
         $context = $this->contextBuilder->getContextForScopes($scopes);
 
-        // Set context in IdTokenSMARTResponse
+        // Set context in OEIdTokenResponse
         $this->idTokenResponse->setContextForNewTokens($context);
 
         // Create access token and set it
@@ -416,7 +416,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             public function getIdentifier()
             {
                 return 'workflow-user-id'; }
-            public function getClaims()
+            public function getClaims(): array
             {
                 return ['sub' => 'workflow-user-id']; }
         };
@@ -470,7 +470,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Build context
         $context = $this->contextBuilder->getContextForScopes($scopes);
 
-        // Set context in IdTokenSMARTResponse
+        // Set context in OEIdTokenResponse
         $this->idTokenResponse->setContextForNewTokens($context);
 
         // Create access token and set it
@@ -482,7 +482,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             public function getIdentifier()
             {
                 return 'standalone-user-id'; }
-            public function getClaims()
+            public function getClaims(): array
             {
                 return ['sub' => 'standalone-user-id']; }
         };

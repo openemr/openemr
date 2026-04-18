@@ -62,11 +62,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Auth/OpenIDConnect/Entities/ScopePermissionObjectTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Psr\\\\\\\\Http\\\\\\\\Message\\\\\\\\ResponseInterface\' and Psr\\\\Http\\\\Message\\\\ResponseInterface will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/MeasurementUtilsTest.php',

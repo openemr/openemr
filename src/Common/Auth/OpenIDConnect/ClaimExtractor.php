@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Maps OpenID Connect scopes to claim names and extracts the relevant subset
  * of a user's claims for a given list of requested scopes.
@@ -22,6 +20,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2018 Steve Rhoades <sedonami@gmail.com>
  * @copyright Copyright (c) 2026 Milan Zivkovic <zivkovic.milan@gmail.com>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
@@ -67,9 +67,9 @@ class ClaimExtractor
      * League ScopeEntityInterface instances or plain scope-identifier
      * strings.
      *
-     * @param list<ScopeEntityInterface|string> $scopes
-     * @param array<string, mixed>              $claims
-     * @return array<string, mixed>
+     * @param array<ScopeEntityInterface|string> $scopes
+     * @param array<array-key, mixed>            $claims
+     * @return array<array-key, mixed>
      */
     public function extract(array $scopes, array $claims): array
     {

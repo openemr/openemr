@@ -13,16 +13,18 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityProviderInterface;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 
 class UserRepository implements UserRepositoryInterface, IdentityProviderInterface
 {
@@ -32,7 +34,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
     {
     }
 
-    public function getUserEntityByIdentifier($identifier)
+    public function getUserEntityByIdentifier(string $identifier): UserEntityInterface&ClaimSetInterface
     {
         return $this->createUserEntity($identifier);
     }
