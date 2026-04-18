@@ -36,8 +36,6 @@ ini_set('log_errors', '1');
 
 error_reporting(E_ALL);
 
-error_log('[DEBUG bootstrap.php] Loading, PHP ' . PHP_VERSION . ', SAPI ' . PHP_SAPI);
-
 require_once 'vendor/autoload.php';
 
 // class_exists check is because dotenv should be a dev dependency and not
