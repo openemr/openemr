@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
@@ -30,7 +32,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
 {
     use SystemLoggerAwareTrait;
 
-    public function __construct(private $fhirBaseUrl)
+    public function __construct(private readonly string $fhirBaseUrl)
     {
     }
 

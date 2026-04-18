@@ -1,13 +1,16 @@
 <?php
 
-/*
+/**
  * ClaimRepository.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
@@ -16,7 +19,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetEntity;
 
 class ClaimRepository implements ClaimSetRepositoryInterface
 {
-    const SUPPORTED_CLAIMS = [
+    public const SUPPORTED_CLAIMS = [
         'profile',
         'email',
         'email_verified',
@@ -35,7 +38,7 @@ class ClaimRepository implements ClaimSetRepositoryInterface
         'exp', // token expiry time
         'sub'  // the subject of token, usually patient UUID
     ];
-    const PROTECTED_CLAIMS = [
+    public const PROTECTED_CLAIMS = [
         'profile',
         'email',
         'address',
@@ -52,8 +55,7 @@ class ClaimRepository implements ClaimSetRepositoryInterface
 
     public function getClaimSetByScopeIdentifier(string $scopeIdentifier): ?ClaimSetEntity
     {
-        $protectedClaims = self::PROTECTED_CLAIMS;
-        if (in_array($scopeIdentifier, $protectedClaims, true)) {
+        if (in_array($scopeIdentifier, self::PROTECTED_CLAIMS, true)) {
             return null;
         }
         if (!in_array($scopeIdentifier, $this->getSupportedClaims(), true)) {
