@@ -157,7 +157,7 @@ jobs:
           ./cli install
             --db-root-user=root
             --db-root-password=root
-            --db-host=127.0.0.1
+            --db-host=mysql
             --db-port=3306
             --db-user=ci
             --db-password=topsecret
