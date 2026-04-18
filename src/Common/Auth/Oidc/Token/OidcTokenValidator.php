@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\Oidc\Token;
 
-use Lcobucci\Clock\Clock;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsSha256;
@@ -45,6 +44,7 @@ use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -54,7 +54,7 @@ readonly class OidcTokenValidator
     public function __construct(
         private ClientInterface $httpClient,
         private ClaimMapperInterface $claimMapper,
-        private Clock $clock,
+        private ClockInterface $clock,
         private JWTRepository $jwtRepository,
         private ?CacheInterface $cache = null,
         private ?LoggerInterface $logger = null,

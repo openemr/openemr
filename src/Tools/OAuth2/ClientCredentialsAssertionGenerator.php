@@ -42,8 +42,6 @@ class ClientCredentialsAssertionGenerator
             ->expiresAt($now->modify('+60 seconds'))
             ->relatedTo($clientId)
             ->getToken($configuration->signer(), $configuration->signingKey());
-        $assertion = $token->toString(); // The string representation of the object is a JWT string
-        assert($assertion !== '');
-        return $assertion;
+        return $token->toString(); // The string representation of the object is a JWT string
     }
 }

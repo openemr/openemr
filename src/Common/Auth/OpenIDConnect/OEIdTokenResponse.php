@@ -164,6 +164,9 @@ class OEIdTokenResponse extends BearerTokenResponse implements LoggerAwareInterf
 
         $claims = $this->claimExtractor->extract($accessToken->getScopes(), $userEntity->getClaims());
         foreach ($claims as $claimName => $claimValue) {
+            if (!is_string($claimName) || $claimName === '') {
+                continue;
+            }
             $builder = $builder->withClaim($claimName, $claimValue);
         }
 
@@ -185,7 +188,7 @@ class OEIdTokenResponse extends BearerTokenResponse implements LoggerAwareInterf
 
     protected function getBuilder(AccessTokenEntityInterface $accessToken, UserEntityInterface $userEntity): Builder
     {
-        $builder = new TokenBuilder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $builder = TokenBuilder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
 
         $clientId = $accessToken->getClient()->getIdentifier();
         assert($clientId !== '');

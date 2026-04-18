@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Token;
 
-use Lcobucci\Clock\Clock;
+use Psr\Clock\ClockInterface;
 
-final class FakeClock implements Clock
+final class FakeClock implements ClockInterface
 {
     public function __construct(
         private \DateTimeImmutable $now,
