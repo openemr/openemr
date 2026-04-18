@@ -140,7 +140,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build and start services
-        run: docker compose up --detach --build ${{ matrix.webserver }}
+        run: docker compose up --detach --build nginx
 
       - name: Run CLI installer
         run: docker compose exec php-fpm
