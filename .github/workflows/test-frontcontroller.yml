@@ -98,7 +98,6 @@ jobs:
         working-directory: .
         env:
           OPENEMR_BASE_URL_API: http://localhost:8080
-
         run: vendor/bin/phpunit
             --testsuite ${{ matrix.suite }}
             --log-junit junit-${{ matrix.suite }}.xml
@@ -121,7 +120,10 @@ jobs:
   # GHA runners include these, maybe we can use them instead of the docker stuff?
   nginx:
     runs-on: ubuntu-24.04
-    # strategy:
+    strategy:
+      matrix:
+        suite:
+          - api
     defaults:
       run:
         working-directory: docker/frontcontroller
@@ -136,11 +138,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
-      - name: Setup PHP
-        uses: ./.github/actions/setup-php-composer
-        with:
-          php-version: ${{ matrix.php }}
 
       - name: Build and start services
         run: docker compose up --detach --build ${{ matrix.webserver }}
@@ -159,7 +156,7 @@ jobs:
             --oe-admin-password=pass
             --no-interaction
             -vvv
-      # Secondary config (update globals)
+      # TODO: Secondary config (update globals)
       - name: Get webserver port
         id: port
         run: |
@@ -167,11 +164,27 @@ jobs:
           echo "port=$port" >> "$GITHUB_OUTPUT"
           echo "Webserver available at http://localhost:$port"
 
-      - name: Verify webserver responds
-        run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
-#
-          SELENIUM_BASE_URL: http://localhost:${{ steps.port.outputs.port }}
-          SELENIUM_HOST: localhost
-          SELENIUM_USE_GRID: "true"
+      #- name: Verify webserver responds
+      #  run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
+
+      # Run tests from the hosts against the dockerized server
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          # php-version: ${{ matrix.php }}
+          php-version: '8.5'
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:${{ steps.port.outputs.port }}
+      #    SELENIUM_BASE_URL: http://localhost:${{ steps.port.outputs.port }}
+      #    SELENIUM_HOST: localhost
+      #    SELENIUM_USE_GRID: "true"
+        run: vendor/bin/phpunit
+            --testsuite ${{ matrix.suite }}
+            --log-junit junit-${{ matrix.suite }}.xml
+    # TODO: codecov
+##
   # apache-fpm:
   # apache-modphp:
