@@ -74,22 +74,22 @@ services:
     volumes:
       - ../../:/app
 
-  php-builtin:
-    build:
-      context: ../../
-      dockerfile: docker/frontcontroller/Dockerfile
-      target: server
-    depends_on:
-      - mysql
-    environment:
-      <<: *dev-env
-      PHP_CLI_SERVER_WORKERS: 8
-    restart: always
-    ports:
-      - 80
-    volumes:
-      - ../../:/app
-    command: ["php", "-S", "0.0.0.0:80", "-t", ".", "public/index.php"]
+  # php-builtin:
+  #   build:
+  #     context: ../../
+  #     dockerfile: docker/frontcontroller/Dockerfile
+  #     target: server
+  #   depends_on:
+  #     - mysql
+  #   environment:
+  #     <<: *dev-env
+  #     PHP_CLI_SERVER_WORKERS: 8
+  #   restart: always
+  #   ports:
+  #     - 80
+  #   volumes:
+  #     - ../../:/app
+  #   command: ["php", "-S", "0.0.0.0:80", "-t", ".", "public/index.php"]
 
   php-fpm:
     build:

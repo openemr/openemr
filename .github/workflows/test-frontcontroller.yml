@@ -118,12 +118,14 @@ jobs:
           report_type: test_results
 
   # GHA runners include these, maybe we can use them instead of the docker stuff?
-  nginx:
+  docker:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
         suite:
           - api
+        webserver:
+          - nginx
     defaults:
       run:
         working-directory: docker/frontcontroller
@@ -139,8 +141,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # This isn't needed for the build, but is IS needed for the installer
+      # since vendor/ will be mounted into the running image.
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          # php-version: ${{ matrix.php }}
+          php-version: '8.5'
+
       - name: Build and start services
-        run: docker compose up --detach --build nginx
+        run: docker compose up --detach --build ${{ matrix.webserver }}
 
       - name: Run CLI installer
         run: docker compose exec php-fpm
@@ -168,11 +178,6 @@ jobs:
       #  run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
 
       # Run tests from the hosts against the dockerized server
-      - name: Setup PHP
-        uses: ./.github/actions/setup-php-composer
-        with:
-          # php-version: ${{ matrix.php }}
-          php-version: '8.5'
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
