@@ -61,12 +61,12 @@ class OEIdTokenResponse extends BearerTokenResponse implements LoggerAwareInterf
     private ?array $contextForNewTokens = null;
 
     public function __construct(
-        private OEGlobalsBag                    $globalsBag,
-        private SessionInterface                $session,
-        private IdentityProviderInterface       $identityProvider,
-        private ClaimExtractor                  $claimExtractor,
-        private SMARTSessionTokenContextBuilder $contextBuilder,
-        private LoggerInterface|NullLogger      $logger = new NullLogger(),
+        private readonly OEGlobalsBag                    $globalsBag,
+        private readonly SessionInterface                $session,
+        private readonly IdentityProviderInterface       $identityProvider,
+        private readonly ClaimExtractor                  $claimExtractor,
+        private readonly SMARTSessionTokenContextBuilder $contextBuilder,
+        private LoggerInterface|NullLogger               $logger = new NullLogger(),
     ) {
     }
 

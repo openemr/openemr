@@ -205,4 +205,5 @@ Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoid
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
 ];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
