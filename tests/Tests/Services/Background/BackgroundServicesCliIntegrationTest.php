@@ -91,14 +91,10 @@ class BackgroundServicesCliIntegrationTest extends TestCase
             $result['stdout'],
             'Executed run should print the success marker from handleRun().',
         );
-        $this->assertFileExists(
-            $this->sentinelPath,
-            'Probe function must have actually run in the child process.',
-        );
         $this->assertSame(
             1,
             $this->sentinelLineCount(),
-            'Probe function should have executed exactly once.',
+            'Probe function should have executed exactly once in the child process.',
         );
     }
 
@@ -188,13 +184,16 @@ class BackgroundServicesCliIntegrationTest extends TestCase
 
     private function sentinelLineCount(): int
     {
-        if (!is_file($this->sentinelPath)) {
-            return 0;
-        }
+        // Precondition asserted here (rather than defensively handled with a
+        // silent `return 0`) so a missing sentinel surfaces as a clear test
+        // failure — "subprocess didn't run the probe" — instead of an
+        // unhelpful "expected 1, got 0" one level up.
+        $this->assertFileExists(
+            $this->sentinelPath,
+            'Sentinel file must exist before counting probe executions.',
+        );
         $contents = file_get_contents($this->sentinelPath);
-        if ($contents === false || $contents === '') {
-            return 0;
-        }
+        $this->assertNotFalse($contents, 'Failed to read sentinel file.');
         return substr_count($contents, "\n");
     }
 }

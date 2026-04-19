@@ -39,6 +39,13 @@ function cliProbeSentinelPath(): string
  * Append a timestamp line to the sentinel file. Each successful execution
  * grows the file, letting the test distinguish "ran once" from "ran twice"
  * without depending on clock-granular equality.
+ *
+ * @codeCoverageIgnore This function only runs inside the `bin/console`
+ *   subprocess spawned by BackgroundServicesCliIntegrationTest. PHPUnit's
+ *   coverage driver runs in the parent process only, so executions here are
+ *   never recorded even though the function definitely runs (witnessed by
+ *   the sentinel file the test asserts on). Without this annotation the
+ *   lines appear uncovered and drag patch coverage for no real reason.
  */
 function markCliProbeSentinel(): void
 {
