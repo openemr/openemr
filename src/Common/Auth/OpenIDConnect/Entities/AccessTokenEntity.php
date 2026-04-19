@@ -29,12 +29,13 @@ class AccessTokenEntity implements AccessTokenEntityInterface
      */
     private bool $revoked = false;
 
-    private string $issuer;
+    private ?string $issuer = null;
 
     public function setIssuer(?string $issuer): void
     {
         $this->issuer = $issuer;
     }
+
     public function getIssuer(): ?string
     {
         return $this->issuer;
@@ -63,11 +64,18 @@ class AccessTokenEntity implements AccessTokenEntityInterface
         $this->initJwtConfiguration();
 
         $clientId = $this->getClient()->getIdentifier();
-        assert($clientId !== '');
+        if ($clientId === '') {
+            throw new \RuntimeException('Access token client identifier must be a non-empty string');
+        }
         $tokenId = $this->getIdentifier();
-        assert(is_string($tokenId) && $tokenId !== '');
-        $userId = (string) $this->getUserIdentifier();
-        assert($userId !== '');
+        if (!is_string($tokenId) || $tokenId === '') {
+            throw new \RuntimeException('Access token identifier must be a non-empty string');
+        }
+        $userIdentifier = $this->getUserIdentifier();
+        if ($userIdentifier === null || $userIdentifier === '') {
+            throw new \RuntimeException('Access token user identifier must be set');
+        }
+        $userId = (string) $userIdentifier;
 
         $builder = $this->jwtConfiguration->builder()
             ->permittedFor($clientId)

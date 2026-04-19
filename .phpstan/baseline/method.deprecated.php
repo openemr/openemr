@@ -123,7 +123,7 @@ use setLogger\\(\\)$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
 read from the \\-\\>logger property$#',
-    'count' => 63,
+    'count' => 62,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [

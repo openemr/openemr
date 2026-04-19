@@ -83,7 +83,7 @@ request. If the token has expired and no silent refresh has occurred, the
 session is destroyed and the user is redirected to login.
 
 **Expected behavior:** Users who are actively using OpenEMR should not
-notice this — the client-side silent refresh (when implemented) will keep
+notice this — the client-side silent refresh will keep
 the session alive. Users who are idle for more than 1 hour will be
 redirected to login.
 

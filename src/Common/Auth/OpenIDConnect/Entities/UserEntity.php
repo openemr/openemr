@@ -23,7 +23,7 @@ use OpenEMR\Common\Utils\ValidationUtils;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
 {
-    public ?string $identifier = null;
+    private ?string $identifier = null;
 
     private string $fhirBaseUrl = '';
 
@@ -52,7 +52,9 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
     public function getClaims(): array
     {
         // Note: session-type claims like nonce get added in OEIdTokenResponse.
-        assert($this->identifier !== null);
+        if ($this->identifier === null || $this->identifier === '') {
+            throw new \RuntimeException('User entity identifier must be set before requesting claims');
+        }
         $fhirUserClaim = new FhirUserClaim();
         $fhirUserClaim->setFhirBaseUrl($this->fhirBaseUrl);
         $fhirUser = $fhirUserClaim->getFhirUser($this->identifier);

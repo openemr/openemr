@@ -900,7 +900,14 @@ class AuthorizationController
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
         $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
         $sessionUserId = $session->get('user_id');
-        assert(is_string($sessionUserId));
+        if (!is_string($sessionUserId) || $sessionUserId === '') {
+            $this->logger?->error(
+                'AuthorizationController->userLogin() session user_id missing or invalid after successful login',
+                ['type' => get_debug_type($sessionUserId)],
+            );
+            $loginTwigVars['invalid'] = xl('Sorry, an error occurred while processing your request. Please try again later.');
+            return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
+        }
         $user = $this->getUserRepository()->getUserEntityByIdentifier($sessionUserId);
         $session->set('claims', $user->getClaims());
         // need to redirect to patient select if we have a launch context && this isn't a patient login
@@ -1184,7 +1191,13 @@ class AuthorizationController
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
             $sessionUserId = $this->session->get('user_id');
-            assert(is_string($sessionUserId));
+            if (!is_string($sessionUserId) || $sessionUserId === '') {
+                $this->logger?->error(
+                    'AuthorizationController->authorizeUser() session user_id missing or invalid',
+                    ['type' => get_debug_type($sessionUserId)],
+                );
+                throw OAuthServerException::serverError('Failed authorization due to missing session state.');
+            }
             $user = $this->getUserRepository()->getUserEntityByIdentifier($sessionUserId);
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
@@ -1230,11 +1243,21 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() sending server response");
             $this->session->invalidate();
             return $result;
+        } catch (OAuthServerException $exception) {
+            $this->logger?->debug(
+                'AuthorizationController->authorizeUser() OAuth error',
+                ['hint' => $exception->getHint()],
+            );
+            $this->session->invalidate();
+            return $exception->generateHttpResponse($response);
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
+            $this->logger?->error(
+                'AuthorizationController->authorizeUser() Exception thrown',
+                ['exception' => $exception],
+            );
             $this->session->invalidate();
             $body = $response->getBody();
-            $body->write($exception->getMessage());
+            $body->write('An unexpected server error occurred.');
             return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
         }
     }
