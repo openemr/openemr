@@ -31,22 +31,11 @@ class ControllerEditTest extends TestCase
 
         // Injecting mocks into the ControllerEdit class
         $this->controller = new class ($this->ruleManagerMock, $this->codeManagerMock) extends ControllerEdit {
-            public function __construct($ruleManager, $codeManager)
+            public function __construct(RuleManager $ruleManager, CodeManager $codeManager)
             {
                 $this->ruleManager = $ruleManager;
                 $this->codeManager = $codeManager;
                 parent::__construct();
-            }
-
-            // Overriding global functions for testing
-            protected function _get($var, $default = '')
-            {
-                return $_GET[$var] ?? $default;
-            }
-
-            protected function _post($var, $default = '')
-            {
-                return $_POST[$var] ?? $default;
             }
         };
     }

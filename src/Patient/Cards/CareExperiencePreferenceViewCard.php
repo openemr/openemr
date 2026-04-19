@@ -199,26 +199,28 @@ class CareExperiencePreferenceViewCard extends CardModel
         }
         CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
 
-        $action = $request->request->getString('action');
-        if ($action === 'save') {
-            $idInput = $request->request->getString('id');
-            $id = $idInput !== ''
-                ? filter_var($idInput, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
-                : null;
-            $data = $this->collectPost($request->request->all());  // note: returns patient_id
-            if ($id) {
-                $this->service->update($id, $data);
-                $this->flashMessage = xl('Preference updated');
-            } else {
-                $this->service->insert($data);   // ← was create()
-                $this->flashMessage = xl('Preference saved');
-            }
-        } elseif ($action === 'delete') {
-            $id = $request->request->getInt('id');
-            if ($id) {
-                $this->service->delete($id);     // method exists
-                $this->flashMessage = xl('Preference deleted');
-            }
+        switch ($request->request->getString('action')) {
+            case 'save':
+                $idInput = $request->request->getString('id');
+                $id = $idInput !== ''
+                    ? filter_var($idInput, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
+                    : null;
+                $data = $this->collectPost($request->request->all());
+                if ($id) {
+                    $this->service->update($id, $data);
+                    $this->flashMessage = xl('Preference updated');
+                } else {
+                    $this->service->insert($data);
+                    $this->flashMessage = xl('Preference saved');
+                }
+                break;
+            case 'delete':
+                $id = $request->request->getInt('id');
+                if ($id) {
+                    $this->service->delete($id);
+                    $this->flashMessage = xl('Preference deleted');
+                }
+                break;
         }
     }
 
