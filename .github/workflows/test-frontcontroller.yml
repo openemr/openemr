@@ -149,10 +149,11 @@ jobs:
           php-version: '8.5'
 
       - name: Build and start services
-        run: docker compose up
+        run: docker compose
+          --file $COMPOSE_FILE
+            up
           --build
           --detach
-          --file $COMPOSE_FILE
           ${{ matrix.webserver }}
 
       - name: Make sqlconf writable
