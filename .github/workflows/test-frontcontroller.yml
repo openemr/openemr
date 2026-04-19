@@ -157,7 +157,7 @@ jobs:
           ${{ matrix.webserver }}
 
       - name: Make sqlconf writable
-        run: chmod 666 ../../sites/default/sqlconf.php
+        run: chmod 666 sites/default/sqlconf.php
 
       - name: Run CLI installer
         run: docker compose --file $COMPOSE_FILE exec php-fpm
