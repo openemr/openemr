@@ -23,6 +23,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -232,6 +233,22 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
+                    // Log failed TOTP authentication attempt
+                    $ip = collectIpAddresses();
+                    $username = $_POST['authUser'] ?? '';
+                    $userInfo = privQuery("SELECT id FROM users WHERE BINARY username = ?", [$username]);
+                    $authGroup = '';
+                    if (!empty($userInfo['id'])) {
+                        $userService = new \OpenEMR\Services\UserService();
+                        $authGroup = $userService->getAuthGroupForUser($username);
+                    }
+                    EventAuditLogger::getInstance()->newEvent(
+                        'login',
+                        $username,
+                        $authGroup,
+                        0,
+                        "failure: " . $ip['ip_string'] . ". TOTP code incorrect"
+                    );
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -264,6 +281,22 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
+                    // Log failed U2F authentication attempt
+                    $ip = collectIpAddresses();
+                    $username = $_POST['authUser'] ?? '';
+                    $userInfo = privQuery("SELECT id FROM users WHERE BINARY username = ?", [$username]);
+                    $authGroup = '';
+                    if (!empty($userInfo['id'])) {
+                        $userService = new \OpenEMR\Services\UserService();
+                        $authGroup = $userService->getAuthGroupForUser($username);
+                    }
+                    EventAuditLogger::getInstance()->newEvent(
+                        'login',
+                        $username,
+                        $authGroup,
+                        0,
+                        "failure: " . $ip['ip_string'] . ". U2F authentication error: " . $e->getMessage()
+                    );
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }
