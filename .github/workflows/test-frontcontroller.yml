@@ -152,6 +152,9 @@ jobs:
       - name: Build and start services
         run: docker compose up --detach --build ${{ matrix.webserver }}
 
+      - name: Make sqlconf writable
+        run: chmod 666 sites/default/sqlconf.php
+
       - name: Run CLI installer
         run: docker compose exec php-fpm
           ./cli install
