@@ -357,11 +357,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/about.php',
@@ -620,11 +615,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$res might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchPhoneList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$results_log might not be defined\\.$#',

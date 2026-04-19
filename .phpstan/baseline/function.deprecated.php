@@ -25,11 +25,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collectAndOrganizeExpandSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:collectAndOrganizeExpandSetting$#',
     'count' => 1,

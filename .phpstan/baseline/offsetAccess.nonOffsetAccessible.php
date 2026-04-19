@@ -1717,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'file_url\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'array\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
@@ -1865,76 +1860,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Default\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_aid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_facility\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_home\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'number_failed_emails\' on mixed\\.$#',

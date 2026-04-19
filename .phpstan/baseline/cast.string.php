@@ -83,11 +83,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
 ];
@@ -140,11 +135,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

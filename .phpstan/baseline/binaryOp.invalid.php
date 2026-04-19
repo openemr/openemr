@@ -1092,21 +1092,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/maviq_phone_api\\.php\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_reminders.php',

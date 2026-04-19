@@ -1207,21 +1207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_age\\(\\) has parameter \\$age with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
