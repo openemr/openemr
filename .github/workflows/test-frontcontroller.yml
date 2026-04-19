@@ -126,9 +126,8 @@ jobs:
           - api
         webserver:
           - nginx
-    defaults:
-      run:
-        working-directory: docker/frontcontroller
+    env:
+      COMPOSE_FILE: docker/frontcontroller/docker-compose.yml
 
     services:
       selenium:
@@ -150,13 +149,17 @@ jobs:
           php-version: '8.5'
 
       - name: Build and start services
-        run: docker compose up --detach --build ${{ matrix.webserver }}
+        run: docker compose up
+          --build
+          --detach
+          --file $COMPOSE_FILE
+          ${{ matrix.webserver }}
 
       - name: Make sqlconf writable
-        run: chmod 666 sites/default/sqlconf.php
+        run: chmod 666 ../../sites/default/sqlconf.php
 
       - name: Run CLI installer
-        run: docker compose exec php-fpm
+        run: docker compose --file $COMPOSE_FILE exec php-fpm
           ./cli install
             --db-root-user=root
             --db-root-password=root
@@ -173,7 +176,7 @@ jobs:
       - name: Get webserver port
         id: port
         run: |
-          port=$(docker compose port ${{ matrix.webserver }} 80 | cut -d: -f2)
+          port=$(docker compose --file $COMPOSE_FILE port ${{ matrix.webserver }} 80 | cut -d: -f2)
           echo "port=$port" >> "$GITHUB_OUTPUT"
           echo "Webserver available at http://localhost:$port"
 
