@@ -110,16 +110,15 @@ class BackgroundServicesCliIntegrationTest extends TestCase
 
         $second = $this->runConsole(['run', '--name=' . self::PROBE_NAME]);
 
-        // Current behavior: not_due is reported with Command::INVALID (2),
-        // which causes generic supervisors (Kubernetes CronJob, systemd)
-        // to treat a scheduled no-op as a crash. See #11677 — when that
-        // lands this assertion flips to 0. Exit 2 here guards against
-        // regressions in the opposite direction (e.g. not_due falling
-        // through to `default => Command::FAILURE` = 1).
+        // Per #11677 (fixed in #11687), not_due is a no-op, not an error:
+        // it must exit 0 so generic supervisors (Kubernetes CronJob, systemd)
+        // don't treat a scheduled no-op as a crash. This assertion guards
+        // against regressions in either direction — exit 1 (generic failure)
+        // or exit 2 (Command::INVALID, the pre-#11687 behavior).
         $this->assertSame(
-            2,
+            0,
             $second['exit'],
-            "Expected exit 2 for not_due.\nstdout:\n{$second['stdout']}\nstderr:\n{$second['stderr']}",
+            "Expected exit 0 for not_due.\nstdout:\n{$second['stdout']}\nstderr:\n{$second['stderr']}",
         );
         $this->assertStringContainsString(
             'not yet due to run',
