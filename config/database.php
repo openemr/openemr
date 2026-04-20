@@ -13,8 +13,10 @@
 declare(strict_types=1);
 
 use Doctrine\DBAL\{
+    Configuration,
     Connection,
     DriverManager,
+    Driver\Middleware as MiddlewareInterface,
 };
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
@@ -24,20 +26,43 @@ use Doctrine\Migrations\Configuration\{
 };
 use Doctrine\Migrations\DependencyFactory;
 use Firehed\Container\TypedContainerInterface as TC;
+use Firehed\DbalLogger\{
+    ChainLogger,
+    Middleware,
+};
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
+use OpenEMR\Common\Logging\Database\AuditLoggerMiddleware;
 use Psr\Log\LoggerInterface;
 
 return [
+    // DBAL
+    AuditLoggerMiddleware::class,
+    Configuration::class => function (TC $c) {
+        $config = new Configuration();
+        $config->setMiddlewares([$c->get(MiddlewareInterface::class)]);
+        return $config;
+    },
+    MiddlewareInterface::class => function (TC $c) {
+        $loggers = [
+            $c->get(AuditLoggerMiddleware::class),
+        ];
+        return new Middleware(new ChainLogger($loggers));
+    },
+
     // Connection Manager - manages named connections with different middleware
     ConnectionManager::class => function (TC $c) {
         $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
 
         // Main connection: middleware will be added here
-        $manager->register(ConnectionType::Main, fn () =>
-            DriverManager::getConnection($opts->toDbalParams()));
+        $manager->register(ConnectionType::Main, function () use ($opts, $c) {
+            return DriverManager::getConnection(
+                params: $opts->toDbalParams(),
+                config: $c->get(Configuration::class),
+            );
+        });
 
         // Audit connection: no middleware, used by EventAuditLogger and some
         // application bootstrapping

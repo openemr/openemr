@@ -26,7 +26,14 @@ use Monolog\{
     Processor\PsrLogMessageProcessor,
 };
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Common\Database\{
+    ConnectionManager,
+    ConnectionType,
+};
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\BreakglassChecker;
+use OpenEMR\Common\Logging\Audit;
 use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Core\ErrorHandler;
 use OpenEMR\Services\Storage\{
@@ -89,4 +96,24 @@ return [
     Psr17Factory::class,
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
+
+    EventAuditLogger::class => function (TC $c) {
+        // Minor: the things that take connections could instead take
+        // connection managers and then be fully autowired.
+
+        $auditConn = $c->get(ConnectionManager::class)->get(ConnectionType::Audit);
+        $sinks = [
+            new Audit\LogTablesSink($auditConn),
+        ];
+        // ATNA.... tbd
+
+        return new EventAuditLogger(
+            sinks: $sinks,
+            // cryptoGen: CG
+            // shouldEncrypt: config,
+            // session: oh my,
+            // config: build above from config,
+            breakglassChecker: new BreakglassChecker($auditConn),
+        );
+    },
 ];
