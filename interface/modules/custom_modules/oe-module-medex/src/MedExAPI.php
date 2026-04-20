@@ -77,6 +77,24 @@ class MedExAPI
         return $parsedIps[0] ?? '';
     }
 
+    private function resolveCallbackBaseUrl(string $siteAddr): string
+    {
+        if (method_exists(\OpenEMR\Modules\MedEx\MedExConfig::class, 'callbackBaseUrl')) {
+            return \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl($siteAddr);
+        }
+
+        $fallback = trim($siteAddr);
+        if ($fallback === '') {
+            $fallback = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
+        }
+        if ($fallback === '') {
+            $host = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+            $fallback = $host !== '' ? ('https://' . $host) : '';
+        }
+
+        return rtrim($fallback, '/');
+    }
+
     /**
      * Constructor
      * Loads configuration from globals or database
@@ -707,11 +725,25 @@ class MedExAPI
      */
     public function hasServiceEntitlement(string $service): bool
     {
+        $service = strtolower(trim($service));
         $enabled = $this->getEnabledServices(true);
-        if (isset($enabled[$service])) {
-            return $enabled[$service] === true || $enabled[$service] === 1;
+        $bundleAliases = [
+            'calendar_export' => ['calendar_export', 'calendar_ai', 'calendar_services'],
+            'calendar_ai' => ['calendar_ai', 'calendar_services'],
+        ];
+        $candidates = $bundleAliases[$service] ?? [$service];
+        foreach ($candidates as $candidate) {
+            if (isset($enabled[$candidate])) {
+                if ($enabled[$candidate] === true || $enabled[$candidate] === 1) {
+                    return true;
+                }
+                continue;
+            }
+            if (in_array($candidate, $enabled, true)) {
+                return true;
+            }
         }
-        return in_array($service, $enabled, true);
+        return false;
     }
 
     /**
@@ -745,6 +777,10 @@ class MedExAPI
     public function makeRequest(string $endpoint, array $params = [], string $method = 'POST'): array
     {
         $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
+        $usesLegacyApiToken = (
+            strpos($endpoint, 'index.php?route=api/custom/addpractice') !== false ||
+            strpos($endpoint, '/api/update_service_providers.php') !== false
+        );
 
         // Determine if this is a public endpoint (no auth required)
         $isPublicEndpoint = strpos($endpoint, 'register') !== false ||
@@ -754,8 +790,15 @@ class MedExAPI
                            strpos($endpoint, 'send_secure_chat_link') !== false; // Public: onboarding OTP + external OpenEMR sends
 
         // Add authentication for non-public endpoints
-        // Uses session token (secure) obtained from login, not raw API key
-        if (!$isPublicEndpoint) {
+        // Legacy endpoints still require the MedEx API token in the query string.
+        if ($usesLegacyApiToken) {
+            if (empty($this->apiKey)) {
+                throw new \Exception('Missing MedEx API key for legacy endpoint auth');
+            }
+            $separator = (strpos($url, '?') !== false) ? '&' : '?';
+            $url .= $separator . 'token=' . urlencode($this->apiKey);
+        } elseif (!$isPublicEndpoint) {
+            // Uses session token (secure) obtained from login, not raw API key
             // Login first to get session token
             $sessionToken = $this->getSessionToken();
 
@@ -1375,36 +1418,69 @@ class MedExAPI
             return null;
         }
 
-        // Generate SSO token
-        $ssoToken = $this->generateSSOToken();
-        if (!$ssoToken) {
-            return null;
-        }
-
-        // Build browser-facing URL using public endpoint rewrite (not internal k8s DNS).
-        $url = rtrim(MedExConfig::publicBaseUrl(), '/') . '/index.php';
-
-        // Map page names to MedEx routes
-        $routes = [
-            'dashboard' => 'account/account',
-            'calendar' => 'information/calendar',
-            'settings' => 'account/account',
-            'register' => 'account/register',
-            'campaigns' => 'information/campaigns',
-            'billing' => 'account/subscription'
+        $dashboardTabs = [
+            'dashboard' => 'overview',
+            'settings' => 'settings',
+            'billing' => 'billing',
+            'campaigns' => 'messaging',
         ];
 
-        $route = $routes[$page] ?? $routes['dashboard'];
+        if (isset($dashboardTabs[$page])) {
+            $tab = $dashboardTabs[$page];
+            $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($params['site'] ?? ($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'))));
+            if ($siteId === '') {
+                $siteId = 'default';
+            }
 
-        // Build query parameters
+            $loginData = $this->login(false);
+            $sessionToken = trim((string)($loginData['token'] ?? ''));
+            $practiceId = trim((string)($loginData['practice_id'] ?? ($loginData['practice']['P_PID'] ?? $this->practiceId ?? '')));
+            if ($sessionToken === '' || $practiceId === '') {
+                return null;
+            }
+
+            $callbackToken = QueryUtils::fetchSingleValue(
+                "SELECT gl_value FROM globals WHERE gl_name = ?",
+                'gl_value',
+                ['medex_callback_token']
+            ) ?? '';
+            if (trim((string)$callbackToken) === '') {
+                return null;
+            }
+            $openEmrBaseUrl = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
+            $payload = [
+                'practice_id' => $practiceId,
+                'session_token' => $sessionToken,
+                'timestamp' => time(),
+                'nonce' => bin2hex(random_bytes(16)),
+                'source' => 'openemr_dashboard',
+                'openemr_base_url' => $openEmrBaseUrl,
+                'site' => $siteId,
+            ];
+
+            $encodedPayload = base64_encode(json_encode($payload));
+            $url = rtrim(MedExConfig::publicBaseUrl(), '/') . '/dashboard_sso.php'
+                . '?site=' . urlencode($siteId)
+                . '&tab=' . urlencode($tab)
+                . '&sso_token=' . urlencode($encodedPayload);
+
+            $signature = hash_hmac('sha256', $encodedPayload, (string)$callbackToken);
+            $url .= '&sso_sig=' . urlencode($signature);
+
+            return $url;
+        }
+
+        // Keep direct SaaS routing only for non-dashboard entry points such as registration.
+        $routes = [
+            'register' => 'account/register',
+        ];
+        $route = $routes[$page] ?? 'account/register';
         $queryParams = array_merge([
             'route' => $route,
             'embed' => '1',
-            'sso_token' => $ssoToken,
-            'practice_id' => $this->practiceId
         ], $params);
 
-        return $url . '?' . http_build_query($queryParams);
+        return rtrim(MedExConfig::publicBaseUrl(), '/') . '/index.php?' . http_build_query($queryParams);
     }
 
     /**
@@ -1622,7 +1698,7 @@ class MedExAPI
             // In K8s/reverse-proxy environments $_SERVER['SERVER_NAME'] is an internal
             // hostname; use the 'medex_callback_base_url' global (set to the public URL,
             // e.g. https://emr-704.hipaabank.net) to override it.
-            $callbackBase = \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl(
+            $callbackBase = $this->resolveCallbackBaseUrl(
                 $GLOBALS['site_addr_oath']
                     ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'))
             );
