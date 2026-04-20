@@ -26,14 +26,19 @@ use Symfony\Component\Console\Tester\CommandTester;
 // MaviqClient and RestResponse are legacy globals defined procedurally; PHPUnit
 // resolves class-level `extends` clauses at file-load time, so load the file
 // before the stub class declarations below.
+// @codeCoverageIgnoreStart
 if (!class_exists(MaviqClient::class, false)) {
     require_once __DIR__ . '/../../../../../library/maviq_phone_api.php';
 }
+// @codeCoverageIgnoreEnd
 
 #[Group('isolated')]
 #[Group('phone-notifications')]
 class PhoneNotificationCommandTest extends TestCase
 {
+    /**
+     * @codeCoverageIgnore PHPUnit lifecycle hook; bootstrap only.
+     */
     public static function setUpBeforeClass(): void
     {
         $helpers = realpath(__DIR__ . '/../../../../../library/htmlspecialchars.inc.php');
@@ -257,6 +262,33 @@ class PhoneNotificationCommandTest extends TestCase
         $this->assertSame(24, $command->lastTriggerHours);
     }
 
+    public function testLogDirProducesPerDayCronLogPath(): void
+    {
+        $logDir = sys_get_temp_dir() . '/phone-reminder-test-' . uniqid();
+        $capture = new CapturingLogCommandStub(
+            patients: [self::makePatient()],
+            client: new FakeMaviqClient([new FakeRestResponse(false)]),
+            globalsOverrides: ['phone_reminder_log_dir' => $logDir],
+        );
+        $tester = $this->createTester($capture);
+
+        $tester->execute([]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $expectedPath = $logDir . '/phone_reminder_cronlog_' . date('Ymd') . '.html';
+        $this->assertSame($expectedPath, $capture->logPath);
+    }
+
+    public function testFakeMaviqClientThrowsWhenOutOfResponses(): void
+    {
+        $client = new FakeMaviqClient([]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('FakeMaviqClient ran out of canned responses');
+
+        $client->sendRequest('appointment', 'POST', []);
+    }
+
     public function testDecryptedPasswordFlowsIntoMaviqClient(): void
     {
         $client = new FakeMaviqClient([]);
@@ -359,6 +391,21 @@ class PhoneNotificationCommandStub extends PhoneNotificationCommand
     protected function writeLog(?string $path, string $data): void
     {
         $this->logEntries[] = $data;
+    }
+}
+
+/**
+ * Stub variant that captures the log path the command would write to without
+ * actually touching the filesystem.
+ */
+class CapturingLogCommandStub extends PhoneNotificationCommandStub
+{
+    public ?string $logPath = null;
+
+    protected function writeLog(?string $path, string $data): void
+    {
+        $this->logPath = $path;
+        parent::writeLog($path, $data);
     }
 }
 

@@ -142,6 +142,9 @@ class DocumentImportCommand extends Command implements IGlobalsAware
     /**
      * Pulls in legacy procedural helpers. Extracted so tests can override
      * with a no-op.
+     *
+     * @codeCoverageIgnore Overridden in tests; the real implementation pulls
+     *     in legacy procedural files that require a full OpenEMR bootstrap.
      */
     protected function loadHelpers(): void
     {
@@ -153,6 +156,8 @@ class DocumentImportCommand extends Command implements IGlobalsAware
      * list without touching the real filesystem.
      *
      * @return iterable<array{pathname: string, filename: string, extension: string, size: int}>
+     *
+     * @codeCoverageIgnore Filesystem seam overridden in tests.
      */
     protected function iterateDirectory(string $path): iterable
     {
@@ -169,6 +174,9 @@ class DocumentImportCommand extends Command implements IGlobalsAware
         }
     }
 
+    /**
+     * @codeCoverageIgnore DB seam overridden in tests.
+     */
     protected function resolveCategoryId(string $raw): int
     {
         if (ctype_digit($raw)) {
@@ -181,6 +189,9 @@ class DocumentImportCommand extends Command implements IGlobalsAware
         return 1;
     }
 
+    /**
+     * @codeCoverageIgnore Filesystem seam overridden in tests.
+     */
     protected function detectMimeType(string $path, string $extension): string
     {
         $detected = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
@@ -192,6 +203,8 @@ class DocumentImportCommand extends Command implements IGlobalsAware
 
     /**
      * @return list<array{id: int|string}>
+     *
+     * @codeCoverageIgnore DB seam overridden in tests.
      */
     protected function findExistingDocument(string $docPath, string $docUrl): array
     {
@@ -209,6 +222,8 @@ class DocumentImportCommand extends Command implements IGlobalsAware
      * don't need to mock the Document ORM layer.
      *
      * @return array{id: int, url: string}|null
+     *
+     * @codeCoverageIgnore Document ORM seam overridden in tests.
      */
     protected function persistInSituDocument(
         string $docPath,
@@ -244,6 +259,9 @@ class DocumentImportCommand extends Command implements IGlobalsAware
         ];
     }
 
+    /**
+     * @codeCoverageIgnore DB seam overridden in tests.
+     */
     protected function attachToCategory(int $categoryId, int $documentId): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -254,6 +272,8 @@ class DocumentImportCommand extends Command implements IGlobalsAware
 
     /**
      * @return array<string, mixed>|null
+     *
+     * @codeCoverageIgnore Legacy helper seam overridden in tests.
      */
     protected function addDocument(
         string $name,
@@ -283,6 +303,9 @@ class DocumentImportCommand extends Command implements IGlobalsAware
         return $result;
     }
 
+    /**
+     * @codeCoverageIgnore Filesystem seam overridden in tests.
+     */
     protected function removeFile(string $path): bool
     {
         return unlink($path);

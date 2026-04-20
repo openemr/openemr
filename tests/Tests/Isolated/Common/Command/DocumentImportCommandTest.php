@@ -25,6 +25,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[Group('document-import')]
 class DocumentImportCommandTest extends TestCase
 {
+    /**
+     * @codeCoverageIgnore PHPUnit lifecycle hook; bootstrap only.
+     */
     public static function setUpBeforeClass(): void
     {
         $helpers = realpath(__DIR__ . '/../../../../../library/htmlspecialchars.inc.php');

@@ -117,6 +117,9 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
     /**
      * Pulls in legacy procedural helpers. Extracted so tests can override
      * with a no-op instead of loading files that assume a live runtime.
+     *
+     * @codeCoverageIgnore Overridden in tests; the real implementation can't
+     *     run outside a full OpenEMR bootstrap.
      */
     protected function loadHelpers(): void
     {
@@ -127,6 +130,9 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
         require_once __DIR__ . '/../../../library/maviq_phone_api.php';
     }
 
+    /**
+     * @codeCoverageIgnore Crypto seam overridden in tests.
+     */
     protected function decryptPassword(string $encrypted): string
     {
         $decrypted = ServiceContainer::getCrypto()->decryptStandard($encrypted);
@@ -135,6 +141,8 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
 
     /**
      * @return array{phone_map: array<int, string>, msg_map: array<int, string>}
+     *
+     * @codeCoverageIgnore DB seam overridden in tests.
      */
     protected function fetchFacilitiesMap(): array
     {
@@ -145,6 +153,8 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
 
     /**
      * @return list<array<string, mixed>>
+     *
+     * @codeCoverageIgnore DB seam overridden in tests.
      */
     protected function fetchPendingPatients(string $type, int $triggerHours): array
     {
@@ -153,11 +163,17 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
         return $rows;
     }
 
+    /**
+     * @codeCoverageIgnore HTTP client seam overridden in tests.
+     */
     protected function createMaviqClient(string $id, string $token, string $url): MaviqClient
     {
         return new MaviqClient($id, $token, $url);
     }
 
+    /**
+     * @codeCoverageIgnore DB seam overridden in tests.
+     */
     protected function markReminderSent(string $type, string $pid, string $pcEid): void
     {
         \cron_updateentry($type, $pid, $pcEid);
@@ -165,6 +181,8 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
 
     /**
      * @param array<string, mixed> $row
+     *
+     * @codeCoverageIgnore DB seam overridden in tests.
      */
     protected function insertLogEntry(array $row, string $phoneMsg, string $phoneGateway): void
     {
@@ -192,6 +210,9 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
         ]);
     }
 
+    /**
+     * @codeCoverageIgnore Filesystem seam overridden in tests.
+     */
     protected function writeLog(?string $path, string $data): void
     {
         if ($path === null || $data === '') {
@@ -221,12 +242,11 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
         mixed $phoneTimeRange,
         string $phoneUrl,
     ): array {
-        $eventDate = $this->stringField($row, 'pc_eventDate');
-        $pieces = explode('-', $eventDate);
-        $apptDate = count($pieces) === 3
-            ? date('m/d/Y', (int) mktime(0, 0, 0, (int) $pieces[1], (int) $pieces[2], (int) $pieces[0]))
-            : '';
+        $apptDate = $this->formatApptDate($this->stringField($row, 'pc_eventDate'));
         $apptTime = $this->stringField($row, 'pc_startTime');
+        $firstName = $this->stringField($row, 'fname');
+        $lastName = $this->stringField($row, 'lname');
+        $phoneHome = $this->stringField($row, 'phone_home');
 
         $facilityId = $this->intField($row, 'pc_facility');
         $greeting = $facMsgMap[$facilityId] ?? '';
@@ -234,40 +254,24 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
             $greeting = $defaultMessage;
         }
 
-        $firstName = $this->stringField($row, 'fname');
-        $lastName = $this->stringField($row, 'lname');
-        $phoneHome = $this->stringField($row, 'phone_home');
-        $doctor = $row['pc_aid'] ?? '';
-
-        $data = [
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'phone' => $phoneHome,
-            'apptDate' => $apptDate,
-            'apptTime' => $apptTime,
-            'doctor' => $doctor,
-            'greeting' => $greeting,
-            'timeRange' => $phoneTimeRange,
-            'type' => 'appointment',
-            'timeZone' => date('P'),
-            'callerId' => $facPhoneMap[$facilityId] ?? '',
-        ];
+        $data = $this->buildRequestData(
+            firstName: $firstName,
+            lastName: $lastName,
+            phoneHome: $phoneHome,
+            apptDate: $apptDate,
+            apptTime: $apptTime,
+            doctor: $row['pc_aid'] ?? '',
+            greeting: $greeting,
+            phoneTimeRange: $phoneTimeRange,
+            callerId: $facPhoneMap[$facilityId] ?? '',
+        );
 
         $response = $client->sendRequest('appointment', 'POST', $data);
 
         if ($response instanceof RestResponse && $response->IsError) {
-            $errorMsg = is_string($response->ErrorMessage) ? $response->ErrorMessage : 'unknown error';
             return [
                 'error' => true,
-                'log' => sprintf(
-                    "Error starting phone call for %s | %s | %s | %s | %s | %s\n",
-                    $firstName,
-                    $lastName,
-                    $phoneHome,
-                    $apptDate,
-                    $apptTime,
-                    $errorMsg,
-                ),
+                'log' => $this->formatErrorLog($response, $firstName, $lastName, $phoneHome, $apptDate, $apptTime),
             ];
         }
 
@@ -280,18 +284,86 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
 
         return [
             'error' => false,
-            'log' => sprintf(
-                "\n========================%s || %s=========================\n"
-                . "Phone reminder sent successfully: %s | %s |\t| %s | %s | %s",
-                self::NOTIFICATION_TYPE,
-                date('Y-m-d H:i:s'),
-                $firstName,
-                $lastName,
-                $phoneHome,
-                $apptDate,
-                $apptTime,
-            ),
+            'log' => $this->formatSuccessLog($firstName, $lastName, $phoneHome, $apptDate, $apptTime),
         ];
+    }
+
+    private function formatApptDate(string $eventDate): string
+    {
+        $pieces = explode('-', $eventDate);
+        if (count($pieces) !== 3) {
+            return '';
+        }
+        return date('m/d/Y', (int) mktime(0, 0, 0, (int) $pieces[1], (int) $pieces[2], (int) $pieces[0]));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildRequestData(
+        string $firstName,
+        string $lastName,
+        string $phoneHome,
+        string $apptDate,
+        string $apptTime,
+        mixed $doctor,
+        string $greeting,
+        mixed $phoneTimeRange,
+        string $callerId,
+    ): array {
+        return [
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'phone' => $phoneHome,
+            'apptDate' => $apptDate,
+            'apptTime' => $apptTime,
+            'doctor' => $doctor,
+            'greeting' => $greeting,
+            'timeRange' => $phoneTimeRange,
+            'type' => 'appointment',
+            'timeZone' => date('P'),
+            'callerId' => $callerId,
+        ];
+    }
+
+    private function formatErrorLog(
+        RestResponse $response,
+        string $firstName,
+        string $lastName,
+        string $phoneHome,
+        string $apptDate,
+        string $apptTime,
+    ): string {
+        $errorMsg = is_string($response->ErrorMessage) ? $response->ErrorMessage : 'unknown error';
+        return sprintf(
+            "Error starting phone call for %s | %s | %s | %s | %s | %s\n",
+            $firstName,
+            $lastName,
+            $phoneHome,
+            $apptDate,
+            $apptTime,
+            $errorMsg,
+        );
+    }
+
+    private function formatSuccessLog(
+        string $firstName,
+        string $lastName,
+        string $phoneHome,
+        string $apptDate,
+        string $apptTime,
+    ): string {
+        return sprintf(
+            "\n========================%s || %s=========================\n"
+            . "Phone reminder sent successfully: %s | %s |\t| %s | %s | %s",
+            self::NOTIFICATION_TYPE,
+            date('Y-m-d H:i:s'),
+            $firstName,
+            $lastName,
+            $phoneHome,
+            $apptDate,
+            $apptTime,
+        );
     }
 
     private function defaultMessage(OEGlobalsBag $globals): string
@@ -324,10 +396,7 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
     private function intField(array $row, string $key): int
     {
         $value = $row[$key] ?? null;
-        if (is_int($value)) {
-            return $value;
-        }
-        if (is_string($value) && is_numeric($value)) {
+        if (is_numeric($value)) {
             return (int) $value;
         }
         return 0;
