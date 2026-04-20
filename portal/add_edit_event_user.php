@@ -83,7 +83,7 @@ if (!empty($_POST['form_pid'])) {
         echo xlt("Error: Invalid Patient ID");
         exit();
     }
-    $event_date = fixDate($_POST['form_date']);
+    $event_date = fixDate(is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null);
     if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $form_provider_ae)) {
         echo xlt("Error: No available slots for selected provider(s)");
         exit();
@@ -165,7 +165,9 @@ if ($form_action !== '') {
 }
 
 if ($form_action === "save") {
-    $event_date = fixDate($_POST['form_date']);
+    $formDate = is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null;
+    $formEnddate = is_string($_POST['form_enddate'] ?? null) ? $_POST['form_enddate'] : null;
+    $event_date = fixDate($formDate);
 
 // Compute start and end time strings to be saved.
     if ($_POST['form_allday'] ?? null) {
@@ -356,7 +358,7 @@ if ($form_action === "save") {
                             $_POST['form_comments'],
                             $session->get('providerId'),
                             $event_date,
-                            fixDate($_POST['form_enddate'] ?? null, null),
+                            fixDate($formEnddate, null),
                             ($duration * 60),
                             ($_POST['form_repeat'] ? '1' : '0'),
                             $recurrspec,
@@ -391,7 +393,7 @@ if ($form_action === "save") {
                         $_POST['form_comments'],
                         $session->get('providerId'),
                         $event_date,
-                        fixDate($_POST['form_enddate'] ?? null, null),
+                        fixDate($formEnddate, null),
                         ($duration * 60),
                         ($_POST['form_repeat'] ? '1' : '0'),
                         $recurrspec,
@@ -430,7 +432,7 @@ if ($form_action === "save") {
                     $_POST['form_comments'],
                     $session->get('providerId'),
                     $event_date,
-                    fixDate($_POST['form_enddate'] ?? null, null),
+                    fixDate($formEnddate, null),
                     ($duration * 60),
                     (($_POST['form_repeat'] ?? null) ? '1' : '0'),
                     $recurrspec,
@@ -485,7 +487,7 @@ if ($form_action === "save") {
                         $_POST['form_comments'],
                         $session->get('providerId'),
                         $event_date,
-                        fixDate($_POST['form_enddate'] ?? null, null),
+                        fixDate($formEnddate, null),
                         ($duration * 60),
                         ($_POST['form_repeat'] ? '1' : '0'),
                         $recurrspec,
@@ -518,7 +520,7 @@ if ($form_action === "save") {
                     $_POST['form_comments'],
                     $session->get('providerId'),
                     $event_date,
-                    fixDate($_POST['form_enddate'] ?? null, null),
+                    fixDate($formEnddate, null),
                     ($duration * 60),
                     (($_POST['form_repeat'] ?? null) ? '1' : '0'),
                     $recurrspec,

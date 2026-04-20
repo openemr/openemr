@@ -904,7 +904,7 @@ if ($eid) {
         $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
     }
 
-    $recurrence_end_date = is_string($row['pc_endDate']) ? fixDate($row['pc_endDate'], null) : null;
+    $recurrence_end_date = (is_string($row['pc_endDate']) && !Utilities::isDateEmpty($row['pc_endDate'])) ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
     if (str_starts_with((string) $hometext, ':text:')) {
