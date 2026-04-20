@@ -34,7 +34,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class PhoneNotificationCommand extends Command implements IGlobalsAware
+class PhoneNotificationCommand extends Command implements IGlobalsAware
 {
     use GlobalInterfaceTrait;
 
@@ -53,11 +53,7 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Helper functions live in legacy procedural files. interface/globals.php
-        // loads global_functions.inc.php, but maviq_phone_api.php is only loaded
-        // where needed; pull both in explicitly to be safe.
-        require_once __DIR__ . '/../../../library/global_functions.inc.php';
-        require_once __DIR__ . '/../../../library/maviq_phone_api.php';
+        $this->loadHelpers();
 
         $io = new SymfonyStyle($input, $output);
         $globals = $this->getGlobalsBag();
@@ -76,19 +72,18 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
             return Command::FAILURE;
         }
 
-        $cryptoGen = ServiceContainer::getCrypto();
-        $phoneToken = $cryptoGen->decryptStandard($encryptedPassword);
+        $phoneToken = $this->decryptPassword($encryptedPassword);
         $phoneTimeRange = $globals->get('phone_time_range');
 
-        $facilities = \cron_getFacilitiesMap(new FacilityService());
+        $facilities = $this->fetchFacilitiesMap();
         $facPhoneMap = $facilities['phone_map'];
         $facMsgMap = $facilities['msg_map'];
         $defaultMessage = $this->defaultMessage($globals);
 
-        $patients = \cron_getPhoneAlertpatientData(self::NOTIFICATION_TYPE, $triggerHours);
+        $patients = $this->fetchPendingPatients(self::NOTIFICATION_TYPE, $triggerHours);
         $io->writeln(sprintf('%s: %d', xlt('Total Records Found'), count($patients)));
 
-        $client = new MaviqClient($phoneId, $phoneToken, $phoneUrl);
+        $client = $this->createMaviqClient($phoneId, $phoneToken, $phoneUrl);
         $logDir = $globals->get('phone_reminder_log_dir');
         $logPath = is_string($logDir) && $logDir !== ''
             ? $logDir . '/phone_reminder_cronlog_' . date('Ymd') . '.html'
@@ -96,13 +91,8 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
 
         $errors = 0;
         foreach ($patients as $row) {
-            if (!is_array($row)) {
-                continue;
-            }
-            /** @var array<string, mixed> $typedRow */
-            $typedRow = $row;
             $result = $this->sendReminder(
-                $typedRow,
+                $row,
                 $client,
                 $facMsgMap,
                 $facPhoneMap,
@@ -110,7 +100,7 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
                 $phoneTimeRange,
                 $phoneUrl,
             );
-            $this->appendLog($logPath, $result['log']);
+            $this->writeLog($logPath, $result['log']);
             if ($result['error']) {
                 $errors++;
             }
@@ -122,6 +112,98 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Pulls in legacy procedural helpers. Extracted so tests can override
+     * with a no-op instead of loading files that assume a live runtime.
+     */
+    protected function loadHelpers(): void
+    {
+        // Helper functions live in legacy procedural files. interface/globals.php
+        // loads global_functions.inc.php, but maviq_phone_api.php is only loaded
+        // where needed; pull both in explicitly to be safe.
+        require_once __DIR__ . '/../../../library/global_functions.inc.php';
+        require_once __DIR__ . '/../../../library/maviq_phone_api.php';
+    }
+
+    protected function decryptPassword(string $encrypted): string
+    {
+        $decrypted = ServiceContainer::getCrypto()->decryptStandard($encrypted);
+        return is_string($decrypted) ? $decrypted : '';
+    }
+
+    /**
+     * @return array{phone_map: array<int, string>, msg_map: array<int, string>}
+     */
+    protected function fetchFacilitiesMap(): array
+    {
+        /** @var array{phone_map: array<int, string>, msg_map: array<int, string>} $map */
+        $map = \cron_getFacilitiesMap(new FacilityService());
+        return $map;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function fetchPendingPatients(string $type, int $triggerHours): array
+    {
+        /** @var list<array<string, mixed>> $rows */
+        $rows = \cron_getPhoneAlertpatientData($type, $triggerHours);
+        return $rows;
+    }
+
+    protected function createMaviqClient(string $id, string $token, string $url): MaviqClient
+    {
+        return new MaviqClient($id, $token, $url);
+    }
+
+    protected function markReminderSent(string $type, string $pid, string $pcEid): void
+    {
+        \cron_updateentry($type, $pid, $pcEid);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    protected function insertLogEntry(array $row, string $phoneMsg, string $phoneGateway): void
+    {
+        $title = $this->stringField($row, 'title');
+        $fname = $this->stringField($row, 'fname');
+        $mname = $this->stringField($row, 'mname');
+        $lname = $this->stringField($row, 'lname');
+        $phoneHome = $this->stringField($row, 'phone_home');
+
+        $patientInfo = "{$title} {$fname} {$mname} {$lname}|||{$phoneHome}";
+
+        $sql = 'INSERT INTO `notification_log` (`iLogId`, `pid`, `pc_eid`, `message`, `type`, `patient_info`, `smsgateway_info`, `pc_eventDate`, `pc_endDate`, `pc_startTime`, `pc_endTime`, `dSentDateTime`) '
+            . "VALUES (NULL, ?, ?, ?, 'Phone', ?, ?, ?, ?, ?, ?, ?)";
+        QueryUtils::sqlStatementThrowException($sql, [
+            $row['pid'] ?? null,
+            $row['pc_eid'] ?? null,
+            $phoneMsg,
+            $patientInfo,
+            $phoneGateway,
+            $row['pc_eventDate'] ?? null,
+            $row['pc_endDate'] ?? null,
+            $row['pc_startTime'] ?? null,
+            $row['pc_endTime'] ?? null,
+            date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    protected function writeLog(?string $path, string $data): void
+    {
+        if ($path === null || $data === '') {
+            return;
+        }
+        $fp = @fopen($path, 'a');
+        if ($fp === false) {
+            return;
+        }
+        $separator = "\n====================================================================\n";
+        @fwrite($fp, $data . $separator);
+        fclose($fp);
     }
 
     /**
@@ -189,8 +271,8 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
             ];
         }
 
-        $this->insertNotificationLogEntry($row, $greeting, $phoneUrl);
-        \cron_updateentry(
+        $this->insertLogEntry($row, $greeting, $phoneUrl);
+        $this->markReminderSent(
             self::NOTIFICATION_TYPE,
             $this->stringField($row, 'pid'),
             $this->stringField($row, 'pc_eid'),
@@ -212,35 +294,6 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
         ];
     }
 
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function insertNotificationLogEntry(array $row, string $phoneMsg, string $phoneGateway): void
-    {
-        $title = $this->stringField($row, 'title');
-        $fname = $this->stringField($row, 'fname');
-        $mname = $this->stringField($row, 'mname');
-        $lname = $this->stringField($row, 'lname');
-        $phoneHome = $this->stringField($row, 'phone_home');
-
-        $patientInfo = "{$title} {$fname} {$mname} {$lname}|||{$phoneHome}";
-
-        $sql = 'INSERT INTO `notification_log` (`iLogId`, `pid`, `pc_eid`, `message`, `type`, `patient_info`, `smsgateway_info`, `pc_eventDate`, `pc_endDate`, `pc_startTime`, `pc_endTime`, `dSentDateTime`) '
-            . "VALUES (NULL, ?, ?, ?, 'Phone', ?, ?, ?, ?, ?, ?, ?)";
-        QueryUtils::sqlStatementThrowException($sql, [
-            $row['pid'] ?? null,
-            $row['pc_eid'] ?? null,
-            $phoneMsg,
-            $patientInfo,
-            $phoneGateway,
-            $row['pc_eventDate'] ?? null,
-            $row['pc_endDate'] ?? null,
-            $row['pc_startTime'] ?? null,
-            $row['pc_endTime'] ?? null,
-            date('Y-m-d H:i:s'),
-        ]);
-    }
-
     private function defaultMessage(OEGlobalsBag $globals): string
     {
         $messages = $globals->get('phone_appt_message');
@@ -248,20 +301,6 @@ final class PhoneNotificationCommand extends Command implements IGlobalsAware
             return $messages['Default'];
         }
         return '';
-    }
-
-    private function appendLog(?string $path, string $data): void
-    {
-        if ($path === null || $data === '') {
-            return;
-        }
-        $fp = @fopen($path, 'a');
-        if ($fp === false) {
-            return;
-        }
-        $separator = "\n====================================================================\n";
-        @fwrite($fp, $data . $separator);
-        fclose($fp);
     }
 
     /**

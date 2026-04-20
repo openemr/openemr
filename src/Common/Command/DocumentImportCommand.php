@@ -29,7 +29,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class DocumentImportCommand extends Command implements IGlobalsAware
+class DocumentImportCommand extends Command implements IGlobalsAware
 {
     use GlobalInterfaceTrait;
 
@@ -87,7 +87,7 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        require_once __DIR__ . '/../../../library/documents.php';
+        $this->loadHelpers();
 
         $io = new SymfonyStyle($input, $output);
         $globals = $this->getGlobalsBag();
@@ -118,21 +118,18 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
         ));
 
         $remaining = $limit;
-        foreach (new \DirectoryIterator($path) as $doc) {
-            if ($doc->isDot() || !$doc->isFile()) {
-                continue;
-            }
+        foreach ($this->iterateDirectory($path) as $file) {
             if ($remaining <= 0) {
                 break;
             }
 
-            $docPath = $doc->getPathname();
-            $mime = $this->detectMimeType($docPath, $doc->getExtension());
+            $docPath = $file['pathname'];
+            $mime = $this->detectMimeType($docPath, $file['extension']);
 
             if ($inSitu) {
-                $this->importInSitu($docPath, $mime, $doc->getSize(), $pid, $owner, $categoryId, $io);
+                $this->importInSitu($docPath, $mime, $file['size'], $pid, $owner, $categoryId, $io);
             } else {
-                if (!$this->importAndMove($doc->getFilename(), $docPath, $mime, $doc->getSize(), $pid, $owner, $io)) {
+                if (!$this->importAndMove($file['filename'], $docPath, $mime, $file['size'], $pid, $owner, $io)) {
                     return Command::FAILURE;
                 }
             }
@@ -142,13 +139,37 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
         return Command::SUCCESS;
     }
 
-    private function stringOption(InputInterface $input, string $name, string $default): string
+    /**
+     * Pulls in legacy procedural helpers. Extracted so tests can override
+     * with a no-op.
+     */
+    protected function loadHelpers(): void
     {
-        $value = $input->getOption($name);
-        return is_string($value) ? $value : $default;
+        require_once __DIR__ . '/../../../library/documents.php';
     }
 
-    private function resolveCategoryId(string $raw): int
+    /**
+     * Iterates files in a directory. Extracted so tests can inject a fixture
+     * list without touching the real filesystem.
+     *
+     * @return iterable<array{pathname: string, filename: string, extension: string, size: int}>
+     */
+    protected function iterateDirectory(string $path): iterable
+    {
+        foreach (new \DirectoryIterator($path) as $doc) {
+            if ($doc->isDot() || !$doc->isFile()) {
+                continue;
+            }
+            yield [
+                'pathname' => $doc->getPathname(),
+                'filename' => $doc->getFilename(),
+                'extension' => $doc->getExtension(),
+                'size' => $doc->getSize(),
+            ];
+        }
+    }
+
+    protected function resolveCategoryId(string $raw): int
     {
         if (ctype_digit($raw)) {
             return (int) $raw;
@@ -160,37 +181,43 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
         return 1;
     }
 
-    private function detectMimeType(string $path, string $extension): string
+    protected function detectMimeType(string $path, string $extension): string
     {
-        $finfo = finfo_open();
-        if ($finfo !== false) {
-            $detected = finfo_file($finfo, $path, FILEINFO_MIME_TYPE);
-            finfo_close($finfo);
-            if (is_string($detected) && $detected !== '') {
-                return $detected;
-            }
+        $detected = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
+        if (is_string($detected) && $detected !== '') {
+            return $detected;
         }
         return self::EXT_TO_MIME[strtolower($extension)] ?? 'application/octet-stream';
     }
 
-    private function importInSitu(
+    /**
+     * @return list<array{id: int|string}>
+     */
+    protected function findExistingDocument(string $docPath, string $docUrl): array
+    {
+        /** @var list<array{id: int|string}> $rows */
+        $rows = QueryUtils::fetchRecords(
+            'SELECT id FROM documents WHERE url=? OR url=? LIMIT 1',
+            [$docPath, $docUrl],
+        );
+        return $rows;
+    }
+
+    /**
+     * Creates a Document row that points at a file left in place, returning
+     * the persisted URL and document id. Extracted as a single seam so tests
+     * don't need to mock the Document ORM layer.
+     *
+     * @return array{id: int, url: string}|null
+     */
+    protected function persistInSituDocument(
         string $docPath,
+        string $docUrl,
         string $mime,
         int $size,
         string $pid,
         int $owner,
-        int $categoryId,
-        SymfonyStyle $io,
-    ): void {
-        $docUrl = 'file://' . $docPath;
-        $existing = QueryUtils::fetchRecords(
-            'SELECT id FROM documents WHERE url=? OR url=? LIMIT 1',
-            [$docPath, $docUrl],
-        );
-        if (isset($existing[0])) {
-            return;
-        }
-
+    ): ?array {
         $doc = new Document();
         $doc->set_storagemethod('0');
         $doc->set_mimetype($mime);
@@ -207,28 +234,35 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
         $doc->populate();
 
         $id = $doc->get_id();
-        if (is_numeric($id)) {
-            QueryUtils::sqlStatementThrowException(
-                'INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)',
-                [$categoryId, $id],
-            );
-            $url = $doc->get_url();
-            $urlString = is_string($url) ? $url : '';
-            $io->writeln(sprintf('%s - %s', text($docPath), text($urlString)));
-        } else {
-            $io->writeln(sprintf('%s - %s', text($docPath), xlt('Documents setup error')));
+        if (!is_numeric($id)) {
+            return null;
         }
+        $url = $doc->get_url();
+        return [
+            'id' => (int) $id,
+            'url' => is_string($url) ? $url : '',
+        ];
     }
 
-    private function importAndMove(
+    protected function attachToCategory(int $categoryId, int $documentId): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)',
+            [$categoryId, $documentId],
+        );
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function addDocument(
         string $name,
-        string $docPath,
         string $mime,
+        string $docPath,
         int $size,
-        string $pid,
         int $owner,
-        SymfonyStyle $io,
-    ): bool {
+        string $pid,
+    ): ?array {
         $result = \addNewDocument(
             name: $name,
             type: $mime,
@@ -242,8 +276,61 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
             path_depth: 1,
             skip_acl_check: true,
         );
-
         if (!is_array($result)) {
+            return null;
+        }
+        /** @var array<string, mixed> $result */
+        return $result;
+    }
+
+    protected function removeFile(string $path): bool
+    {
+        return unlink($path);
+    }
+
+    private function stringOption(InputInterface $input, string $name, string $default): string
+    {
+        $value = $input->getOption($name);
+        return is_string($value) ? $value : $default;
+    }
+
+    private function importInSitu(
+        string $docPath,
+        string $mime,
+        int $size,
+        string $pid,
+        int $owner,
+        int $categoryId,
+        SymfonyStyle $io,
+    ): void {
+        $docUrl = 'file://' . $docPath;
+        $existing = $this->findExistingDocument($docPath, $docUrl);
+        if (isset($existing[0])) {
+            return;
+        }
+
+        $persisted = $this->persistInSituDocument($docPath, $docUrl, $mime, $size, $pid, $owner);
+        if ($persisted === null) {
+            $io->writeln(sprintf('%s - %s', text($docPath), xlt('Documents setup error')));
+            return;
+        }
+
+        $this->attachToCategory($categoryId, $persisted['id']);
+        $io->writeln(sprintf('%s - %s', text($docPath), text($persisted['url'])));
+    }
+
+    private function importAndMove(
+        string $name,
+        string $docPath,
+        string $mime,
+        int $size,
+        string $pid,
+        int $owner,
+        SymfonyStyle $io,
+    ): bool {
+        $result = $this->addDocument($name, $mime, $docPath, $size, $owner, $pid);
+
+        if ($result === null) {
             $io->writeln(sprintf('%s - %s', text($docPath), xlt('Documents setup error')));
             return false;
         }
@@ -251,7 +338,7 @@ final class DocumentImportCommand extends Command implements IGlobalsAware
         $url = is_string($result['url'] ?? null) ? $result['url'] : '';
         $io->writeln(sprintf('%s - %s', text($docPath), text($url)));
 
-        if (!unlink($docPath)) {
+        if (!$this->removeFile($docPath)) {
             $io->writeln(sprintf('%s - %s', text($docPath), xlt('Original file deletion error')));
             return false;
         }
