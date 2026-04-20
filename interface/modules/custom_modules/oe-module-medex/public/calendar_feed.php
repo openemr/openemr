@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Auth\AuthHash;
 
+applyCalendarFeedCors();
 header('Content-Type: text/calendar; charset=utf-8');
 
 // Get feed token
@@ -38,8 +39,11 @@ if (empty($feedToken) || strlen($feedToken) !== 64) {
 // Get HTTP Basic Auth credentials
 $username = $_SERVER['PHP_AUTH_USER'] ?? '';
 $password = $_SERVER['PHP_AUTH_PW'] ?? '';
+$sessionUserId = (int)($_SESSION['authUserID'] ?? 0);
+$sessionUsername = trim((string)($_SESSION['authUser'] ?? ''));
+$hasSessionAuth = ($sessionUserId > 0 && $sessionUsername !== '');
 
-if (empty($username) || empty($password)) {
+if ((empty($username) || empty($password)) && !$hasSessionAuth) {
     header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
     logCalendarAccess(null, null, $feedToken, false, 'No credentials provided');
     http_response_code(401);
@@ -47,14 +51,20 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
-// Validate credentials against OpenEMR user database
-$userId = validateOpenEMRCredentials($username, $password);
-if (!$userId) {
-    header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
-    logCalendarAccess(null, $username, $feedToken, false, 'Invalid credentials');
-    http_response_code(401);
-    echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Invalid username or password\r\nEND:VCALENDAR";
-    exit;
+// Validate credentials against OpenEMR user database or reuse active OpenEMR session.
+$userId = 0;
+if (!empty($username) && !empty($password)) {
+    $userId = (int)validateOpenEMRCredentials($username, $password);
+    if (!$userId) {
+        header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
+        logCalendarAccess(null, $username, $feedToken, false, 'Invalid credentials');
+        http_response_code(401);
+        echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Invalid username or password\r\nEND:VCALENDAR";
+        exit;
+    }
+} else {
+    $userId = $sessionUserId;
+    $username = $sessionUsername;
 }
 
 // Get/verify user owns this feed and get feed configuration
@@ -239,6 +249,31 @@ function escapeIcal(string $text): string
     $text = str_replace("\n", "\\n", $text);
     $text = str_replace("\r", "", $text);
     return $text;
+}
+
+function applyCalendarFeedCors(): void
+{
+    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin === '') {
+        return;
+    }
+    $allowedOrigins = [
+        'https://api.hipaabank.net',
+        'https://medexbank.com',
+        'https://www.medexbank.com',
+    ];
+    if (!in_array($origin, $allowedOrigins, true)) {
+        return;
+    }
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
+    header('Vary: Origin');
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: GET, OPTIONS');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type');
+        http_response_code(204);
+        exit;
+    }
 }
 
 /**
