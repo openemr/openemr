@@ -1374,41 +1374,12 @@ class MedExAPI
     }
 
     /**
-     * Generate SSO token for embedding SaaS pages
-     * Creates a time-limited, signed token for secure iframe embedding
+     * Get a SaaS URL for module handoff.
      *
-     * @param int $ttl Time-to-live in seconds (default: 3600 = 1 hour)
-     * @return string|null SSO token or null if not configured
-     */
-    public function generateSSOToken(int $ttl = 3600): ?string
-    {
-        if (!$this->isConfigured()) {
-            return null;
-        }
-
-        $payload = [
-            'practice_id' => $this->practiceId,
-            'issued_at' => time(),
-            'expires_at' => time() + $ttl,
-            'nonce' => bin2hex(random_bytes(16))
-        ];
-
-        // Sign the payload with API key (HMAC-SHA256)
-        $signature = hash_hmac('sha256', json_encode($payload), $this->apiKey);
-
-        // Combine payload and signature
-        $token = base64_encode(json_encode([
-            'payload' => $payload,
-            'signature' => $signature
-        ]));
-
-        return $token;
-    }
-
-    /**
-     * Get SaaS dashboard URL with SSO token for embedding
+     * Dashboard-like destinations use the signed dashboard_sso.php bootstrap path.
+     * Non-authenticated destinations such as registration stay on direct SaaS routes.
      *
-     * @param string $page Page path (e.g., 'dashboard', 'settings', 'billing')
+     * @param string $page Page path (e.g., 'dashboard', 'settings', 'billing', 'register')
      * @param array $params Additional query parameters
      * @return string|null Full URL with SSO token or null if not configured
      */
