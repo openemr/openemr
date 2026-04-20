@@ -151,7 +151,164 @@ function getRequestData(string $rawBody): array
         return $data ?? [];
     }
 
-    return array_merge($_GET, $_POST);
+    $formData = $_POST;
+    if (empty($formData) && $rawBody !== '') {
+        parse_str($rawBody, $parsedFormData);
+        if (is_array($parsedFormData) && !empty($parsedFormData)) {
+            $formData = $parsedFormData;
+        }
+    }
+
+    return array_merge($_GET, $formData);
+}
+
+function medexResolveDateDisplayFormat($value): string
+{
+    $value = trim((string)$value);
+    $map = [
+        '0' => 'm/d/Y',
+        '1' => 'm/d/Y',
+        '2' => 'd/m/Y',
+        '3' => 'Y-m-d',
+        '4' => 'M j, Y',
+    ];
+    if (isset($map[$value])) {
+        return $map[$value];
+    }
+    return $value !== '' ? $value : 'm/d/Y';
+}
+
+function medexResolveTimeDisplayFormat($value): string
+{
+    $value = trim((string)$value);
+    $map = [
+        '0' => 'g:i A',
+        '1' => 'g:i A',
+        '2' => 'H:i',
+    ];
+    if (isset($map[$value])) {
+        return $map[$value];
+    }
+    return $value !== '' ? $value : 'g:i A';
+}
+
+function medexCallbackBaseUrl(): string
+{
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+    $proto = strtolower(trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+    if ($proto === '') {
+        $https = (string)($_SERVER['HTTPS'] ?? '');
+        $proto = (!empty($https) && strtolower($https) !== 'off') ? 'https' : 'http';
+    } else {
+        $proto = trim(explode(',', $proto)[0]);
+    }
+    if ($proto !== 'https' && $proto !== 'http') {
+        $proto = 'https';
+    }
+    if ($proto === 'http') {
+        $proto = 'https';
+    }
+    return $proto . '://' . $host;
+}
+
+function medexEnsureCalendarFeedTables(): void
+{
+    sqlStatement("
+        CREATE TABLE IF NOT EXISTS medex_calendar_feeds (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            token VARCHAR(64) NOT NULL UNIQUE,
+            name VARCHAR(255) NOT NULL,
+            openemr_user_id INT,
+            openemr_username VARCHAR(255),
+            providers TEXT,
+            facilities TEXT,
+            provider_names TEXT,
+            facility_names TEXT,
+            created_at DATETIME,
+            INDEX idx_token (token),
+            INDEX idx_user_id (openemr_user_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    sqlStatement("
+        CREATE TABLE IF NOT EXISTS medex_calendar_feed_access_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            feed_token VARCHAR(64),
+            openemr_user_id INT,
+            openemr_username VARCHAR(255),
+            ip_address VARCHAR(45),
+            user_agent TEXT,
+            success TINYINT(1) DEFAULT 0,
+            message VARCHAR(255),
+            accessed_at DATETIME,
+            INDEX idx_feed_token (feed_token),
+            INDEX idx_user_id (openemr_user_id),
+            INDEX idx_accessed_at (accessed_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+}
+
+function medexDecodeFeedNames($raw): array
+{
+    if (!is_string($raw) || trim($raw) === '') {
+        return [];
+    }
+    $decoded = json_decode($raw, true);
+    if (is_array($decoded)) {
+        return array_values(array_filter(array_map(static function ($item) {
+            return trim((string)$item);
+        }, $decoded), static function ($item) {
+            return $item !== '';
+        }));
+    }
+    $parts = array_map('trim', explode(',', $raw));
+    return array_values(array_filter($parts, static function ($item) {
+        return $item !== '';
+    }));
+}
+
+function medexCountFeedScope($raw): int
+{
+    if (!is_string($raw) || trim($raw) === '') {
+        return 0;
+    }
+    $decoded = json_decode($raw, true);
+    if (is_array($decoded)) {
+        return count(array_filter($decoded, static function ($value) {
+            return trim((string)$value) !== '';
+        }));
+    }
+    $parts = array_filter(array_map('trim', explode(',', $raw)), static function ($value) {
+        return $value !== '';
+    });
+    return count($parts);
+}
+
+function medexSimplifyCalendarClient($userAgent): string
+{
+    $ua = strtolower(trim((string)$userAgent));
+    if ($ua === '') {
+        return 'Unknown';
+    }
+    $map = [
+        'google calendar' => 'Google Calendar',
+        'applewebkit' => 'Apple Calendar',
+        'ical/' => 'Apple Calendar',
+        'outlook' => 'Outlook',
+        'thunderbird' => 'Thunderbird',
+        'fantastical' => 'Fantastical',
+        'davx5' => 'DAVx5',
+    ];
+    foreach ($map as $needle => $label) {
+        if (strpos($ua, $needle) !== false) {
+            return $label;
+        }
+    }
+    $firstToken = preg_split('/[\s\/;]+/', trim((string)$userAgent));
+    $label = trim((string)($firstToken[0] ?? 'Unknown'));
+    return $label !== '' ? substr($label, 0, 40) : 'Unknown';
 }
 
 // Validate token first
@@ -199,6 +356,66 @@ switch ($action) {
             'success' => true,
             'module_enabled' => (($GLOBALS['medex_enable'] ?? '0') == '1'),
             'timestamp' => date('c')
+        ]);
+        break;
+
+    case 'get_locale_settings':
+        $timezone = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
+            "SELECT gl_value FROM globals WHERE gl_name = ? LIMIT 1",
+            'gl_value',
+            ['gbl_time_zone']
+        );
+        $dateDisplayFormat = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
+            "SELECT gl_value FROM globals WHERE gl_name = ? LIMIT 1",
+            'gl_value',
+            ['date_display_format']
+        );
+        $timeDisplayFormat = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
+            "SELECT gl_value FROM globals WHERE gl_name = ? LIMIT 1",
+            'gl_value',
+            ['time_display_format']
+        );
+        if (!is_string($timezone) || trim($timezone) === '') {
+            $timezone = date_default_timezone_get() ?: 'UTC';
+        }
+        $dateDisplayFormat = medexResolveDateDisplayFormat($dateDisplayFormat);
+        $timeDisplayFormat = medexResolveTimeDisplayFormat($timeDisplayFormat);
+        echo json_encode([
+            'success' => true,
+            'timezone' => (string)$timezone,
+            'date_display_format' => (string)$dateDisplayFormat,
+            'time_display_format' => (string)$timeDisplayFormat,
+            'timestamp' => date('c')
+        ]);
+        break;
+
+    case 'set_locale_settings':
+        $timezone = trim((string)($data['timezone'] ?? ''));
+        if ($timezone === '' || !in_array($timezone, timezone_identifiers_list(), true)) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid timezone'
+            ]);
+            break;
+        }
+        $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+            "SELECT gl_name FROM globals WHERE gl_name = ? LIMIT 1",
+            ['gbl_time_zone']
+        );
+        if (!empty($existing['gl_name'])) {
+            sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = ?", [$timezone, 'gbl_time_zone']);
+        } else {
+            sqlStatement(
+                "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)",
+                ['gbl_time_zone', $timezone]
+            );
+        }
+        $GLOBALS['gbl_time_zone'] = $timezone;
+        @date_default_timezone_set($timezone);
+        echo json_encode([
+            'success' => true,
+            'timezone' => $timezone,
+            'message' => 'Locale time zone updated'
         ]);
         break;
 
@@ -374,6 +591,120 @@ switch ($action) {
             'facilities' => $facilities,
             'schedule_start' => $scheduleStart,
             'schedule_end' => $scheduleEnd
+        ]);
+        break;
+
+    case 'get_calendar_feeds_admin':
+        medexEnsureCalendarFeedTables();
+
+        $baseUrl = medexCallbackBaseUrl();
+        $webroot = rtrim((string)($GLOBALS['webroot'] ?? ''), '/');
+        $feeds = [];
+        $feedStmt = sqlStatement("
+            SELECT id, token, name, openemr_user_id, openemr_username, providers, facilities, provider_names, facility_names, created_at
+            FROM medex_calendar_feeds
+            ORDER BY created_at DESC, id DESC
+        ");
+        while ($row = sqlFetchArray($feedStmt)) {
+            $token = trim((string)($row['token'] ?? ''));
+            if ($token === '') {
+                continue;
+            }
+            $providerNames = medexDecodeFeedNames((string)($row['provider_names'] ?? ''));
+            $facilityNames = medexDecodeFeedNames((string)($row['facility_names'] ?? ''));
+            $feeds[$token] = [
+                'feed_id' => (int)($row['id'] ?? 0),
+                'token' => $token,
+                'name' => trim((string)($row['name'] ?? '')),
+                'owner_username' => trim((string)($row['openemr_username'] ?? '')),
+                'provider_count' => medexCountFeedScope((string)($row['providers'] ?? '')),
+                'facility_count' => medexCountFeedScope((string)($row['facilities'] ?? '')),
+                'provider_names' => $providerNames,
+                'facility_names' => $facilityNames,
+                'created_at' => (string)($row['created_at'] ?? ''),
+                'last_access' => '',
+                'hits_30d' => 0,
+                'source_counts' => [],
+                'test_url' => ($baseUrl !== '')
+                    ? ($baseUrl . $webroot . '/interface/modules/custom_modules/oe-module-medex/public/calendar_feed.php?feed=' . rawurlencode($token))
+                    : '',
+            ];
+        }
+
+        $accessRows = [];
+        $accessStmt = @sqlStatement("
+            SELECT feed_token, user_agent, success, accessed_at
+            FROM medex_calendar_feed_access_log
+            ORDER BY accessed_at DESC, id DESC
+        ");
+        if ($accessStmt) {
+            while ($row = sqlFetchArray($accessStmt)) {
+                $accessRows[] = $row;
+            }
+        }
+        foreach ($accessRows as $row) {
+            $token = trim((string)($row['feed_token'] ?? ''));
+            if ($token === '' || empty($feeds[$token])) {
+                continue;
+            }
+            $accessedAt = trim((string)($row['accessed_at'] ?? ''));
+            if ($accessedAt !== '' && $feeds[$token]['last_access'] === '') {
+                $feeds[$token]['last_access'] = $accessedAt;
+            }
+            if ($accessedAt !== '' && strtotime($accessedAt) >= (time() - (30 * 86400))) {
+                $feeds[$token]['hits_30d']++;
+            }
+            $client = medexSimplifyCalendarClient((string)($row['user_agent'] ?? ''));
+            if (!isset($feeds[$token]['source_counts'][$client])) {
+                $feeds[$token]['source_counts'][$client] = 0;
+            }
+            $feeds[$token]['source_counts'][$client]++;
+        }
+        foreach ($feeds as &$feed) {
+            if (!empty($feed['source_counts']) && is_array($feed['source_counts'])) {
+                arsort($feed['source_counts']);
+                $sourceCounts = [];
+                foreach ($feed['source_counts'] as $client => $count) {
+                    $sourceCounts[] = [
+                        'client' => (string)$client,
+                        'count' => (int)$count,
+                    ];
+                }
+                $feed['source_counts'] = $sourceCounts;
+            } else {
+                $feed['source_counts'] = [];
+            }
+        }
+        unset($feed);
+
+        echo json_encode([
+            'success' => true,
+            'feeds' => array_values($feeds),
+        ]);
+        break;
+
+    case 'delete_calendar_feed_admin':
+        medexEnsureCalendarFeedTables();
+        $feedId = trim((string)($data['feed_id'] ?? ''));
+        $token = trim((string)($data['token'] ?? ''));
+        $row = null;
+        if ($feedId !== '' && ctype_digit($feedId)) {
+            $row = sqlQuery("SELECT id, token FROM medex_calendar_feeds WHERE id = ? LIMIT 1", [(int)$feedId]);
+        } elseif ($token !== '') {
+            $row = sqlQuery("SELECT id, token FROM medex_calendar_feeds WHERE token = ? LIMIT 1", [$token]);
+        }
+        if (empty($row)) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Calendar feed not found'
+            ]);
+            break;
+        }
+        sqlStatement("DELETE FROM medex_calendar_feeds WHERE id = ?", [(int)$row['id']]);
+        @sqlStatement("DELETE FROM medex_calendar_feed_access_log WHERE feed_token = ?", [(string)($row['token'] ?? '')]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Calendar feed deleted'
         ]);
         break;
 
