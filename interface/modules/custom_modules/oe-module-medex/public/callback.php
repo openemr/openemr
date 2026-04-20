@@ -419,6 +419,42 @@ switch ($action) {
         ]);
         break;
 
+    case 'set_calendar_feed_policy':
+        $feedSecurity = strtolower(trim((string)($data['feed_security'] ?? 'secure')));
+        if (!in_array($feedSecurity, ['secure', 'insecure'], true)) {
+            $feedSecurity = 'secure';
+        }
+        $menuAcl = strtolower(trim((string)($data['menu_acl'] ?? 'patients|appt')));
+        if (!in_array($menuAcl, ['patients|appt', 'admin|super'], true)) {
+            $menuAcl = 'patients|appt';
+        }
+
+        foreach ([
+            'medex_calendar_feed_security' => $feedSecurity,
+            'medex_calendar_feed_menu_acl' => $menuAcl,
+        ] as $glName => $glValue) {
+            $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+                "SELECT gl_name FROM globals WHERE gl_name = ? LIMIT 1",
+                [$glName]
+            );
+            if (!empty($existing['gl_name'])) {
+                sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = ?", [$glValue, $glName]);
+            } else {
+                sqlStatement(
+                    "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)",
+                    [$glName, $glValue]
+                );
+            }
+            $GLOBALS[$glName] = $glValue;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'feed_security' => $feedSecurity,
+            'menu_acl' => $menuAcl,
+        ]);
+        break;
+
     case 'set_module_enabled':
         // Toggle OpenEMR MedEx global from authenticated dashboard controls.
         $enabled = ((string)($data['enabled'] ?? '0') === '1') ? '1' : '0';
