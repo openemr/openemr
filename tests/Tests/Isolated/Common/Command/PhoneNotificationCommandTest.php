@@ -289,6 +289,27 @@ class PhoneNotificationCommandTest extends TestCase
         $this->assertSame('', $command->markedSent[0]['pid']);
     }
 
+    public function testStringFieldCoercesNumericScalars(): void
+    {
+        // Covers stringField's is_int/is_float branch: numeric scalars in
+        // row fields get cast to string rather than falling through to ''.
+        $patient = self::makePatient();
+        $patient['pid'] = 42;       // int → '42'
+        $patient['pc_eid'] = 3.14;  // float → '3.14'
+
+        $command = new PhoneNotificationCommandStub(
+            patients: [$patient],
+            client: new FakeMaviqClient([new FakeRestResponse(false)]),
+        );
+        $tester = $this->createTester($command);
+
+        $tester->execute([]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame('42', $command->markedSent[0]['pid']);
+        $this->assertSame('3.14', $command->markedSent[0]['pc_eid']);
+    }
+
     public function testLogDirProducesPerDayCronLogPath(): void
     {
         $logDir = sys_get_temp_dir() . '/phone-reminder-test-' . uniqid();
