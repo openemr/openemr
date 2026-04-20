@@ -126,3 +126,26 @@ ALTER TABLE `background_services`
 #IfNotColumnType questionnaire_repository active tinyint(1)
 ALTER TABLE `questionnaire_repository` MODIFY `active` tinyint(1) NOT NULL DEFAULT 1;
 #EndIf
+
+--
+-- Fix openemr_postcalendar_events date defaults for MySQL strict mode.
+-- The zero date values are incompatible with NO_ZERO_DATE mode.
+-- NULL represents "no date" (e.g., no end date for recurring events).
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_eventDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date DEFAULT NULL;
+#EndIf
+
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
+#EndIf
+
+--
+-- Convert existing zero dates to NULL
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `openemr_postcalendar_events` SET `pc_eventDate` = NULL WHERE `pc_eventDate` = '0000-00-00';
+UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
