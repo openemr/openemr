@@ -107,9 +107,6 @@ try {
             'openemr_base_url' => $openEmrBaseUrl,
             'site' => $siteId,
         ];
-        if ($callbackToken !== '') {
-            $payload['callback_token'] = $callbackToken;
-        }
         if ($reconnect) {
             $payload['reconnect'] = 1;
         }
@@ -117,10 +114,18 @@ try {
             $payload['email'] = $email;
         }
 
+        $encodedPayload = base64_encode(json_encode($payload));
+        $signature = ($callbackToken !== '')
+            ? hash_hmac('sha256', $encodedPayload, $callbackToken)
+            : '';
+
         $cloudUrl = 'https://api.hipaabank.net/cart/upload/dashboard_sso.php'
             . '?site=' . urlencode($siteId)
             . '&tab=' . urlencode($tab)
-            . '&sso_token=' . urlencode(base64_encode(json_encode($payload)));
+            . '&sso_token=' . urlencode($encodedPayload);
+        if ($signature !== '') {
+            $cloudUrl .= '&sso_sig=' . urlencode($signature);
+        }
     }
 
     $errorMessage = xlt('Unable to create a valid MedEx dashboard session.');
@@ -134,6 +139,15 @@ if ($email !== '') {
     $reconnectUrl .= '&email=' . urlencode($email);
 }
 $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?site=' . urlencode($siteId);
+$tabsHomeUrl = $webroot . '/interface/main/tabs/main.php';
+$mainScreenUrl = $webroot . '/interface/main/main_screen.php';
+$cloudOrigin = '';
+if ($cloudUrl !== '') {
+    $cloudParts = parse_url($cloudUrl);
+    if (!empty($cloudParts['scheme']) && !empty($cloudParts['host'])) {
+        $cloudOrigin = $cloudParts['scheme'] . '://' . $cloudParts['host'] . (!empty($cloudParts['port']) ? ':' . $cloudParts['port'] : '');
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -164,12 +178,140 @@ $onboardingUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/a
 <div class="app-shell">
     <div class="frame-wrap">
         <iframe
+            id="medexDashboardFrame"
             src="<?php echo attr($cloudUrl); ?>"
             title="<?php echo attr(xlt('MedEx Dashboard')); ?>"
             referrerpolicy="strict-origin-when-cross-origin"
         ></iframe>
     </div>
 </div>
+<script>
+(function() {
+    const allowedOrigin = <?php echo json_encode($cloudOrigin, JSON_UNESCAPED_SLASHES); ?>;
+    const tabsHomeUrl = <?php echo json_encode($tabsHomeUrl, JSON_UNESCAPED_SLASHES); ?>;
+    const mainScreenUrl = <?php echo json_encode($mainScreenUrl, JSON_UNESCAPED_SLASHES); ?>;
+    const frame = document.getElementById('medexDashboardFrame');
+
+    function fallbackHomeUrl() {
+        return tabsHomeUrl || mainScreenUrl || '/';
+    }
+
+    function closeEmbeddedDashboard() {
+        const topWin = window.top || window;
+        let fallbackTimer = null;
+
+        try {
+            if (topWin.history && topWin.history.length > 1) {
+                const beforeHref = topWin.location ? topWin.location.href : '';
+                fallbackTimer = window.setTimeout(function() {
+                    try {
+                        const afterHref = topWin.location ? topWin.location.href : '';
+                        if (afterHref === beforeHref || afterHref.indexOf('/interface/modules/custom_modules/oe-module-medex/admin/index.php') !== -1) {
+                            topWin.location.href = fallbackHomeUrl();
+                        }
+                    } catch (e) {
+                        topWin.location.href = fallbackHomeUrl();
+                    }
+                }, 350);
+                topWin.history.back();
+                return;
+            }
+        } catch (e) {
+            if (fallbackTimer) {
+                window.clearTimeout(fallbackTimer);
+            }
+        }
+
+        try {
+            topWin.location.href = fallbackHomeUrl();
+            return;
+        } catch (e) {}
+
+        window.location.href = fallbackHomeUrl();
+    }
+
+    function openPopupWindow(targetUrl, fullscreenMode) {
+        const width = Math.max(1280, Math.floor((window.screen && window.screen.availWidth) || 1440));
+        const height = Math.max(820, Math.floor((window.screen && window.screen.availHeight) || 960));
+        const left = Math.max(0, Math.floor((((window.screen && window.screen.availWidth) || width) - width) / 2));
+        const top = Math.max(0, Math.floor((((window.screen && window.screen.availHeight) || height) - height) / 2));
+        const popup = window.open(
+            targetUrl,
+            fullscreenMode ? 'MedExDashboardFullscreen' : 'MedExDashboardWindow',
+            [
+                'popup=yes',
+                'resizable=yes',
+                'scrollbars=yes',
+                'toolbar=no',
+                'menubar=no',
+                'location=yes',
+                'status=no',
+                'width=' + width,
+                'height=' + height,
+                'left=' + left,
+                'top=' + top
+            ].join(',')
+        );
+        if (popup && typeof popup.focus === 'function') {
+            popup.focus();
+        }
+        return popup;
+    }
+
+    function normalizeTargetUrl(rawUrl) {
+        const candidate = rawUrl || (frame ? frame.getAttribute('src') : '');
+        if (!candidate) {
+            return '';
+        }
+        try {
+            const url = new URL(candidate, window.location.href);
+            if (allowedOrigin && url.origin !== allowedOrigin) {
+                return '';
+            }
+            return url.toString();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    window.addEventListener('message', function(event) {
+        if (allowedOrigin && event.origin !== allowedOrigin) {
+            return;
+        }
+        const data = event.data || {};
+        if (data.source !== 'medex-dashboard-shell' || data.type !== 'medex-window-control') {
+            return;
+        }
+
+        const action = String(data.action || '');
+        const targetUrl = normalizeTargetUrl(String(data.url || ''));
+
+        if (action === 'close') {
+            closeEmbeddedDashboard();
+            return;
+        }
+
+        if (action === 'popout') {
+            const popup = openPopupWindow(targetUrl, false);
+            if (popup) {
+                closeEmbeddedDashboard();
+            } else {
+                window.alert('Popup blocked. Allow popups for this site to open MedEx in its own window.');
+            }
+            return;
+        }
+
+        if (action === 'fullscreen' && targetUrl !== '') {
+            const popup = openPopupWindow(targetUrl, true);
+            if (popup) {
+                closeEmbeddedDashboard();
+            } else {
+                window.alert('Popup blocked. Allow popups for this site to open MedEx in a fullscreen window.');
+            }
+        }
+    });
+})();
+</script>
 <?php else: ?>
 <div class="shell">
     <h1><?php echo xlt('MedEx Admin'); ?></h1>
