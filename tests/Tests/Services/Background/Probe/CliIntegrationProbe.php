@@ -28,11 +28,9 @@ namespace OpenEMR\Tests\Services\Background\Probe;
  * same path from `sys_get_temp_dir()`, which is stable within the
  * container where the `services` test suite runs.
  */
-const CLI_PROBE_SENTINEL_BASENAME = '_e2e_cli_probe_sentinel';
-
 function cliProbeSentinelPath(): string
 {
-    return sys_get_temp_dir() . DIRECTORY_SEPARATOR . CLI_PROBE_SENTINEL_BASENAME;
+    return sys_get_temp_dir() . DIRECTORY_SEPARATOR . '_e2e_cli_probe_sentinel';
 }
 
 /**
