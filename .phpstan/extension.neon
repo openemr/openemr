@@ -1,11 +1,15 @@
-# PHPStan Extension for OpenEMR Database Migration Rules
+# PHPStan Extension for OpenEMR Custom Rules
 #
-# This extension registers custom rules to enforce modern database patterns:
+# This extension registers project-specific rules that enforce modern
+# patterns and forbid legacy or dangerous constructs:
 # 1. Forbid laminas-db usage outside zend_modules
 # 2. Forbid legacy sql.inc.php functions in src/ directory
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
 # 4. Forbid @covers annotations and #[CoversClass]/#[CoversFunction] attributes
 # 5. Forbid raw curl_* functions in favor of GuzzleHttp
+# 6. Forbid shell execution functions and eval()
+#    Note: the backtick operator is enforced by phpstan-strict-rules
+#    (backtick.notAllowed), not by a custom rule registered here.
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -62,5 +66,11 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenRequestGlobalsRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenShellExecutionRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenEvalRule
   tags:
   - phpstan.rules.rule

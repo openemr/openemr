@@ -45,16 +45,6 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertSame('skipped', $results[0]['status']);
     }
 
-    public function testRunSkipsAlreadyRunningService(): void
-    {
-        $runner = new BackgroundServiceRunnerStub(services: [
-            self::makeService('svc1', running: true),
-        ]);
-        $results = $runner->run('svc1');
-
-        $this->assertSame('skipped', $results[0]['status']);
-    }
-
     public function testRunReturnsAlreadyRunningWhenLockFailsDueToRunningProcess(): void
     {
         $runner = new BackgroundServiceRunnerStub(
@@ -160,20 +150,21 @@ class BackgroundServiceRunnerTest extends TestCase
     private static function makeService(
         string $name,
         bool $active = true,
-        bool $running = false,
         int $executeInterval = 5,
+        ?string $lockExpiresAt = null,
     ): array {
         // Use string values to match ADOdb runtime behavior (numeric-string)
         return [
             'name' => $name,
             'title' => $name,
             'active' => $active ? '1' : '0',
-            'running' => $running ? '1' : '0',
+            'running' => $lockExpiresAt !== null ? '1' : '0',
             'next_run' => '2020-01-01 00:00:00',
             'execute_interval' => (string) $executeInterval,
             'function' => 'test_function_' . $name,
             'require_once' => null,
             'sort_order' => '100',
+            'lock_expires_at' => $lockExpiresAt,
         ];
     }
 }

@@ -146,6 +146,13 @@ class InstallerTest extends TestCase
         $this->assertFalse($this->installer->iuname_is_valid());
     }
 
+    public function testIgroupIsValid(): void
+    {
+        $this->assertTrue($this->installer->igroup_is_valid());
+        $this->installer->igroup = '';
+        $this->assertFalse($this->installer->igroup_is_valid());
+    }
+
     public function testPasswordIsValid(): void
     {
         $this->assertTrue($this->installer->password_is_valid());
@@ -641,6 +648,7 @@ class InstallerTest extends TestCase
             'create_site_directory',
             'disconnect',
             'grant_privileges',
+            'igroup_is_valid',
             'install_additional_users',
             'install_gacl',
             'insert_globals',
@@ -659,6 +667,7 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->once())->method('login_is_valid')->willReturn(true);
         $mockInstaller->expects($this->once())->method('iuser_is_valid')->willReturn(true);
         $mockInstaller->expects($this->once())->method('user_password_is_valid')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('igroup_is_valid')->willReturn(true);
         $mockInstaller->expects($this->once())->method('password_is_valid')->willReturn(true);
 
         // Mock database connection methods
@@ -707,6 +716,7 @@ class InstallerTest extends TestCase
             'create_dumpfiles',
             'disconnect',
             'grant_privileges',
+            'igroup_is_valid',
             'insert_globals',
             'install_additional_users',
             'install_gacl',
@@ -724,6 +734,7 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->never())->method('login_is_valid');
         $mockInstaller->expects($this->never())->method('iuser_is_valid');
         $mockInstaller->expects($this->never())->method('user_password_is_valid');
+        $mockInstaller->expects($this->never())->method('igroup_is_valid');
 
         $mockInstaller->expects($this->once())->method('password_is_valid')->willReturn(true);
         $mockInstaller->expects($this->exactly(2))->method('root_database_connection')->willReturn(true);

@@ -328,8 +328,9 @@ function rc_sms_notification_cron_update_entry(NotificationChannel $channel, int
  * WHERE clause runs, causing duplicate email reminders. See issue #11477.
  *
  * Renamed from `cron_GetAlertPatientData()` to a module-prefixed name to avoid
- * a PHP case-insensitive collision with the legacy `cron_getAlertpatientData()`
- * in `modules/sms_email_reminder/cron_functions.php`.
+ * a PHP case-insensitive collision with a legacy `cron_getAlertpatientData()`
+ * that historically lived in the (now-removed) `modules/sms_email_reminder`
+ * module.
  *
  * @return list<array<mixed>>
  */

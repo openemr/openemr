@@ -18,7 +18,6 @@ return RectorConfig::configure()
         __DIR__ . '/gacl',
         __DIR__ . '/interface',
         __DIR__ . '/library',
-        __DIR__ . '/modules',
         __DIR__ . '/portal',
         __DIR__ . '/sites',
         __DIR__ . '/sphere',

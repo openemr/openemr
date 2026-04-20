@@ -272,11 +272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/user.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\PatientPortal\\\\Chat\\\\ChatController not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/secure_chat.php',

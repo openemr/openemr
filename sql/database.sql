@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 536
+-- v_database: 537
 --
 
 --
@@ -196,6 +196,7 @@ CREATE TABLE `background_services` (
   `function` varchar(127) NOT NULL COMMENT 'name of background service function',
   `require_once` varchar(255) default NULL COMMENT 'include file (if necessary)',
   `sort_order` int(11) NOT NULL default '100' COMMENT 'lower numbers will be run first',
+  `lock_expires_at` datetime DEFAULT NULL COMMENT 'Lease expiration. Compared with NOW() on acquire, so the stored value uses whatever session timezone is in effect (OpenEMR syncs it to gbl_time_zone). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.',
   PRIMARY KEY  (`name`)
 ) ENGINE=InnoDB;
 
@@ -14322,7 +14323,7 @@ CREATE TABLE `questionnaire_repository` (
     `name` varchar(255) DEFAULT NULL,
     `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
     `profile` varchar(255) DEFAULT NULL,
-    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
     `status` varchar(31) DEFAULT NULL,
     `source_url` text,
     `code` varchar(255) DEFAULT NULL,

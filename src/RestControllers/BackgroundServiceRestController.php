@@ -26,10 +26,12 @@ class BackgroundServiceRestController
     private readonly BackgroundServiceRegistry $registry;
     private readonly BackgroundServiceRunner $runner;
 
-    public function __construct()
-    {
-        $this->registry = new BackgroundServiceRegistry();
-        $this->runner = new BackgroundServiceRunner();
+    public function __construct(
+        ?BackgroundServiceRegistry $registry = null,
+        ?BackgroundServiceRunner $runner = null,
+    ) {
+        $this->registry = $registry ?? new BackgroundServiceRegistry();
+        $this->runner = $runner ?? new BackgroundServiceRunner();
     }
 
     #[OA\Get(
@@ -134,6 +136,52 @@ class BackgroundServiceRestController
             'execute_interval' => $definition->executeInterval,
             'next_run' => $definition->nextRun,
         ]);
+    }
+
+    #[OA\Post(
+        path: '/api/background_service/$run',
+        description: 'Advances any background services that are due to run. Cannot force-run a specific service and cannot bypass intervals. Returns HTTP 200 with a per-service results array regardless of individual outcomes — the runner is always correct to invoke, and `not_due` / `already_running` / `skipped` are expected states, not errors.',
+        tags: ['standard'],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Per-service results (may be empty if no services were due)',
+                content: new OA\JsonContent(
+                    required: ['results'],
+                    properties: [
+                        new OA\Property(
+                            property: 'results',
+                            type: 'array',
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['name', 'status'],
+                                properties: [
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(
+                                        property: 'status',
+                                        type: 'string',
+                                        enum: ['executed', 'skipped', 'already_running', 'not_due', 'error'],
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ],
+                    example: [
+                        'results' => [
+                            ['name' => 'phimail', 'status' => 'executed'],
+                            ['name' => 'Email_Service', 'status' => 'not_due'],
+                        ],
+                    ],
+                ),
+            ),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]],
+    )]
+    public function runAllDue(): Response
+    {
+        $results = $this->runner->run(null, false);
+        return new JsonResponse(['results' => $results]);
     }
 
     /**
