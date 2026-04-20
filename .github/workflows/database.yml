@@ -94,7 +94,7 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd=${{ matrix.db.health-cmd }}
+          --health-cmd="${{ matrix.db.health-cmd }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
