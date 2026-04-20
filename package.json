@@ -41,7 +41,7 @@
   ],
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "autoprefixer": "10.4.27",
+    "autoprefixer": "10.5.0",
     "colors": "1.4.0",
     "del": "6.1.1",
     "eslint": "9.39.4",
