@@ -163,11 +163,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];

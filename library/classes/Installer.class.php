@@ -238,6 +238,21 @@ class Installer implements InstallerInterface
     }
 
     /**
+     * Validate if the initial group is valid.
+     *
+     * @return bool True if initial group is valid, false otherwise
+     */
+    public function igroup_is_valid(): bool
+    {
+        if ($this->igroup === '') {
+            $this->error_message = "Initial group is invalid: '$this->igroup'";
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Validate if the database password is valid.
      *
      * @return bool True if password is valid, false otherwise
@@ -1433,6 +1448,10 @@ $config = 1; /////////////
             }
 
             if (! $this->user_password_is_valid()) {
+                return false;
+            }
+
+            if (! $this->igroup_is_valid()) {
                 return false;
             }
         }
