@@ -46,6 +46,11 @@ final class Version20260000010002 extends AbstractMigration
             'comment' => 'include file (if necessary)',
         ]);
         $table->addColumn('sort_order', Types::INTEGER, ['default' => 100, 'comment' => 'lower numbers will be run first']);
+        $table->addColumn('lock_expires_at', Types::DATETIME_MUTABLE, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'Lease expiration. Compared with NOW() on acquire, so the stored value uses whatever session timezone is in effect (OpenEMR syncs it to gbl_time_zone). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.',
+        ]);
         $this->addPrimaryKey($table, 'name');
         $this->createTable($table);
     }
