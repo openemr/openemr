@@ -88,7 +88,11 @@ function generateIcalFromOpenEMR(array $feedConfig, int $userId): string
     $lines[] = "X-WR-CALNAME:OpenEMR Appointments";
     
     // Build WHERE clause based on feed configuration
-    $where = ["e.pc_recurrtype = 0"]; // Non-recurring only for simplicity
+    $where = [
+        "e.pc_recurrtype = 0", // Non-recurring only for simplicity
+        "e.pc_pid IS NOT NULL",
+        "e.pc_pid > 0"
+    ];
     $params = [];
     
     // Filter by providers if specified
