@@ -26,6 +26,7 @@ use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
     FhirSearchWhereClauseBuilder,
+    ISearchField,
     SearchModifier,
     TokenSearchField,
     TokenSearchValue,
@@ -73,7 +74,7 @@ class InsuranceService extends BaseService
         return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
@@ -135,11 +136,11 @@ class InsuranceService extends BaseService
 
     /**
      * @deprecated use search instead
-     * @param $search
+     * @param array<string, string> $search
      * @param $isAndCondition
      * @return ProcessingResult|true
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
 
         // Validating and Converting Patient UUID to PID

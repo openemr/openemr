@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -61,5 +61,24 @@ class KeychainTest extends TestCase
         $keychain = new Keychain();
         self::expectException(OutOfBoundsException::class);
         $keychain->getCipher(new KeyId('not registered'));
+    }
+
+    public function testCurrentKeyIsMostRecent(): void
+    {
+        $keychain = new Keychain();
+        try {
+            $_ = $keychain->getCurrentKeyId();
+            $this->fail('getCurrentKeyId before registering ciphers should be an error');
+        } catch (\Error) {
+            $this->addToAssertionCount(1);
+        }
+
+        $id1 = new KeyId('key one');
+        $keychain->registerCipher($id1, self::createStub(CipherInterface::class));
+        self::assertSame($id1, $keychain->getCurrentKeyId());
+
+        $id2 = new KeyId('key two');
+        $keychain->registerCipher($id2, self::createStub(CipherInterface::class));
+        self::assertSame($id2, $keychain->getCurrentKeyId());
     }
 }

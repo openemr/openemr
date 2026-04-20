@@ -413,13 +413,14 @@ function checkBackgroundServices(): void
                         <div id="globals-div">
                             <ul class="tabNav tabWidthWide sticky-top" id="oe-nav-ul">
                                 <?php
-                                $i = 0;
+                                $tabClass = ' class="current"';
                                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                                        echo " <li" . ($i ? "" : " class='current'") .
-                                            "><a href='#'>" .
-                                            xlt($grpname) . "</a></li>\n";
-                                        ++$i;
+                                        $grpnameStr = is_string($grpname) ? $grpname : '';
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabLabel = xlt($grpnameStr);
+                                        printf('<li%s><a href="#">%s</a></li>', $tabClass, $tabLabel);
+                                        $tabClass = '';
                                     }
                                 }
                                 ?>
@@ -431,11 +432,20 @@ function checkBackgroundServices(): void
                                 $authUserID = $session->get('authUserID');
                                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
+                                        $grpnameStr = is_string($grpname) ? $grpname : '';
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
                                         echo '<div class="striped">';
                                         $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
-                                        echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabHeading = xlt($grpnameStr);
+                                        $addendumHtml = text($addendum);
+                                        echo <<<HTML
+                                            <div class="col-sm-12 oe-global-tab-heading">
+                                                <div class="oe-pull-toward" style="font-size: 1.4rem">{$tabHeading} &nbsp;</div>
+                                                <div style="margin-top: 5px">{$addendumHtml}</div>
+                                            </div>
+                                            HTML;
                                         echo "<div class='clearfix'></div>";
                                         if ($userMode) {
                                             echo "<div class='row'>";
@@ -590,13 +600,14 @@ function checkBackgroundServices(): void
                                                     $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                     while ($row = sqlFetchArray($res)) {
+                                                        $langDesc = is_string($row['lang_description'] ?? null) ? $row['lang_description'] : '';
                                                         echo "   <option value='" . attr($row['lang_description']) . "'";
                                                         if ($row['lang_description'] == $fldvalue) {
                                                             echo " selected";
                                                         }
 
                                                         echo ">";
-                                                        echo xlt($row['lang_description']);
+                                                        echo text(xl_list_label($langDesc));
                                                         echo "</option>\n";
                                                     }
 
@@ -605,13 +616,14 @@ function checkBackgroundServices(): void
                                                     global $code_types;
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                     foreach (array_keys($code_types) as $code_key) {
+                                                        $codeLabel = is_string($code_types[$code_key]['label'] ?? null) ? $code_types[$code_key]['label'] : '';
                                                         echo "   <option value='" . attr($code_key) . "'";
                                                         if ($code_key == $fldvalue) {
                                                             echo " selected";
                                                         }
 
                                                         echo ">";
-                                                        echo xlt($code_types[$code_key]['label']);
+                                                        echo text(xl_list_label($codeLabel));
                                                         echo "</option>\n";
                                                     }
 
@@ -620,6 +632,7 @@ function checkBackgroundServices(): void
                                                     $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
                                                     echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                                     while ($row = sqlFetchArray($res)) {
+                                                        $langDesc = is_string($row['lang_description'] ?? null) ? $row['lang_description'] : '';
                                                         echo "   <option value='" . attr($row['lang_description']) . "'";
                                                         foreach ($glarr as $glrow) {
                                                             if ($glrow['gl_value'] == $row['lang_description']) {
@@ -628,7 +641,7 @@ function checkBackgroundServices(): void
                                                             }
                                                         }
                                                         echo ">";
-                                                        echo xlt($row['lang_description']);
+                                                        echo text(xl_list_label($langDesc));
                                                         echo "</option>\n";
                                                     }
                                                     echo "  </select>\n";
@@ -639,20 +652,22 @@ function checkBackgroundServices(): void
                                                         $hiddenList[] = $row['gl_value'];
                                                     }
                                                     // The list of cards to hide. For now add to array new cards.
+                                                    // Store raw literals; escape via attr() and translate via xlt()
+                                                    // once at output below.
                                                     $res = [
-                                                        ['card_abrev' => '', 'card_name' => xlt('None or Reset')],
-                                                        ['card_abrev' => attr('card_allergies'), 'card_name' => xlt('Allergies')],
-                                                        ['card_abrev' => attr('card_amendments'), 'card_name' => xlt('Amendments')],
-                                                        ['card_abrev' => attr('card_disclosure'), 'card_name' => xlt('Disclosures')],
-                                                        ['card_abrev' => attr('card_insurance'), 'card_name' => xlt('Insurance')],
-                                                        ['card_abrev' => attr('card_lab'), 'card_name' => xlt('Labs')],
-                                                        ['card_abrev' => attr('card_medicalproblems'), 'card_name' => xlt('Medical Problems')],
-                                                        ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
+                                                        ['card_abrev' => '', 'card_name' => 'None or Reset'],
+                                                        ['card_abrev' => 'card_allergies', 'card_name' => 'Allergies'],
+                                                        ['card_abrev' => 'card_amendments', 'card_name' => 'Amendments'],
+                                                        ['card_abrev' => 'card_disclosure', 'card_name' => 'Disclosures'],
+                                                        ['card_abrev' => 'card_insurance', 'card_name' => 'Insurance'],
+                                                        ['card_abrev' => 'card_lab', 'card_name' => 'Labs'],
+                                                        ['card_abrev' => 'card_medicalproblems', 'card_name' => 'Medical Problems'],
+                                                        ['card_abrev' => 'card_medication', 'card_name' => 'Medications'],
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
-                                                        ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
-                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
-                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
-                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')],
+                                                        ['card_abrev' => 'card_vitals', 'card_name' => 'Vitals'],
+                                                        ['card_abrev' => 'card_care_team', 'card_name' => 'Care Team'],
+                                                        ['card_abrev' => 'card_care_experience', 'card_name' => 'Care Experience Preferences'],
+                                                        ['card_abrev' => 'card_treatment_preferences', 'card_name' => 'Treatment Intervention Preferences'],
                                                     ];
                                                     echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
                                                     foreach ($res as $row) {
@@ -664,6 +679,9 @@ function checkBackgroundServices(): void
                                                             }
                                                         }
                                                         echo ">";
+                                                        // Translate + escape once at output. Card names should always
+                                                        // be translated, not gated on translate_lists. PHPStan infers
+                                                        // literal-string from the array shape above.
                                                         echo xlt($row['card_name']);
                                                         echo "</option>\n";
                                                     }
@@ -807,7 +825,16 @@ function checkBackgroundServices(): void
                                         echo "<div class='btn-group oe-margin-b-10'>" .
                                             "<button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save'" .
                                             "value='" . xla('Save') . "'>" . xlt('Save') . "</button></div>";
-                                        echo "<div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabFooter = xlt($grpnameStr);
+                                        echo <<<HTML
+                                            <div class="oe-pull-away oe-margin-t-10">
+                                                {$tabFooter} &nbsp;
+                                                <a href="#" class="text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll" aria-hidden="true"></a>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                            </div>
+                                            HTML;
                                         echo " </div>\n";
                                     }
                                 }

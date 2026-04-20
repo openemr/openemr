@@ -172,7 +172,9 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         if (!empty($dataRecord['name'])) {
             $name = is_string($dataRecord['name']) ? $dataRecord['name'] : '';
             if ($dataRecord['type'] != 'facility') {
-                $name = xl_list_label($name);
+                // LocationService hard-codes patient/user `name` to the literal
+                // "Home Address" — translate the known literal directly.
+                $name = xl('Home Address');
             }
             $locationResource->setName(new FHIRString($name));
         } else {

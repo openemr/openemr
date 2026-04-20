@@ -133,7 +133,7 @@ class TreatmentPreferenceViewCard extends CardModel
             'pid'              => $this->pid,
             'auth'             => true,  // TODO ACL
             'can_write'        => true,  // TODO ACL
-            'webroot'          => OEGlobalsBag::getInstance()->get('webroot') ?? '',
+            'webroot'          => OEGlobalsBag::getInstance()->getKernel()->getWebRoot(),
             'csrf_token'       => CsrfUtils::collectCsrfToken(session: $session),
             'preferences'      => $preferences,
             'loinc_codes'      => $loincCodes,

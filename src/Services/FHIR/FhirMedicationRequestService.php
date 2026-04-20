@@ -474,7 +474,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
                     $dataRecord['category'] =>
-                        ['code' => $dataRecord['category'], 'description' => xl_list_label($categoryTitle)
+                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
                             ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
                 ]
             ));

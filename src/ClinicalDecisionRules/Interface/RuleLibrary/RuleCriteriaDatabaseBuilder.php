@@ -27,7 +27,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
     }
 
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
@@ -49,7 +49,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {
@@ -76,20 +76,11 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
         }
 
         if ($ruleCriteriaType->code == RuleCriteriaType::custom) {
-            $table = $exploded[1];
-            $column = $exploded[2];
-            $valueComparator = $exploded[3];
-            $value = $exploded[4];
-            $frequencyComparator = $exploded[5];
-            $frequency = $exploded[6];
-            return new RuleCriteriaDatabaseCustom(
-                $table,
-                $column,
-                $valueComparator,
-                $value,
-                $frequencyComparator,
-                $frequency
-            );
+            // Pad to exactly 6 segments so a malformed/short stored value
+            // cannot blow up the typed RuleCriteriaDatabaseCustom constructor
+            // with a null TypeError.
+            $segments = array_pad(array_slice($exploded, 1, 6), 6, '');
+            return new RuleCriteriaDatabaseCustom(...$segments);
         }
 
         return null;

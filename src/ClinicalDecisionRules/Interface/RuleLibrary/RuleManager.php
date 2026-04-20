@@ -151,9 +151,9 @@ class RuleManager
      * rules specific to the patient.
      *
      * Returns null if no rule is found matching the id or patient.
-     * @param <type> $id
-     * @param <type> $pid
-     * @return Rule
+     * @param string $id
+     * @param int $pid
+     * @return ?Rule
      */
     function getRule($id, $pid = 0)
     {
@@ -308,8 +308,9 @@ class RuleManager
     }
 
     /**
+     * @param Rule $rule
      * @param string $guid
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function getRuleFilterCriteria($rule, $guid)
     {
@@ -331,7 +332,7 @@ class RuleManager
     /**
      * @param Rule $rule
      * @param string $guid
-     * @return array RuleTargetActionGroup|null
+     * @return ?RuleTargetActionGroup
      */
     function getRuleTargetActionGroups($rule, $guid)
     {
@@ -357,8 +358,9 @@ class RuleManager
     }
 
     /**
+     * @param Rule $rule
      * @param string $guid
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function getRuleTargetCriteria($rule, $guid)
     {
@@ -378,8 +380,9 @@ class RuleManager
     }
 
     /**
-     * @param string $guid
-     * @return RuleCriteria
+     * @param Rule $rule
+     * @param int $groupId
+     * @return ?RuleCriteria
      */
     function getRuleTargetCriteriaByGroupId($rule, $groupId)
     {
@@ -473,8 +476,9 @@ class RuleManager
     }
 
     /**
-     *
-     * @return RuleAction
+     * @param Rule $rule
+     * @param string $guid
+     * @return ?RuleAction
      */
     function getRuleAction($rule, $guid)
     {
@@ -707,7 +711,7 @@ class RuleManager
      *
      * @param Rule $rule
      * @param RuleCriteriaType $criteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function createFilterRuleCriteria($rule, $criteriaType)
     {
@@ -718,7 +722,7 @@ class RuleManager
      *
      * @param Rule $rule
      * @param RuleCriteriaType $criteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function createTargetRuleCriteria($rule, $criteriaType)
     {

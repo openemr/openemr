@@ -45,7 +45,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
 $versionService = new VersionService();
-$softwareVersion = text($versionService->asString());
+$softwareVersion = text((string) $versionService->getSoftwareVersion());
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductDialogStatus();

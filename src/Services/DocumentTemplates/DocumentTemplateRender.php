@@ -29,8 +29,9 @@ use OpenEMR\Services\VersionService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/appointments.inc.php');
+require_once($srcDir . '/options.inc.php');
 
 class DocumentTemplateRender
 {
@@ -61,7 +62,7 @@ class DocumentTemplateRender
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
-        $this->version = (new VersionService())->asString();
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }

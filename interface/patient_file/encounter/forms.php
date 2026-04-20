@@ -151,22 +151,18 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             encounterConfig,
             {
                 afterFormSuccess: function (response) {
-                    // If the response indicates a locked encounter, replace all
-                    // form edit buttons with a "disabled" button, and "disable" left
-                    // nav visit form links
                     if (response.locked) {
-                        // Lock the form edit buttons
-                        $(".form-edit-button").replaceWith(response.editButtonHtml);
-                        // Disable the new-form capabilities in left nav
-                        top.window.parent.left_nav.syncRadios();
-                        // Disable the new-form capabilities in top nav of the encounter
-                        $(".encounter-form-category-li").remove();
+                        // due to the way that a locked encounter can trigger parts of the UX to be disabled / hidden
+                        // (like updating log contents, navigation, and edit buttons on the forms), we want to ensure
+                        // that after an encounter is signed, the page is reloaded to reflect those changes.
+                        window.location.reload();
+                    } else {
+                        // if there was an error applying the signature, we don't want to reload the page, but we do want to update the log in case there is information there about the error
+                        var logId = "esign-signature-log-encounter-" + response.encounterId;
+                        $.post(encounterConfig.logViewAction, response, function (html) {
+                            $("#" + logId).replaceWith(html);
+                        });
                     }
-
-                    var logId = "esign-signature-log-encounter-" + response.encounterId;
-                    $.post(encounterConfig.logViewAction, response, function (html) {
-                        $("#" + logId).replaceWith(html);
-                    });
                 }
             }
         );
@@ -420,12 +416,13 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 
     function openNewForm(sel, label) {
         top.restoreSession();
-        let FormNameValueArray = sel.split('formname=');
-        if (FormNameValueArray[1] == 'newpatient') {
+        const url = new URL(sel, window.location.origin);
+        const formName = url.searchParams.get('formname');
+        if (formName == 'newpatient') {
             // TBD: Make this work when it's not the first frame.
             parent.frames[0].location.href = sel;
         } else {
-            if (FormNameValueArray[1] == 'questionnaire_assessments') {
+            if (formName == 'questionnaire_assessments') {
                 const params = new URLSearchParams({ questionnaire_form: label });
                 sel += "&" + params;
             }
@@ -551,78 +548,80 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     }
 
 
-    // Convert the flat list of menu items into a multi-dimensional array based on the category
-    // decide what will be displayed (name or nickname)
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
-        $menuArray = $menuEvent->getMenuData();
-        $reg = getFormsByCategory();
-        // Check sensitivity from the appropriate table based on encounter type
-        $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
-            ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
-            : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
-        $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
-        $pass_sens = true;
-        if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
-            $pass_sens = false;
-        }
-        foreach ($reg as $item) {
-            $tmp = explode('|', (string) $item['aco_spec']);
-            if ($pass_sens) {
-                if (!empty($tmp[1])) {
-                    if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-                        continue;
+    if (!$encounterLocked) {
+        // Convert the flat list of menu items into a multi-dimensional array based on the category
+        // decide what will be displayed (name or nickname)
+        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+            $menuArray = $menuEvent->getMenuData();
+            $reg = getFormsByCategory();
+            // Check sensitivity from the appropriate table based on encounter type
+            $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
+                ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
+                : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
+            $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+            $pass_sens = true;
+            if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
+                $pass_sens = false;
+            }
+            foreach ($reg as $item) {
+                $tmp = explode('|', (string) $item['aco_spec']);
+                if ($pass_sens) {
+                    if (!empty($tmp[1])) {
+                        if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
+                            continue;
+                        }
                     }
+                } else {
+                    continue;
                 }
-            } else {
-                continue;
+
+                $_cat = trim($item['category'] ?? '');
+                $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
+                $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
+                unset($item['category']);
+                unset($item['name']);
+                unset($item['nickname']);
+                $menuArray[$_cat]['children'][] = $item;
+            }
+            $menuEvent->setMenuData($menuArray);
+            return $menuEvent;
+        });
+
+
+        // Zend Module hooks
+        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+            $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
+        FROM modules_hooks_settings AS msh
+        LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+        LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+        WHERE fld_type=3
+            AND mod_active=1
+            AND sql_run=1
+            AND attached_to='encounter'
+        ORDER BY mod_id");
+
+            $menuData = $menuEvent->getMenuData();
+
+            while ($row = sqlFetchArray($module_query)) {
+                $_cat = $row['mod_ui_name'];
+                if ($row['type'] == 0) {
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
+                    $added = "";
+                } else {
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
+                    $added = "index";
+                }
+
+                $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
+                $row['menu_name'] = $row['menu_name'] ?: "No_Name";
+                $row['href'] = $relativeLink;
+                $menuData[$_cat]['children'][] = $row;
             }
 
-            $_cat = trim($item['category'] ?? '');
-            $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-            $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
-            unset($item['category']);
-            unset($item['name']);
-            unset($item['nickname']);
-            $menuArray[$_cat]['children'][] = $item;
-        }
-        $menuEvent->setMenuData($menuArray);
-        return $menuEvent;
-    });
-
-
-    // Zend Module hooks
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
-        $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
-    FROM modules_hooks_settings AS msh
-    LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-    LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-    WHERE fld_type=3
-        AND mod_active=1
-        AND sql_run=1
-        AND attached_to='encounter'
-    ORDER BY mod_id");
-
-        $menuData = $menuEvent->getMenuData();
-
-        while ($row = sqlFetchArray($module_query)) {
-            $_cat = $row['mod_ui_name'];
-            if ($row['type'] == 0) {
-                $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
-                $added = "";
-            } else {
-                $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
-                $added = "index";
-            }
-
-            $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
-            $row['menu_name'] = $row['menu_name'] ?: "No_Name";
-            $row['href'] = $relativeLink;
-            $menuData[$_cat]['children'][] = $row;
-        }
-
-        $menuEvent->setMenuData($menuData);
-        return $menuEvent;
-    });
+            $menuEvent->setMenuData($menuData);
+            return $menuEvent;
+        });
+    }
 
     $dateres = getEncounterDateByEncounter($encounter);
     $encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
@@ -655,9 +654,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         'patientName' => $patientName,
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
         'enableFollowUpEncounters' => OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters'),
+        // there may be valid reasons to allow menu items to be added even if the encounter is locked,
+        // so we pass that information to the template instead of blocking menu rendering entirely.
         'menuArray' => $menu->getMenuData(),
         'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
         'pid' => (int) $pid,
+        'encounterLocked' => $encounterLocked,
     ]);
     ?>
 

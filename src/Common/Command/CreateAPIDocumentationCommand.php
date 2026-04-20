@@ -41,11 +41,7 @@ class CreateAPIDocumentationCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Use $GLOBALS directly instead of OEGlobalsBag because bin/console
-        // sets up $GLOBALS['fileroot'] before the command runs, but OEGlobalsBag
-        // may not be fully initialized when --skip-globals is used.
-        /** @var string $fileroot */
-        $fileroot = OEGlobalsBag::getInstance()->get('fileroot');
+        $fileroot = OEGlobalsBag::getInstance()->getProjectDir();
         $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
 

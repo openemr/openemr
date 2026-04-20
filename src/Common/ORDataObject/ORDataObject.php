@@ -12,6 +12,13 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class ORDataObject
 {
+    /**
+     * @var array<string, list<string>>
+     * Cache of raw enum values keyed by "table.field_name".
+     * Stores cleaned values before blank/flip processing.
+     */
+    private static array $enumCache = [];
+
     // TODO: @adunsulag at some point we need to set this default to false
     // currently most objects assume we need to save when we call persist
     private $_isObjectModified = true;
@@ -160,51 +167,53 @@ class ORDataObject
     }
 
     /**
-     * Helper function that loads enumerations from the data as an array, this is also efficient
-     * because it uses pseudo-class variables so that it doesn't have to do database work for each instance
+     * Helper function that loads enumerations from the database as an array.
+     * Results are cached per table.field_name combination.
      *
-     * @param string  $field_name name of the enumeration in this objects table
-     * @param boolean $blank      optional value to include a empty element at position 0, default is true
-     * @return array array of values as name to index pairs found in the db enumeration of this field
+     * @param string $field_name name of the enumeration in this object's table
+     * @param bool   $blank      include an empty element at position 0 (default true)
+     * @return array<string, int> values as name-to-index pairs
      */
-    protected function _load_enum($field_name, $blank = true)
+    protected function _load_enum(string $field_name, bool $blank = true): array
     {
-        if (
-            !empty(OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name])
-            && is_array(OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name])
-            && !empty($this->_table)
-        ) {
-            return OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name];
-        } else {
-            $cols = $this->_db->MetaColumns($this->_table);
-            if ((is_array($cols) && !empty($cols)) || ($cols && !$cols->EOF)) {
-                //why is there a foreach here? at some point later there will be a scheme to autoload all enums
-                //for an object rather than 1x1 manually as it is now
-                foreach ($cols as $col) {
-                    if ($col->name == $field_name && $col->type == "enum") {
-                        for ($idx = 0; $idx < count($col->enums); $idx++) {
-                            $col->enums[$idx] = str_replace("'", "", $col->enums[$idx]);
-                        }
+        if ($this->_table === null || $this->_table === '') {
+            return [];
+        }
 
-                        $enum = $col->enums;
-                        //for future use
-                        //$enum[$col->name] = $enum_types[1];
+        $cacheKey = $this->_table . '.' . $field_name;
+
+        if (!array_key_exists($cacheKey, self::$enumCache)) {
+            $cols = $this->_db->MetaColumns($this->_table);
+            $rawEnums = [];
+
+            if (is_array($cols) || ($cols && !$cols->EOF)) {
+                foreach ($cols as $col) {
+                    if ($col->name === $field_name && $col->type === 'enum') {
+                        foreach ($col->enums as $enumValue) {
+                            $rawEnums[] = str_replace("'", '', $enumValue);
+                        }
+                        break;
                     }
                 }
-
-                array_unshift($enum, " ");
-
-                //keep indexing consistent whether or not a blank is present
-                if (!$blank) {
-                    unset($enum[0]);
-                }
-
-                $enum = array_flip($enum);
-                OEGlobalsBag::getInstance()->get('static')['enums'][$this->_table][$field_name] = $enum;
             }
 
-            return $enum;
+            self::$enumCache[$cacheKey] = $rawEnums;
         }
+
+        $rawEnums = self::$enumCache[$cacheKey];
+
+        if ($rawEnums === []) {
+            return [];
+        }
+
+        $enum = $rawEnums;
+        array_unshift($enum, ' ');
+
+        if (!$blank) {
+            unset($enum[0]);
+        }
+
+        return array_flip($enum);
     }
 
     public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")

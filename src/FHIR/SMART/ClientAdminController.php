@@ -78,7 +78,7 @@ class ClientAdminController
         $this->kernel = $this->globalsBag->getKernel();
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->webroot = $this->globalsBag->getString('web_root');
+        $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 
     public function setTwig(Environment $twig): void
@@ -439,7 +439,7 @@ class ClientAdminController
             $skipAuthorizationFlow = false; // globals overrides this setting
         }
 
-        $requestMessage = $request->get('message', '');
+        $requestMessage = $request->query->get('message', '');
 
         $formValues = [
             'id' => [

@@ -83,8 +83,7 @@ abstract class RuleCriteria
             return null;
         }
 
-        return xl($this->interval) . " x " . " "
-            . xl($this->intervalType->lbl);
+        return $this->interval . " x " . $this->intervalType->lbl;
     }
 
     protected function getLabel($value, $list_id)
@@ -126,11 +125,11 @@ abstract class RuleCriteria
 
     function updateFromRequest()
     {
-        $inclusion = "yes" == Common::post("fld_inclusion");
-        $optional = "yes" == Common::post("fld_optional");
-        $groupId = Common::post("group_id");
-        $interval = Common::post("fld_target_interval");
-        $intervalType = TimeUnit::from(Common::post("fld_target_interval_type"));
+        $inclusion = "yes" === Common::postString("fld_inclusion");
+        $optional = "yes" === Common::postString("fld_optional");
+        $groupId = Common::postString("group_id");
+        $interval = Common::postString("fld_target_interval");
+        $intervalType = TimeUnit::from(Common::postString("fld_target_interval_type"));
 
         $this->groupId = $groupId;
         $this->optional = $optional;

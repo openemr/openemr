@@ -342,16 +342,16 @@ class C_EncounterVisitForm
     function getInCollectionOptionsForTemplate($encounter = null)
     {
         $options = [
+            ['value' => '0', 'title' => xl('No')],
             ['value' => '1', 'title' => xl('Yes')],
-            ['value' => '0', 'title' => xl('No')]
         ];
-
-        // Mark selected option for existing encounters
+        // For new encounters default to No, for existing use stored value
+        $current = ($encounter && isset($encounter['in_collection']))
+            ? $encounter['in_collection']
+            : '0';
         foreach ($options as &$option) {
-            $option['selected'] = ($encounter && isset($encounter['in_collection'])
-                && $encounter['in_collection'] == $option['value']);
+            $option['selected'] = ($option['value'] === $current);
         }
-
         return $options;
     }
 
