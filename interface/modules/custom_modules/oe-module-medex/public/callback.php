@@ -630,6 +630,171 @@ switch ($action) {
         ]);
         break;
 
+    case 'get_calendar_template_context':
+        $providerFilter = $data['provider_ids'] ?? [];
+        if (!is_array($providerFilter)) {
+            $providerFilter = [];
+        }
+        $providerFilter = array_values(array_unique(array_filter(array_map('intval', $providerFilter), static function ($id) {
+            return $id > 0;
+        })));
+
+        $providerMap = [];
+        $providerSeen = [];
+        $providerStmt = sqlStatement("
+            SELECT id, fname, lname, username
+            FROM users
+            WHERE active = 1
+              AND calendar = 1
+            ORDER BY username, id DESC
+        ");
+        while ($row = sqlFetchArray($providerStmt)) {
+            $id = (int)($row['id'] ?? 0);
+            $username = strtolower(trim((string)($row['username'] ?? '')));
+            $displayName = trim((string)($row['fname'] ?? '') . ' ' . (string)($row['lname'] ?? ''));
+            $normalizedName = strtolower(trim((string)(preg_replace('/\s+/', ' ', $displayName) ?? $displayName)));
+            if (
+                $id <= 0
+                || $username === ''
+                || in_array($username, ['admin', 'oe-system', 'phimail-service', 'portal-user'], true)
+                || $normalizedName === ''
+                || in_array($normalizedName, ['admin', 'administrator', 'system operation user', 'patient portal user'], true)
+            ) {
+                continue;
+            }
+            if (isset($providerSeen[$username])) {
+                continue;
+            }
+            $providerSeen[$username] = true;
+            if (!empty($providerFilter) && !in_array($id, $providerFilter, true)) {
+                continue;
+            }
+            $providerMap[$id] = $displayName !== '' ? $displayName : ('Provider ' . $id);
+        }
+
+        $templateRows = [];
+        if (!empty($providerMap)) {
+            $providerSql = implode(',', array_map('intval', array_keys($providerMap)));
+            if (!empty(sqlQuery("SHOW TABLES LIKE 'medex_schedule_templates'"))) {
+                $templateStmt = sqlStatement("
+                    SELECT t.template_id, t.provider_id, t.template_name, t.day_of_week, t.start_time, t.end_time,
+                           t.preferred_category_id, t.slot_duration, cat.pc_catname AS preferred_category_name
+                    FROM medex_schedule_templates t
+                    LEFT JOIN openemr_postcalendar_categories cat ON cat.pc_catid = t.preferred_category_id
+                    WHERE t.is_active = 1
+                      AND t.provider_id IN (" . $providerSql . ")
+                    ORDER BY t.provider_id, t.day_of_week, t.start_time
+                ");
+                while ($templateRow = sqlFetchArray($templateStmt)) {
+                    $templateRows[] = [
+                        'template_id' => (int)($templateRow['template_id'] ?? 0),
+                        'provider_id' => (int)($templateRow['provider_id'] ?? 0),
+                        'provider_name' => (string)($providerMap[(int)($templateRow['provider_id'] ?? 0)] ?? ''),
+                        'template_name' => trim((string)($templateRow['template_name'] ?? '')),
+                        'day_of_week' => (int)($templateRow['day_of_week'] ?? 0),
+                        'start_time' => substr((string)($templateRow['start_time'] ?? ''), 0, 5),
+                        'end_time' => substr((string)($templateRow['end_time'] ?? ''), 0, 5),
+                        'preferred_category_id' => (int)($templateRow['preferred_category_id'] ?? 0),
+                        'preferred_category_name' => trim((string)($templateRow['preferred_category_name'] ?? '')),
+                        'slot_duration' => (int)($templateRow['slot_duration'] ?? 0),
+                    ];
+                }
+            }
+        }
+
+        $preferredSlotPatterns = [];
+        if (!empty($providerMap)) {
+            $providerSql = implode(',', array_map('intval', array_keys($providerMap)));
+            $slotStmt = sqlStatement("
+                SELECT
+                    pc.pc_aid AS provider_id,
+                    DAYOFWEEK(pc.pc_eventDate) AS mysql_day_of_week,
+                    MIN(TIME_FORMAT(pc.pc_startTime, '%H:%i')) AS earliest_time,
+                    MAX(TIME_FORMAT(pc.pc_endTime, '%H:%i')) AS latest_time,
+                    COUNT(*) AS slot_count,
+                    SUM(CASE WHEN COALESCE(pc.pc_pid, 0) = 0 THEN 1 ELSE 0 END) AS open_slot_count,
+                    pref.pc_catname AS preferred_category_name
+                FROM openemr_postcalendar_events pc
+                LEFT JOIN openemr_postcalendar_categories pref ON pref.pc_catid = pc.pc_prefcatid
+                WHERE pc.pc_aid IN (" . $providerSql . ")
+                  AND pc.pc_eventstatus = 1
+                  AND pc.pc_eventDate >= CURDATE()
+                  AND pc.pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 180 DAY)
+                  AND COALESCE(pc.pc_prefcatid, 0) > 0
+                GROUP BY pc.pc_aid, DAYOFWEEK(pc.pc_eventDate), pref.pc_catname
+                ORDER BY pc.pc_aid, mysql_day_of_week, slot_count DESC, pref.pc_catname ASC
+            ");
+
+            $aggregate = [];
+            while ($slotRow = sqlFetchArray($slotStmt)) {
+                $providerId = (int)($slotRow['provider_id'] ?? 0);
+                if ($providerId <= 0) {
+                    continue;
+                }
+                if (!isset($aggregate[$providerId])) {
+                    $aggregate[$providerId] = [
+                        'provider_id' => $providerId,
+                        'provider_name' => (string)($providerMap[$providerId] ?? ('Provider ' . $providerId)),
+                        'days' => [],
+                        'earliest_time' => '',
+                        'latest_time' => '',
+                        'preferred_categories' => [],
+                        'slot_count' => 0,
+                        'open_slot_count' => 0,
+                    ];
+                }
+                $dayOfWeek = ((int)($slotRow['mysql_day_of_week'] ?? 1) + 5) % 7;
+                $aggregate[$providerId]['days'][$dayOfWeek] = true;
+                $earliest = trim((string)($slotRow['earliest_time'] ?? ''));
+                $latest = trim((string)($slotRow['latest_time'] ?? ''));
+                if ($earliest !== '' && ($aggregate[$providerId]['earliest_time'] === '' || strcmp($earliest, $aggregate[$providerId]['earliest_time']) < 0)) {
+                    $aggregate[$providerId]['earliest_time'] = $earliest;
+                }
+                if ($latest !== '' && ($aggregate[$providerId]['latest_time'] === '' || strcmp($latest, $aggregate[$providerId]['latest_time']) > 0)) {
+                    $aggregate[$providerId]['latest_time'] = $latest;
+                }
+                $categoryName = trim((string)($slotRow['preferred_category_name'] ?? ''));
+                if ($categoryName !== '') {
+                    $aggregate[$providerId]['preferred_categories'][$categoryName] = (int)($aggregate[$providerId]['preferred_categories'][$categoryName] ?? 0) + (int)($slotRow['slot_count'] ?? 0);
+                }
+                $aggregate[$providerId]['slot_count'] += (int)($slotRow['slot_count'] ?? 0);
+                $aggregate[$providerId]['open_slot_count'] += (int)($slotRow['open_slot_count'] ?? 0);
+            }
+
+            foreach ($aggregate as $providerId => $summary) {
+                $days = array_keys($summary['days']);
+                sort($days);
+                arsort($summary['preferred_categories'], SORT_NUMERIC);
+                $topCategories = [];
+                foreach ($summary['preferred_categories'] as $categoryName => $slotCount) {
+                    $topCategories[] = [
+                        'category_name' => (string)$categoryName,
+                        'slot_count' => (int)$slotCount,
+                    ];
+                    if (count($topCategories) >= 5) {
+                        break;
+                    }
+                }
+                $preferredSlotPatterns[] = [
+                    'provider_id' => (int)$providerId,
+                    'provider_name' => (string)$summary['provider_name'],
+                    'days' => $days,
+                    'earliest_time' => (string)$summary['earliest_time'],
+                    'latest_time' => (string)$summary['latest_time'],
+                    'slot_count' => (int)$summary['slot_count'],
+                    'open_slot_count' => (int)$summary['open_slot_count'],
+                    'top_preferred_categories' => $topCategories,
+                ];
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'templates' => $templateRows,
+            'preferred_slot_patterns' => $preferredSlotPatterns,
+        ]);
+        break;
+
     case 'get_calendar_feeds_admin':
         medexEnsureCalendarFeedTables();
 
