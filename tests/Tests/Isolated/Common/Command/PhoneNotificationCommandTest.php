@@ -262,6 +262,33 @@ class PhoneNotificationCommandTest extends TestCase
         $this->assertSame(24, $command->lastTriggerHours);
     }
 
+    public function testNonScalarRowFieldsAndMalformedDateFallBackSafely(): void
+    {
+        // Force the defensive fallbacks in formatApptDate, defaultMessage,
+        // stringField, and intField to execute in one end-to-end run.
+        $patient = self::makePatient();
+        $patient['pc_eventDate'] = '';      // formatApptDate: fewer than 3 parts → ''
+        $patient['pc_facility'] = 'not-n';  // intField: non-numeric → 0
+        $patient['pid'] = null;             // stringField: non-string/int/float → ''
+
+        $command = new PhoneNotificationCommandStub(
+            patients: [$patient],
+            facilitiesMap: ['phone_map' => [], 'msg_map' => []],
+            // Array without a Default entry → defaultMessage returns ''
+            globalsOverrides: ['phone_appt_message' => []],
+            client: new FakeMaviqClient([new FakeRestResponse(false)]),
+        );
+        $tester = $this->createTester($command);
+
+        $tester->execute([]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        // defaultMessage fallback (''): logged greeting is empty.
+        $this->assertSame('', $command->insertedLogs[0]['message']);
+        // stringField fallback for pid: marked with empty pid.
+        $this->assertSame('', $command->markedSent[0]['pid']);
+    }
+
     public function testLogDirProducesPerDayCronLogPath(): void
     {
         $logDir = sys_get_temp_dir() . '/phone-reminder-test-' . uniqid();
