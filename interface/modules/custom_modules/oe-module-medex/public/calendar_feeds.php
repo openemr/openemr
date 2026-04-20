@@ -22,6 +22,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExAPI;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
+require_once($GLOBALS['incdir'] . "/../library/calendar.inc.php");
+require_once($GLOBALS['incdir'] . "/../library/patient.inc.php");
+
 function getOpenEmrServerUrl(): string
 {
     $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
@@ -484,25 +487,76 @@ function ensureFeedsTableExists(): void
 // Get available providers and facilities for the dropdowns
 $providers = [];
 $facilities = [];
+$userAuthorized = (int)($_SESSION['userauthorized'] ?? ($userInfo['authorized'] ?? 0));
+$restrictUserFacility = !empty($GLOBALS['restrict_user_facility']);
 
-// Get ONLY providers (authorized=1) - only providers have calendars
-$providerResult = sqlStatement("
-    SELECT id, fname, lname 
-    FROM users 
-    WHERE active = 1 AND authorized = 1
-    ORDER BY lname, fname
-");
-
-while ($row = sqlFetchArray($providerResult)) {
-    $row['is_self'] = ($row['id'] == $currentUserId); // Mark current user
-    $providers[] = $row;
+// Match OpenEMR calendar visibility rules for facilities and providers.
+$userFacilities = getUserFacilities($currentUserId);
+if (!is_array($userFacilities)) {
+    $userFacilities = [];
 }
 
-// Get facilities
-$facilityResult = sqlStatement("SELECT id, name FROM facility WHERE inactive = 0 ORDER BY name");
-while ($row = sqlFetchArray($facilityResult)) {
-    $facilities[] = $row;
+if (!$userAuthorized && $restrictUserFacility) {
+    foreach ($userFacilities as $facility) {
+        $facilityId = (int)($facility['id'] ?? 0);
+        if ($facilityId <= 0) {
+            continue;
+        }
+        $facilities[] = [
+            'id' => $facilityId,
+            'name' => (string)($facility['name'] ?? ('Facility ' . $facilityId)),
+        ];
+    }
+} else {
+    $facilityResult = sqlStatement("SELECT id, name FROM facility WHERE inactive = 0 ORDER BY name");
+    while ($row = sqlFetchArray($facilityResult)) {
+        $facilities[] = $row;
+    }
 }
+
+$visibleProviders = [];
+if (!$userAuthorized && $restrictUserFacility) {
+    foreach ($facilities as $facility) {
+        $facilityId = (int)($facility['id'] ?? 0);
+        if ($facilityId <= 0) {
+            continue;
+        }
+        $facilityProviders = getProviderInfo('%', true, $facilityId) ?? [];
+        foreach ($facilityProviders as $provider) {
+            $providerId = (int)($provider['id'] ?? 0);
+            if ($providerId <= 0) {
+                continue;
+            }
+            $visibleProviders[$providerId] = [
+                'id' => $providerId,
+                'fname' => (string)($provider['fname'] ?? ''),
+                'lname' => (string)($provider['lname'] ?? ''),
+            ];
+        }
+    }
+} else {
+    foreach ((getProviderInfo('%', true) ?? []) as $provider) {
+        $providerId = (int)($provider['id'] ?? 0);
+        if ($providerId <= 0) {
+            continue;
+        }
+        $visibleProviders[$providerId] = [
+            'id' => $providerId,
+            'fname' => (string)($provider['fname'] ?? ''),
+            'lname' => (string)($provider['lname'] ?? ''),
+        ];
+    }
+}
+
+foreach ($visibleProviders as $provider) {
+    $provider['is_self'] = ((int)$provider['id'] === (int)$currentUserId);
+    $providers[] = $provider;
+}
+usort($providers, static function (array $left, array $right): int {
+    $leftKey = strtolower(trim((string)($left['lname'] ?? '') . ' ' . (string)($left['fname'] ?? '')));
+    $rightKey = strtolower(trim((string)($right['lname'] ?? '') . ' ' . (string)($right['fname'] ?? '')));
+    return $leftKey <=> $rightKey;
+});
 
 // Get user's existing feeds
 $existingFeeds = [];
