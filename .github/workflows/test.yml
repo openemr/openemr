@@ -242,7 +242,6 @@ jobs:
           public/themes/
         restore-keys: |
           ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-npm-build-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -272,7 +271,6 @@ jobs:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
           ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-ccda-build-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -301,7 +299,6 @@ jobs:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         restore-keys: |
           ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-node-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
