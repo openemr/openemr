@@ -8272,7 +8272,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_counter` mediumint(8) unsigned default '0',
   `pc_topic` int(3) NOT NULL default '1',
   `pc_informant` varchar(20) default NULL,
-  `pc_eventDate` date DEFAULT NULL,
+  `pc_eventDate` date NOT NULL,
   `pc_endDate` date DEFAULT NULL,
   `pc_duration` bigint(20) NOT NULL default '0',
   `pc_recurrtype` int(1) NOT NULL default '0',
