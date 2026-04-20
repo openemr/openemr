@@ -158,10 +158,12 @@ jobs:
       - name: Dump schemas
         run: |
           mysqldump -h 127.0.0.1 -u root -proot \
+            --column-statistics=0 \
             --no-data --skip-comments --skip-add-drop-table \
             openemr_baseline | sed 's/ AUTO_INCREMENT=[0-9]*//' > /tmp/baseline.sql
 
           mysqldump -h 127.0.0.1 -u root -proot \
+            --column-statistics=0 \
             --no-data --skip-comments --skip-add-drop-table \
             openemr_doctrine | sed 's/ AUTO_INCREMENT=[0-9]*//' > /tmp/doctrine.sql
 
