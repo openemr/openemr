@@ -14,22 +14,50 @@
 
 require_once(__DIR__ . '/../../../../globals.php');
 require_once(__DIR__ . '/../src/MedExConfig.php');
+require_once(__DIR__ . '/../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\MedEx\MedExAPI;
 use OpenEMR\Modules\MedEx\MedExConfig;
+
+function getOpenEmrServerUrl(): string
+{
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+    $proto = strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($proto === '') {
+        $https = (string)($_SERVER['HTTPS'] ?? '');
+        $proto = (!empty($https) && strtolower($https) !== 'off') ? 'https' : 'http';
+    } else {
+        $proto = explode(',', $proto)[0];
+        $proto = trim($proto);
+    }
+    if ($proto !== 'https' && $proto !== 'http') {
+        $proto = 'https';
+    }
+    if ($proto === 'http') {
+        // Calendar feed links should always be published as TLS URLs.
+        $proto = 'https';
+    }
+    return $proto . '://' . $host;
+}
+
+function getCalendarFeedsAclPair(array $prefs): array
+{
+    $raw = strtolower(trim((string)($prefs['menu_acl'] ?? 'patients|appt')));
+    if ($raw === 'admin|super') {
+        return ['admin', 'super'];
+    }
+    return ['patients', 'appt'];
+}
 
 // Verify user is authenticated
 if (!isset($_SESSION['authUserID'])) {
     die('Access denied. Please log in to OpenEMR.');
-}
-
-// Anyone who can view the OpenEMR calendar (patients.appt ACL) may create a feed.
-// authorized=1 means "billing provider" — that is NOT the right gate here.
-// Front-desk staff, nurses, admins with calendar access should all be able to subscribe.
-if (!AclMain::aclCheckCore('patients', 'appt')) {
-    die('Access denied. Calendar Feeds require calendar access (patients/appt ACL).');
 }
 
 $currentUserId = $_SESSION['authUserID'];
@@ -48,6 +76,40 @@ if (empty($practiceId) || empty($apiKey)) {
     if (empty($prefs['MedEx_id']) || empty($prefs['ME_api_key'])) {
         die('MedEx is not configured. Please contact your administrator to set up MedEx integration.');
     }
+}
+
+$calendarFeedPrefs = [];
+try {
+    $medexApi = new MedExAPI();
+    $statusRaw = sqlQuery("SELECT status FROM medex_prefs ORDER BY MedEx_lastupdated DESC LIMIT 1");
+    $enabledServices = [];
+    if (!empty($statusRaw['status'])) {
+        $decodedStatus = json_decode((string)$statusRaw['status'], true);
+        if (is_array($decodedStatus) && !empty($decodedStatus['enabled_services']) && is_array($decodedStatus['enabled_services'])) {
+            $enabledServices = $decodedStatus['enabled_services'];
+        }
+    }
+    if (empty($enabledServices)) {
+        $enabledServices = $medexApi->getEnabledServices(true);
+    }
+    $hasCalendarFeedsBundle = false;
+    foreach (['calendar_ai', 'calendar_services', 'calendar_export'] as $serviceKey) {
+        if ((isset($enabledServices[$serviceKey]) && ($enabledServices[$serviceKey] === true || $enabledServices[$serviceKey] === 1)) || in_array($serviceKey, $enabledServices, true)) {
+            $hasCalendarFeedsBundle = true;
+            break;
+        }
+    }
+    if (!$hasCalendarFeedsBundle) {
+        die('Access denied. Calendar Feeds require an active Calendar Services subscription.');
+    }
+    $calendarFeedPrefs = $medexApi->getServicePreferences('calendar_export');
+} catch (\Throwable $e) {
+    error_log('[MedEx Calendar Feeds] Preference lookup failed: ' . $e->getMessage());
+}
+
+$calendarFeedsAclPair = getCalendarFeedsAclPair($calendarFeedPrefs);
+if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore($calendarFeedsAclPair[0], $calendarFeedsAclPair[1])) {
+    die('Access denied. Your account does not match the configured Calendar Feeds ACL.');
 }
 
 // Handle AJAX actions
@@ -162,8 +224,7 @@ function createFeed(): void
         
         // Build subscription URL (points to OpenEMR, not MedEx!)
         $baseUrl = $GLOBALS['webroot'] ?? '';
-        $serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') 
-                   . '://' . $_SERVER['HTTP_HOST'];
+        $serverUrl = getOpenEmrServerUrl();
         $feedUrl = $serverUrl . $baseUrl . '/interface/modules/custom_modules/oe-module-medex/public/calendar_feed.php?feed=' . $token;
         
         echo json_encode([
@@ -256,7 +317,7 @@ function createMedExFeed(string $token, string $name, array $providerIds, array 
  */
 function deleteFeed(): void
 {
-    global $currentUserId;
+    global $currentUserId, $currentUsername;
     
     $feedId = (int)($_POST['feed_id'] ?? 0);
     
@@ -265,20 +326,34 @@ function deleteFeed(): void
         return;
     }
     
-    // Verify ownership
+    // Verify ownership with backward compatibility:
+    // - primary: matching openemr_user_id
+    // - legacy fallback: matching openemr_username (case-insensitive)
+    // - admin super can delete any feed
     $feed = sqlQuery(
-        "SELECT token FROM medex_calendar_feeds WHERE id = ? AND openemr_user_id = ?",
-        [$feedId, $currentUserId]
+        "SELECT id, token, openemr_user_id, openemr_username
+         FROM medex_calendar_feeds
+         WHERE id = ?
+         LIMIT 1",
+        [$feedId]
     );
-    
     if (empty($feed)) {
+        echo json_encode(['success' => false, 'error' => 'Feed not found']);
+        return;
+    }
+    $ownerId = (int)($feed['openemr_user_id'] ?? 0);
+    $ownerUsername = trim((string)($feed['openemr_username'] ?? ''));
+    $isOwnerById = ($ownerId > 0 && $ownerId === (int)$currentUserId);
+    $isOwnerByUsername = ($ownerId <= 0 && $ownerUsername !== '' && strcasecmp($ownerUsername, (string)$currentUsername) === 0);
+    $isAdmin = AclMain::aclCheckCore('admin', 'super');
+    if (!$isOwnerById && !$isOwnerByUsername && !$isAdmin) {
         echo json_encode(['success' => false, 'error' => 'Feed not found or access denied']);
         return;
     }
     
     try {
-        // Delete locally
-        sqlStatement("DELETE FROM medex_calendar_feeds WHERE id = ? AND openemr_user_id = ?", [$feedId, $currentUserId]);
+        // Delete locally (owner has already been validated)
+        sqlStatement("DELETE FROM medex_calendar_feeds WHERE id = ?", [$feedId]);
         
         // Delete on MedEx side
         deleteMedExFeed($feed['token']);
@@ -361,8 +436,7 @@ function listFeeds(): void
         
         $feedList = [];
         $baseUrl = $GLOBALS['webroot'] ?? '';
-        $serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') 
-                   . '://' . $_SERVER['HTTP_HOST'];
+        $serverUrl = getOpenEmrServerUrl();
         
         while ($row = sqlFetchArray($feeds)) {
             $feedList[] = [
@@ -442,8 +516,7 @@ $feedResult = sqlStatement(
 );
 while ($row = sqlFetchArray($feedResult)) {
     $baseUrl = $GLOBALS['webroot'] ?? '';
-    $serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') 
-               . '://' . $_SERVER['HTTP_HOST'];
+    $serverUrl = getOpenEmrServerUrl();
     $row['url'] = $serverUrl . $baseUrl . '/interface/modules/custom_modules/oe-module-medex/public/calendar_feed.php?feed=' . $row['token'];
     $row['provider_names'] = json_decode($row['provider_names'] ?: '[]', true);
     $row['facility_names'] = json_decode($row['facility_names'] ?: '[]', true);
@@ -457,292 +530,38 @@ $csrfToken = CsrfUtils::collectCsrfToken();
 <head>
     <title><?php echo xlt('Calendar Feeds'); ?></title>
     <?php Header::setupHeader(['common']); ?>
-    <style>
-        .calendar-feeds-container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .section-title i {
-            color: #667eea;
-        }
-        .feed-item {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .feed-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-        .feed-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-        }
-        .feed-filters {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
-        .feed-url {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin-bottom: 12px;
-        }
-        .feed-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .create-form {
-            display: grid;
-            gap: 20px;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .checkbox-grid {
-            max-height: 200px;
-            overflow-y: auto;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 10px;
-        }
-        .checkbox-item {
-            padding: 6px 4px;
-        }
-        .instructions-section {
-            background: #e8f4fd;
-            border: 1px solid #667eea;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-        .instructions-section h4 {
-            margin: 0 0 12px 0;
-            color: #333;
-        }
-        .instructions-section ol {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .instructions-section li {
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-        .hipaa-notice {
-            background: #d4edda;
-            border: 1px solid #28a745;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-        .hipaa-notice h4 {
-            color: #155724;
-            margin: 0 0 10px 0;
-        }
-        .hipaa-notice p {
-            margin: 8px 0;
-            color: #155724;
-            font-size: 13px;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .empty-state i {
-            font-size: 48px;
-            color: #ccc;
-            margin-bottom: 16px;
-        }
-        .btn-select-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        
-        /* Toast notifications */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            min-width: 300px;
-            max-width: 450px;
-            padding: 14px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
-            font-size: 14px;
-        }
-        .toast.success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-        .toast.error {
-            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
-            color: white;
-        }
-        .toast.info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .toast.warning {
-            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-            color: #212529;
-        }
-        .toast i {
-            font-size: 18px;
-        }
-        .toast-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            opacity: 0.7;
-            font-size: 16px;
-        }
-        .toast-close:hover {
-            opacity: 1;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        
-        /* Modal dialogs */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10001;
-            animation: fadeIn 0.2s ease;
-        }
-        .modal-dialog {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-width: 450px;
-            width: 90%;
-            animation: scaleIn 0.2s ease;
-        }
-        .modal-header {
-            padding: 20px 24px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .modal-header.danger i { color: #dc3545; }
-        .modal-header.warning i { color: #ffc107; }
-        .modal-header.info i { color: #667eea; }
-        .modal-header h4 {
-            margin: 0;
-            font-size: 18px;
-            color: #333;
-        }
-        .modal-body {
-            padding: 16px 24px;
-            color: #555;
-            line-height: 1.6;
-        }
-        .modal-footer {
-            padding: 16px 24px 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        .modal-footer .btn {
-            min-width: 100px;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes scaleIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        /* Inline validation */
-        .form-control.is-invalid {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
-        }
-        .invalid-feedback {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 4px;
-            display: none;
-        }
-        .form-control.is-invalid + .invalid-feedback {
-            display: block;
-        }
-        .checkbox-grid.is-invalid {
-            border-color: #dc3545;
-        }
-    </style>
+    <link rel="stylesheet" href="<?php echo attr(($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/public/css/medex_monterey_calendar_feeds.css'); ?>">
 </head>
 <body>
 <div class="calendar-feeds-container">
-    <h2 style="margin-bottom: 24px;"><i class="fa fa-calendar-alt" style="color: #667eea;"></i> <?php echo xlt('Calendar Subscriptions'); ?></h2>
-    
-    <!-- Existing Feeds -->
-    <div class="section-card">
-        <div class="section-title">
-            <i class="fa fa-rss"></i>
-            <?php echo xlt('Your Calendar Feeds'); ?>
+    <section class="page-hero">
+        <div class="hero-topbar">
+            <div>
+                <h1 class="hero-title"><?php echo xlt('Calendar Feeds'); ?></h1>
+                <p class="hero-sub"><?php echo xlt('Create authenticated iCal subscriptions for OpenEMR calendars. Each feed stays tied to your OpenEMR account and follows the Monterey-style MedEx workspace language.'); ?></p>
+            </div>
+            <div class="hero-chip-row">
+                <div class="hero-chip">
+                    <span class="hero-chip-label"><?php echo xlt('OpenEMR User'); ?></span>
+                    <span class="hero-chip-value"><?php echo text($currentUsername); ?></span>
+                </div>
+                <div class="hero-chip">
+                    <span class="hero-chip-label"><?php echo xlt('Existing Feeds'); ?></span>
+                    <span class="hero-chip-value"><?php echo (int)count($existingFeeds); ?></span>
+                </div>
+            </div>
         </div>
-        
-        <div id="feeds-list">
+    </section>
+
+    <div class="page-grid">
+        <div>
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa fa-rss"></i>
+                    <?php echo xlt('Your Calendar Feeds'); ?>
+                </div>
+
+                <div id="feeds-list">
             <?php if (empty($existingFeeds)): ?>
             <div class="empty-state">
                 <i class="fa fa-calendar-plus"></i>
@@ -783,113 +602,119 @@ $csrfToken = CsrfUtils::collectCsrfToken();
             </div>
             <?php endforeach; ?>
             <?php endif; ?>
-        </div>
-    </div>
-    
-    <!-- Create New Feed -->
-    <div class="section-card">
-        <div class="section-title">
-            <i class="fa fa-plus-circle"></i>
-            <?php echo xlt('Create New Calendar Feed'); ?>
-        </div>
-        
-        <div class="create-form">
-            <div>
-                <label style="font-weight: 600; margin-bottom: 8px; display: block;"><?php echo xlt('Feed Name'); ?></label>
-                <input type="text" id="feed-name" class="form-control" value="<?php echo attr($userInfo['fname'] . ' ' . $userInfo['lname'] . ' - Calendar'); ?>" placeholder="<?php echo xla('e.g., My Work Calendar'); ?>" style="max-width: 400px;">
-            </div>
-            
-            <div class="form-row">
-                <!-- Providers -->
-                <div>
-                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">
-                        <i class="fa fa-user-md"></i> <?php echo xlt('Select Providers'); ?>
-                        <?php if (count($providers) === 1): ?>
-                        <small style="font-weight: normal; color: #666;">(<?php echo xlt('Your calendar'); ?>)</small>
-                        <?php endif; ?>
-                    </label>
-                    <?php if (count($providers) > 1): ?>
-                    <div class="btn-select-group">
-                        <button type="button" onclick="selectAll('provider')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('All'); ?></button>
-                        <button type="button" onclick="selectNone('provider')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('None'); ?></button>
-                    </div>
-                    <?php endif; ?>
-                    <div class="checkbox-grid">
-                        <?php foreach ($providers as $provider): ?>
-                        <div class="checkbox-item">
-                            <input type="checkbox" class="provider-checkbox" id="prov_<?php echo attr($provider['id']); ?>" value="<?php echo attr($provider['id']); ?>"<?php echo ($provider['is_self'] ?? false) ? ' checked' : ''; ?>>
-                            <label for="prov_<?php echo attr($provider['id']); ?>">
-                                <?php echo text($provider['lname'] . ', ' . $provider['fname']); ?>
-                                <?php if ($provider['is_self'] ?? false): ?><strong>(<?php echo xlt('You'); ?>)</strong><?php endif; ?>
-                            </label>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                
-                <!-- Facilities -->
-                <div>
-                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">
-                        <i class="fa fa-hospital"></i> <?php echo xlt('Select Facilities'); ?>
-                    </label>
-                    <div class="btn-select-group">
-                        <button type="button" onclick="selectAll('facility')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('All'); ?></button>
-                        <button type="button" onclick="selectNone('facility')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('None'); ?></button>
-                    </div>
-                    <div class="checkbox-grid">
-                        <?php foreach ($facilities as $facility): ?>
-                        <div class="checkbox-item">
-                            <input type="checkbox" class="facility-checkbox" id="fac_<?php echo attr($facility['id']); ?>" value="<?php echo attr($facility['id']); ?>">
-                            <label for="fac_<?php echo attr($facility['id']); ?>">
-                                <?php echo text($facility['name']); ?>
-                            </label>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
                 </div>
             </div>
-            
-            <button type="button" onclick="createFeed()" class="btn btn-success" style="width: fit-content;">
-                <i class="fa fa-plus"></i> <?php echo xlt('Create Calendar Feed'); ?>
-            </button>
+
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa fa-plus-circle"></i>
+                    <?php echo xlt('Create New Calendar Feed'); ?>
+                </div>
+
+                <div class="create-form">
+                    <div>
+                        <label class="meta-label"><?php echo xlt('Feed Name'); ?></label>
+                        <input type="text" id="feed-name" class="form-control" value="<?php echo attr($userInfo['fname'] . ' ' . $userInfo['lname'] . ' - Calendar'); ?>" placeholder="<?php echo xla('e.g., My Work Calendar'); ?>" style="max-width: 430px;">
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label class="meta-label">
+                                <i class="fa fa-user-md"></i> <?php echo xlt('Select Providers'); ?>
+                                <?php if (count($providers) === 1): ?>
+                                <span class="meta-hint">(<?php echo xlt('Your calendar'); ?>)</span>
+                                <?php endif; ?>
+                            </label>
+                            <?php if (count($providers) > 1): ?>
+                            <div class="btn-select-group">
+                                <button type="button" onclick="selectAll('provider')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('All'); ?></button>
+                                <button type="button" onclick="selectNone('provider')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('None'); ?></button>
+                            </div>
+                            <?php endif; ?>
+                            <div class="checkbox-grid">
+                                <?php foreach ($providers as $provider): ?>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" class="provider-checkbox" id="prov_<?php echo attr($provider['id']); ?>" value="<?php echo attr($provider['id']); ?>"<?php echo ($provider['is_self'] ?? false) ? ' checked' : ''; ?>>
+                                    <label for="prov_<?php echo attr($provider['id']); ?>">
+                                        <?php echo text($provider['lname'] . ', ' . $provider['fname']); ?>
+                                        <?php if ($provider['is_self'] ?? false): ?><strong>(<?php echo xlt('You'); ?>)</strong><?php endif; ?>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="meta-label">
+                                <i class="fa fa-hospital"></i> <?php echo xlt('Select Facilities'); ?>
+                            </label>
+                            <div class="btn-select-group">
+                                <button type="button" onclick="selectAll('facility')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('All'); ?></button>
+                                <button type="button" onclick="selectNone('facility')" class="btn btn-sm btn-outline-secondary"><?php echo xlt('None'); ?></button>
+                            </div>
+                            <div class="checkbox-grid">
+                                <?php foreach ($facilities as $facility): ?>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" class="facility-checkbox" id="fac_<?php echo attr($facility['id']); ?>" value="<?php echo attr($facility['id']); ?>">
+                                    <label for="fac_<?php echo attr($facility['id']); ?>">
+                                        <?php echo text($facility['name']); ?>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="createFeed()" class="btn btn-success" style="width: fit-content;">
+                        <i class="fa fa-plus"></i> <?php echo xlt('Create Calendar Feed'); ?>
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <!-- Instructions -->
-        <div class="instructions-section">
-            <h4><i class="fab fa-apple"></i> <?php echo xlt('Apple Calendar / macOS / iOS'); ?></h4>
-            <ol>
-                <li><?php echo xlt('Copy the feed URL after creating it'); ?></li>
-                <li><?php echo xlt('On Mac: Calendar → File → New Calendar Subscription...'); ?></li>
-                <li><?php echo xlt('On iPhone/iPad: Settings → Calendar → Accounts → Add Account → Other → Add Subscribed Calendar'); ?></li>
-                <li><?php echo xlt('Paste the URL and enter your OpenEMR login credentials when prompted'); ?></li>
-            </ol>
+
+        <div>
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa fa-compass"></i>
+                    <?php echo xlt('Setup Guide'); ?>
+                </div>
+
+                <div class="instructions-section" style="margin-top:0;">
+                    <h4><i class="fa fa-apple"></i> <?php echo xlt('Apple Calendar / macOS / iOS'); ?></h4>
+                    <ol>
+                        <li><?php echo xlt('Copy the feed URL after creating it'); ?></li>
+                        <li><?php echo xlt('On Mac: Calendar → File → New Calendar Subscription...'); ?></li>
+                        <li><?php echo xlt('On iPhone/iPad: Settings → Calendar → Accounts → Add Account → Other → Add Subscribed Calendar'); ?></li>
+                        <li><?php echo xlt('Paste the URL and enter your OpenEMR login credentials when prompted'); ?></li>
+                    </ol>
+                </div>
+
+                <div class="instructions-section" style="background:#fff8eb; border-color: rgba(245, 215, 145, 0.9);">
+                    <h4><i class="fa fa-google"></i> <?php echo xlt('Google Calendar'); ?></h4>
+                    <ol>
+                        <li><?php echo xlt('Google Calendar does NOT support authenticated calendar subscriptions'); ?></li>
+                        <li><?php echo xlt('Use Apple Calendar, Outlook, or another calendar app that supports HTTP Basic Auth'); ?></li>
+                    </ol>
+                </div>
+
+                <div class="instructions-section">
+                    <h4><i class="fa fa-windows"></i> <?php echo xlt('Outlook'); ?></h4>
+                    <ol>
+                        <li><?php echo xlt('Copy the feed URL'); ?></li>
+                        <li><?php echo xlt('In Outlook: File → Account Settings → Internet Calendars → New'); ?></li>
+                        <li><?php echo xlt('Paste the URL and enter your OpenEMR credentials'); ?></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="hipaa-notice">
+                <h4><i class="fa fa-shield-alt"></i> <?php echo xlt('HIPAA Compliance & Security'); ?></h4>
+                <p><i class="fa fa-lock"></i> <strong><?php echo xlt('Password stays local'); ?></strong> - <?php echo xlt('Your OpenEMR password is never transmitted externally. Authentication happens entirely within OpenEMR.'); ?></p>
+                <p><i class="fa fa-clipboard-list"></i> <strong><?php echo xlt('All access is logged'); ?></strong> - <?php echo xlt('Every calendar access is recorded for HIPAA compliance audit trail.'); ?></p>
+                <p><i class="fa fa-user-lock"></i> <strong><?php echo xlt('Your feeds only'); ?></strong> - <?php echo xlt('Each feed is tied to your OpenEMR account. Only you can access your feeds.'); ?></p>
+                <p><i class="fa fa-sync-alt"></i> <strong><?php echo xlt('If compromised'); ?></strong> - <?php echo xlt('Delete the feed immediately and create a new one. Consider changing your OpenEMR password.'); ?></p>
+            </div>
         </div>
-        
-        <div class="instructions-section" style="background: #fff3cd; border-color: #ffc107;">
-            <h4><i class="fab fa-google"></i> <?php echo xlt('Google Calendar'); ?></h4>
-            <ol>
-                <li><?php echo xlt('Google Calendar does NOT support authenticated calendar subscriptions'); ?></li>
-                <li><?php echo xlt('Use Apple Calendar, Outlook, or another calendar app that supports HTTP Basic Auth'); ?></li>
-            </ol>
-        </div>
-        
-        <div class="instructions-section">
-            <h4><i class="fab fa-microsoft"></i> <?php echo xlt('Outlook'); ?></h4>
-            <ol>
-                <li><?php echo xlt('Copy the feed URL'); ?></li>
-                <li><?php echo xlt('In Outlook: File → Account Settings → Internet Calendars → New'); ?></li>
-                <li><?php echo xlt('Paste the URL and enter your OpenEMR credentials'); ?></li>
-            </ol>
-        </div>
-    </div>
-    
-    <!-- HIPAA Notice -->
-    <div class="hipaa-notice">
-        <h4><i class="fa fa-shield-alt"></i> <?php echo xlt('HIPAA Compliance & Security'); ?></h4>
-        <p><i class="fa fa-lock"></i> <strong><?php echo xlt('Password stays local'); ?></strong> - <?php echo xlt('Your OpenEMR password is never transmitted externally. Authentication happens entirely within OpenEMR.'); ?></p>
-        <p><i class="fa fa-clipboard-list"></i> <strong><?php echo xlt('All access is logged'); ?></strong> - <?php echo xlt('Every calendar access is recorded for HIPAA compliance audit trail.'); ?></p>
-        <p><i class="fa fa-user-lock"></i> <strong><?php echo xlt('Your feeds only'); ?></strong> - <?php echo xlt('Each feed is tied to your OpenEMR account. Only you can access your feeds.'); ?></p>
-        <p><i class="fa fa-sync-alt"></i> <strong><?php echo xlt('If compromised'); ?></strong> - <?php echo xlt('Delete the feed immediately and create a new one. Consider changing your OpenEMR password.'); ?></p>
     </div>
 </div>
 

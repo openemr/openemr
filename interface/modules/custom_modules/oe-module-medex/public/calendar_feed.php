@@ -20,6 +20,7 @@
 $ignoreAuth = true;
 require_once(__DIR__ . '/../../../../globals.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Auth\AuthHash;
 
@@ -277,12 +278,19 @@ function verifyFeedOwnership(string $token, int $userId, string $username): arra
         return ['valid' => false, 'reason' => 'Feed not found'];
     }
     
-    if (!empty($feed['openemr_user_id']) && (int)$feed['openemr_user_id'] !== $userId) {
-        return ['valid' => false, 'reason' => 'Feed belongs to different user'];
-    }
-    
-    if (!empty($feed['openemr_username']) && $feed['openemr_username'] !== $username) {
-        return ['valid' => false, 'reason' => 'Username mismatch'];
+    $ownerId = (int)($feed['openemr_user_id'] ?? 0);
+    $ownerUsername = (string)($feed['openemr_username'] ?? '');
+    $isOwner = ($ownerId > 0 && $ownerId === $userId);
+    $isAdmin = AclMain::aclCheckCore('admin', 'super');
+
+    if (!$isOwner) {
+        if ($ownerId > 0 && !$isAdmin) {
+            return ['valid' => false, 'reason' => 'Feed belongs to different user'];
+        }
+        // Legacy feeds may only have username; tolerate case differences.
+        if ($ownerId <= 0 && $ownerUsername !== '' && strcasecmp($ownerUsername, $username) !== 0 && !$isAdmin) {
+            return ['valid' => false, 'reason' => 'Username mismatch'];
+        }
     }
     
     // Parse provider/facility filters - could be JSON array or comma-separated or single value
@@ -342,14 +350,22 @@ function logCalendarAccess(?int $userId, ?string $username, string $feedToken, b
         $message
     );
     
-    if (class_exists('OpenEMR\Common\Logging\EventAuditLogger')) {
-        EventAuditLogger::getInstance()->newEvent(
-            'calendar-feed-access',
-            $username ?? 'unknown',
-            'default',
-            $success ? 1 : 0,
-            $logMessage
-        );
+    if (class_exists(EventAuditLogger::class)) {
+        try {
+            if (is_callable([EventAuditLogger::class, 'getInstance'])) {
+                EventAuditLogger::getInstance()->newEvent(
+                    'calendar-feed-access',
+                    $username ?? 'unknown',
+                    'default',
+                    $success ? 1 : 0,
+                    $logMessage
+                );
+            } else {
+                error_log('[MedEx Calendar Feed] EventAuditLogger::getInstance unavailable; audit event skipped.');
+            }
+        } catch (\Throwable $auditError) {
+            error_log('[MedEx Calendar Feed] Audit log failed: ' . $auditError->getMessage());
+        }
     }
     
     static $tableChecked = false;
@@ -357,20 +373,60 @@ function logCalendarAccess(?int $userId, ?string $username, string $feedToken, b
         createAccessLogTable();
         $tableChecked = true;
     }
-    
+
+    $available = getAccessLogColumns();
+    if (empty($available)) {
+        return;
+    }
+
+    $values = [
+        'feed_token' => $feedToken,
+        'openemr_user_id' => $userId,
+        'openemr_username' => $username,
+        'ip_address' => $ip,
+        'user_agent' => $userAgent,
+        'success' => $success ? 1 : 0,
+        'message' => $message,
+    ];
+    // Backward compatibility with older table variants.
+    if (in_array('username', $available, true) && !in_array('openemr_username', $available, true)) {
+        $values['username'] = $username;
+    }
+    if (in_array('user_id', $available, true) && !in_array('openemr_user_id', $available, true)) {
+        $values['user_id'] = $userId;
+    }
+
+    $insertCols = [];
+    $insertVals = [];
+    foreach ($values as $col => $val) {
+        if (in_array($col, $available, true)) {
+            $insertCols[] = $col;
+            $insertVals[] = $val;
+        }
+    }
+
+    if (in_array('accessed_at', $available, true)) {
+        $insertCols[] = 'accessed_at';
+    }
+    if (empty($insertCols)) {
+        return;
+    }
+
+    $sqlParts = [];
+    $params = [];
+    foreach ($insertCols as $col) {
+        if ($col === 'accessed_at') {
+            $sqlParts[] = 'NOW()';
+            continue;
+        }
+        $sqlParts[] = '?';
+        $params[] = array_shift($insertVals);
+    }
+
     @sqlStatement(
-        "INSERT INTO medex_calendar_feed_access_log 
-         (feed_token, openemr_user_id, openemr_username, ip_address, user_agent, success, message, accessed_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
-        [
-            $feedToken,
-            $userId,
-            $username,
-            $ip,
-            $userAgent,
-            $success ? 1 : 0,
-            $message
-        ]
+        "INSERT INTO medex_calendar_feed_access_log (" . implode(', ', $insertCols) . ")
+         VALUES (" . implode(', ', $sqlParts) . ")",
+        $params
     );
 }
 
@@ -395,4 +451,25 @@ function createAccessLogTable(): void
             INDEX idx_accessed_at (accessed_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
+}
+
+function getAccessLogColumns(): array
+{
+    static $columns = null;
+    if (is_array($columns)) {
+        return $columns;
+    }
+
+    $columns = [];
+    $result = @sqlStatement("SHOW COLUMNS FROM medex_calendar_feed_access_log");
+    if (!$result) {
+        return $columns;
+    }
+    while ($row = sqlFetchArray($result)) {
+        $field = (string)($row['Field'] ?? '');
+        if ($field !== '') {
+            $columns[] = $field;
+        }
+    }
+    return $columns;
 }
