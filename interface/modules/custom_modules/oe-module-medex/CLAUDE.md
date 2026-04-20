@@ -1204,6 +1204,7 @@ If something isn't working after 2-3 attempts, **STOP and ASK** for guidance.
 12. ✅ Core must work 100% without module installed
 13. ✅ MedEx module is PROPRIETARY (not GPL)
 14. ✅ **NEVER edit `medex-core`** — only edit `medex-local/web_full/`
+15. ✅ **ALWAYS use Braintree's embedded interface** for card entry/update flows. Do NOT build or keep custom card-entry UX when Braintree's embedded UI is available.
 
 ---
 
