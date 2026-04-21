@@ -165,10 +165,29 @@ $msgApp = new ChatController();
             return div.innerHTML;
         }
 
+        function safeUrl(url) {
+            try {
+                const u = new URL(url, window.location.origin);
+                if (['http:', 'https:'].includes(u.protocol)) {
+                    return u.toString();
+                }
+            } catch (e) {
+                // Invalid URL
+            }
+            return '#';
+        }
+
         function replaceShortcodes(message) {
             let msg = message.toString();
-            msg = msg.replace(/(\[img])(.*?)(\[\/img])/g, "<img class='img-responsive' src='$2' />");
-            msg = msg.replace(/(\[url])(.*?)(\[\/url])/g, "<a href='$2'>$2</a>");
+            // Replace [img] shortcodes with safe src URLs
+            msg = msg.replace(/\[img](.*?)\[\/img]/g, (match, url) => {
+                return `<img class='img-responsive' src='${safeUrl(url)}' />`;
+            });
+            // Replace [url] shortcodes with safe href URLs
+            msg = msg.replace(/\[url](.*?)\[\/url]/g, (match, url) => {
+                const safe = safeUrl(url);
+                return `<a href='${safe}'>${escapeHtml(url)}</a>`;
+            });
             msg = msg.replace(/<img /g, "<img class='img-responsive' ");
             return msg;
         }
@@ -242,12 +261,20 @@ $msgApp = new ChatController();
         function sanitizeHtml(html) {
             const div = document.createElement('div');
             div.innerHTML = html;
-            // Remove script tags and event handlers
+            // Remove script tags, event handlers, and dangerous URL schemes
             div.querySelectorAll('script').forEach(el => el.remove());
             div.querySelectorAll('*').forEach(el => {
                 [...el.attributes].forEach(attr => {
+                    // Remove event handlers
                     if (attr.name.startsWith('on')) {
                         el.removeAttribute(attr.name);
+                    }
+                    // Sanitize href/src attributes to block javascript: URLs
+                    if (['href', 'src', 'action', 'formaction', 'xlink:href'].includes(attr.name.toLowerCase())) {
+                        const val = attr.value.trim().toLowerCase();
+                        if (val.startsWith('javascript:') || val.startsWith('data:') || val.startsWith('vbscript:')) {
+                            el.removeAttribute(attr.name);
+                        }
                     }
                 });
             });
