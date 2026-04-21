@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -229,20 +230,23 @@ if ($form_action === "save") {
     // the correct day.
     //   5 = every Monday, 6 = every Tuesday, ... 9 = every Friday
     $repeatTargetDay = match ($form_repeat_type) {
-        5 => 1,  // Monday  (ISO-8601 weekday number)
-        6 => 2,  // Tuesday
-        7 => 3,  // Wednesday
-        8 => 4,  // Thursday
-        9 => 5,  // Friday
+        5 => DayOfWeek::Monday,
+        6 => DayOfWeek::Tuesday,
+        7 => DayOfWeek::Wednesday,
+        8 => DayOfWeek::Thursday,
+        9 => DayOfWeek::Friday,
         default => null,
     };
 
     if ($repeatTargetDay !== null) {
         $baseTimestamp = strtotime((string) $event_date);
         if ($baseTimestamp !== false) {
-            $currentDay = (int) date('N', $baseTimestamp); // 1=Mon .. 7=Sun
-            if ($currentDay !== $repeatTargetDay) {
-                $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
+            // date('N') returns 1=Mon..7=Sun (ISO-8601). For Mon-Fri these
+            // values coincide with the DayOfWeek enum's backing ints, so the
+            // comparison is safe for the weekday cases handled above.
+            $currentDay = (int) date('N', $baseTimestamp);
+            if ($currentDay !== $repeatTargetDay->value) {
+                $daysUntilTarget = ($repeatTargetDay->value - $currentDay + 7) % 7;
                 $adjustedTimestamp = strtotime("+{$daysUntilTarget} days", $baseTimestamp);
                 if ($adjustedTimestamp !== false) {
                     $event_date = date('Y-m-d', $adjustedTimestamp);
