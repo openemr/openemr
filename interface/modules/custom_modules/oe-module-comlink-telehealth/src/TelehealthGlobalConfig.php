@@ -424,10 +424,8 @@ class TelehealthGlobalConfig
         $portalHost = parse_url((string)$portalAddress, PHP_URL_HOST);
         $hostnamesMatch = $qualifiedHost === $portalHost;
 
-        $registrationUri = $this->getRegistrationAPIURI();
-        $telehealthApi = $this->getTelehealthAPIURI();
-        $isValidRegistrationUri = !empty($registrationUri) && ValidationUtils::isValidUrl($registrationUri);
-        $isValidTelehealthApi = !empty($telehealthApi) && ValidationUtils::isValidUrl($telehealthApi);
+        $isValidRegistrationUri = ValidationUtils::isValidUrl($this->getRegistrationAPIURI());
+        $isValidTelehealthApi = ValidationUtils::isValidUrl($this->getTelehealthAPIURI());
 
         $isLocaleConfigured = $this->isLocaleConfigured();
 
