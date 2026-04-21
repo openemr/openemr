@@ -266,17 +266,16 @@ if (isset($_REQUEST['filter'])) {
     $count = main_code_set_search($filter_key, $search, null, null, false, null, true, null, null, $filter_elements);
 }
 
-if ($fstart >= ($count ?? null)) {
-    $fstart -= $pagesize;
-}
+$count = $count ?? null;
+$totalCount = $count ?? 0;
 
-if ($fstart < 0) {
+if ($fstart < 0 || $fstart >= $totalCount) {
     $fstart = 0;
 }
 
 $fend = $fstart + $pagesize;
-if ($fend > ($count ?? null)) {
-    $fend = $count ?? null;
+if ($fend > $totalCount) {
+    $fend = $totalCount;
 }
 ?>
 

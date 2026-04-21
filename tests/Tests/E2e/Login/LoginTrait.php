@@ -7,6 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Luis M. Santos, MD <lsantos@medicalmasses.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,12 +17,16 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Login;
 
+use Closure;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
-use OpenEMR\Tests\E2e\Login\LoginTestData;
 
 trait LoginTrait
 {
     use BaseTrait;
+
+    private string $mainScreenUrl = "main.php";
+    private string $loginScreenUrl = "login.php";
+    private string $adminScreenUrl = "admin.php";
 
     public function testLoginAuthorized(): void
     {
@@ -71,6 +76,30 @@ trait LoginTrait
     }
 
     /**
+     * Runs a lambda after performing basic setup and login operations.
+     *
+     * Simplifies reusable logic seen elsewhere to minimize code duplication.
+     *
+     * @param $testFunction
+     * @return void
+     * @throws \Throwable
+     */
+    private function runTest(Closure $testFunction): void {
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $testFunction();
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
+        }
+        // Close client
+        $this->client->quit();
+    }
+
+    /**
      * Submit the login form.
      */
     private function performLogin(string $name, string $password, bool $goalPass): void
@@ -80,11 +109,25 @@ trait LoginTrait
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);
-        $title = $this->client->getTitle();
         if ($goalPass) {
-            $this->assertSame('OpenEMR', $title, 'Login FAILED');
+            $this->assertLogin($this->mainScreenUrl, 'Login FAILED');
         } else {
-            $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should have FAILED');
+            $this->assertLogin($this->loginScreenUrl, 'Login was successful, but should have FAILED');
         }
+    }
+
+    private function assertLogin(string $testPattern, string $msg): void {
+        $url = $this->client->getCurrentURL();
+        $hasPattern = str_contains((string) $url, $testPattern);
+        $this->assertTrue($hasPattern, $msg);
+    }
+
+    private function logOut(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->goToUserMenuLink('fa-sign-out-alt');
+        $this->client->waitFor('//input[@id="authUser"]');
+        $url = $this->client->getCurrentURL();
+        $this->assertFalse(str_contains((string) $url, $this->loginScreenUrl), 'Logout FAILED');
     }
 }

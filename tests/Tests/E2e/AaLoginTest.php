@@ -69,8 +69,7 @@ class AaLoginTest extends PantherTestCase
         $this->base();
         try {
             $this->crawler = $this->client->request('GET', '/interface/main/tabs/main.php?site=default&testing_mode=1');
-            $title = $this->client->getTitle();
-            $this->assertSame('OpenEMR Login', $title, 'FAILED to redirect to login page');
+            $this->assertLogin($this->loginScreenUrl, 'FAILED to redirect to login page');
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -87,8 +86,7 @@ class AaLoginTest extends PantherTestCase
         $this->base();
         try {
             $this->crawler = $this->client->request('GET', '/admin.php');
-            $title = $this->client->getTitle();
-            $this->assertSame('OpenEMR Site Administration', $title, 'FAILED to load admin.php');
+            $this->assertLogin($this->adminScreenUrl, 'FAILED to load admin.php');
         } catch (\Throwable $e) {
             $this->client->quit();
             throw $e;
@@ -99,7 +97,6 @@ class AaLoginTest extends PantherTestCase
     private function loginPage(): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
-        $title = $this->client->getTitle();
-        $this->assertSame('OpenEMR Login', $title, 'FAILED to show login page');
+        $this->assertLogin($this->loginScreenUrl, 'FAILED to show login page');
     }
 }
