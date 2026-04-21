@@ -10,6 +10,11 @@ Environment variables:
     PER_FILE_LIMIT
                 Maximum number of per-file rows to include in the collapsible
                 details block. Defaults to 500.
+    SCANCODE_DISALLOWED_LICENSES
+                Comma-separated list of license expressions that should fail
+                the job. Matching files are also annotated via
+                ``::error file=...::`` so they surface in the PR diff view.
+                Unset / empty disables enforcement (informational mode).
 """
 from __future__ import annotations
 
@@ -27,12 +32,18 @@ def main(argv: list[str]) -> int:
     results_path = argv[1]
     mode = os.environ.get('SCAN_MODE', 'unknown')
     limit = int(os.environ.get('PER_FILE_LIMIT', '500'))
+    disallowed = frozenset(
+        expr.strip()
+        for expr in os.environ.get('SCANCODE_DISALLOWED_LICENSES', '').split(',')
+        if expr.strip()
+    )
 
     with open(results_path) as fh:
         data = json.load(fh)
 
     licenses: Counter[str] = Counter()
     per_file: list[tuple[str, list[str]]] = []
+    violations: list[tuple[str, str]] = []
     for entry in data.get('files', []):
         if entry.get('type') != 'file':
             continue
@@ -49,6 +60,8 @@ def main(argv: list[str]) -> int:
         per_file.append((path, expressions))
         for expr in expressions:
             licenses[expr] += 1
+            if expr in disallowed:
+                violations.append((path, expr))
 
     lines: list[str] = [f'## ScanCode License Findings ({mode} scan)', '']
     if not licenses:
@@ -73,6 +86,12 @@ def main(argv: list[str]) -> int:
         lines.append('')
         lines.append('</details>')
 
+    if violations:
+        lines.append('')
+        lines.append(f'**Policy violations:** {len(violations)} '
+                     f'file(s) detected with disallowed licenses '
+                     f'({", ".join(f"`{e}`" for e in sorted(disallowed))}).')
+
     output = '\n'.join(lines) + '\n'
     summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
     if summary_path:
@@ -80,7 +99,14 @@ def main(argv: list[str]) -> int:
             out.write(output)
     else:
         sys.stdout.write(output)
-    return 0
+
+    # Emit GitHub Actions annotations for each violation so they surface in
+    # the PR "Files changed" view, not just in the step summary.
+    for path, expr in violations:
+        title = f'Disallowed license: {expr}'
+        message = f'{path} matches a license expression on the disallow list'
+        print(f'::error file={path},title={title}::{message}')
+    return 1 if violations else 0
 
 
 if __name__ == '__main__':

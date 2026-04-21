@@ -152,6 +152,10 @@ jobs:
       if: steps.stage.outputs.has_changes == 'true'
       env:
         SCAN_MODE: diff
+        # Fail the job (and emit per-file annotations) when ScanCode detects
+        # any of these license expressions. Leave empty to run in
+        # report-only mode.
+        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload artifact
@@ -296,6 +300,7 @@ jobs:
     - name: Summarize findings
       env:
         SCAN_MODE: full
+        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload final artifact
