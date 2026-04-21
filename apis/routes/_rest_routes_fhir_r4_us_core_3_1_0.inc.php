@@ -70,6 +70,7 @@ use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use Symfony\Component\HttpFoundation\Response;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -129,7 +130,7 @@ return [
     "POST /fhir/AllergyIntolerance" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
@@ -176,7 +177,7 @@ return [
     "PUT /fhir/AllergyIntolerance/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
@@ -214,7 +215,7 @@ return [
     "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "appt");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAppointmentService($request->getApiBaseFullUrl()), $globalsBag);
@@ -405,7 +406,7 @@ return [
     "POST /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
@@ -452,7 +453,7 @@ return [
     "PUT /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
@@ -714,7 +715,7 @@ return [
     "POST /fhir/Encounter" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
@@ -761,7 +762,7 @@ return [
     "PUT /fhir/Encounter/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
@@ -954,7 +955,7 @@ return [
     "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
@@ -1001,7 +1002,7 @@ return [
     "PUT /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
@@ -1155,7 +1156,7 @@ return [
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $return = (new FhirOrganizationRestController())->post($data);
@@ -1165,7 +1166,7 @@ return [
     "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $return = (new FhirOrganizationRestController())->patch($uuid, $data);
@@ -1175,7 +1176,7 @@ return [
     "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $restController = new FhirPatientRestController();
@@ -1187,7 +1188,7 @@ return [
     "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $restController = new FhirPatientRestController();
@@ -1298,7 +1299,7 @@ return [
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $return = (new FhirPractitionerRestController())->post($data);
@@ -1308,7 +1309,7 @@ return [
     "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $data = RestControllerHelper::parseJsonRequestBody(true);
-        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+        if ($data instanceof Response) {
             return $data;
         }
         $return = (new FhirPractitionerRestController())->patch($uuid, $data);
