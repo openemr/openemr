@@ -1,0 +1,135 @@
+name: License Scan (ScanCode)
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  scancode:
+    name: ScanCode License Scan (PR diff)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install ScanCode Toolkit
+      run: pipx install scancode-toolkit
+
+    - name: Stage changed files for scan
+      id: stage
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      # Only scan files added or modified in the PR so the check stays fast on
+      # a large repo. Exclude vendored / generated trees.
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        mkdir -p scancode-input
+        mapfile -t changed < <(
+          git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
+            -- \
+            ':!vendor' \
+            ':!node_modules' \
+            ':!ccdaservice/node_modules' \
+            ':!Documentation'
+        )
+        if (( ${#changed[@]} == 0 )); then
+          echo 'No files to scan.'
+          echo 'has_changes=false' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo 'has_changes=true' >> "$GITHUB_OUTPUT"
+        for f in "${changed[@]}"; do
+          if [[ -f $f ]]; then
+            mkdir -p "scancode-input/$(dirname "$f")"
+            cp "$f" "scancode-input/$f"
+          fi
+        done
+        printf 'Staged %d files for scan.\n' "${#changed[@]}"
+
+    - name: Run ScanCode
+      if: steps.stage.outputs.has_changes == 'true'
+      # --license / --copyright: detect license text and copyright notices
+      # --package: detect package manifests (composer.json, package.json, etc.)
+      # --only-findings: skip files with no license/copyright findings in output
+      run: |
+        scancode \
+          --license \
+          --copyright \
+          --package \
+          --only-findings \
+          --processes 2 \
+          --json-pp scancode-results.json \
+          --html scancode-results.html \
+          scancode-input
+
+    - name: Summarize findings
+      if: steps.stage.outputs.has_changes == 'true'
+      run: |
+        python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+        import json
+        from collections import Counter
+
+        with open('scancode-results.json') as fh:
+            data = json.load(fh)
+
+        licenses = Counter()
+        per_file = []
+        for entry in data.get('files', []):
+            if entry.get('type') != 'file':
+                continue
+            detections = entry.get('license_detections', []) or []
+            if not detections:
+                continue
+            expressions = sorted({d.get('license_expression', 'unknown') for d in detections})
+            per_file.append((entry['path'], expressions))
+            for expr in expressions:
+                licenses[expr] += 1
+
+        print('## ScanCode License Findings')
+        print()
+        if not licenses:
+            print('No license text detected in changed files.')
+        else:
+            print('| License Expression | File Count |')
+            print('|---|---|')
+            for expr, count in licenses.most_common():
+                print(f'| `{expr}` | {count} |')
+            print()
+            print('<details><summary>Per-file findings</summary>')
+            print()
+            print('| File | License(s) |')
+            print('|---|---|')
+            for path, exprs in per_file:
+                print(f'| `{path}` | {", ".join(f"`{e}`" for e in exprs)} |')
+            print()
+            print('</details>')
+        PY
+
+    - name: Upload results as artifact
+      if: steps.stage.outputs.has_changes == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: scancode-results
+        path: |
+          scancode-results.json
+          scancode-results.html
+        retention-days: 30
