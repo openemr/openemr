@@ -648,7 +648,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid " .
     "WHERE a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
-    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate = '0000-00-00') " .
+    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate IS NULL) " .
     "AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "' " .
     "AND (a.pc_aid = '" . pnVarPrepForStore($provider_id) . "' OR a.pc_aid = '')";
 
@@ -902,7 +902,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
-    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
+    "(a.pc_endDate IS NULL AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
     // Custom filtering
@@ -931,7 +931,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
 
   // The above 3 lines replaced these:
-  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate IS NULL)
   //   AND a.pc_eventDate <= '$end' ";
 
     if (!empty($providerID)) {

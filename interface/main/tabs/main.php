@@ -10,10 +10,12 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -128,6 +130,13 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         var isPortalEnabled = "<?php echo OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable') ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>;
+        // Separate CSRF token for calls to the REST/LocalApi stack (sent as the APICSRFTOKEN header).
+        var api_csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>;
+        <?php
+        $sessionSiteId = $session->get('site_id');
+        $sessionSiteIdString = is_string($sessionSiteId) ? $sessionSiteId : '';
+        ?>
+        var site_id_js = <?php echo js_escape($sessionSiteIdString); ?>;
         var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
@@ -255,14 +264,15 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             if (!noBackgroundTasks) {
                 setTimeout(function () {
                     restoreSession();
-                    request = new FormData;
-                    request.append("skip_timeout_reset", "1");
-                    request.append("ajax", "1");
-                    request.append("csrf_token_form", csrf_token_js);
-                    fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+                    // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
+                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
+                    // equivalent is needed to avoid resetting the session expiration timer.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
                         method: 'POST',
                         credentials: 'same-origin',
-                        body: request
+                        headers: {
+                            'APICSRFTOKEN': api_csrf_token_js
+                        }
                     }).then((response) => {
                         if (response.status !== 200) {
                             console.log('Background Service start failed. Status Code: ' + response.status);
