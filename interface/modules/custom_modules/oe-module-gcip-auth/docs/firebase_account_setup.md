@@ -105,7 +105,7 @@ gcip_firebase_api_key     = AIzaSyB1234...
 gcip_firebase_auth_domain = openemr-oidc-test.firebaseapp.com
 gcip_issuer               = https://securetoken.google.com/openemr-oidc-test
 gcip_client_id            = openemr-oidc-test
-gcip_allowed_tenant_ids   = (leave empty — no multi-tenancy for testing)
+gcip_allowed_tenant_ids   = (leave empty — no tenant filtering for single-tenant testing)
 ```
 
 Enter these in the OpenEMR GCIP module admin UI (Modules > GCIP Auth).

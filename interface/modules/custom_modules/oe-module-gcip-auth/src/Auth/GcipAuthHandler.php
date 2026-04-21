@@ -28,6 +28,7 @@ use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
+use OpenEMR\Common\Auth\Oidc\Token\ValidatedToken;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -77,6 +78,14 @@ final readonly class GcipAuthHandler
             $validatedToken = $this->tokenValidator->validate($idToken, $metadata->jwksUri, $parameters);
         } catch (OidcTokenValidationException) {
             $this->auditLogger->tokenValidationFailed();
+            return;
+        }
+
+        // Enforce tenant allowlist (if configured)
+        try {
+            $this->assertTenantMatches($validatedToken);
+        } catch (GcipTenantMismatchException $e) {
+            $this->auditLogger->tenantMismatch($e->allowedTenantIds, $e->tokenTenantId);
             return;
         }
 
@@ -148,5 +157,22 @@ final readonly class GcipAuthHandler
         $this->eventDispatcher->dispatch($authEvent, OidcAuthenticationEvent::EVENT_NAME);
 
         $this->auditLogger->loginSucceeded($username, $authGroup);
+    }
+
+    /**
+     * @throws GcipTenantMismatchException when an allowlist is configured and
+     *         the token's tenant claim is absent or not in the allowlist.
+     */
+    private function assertTenantMatches(ValidatedToken $validatedToken): void
+    {
+        $allowedTenantIds = $this->configService->getAllowedTenantIds();
+        if ($allowedTenantIds === []) {
+            return;
+        }
+
+        $tokenTenantId = $validatedToken->identity->tenantId;
+        if ($tokenTenantId === null || !in_array($tokenTenantId, $allowedTenantIds, true)) {
+            throw new GcipTenantMismatchException($allowedTenantIds, $tokenTenantId);
+        }
     }
 }

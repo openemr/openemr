@@ -290,6 +290,94 @@ final class GcipAuthHandlerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
+    // Tenant allowlist enforcement
+    // ---------------------------------------------------------------
+
+    public function testAcceptsTokenWhenAllowlistEmptyRegardlessOfTenantClaim(): void
+    {
+        $this->stubFullHappyPath(allowedTenantIds: [], tokenTenantId: 'tenant-anything');
+
+        $this->auditLogger->expects(self::never())->method('tenantMismatch');
+        $this->auditLogger->expects(self::once())
+            ->method('loginSucceeded')
+            ->with(self::USERNAME, self::AUTH_GROUP);
+
+        $event = $this->makeEvent();
+        $this->handler->onLoginRequest($event);
+
+        self::assertTrue($event->isHandled());
+    }
+
+    public function testAcceptsTokenWhenTenantMatchesAllowlist(): void
+    {
+        $this->stubFullHappyPath(allowedTenantIds: ['tenant-hospital-a'], tokenTenantId: 'tenant-hospital-a');
+
+        $this->auditLogger->expects(self::never())->method('tenantMismatch');
+        $this->auditLogger->expects(self::once())
+            ->method('loginSucceeded')
+            ->with(self::USERNAME, self::AUTH_GROUP);
+
+        $event = $this->makeEvent();
+        $this->handler->onLoginRequest($event);
+
+        self::assertTrue($event->isHandled());
+    }
+
+    public function testRejectsTokenWhenTenantDoesNotMatchAllowlist(): void
+    {
+        $this->stubConfig(self::ISSUER, self::CLIENT_ID, ['tenant-hospital-a']);
+        $this->stubDiscovery();
+        $this->stubTokenValidation('tenant-hospital-b');
+
+        $this->auditLogger->expects(self::once())
+            ->method('tenantMismatch')
+            ->with(['tenant-hospital-a'], 'tenant-hospital-b');
+        $this->auditLogger->expects(self::never())->method('loginSucceeded');
+        $this->identityRepository->expects(self::never())->method('findByExternal');
+
+        $event = $this->makeEvent();
+        $this->handler->onLoginRequest($event);
+
+        self::assertFalse($event->isHandled());
+    }
+
+    public function testRejectsTokenWhenTenantClaimMissingAndAllowlistSet(): void
+    {
+        $this->stubConfig(self::ISSUER, self::CLIENT_ID, ['tenant-hospital-a']);
+        $this->stubDiscovery();
+        $this->stubTokenValidation(null);
+
+        $this->auditLogger->expects(self::once())
+            ->method('tenantMismatch')
+            ->with(['tenant-hospital-a'], null);
+        $this->auditLogger->expects(self::never())->method('loginSucceeded');
+        $this->identityRepository->expects(self::never())->method('findByExternal');
+
+        $event = $this->makeEvent();
+        $this->handler->onLoginRequest($event);
+
+        self::assertFalse($event->isHandled());
+    }
+
+    public function testAcceptsTokenWhenTenantMatchesOneOfMultipleAllowed(): void
+    {
+        $this->stubFullHappyPath(
+            allowedTenantIds: ['tenant-hospital-a', 'tenant-hospital-b'],
+            tokenTenantId: 'tenant-hospital-b',
+        );
+
+        $this->auditLogger->expects(self::never())->method('tenantMismatch');
+        $this->auditLogger->expects(self::once())
+            ->method('loginSucceeded')
+            ->with(self::USERNAME, self::AUTH_GROUP);
+
+        $event = $this->makeEvent();
+        $this->handler->onLoginRequest($event);
+
+        self::assertTrue($event->isHandled());
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
@@ -298,10 +386,17 @@ final class GcipAuthHandlerTest extends TestCase
         return new OidcLoginRequestEvent(['oidc_id_token' => 'header.payload.signature']);
     }
 
-    private function stubConfig(string $issuer = self::ISSUER, string $clientId = self::CLIENT_ID): void
-    {
+    /**
+     * @param list<string> $allowedTenantIds
+     */
+    private function stubConfig(
+        string $issuer = self::ISSUER,
+        string $clientId = self::CLIENT_ID,
+        array $allowedTenantIds = [],
+    ): void {
         $this->configService->method('getIssuer')->willReturn($issuer);
         $this->configService->method('getClientId')->willReturn($clientId);
+        $this->configService->method('getAllowedTenantIds')->willReturn($allowedTenantIds);
     }
 
     private function stubDiscovery(): void
@@ -313,7 +408,7 @@ final class GcipAuthHandlerTest extends TestCase
         $this->discoveryClient->method('getMetadata')->willReturn($metadata);
     }
 
-    private function stubTokenValidation(): void
+    private function stubTokenValidation(?string $tokenTenantId = null): void
     {
         $identity = new NormalizedIdentity(
             externalId: self::EXTERNAL_ID,
@@ -321,6 +416,7 @@ final class GcipAuthHandlerTest extends TestCase
             email: 'dr.smith@example.com',
             emailVerified: true,
             displayName: 'Dr. Smith',
+            tenantId: $tokenTenantId,
         );
         $token = new ValidatedToken(
             identity: $identity,
@@ -348,11 +444,16 @@ final class GcipAuthHandlerTest extends TestCase
         );
     }
 
-    private function stubFullHappyPath(): void
-    {
-        $this->stubConfig();
+    /**
+     * @param list<string> $allowedTenantIds
+     */
+    private function stubFullHappyPath(
+        array $allowedTenantIds = [],
+        ?string $tokenTenantId = null,
+    ): void {
+        $this->stubConfig(self::ISSUER, self::CLIENT_ID, $allowedTenantIds);
         $this->stubDiscovery();
-        $this->stubTokenValidation();
+        $this->stubTokenValidation($tokenTenantId);
         $this->stubIdentityMapping();
         $this->stubActiveUserRow();
         $this->localUserDirectory->method('findAuthGroupFor')->willReturn(self::AUTH_GROUP);

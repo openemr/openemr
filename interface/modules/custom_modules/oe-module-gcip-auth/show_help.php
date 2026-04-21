@@ -42,8 +42,8 @@
         <dt><?php echo xlt('Expected Audience'); ?></dt>
         <dd><?php echo xlt('The expected audience claim — typically the Firebase project ID'); ?></dd>
 
-        <dt><?php echo xlt('Allowed Tenant IDs'); ?></dt>
-        <dd><?php echo xlt('Comma-separated list of GCIP tenant IDs for multi-tenant setups'); ?></dd>
+        <dt><?php echo xlt('Allowed Tenant ID'); ?></dt>
+        <dd><?php echo xlt('GCIP tenant ID for this deployment. Leave empty if you are not using Firebase tenants. When set, tokens whose firebase.tenant claim does not match are rejected.'); ?></dd>
     </dl>
 
     <h5><?php echo xlt('Documentation'); ?></h5>

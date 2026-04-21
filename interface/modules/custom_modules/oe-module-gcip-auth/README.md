@@ -62,7 +62,7 @@ the module's admin URL). Fill in the following fields:
 | **Firebase Auth Domain** | Firebase Console > Authentication > Settings > Authorized domains | `my-emr-project.firebaseapp.com` |
 | **OIDC Issuer** | For GCIP: `https://securetoken.google.com/{project-id}` | `https://securetoken.google.com/my-emr-project` |
 | **Client ID (Audience)** | Same as Firebase Project ID for GCIP | `my-emr-project` |
-| **Allowed Tenant IDs** | Firebase Console > Authentication > Tenants (if using multi-tenancy) | `tenant-a,tenant-b` or leave empty |
+| **Allowed Tenant ID** | Firebase Console > Authentication > Tenants (if using multi-tenancy) | `tenant-abc123` or leave empty for single-tenant/no-tenant setups |
 
 ### 4. Link users to external identities
 
@@ -139,7 +139,12 @@ If you need to serve multiple organizations from a single GCIP project:
 1. Go to **Authentication > Tenants**
 2. Create a tenant for each organization
 3. Configure providers per tenant
-4. Add the tenant IDs (comma-separated) in the OpenEMR GCIP module config
+4. Enter the tenant ID for this deployment in the OpenEMR GCIP module config
+
+The admin UI currently accepts a single tenant ID per OpenEMR deployment
+(this is what the Firebase JS SDK binds the sign-in form to). The storage
+layer keeps a list-capable shape so a future release can add multi-tenant
+UX (tenant picker) without a schema change.
 
 ## Configuration Reference
 
@@ -162,7 +167,7 @@ If you need to serve multiple organizations from a single GCIP project:
 | `gcip_firebase_auth_domain` | Firebase auth domain |
 | `gcip_issuer` | Expected `iss` claim in ID tokens |
 | `gcip_client_id` | Expected `aud` claim (usually same as project ID) |
-| `gcip_allowed_tenant_ids` | Comma-separated list of allowed tenant IDs (empty = all) |
+| `gcip_allowed_tenant_ids` | Allowed tenant ID for this deployment (empty = no tenant filtering). The storage shape is a comma-separated list for forward compatibility with a future multi-tenant UX; today the admin UI sets a single value. |
 
 ## How It Works
 

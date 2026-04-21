@@ -60,6 +60,13 @@ final class DatabaseOidcLoginAuditLogger implements OidcLoginAuditLoggerInterfac
         $this->failure($username, '', 'GCIP OIDC user has no ACL group');
     }
 
+    public function tenantMismatch(array $allowedTenantIds, ?string $tokenTenantId): void
+    {
+        $actual = $tokenTenantId ?? '(none)';
+        $expected = implode(',', $allowedTenantIds);
+        $this->failure('', '', 'GCIP OIDC tenant mismatch — expected one of [' . $expected . '], got ' . $actual);
+    }
+
     public function loginSucceeded(string $username, string $authGroup): void
     {
         EventAuditLogger::getInstance()->newEvent(

@@ -97,12 +97,12 @@ $config = $configService->getAll();
                 </div>
 
                 <div class="form-group">
-                    <label for="gcip_allowed_tenant_ids"><?php echo xlt('Allowed Tenant IDs'); ?></label>
+                    <label for="gcip_allowed_tenant_ids"><?php echo xlt('Allowed Tenant ID'); ?></label>
                     <input type="text" class="form-control" id="gcip_allowed_tenant_ids"
                            name="gcip_allowed_tenant_ids"
                            value="<?php echo attr($config['gcip_allowed_tenant_ids'] ?? ''); ?>"
-                           placeholder="tenant-1, tenant-2">
-                    <div class="help-text"><?php echo xlt('Comma-separated list of allowed GCIP tenant IDs (leave empty for no tenant filtering)'); ?></div>
+                           placeholder="tenant-abc123">
+                    <div class="help-text"><?php echo xlt('GCIP tenant ID for this deployment. Leave empty if you are not using Firebase tenants — any token from the configured project will be accepted. When set, only tokens whose firebase.tenant claim matches will be accepted.'); ?></div>
                 </div>
 
                 <button type="submit" class="btn btn-primary"><?php echo xlt('Save Configuration'); ?></button>

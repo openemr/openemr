@@ -53,6 +53,14 @@ interface OidcLoginAuditLoggerInterface
     /** The mapped local user has no gACL group assignment. */
     public function userHasNoAuthGroup(string $username): void;
 
+    /**
+     * Token is valid but its tenant does not match the configured allowlist,
+     * or no tenant claim is present while an allowlist is configured.
+     *
+     * @param list<string> $allowedTenantIds non-empty list of permitted tenant IDs
+     */
+    public function tenantMismatch(array $allowedTenantIds, ?string $tokenTenantId): void;
+
     /** Login succeeded end-to-end; user is about to be set on the session. */
     public function loginSucceeded(string $username, string $authGroup): void;
 }
