@@ -22,16 +22,26 @@ const SKIP_DIRS = new Set([
   "test", "tests", "__tests__", "docs", "doc", "example", "examples", ".git",
 ]);
 
-function copyRecursive(src, dest) {
+function copyRecursive(src, dest, root) {
   if (!fs.existsSync(src)) return;
-  const stat = fs.statSync(src);
+
+  // Use lstatSync to detect symlinks without following them
+  const stat = fs.lstatSync(src);
+
+  // Skip symlinks to prevent traversal attacks
+  if (stat.isSymbolicLink()) return;
+
+  // Ensure resolved path stays within package root
+  const realPath = fs.realpathSync(src);
+  if (!realPath.startsWith(root + path.sep) && realPath !== root) return;
+
   if (stat.isDirectory()) {
     fs.mkdirSync(dest, { recursive: true });
     for (const entry of fs.readdirSync(src)) {
       // Skip dotfiles and non-asset directories
       if (entry.startsWith(".")) continue;
       if (SKIP_DIRS.has(entry)) continue;
-      copyRecursive(path.join(src, entry), path.join(dest, entry));
+      copyRecursive(path.join(src, entry), path.join(dest, entry), root);
     }
   } else {
     const base = path.basename(src);
@@ -42,9 +52,10 @@ function copyRecursive(src, dest) {
 }
 
 function copyDir(pkg, subdir) {
-  const src = path.resolve(__dirname, "../node_modules", pkg, subdir);
+  const pkgRoot = path.resolve(__dirname, "../node_modules", pkg);
+  const src = path.join(pkgRoot, subdir);
   const dest = path.join(assetsDir, pkg, subdir);
-  copyRecursive(src, dest);
+  copyRecursive(src, dest, pkgRoot);
 }
 
 function copyFile(pkg, file) {
@@ -59,7 +70,7 @@ function copyFile(pkg, file) {
 function copyAll(pkg) {
   const src = path.resolve(__dirname, "../node_modules", pkg);
   const dest = path.join(assetsDir, pkg);
-  copyRecursive(src, dest);
+  copyRecursive(src, dest, src);
 }
 
 // Merge dependencies and napa sources
