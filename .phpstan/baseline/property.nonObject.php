@@ -222,16 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -4983,7 +4973,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$enums on mixed\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [

@@ -24787,36 +24787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterCa has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterCert has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterKey has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelCa has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelCert has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelKey has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:\\$couchdb has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',

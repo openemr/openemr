@@ -247,16 +247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
@@ -265,11 +255,6 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchPhoneList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',

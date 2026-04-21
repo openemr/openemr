@@ -38,7 +38,7 @@ class Thumbnail
             die('Abort. Thumbnail generator error : Missing GD extension');
         }
 
-        $this->max_size = !is_null($max_size) ? $max_size : self::MAX_SIZE;
+        $this->max_size = $max_size ?? self::MAX_SIZE;
     }
 
     /**
@@ -85,7 +85,7 @@ class Thumbnail
         $hRatio = $this->max_size / $height;
 
         // Using imagecreatefromstring will automatically detect the file type
-        $content_file = is_null($content_file) ? file_get_contents($file) : $content_file;
+        $content_file ??= file_get_contents($file);
         $sourceImage = imagecreatefromstring($content_file);
 
         // Calculate a proportional width and height no larger than the max size.

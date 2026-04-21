@@ -4,7 +4,9 @@ namespace OpenEMR\RestControllers\Authorization;
 
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
@@ -61,7 +63,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             throw new UnauthorizedHttpException("APICSRFTOKEN", "OpenEMR Error: internal api failed because csrf token did not match");
         }
         $userId = $session->get('authUserID');
-        if (empty($userId)) {
+        if ((!is_int($userId) && !is_string($userId)) || empty($userId)) {
             // unable to identify the user
             $this->logger->error("OpenEMR Error - api user account could not be identified, so forced exit", ['userId' => $userId]);
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -78,7 +80,31 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
                 'userRole' => $userRole]);
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        $userUuid = $user['uuid'];
+        $userUuid = $user['uuid'] ?? null;
+        if ($userUuid === null || $userUuid === '') {
+            // Fresh installs (and upgrades pre-dating the users.uuid column) may
+            // have users without a UUID until UUID_Service runs. Populate the
+            // UUID for this single user row on demand so LocalApi does not 500
+            // on bootstrap. Scoped to the authenticated user to avoid letting
+            // an authenticated request trigger a whole-table backfill.
+            $this->bootstrapMissingUserUuid($userId);
+            $user = $userService->getUser($userId);
+            if ($user === false) {
+                $this->logger->error(
+                    "OpenEMR Error - local api user not found after UUID bootstrap; forced exit",
+                    ['userId' => $userId]
+                );
+                throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            $userUuid = $user['uuid'] ?? null;
+            if ($userUuid === null || $userUuid === '') {
+                $this->logger->error(
+                    "OpenEMR Error - local api user has no UUID even after bootstrap; forced exit",
+                    ['userId' => $userId]
+                );
+                throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
         $request->attributes->set('userId', $userUuid);
         $request->attributes->set('clientId', null);
         $request->attributes->set('tokenId', $csrfToken);
@@ -100,5 +126,23 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     public function setUserService(UserService $userService): void
     {
         $this->userService = $userService;
+    }
+
+    /**
+     * Populate the UUID for a single user row when missing. Extracted for
+     * testability; generates a UUID via UuidRegistry and writes only the
+     * target row so an authenticated request cannot trigger a whole-table
+     * backfill.
+     */
+    protected function bootstrapMissingUserUuid(int|string $userId): void
+    {
+        $registry = new UuidRegistry(['table_name' => 'users']);
+        $uuidBytes = $registry->createUuid();
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `users` SET `uuid` = ? WHERE `id` = ? "
+            . "AND (`uuid` IS NULL OR `uuid` = '' "
+            . "OR `uuid` = '\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')",
+            [$uuidBytes, $userId]
+        );
     }
 }

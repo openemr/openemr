@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Calendar\RecurrenceStartDateAdjuster;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -220,91 +221,10 @@ if ($form_action === "save") {
         ]);
     }
 
-//The modification of the start date for events that take place on one day of the week
-//for example monday, or thursday. We set the start date on the first day of the week
-//that the event is scheduled. For example if you set the event to repeat on each monday
-//the start date of the event will be set on the first monday after the day the event is scheduled
-    if ($form_repeat_type === 5) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 6) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 7) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 8) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 9) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    }//if end
+    // Repeat types 5-9 map to target weekdays (Mon-Fri). Advance the start
+    // date to the next occurrence of that weekday so the recurrence begins on
+    // the correct day.
+    $event_date = RecurrenceStartDateAdjuster::adjust((string) $event_date, $form_repeat_type);
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/

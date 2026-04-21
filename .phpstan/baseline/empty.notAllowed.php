@@ -3973,7 +3973,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
@@ -3983,7 +3983,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 14,
+    'count' => 13,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [

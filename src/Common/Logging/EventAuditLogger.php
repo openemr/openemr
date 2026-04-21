@@ -23,7 +23,9 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use OpenEMR\Encryption\CipherSuiteInterface;
 use Psr\Clock\ClockInterface;
+use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -83,7 +85,7 @@ class EventAuditLogger
 
         return new self(
             sinks: $sinks,
-            cryptoGen: ServiceContainer::getCrypto(),
+            crypto: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
@@ -97,7 +99,7 @@ class EventAuditLogger
      */
     public function __construct(
         private readonly array $sinks,
-        private readonly CryptoInterface $cryptoGen,
+        private readonly CipherSuiteInterface|CryptoInterface $crypto,
         private readonly bool $shouldEncrypt,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
@@ -641,11 +643,11 @@ class EventAuditLogger
         }
 
         if ($this->shouldEncrypt) {
-            $comments = $this->cryptoGen->encryptStandard($comments);
+            $comments = $this->encrypt($comments);
             if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->encrypt($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->encrypt($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->encrypt($api['response']);
             }
         } else {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
@@ -803,5 +805,14 @@ class EventAuditLogger
         }
 
         return $event;
+    }
+
+    private function encrypt(#[SensitiveParameter] string $plaintext): string
+    {
+        if ($this->crypto instanceof CipherSuiteInterface) {
+            return $this->crypto->encrypt($plaintext);
+        } else {
+            return $this->crypto->encryptStandard($plaintext);
+        }
     }
 }

@@ -412,16 +412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function batchcom_WriteLog may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_age may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
