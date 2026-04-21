@@ -286,6 +286,24 @@ class MedExAPI
         $url = $this->baseUrl . '/index.php?route=api/oemr/login';
 
         try {
+            $callbackToken = QueryUtils::fetchSingleValue(
+                "SELECT gl_value FROM globals WHERE gl_name = ?",
+                'gl_value',
+                ['medex_callback_token']
+            ) ?? '';
+            $callbackBase = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
+            $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
+            if ($callbackSiteId === '') {
+                $callbackSiteId = 'default';
+            }
+            $callbackUrl = '';
+            if (trim((string)$callbackToken) !== '' && $callbackBase !== '') {
+                $callbackUrl = rtrim($callbackBase, '/')
+                    . '/interface/modules/custom_modules/oe-module-medex/public/callback.php'
+                    . '?token=' . rawurlencode((string)$callbackToken)
+                    . '&site=' . rawurlencode($callbackSiteId);
+            }
+
             $http = oeHttp::setOptions([
                 'timeout' => 5,
                 'verify' => false,
@@ -294,7 +312,11 @@ class MedExAPI
 
             $response = $http->asFormParams()->post($url, [
                 'site' => $this->practiceId,
-                'token' => $this->apiKey
+                'token' => $this->apiKey,
+                'callback_url' => $callbackUrl,
+                'openemr_base_url' => $callbackBase,
+                'site_url' => $callbackBase,
+                'site_id' => $callbackSiteId,
             ]);
 
             $httpCode = $response->getStatusCode();
