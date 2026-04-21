@@ -241,10 +241,16 @@ class UuidRegistry
      * missing a UUID. Prefer this over createMissingUuidsForTables() whenever
      * the caller already knows which row it cares about.
      *
-     * Generates a UUID via the registry (so it is inserted into uuid_registry
-     * like any other) and updates only the row matching the supplied id,
-     * guarded against NULL / empty / all-zero byte UUID values so the update
-     * is idempotent.
+     * Generates a candidate UUID without inserting into uuid_registry, runs
+     * a guarded UPDATE against NULL / empty / all-zero byte UUID values on
+     * the target row, and only then records the UUID in uuid_registry when
+     * the UPDATE actually wrote a row. This keeps the call idempotent and
+     * avoids leaking orphaned uuid_registry entries when the row already
+     * has a UUID or does not exist.
+     *
+     * The all-zero byte comparison is bound as a parameter rather than
+     * embedded as a backslash-escaped SQL literal so the predicate works
+     * regardless of the connection's NO_BACKSLASH_ESCAPES mode.
      *
      * @param string     $tableName table registered in UUID_TABLE_DEFINITIONS
      * @param string     $idColumn  column to match in the WHERE clause
@@ -264,13 +270,17 @@ class UuidRegistry
             );
         }
         $registry = new self(['table_name' => $tableName]);
-        $uuidBytes = $registry->createUuid();
+        $uuidBytes = $registry->getUnusedUuidBatch(1)[0];
+        $nilUuid = str_repeat("\0", 16);
         QueryUtils::sqlStatementThrowException(
-            "UPDATE `" . $tableName . "` SET `uuid` = ? WHERE `" . $idColumn . "` = ? "
-            . "AND (`uuid` IS NULL OR `uuid` = '' "
-            . "OR `uuid` = '\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')",
-            [$uuidBytes, $idValue]
+            "UPDATE `" . $tableName . "` SET `uuid` = ? "
+            . "WHERE `" . $idColumn . "` = ? "
+            . "AND (`uuid` IS NULL OR `uuid` = '' OR `uuid` = ?)",
+            [$uuidBytes, $idValue, $nilUuid]
         );
+        if (QueryUtils::affectedRows() === 1) {
+            $registry->insertUuidsIntoRegistry([$uuidBytes]);
+        }
     }
 
 
