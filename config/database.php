@@ -85,7 +85,10 @@ return [
             // Future: load additional paths from modules?
             // this may need a ClassLoader instead.
         ];
-        $isDevMode = $c->getString('OPENEMR__ENVIRONMENT') === 'dev';
+        // FIXME: before this gets integrated, isDevMode needs to be dervied
+        // and an appropriate cache adapter provided (probably apcu for web and
+        // still array for cli)
+        $isDevMode = true;
         $config = ORMSetup::createAttributeMetadataConfig(
             paths: $paths,
             isDevMode: $isDevMode,
