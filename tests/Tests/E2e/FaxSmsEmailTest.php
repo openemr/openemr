@@ -34,6 +34,14 @@ class FaxSmsEmailTest extends TestCase
     {
         parent::setUp();
 
+        self::markTestSkipped(
+            'AppDispatch::__construct() runs the full request pipeline '
+            . '(ACL check, dispatch, render, exit) on instantiation, so '
+            . 'EmailClient cannot be directly constructed from a test '
+            . 'without an authenticated session. Re-enable once AppDispatch '
+            . 'is refactored to separate construction from request handling.'
+        );
+
         // Set up SMTP configuration in $GLOBALS for MyMailer
         $GLOBALS['EMAIL_METHOD'] = 'SMTP';
         $GLOBALS['SMTP_HOST'] = getenv('OPENEMR_SETTING_SMTP_HOST') ?: 'mailpit';

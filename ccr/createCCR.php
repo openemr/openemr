@@ -338,7 +338,7 @@ function sourceType($ccr, $uuid)
 
 function displayError($message): void
 {
-    echo '<script>alert("' . addslashes((string) $message) . '");</script>';
+    echo '<script>alert(' . js_escape((string) $message) . ');</script>';
 }
 
 

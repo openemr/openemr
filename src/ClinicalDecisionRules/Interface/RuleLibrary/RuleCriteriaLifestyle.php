@@ -71,7 +71,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $dbView->method = "database";
         $dbView->methodDetail = "";
-        $dbView->value = "LIFESTYLE::" . $this->type . "::" . (is_null($this->matchValue) ? "" : $this->matchValue);
+        $dbView->value = "LIFESTYLE::" . $this->type . "::" . ($this->matchValue ?? "");
         return $dbView;
     }
 

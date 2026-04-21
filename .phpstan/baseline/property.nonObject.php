@@ -222,16 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -2417,11 +2407,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$templateId on SimpleXMLElement\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$acl_version on string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
@@ -3375,16 +3360,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$DescribedValueSet on SimpleXMLElement\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountNumber on mixed\\.$#',
@@ -4998,7 +4973,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$enums on mixed\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
@@ -6022,6 +5997,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/Export/ExportMemoryStreamWriterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$box_14_qualifier_options on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -6075,11 +6055,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$viewBean on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/Export/ExportMemoryStreamWriterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

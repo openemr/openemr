@@ -1717,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'file_url\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'array\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
@@ -1865,76 +1860,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Default\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_aid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_facility\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_home\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'number_failed_emails\' on mixed\\.$#',
@@ -7749,11 +7674,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'codetype\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on array\\|false\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
@@ -15957,11 +15877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/NotificationTaskManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'appKey\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
@@ -19903,7 +19818,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 2 on mixed\\.$#',
-    'count' => 11,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -29892,11 +29807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'PHP_SELF\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'PID\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
@@ -29913,11 +29823,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'POSTCARDS_remote\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'SERVER_NAME\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -37827,236 +37732,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Default\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_aid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endTime\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_facility\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_home\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Send_Email_Before_Hours\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'message\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'email_sender\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'email_subject\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'message\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endDate\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_endTime\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_eventDate\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_startTime\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone_cell\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'provider_name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'sms_gateway_type\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'SMS_gateway_apikey\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'SMS_gateway_password\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'SMS_gateway_username\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Send_SMS_Before_Hours\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'message\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'sms_gateway_type\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 20,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 2 on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 3 on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 4 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 5 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'error\\-codes\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
@@ -43219,31 +42894,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'db\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'enums\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
@@ -50497,11 +50147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'COUNT\\(\\*\\)\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
@@ -53647,6 +53292,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingLoggerTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'authorization_endpoint\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'claims_supported\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'issuer\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'scopes_supported\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ignoreAuth\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
@@ -53665,6 +53335,121 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Rx/RxListTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'synonym\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Rx/RxListTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'begdate\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_description\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'data_absent_reason\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date_end\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'encounter_uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'note\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'performer_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'performer_uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'screening_category_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'screening_category_system\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sub_observations\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'user_uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value_code_description\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value_unit\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on mixed\\.$#',
@@ -53720,26 +53505,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 1 on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/ProcessingResultTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'authorization_endpoint\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'claims_supported\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'issuer\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'scopes_supported\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/OAuth2DiscoveryControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'family\' on mixed\\.$#',
@@ -53977,11 +53742,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/PractitionerRestControllerTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'box_15_date_qual\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -54010,16 +53770,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'begdate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'begdate\' on mixed\\.$#',
@@ -54417,101 +54167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationPatientServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'code_description\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'data_absent_reason\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date_end\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'encounter_uuid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'note\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'performer_type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'performer_uuid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'screening_category_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'screening_category_system\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'sub_observations\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'user_uuid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'value_code_description\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'value_unit\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Questionnaire/FhirQuestionnaireFormServiceIntegrationTest.php',
@@ -54675,16 +54330,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'subAction\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/RouteControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Rx/RxListTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'synonym\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Rx/RxListTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',

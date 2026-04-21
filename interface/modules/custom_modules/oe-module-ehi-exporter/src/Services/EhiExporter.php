@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
@@ -342,14 +343,13 @@ class EhiExporter
         return $updatedJobTask;
     }
 
-    private function getXmlNode($path)
+    private function getXmlNode(string $path)
     {
         $contents = file_get_contents($path);
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NONET);
-        return $xml;
+        return XmlUtils::loadString($contents);
     }
 
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask

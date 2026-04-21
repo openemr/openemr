@@ -357,11 +357,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/about.php',
@@ -620,11 +615,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$res might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchPhoneList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$results_log might not be defined\\.$#',
@@ -10873,7 +10863,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$results might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
@@ -13658,7 +13648,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$the_item might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/labdata.php',
 ];
 $ignoreErrors[] = [
@@ -16322,56 +16312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$EMAIL_NOTIFICATION_HOUR might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$data_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patient_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smsgateway_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$SMS_NOTIFICATION_HOUR might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$data_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patient_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$smsgateway_info might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$result might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$token_database might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
@@ -16895,11 +16835,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$enum might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$values might not be defined\\.$#',

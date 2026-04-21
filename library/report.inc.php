@@ -14,6 +14,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/option
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -314,9 +315,20 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
+    $formsBaseDir = OEGlobalsBag::getInstance()->getString('incdir') . "/forms";
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/" . $result["formdir"] . "/report.php");
+        $formDir = $result["formdir"];
+        if (!is_string($formDir) || !SafeIncludeResolver::isSafePathComponent($formDir)) {
+            continue;
+        }
+
+        $reportPath = SafeIncludeResolver::resolve($formsBaseDir, $formDir . "/report.php");
+        if ($reportPath === false) {
+            continue;
+        }
+
+        include_once($reportPath);
     }
 
     $res = sqlStatement("select * from forms where pid=? AND deleted=0 order by date", [$pid]);
@@ -364,7 +376,12 @@ function printPatientForms($pid, $cols): void
             }
         }
 
-        ($result["formdir"] . "_report")($pid, $result["encounter"], $cols, $result["form_id"]);
+        if (is_string($result["formdir"])) {
+            $reportFn = $result["formdir"] . "_report";
+            if (function_exists($reportFn)) {
+                $reportFn($pid, $result["encounter"], $cols, $result["form_id"]);
+            }
+        }
 
         echo "</div>";
     }

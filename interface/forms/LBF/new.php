@@ -742,7 +742,7 @@ if (
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
                 "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
-                "<?php echo addslashes((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
+                <?php echo js_escape((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?> +
                 "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +

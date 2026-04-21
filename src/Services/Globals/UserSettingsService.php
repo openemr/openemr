@@ -26,7 +26,7 @@ class UserSettingsService
     public static function effectiveUser($user)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        return (is_null($user) ? $session->get('authUserID') : $user);
+        return ($user ?? $session->get('authUserID'));
     }
 
     /**

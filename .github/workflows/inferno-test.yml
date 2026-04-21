@@ -88,8 +88,8 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
         } >> "$GITHUB_OUTPUT"
 
     ##

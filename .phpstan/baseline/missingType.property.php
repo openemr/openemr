@@ -23537,11 +23537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingLogger\\:\\:\\$cryptoGen has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingProcessor\\:\\:\\$logger has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
@@ -24790,36 +24785,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\Person\\:\\:\\$updated_date has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterCa has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterCert has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$masterKey has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelCa has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelCert has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sentinelKey has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:\\$couchdb has no type specified\\.$#',
@@ -30737,11 +30702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Common\\\\Uuid\\\\UuidRegistryTest\\:\\:\\$uuidFactory has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Common/Uuid/UuidRegistryTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\AaLoginTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
@@ -30870,6 +30830,26 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\MedicationDispenseFixtureManager\\:\\:\\$createdRecords has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Common\\\\Uuid\\\\UuidRegistryTest\\:\\:\\$uuidFactory has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Uuid/UuidRegistryTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$originalSessionPid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Portal/PatientControllerSecurityTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$testPatientId1 has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Portal/PatientControllerSecurityTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$testPatientId2 has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Portal/PatientControllerSecurityTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:\\$lastBinds has no type specified\\.$#',
@@ -31030,21 +31010,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerEditTest\\:\\:\\$controller has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$originalSessionPid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Portal/PatientControllerSecurityTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$testPatientId1 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Portal/PatientControllerSecurityTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Portal\\\\PatientControllerSecurityTest\\:\\:\\$testPatientId2 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Portal/PatientControllerSecurityTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\ZendModules\\\\FHIR\\\\Listener\\\\UuidMappingEventsSubscriberTest\\:\\:\\$uuidRecordsToDelete has no type specified\\.$#',

@@ -6,13 +6,17 @@
  * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
+use OpenEMR\Services\Background\BackgroundServiceRegistry;
 
 class ClaimRevModuleSetup
 {
@@ -79,21 +83,45 @@ class ClaimRevModuleSetup
         $result = sqlStatement($sql);
         return $result;
     }
-    public static function createBackGroundServices()
+    public static function createBackGroundServices(): void
     {
-        $sql = "DELETE FROM background_services WHERE name like '%ClaimRev%'";
-        sqlStatement($sql);
+        // Use BackgroundServiceRegistry so module upgrades don't silently
+        // reset an admin's enable/disable toggle. The Registry's "first
+        // install wins" policy preserves the active flag on upsert;
+        // reinstalling this module no longer wipes admin preferences the
+        // way the previous DELETE-then-INSERT pattern did.
+        $registry = new BackgroundServiceRegistry();
+        $billingPath = '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Billing_Claimrev_Service.php';
+        $eligibilityPath = '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Eligibility_ClaimRev_Service.php';
 
-        $sql = "INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-            ('ClaimRev_Send', 'Send Claims To ClaimRev', 1, 0, '2017-05-09 17:39:10', 1, 'start_X12_Claimrev_send_files', '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Billing_Claimrev_Service.php', 100);";
-        sqlStatement($sql);
+        $registry->register(new BackgroundServiceDefinition(
+            name: 'ClaimRev_Send',
+            title: 'Send Claims To ClaimRev',
+            function: 'start_X12_Claimrev_send_files',
+            requireOnce: $billingPath,
+            executeInterval: 1,
+            sortOrder: 100,
+            active: true,
+        ));
 
-        $sql = "INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-            ('ClaimRev_Receive', 'Get Reports from ClaimRev', 1, 0, '2017-05-09 17:39:10', 240, 'start_X12_Claimrev_get_reports', '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Billing_Claimrev_Service.php', 100);";
-        sqlStatement($sql);
+        $registry->register(new BackgroundServiceDefinition(
+            name: 'ClaimRev_Receive',
+            title: 'Get Reports from ClaimRev',
+            function: 'start_X12_Claimrev_get_reports',
+            requireOnce: $billingPath,
+            executeInterval: 240,
+            sortOrder: 100,
+            active: true,
+        ));
 
-        $sql = "INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-            ('ClaimRev_Elig_Send_Receive', 'Send and Receive Eligibility from ClaimRev', 1, 0, '2017-05-09 17:39:10', 1, 'start_send_eligibility', '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Eligibility_ClaimRev_Service.php', 100);";
-        sqlStatement($sql);
+        $registry->register(new BackgroundServiceDefinition(
+            name: 'ClaimRev_Elig_Send_Receive',
+            title: 'Send and Receive Eligibility from ClaimRev',
+            function: 'start_send_eligibility',
+            requireOnce: $eligibilityPath,
+            executeInterval: 1,
+            sortOrder: 100,
+            active: true,
+        ));
     }
 }

@@ -233,7 +233,7 @@ class Document extends ORDataObject
         //this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
 
-        $this->type = $this->type_array[0] ?? '';
+        $this->type = array_key_first($this->type_array) ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
         $this->date_expires = null; // typically no expiration date here

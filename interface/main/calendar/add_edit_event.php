@@ -382,7 +382,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $event_date = setEventDate($_POST['form_date'], $my_repeat_freq);
     } elseif (!empty($_POST['form_repeat'])) {
         $my_recurrtype = 1;
-        if ($my_repeat_type > 6) { // Changed from 4 to 6 to accommodate new options.
+        if ($my_repeat_type > 4) { // Types 5+ use REPEAT_ON: 5=nth weekday, 6=last weekday, 7-9=nth occurrences
             $my_recurrtype = 2;
             $time = strtotime((string) $event_date);
             $my_repeat_on_day = 0 + date('w', $time);
@@ -832,7 +832,7 @@ if (!empty($_POST['form_action'])) {
     // Close this window and refresh the calendar (or the patient_tracker) display.
     echo "<html>\n<body>\n<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
     echo " if (opener && !opener.closed && opener.refreshme) {\n " .
       "  opener.refreshme();\n " . // This is for standard calendar page refresh
@@ -1808,7 +1808,7 @@ function HideRecurrPopup() {
 }
 
 function deleteEvent() {
-    if (confirm("<?php echo addslashes(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>")) {
+    if (confirm(<?php echo js_escape(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>)) {
         $('#form_action').val("delete");
 
         <?php if ($repeats) : ?>
