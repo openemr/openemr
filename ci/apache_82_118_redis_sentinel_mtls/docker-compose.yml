@@ -17,7 +17,7 @@ x-includes:
 services:
   # ---------- cert generation (identical to TLS variant) ----------
   redis-tls-init:
-    image: alpine:3.21
+    image: alpine:3.23
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
