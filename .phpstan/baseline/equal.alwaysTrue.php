@@ -79,11 +79,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0 and 0 will always evaluate to true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between 0 and 0 will always evaluate to true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [

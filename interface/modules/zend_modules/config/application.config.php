@@ -8,6 +8,9 @@
  */
 
 // The required application modules we need to load all the time are listed here.
+
+use OpenEMR\Core\OEGlobalsBag;
+
 $core_modules = [
     'Laminas\Router', // this was separated from the MVC module into it's own module.  Handles the routing layers.
     'Laminas\Validator',  // Handles validations....
@@ -28,7 +31,7 @@ $plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_
     $webRootPath ?? '',
     $zendConfigurationPath ?? ''
 );
-$vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
+$vendor_path = !empty(OEGlobalsBag::getInstance()->get('vendor_dir')) ? OEGlobalsBag::getInstance()->get('vendor_dir') : (realpath(__DIR__) . '/../vendor');
 
 return [
     'modules' =>  array_merge($core_modules, $plugin_modules)

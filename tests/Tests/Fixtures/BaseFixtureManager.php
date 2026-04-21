@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchQueryFragment;
 
@@ -133,10 +133,9 @@ abstract class BaseFixtureManager
                 }
             }
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            $isInserted = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) {
-                $insertCount += 1;
-            }
+            // sqlInsert throws on failure, so if we get here the insert succeeded
+            QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $insertCount += 1;
         }
         return $insertCount;
     }
@@ -227,7 +226,7 @@ abstract class BaseFixtureManager
                 return new SearchQueryFragment($sql, [$searchValue]);
             }
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
+            ServiceContainer::getLogger()->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
     }

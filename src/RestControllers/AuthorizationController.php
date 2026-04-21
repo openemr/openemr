@@ -55,6 +55,7 @@ use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -165,7 +166,7 @@ class AuthorizationController
         private bool $providerForm = true
     ) {
         $globalsBag = $this->kernel->getGlobalsBag();
-        $this->webroot = $globalsBag->get('webroot', '');
+        $this->webroot = $globalsBag->getWebRoot();
         $this->globalsBag = $globalsBag;
         if (empty($this->session->get('site_id'))) {
             // should never reach this but just in case
@@ -370,7 +371,7 @@ class AuthorizationController
 
                 $clientSaved = true;
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->errorLogCaller("Failed to create account Exception: " . $exception->getMessage(), ['trace' => $exception->getMessage()]);
+                $this->getSystemLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
                 if ($clientSaved) {
@@ -379,7 +380,7 @@ class AuthorizationController
                     try {
                         $this->rollbackTransaction();
                     } catch (\Throwable $exception) {
-                        $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
+                        $this->getSystemLogger()->error("Error rolling back transaction", ['exception' => $exception]);
                     }
                 }
             }
@@ -400,7 +401,7 @@ class AuthorizationController
                 }
             }
             if (!empty($params['jwks'])) {
-                $params['jwks'] = json_decode((string) $params['jwks'], true);
+                $params['jwks'] = json_decode($params['jwks'], true);
             }
             if (isset($params['require_auth_time'])) {
                 $params['require_auth_time'] = ($params['require_auth_time'] === 1);
@@ -490,7 +491,7 @@ class AuthorizationController
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
+            $params['client_secret'] = $this->cryptoGen->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
             $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
@@ -687,13 +688,14 @@ class AuthorizationController
         if ($this->grantType === 'authorization_code') {
             $this->getSystemLogger()->debug(
                 "logging global params",
-                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->globalsBag->get('web_root'), 'site_id' => $this->session->get('site_id')]
+                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->webroot, 'site_id' => $this->session->get('site_id')]
             );
             $fhirServiceConfig = new ServerConfig();
+            $apiBase = $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default');
             $expectedAudience = [
                 $fhirServiceConfig->getFhirUrl(),
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/api",
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
+                $apiBase . "/api",
+                $apiBase . "/portal",
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
@@ -797,7 +799,7 @@ class AuthorizationController
         $clientId = $session->get('client_id');
         if (empty($clientId)) {
             // why are we logging in... we need to terminate
-            $this->getSystemLogger()->errorLogCaller("application client_id was missing when it shouldn't have been");
+            $this->getSystemLogger()->error("Application client_id was missing when it shouldn't have been");
             return $this->renderTwigPage(
                 'oauth2/authorize/login',
                 "error/general_http_error.html.twig",
@@ -817,7 +819,7 @@ class AuthorizationController
             ,'isU2F' => false
             ,'u2fRequests' => ''
             ,'appId' => ''
-            ,'enforce_signin_email' => $this->globalsBag->get('enforce_signin_email', 0) === '1'
+            ,'enforce_signin_email' => $this->globalsBag->getBoolean('enforce_signin_email')
             ,'user' => [
                 'email' => $request->request->get('email', '')
                 ,'username' => $request->request->get('username', '')
@@ -826,7 +828,7 @@ class AuthorizationController
             ,'patientRoleSupport' => $patientRoleSupport
             ,'invalid' => ''
             ,'client' => $client
-            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
         if (empty($request->request->get('username')) && empty($request->request->get('password'))) {
             $this->getSystemLogger()->debug("AuthorizationController->userLogin() presenting blank login form");
@@ -834,7 +836,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if ($request->request->has('user_role')) {
-            if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $session)) {
+            if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $session, 'oauth2')) {
                 $this->getSystemLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfViolation(toScreen: false);
                 $request->request->replace(); // clear out username/password
@@ -880,7 +882,7 @@ class AuthorizationController
             }
             //Check the validity of the authentication token
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
-                if (!$mfaToken || !$mfa->check($mfaToken, $request->get('mfa_type'))) {
+                if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
@@ -890,7 +892,7 @@ class AuthorizationController
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
             $loginTwigVars['invalid'] = xl("Sorry, an error occurred while processing your request. Please try again later.");
-            $this->getSystemLogger()->errorLogCaller("failed to process MFA Error:" . $error->getMessage(), ['trace' => $error->getTraceAsString()]);
+            $this->getSystemLogger()->error("failed to process MFA Error:" . $error->getMessage(), ['exception' => $error]);
             // NOTE: if twig throws an exception, we have a problem here.
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
@@ -936,7 +938,7 @@ class AuthorizationController
         try {
             $responseBody = $twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("caught exception rendering template", ['exception' => $e]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
         $factory = new Psr17Factory();
@@ -1083,7 +1085,7 @@ class AuthorizationController
             ,'userAccount' => $userAccount
             ,'offlineRequested' => true == $offline_requested
             ,'offline_access_date' => $offline_access_date
-            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
 
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
@@ -1149,13 +1151,16 @@ class AuthorizationController
 
     protected function getUserUuid($userId, $userRole): string
     {
+        if (!is_int($userId) && !is_string($userId)) {
+            return '';
+        }
         switch ($userRole) {
             case 'users':
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                UuidRegistry::createMissingUuidForRow('users', 'id', $userId);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                UuidRegistry::createMissingUuidsForTables(['patient_data']);
+                UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $userId);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:
@@ -1198,7 +1203,7 @@ class AuthorizationController
             $code = $code["code"];
             // TODO: @adunsulag if the request is missing the key 'proceed' then we should error out here.
             if ($request->request->has('proceed') && !empty($code) && !empty($session_cache)) {
-                if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $this->session)) {
+                if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $this->session, 'oauth2')) {
                     CsrfUtils::csrfViolation(toScreen: false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
@@ -1210,7 +1215,7 @@ class AuthorizationController
                         $code,
                         $session_cache
                     )) {
-                        $this->getSystemLogger()->errorLogCaller("AuthorizationController->authorizeUser() failed to save trusted user session");
+                        $this->getSystemLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
                         throw OAuthServerException::serverError("Failed authorization due to internal server error.");
                     }
                 }
@@ -1406,12 +1411,12 @@ class AuthorizationController
         try {
             $id = $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
             if (empty($id)) {
-                $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() failed to save trusted user");
+                $this->getSystemLogger()->error("AuthorizationController::saveTrustedUser() failed to save trusted user");
                 return false;
             }
             return true;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
             return false;
         }
     }
@@ -1432,7 +1437,7 @@ class AuthorizationController
                 throw new OAuthServerException('Id token missing from request', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
-            $state = $request->get('state', '');
+            $state = $request->query->get('state', '');
             $token_parts = explode('.', $id_token);
             $id_payload = $this->decodeToken($token_parts[1]);
 
@@ -1473,7 +1478,7 @@ class AuthorizationController
                     ->withBody($factory->createStream($message));
             }
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['client_id' => $client_id]);
+            $this->getSystemLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }
@@ -1592,7 +1597,7 @@ class AuthorizationController
      */
     public static function getAuthBaseFullURL(OEGlobalsBag $globalsBag, SessionInterface $session): string
     {
-        $baseUrl = $globalsBag->get('webroot', '') . '/oauth2/' . $session->get('site_id', 'default');
+        $baseUrl = $globalsBag->getWebRoot() . '/oauth2/' . $session->get('site_id', 'default');
         // collect full url and issuing url by using 'site_addr_oath' global
         return $globalsBag->get('site_addr_oath', '') . $baseUrl;
     }
@@ -1669,7 +1674,7 @@ class AuthorizationController
         // if we have come back from an autosubmit we are going to check to see if we are logged in
 
         $launch = $request->getQueryParams()['launch'];
-        SMARTLaunchToken::deserializeToken($launch);
+        $launchToken = SMARTLaunchToken::deserializeToken($launch);
 
         $client = $authRequest->getClient();
         // only authorize scopes specifically allowed by the client regardless of what is sent in the request
@@ -1693,6 +1698,11 @@ class AuthorizationController
         parse_str($authorization, $code);
         $code = $code["code"];
         $apiSession['launch'] = $launch;
+        // Preserve patient context from the launch token in the skip-auth flow
+        $patientUuid = $launchToken->getPatient();
+        if ($patientUuid) {
+            $apiSession['puuid'] = $patientUuid;
+        }
         $apiSession['client_id'] = $client->getIdentifier();
         $apiSession['user_id'] = $userUuid;
         // scopes in the session are a single string.
@@ -1841,6 +1851,7 @@ class AuthorizationController
         $this->session->setId($oauthSessionId);
         $sessionFactory = new HttpSessionFactory($request, $this->webroot, HttpSessionFactory::SESSION_TYPE_OAUTH);
         $this->session = $sessionFactory->createSession(); // create and start a new session
+        SessionWrapperFactory::getInstance()->setActiveSession($this->session); // set active session to be in use in standalone/shared files
     }
 
     protected function getUserRepository(): UserRepository
@@ -1872,6 +1883,7 @@ class AuthorizationController
 
     protected function convertPostParamsToGet(HttpRestRequest $request): HttpRestRequest
     {
+        /** @var array<string, array<mixed>|bool|float|int|string|null> $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!empty($parsedBody)) {
             foreach ($parsedBody as $key => $value) {

@@ -15,10 +15,10 @@ require_once("$srcdir/api.inc.php");
 require_once("C_FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $_POST['date_from']  = (!empty($_POST['date_from'])) ? DateToYYYYMMDD($_POST['date_from']) : null;
 $_POST['date_to']  = (!empty($_POST['date_to'])) ? DateToYYYYMMDD($_POST['date_to']) : null;

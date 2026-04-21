@@ -15,7 +15,8 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirPersonService;
@@ -38,7 +39,7 @@ class FhirPersonRestController
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
         $this->fhirService = new FhirResourcesService();
         $this->fhirPersonService = new FhirPersonService();
         $this->fhirValidate = new FhirValidationService();
@@ -305,7 +306,7 @@ class FhirPersonRestController
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

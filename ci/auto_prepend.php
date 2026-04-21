@@ -32,13 +32,11 @@ const COVERAGE_DIR = '/tmp/openemr-coverage';
 // Inferno tests are identified by INFERNO_TEST environment variable
 // API tests use /apis/ endpoints, E2E tests use other routes
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-if (getenv('INFERNO_TEST') === 'true') {
-    $testType = 'inferno';
-} elseif (strpos($requestUri, '/apis/') !== false) {
-    $testType = 'api';
-} else {
-    $testType = 'e2e';
-}
+$testType = match (true) {
+    getenv('INFERNO_TEST') === 'true' => 'inferno',
+    str_contains((string) $requestUri, '/apis/') => 'api',
+    default => 'e2e',
+};
 
 define('TEST_TYPE', $testType);
 define('COVERAGE_SUBDIR', COVERAGE_DIR . '/' . $testType);
@@ -62,17 +60,14 @@ if (!file_exists(PREPEND_MARKER)) {
 }
 
 if (COVERAGE_ENABLED) {
-    switch (COVERAGE_DRIVER) {
-        case 'pcov':
-            \pcov\start();
-            break;
-        case 'xdebug':
-            xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
-            break;
-        default:
-            error_log("Prepend: No coverage driver available (need pcov or xdebug)");
-            break;
-    }
+    match (COVERAGE_DRIVER) {
+        'pcov' => \pcov\start(),
+        'xdebug' => xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE),
+
+        // No PSR-3 logger is available before the OpenEMR bootstrap,
+        // so error_log is necessary here.
+        default => error_log("Prepend: Coverage is enabled, but no coverage driver (pcov or xdebug) is available"),
+    };
 }
 
 
@@ -140,4 +135,4 @@ function coverage_shutdown_handler(): void
     file_put_contents($filename, "<?php\nreturn " . $exported . ";\n");
 }
 
-register_shutdown_function('coverage_shutdown_handler');
+register_shutdown_function(coverage_shutdown_handler(...));

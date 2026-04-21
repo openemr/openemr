@@ -23,51 +23,42 @@ class BoundFilter
      *
      * Part of a WHERE filter clause, to be appended to a WHERE clause
      */
-    private $filterClause = "1";
+    private string $filterClause = "1";
 
     /**
-     * @var array
+     * @var array<int, string|int>
      *
      * Represents the values to be substituted for ?s in the filter clause
      */
-    private $boundValues = [];
+    private array $boundValues = [];
 
-    /**
-     * @return string
-     */
-    public function getFilterClause()
+    public function getFilterClause(): string
     {
         return $this->filterClause;
     }
 
-    /**
-     * @param string $filterClause
-     */
-    public function setFilterClause($filterClause)
+    public function setFilterClause(string $filterClause): void
     {
         $this->filterClause = $filterClause;
     }
 
     /**
-     * @return array
+     * @return array<int, string|int>
      */
-    public function getBoundValues()
+    public function getBoundValues(): array
     {
         return $this->boundValues;
     }
 
     /**
-     * @param array $boundValues
+     * @param array<int, string|int> $boundValues
      */
-    public function setBoundValues($boundValues)
+    public function setBoundValues(array $boundValues): void
     {
         $this->boundValues = $boundValues;
     }
 
-    /**
-     * @param string|int $boundValue
-     */
-    public function addBoundValue($boundValue)
+    public function addBoundValue(string|int $boundValue): void
     {
         $this->boundValues[] = $boundValue;
     }

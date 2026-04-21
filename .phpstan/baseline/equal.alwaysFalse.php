@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between numeric\\-string and \'\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'\' and \'Neosynephrine 10%%\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -110,6 +105,11 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between int\\|null and \'NULL\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-empty\\-string and \'\' will always evaluate to false\\.$#',

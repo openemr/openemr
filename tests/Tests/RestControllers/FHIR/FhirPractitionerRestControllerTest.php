@@ -2,14 +2,13 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\FhirResponseAssertionTrait;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -35,7 +34,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->fhirPractitionerController = new FhirPractitionerRestController();
-        $this->fhirPractitionerController->setSystemLogger(new SystemLogger(Level::Emergency));
+        $this->fhirPractitionerController->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->fixtureManager = new PractitionerFixtureManager();
 
         $this->fhirFixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();

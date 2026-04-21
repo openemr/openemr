@@ -7,16 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class Dotenv\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class Kernel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnConfigGetVar\\(\\) has invalid return type value\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
@@ -167,6 +157,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class echoOEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Caught class MpdfException not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
@@ -212,6 +207,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:_get_filter_name\\(\\) has invalid type callback\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
@@ -252,9 +257,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getUserSetting\\(\\) has invalid return type Effective\\.$#',
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
@@ -1150,11 +1155,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureSurgeryService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:getUserSetting\\(\\) has invalid return type OpenEMR\\\\Services\\\\Globals\\\\Effective\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:prevSetting\\(\\) has invalid return type OpenEMR\\\\Services\\\\Globals\\\\Prior\\.$#',

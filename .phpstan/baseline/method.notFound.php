@@ -287,11 +287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:getOpenEMRVersion\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:getPath\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
@@ -375,11 +370,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Events\\\\User\\\\UserUpdatedEvent\\:\\:getUsername\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Modules\\\\DashboardContext\\\\Services\\\\DashboardContextAdminService\\:\\:removeUserAssignment\\(\\)\\.$#',
@@ -637,7 +627,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:logError\\(\\)\\.$#',
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -657,7 +647,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/soap_functions/soap_patientfullmedication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:logError\\(\\)\\.$#',
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
 ];
@@ -867,16 +857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria\\:\\:newInstance\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method League\\\\OAuth2\\\\Server\\\\Repositories\\\\UserRepositoryInterface\\:\\:getCustomUserEntityByUserCredentials\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php',
@@ -902,14 +882,24 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
+    'message' => '#^Call to an undefined method object\\:\\:getBody\\(\\)\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormLocator.php',
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRouteHandler.php',
+    'message' => '#^Call to an undefined method object\\:\\:getHeader\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:getHeaders\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:getStatusCode\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\ORDataObject\\\\ORDataObject\\:\\:get_id\\(\\)\\.$#',
@@ -920,11 +910,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\IFhirExportableResourceService\\:\\:setServiceLocator\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getHeader\\(\\)\\.$#',
@@ -940,16 +925,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getElementsByTagName\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNode\\:\\:getElementsByTagName\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:C14N\\(\\)\\.$#',

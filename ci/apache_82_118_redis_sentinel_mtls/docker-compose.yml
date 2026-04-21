@@ -1,0 +1,263 @@
+##
+# Redis Sentinel with mutual TLS (mTLS / X.509 client certificates).
+#
+# Same as the TLS variant but with tls-auth-clients=yes: Redis and Sentinel
+# require every connecting client to present a certificate signed by the CA.
+# SentinelUtil reads REDIS_X509=yes and attaches client certs to every Predis
+# connection.
+
+x-includes:
+  node-version: "22"
+  redis-sentinel-template: "compose-shared-redis-sentinel/docker-compose.yml"
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mariadb.yml"
+  mailpit-template: "compose-shared-mailpit/compose.yml"
+
+services:
+  # ---------- cert generation (identical to TLS variant) ----------
+  redis-tls-init:
+    image: alpine:3.23
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -ex
+
+        # Idempotent: skip if certs already exist.  docker compose up may
+        # restart this container on subsequent calls; regenerating would
+        # invalidate certs the running Redis/Sentinel containers already loaded.
+        if [ -f /certs/ca.crt ]; then
+            echo "Certs already present — skipping generation."
+            exit 0
+        fi
+
+        apk add --no-cache openssl
+        cd /certs
+
+        # --- CA ---
+        openssl genrsa -out ca.key 2048
+        openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
+
+        # --- Server cert (covers every Redis/Sentinel hostname) ---
+        echo "subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:localhost" > /tmp/san.ext
+        openssl genrsa -out server.key 2048
+        openssl req -new -key server.key -subj "/CN=redis" \
+          | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
+              -extfile /tmp/san.ext -days 1 -out server.crt
+
+        # --- Client cert (required for mTLS) ---
+        openssl genrsa -out client.key 2048
+        openssl req -new -key client.key -subj "/CN=openemr-client" \
+          | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
+              -days 1 -out client.crt
+
+        # --- Symlinks matching SentinelUtil's expected filenames ---
+        ln -sf ca.crt redis-sentinel-ca
+        ln -sf client.crt redis-sentinel-cert
+        ln -sf client.key redis-sentinel-key
+        ln -sf ca.crt redis-master-ca
+        ln -sf client.crt redis-master-cert
+        ln -sf client.key redis-master-key
+
+        chmod 644 *.crt *.key ca.key
+        ls -la /certs/
+    volumes:
+      - redis-certs:/certs
+
+  # ---------- Redis overrides: TLS + require client certs ----------
+  redis-master:
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --tls-port
+      - "6379"
+      - --port
+      - "0"
+      - --tls-cert-file
+      - /certs/server.crt
+      - --tls-key-file
+      - /certs/server.key
+      - --tls-ca-cert-file
+      - /certs/ca.crt
+      - --tls-auth-clients
+      - "yes"
+      - --tls-replication
+      - "yes"
+      - --replica-announce-ip
+      - redis-master
+    volumes:
+      - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
+             "--cert", "/certs/client.crt", "--key", "/certs/client.key",
+             "-a", "strongpassword", "ping"]
+
+  redis-replica-1:
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --tls-port
+      - "6379"
+      - --port
+      - "0"
+      - --tls-cert-file
+      - /certs/server.crt
+      - --tls-key-file
+      - /certs/server.key
+      - --tls-ca-cert-file
+      - /certs/ca.crt
+      - --tls-auth-clients
+      - "yes"
+      - --tls-replication
+      - "yes"
+      - --replica-announce-ip
+      - redis-replica-1
+    volumes:
+      - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+
+  redis-replica-2:
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --tls-port
+      - "6379"
+      - --port
+      - "0"
+      - --tls-cert-file
+      - /certs/server.crt
+      - --tls-key-file
+      - /certs/server.key
+      - --tls-ca-cert-file
+      - /certs/ca.crt
+      - --tls-auth-clients
+      - "yes"
+      - --tls-replication
+      - "yes"
+      - --replica-announce-ip
+      - redis-replica-2
+    volumes:
+      - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+
+  # ---------- Sentinel overrides ----------
+  sentinel-1:
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 0' \
+          'tls-port 26379' \
+          'tls-cert-file /certs/server.crt' \
+          'tls-key-file /certs/server.key' \
+          'tls-ca-cert-file /certs/ca.crt' \
+          'tls-auth-clients yes' \
+          'tls-replication yes' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    volumes:
+      - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
+             "--cert", "/certs/client.crt", "--key", "/certs/client.key",
+             "-p", "26379", "SENTINEL", "masters"]
+
+  sentinel-2:
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 0' \
+          'tls-port 26379' \
+          'tls-cert-file /certs/server.crt' \
+          'tls-key-file /certs/server.key' \
+          'tls-ca-cert-file /certs/ca.crt' \
+          'tls-auth-clients yes' \
+          'tls-replication yes' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    volumes:
+      - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
+             "--cert", "/certs/client.crt", "--key", "/certs/client.key",
+             "-p", "26379", "SENTINEL", "masters"]
+
+  # ---------- OpenEMR: TLS + X.509 client certs ----------
+  openemr:
+    image: openemr/openemr:flex-3.22-php-8.2@sha256:186433921a8da60a18f152d3baaeb5fad9ebe0649e2c503f896ed41584e2329a
+    environment:
+      REDIS_TLS: "yes"
+      REDIS_X509: "yes"
+      REDIS_TLS_CERT_KEY_PATH: /redis-certs
+    volumes:
+      - redis-certs:/redis-certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+
+  mysql:
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+
+volumes:
+  redis-certs:

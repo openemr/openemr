@@ -5,6 +5,7 @@
 /**
  * import supporting libraries
  */
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
@@ -537,13 +538,13 @@ class RequestUtil
      */
     public static function GetPersisted($fieldname, $default = "", $escape = false)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (isset($_REQUEST [$fieldname])) {
-            $session->set("_PERSISTED_" . $fieldname, self::Get($fieldname, $default, $escape));
+            SessionUtil::setSession("_PERSISTED_" . $fieldname, self::Get($fieldname, $default, $escape));
         }
 
         if (! $session->has("_PERSISTED_" . $fieldname)) {
-            $session->set("_PERSISTED_" . $fieldname, $default);
+            SessionUtil::setSession("_PERSISTED_" . $fieldname, $default);
         }
 
         return $session->get("_PERSISTED_" . $fieldname);

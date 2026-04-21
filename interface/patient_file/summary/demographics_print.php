@@ -19,8 +19,8 @@ require_once("../../globals.php");
 
 // Option to substitute a custom version of this script.
 if (
-    !empty($GLOBALS['gbl_rapid_workflow']) &&
-    $GLOBALS['gbl_rapid_workflow'] == 'LBFmsivd' &&
+    !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow')) &&
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow') == 'LBFmsivd' &&
     file_exists('../../../custom/demographics_print.php')
 ) {
     include('../../../custom/demographics_print.php');
@@ -36,7 +36,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {

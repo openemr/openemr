@@ -74,8 +74,8 @@ class LogoService
      */
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
-        $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
+        $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -116,9 +116,10 @@ class LogoService
      */
     private function convertToWebPath(string $path): string
     {
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         $paths = [
-            $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
-            $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
+            OEGlobalsBag::getInstance()->get('OE_SITE_DIR') => OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT'),
+            $kernel->getImagesAbsolute() => $kernel->getImagesRelative(),
         ];
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $path = str_replace('\\', '/', $path);

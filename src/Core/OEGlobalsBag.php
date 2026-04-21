@@ -6,7 +6,7 @@
  * @link      https://www.open-emr.org
  *
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -38,6 +38,7 @@ class OEGlobalsBag extends ParameterBag
 
     protected static function createInstance(): static
     {
+        /** @var array<string, mixed> $GLOBALS */
         return new self($GLOBALS);
     }
 
@@ -52,6 +53,13 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
+        // still write to or unset from $GLOBALS directly. For the singleton
+        // instance, use $GLOBALS as the sole source of truth.
+        if ($this === (self::$instances[static::class] ?? null)) {
+            return array_key_exists($key, $GLOBALS) ? $GLOBALS[$key] : $default;
+        }
+
         if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
             return $GLOBALS[$key];
         }
@@ -88,5 +96,38 @@ class OEGlobalsBag extends ParameterBag
             throw new \RuntimeException('OpenEMR Kernel not initialized');
         }
         return $kernel;
+    }
+
+    /**
+     * Get the project directory, falling back to the 'fileroot' global
+     * when the Kernel is not initialized (e.g. CLI --skip-globals).
+     */
+    public function getProjectDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getProjectDir()
+            : $this->getString('fileroot');
+    }
+
+    /**
+     * Get the web root path, falling back to the 'webroot' global
+     * when the Kernel is not initialized.
+     */
+    public function getWebRoot(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getWebRoot()
+            : $this->getString('webroot');
+    }
+
+    /**
+     * Get the src (library) directory, falling back to the 'srcdir' global
+     * when the Kernel is not initialized.
+     */
+    public function getSrcDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getSrcDir()
+            : $this->getString('srcdir');
     }
 }

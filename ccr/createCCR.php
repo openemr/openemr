@@ -14,8 +14,8 @@
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use PHPMailer\PHPMailer\PHPMailer;
 
 // check if using the patient portal
@@ -27,14 +27,14 @@ if (isset($_GET['portal_auth'])) {
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../vendor/autoload.php");
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-    if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
         $pid = $session->get('pid');
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '?w');
         exit;
     }
@@ -164,7 +164,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
         if (file_exists($zipName)) {
                     unlink($zipName);
@@ -258,7 +258,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
             return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccd.zip";
         if (file_exists($zipName)) {
             unlink($zipName);
@@ -338,7 +338,7 @@ function sourceType($ccr, $uuid)
 
 function displayError($message): void
 {
-    echo '<script>alert("' . addslashes((string) $message) . '");</script>';
+    echo '<script>alert(' . js_escape((string) $message) . ');</script>';
 }
 
 

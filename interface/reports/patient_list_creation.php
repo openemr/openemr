@@ -27,14 +27,17 @@ require_once "../drugs/drugs.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
 }
 
-if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -366,7 +369,7 @@ if ($csv) {
                     $datetimepicker_timepicker = true;
                     $datetimepicker_showseconds = true;
                     $datetimepicker_formatInput = true;
-                    include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                    include OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
                     // Add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
@@ -462,7 +465,7 @@ if ($csv) {
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
             <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
             <div id="report_parameters">
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -849,17 +852,17 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     for ($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
     }
 
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
                 case "asc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
                     break;
             }
             break;
@@ -926,8 +929,8 @@ if (!empty($_POST['form_refresh'])) {
 
         if (!$csv) { // Draw table if displaying in HTML ?>
             <br />
-            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
-            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" />
+            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr(is_string($sortby) ? $sortby : ''); ?>" />
+            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr(is_string($sortorder) ? $sortorder : ''); ?>" />
             <div id="report_results">
                 <table>
                     <tr>
@@ -959,11 +962,13 @@ if (!empty($_POST['form_refresh'])) {
                             ($search_options[$srch_option]["sort_cols"] > 0 && $report_col_key < $search_options[$srch_option]["sort_cols"])
                             || ($search_options[$srch_option]["sort_cols"] < 0 && $report_col_key < $search_options[$srch_option]["sort_cols"] + count($search_options[$srch_option]["cols"]))
                         ) {
-                            echo $sortlink[$report_col_key];
+                            // $sortlink is pre-built HTML with values sanitized via attr_js() and xla()
+                            echo $sortlink[$report_col_key]; // nosemgrep: echoed-request
                         }
                     }
                 } else {
-                    echo $sortlink[$report_col_key];
+                    // $sortlink is pre-built HTML with values sanitized via attr_js() and xla()
+                    echo $sortlink[$report_col_key]; // nosemgrep: echoed-request
                 }
                 echo '</td>';
             } else { // Print column as CSV
@@ -1017,7 +1022,7 @@ if (!empty($_POST['form_refresh'])) {
                     case "prc_diagnoses":
                         if (!$csv && $report_value != '') {
                             $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                            foreach (explode(';', (string) $report_value) as $code) {
+                            foreach (explode(';', is_string($report_value) ? $report_value : '') as $code) {
                                 $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
                             $report_value_print .= '</ul>';

@@ -364,7 +364,7 @@ class TokenIntrospectionRestController {
                 }
                 // lets verify secret to prevent bad guys.
                 if (!empty($client['client_secret'])) {
-                    $decryptedSecret = $this->getCryptoGen()->decryptStandard($client['client_secret']);
+                    $decryptedSecret = $this->getCryptoGen()->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
                     if ($decryptedSecret !== $clientSecret) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
@@ -444,7 +444,7 @@ class TokenIntrospectionRestController {
         }
         catch (\Throwable $exception) {
             // something else went wrong
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['exception' => $exception, 'client_id' => $clientId]);
             // something else went wrong
             // NOTE : per RFC7662 we must return active:false on error for invalid tokens
             return $this->returnInactiveResponse($request);

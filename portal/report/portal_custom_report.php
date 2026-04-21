@@ -16,10 +16,9 @@
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -28,19 +27,19 @@ use OpenEMR\Pdf\Config_Mpdf;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 
 
 // kick out if patient not authenticated
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $user = $session->get('sessionUser');
 } else {
     //landing page definition -- where to go if something goes wrong
     $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
@@ -104,7 +103,7 @@ $first_issue = 1;
 
 // form locator will cache form locations (so modules can extend)
 // form report renderer will render the form reports
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
@@ -652,7 +651,7 @@ foreach ($ar as $key => $val) {
                 $result = sqlStatement($sql, [$pid]);
             while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
-                if ($globalsBag->get('use_custom_immun_list')) {
+                if ($globalsBag->getBoolean('use_custom_immun_list')) {
                      $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {

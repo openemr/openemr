@@ -11,6 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\VersionService;
+
 require_once(__DIR__ . "/../library/patient.inc.php");
 
 class eRxXMLBuilder
@@ -94,7 +97,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];
@@ -272,7 +275,7 @@ class eRxXMLBuilder
         $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('Ensora eRx Account Name')));
         $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
-        $element->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
+        $element->appendChild($this->createElementText('productVersion', (new VersionService())->getSoftwareVersion()->full));
 
         return $element;
     }

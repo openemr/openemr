@@ -17,8 +17,9 @@ require_once("../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // This may be more appropriate to move to the library
 // later
@@ -64,7 +65,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class='title'><?php echo xlt('Copay'); ?></span></dt>
@@ -76,7 +77,7 @@ document.copay_form.codeH.value="";
 <input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br /><br />
 
 
-<div<?php if ($GLOBALS['simplified_copay']) {
+<div<?php if (OEGlobalsBag::getInstance()->getBoolean('simplified_copay')) {
     echo " class='d-none'";
     } ?>>
 <input type="radio" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>

@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAppointmentStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -157,7 +159,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $code->setCode($category[ 0 ][ 'pc_constant_id' ]);
             $code->setDisplay($category[ 0 ][ 'pc_catname' ]);
             // var_dump( $_SERVER );
-            $system = str_replace('/Appointment', '/ValueSet/appointment-type', $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? ''));
+            $system = str_replace('/Appointment', '/ValueSet/appointment-type', OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? ''));
             $code->setSystem($system);
             $appointmentType->addCoding($code);
             $appt->setAppointmentType($appointmentType);
@@ -234,7 +236,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
-        } elseif ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
+        } elseif (!Utilities::isDateEmpty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));

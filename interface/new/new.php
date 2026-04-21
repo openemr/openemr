@@ -13,9 +13,11 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-if ($GLOBALS['full_new_patient_form']) {
+if (OEGlobalsBag::getInstance()->get('full_new_patient_form')) {
     require("new_comprehensive.php");
     exit;
 }
@@ -33,6 +35,8 @@ $form_sex       = $_POST['sex'      ] ? trim((string) $_POST['sex'      ]) : '';
 $form_refsource = $_POST['refsource'] ? trim((string) $_POST['refsource']) : '';
 $form_dob       = $_POST['DOB'      ] ? trim((string) $_POST['DOB'      ]) : '';
 $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : date('Y-m-d');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -40,14 +44,14 @@ $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : dat
 
 <?php
     Header::setupHeader('datetime-picker');
-    include_once($GLOBALS['srcdir'] . "/options.js.php");
+    include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php");
 ?>
 
 <script>
 
  function validate() {
   var f = document.forms[0];
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
   if (f.refsource.selectedIndex <= 0) {
    alert('Please select a referral source!');
    return false;
@@ -74,14 +78,14 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -94,7 +98,7 @@ $(function () {
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>
 
@@ -102,13 +106,13 @@ $(function () {
 
 <center>
 
-<?php if ($GLOBALS['omit_employers']) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) { ?>
    <input type='hidden' name='title' value='' />
 <?php } ?>
 
 <table class="border-0">
 
-<?php if (!$GLOBALS['omit_employers']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) { ?>
  <tr>
   <td>
    <span class='font-weight-bold'><?php echo xlt('Title'); ?>:</span>
@@ -182,7 +186,7 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
  </tr>
 
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
  <tr>
   <td>
    <span class='font-weight-bold'><?php echo xlt('Referral Source'); ?>: </span>

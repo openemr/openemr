@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Events\Encounter;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class LoadEncounterFormFilterEvent extends Event
@@ -109,7 +110,7 @@ class LoadEncounterFormFilterEvent extends Event
     }
 
     /**
-     * @param string $dir  The directory as a string (note the path will be concatenated to $GLOBALS['fileroot']
+     * @param string $dir  The directory as a string (note the path will be concatenated to \OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getProjectDir()
      * @throws \InvalidArgumentException if the path is invalid or does not exist.  Paths must currently be within the /interface/forms/ directory or the /interface/modules/ directory
      */
     public function setDir(string $dir): void
@@ -126,10 +127,14 @@ class LoadEncounterFormFilterEvent extends Event
     private function validatePath($path)
     {
         $path = realpath($path);
+        if ($path === false) {
+            throw new \InvalidArgumentException('Invalid path');
+        }
         // for now we will lock this down to just the forms directory or to the modules directory
-        $inModules = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/modules/');
-        $inForms = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/forms/');
-        if (!(($inModules || $inForms) && file_exists($path))) {
+        $projectDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
+        $inModules = str_starts_with($path, $projectDir . '/interface/modules/');
+        $inForms = str_starts_with($path, $projectDir . '/interface/forms/');
+        if (!($inModules || $inForms)) {
             throw new \InvalidArgumentException('Invalid path');
         }
     }

@@ -14,7 +14,7 @@
 #
 #   Test-Mode: full
 #
-# Coverage is collected for one configuration (apache_82_118 on PRs, apache_84_114 on push).
+# Coverage is collected for one configuration (apache_82_118 on PRs, apache_85_118 on push).
 # Full coverage across ALL configurations runs in the scheduled nightly workflow.
 
 name: Test All Configurations
@@ -93,7 +93,7 @@ jobs:
             jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
               docker_dir: .output.docker_dir,
               php: .output.php,
-              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+              display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end)),
               save_composer_cache: .output.save_composer_cache,
               save_node_cache: .output.save_node_cache
             }) | map(select(.php == "8.2")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
@@ -102,7 +102,7 @@ jobs:
           ci/parse_docker_dir.sh "${dirs[@]}" |
             jq -rc 'map({
               docker_dir: .output.docker_dir,
-              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+              display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end)),
               save_composer_cache: .output.save_composer_cache,
               save_node_cache: .output.save_node_cache
             }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
@@ -121,8 +121,8 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_84_114 on push
+      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_85_118 on push
       # Full coverage for all configs runs in scheduled nightly workflow
-      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_84_114') }}
+      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_85_118') }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}
