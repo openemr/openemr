@@ -47,12 +47,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pc_billing_location\' on array\\{pc_apptstatus\\: string, pc_catid\\?\\: int, pc_title\\: mixed, pc_facility\\?\\: string, pc_aid\\?\\: string, puuid\\?\\: \\(array\\<string\\>\\|string\\), pid\\?\\: string, pc_eventDate\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
+    'message' => '#^Offset \'pc_billing_location\' on array\\{pc_apptstatus\\: string, pc_catid\\?\\: int, pc_title\\: mixed, pc_facility\\?\\: string, pc_aid\\?\\: string, puuid\\?\\: non\\-falsy\\-string, pid\\?\\: string, pc_eventDate\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pc_catid\' on array\\{\\}\\|array\\{uuid\\?\\: mixed, puuid\\?\\: \\(array\\<string\\>\\|string\\), class_code\\?\\: mixed, date\\?\\: mixed, provider_uuid\\?\\: \\(array\\<string\\>\\|string\\), referrer_uuid\\?\\: \\(array\\<string\\>\\|string\\), reason\\?\\: mixed, facility_id\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
+    'message' => '#^Offset \'pc_catid\' on array\\{\\}\\|array\\{uuid\\?\\: mixed, puuid\\?\\: non\\-falsy\\-string, class_code\\?\\: mixed, date\\?\\: mixed, provider_uuid\\?\\: non\\-falsy\\-string, referrer_uuid\\?\\: non\\-falsy\\-string, reason\\?\\: mixed, facility_id\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];

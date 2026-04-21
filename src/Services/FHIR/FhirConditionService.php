@@ -150,8 +150,12 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
 
         // Subject -> puuid
-        if (!empty($json['subject']['reference'])) {
-            $data['puuid'] = str_replace('Patient/', '', $json['subject']['reference']);
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
         }
 
         // Code -> title and diagnosis

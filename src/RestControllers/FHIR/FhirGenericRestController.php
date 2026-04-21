@@ -184,7 +184,15 @@ class FhirGenericRestController implements IGlobalsAware {
             return $fhirResource;
         }
 
-        $processingResult = $this->getFhirService()->insert($fhirResource);
+        try {
+            $processingResult = $this->getFhirService()->insert($fhirResource);
+        } catch (\InvalidArgumentException $e) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
+                null,
+                400
+            );
+        }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
@@ -220,7 +228,15 @@ class FhirGenericRestController implements IGlobalsAware {
             return $fhirResource;
         }
 
-        $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+        try {
+            $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+        } catch (\InvalidArgumentException $e) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
+                null,
+                400
+            );
+        }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
