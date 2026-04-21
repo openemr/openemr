@@ -85,7 +85,7 @@ return [
             // Future: load additional paths from modules?
             // this may need a ClassLoader instead.
         ];
-        $isDevMode = true;
+        $isDevMode = $c->getString('OPENEMR__ENVIRONMENT') === 'dev';
         $config = ORMSetup::createAttributeMetadataConfig(
             paths: $paths,
             isDevMode: $isDevMode,
