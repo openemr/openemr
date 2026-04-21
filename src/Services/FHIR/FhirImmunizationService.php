@@ -281,7 +281,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             try {
                 $dt = new \DateTimeImmutable($json['occurrenceDateTime']);
                 $data['administered_date'] = $dt->format('Y-m-d');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }
@@ -316,7 +316,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             try {
                 $dt = new \DateTimeImmutable($json['expirationDate']);
                 $data['expiration_date'] = $dt->format('Y-m-d');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }
@@ -383,7 +383,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             try {
                 $dt = new \DateTimeImmutable($json['recorded']);
                 $data['create_date'] = $dt->format('Y-m-d H:i:s');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }

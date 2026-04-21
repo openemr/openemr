@@ -338,7 +338,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             try {
                 $onsetDt = new \DateTimeImmutable($json['onsetDateTime']);
                 $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }
