@@ -314,8 +314,12 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Subject -> puuid (required in US Core)
-        if (!empty($json['subject']['reference'])) {
-            $data['puuid'] = str_replace('Patient/', '', $json['subject']['reference']);
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
         }
 
         // Class -> class_code (required in FHIR R4)
@@ -337,10 +341,14 @@ class FhirEncounterService extends FhirServiceBase implements
         if (!empty($json['participant'])) {
             foreach ($json['participant'] as $participant) {
                 $reference = $participant['individual']['reference'] ?? null;
-                if (empty($reference)) {
+                if (!is_string($reference) || $reference === '') {
                     continue;
                 }
-                $practitionerUuid = str_replace('Practitioner/', '', $reference);
+                $parsed = UtilsService::parseReferenceString($reference, 'Practitioner');
+                if (empty($parsed['uuid'])) {
+                    continue;
+                }
+                $practitionerUuid = $parsed['uuid'];
 
                 // Determine participant type from type codings
                 $isPrimaryPerformer = false;
@@ -373,12 +381,15 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // ServiceProvider -> facility_id (via Organization uuid)
-        if (!empty($json['serviceProvider']['reference'])) {
-            $facilityUuid = str_replace('Organization/', '', $json['serviceProvider']['reference']);
-            $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($facilityUuid);
-            $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
-            if ($facilityId) {
-                $data['facility_id'] = $facilityId;
+        $serviceProviderRef = $json['serviceProvider']['reference'] ?? null;
+        if (is_string($serviceProviderRef) && $serviceProviderRef !== '') {
+            $parsed = UtilsService::parseReferenceString($serviceProviderRef, 'Organization');
+            if (!empty($parsed['uuid'])) {
+                $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($parsed['uuid']);
+                $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
+                if ($facilityId) {
+                    $data['facility_id'] = $facilityId;
+                }
             }
         }
 

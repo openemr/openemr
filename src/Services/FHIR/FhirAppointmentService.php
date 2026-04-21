@@ -313,30 +313,29 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 if (empty($participant['actor']['reference'])) {
                     continue;
                 }
-                $reference = $participant['actor']['reference'];
+                $reference = (string) $participant['actor']['reference'];
+                $parsed = UtilsService::parseReferenceString($reference);
 
-                if (str_starts_with((string) $reference, 'Patient/')) {
-                    $puuid = str_replace('Patient/', '', $reference);
-                    $data['puuid'] = $puuid;
+                if (empty($parsed['uuid']) || empty($parsed['type'])) {
+                    continue;
+                }
+
+                if ($parsed['type'] === 'Patient') {
+                    $data['puuid'] = $parsed['uuid'];
                     // Resolve patient uuid to pid
-                    $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+                    $puuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $pid = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
                     if ($pid !== false) {
                         $data['pid'] = $pid;
                     }
-                } elseif (
-                    str_starts_with((string) $reference, 'Practitioner/')
-                    || str_starts_with((string) $reference, 'Person/')
-                ) {
-                    $providerUuid = preg_replace('#^(Practitioner|Person)/#', '', (string) $reference);
-                    $providerUuidBytes = UuidRegistry::uuidToBytes($providerUuid);
+                } elseif ($parsed['type'] === 'Practitioner' || $parsed['type'] === 'Person') {
+                    $providerUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
                     if ($providerId !== false) {
                         $data['pc_aid'] = $providerId;
                     }
-                } elseif (str_starts_with((string) $reference, 'Location/')) {
-                    $facilityUuid = str_replace('Location/', '', $reference);
-                    $facilityUuidBytes = UuidRegistry::uuidToBytes($facilityUuid);
+                } elseif ($parsed['type'] === 'Location') {
+                    $facilityUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
                     if ($facilityId !== false) {
                         $data['pc_facility'] = $facilityId;

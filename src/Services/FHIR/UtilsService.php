@@ -446,26 +446,62 @@ class UtilsService
 
     public static function parseReference(?FHIRReference $reference)
     {
-        $parsed_reference = [
-            'localResource' => false
-            , 'uuid' => null
-            , 'type' => null
+        if (empty($reference) || empty($reference->getReference())) {
+            return [
+                'localResource' => false,
+                'uuid' => null,
+                'type' => null,
+            ];
+        }
+        return self::parseReferenceString($reference->getReference());
+    }
+
+    /**
+     * Parses a FHIR reference string (relative or absolute URL) and extracts the resource type and UUID.
+     *
+     * Handles both relative references (e.g., "Patient/uuid-here") and absolute URLs
+     * (e.g., "https://example.org/fhir/Patient/uuid-here").
+     *
+     * @param string|null $referenceString The reference string to parse
+     * @param string|null $expectedType If provided, validates that the reference is of this type
+     * @return array{localResource: bool, uuid: string|null, type: string|null}
+     */
+    public static function parseReferenceString(?string $referenceString, ?string $expectedType = null): array
+    {
+        $parsed = [
+            'localResource' => false,
+            'uuid' => null,
+            'type' => null,
         ];
-        if (empty($parsed_reference) || empty($reference->getReference())) {
-            return $parsed_reference;
+
+        if (empty($referenceString)) {
+            return $parsed;
         }
 
-        $oauthAddress = (new ServerConfig())->getOauthAddress();
-        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
-        $parts = parse_url($reference->getReference());
+        $parts = parse_url($referenceString);
+        $path = $parts['path'] ?? $referenceString;
 
-        // if all we have is a path then we skip the host check
-        $parsed_reference['localResource'] = isset($parts['host']) ? $parts['host'] == $oauthHost : true;
-        $splitParts = explode("/", $parts['path']);
+        // Check if this is a local resource
+        if (isset($parts['host'])) {
+            $oauthAddress = (new ServerConfig())->getOauthAddress();
+            $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
+            $parsed['localResource'] = ($parts['host'] === $oauthHost);
+        } else {
+            $parsed['localResource'] = true;
+        }
+
+        // Extract type and uuid from path (last two segments)
+        $splitParts = explode('/', trim($path, '/'));
         if (count($splitParts) >= 2) {
-            $parsed_reference['uuid'] = array_pop($splitParts);
-            $parsed_reference['type'] = array_pop($splitParts);
+            $parsed['uuid'] = array_pop($splitParts);
+            $parsed['type'] = array_pop($splitParts);
         }
-        return $parsed_reference;
+
+        // If expectedType is provided, return null uuid if type doesn't match
+        if ($expectedType !== null && $parsed['type'] !== $expectedType) {
+            $parsed['uuid'] = null;
+        }
+
+        return $parsed;
     }
 }

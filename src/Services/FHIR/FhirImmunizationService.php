@@ -259,12 +259,15 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // Patient reference -> patient_id
-        if (!empty($json['patient']['reference'])) {
-            $puuid = str_replace('Patient/', '', $json['patient']['reference']);
-            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
-            $patientId = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
-            if ($patientId !== false) {
-                $data['patient_id'] = $patientId;
+        $patientRef = $json['patient']['reference'] ?? null;
+        if (is_string($patientRef) && $patientRef !== '') {
+            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
+            if (!empty($parsed['uuid'])) {
+                $puuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
+                $patientId = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
+                if ($patientId !== false) {
+                    $data['patient_id'] = $patientId;
+                }
             }
         }
 
@@ -339,11 +342,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         // Performer -> administered_by_id (resolve Practitioner uuid to id)
         if (!empty($json['performer'])) {
             foreach ($json['performer'] as $performer) {
-                if (!empty($performer['actor']['reference'])) {
-                    $ref = $performer['actor']['reference'];
-                    if (str_starts_with((string) $ref, 'Practitioner/')) {
-                        $practitionerUuid = str_replace('Practitioner/', '', $ref);
-                        $practitionerUuidBytes = UuidRegistry::uuidToBytes($practitionerUuid);
+                $actorRef = $performer['actor']['reference'] ?? null;
+                if (is_string($actorRef) && $actorRef !== '') {
+                    $parsed = UtilsService::parseReferenceString($actorRef, 'Practitioner');
+                    if (!empty($parsed['uuid'])) {
+                        $practitionerUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                         $practitionerId = BaseService::getIdByUuid(
                             $practitionerUuidBytes,
                             'users',
@@ -359,16 +362,19 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // Encounter -> encounter_id (resolve Encounter uuid to encounter number)
-        if (!empty($json['encounter']['reference'])) {
-            $encounterUuid = str_replace('Encounter/', '', $json['encounter']['reference']);
-            $encounterUuidBytes = UuidRegistry::uuidToBytes($encounterUuid);
-            $encounterId = BaseService::getIdByUuid(
-                $encounterUuidBytes,
-                'form_encounter',
-                'encounter'
-            );
-            if ($encounterId !== false) {
-                $data['encounter_id'] = $encounterId;
+        $encounterRef = $json['encounter']['reference'] ?? null;
+        if (is_string($encounterRef) && $encounterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
+            if (!empty($parsed['uuid'])) {
+                $encounterUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
+                $encounterId = BaseService::getIdByUuid(
+                    $encounterUuidBytes,
+                    'form_encounter',
+                    'encounter'
+                );
+                if ($encounterId !== false) {
+                    $data['encounter_id'] = $encounterId;
+                }
             }
         }
 

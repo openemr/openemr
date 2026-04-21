@@ -267,8 +267,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // Patient reference -> puuid (required in US Core)
-        if (!empty($json['patient']['reference'])) {
-            $data['puuid'] = str_replace('Patient/', '', $json['patient']['reference']);
+        $patientRef = $json['patient']['reference'] ?? null;
+        if (is_string($patientRef) && $patientRef !== '') {
+            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
+            if (!empty($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
         }
 
         // Code -> title and diagnosis
@@ -321,8 +325,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // Recorder -> practitioner reference
-        if (!empty($json['recorder']['reference'])) {
-            $data['practitioner_uuid'] = str_replace('Practitioner/', '', $json['recorder']['reference']);
+        $recorderRef = $json['recorder']['reference'] ?? null;
+        if (is_string($recorderRef) && $recorderRef !== '') {
+            $parsed = UtilsService::parseReferenceString($recorderRef, 'Practitioner');
+            if (!empty($parsed['uuid'])) {
+                $data['practitioner_uuid'] = $parsed['uuid'];
+            }
         }
 
         // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
