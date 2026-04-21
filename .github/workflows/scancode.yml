@@ -86,7 +86,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
@@ -128,7 +128,12 @@ jobs:
 
     - name: Run ScanCode
       if: steps.stage.outputs.has_changes == 'true'
+      # ScanCode exits 1 when individual files fail (timeouts, parser
+      # crashes) but still completes the overall scan and writes its
+      # reports. Treat that as non-fatal so the summary + upload steps run.
+      # Any exit code > 1 is a real failure.
       run: |
+        rc=0
         scancode \
           --license \
           --copyright \
@@ -137,7 +142,11 @@ jobs:
           --processes "$(nproc)" \
           --json-pp scancode-results.json \
           --html scancode-results.html \
-          scancode-input
+          scancode-input \
+          || rc=$?
+        if (( rc > 1 )); then
+          exit "$rc"
+        fi
 
     - name: Summarize findings
       if: steps.stage.outputs.has_changes == 'true'
@@ -176,7 +185,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
@@ -218,7 +227,10 @@ jobs:
           "$SHARD" "$SHARDS" "$count" "${#files[@]}"
 
     - name: Run ScanCode
+      # Per-file scan errors (exit 1) are non-fatal; see the diff job's
+      # comment on the same pattern.
       run: |
+        rc=0
         scancode \
           --license \
           --copyright \
@@ -226,7 +238,11 @@ jobs:
           --only-findings \
           --processes "$(nproc)" \
           --json-pp "scancode-shard-${SHARD}.json" \
-          scancode-shard-input
+          scancode-shard-input \
+          || rc=$?
+        if (( rc > 1 )); then
+          exit "$rc"
+        fi
 
     - name: Upload shard artifact
       uses: actions/upload-artifact@v7
@@ -245,7 +261,7 @@ jobs:
       with:
         fetch-depth: 1
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
