@@ -250,7 +250,7 @@ class FhirGenericRestController implements IGlobalsAware {
     private function deserializeFhirResource(array $fhirJson): FHIRDomainResource|Response
     {
         $resourceType = $fhirJson['resourceType'] ?? '';
-        if (empty($resourceType)) {
+        if ($resourceType === '' || !is_string($resourceType)) {
             return RestControllerHelper::responseHandler(
                 UtilsService::createOperationOutcomeResource('error', 'invalid', 'resourceType is required'),
                 null,
@@ -258,13 +258,29 @@ class FhirGenericRestController implements IGlobalsAware {
             );
         }
 
-        $className = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $resourceType;
-        if (!class_exists($className)) {
+        // Validate resourceType format to prevent path traversal or namespace injection.
+        // FHIR resource types are PascalCase identifiers without special characters.
+        if (preg_match('/^[A-Z][A-Za-z0-9]*$/', $resourceType) !== 1) {
             return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource('error', 'invalid', 'Unknown resourceType: ' . $resourceType),
+                UtilsService::createOperationOutcomeResource('error', 'invalid', 'Invalid resourceType format'),
                 null,
                 400
             );
+        }
+
+        // Use class_exists with autoload disabled to avoid triggering autoloader with untrusted input
+        $className = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $resourceType;
+        if (!class_exists($className, false)) {
+            // Class not already loaded - check if it's a known FHIR resource by loading explicitly
+            $classFile = __DIR__ . '/../../../FHIR/R4/FHIRDomainResource/FHIR' . $resourceType . '.php';
+            if (!file_exists($classFile)) {
+                return RestControllerHelper::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'invalid', 'Unknown resourceType: ' . $resourceType),
+                    null,
+                    400
+                );
+            }
+            require_once $classFile;
         }
 
         unset($fhirJson['resourceType']);
