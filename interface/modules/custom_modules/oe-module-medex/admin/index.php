@@ -96,8 +96,29 @@ try {
 
     if ($sessionToken !== '' && $practiceId !== '') {
         $openEmrBaseUrl = medexResolveOpenEmrBaseUrlAdmin();
-        $callbackTokenRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1");
-        $callbackToken = trim((string)($callbackTokenRow['gl_value'] ?? ''));
+        $callbackToken = trim((string)($loginData['callback_token'] ?? ''));
+        if ($callbackToken === '') {
+            $callbackUrl = trim((string)($loginData['callback_url'] ?? ''));
+            if ($callbackUrl !== '' && preg_match('/[?&]token=([^&]+)/', $callbackUrl, $match)) {
+                $callbackToken = trim((string)rawurldecode($match[1]));
+            }
+        }
+        if ($callbackToken === '') {
+            $loginData = $api->login(true);
+            $sessionToken = trim((string)($loginData['token'] ?? $sessionToken));
+            $practiceId = trim((string)($loginData['practice_id'] ?? $practiceId));
+            $callbackToken = trim((string)($loginData['callback_token'] ?? ''));
+            if ($callbackToken === '') {
+                $callbackUrl = trim((string)($loginData['callback_url'] ?? ''));
+                if ($callbackUrl !== '' && preg_match('/[?&]token=([^&]+)/', $callbackUrl, $match)) {
+                    $callbackToken = trim((string)rawurldecode($match[1]));
+                }
+            }
+        }
+        if ($callbackToken === '') {
+            $callbackTokenRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1");
+            $callbackToken = trim((string)($callbackTokenRow['gl_value'] ?? ''));
+        }
         $payload = [
             'practice_id' => $practiceId,
             'session_token' => $sessionToken,
