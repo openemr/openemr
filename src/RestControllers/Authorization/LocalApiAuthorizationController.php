@@ -4,6 +4,7 @@ namespace OpenEMR\RestControllers\Authorization;
 
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -82,11 +83,11 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
         $userUuid = $user['uuid'] ?? null;
         if ($userUuid === null || $userUuid === '') {
             // Fresh installs (and upgrades pre-dating the users.uuid column) may
-            // have users without a UUID until UUID_Service runs. Populate on
-            // demand so LocalApi does not 500 on bootstrap. Mirrors the
-            // OAuth password-grant bootstrap in
-            // OpenIDConnect\Repositories\UserRepository::getAccountByPassword().
-            $this->bootstrapMissingUserUuids();
+            // have users without a UUID until UUID_Service runs. Populate the
+            // UUID for this single user row on demand so LocalApi does not 500
+            // on bootstrap. Scoped to the authenticated user to avoid letting
+            // an authenticated request trigger a whole-table backfill.
+            $this->bootstrapMissingUserUuid($userId);
             $user = $userService->getUser($userId);
             if ($user === false) {
                 $this->logger->error(
@@ -128,11 +129,20 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     }
 
     /**
-     * Populate missing UUIDs for the users table. Extracted for testability;
-     * delegates to the static UuidRegistry that hits the database.
+     * Populate the UUID for a single user row when missing. Extracted for
+     * testability; generates a UUID via UuidRegistry and writes only the
+     * target row so an authenticated request cannot trigger a whole-table
+     * backfill.
      */
-    protected function bootstrapMissingUserUuids(): void
+    protected function bootstrapMissingUserUuid(int|string $userId): void
     {
-        UuidRegistry::createMissingUuidsForTables(['users']);
+        $registry = new UuidRegistry(['table_name' => 'users']);
+        $uuidBytes = $registry->createUuid();
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `users` SET `uuid` = ? WHERE `id` = ? "
+            . "AND (`uuid` IS NULL OR `uuid` = '' "
+            . "OR `uuid` = '\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')",
+            [$uuidBytes, $userId]
+        );
     }
 }

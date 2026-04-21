@@ -123,18 +123,28 @@ class LocalApiAuthorizationControllerTest extends TestCase
             ->willReturnOnConsecutiveCalls($userWithoutUuid, $userWithUuid);
 
         $bootstrapCalls = 0;
+        $bootstrapUserIds = [];
         $controller = new class (
             $this->createMock(LoggerInterface::class),
             new OEGlobalsBag(),
             $bootstrapCalls,
+            $bootstrapUserIds,
         ) extends LocalApiAuthorizationController {
-            public function __construct(LoggerInterface $logger, OEGlobalsBag $globalsBag, public int &$bootstrapCalls)
-            {
+            /**
+             * @param list<int|string> $bootstrapUserIds
+             */
+            public function __construct(
+                LoggerInterface $logger,
+                OEGlobalsBag $globalsBag,
+                public int &$bootstrapCalls,
+                public array &$bootstrapUserIds,
+            ) {
                 parent::__construct($logger, $globalsBag);
             }
-            protected function bootstrapMissingUserUuids(): void
+            protected function bootstrapMissingUserUuid(int|string $userId): void
             {
                 $this->bootstrapCalls++;
+                $this->bootstrapUserIds[] = $userId;
             }
         };
         $controller->setUserService($mockUserService);
@@ -145,6 +155,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
             "Expected authorizeRequest to succeed after bootstrapping missing UUID",
         );
         $this->assertSame(1, $bootstrapCalls, "Expected bootstrap to be invoked exactly once");
+        $this->assertSame([$userId], $bootstrapUserIds, "Expected bootstrap to be scoped to the authenticated user");
         $this->assertSame($uuid, $request->attributes->get('userId'));
     }
 
@@ -162,7 +173,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new OEGlobalsBag(),
         ) extends LocalApiAuthorizationController {
-            protected function bootstrapMissingUserUuids(): void
+            protected function bootstrapMissingUserUuid(int|string $userId): void
             {
                 // Simulate bootstrap running but failing to produce a UUID (e.g. DB issue).
             }
