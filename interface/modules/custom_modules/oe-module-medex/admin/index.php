@@ -49,11 +49,18 @@ function medexResolveOpenEmrBaseUrlAdmin(): string
         $siteAddr = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
         if ($siteAddr !== '') {
             $siteParts = parse_url($siteAddr);
+            if (!empty($siteParts['host'])) {
+                $host = trim((string)$siteParts['host']);
+            }
             $sitePath = trim((string)($siteParts['path'] ?? ''), '/');
             if ($sitePath !== '') {
                 $basePath = '/' . $sitePath;
             }
         }
+    }
+
+    if ($host !== '' && !in_array(strtolower($host), ['localhost', '127.0.0.1'], true)) {
+        $scheme = 'https';
     }
 
     return $scheme . '://' . $host . $basePath;

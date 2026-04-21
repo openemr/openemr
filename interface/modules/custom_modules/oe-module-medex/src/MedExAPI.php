@@ -92,6 +92,16 @@ class MedExAPI
             $fallback = $host !== '' ? ('https://' . $host) : '';
         }
 
+        $parts = parse_url($fallback);
+        if (is_array($parts) && !empty($parts['host'])) {
+            $host = strtolower((string)$parts['host']);
+            if (!in_array($host, ['localhost', '127.0.0.1'], true)) {
+                $path = isset($parts['path']) ? rtrim((string)$parts['path'], '/') : '';
+                $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
+                $fallback = 'https://' . $host . $port . $path;
+            }
+        }
+
         return rtrim($fallback, '/');
     }
 
