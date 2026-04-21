@@ -43,7 +43,11 @@ function publicAssetsImporter(url) {
   if (!match) return null;
 
   const subPath = match[1];
-  const resolved = path.resolve(__dirname, "node_modules", subPath);
+  const baseDir = path.resolve(__dirname, "node_modules") + path.sep;
+  const resolved = path.resolve(baseDir, subPath);
+
+  // Prevent path traversal outside node_modules
+  if (!resolved.startsWith(baseDir)) return null;
 
   const candidates = [
     resolved,
@@ -274,7 +278,7 @@ module.exports = (env, argv) => {
       },
     },
   ],
-  devtool: isProduction ? "source-map" : "eval-source-map",
+  devtool: isProduction ? false : "eval-source-map",
   stats: { colors: true },
   cache: sharedCacheConfig(),
   };
