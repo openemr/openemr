@@ -17,15 +17,25 @@ const path = require("path");
 const packages = require("../package.json");
 const assetsDir = path.resolve(__dirname, "../public/assets");
 
+// Directories to skip when copying (non-asset content)
+const SKIP_DIRS = new Set([
+  "test", "tests", "__tests__", "docs", "doc", "example", "examples", ".git",
+]);
+
 function copyRecursive(src, dest) {
   if (!fs.existsSync(src)) return;
   const stat = fs.statSync(src);
   if (stat.isDirectory()) {
     fs.mkdirSync(dest, { recursive: true });
     for (const entry of fs.readdirSync(src)) {
+      // Skip dotfiles and non-asset directories
+      if (entry.startsWith(".")) continue;
+      if (SKIP_DIRS.has(entry)) continue;
       copyRecursive(path.join(src, entry), path.join(dest, entry));
     }
   } else {
+    const base = path.basename(src);
+    if (base.startsWith(".")) return;
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
   }
