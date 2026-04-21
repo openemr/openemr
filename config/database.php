@@ -85,7 +85,7 @@ return [
             // Future: load additional paths from modules?
             // this may need a ClassLoader instead.
         ];
-        // FIXME: before this gets integrated, isDevMode needs to be dervied
+        // FIXME: before this gets integrated, isDevMode needs to be derived
         // and an appropriate cache adapter provided (probably apcu for web and
         // still array for cli)
         $isDevMode = true;
