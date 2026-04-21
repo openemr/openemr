@@ -42,19 +42,19 @@ $side-calendar-date-padding: 0.3rem !default;
   }
 
   #functions {
-    @extend .col-md-3 !optional;
+    @extend .col-md-3;
     text-align: $left;
   }
 
   #topToolbarRight {
-    @extend .row !optional;
+    @extend .row;
     border-bottom: 1px solid $gray-300;
     padding: 0.3125rem 0 0.1875rem;
     z-index: 3;
   }
 
   #dateNAV {
-    @extend .col-md-6 !optional;
+    @extend .col-md-6;
     @include font-size("1.5rem");
   }
 
@@ -64,7 +64,7 @@ $side-calendar-date-padding: 0.3rem !default;
   }
 
   #viewPicker {
-    @extend .col-md-3 !optional;
+    @extend .col-md-3;
     text-align: $right;
   }
 
@@ -142,7 +142,7 @@ $side-calendar-date-padding: 0.3rem !default;
 
   /* these are for the small datepicker DIV */
   #datePicker {
-    @extend .table-responsive-md !optional;
+    @extend .table-responsive-md;
     width: 100%;
 
     table {
@@ -267,7 +267,7 @@ $side-calendar-date-padding: 0.3rem !default;
     text-align: center;
 
     a {
-      @extend .text-body !optional;
+      @extend .text-body;
     }
   }
 
@@ -463,7 +463,7 @@ $side-calendar-date-padding: 0.3rem !default;
 
   .userClose {
     &::before {
-      @extend .fas !optional;
+      @extend .fas;
       content: fa-content('#{$fa-var-times}');
       display: inline !important;
       line-height: inherit !important;
@@ -475,7 +475,7 @@ $side-calendar-date-padding: 0.3rem !default;
     position: absolute;
 
     &.unshown::before {
-      @extend .fas !optional;
+      @extend .fas;
       content: fa-content('#{$fa-var-eye}');
       cursor: pointer;
       display: inline !important;
@@ -483,7 +483,7 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     &.shown::before {
-      @extend .fas !optional;
+      @extend .fas;
       content: fa-content('#{$fa-var-eye-slash}');
       cursor: pointer;
       display: inline !important;

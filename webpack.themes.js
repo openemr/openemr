@@ -26,13 +26,6 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
-// webpack --mode production sets NODE_ENV=production via DefinePlugin for
-// bundled code; also check argv so the config itself sees the right mode.
-const isProduction =
-  process.env.NODE_ENV === "production" ||
-  (process.argv.includes("--mode") &&
-    process.argv[process.argv.indexOf("--mode") + 1] === "production");
-
 // ---------------------------------------------------------------------------
 // Custom Sass importer: resolves `public/assets/<pkg>/…` → node_modules/<pkg>/…
 //
@@ -143,10 +136,15 @@ function entry(relPath, variant) {
   return variant ? abs + "?variant=" + variant : abs;
 }
 
-const themesConfig = {
-  name: "themes",
-  mode: isProduction ? "production" : "development",
-  entry: {
+// Export as a function so webpack CLI passes the resolved mode via argv.mode.
+// This avoids parsing process.argv ourselves and ensures --mode works correctly.
+module.exports = (env, argv) => {
+  const isProduction = argv.mode === "production";
+
+  const themesConfig = {
+    name: "themes",
+    mode: argv.mode || "development",
+    entry: {
     // ── oe-styles base themes (LTR) ──────────────────────────────────────────
     style_light:         entry("oe-styles/style_light.scss"),
     style_dark:          entry("oe-styles/style_dark.scss"),
@@ -279,6 +277,7 @@ const themesConfig = {
   devtool: isProduction ? "source-map" : "eval-source-map",
   stats: { colors: true },
   cache: sharedCacheConfig(),
-};
+  };
 
-module.exports = [themesConfig];
+  return [themesConfig];
+};
