@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Isolated\Common\Uuid;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidFactory;
 
@@ -33,5 +34,36 @@ class UuidRegistryTest extends TestCase
         $byteValue = UuidRegistry::uuidToBytes($stringValue);
         $this->assertEquals(UuidRegistry::uuidToBytes($stringValue), $byteValue);
         $this->assertEquals($stringValue, UuidRegistry::uuidToString($byteValue));
+    }
+
+    public function testCreateMissingUuidForRowRejectsUnknownTable(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/unknown table/');
+        UuidRegistry::createMissingUuidForRow('not_a_real_table', 'id', 1);
+    }
+
+    #[DataProvider('invalidIdColumns')]
+    public function testCreateMissingUuidForRowRejectsInvalidIdColumn(string $idColumn): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/invalid id column/');
+        UuidRegistry::createMissingUuidForRow('users', $idColumn, 1);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidIdColumns(): array
+    {
+        return [
+            'sql injection attempt' => ['id`; DROP TABLE users; --'],
+            'leading digit' => ['1id'],
+            'hyphen' => ['user-id'],
+            'space' => ['user id'],
+            'empty string' => [''],
+        ];
     }
 }

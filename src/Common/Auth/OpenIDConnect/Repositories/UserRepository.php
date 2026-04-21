@@ -92,7 +92,11 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                if (!is_int($id) && !is_string($id)) {
+                    $this->logger?->error("Unable to resolve user id after password grant login");
+                    return false;
+                }
+                UuidRegistry::createMissingUuidForRow('users', 'id', $id);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     $this->getSystemLogger()->error("Unable to map uuid for user when creating oauth password grant token");
@@ -134,7 +138,11 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();
-                UuidRegistry::createMissingUuidsForTables(['patient_data']);
+                if (!is_int($id) && !is_string($id)) {
+                    $this->logger?->error("Unable to resolve patient id after password grant login");
+                    return false;
+                }
+                UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $id);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     $this->getSystemLogger()->error("Unable to map uuid for patient when creating oauth password grant token");
