@@ -57,6 +57,7 @@ use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
@@ -127,7 +128,10 @@ return [
      */
     "POST /fhir/AllergyIntolerance" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
@@ -171,7 +175,10 @@ return [
      */
     "PUT /fhir/AllergyIntolerance/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
@@ -206,7 +213,10 @@ return [
      */
     "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirAppointmentService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "appt");
         return $controller->post($data);
@@ -394,7 +404,10 @@ return [
      */
     "POST /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
@@ -438,7 +451,10 @@ return [
      */
     "PUT /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
@@ -697,7 +713,10 @@ return [
      */
     "POST /fhir/Encounter" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
         $controller->addAclRestrictions("encounters", "auth_a");
         return $controller->post($data);
@@ -741,7 +760,10 @@ return [
      */
     "PUT /fhir/Encounter/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
         $controller->addAclRestrictions("encounters", "auth_a");
         return $controller->put($uuid, $data);
@@ -931,7 +953,10 @@ return [
      */
     "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
@@ -975,7 +1000,10 @@ return [
      */
     "PUT /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
@@ -1126,21 +1154,30 @@ return [
     },
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $return = (new FhirOrganizationRestController())->post($data);
 
         return $return;
     },
     "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $return = (new FhirOrganizationRestController())->patch($uuid, $data);
 
         return $return;
     },
     "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $restController = new FhirPatientRestController();
         $restController->setOEGlobals($globalsBag);
         $return = $restController->post($data);
@@ -1149,7 +1186,10 @@ return [
     },
     "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $restController = new FhirPatientRestController();
         $restController->setOEGlobals($globalsBag);
         $return = $restController->put($uuid, $data);
@@ -1257,14 +1297,20 @@ return [
     },
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $return = (new FhirPractitionerRestController())->post($data);
 
         return $return;
     },
     "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $data;
+        }
         $return = (new FhirPractitionerRestController())->patch($uuid, $data);
 
         return $return;
