@@ -119,7 +119,7 @@ $msgApp = new ChatController();
             pidPingServer: null,
             beep: new Audio('beep.ogg'),
             user: <?php echo !empty($session->get('ptName')) ? js_escape($session->get('ptName')) : js_escape(ADMIN_USERNAME); ?>,
-            userid: <?php echo IS_PORTAL ? js_escape($session->get('pid')) : js_escape($session->get('authUser')); ?>,
+            userid: String(<?php echo IS_PORTAL ? js_escape($session->get('pid')) : js_escape($session->get('authUser')); ?>),
             isPortal: <?php echo IS_PORTAL ? 'true' : 'false'; ?>,
             noRecipError: <?php echo xlj("Please Select a Recipient for Message.") ?>,
             editor: null
@@ -166,9 +166,10 @@ $msgApp = new ChatController();
         }
 
         function replaceShortcodes(message) {
-            let msg = message.toString().replace(/(\[img])(.*)(\[\/img])/, "<img class='img-responsive' src='$2' />");
-            msg = msg.toString().replace(/(\[url])(.*)(\[\/url])/, "<a href='$2'>$2</a>");
-            msg = message.toString().replace("<img ", "<img class='img-responsive' ");
+            let msg = message.toString();
+            msg = msg.replace(/(\[img])(.*?)(\[\/img])/g, "<img class='img-responsive' src='$2' />");
+            msg = msg.replace(/(\[url])(.*?)(\[\/url])/g, "<a href='$2'>$2</a>");
+            msg = msg.replace(/<img /g, "<img class='img-responsive' ");
             return msg;
         }
 
@@ -194,9 +195,9 @@ $msgApp = new ChatController();
             const users = unique(state.chatusers, 'username');
             let html = '';
             users.forEach(user => {
-                if (state.pusers.indexOf(user.recip_id) !== -1 && user.recip_id !== state.userid) {
-                    const checked = state.pusers.indexOf(user.recip_id) !== -1 ? 'checked' : '';
-                    html += `<label><input type="checkbox" data-recip-id="${escapeHtml(user.recip_id)}" data-section="current" ${checked}> ${escapeHtml(user.username)}</label>`;
+                const recipId = String(user.recip_id);
+                if (state.pusers.includes(recipId) && recipId !== state.userid) {
+                    html += `<label><input type="checkbox" data-recip-id="${escapeHtml(recipId)}" data-section="current" checked> ${escapeHtml(user.username)}</label>`;
                 }
             });
             container.innerHTML = html;
@@ -208,9 +209,10 @@ $msgApp = new ChatController();
             const users = unique(state.chatusers, 'username');
             let html = '';
             users.forEach(user => {
+                const recipId = String(user.recip_id);
                 if (!state.isPortal || (state.isPortal && user.dash)) {
-                    const checked = state.pusers.indexOf(user.recip_id) !== -1 ? 'checked' : '';
-                    html += `<label><input type="checkbox" data-recip-id="${escapeHtml(user.recip_id)}" data-section="available" ${checked}> ${escapeHtml(user.username)}</label>`;
+                    const checked = state.pusers.includes(recipId) ? 'checked' : '';
+                    html += `<label><input type="checkbox" data-recip-id="${escapeHtml(recipId)}" data-section="available" ${checked}> ${escapeHtml(user.username)}</label>`;
                 }
             });
             container.innerHTML = html;
@@ -220,9 +222,9 @@ $msgApp = new ChatController();
         function bindRecipientCheckboxes(container) {
             container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.addEventListener('change', function () {
-                    const recipId = this.dataset.recipId;
+                    const recipId = String(this.dataset.recipId);
                     if (this.checked) {
-                        if (state.pusers.indexOf(recipId) === -1) {
+                        if (!state.pusers.includes(recipId)) {
                             state.pusers.push(recipId);
                         }
                     } else {
@@ -235,6 +237,21 @@ $msgApp = new ChatController();
                     renderAvailableRecipients();
                 });
             });
+        }
+
+        function sanitizeHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            // Remove script tags and event handlers
+            div.querySelectorAll('script').forEach(el => el.remove());
+            div.querySelectorAll('*').forEach(el => {
+                [...el.attributes].forEach(attr => {
+                    if (attr.name.startsWith('on')) {
+                        el.removeAttribute(attr.name);
+                    }
+                });
+            });
+            return div.innerHTML;
         }
 
         function renderMessages() {
@@ -250,6 +267,7 @@ $msgApp = new ChatController();
                 const timeFloat = !isMe ? 'float-left' : 'float-right';
                 const handIcon = !isMe ? 'fa-hand-o-left' : 'fa-hand-o-right';
                 const clickTitle = <?php echo xlj('Click to activate and send to this recipient.'); ?>;
+                const sanitizedBody = sanitizeHtml(message.message);
 
                 html += `<div class="direct-chat-msg ${alignClass}">
                     <div class="direct-chat-info clearfix">
@@ -258,7 +276,7 @@ $msgApp = new ChatController();
                     </div>
                     <i class="direct-chat-img fa ${handIcon}" style="cursor: pointer; font-size: 24px" data-sender-id="${escapeHtml(message.sender_id)}" data-is-me="${isMe ? '1' : '0'}" title="${clickTitle}"></i>
                     <div class="direct-chat-text right">
-                        <div class='px-0' title="${clickTitle}" data-sender-id="${escapeHtml(message.sender_id)}" data-is-me="${isMe ? '1' : '0'}">${jsAttr(message.message)}</div>
+                        <div class='px-0' title="${clickTitle}" data-sender-id="${escapeHtml(message.sender_id)}" data-is-me="${isMe ? '1' : '0'}">${sanitizedBody}</div>
                     </div>
                 </div>`;
             });
@@ -303,6 +321,9 @@ $msgApp = new ChatController();
                 if (Array.isArray(data)) {
                     data.forEach(message => {
                         message.message = replaceShortcodes(message.message);
+                        if (message.sender_id !== undefined && message.sender_id !== null) {
+                            message.sender_id = String(message.sender_id);
+                        }
                         state.messages.push(message);
                     });
                 }
@@ -323,7 +344,11 @@ $msgApp = new ChatController();
         async function getAuthUsers() {
             try {
                 const data = await postData('?action=authusers');
-                state.chatusers = Array.isArray(data) ? data : [];
+                const users = Array.isArray(data) ? data : [];
+                state.chatusers = users.map(u => ({
+                    ...u,
+                    recip_id: u.recip_id !== undefined && u.recip_id !== null ? String(u.recip_id) : u.recip_id
+                }));
                 renderCurrentRecipients();
                 renderAvailableRecipients();
             } catch (e) {

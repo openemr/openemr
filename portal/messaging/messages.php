@@ -149,8 +149,8 @@ function getAuthPortalUsers()
                 items: [],
                 selected: null,
                 userproper: <?php echo !empty($session->get('ptName', null)) ? js_escape($session->get('ptName')) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>,
-                isPortal: <?php echo IS_PORTAL ? js_escape(IS_PORTAL) : '""'; ?>,
-                isDashboard: <?php echo IS_DASHBOARD ? js_escape(IS_DASHBOARD) : '""'; ?>,
+                isPortal: <?php echo json_encode(IS_PORTAL ?: ''); ?>,
+                isDashboard: <?php echo json_encode(IS_DASHBOARD ?: ''); ?>,
                 authrecips: <?php echo json_encode(getAuthPortalUsers());?>,
                 xLate: {
                     fwd: <?php echo xlj('Forwarded Portal Message Re: '); ?>,
@@ -199,7 +199,7 @@ function getAuthPortalUsers()
                     USE_PROFILES: { html: true },
                     FORBID_TAGS: ['a', 'img']
                 });
-                return jsText(hold.textContent || hold.innerText || '');
+                return hold.textContent || hold.innerText || '';
             }
 
             function limitTo(str, limit) {
@@ -436,6 +436,12 @@ function getAuthPortalUsers()
                 if (sentBadge) sentBadge.textContent = state.sentItems.length;
                 if (allBadge) allBadge.textContent = state.allItems.length;
                 if (trashBadge) trashBadge.textContent = state.deletedItems.length;
+
+                // Hide archive option when viewing the archive folder
+                const archiveMenuItem = document.getElementById('archiveMenuItem');
+                if (archiveMenuItem) {
+                    archiveMenuItem.style.display = state.isTrash ? 'none' : '';
+                }
             }
 
             function renderToolbar() {
@@ -599,6 +605,29 @@ function getAuthPortalUsers()
                 const mode = relatedTarget ? $(relatedTarget).attr('data-mode') : 'add';
                 state.compose.task = mode;
 
+                // Populate the "Refer to Message" panel with the sanitized
+                // body of the currently selected message when replying or
+                // forwarding. This replaces the former Angular ng-bind-html.
+                const referMsgEl = document.getElementById('referMsg');
+                const referLabelEl = document.getElementById('referLabel');
+                const referMsgIdEl = document.getElementById('referMsgId');
+                const showRefer = (mode === 'forward' || mode === 'reply') && state.selected && state.selected.mail_chain;
+                if (referMsgEl) {
+                    if (showRefer) {
+                        referMsgEl.innerHTML = renderMessageBody(state.selected.body);
+                        referMsgEl.style.display = '';
+                    } else {
+                        referMsgEl.innerHTML = '';
+                        referMsgEl.style.display = 'none';
+                    }
+                }
+                if (referLabelEl) {
+                    referLabelEl.style.display = showRefer ? '' : 'none';
+                }
+                if (referMsgIdEl && showRefer) {
+                    referMsgIdEl.textContent = state.selected.id;
+                }
+
                 if (mode === 'forward') {
                     $('#modalCompose .modal-header .modal-title').html("Forward Message");
                     const recipId = $(relatedTarget).attr('data-whoto');
@@ -617,8 +646,9 @@ function getAuthPortalUsers()
                             state.compose.pid = o.pid;
                         }
                     });
-                    const fmsg = '\n\n\n> ' + state.xLate.fwd + title + ' by ' + uname + '\n> ' + $('#referMsg').text();
-                    $('#finputBody').text(fmsg).show();
+                    const referText = referMsgEl ? (referMsgEl.textContent || referMsgEl.innerText || '') : '';
+                    const fmsg = '\n\n\n> ' + state.xLate.fwd + title + ' by ' + uname + '\n> ' + referText;
+                    $('#finputBody').val(fmsg).show();
                     $('#inputBody').hide();
                     state.compose.noteid = $(relatedTarget).attr('data-noteid');
                     updateComposeForm();
@@ -695,16 +725,10 @@ function getAuthPortalUsers()
                 $('#title').prop('disabled', false);
                 $('#selSendto').prop('disabled', false);
 
-                const form = document.getElementById('fcompose');
-                const formData = new FormData(form);
-
-                // Set dynamic values
-                formData.set('csrf_token_form', state.csrf);
-                formData.set('sender_id', state.cUserId);
-                formData.set('sender_name', state.userproper);
-                formData.set('task', state.compose.task || 'add');
-
+                const task = state.compose.task || 'add';
                 const selrecip = $('#selSendto').val() || state.compose.selrecip;
+
+                // Confirm when sending to yourself
                 if (selrecip === state.cUserId) {
                     if (!confirm(state.xLate.confirm.err)) {
                         e.preventDefault();
@@ -712,19 +736,35 @@ function getAuthPortalUsers()
                     }
                 }
 
-                if (state.compose.task === 'add') {
-                    formData.set('recipient_name', $('#selSendto option:selected').text());
-                }
+                // Populate hidden inputs so the natural form submission carries
+                // the CSRF token and all metadata expected by handle_note.php.
+                document.getElementById('csrf_token_form').value = state.csrf;
+                document.getElementById('hiddenTask').value = task;
+                document.getElementById('hiddenSenderName').value = state.userproper;
 
-                if (state.compose.task === 'forward') {
-                    formData.set('sender_id', $('#selForwardto option:selected').val());
-                    formData.set('sender_name', $('#selForwardto option:selected').text());
-                    formData.set('selrecip', state.compose.recipient_id);
+                if (task === 'forward') {
+                    const $fwd = $('#selForwardto option:selected');
+                    document.getElementById('hiddenSenderId').value = $fwd.val() || '';
+                    document.getElementById('hiddenSenderName').value = $fwd.text() || state.userproper;
+                    document.getElementById('hiddenRecipientId').value = state.compose.recipient_id || '';
+                    document.getElementById('hiddenRecipientName').value = state.compose.recipient_name || '';
+                    document.getElementById('hiddenPid').value = state.compose.pid || '';
+                    document.getElementById('hiddenNoteid').value = state.compose.noteid || '';
+                    // finputBody textarea already has its value via its name="inputBody"
                 } else {
-                    formData.set('inputBody', $('#inputBody').summernote('code'));
+                    document.getElementById('hiddenSenderId').value = state.cUserId;
+                    const recipName = $('#selSendto option:selected').text() || state.compose.recipient_name || '';
+                    document.getElementById('hiddenRecipientName').value = recipName;
+                    document.getElementById('hiddenRecipientId').value = selrecip || '';
+                    document.getElementById('hiddenNoteid').value = state.compose.noteid || '';
+                    // Copy Summernote contents into the hidden finputBody (which has name="inputBody")
+                    document.getElementById('finputBody').value = $('#inputBody').summernote('code');
                 }
 
-                // Let the form submit naturally
+                // Set replyid for message threading (replies and forwards)
+                document.getElementById('replyid').value = state.selected?.mail_chain || '';
+
+                // Let the form submit naturally with all values now populated
                 return true;
             }
 
@@ -863,7 +903,7 @@ function getAuthPortalUsers()
                                 <li>
                                     <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
                                 </li>
-                                <li>
+                                <li id="archiveMenuItem">
                                     <a class="dropdown-item" href="javascript:;" id="btnBatchDelete"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
                                 <li>
                                     <a href="javascript:;" onclick='window.location.replace("./messages.php")' class="dropdown-item"><i class="fa fa-sync"></i> <?php echo xlt('Refresh'); ?></a>
