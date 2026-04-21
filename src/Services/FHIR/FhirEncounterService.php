@@ -332,7 +332,7 @@ class FhirEncounterService extends FhirServiceBase implements
             try {
                 $startDt = new \DateTimeImmutable($json['period']['start']);
                 $data['date'] = $startDt->format('Y-m-d H:i:s');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 $data['date'] = $json['period']['start'];
             }
         }

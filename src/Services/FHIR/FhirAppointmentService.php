@@ -350,7 +350,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 $startDt = new \DateTimeImmutable($json['start']);
                 $data['pc_eventDate'] = $startDt->format('Y-m-d');
                 $data['pc_startTime'] = $startDt->format('H:i');
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }
@@ -361,7 +361,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 $startDt = new \DateTimeImmutable($json['start']);
                 $endDt = new \DateTimeImmutable($json['end']);
                 $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
-            } catch (\Throwable) {
+            } catch (\Exception) {
                 // Skip invalid date values
             }
         }
