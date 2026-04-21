@@ -6,6 +6,14 @@ on:
     - master
     - rel-*
   workflow_dispatch:
+    inputs:
+      scan_mode:
+        description: Scan scope
+        type: choice
+        options:
+        - full
+        - diff
+        default: full
 
 permissions:
   contents: read
@@ -17,8 +25,11 @@ concurrency:
 
 jobs:
   scancode:
-    name: ScanCode License Scan (PR diff)
+    name: ScanCode License Scan
     runs-on: ubuntu-latest
+    # Full-repo scans on a ~1M-LOC codebase can take a while; give the job
+    # headroom without hitting the 6-hour ceiling.
+    timeout-minutes: 180
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
@@ -33,15 +44,49 @@ jobs:
     - name: Install ScanCode Toolkit
       run: pipx install scancode-toolkit
 
-    - name: Stage changed files for scan
+    - name: Determine scan mode
+      id: mode
+      env:
+        EVENT: ${{ github.event_name }}
+        DISPATCH_MODE: ${{ github.event.inputs.scan_mode }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      # Resolution rules:
+      #   workflow_dispatch → whatever the user picked (default: full)
+      #   pull_request     → 'full' if the HEAD commit carries trailer
+      #                      `Scancode-Full-Scan: true`, otherwise 'diff'
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        case "$EVENT" in
+          workflow_dispatch)
+            mode="${DISPATCH_MODE:-full}"
+            ;;
+          pull_request)
+            trailer=$(
+              git log -1 --format='%(trailers:key=Scancode-Full-Scan,valueonly)' "$HEAD_SHA" \
+                | tr -d '[:space:]'
+            )
+            if [[ $trailer == 'true' ]]; then
+              mode='full'
+            else
+              mode='diff'
+            fi
+            ;;
+          *)
+            mode='diff'
+            ;;
+        esac
+        printf 'Scan mode: %s\n' "$mode"
+        echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+    - name: Stage changed files for scan (diff mode)
       id: stage
+      if: steps.mode.outputs.mode == 'diff' && github.event_name == 'pull_request'
       env:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      # Only scan files added or modified in the PR so the check stays fast on
-      # a large repo. Exclude vendored / generated trees.
+      # Only scan files added or modified in the PR so the check stays fast.
+      # Exclude vendored / generated trees.
       run: |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
         mkdir -p scancode-input
         mapfile -t changed < <(
           git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
@@ -65,8 +110,8 @@ jobs:
         done
         printf 'Staged %d files for scan.\n' "${#changed[@]}"
 
-    - name: Run ScanCode
-      if: steps.stage.outputs.has_changes == 'true'
+    - name: Run ScanCode (diff)
+      if: steps.mode.outputs.mode == 'diff' && steps.stage.outputs.has_changes == 'true'
       # --license / --copyright: detect license text and copyright notices
       # --package: detect package manifests (composer.json, package.json, etc.)
       # --only-findings: skip files with no license/copyright findings in output
@@ -76,17 +121,46 @@ jobs:
           --copyright \
           --package \
           --only-findings \
-          --processes 2 \
+          --processes "$(nproc)" \
           --json-pp scancode-results.json \
           --html scancode-results.html \
           scancode-input
 
+    - name: Run ScanCode (full repo)
+      if: steps.mode.outputs.mode == 'full'
+      # Full-repo scan. Exclude vendored / generated trees that would dominate
+      # the output without adding useful findings, and skip the on-disk scan
+      # cache dir.
+      run: |
+        scancode \
+          --license \
+          --copyright \
+          --package \
+          --only-findings \
+          --processes "$(nproc)" \
+          --ignore 'vendor/*' \
+          --ignore 'node_modules/*' \
+          --ignore 'ccdaservice/node_modules/*' \
+          --ignore 'Documentation/*' \
+          --ignore '.git/*' \
+          --ignore 'scancode-input/*' \
+          --json-pp scancode-results.json \
+          --html scancode-results.html \
+          .
+
     - name: Summarize findings
-      if: steps.stage.outputs.has_changes == 'true'
+      if: |
+        steps.mode.outputs.mode == 'full'
+        || (steps.mode.outputs.mode == 'diff' && steps.stage.outputs.has_changes == 'true')
+      env:
+        SCAN_MODE: ${{ steps.mode.outputs.mode }}
       run: |
         python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
         import json
+        import os
         from collections import Counter
+
+        mode = os.environ.get('SCAN_MODE', 'unknown')
 
         with open('scancode-results.json') as fh:
             data = json.load(fh)
@@ -100,35 +174,49 @@ jobs:
             if not detections:
                 continue
             expressions = sorted({d.get('license_expression', 'unknown') for d in detections})
-            per_file.append((entry['path'], expressions))
+            path = entry['path']
+            # In diff mode the scan root is scancode-input/; strip it so paths
+            # shown in the summary match the repo layout.
+            if path.startswith('scancode-input/'):
+                path = path[len('scancode-input/'):]
+            per_file.append((path, expressions))
             for expr in expressions:
                 licenses[expr] += 1
 
-        print('## ScanCode License Findings')
+        print(f'## ScanCode License Findings ({mode} scan)')
         print()
         if not licenses:
-            print('No license text detected in changed files.')
+            print('No license text detected.')
         else:
             print('| License Expression | File Count |')
             print('|---|---|')
             for expr, count in licenses.most_common():
                 print(f'| `{expr}` | {count} |')
             print()
-            print('<details><summary>Per-file findings</summary>')
+            # Full-repo scans can produce thousands of per-file rows; cap the
+            # expanded list so the summary page stays usable.
+            limit = 500
+            shown = per_file if len(per_file) <= limit else per_file[:limit]
+            heading = 'Per-file findings'
+            if len(per_file) > limit:
+                heading = f'Per-file findings (first {limit} of {len(per_file)})'
+            print(f'<details><summary>{heading}</summary>')
             print()
             print('| File | License(s) |')
             print('|---|---|')
-            for path, exprs in per_file:
+            for path, exprs in shown:
                 print(f'| `{path}` | {", ".join(f"`{e}`" for e in exprs)} |')
             print()
             print('</details>')
         PY
 
     - name: Upload results as artifact
-      if: steps.stage.outputs.has_changes == 'true'
+      if: |
+        steps.mode.outputs.mode == 'full'
+        || (steps.mode.outputs.mode == 'diff' && steps.stage.outputs.has_changes == 'true')
       uses: actions/upload-artifact@v7
       with:
-        name: scancode-results
+        name: scancode-results-${{ steps.mode.outputs.mode }}
         path: |
           scancode-results.json
           scancode-results.html
