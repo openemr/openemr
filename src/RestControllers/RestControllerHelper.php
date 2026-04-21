@@ -118,18 +118,41 @@ class RestControllerHelper
     }
 
     /**
+     * Maximum request body size in bytes (2 MB default).
+     * FHIR resources should not exceed this in normal usage.
+     */
+    private const MAX_REQUEST_BODY_SIZE = 2097152;
+
+    /**
      * Parses the JSON request body with proper error handling.
      *
-     * Returns an array on success, or a Response (400) if the body is empty,
-     * not valid JSON, or cannot be read. This prevents malformed JSON from
-     * silently becoming an empty array.
+     * Returns an array on success, or a Response (400/413) if the body is empty,
+     * too large, not valid JSON, or cannot be read. This prevents malformed JSON
+     * from silently becoming an empty array.
      *
      * @param bool $isFhir If true, returns a FHIR OperationOutcome on error
-     * @return array<mixed, mixed>|Response The parsed JSON array or a 400 error response
+     * @param int $maxBytes Maximum allowed body size in bytes
+     * @return array<mixed, mixed>|Response The parsed JSON array or an error response
      */
-    public static function parseJsonRequestBody(bool $isFhir = false): array|Response
+    public static function parseJsonRequestBody(bool $isFhir = false, int $maxBytes = self::MAX_REQUEST_BODY_SIZE): array|Response
     {
-        $rawBody = file_get_contents("php://input");
+        // Check Content-Length header first for early rejection
+        $contentLengthHeader = filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT);
+        if ($contentLengthHeader !== null && $contentLengthHeader !== false && $contentLengthHeader > $maxBytes) {
+            $message = 'Request body too large';
+            if ($isFhir) {
+                return self::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'too-costly', $message),
+                    null,
+                    413
+                );
+            }
+            return new Response((string) json_encode(['error' => $message]), 413, ['Content-Type' => 'application/json']);
+        }
+
+        // Read with length limit to prevent memory exhaustion
+        $readLength = $maxBytes + 1;
+        $rawBody = file_get_contents("php://input", false, null, 0, $readLength);
 
         if ($rawBody === false || $rawBody === '') {
             $message = 'Request body is empty or could not be read';
@@ -141,6 +164,19 @@ class RestControllerHelper
                 );
             }
             return new Response((string) json_encode(['error' => $message]), 400, ['Content-Type' => 'application/json']);
+        }
+
+        // Check actual size after read (Content-Length may be absent or spoofed)
+        if (strlen($rawBody) > $maxBytes) {
+            $message = 'Request body too large';
+            if ($isFhir) {
+                return self::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'too-costly', $message),
+                    null,
+                    413
+                );
+            }
+            return new Response((string) json_encode(['error' => $message]), 413, ['Content-Type' => 'application/json']);
         }
 
         $decoded = json_decode($rawBody, true);
