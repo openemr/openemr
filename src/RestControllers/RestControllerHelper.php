@@ -117,6 +117,61 @@ class RestControllerHelper
         return $psrFactory->createResponse(404)->withBody($psrFactory->createStream(json_encode(['error' => xlt('Not Found')])));
     }
 
+    /**
+     * Parses the JSON request body with proper error handling.
+     *
+     * Returns an array on success, or a Response (400) if the body is empty,
+     * not valid JSON, or cannot be read. This prevents malformed JSON from
+     * silently becoming an empty array.
+     *
+     * @param bool $isFhir If true, returns a FHIR OperationOutcome on error
+     * @return array<mixed, mixed>|Response The parsed JSON array or a 400 error response
+     */
+    public static function parseJsonRequestBody(bool $isFhir = false): array|Response
+    {
+        $rawBody = file_get_contents("php://input");
+
+        if ($rawBody === false || $rawBody === '') {
+            $message = 'Request body is empty or could not be read';
+            if ($isFhir) {
+                return self::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'invalid', $message),
+                    null,
+                    400
+                );
+            }
+            return new Response((string) json_encode(['error' => $message]), 400, ['Content-Type' => 'application/json']);
+        }
+
+        $decoded = json_decode($rawBody, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $message = 'Invalid JSON: ' . json_last_error_msg();
+            if ($isFhir) {
+                return self::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'invalid', $message),
+                    null,
+                    400
+                );
+            }
+            return new Response((string) json_encode(['error' => $message]), 400, ['Content-Type' => 'application/json']);
+        }
+
+        if (!is_array($decoded)) {
+            $message = 'Request body must be a JSON object';
+            if ($isFhir) {
+                return self::responseHandler(
+                    UtilsService::createOperationOutcomeResource('error', 'invalid', $message),
+                    null,
+                    400
+                );
+            }
+            return new Response((string) json_encode(['error' => $message]), 400, ['Content-Type' => 'application/json']);
+        }
+
+        return $decoded;
+    }
+
     public static function addFhirLocationHeader(ResponseInterface $response, string $resourceType, int|string $id): ResponseInterface
     {
         $serverConfig = new ServerConfig();
