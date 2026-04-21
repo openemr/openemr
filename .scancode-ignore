@@ -1,0 +1,14 @@
+# Glob patterns passed to `scancode --ignore`. One pattern per line; blank
+# lines and comments ignored. Used by .github/workflows/scancode.yml.
+
+# Vendored / generated directories.
+vendor/*
+node_modules/*
+ccdaservice/node_modules/*
+
+# Generated documentation (SchemaSpy HTML, etc.).
+Documentation/*
+
+# Git metadata and the workflow's own staging directory.
+.git/*
+scancode-input/*
