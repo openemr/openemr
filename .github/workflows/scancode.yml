@@ -42,7 +42,13 @@ jobs:
         python-version: '3.12'
 
     - name: Install ScanCode Toolkit
-      run: pipx install scancode-toolkit
+      # Pinned so runs are reproducible; bumped manually for now. The official
+      # aboutcode-org/scancode-action is still tagged @beta (no stable
+      # release) and runs ScanCode.io pipelines, which produce a different
+      # output schema from the CLI — migrating would require rewriting the
+      # summary step. Revisit once the action stabilizes so Dependabot can
+      # maintain the version.
+      run: pipx install 'scancode-toolkit==32.5.0'
 
     - name: Determine scan mode
       id: mode
@@ -65,7 +71,7 @@ jobs:
               git log -1 --format='%(trailers:key=Scancode-Full-Scan,valueonly)' "$HEAD_SHA" \
                 | tr -d '[:space:]'
             )
-            if [[ $trailer == 'true' ]]; then
+            if [[ $trailer = 'true' ]]; then
               mode='full'
             else
               mode='diff'
@@ -85,16 +91,14 @@ jobs:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       # Only scan files added or modified in the PR so the check stays fast.
-      # Exclude vendored / generated trees.
+      # git-diff already excludes untracked/ignored paths (vendor/,
+      # node_modules/, etc.); only Documentation/ needs an explicit pathspec
+      # since it is tracked.
       run: |
         mkdir -p scancode-input
         mapfile -t changed < <(
           git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
-            -- \
-            ':!vendor' \
-            ':!node_modules' \
-            ':!ccdaservice/node_modules' \
-            ':!Documentation'
+            -- ':!Documentation'
         )
         if (( ${#changed[@]} == 0 )); then
           echo 'No files to scan.'
@@ -104,7 +108,12 @@ jobs:
         echo 'has_changes=true' >> "$GITHUB_OUTPUT"
         for f in "${changed[@]}"; do
           if [[ -f $f ]]; then
-            mkdir -p "scancode-input/$(dirname "$f")"
+            # Parameter expansion — ${f%/*} strips the trailing /basename. For
+            # top-level files (no slash) the expansion returns $f unchanged,
+            # so fall back to '.' in that case.
+            d="${f%/*}"
+            [[ $d = "$f" ]] && d='.'
+            mkdir -p "scancode-input/$d"
             cp "$f" "scancode-input/$f"
           fi
         done
@@ -128,22 +137,25 @@ jobs:
 
     - name: Run ScanCode (full repo)
       if: steps.mode.outputs.mode == 'full'
-      # Full-repo scan. Exclude vendored / generated trees that would dominate
-      # the output without adding useful findings, and skip the on-disk scan
-      # cache dir.
+      # Full-repo scan. Ignore patterns come from .scancode-ignore so the set
+      # of excluded paths is version-controlled alongside the repo. Blank
+      # lines and # comments in that file are stripped.
       run: |
+        ignore_args=()
+        while IFS= read -r line; do
+          line="${line%%#*}"
+          line="${line#"${line%%[![:space:]]*}"}"
+          line="${line%"${line##*[![:space:]]}"}"
+          [[ -z $line ]] && continue
+          ignore_args+=(--ignore "$line")
+        done < .scancode-ignore
         scancode \
           --license \
           --copyright \
           --package \
           --only-findings \
           --processes "$(nproc)" \
-          --ignore 'vendor/*' \
-          --ignore 'node_modules/*' \
-          --ignore 'ccdaservice/node_modules/*' \
-          --ignore 'Documentation/*' \
-          --ignore '.git/*' \
-          --ignore 'scancode-input/*' \
+          "${ignore_args[@]}" \
           --json-pp scancode-results.json \
           --html scancode-results.html \
           .
@@ -154,8 +166,8 @@ jobs:
         || (steps.mode.outputs.mode == 'diff' && steps.stage.outputs.has_changes == 'true')
       env:
         SCAN_MODE: ${{ steps.mode.outputs.mode }}
+      shell: python
       run: |
-        python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
         import json
         import os
         from collections import Counter
@@ -165,8 +177,8 @@ jobs:
         with open('scancode-results.json') as fh:
             data = json.load(fh)
 
-        licenses = Counter()
-        per_file = []
+        licenses: Counter[str] = Counter()
+        per_file: list[tuple[str, list[str]]] = []
         for entry in data.get('files', []):
             if entry.get('type') != 'file':
                 continue
@@ -183,32 +195,34 @@ jobs:
             for expr in expressions:
                 licenses[expr] += 1
 
-        print(f'## ScanCode License Findings ({mode} scan)')
-        print()
+        lines: list[str] = [f'## ScanCode License Findings ({mode} scan)', '']
         if not licenses:
-            print('No license text detected.')
+            lines.append('No license text detected.')
         else:
-            print('| License Expression | File Count |')
-            print('|---|---|')
-            for expr, count in licenses.most_common():
-                print(f'| `{expr}` | {count} |')
-            print()
-            # Full-repo scans can produce thousands of per-file rows; cap the
-            # expanded list so the summary page stays usable.
+            lines.append('| License Expression | File Count |')
+            lines.append('|---|---|')
+            lines.extend(f'| `{expr}` | {count} |' for expr, count in licenses.most_common())
+            lines.append('')
+            # Full-repo scans can produce thousands of rows; cap the expanded
+            # list so the summary page stays usable.
             limit = 500
-            shown = per_file if len(per_file) <= limit else per_file[:limit]
+            shown = per_file[:limit]
             heading = 'Per-file findings'
             if len(per_file) > limit:
                 heading = f'Per-file findings (first {limit} of {len(per_file)})'
-            print(f'<details><summary>{heading}</summary>')
-            print()
-            print('| File | License(s) |')
-            print('|---|---|')
-            for path, exprs in shown:
-                print(f'| `{path}` | {", ".join(f"`{e}`" for e in exprs)} |')
-            print()
-            print('</details>')
-        PY
+            lines.append(f'<details><summary>{heading}</summary>')
+            lines.append('')
+            lines.append('| File | License(s) |')
+            lines.append('|---|---|')
+            lines.extend(
+                f'| `{path}` | {", ".join(f"`{e}`" for e in exprs)} |'
+                for path, exprs in shown
+            )
+            lines.append('')
+            lines.append('</details>')
+
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+            out.write('\n'.join(lines) + '\n')
 
     - name: Upload results as artifact
       if: |
