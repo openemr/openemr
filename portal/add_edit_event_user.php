@@ -16,7 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Calendar\DayOfWeek;
+use OpenEMR\Common\Calendar\RecurrenceStartDateAdjuster;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -221,39 +221,10 @@ if ($form_action === "save") {
         ]);
     }
 
-//The modification of the start date for events that take place on one day of the week
-//for example monday, or thursday. We set the start date on the first day of the week
-//that the event is scheduled. For example if you set the event to repeat on each monday
-//the start date of the event will be set on the first monday after the day the event is scheduled
     // Repeat types 5-9 map to target weekdays (Mon-Fri). Advance the start
     // date to the next occurrence of that weekday so the recurrence begins on
     // the correct day.
-    //   5 = every Monday, 6 = every Tuesday, ... 9 = every Friday
-    $repeatTargetDay = match ($form_repeat_type) {
-        5 => DayOfWeek::Monday,
-        6 => DayOfWeek::Tuesday,
-        7 => DayOfWeek::Wednesday,
-        8 => DayOfWeek::Thursday,
-        9 => DayOfWeek::Friday,
-        default => null,
-    };
-
-    if ($repeatTargetDay !== null) {
-        $baseTimestamp = strtotime((string) $event_date);
-        if ($baseTimestamp !== false) {
-            // date('N') returns 1=Mon..7=Sun (ISO-8601). For Mon-Fri these
-            // values coincide with the DayOfWeek enum's backing ints, so the
-            // comparison is safe for the weekday cases handled above.
-            $currentDay = (int) date('N', $baseTimestamp);
-            if ($currentDay !== $repeatTargetDay->value) {
-                $daysUntilTarget = ($repeatTargetDay->value - $currentDay + 7) % 7;
-                $adjustedTimestamp = strtotime("+{$daysUntilTarget} days", $baseTimestamp);
-                if ($adjustedTimestamp !== false) {
-                    $event_date = date('Y-m-d', $adjustedTimestamp);
-                }
-            }
-        }
-    }
+    $event_date = RecurrenceStartDateAdjuster::adjust((string) $event_date, $form_repeat_type);
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/
