@@ -26,8 +26,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/ccr/transmitCCD.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncountermanagerTable
 {

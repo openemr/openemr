@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
                     'result' => $result
                     ,'job' => $job
                     , 'assetPath' => $bootstrap->getAssetPath()
-                    ,'postUrl' => OEGlobalsBag::getInstance()->get('webroot') . Bootstrap::MODULE_INSTALLATION_PATH . '/'
+                    ,'postUrl' => OEGlobalsBag::getInstance()->getWebRoot() . Bootstrap::MODULE_INSTALLATION_PATH . '/'
                                     . Bootstrap::MODULE_NAME . '/public/index.php'
                 ]
             );

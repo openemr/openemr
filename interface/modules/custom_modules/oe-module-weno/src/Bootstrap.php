@@ -73,7 +73,7 @@ class Bootstrap
         private readonly EventDispatcherInterface $eventDispatcher,
         ?LoggerInterface $logger = null,
     ) {
-        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno";
+        $this->installPath = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
