@@ -1,6 +1,6 @@
 services:
   redis-master:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
     container_name: redis-master
     command:
       - redis-server
@@ -24,7 +24,7 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
     container_name: redis-replica-1
     command:
       - redis-server
@@ -44,7 +44,7 @@ services:
       - --replica-announce-ip
       - redis-replica-1
   redis-replica-2:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
     container_name: redis-replica-2
     command:
       - redis-server
@@ -64,7 +64,7 @@ services:
       - --replica-announce-ip
       - redis-replica-2
   sentinel-1:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -84,7 +84,7 @@ services:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
