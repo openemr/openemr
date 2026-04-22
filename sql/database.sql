@@ -15388,7 +15388,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('org
 -- schema comparisons.
 DROP TABLE IF EXISTS `migrations`;
 CREATE TABLE `migrations` (
-    `version` varchar(191) COLLATE utf8mb4_general_ci NOT NULL,
+    `version` varchar(191) NOT NULL,
     `executed_at` datetime DEFAULT NULL,
     `execution_duration_ms` int DEFAULT NULL,
     PRIMARY KEY (`version`)
