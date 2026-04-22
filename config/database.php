@@ -12,6 +12,7 @@
 
 declare(strict_types=1);
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
@@ -45,6 +46,7 @@ use Ramsey\Uuid\{
     Doctrine\UuidBinaryType,
     UuidInterface,
 };
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 return [
     // Connection Manager - manages named connections with different middleware
@@ -84,32 +86,6 @@ return [
     ),
 
     // ORM
-    Configuration::class => function (TC $c): Configuration {
-        $paths = [
-            'src/Entities',
-            // TODO: integrate module-vended entity paths.
-        ];
-        $isDevMode = $c->get('OPENEMR__ENVIRONMENT') === 'dev';
-        $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
-        $config->setNamingStrategy($c->get(NamingStrategy::class));
-        $config->setTypedFieldMapper($c->get(TypedFieldMapper::class));
-
-        return $config;
-    },
-    EntityManagerInterface::class => function (TC $c): EntityManagerInterface {
-        $em = new EntityManager(
-            conn: $c->get(Connection::class),
-            config: $c->get(Configuration::class),
-        );
-        // In theory, this EM could be fully autowired and have EventManager in
-        // the DI defs with this setup, but whatever.
-        $em->getEventManager()->addEventListener(
-            [Events::prePersist, Events::preUpdate],
-            $c->get(AutoValueSubscriber::class),
-        );
-        return $em;
-    },
-    NamingStrategy::class => fn () => new UnderscoreNamingStrategy(case: CASE_LOWER),
     TypedFieldMapper::class => function (): TypedFieldMapper {
         Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
         return new DefaultTypedFieldMapper([
@@ -117,4 +93,45 @@ return [
         ]);
     },
 
+    Configuration::class => function (TC $c) {
+        $paths = [
+            'src/Entities',
+            // Future: load additional paths from modules?
+            // this may need a ClassLoader instead.
+        ];
+        // FIXME: before this gets integrated, isDevMode needs to be derived
+        // and an appropriate cache adapter provided (probably apcu for web and
+        // still array for cli)
+        $isDevMode = true;
+        $config = ORMSetup::createAttributeMetadataConfig(
+            paths: $paths,
+            isDevMode: $isDevMode,
+            cache: new ArrayAdapter(),
+        );
+
+        // Automatically translates classes and properties from UpperCamelCase
+        // in PHP to snake_case in the database.
+        $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
+        $config->setTypedFieldMapper($c->get(TypedFieldMapper::class));
+
+        // These are only used in PHP <= 8.3 where native lazy objects aren't
+        // supported or enabled.
+        $config->enableNativeLazyObjects(version_compare(PHP_VERSION, '8.4.0', '>='));
+        $config->setProxyDir(sys_get_temp_dir());
+        $config->setProxyNamespace('DoctrineProxies');
+        $config->setAutoGenerateProxyClasses($isDevMode);
+        return $config;
+    },
+
+    // TODO: config 1.x fixing autowiring or redo EM
+    EntityManager::class,
+    EntityManagerInterface::class => EntityManager::class,
+    EventManager::class => function (TC $c): EventManager {
+        $manager = new EventManager();
+        $manager->addEventListener(
+            events: [Events::prePersist, Events::preUpdate],
+            listener: $c->get(AutoValueSubscriber::class),
+        );
+        return $manager;
+    },
 ];

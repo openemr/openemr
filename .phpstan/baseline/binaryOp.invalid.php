@@ -4522,7 +4522,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\\\\' OR a\\.pc_endDate \\=…\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\." between mixed and \'\\\\\' OR a\\.pc_endDate…\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];

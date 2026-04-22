@@ -1055,7 +1055,7 @@ class Events extends Base
             // this event is forced to NOT REPEAT
             $args['form_repeat'] = "0";
             $args['recurrspec'] = $noRecurrspec;
-            $args['form_enddate'] = "0000-00-00";
+            $args['form_enddate'] = null;
             //$args['prefcatid'] = (int)$appt['prefcatid'];
 
             $sql = "INSERT INTO openemr_postcalendar_events ( " .
@@ -1262,7 +1262,7 @@ class Events extends Base
 
                         if ($excluded == false) {
                             $event['pc_eventDate'] = $occurrence;
-                            $event['pc_endDate'] = '0000-00-00';
+                            $event['pc_endDate'] = null;
                             $events2[] = $event;
                             $data[] = $event['pc_eventDate'];
                         }

@@ -84,7 +84,7 @@ if (!empty($_POST['form_pid'])) {
         echo xlt("Error: Invalid Patient ID");
         exit();
     }
-    $event_date = fixDate($_POST['form_date']);
+    $event_date = fixDate(is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null);
     if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $form_provider_ae)) {
         echo xlt("Error: No available slots for selected provider(s)");
         exit();
@@ -166,7 +166,9 @@ if ($form_action !== '') {
 }
 
 if ($form_action === "save") {
-    $event_date = fixDate($_POST['form_date']);
+    $formDate = is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null;
+    $formEnddate = is_string($_POST['form_enddate'] ?? null) ? $_POST['form_enddate'] : null;
+    $event_date = fixDate($formDate);
 
 // Compute start and end time strings to be saved.
     if ($_POST['form_allday'] ?? null) {
@@ -268,14 +270,25 @@ if ($form_action === "save") {
                             pc_eventstatus, pc_sharing, pc_facility
                         ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                         [
-                            $_POST['form_category'], $row['pc_multiple'], $to_be_inserted,
-                            $pid, $_POST['form_title'], $_POST['form_comments'],
-                            $session->get('providerId'), $event_date,
-                            fixDate($_POST['form_enddate']), ($duration * 60),
-                            ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
-                            $starttime, $endtime, $_POST['form_allday'],
-                            $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                            $locationspec, $facility,
+                            $_POST['form_category'],
+                            $row['pc_multiple'],
+                            $to_be_inserted,
+                            $pid,
+                            $_POST['form_title'],
+                            $_POST['form_comments'],
+                            $session->get('providerId'),
+                            $event_date,
+                            fixDate($formEnddate, null),
+                            ($duration * 60),
+                            ($_POST['form_repeat'] ? '1' : '0'),
+                            $recurrspec,
+                            $starttime,
+                            $endtime,
+                            $_POST['form_allday'],
+                            $_POST['form_apptstatus'],
+                            $_POST['form_prefcat'],
+                            $locationspec,
+                            $facility,
                         ]
                     );
                 } // foreach
@@ -294,13 +307,24 @@ if ($form_action === "save") {
                         pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
                         WHERE pc_aid = ? AND pc_multiple = ?",
                     [
-                        $_POST['form_category'], $pid, $_POST['form_title'],
-                        $_POST['form_comments'], $session->get('providerId'),
-                        $event_date, fixDate($_POST['form_enddate']),
-                        ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
-                        $recurrspec, $starttime, $endtime, $_POST['form_allday'],
-                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        $facility, $provider, $row['pc_multiple'],
+                        $_POST['form_category'],
+                        $pid,
+                        $_POST['form_title'],
+                        $_POST['form_comments'],
+                        $session->get('providerId'),
+                        $event_date,
+                        fixDate($formEnddate, null),
+                        ($duration * 60),
+                        ($_POST['form_repeat'] ? '1' : '0'),
+                        $recurrspec,
+                        $starttime,
+                        $endtime,
+                        $_POST['form_allday'],
+                        $_POST['form_apptstatus'],
+                        $_POST['form_prefcat'],
+                        $facility,
+                        $provider,
+                        $row['pc_multiple'],
                     ]
                 );
             } // foreach
@@ -321,13 +345,24 @@ if ($form_action === "save") {
                     pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
                     WHERE pc_eid = ?",
                 [
-                    $_POST['form_category'], $prov, $pid, $_POST['form_title'],
-                    $_POST['form_comments'], $session->get('providerId'),
-                    $event_date, fixDate($_POST['form_enddate'] ?? ''),
-                    ($duration * 60), (($_POST['form_repeat'] ?? null) ? '1' : '0'),
-                    $recurrspec, $starttime, $endtime, $_POST['form_allday'] ?? '',
-                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? '',
-                    $facility, $eid,
+                    $_POST['form_category'],
+                    $prov,
+                    $pid,
+                    $_POST['form_title'],
+                    $_POST['form_comments'],
+                    $session->get('providerId'),
+                    $event_date,
+                    fixDate($formEnddate, null),
+                    ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec,
+                    $starttime,
+                    $endtime,
+                    ($_POST['form_allday'] ?? ''),
+                    $_POST['form_apptstatus'],
+                    ($_POST['form_prefcat'] ?? ''),
+                    $facility,
+                    $eid,
                 ]
             );
         }
@@ -364,14 +399,25 @@ if ($form_action === "save") {
                         pc_eventstatus, pc_sharing, pc_facility
                     ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                     [
-                        $_POST['form_category'], $new_multiple_value, $provider,
-                        $pid, $_POST['form_title'], $_POST['form_comments'],
-                        $session->get('providerId'), $event_date,
-                        fixDate($_POST['form_enddate']), ($duration * 60),
-                        ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
-                        $starttime, $endtime, $_POST['form_allday'],
-                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        $locationspec, $facility,
+                        $_POST['form_category'],
+                        $new_multiple_value,
+                        $provider,
+                        $pid,
+                        $_POST['form_title'],
+                        $_POST['form_comments'],
+                        $session->get('providerId'),
+                        $event_date,
+                        fixDate($formEnddate, null),
+                        ($duration * 60),
+                        ($_POST['form_repeat'] ? '1' : '0'),
+                        $recurrspec,
+                        $starttime,
+                        $endtime,
+                        $_POST['form_allday'],
+                        $_POST['form_apptstatus'],
+                        $_POST['form_prefcat'],
+                        $locationspec,
+                        $facility,
                     ]
                 );
             } // foreach
@@ -387,14 +433,24 @@ if ($form_action === "save") {
                     pc_eventstatus, pc_sharing, pc_facility
                 ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                 [
-                    $_POST['form_category'], $form_provider_ae,
-                    $pid, $_POST['form_title'], $_POST['form_comments'],
-                    $session->get('providerId'), $event_date,
-                    fixDate($_POST['form_enddate'] ?? ''), ($duration * 60),
-                    (($_POST['form_repeat'] ?? null) ? '1' : '0'), $recurrspec,
-                    $starttime, $endtime, $_POST['form_allday'] ?? '',
-                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? null,
-                    $locationspec, $facility,
+                    $_POST['form_category'],
+                    $form_provider_ae,
+                    $pid,
+                    $_POST['form_title'],
+                    $_POST['form_comments'],
+                    $session->get('providerId'),
+                    $event_date,
+                    fixDate($formEnddate, null),
+                    ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec,
+                    $starttime,
+                    $endtime,
+                    ($_POST['form_allday'] ?? ''),
+                    $_POST['form_apptstatus'],
+                    ($_POST['form_prefcat'] ?? null),
+                    $locationspec,
+                    $facility,
                 ]
             );
         } // INSERT single

@@ -36,9 +36,7 @@ $application->addCommand($container->get(InstallCommand::class));
 MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
 
 // Doctrine ORM integration
-ORMConsoleRunner::addCommands(
-    $application,
-    new SingleManagerProvider($container->get(EntityManagerInterface::class)),
-);
-
+ORMConsoleRunner::addCommands($application, new SingleManagerProvider(
+    $container->get(EntityManagerInterface::class),
+));
 $application->run();

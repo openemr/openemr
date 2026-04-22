@@ -85,7 +85,7 @@ if (isset($_GET['prov'])) {
     $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
-$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
+$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
 
 $date = $date ? substr((string) $date, 0, 4) . '-' . substr((string) $date, 4, 2) . '-' . substr((string) $date, 6) : date("Y-m-d");
 
@@ -512,7 +512,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     $args['form_repeat'] = "0";
                     $args['days_every_week'] = "0";
                     $args['recurrspec'] = $noRecurrspec;
-                    $args['form_enddate'] = "0000-00-00";
+                    $args['form_enddate'] = null;
                     $args['starttime'] = $starttime;
                     $args['endtime'] = $endtime;
                     $args['locationspec'] = $locationspec;
@@ -699,7 +699,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 $args['form_repeat'] = "0";
                 $args['days_every_week'] = "0";
                 $args['recurrspec'] = $noRecurrspec;
-                $args['form_enddate'] = "0000-00-00";
+                $args['form_enddate'] = null;
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
@@ -904,7 +904,7 @@ if ($eid) {
         $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
     }
 
-    $recurrence_end_date = ($row['pc_endDate'] && !Utilities::isDateEmpty($row['pc_endDate'])) ? $row['pc_endDate'] : null;
+    $recurrence_end_date = (is_string($row['pc_endDate']) && !Utilities::isDateEmpty($row['pc_endDate'])) ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
     if (str_starts_with((string) $hometext, ':text:')) {
