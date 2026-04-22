@@ -16,7 +16,6 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
@@ -78,7 +77,7 @@ if ($action === 'print_labels') {
     }
 
     $pdf = new mPDF([
-        'tempDir' => OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR'),
+        'tempDir' => sys_get_temp_dir() . '/openemr-mpdf',
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',
