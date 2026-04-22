@@ -48,41 +48,49 @@ class C_FormVitals
         'bps' => [
             'warning_min' => 80,
             'warning_max' => 180,
+            'allow_negative' => false,
             'label' => 'BP Systolic (mmHg)'
         ],
         'bpd' => [
             'warning_min' => 40,
             'warning_max' => 120,
+            'allow_negative' => false,
             'label' => 'BP Diastolic (mmHg)'
         ],
         'pulse' => [
             'warning_min' => 40,
             'warning_max' => 200,
+            'allow_negative' => false,
             'label' => 'Pulse (bpm)'
         ],
         'respiration' => [
             'warning_min' => 8,
             'warning_max' => 50,
+            'allow_negative' => false,
             'label' => 'Respiration (breaths/min)'
         ],
         'temperature' => [
             'warning_min' => 95,
             'warning_max' => 105,
+            'allow_negative' => false,
             'label' => 'Temperature (°F)'
         ],
         'weight' => [
             'warning_min' => 5.5,
             'warning_max' => 650,
+            'allow_negative' => false,
             'label' => 'Weight (lbs)'
         ],
         'height' => [
             'warning_min' => 11,
             'warning_max' => 98,
+            'allow_negative' => false,
             'label' => 'Height (in)'
         ],
         'oxygen_saturation' => [
             'warning_min' => 90,
             'warning_max' => 100,
+            'allow_negative' => false,
             'label' => 'Oxygen Saturation (%)'
         ],
     ];
@@ -472,8 +480,6 @@ class C_FormVitals
             
             // Set error session variable so it can be displayed to user
             $_SESSION['vitals_validation_errors'] = $validationResult['errors'];
-            
-            // Stop processing - don't save invalid data
             return;
         }
 
@@ -641,6 +647,12 @@ class C_FormVitals
                 $errors[$field] = $range['label'] . ' must be numeric.';
                 continue;
             }
+
+            if (isset($range['allow_negative']) && !$range['allow_negative'] && $numValue < 0) {
+                $errors[$field] = $range['label'] . ' cannot be negative.';
+                 continue;
+            
+            }
             $numValue = (float) $value;
 
             // Check for values outside clinical warning thresholds (warnings only)
@@ -673,10 +685,9 @@ class C_FormVitals
         if ($bps !== null && $bpd !== null && $bps > 0 && $bpd > 0) {
             if ($bps < $bpd) {
                 $warnings['bps'] = 'BP Systolic is less than BP Diastolic. Systolic: ' . $bps . ', Diastolic: ' . $bpd;
+                }
         }
-
         return $warnings;
-        }
     }
     
 
