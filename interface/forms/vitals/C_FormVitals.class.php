@@ -42,6 +42,52 @@ class C_FormVitals
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
 
+
+        // CARO: Fix ranges - code may reference an absolute max/min but I want only the warning max/min
+    private const VITAL_RANGES = [
+        'bps' => [
+            'warning_min' => 80,
+            'warning_max' => 180,
+            'label' => 'BP Systolic (mmHg)'
+        ],
+        'bpd' => [
+            'warning_min' => 40,
+            'warning_max' => 120,
+            'label' => 'BP Diastolic (mmHg)'
+        ],
+        'pulse' => [
+            'warning_min' => 40,
+            'warning_max' => 200,
+            'label' => 'Pulse (bpm)'
+        ],
+        'respiration' => [
+            'warning_min' => 8,
+            'warning_max' => 50,
+            'label' => 'Respiration (breaths/min)'
+        ],
+        'temperature' => [
+            'warning_min' => 95,
+            'warning_max' => 105,
+            'label' => 'Temperature (°F)'
+        ],
+        'weight' => [
+            'warning_min' => 5.5,
+            'warning_max' => 650,
+            'label' => 'Weight (lbs)'
+        ],
+        'height' => [
+            'warning_min' => 11,
+            'warning_max' => 98,
+            'label' => 'Height (in)'
+        ],
+        'oxygen_saturation' => [
+            'warning_min' => 90,
+            'warning_max' => 100,
+            'label' => 'Oxygen Saturation (%)'
+        ],
+    ];
+
+
     /**
      * @var array Hashmap of list option vital interpretations where the key is the option_id from list_options
      */
@@ -417,6 +463,20 @@ class C_FormVitals
             $_POST["temp_method"] = "";
         }
 
+
+         // CARO: New change but I still want to be able to save invalid data??
+        $validationResult = $this->validateVitals($_POST);
+        if (!$validationResult['valid']) {
+            $errorMessages = implode("\n", $validationResult['errors']);
+            error_log("Vitals validation failed: " . $errorMessages);
+            
+            // Set error session variable so it can be displayed to user
+            $_SESSION['vitals_validation_errors'] = $validationResult['errors'];
+            
+            // Stop processing - don't save invalid data
+            return;
+        }
+
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
         $vitalsArray = [];
@@ -543,4 +603,98 @@ class C_FormVitals
         $vitals->set_groupname($session->get('authProvider'));
         $vitals->set_user($session->get('authUser'));
     }
+
+
+    // CARO: CHECKKKK UNTIL END OF FILE
+        /**
+     * Validates vital values are within clinical ranges
+     * Returns validation errors array or empty array if valid
+     * 
+     * @param array $vitals The vitals data to validate
+     * @return array Array of validation errors, empty if no errors
+     */
+    private function validateVitalRanges($vitals)
+    {
+        $errors = [];
+        $warnings = [];
+
+        foreach ($vitals as $field => $value) {
+            // Skip empty values
+            if (empty($value) && $value !== 0 && $value !== "0") {
+                continue;
+            }
+
+            // Check if field is in our ranges configuration
+            if (!isset(self::VITAL_RANGES[$field])) {
+                continue;
+            }
+
+            $range = self::VITAL_RANGES[$field];
+            $numValue = (float) $value;
+
+            // Check for values outside clinical warning thresholds (warnings only)
+            if (
+                ($range['warning_min'] !== null && $numValue < $range['warning_min']) ||
+                ($range['warning_max'] !== null && $numValue > $range['warning_max'])
+            ) {
+                $warnings[$field] = $range['label'] . ' is outside typical range (' . $range['warning_min'] . '-' . $range['warning_max'] . '). You entered: ' . $value;
+            }
+        }
+
+        // Store warnings in a session variable that can be displayed to the user
+        if (!empty($warnings)) {
+            $_SESSION['vitals_warnings'] = $warnings;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Validates logical constraints for vital signs
+     * E.g., systolic should be >= diastolic
+     * 
+     * @param array $vitals The vitals data
+     * @return array Array of validation errors, empty if valid
+     */
+    private function validateVitalConstraints($vitals)
+    {
+        $errors = [];
+
+        // Blood pressure constraint: systolic should be >= diastolic
+        $bps = isset($vitals['bps']) ? (float) $vitals['bps'] : null;
+        $bpd = isset($vitals['bpd']) ? (float) $vitals['bpd'] : null;
+
+        if ($bps !== null && $bpd !== null && $bps > 0 && $bpd > 0) {
+            if ($bps < $bpd) {
+                $errors['bps'] = 'BP Systolic must be greater than or equal to BP Diastolic. Systolic: ' . $bps . ', Diastolic: ' . $bpd;
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Main validation method called before saving
+     * 
+     * @param array $vitals The vitals data to validate
+     * @return array Array with 'valid' boolean and 'errors' array
+     */
+    private function validateVitals($vitals)
+    {
+        $rangeErrors = $this->validateVitalRanges($vitals);
+        $constraintErrors = $this->validateVitalConstraints($vitals);
+        
+        $allErrors = array_merge($rangeErrors, $constraintErrors);
+
+        return [
+            'valid' => empty($allErrors),
+            'errors' => $allErrors
+        ];
+    }
+
+
+
+
+
+
 }
