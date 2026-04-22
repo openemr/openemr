@@ -321,7 +321,7 @@ if ($fend > ($count ?? null)) {
                         response(cache[term]);
                         return;
                     }
-                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
+                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
                         cache[term] = data;
                         response(data);
                     });

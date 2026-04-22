@@ -198,7 +198,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
 
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -810,7 +810,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <script>
             var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
@@ -925,7 +925,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                    <?php $datetimepicker_timepicker = false; ?>
                    <?php $datetimepicker_showseconds = false; ?>
                    <?php $datetimepicker_formatInput = false; ?>
-                   <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                   <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

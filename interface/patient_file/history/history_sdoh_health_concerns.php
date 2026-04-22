@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $committed = true;
         }
         // Redirect to SDOH summary
-        $redirectUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
+        $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
@@ -253,7 +253,7 @@ $csrf = CsrfUtils::collectCsrfToken(session: $session);
                         <?php echo xlt("Add Selected Concerns"); ?>
                     </button>
 
-                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
+                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
                        class="btn btn-secondary btn-lg">
                         <i class="fa fa-times"></i>
                         <?php echo xlt("Skip - No Concerns"); ?>

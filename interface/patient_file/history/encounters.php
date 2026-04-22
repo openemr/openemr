@@ -117,7 +117,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             }
             $docTitle = $note ?: xl("View document");
 
-            $docHref = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
+            $docHref = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
@@ -189,14 +189,14 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
 <?php if ($session->get('language_direction') == "rtl") { ?>
-  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/rtl_encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } else { ?>
-  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } ?>
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajtooltip.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajtooltip.js"></script>
 
 <script>
 
@@ -232,7 +232,7 @@ function todocument(docid) {
     patient_id: <?php echo js_escape($pid); ?>,
     view: ''
   });
-  h = '<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/controller.php?' + params;
+  h = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
