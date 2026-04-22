@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 537
+-- v_database: 538
 --
 
 --
@@ -15368,6 +15368,16 @@ CREATE TABLE `preference_value_sets` (
     -- General Preferences
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+
+-- Generic PSR-16 cache backing store for the DatabaseCache backend.
+DROP TABLE IF EXISTS `app_cache`;
+CREATE TABLE `app_cache` (
+    `cache_key` VARCHAR(255) NOT NULL COMMENT 'PSR-16 cache key',
+    `cache_value` LONGBLOB NOT NULL COMMENT 'Serialized CacheEntry',
+    `expires_at` DATETIME DEFAULT NULL COMMENT 'NULL = no expiration',
+    PRIMARY KEY (`cache_key`),
+    KEY `idx_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);

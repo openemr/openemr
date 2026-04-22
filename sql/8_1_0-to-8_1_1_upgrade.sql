@@ -151,3 +151,14 @@ ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date NOT NULL;
 #IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
 ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
 #EndIf
+
+-- Generic PSR-16 cache backing store for the DatabaseCache backend.
+#IfNotTable app_cache
+CREATE TABLE `app_cache` (
+    `cache_key` VARCHAR(255) NOT NULL COMMENT 'PSR-16 cache key',
+    `cache_value` LONGBLOB NOT NULL COMMENT 'Serialized CacheEntry',
+    `expires_at` DATETIME DEFAULT NULL COMMENT 'NULL = no expiration',
+    PRIMARY KEY (`cache_key`),
+    KEY `idx_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#EndIf
