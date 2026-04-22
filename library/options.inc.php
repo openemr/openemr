@@ -1528,7 +1528,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -2281,7 +2281,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2777,7 +2777,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -4797,7 +4797,7 @@ function lbf_current_value($frow, $formid, $encounter)
 
 function signer_head()
 {
-    return "<link href=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
+    return "<link href=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using
@@ -4806,7 +4806,7 @@ function signer_head()
 //
 function lbf_canvas_head($small = true)
 {
-    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/js/literallycanvas.min.js\"></script>";
+    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {
         $s .= <<<EOD
 <style>

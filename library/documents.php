@@ -21,7 +21,7 @@
  * @link    https://www.open-emr.org
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**

@@ -10922,16 +10922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin_add.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Abstract/Configuration.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/interface/esign…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Abstract/Configuration.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\?module\\=\' results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/ESign/Abstract/Configuration.php',
@@ -10952,21 +10942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Abstract/Controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ViewableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Abstract/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Viewer\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Abstract/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/views\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Abstract/Controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Abstract/Controller.php',
@@ -10977,226 +10952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Abstract/Model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ESign\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Encounter…\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/FactoryIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Factory…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/ButtonIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ViewableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/ButtonIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Signature\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Utils…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ButtonIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ViewableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/views…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Configuration.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Encounter…\' results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Encounter…\' results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/FactoryIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/LogIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Viewer\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/views…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/DbRow…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Factory…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ButtonIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Viewer\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/views/form…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Configuration.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Factory…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Log\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/FactoryIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Button…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/LBF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form/Log\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form…\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Form…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/LBF/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/LBF/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/LogIF\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Viewer\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/views…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\{\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
@@ -11205,71 +10960,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'form_\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/DbRow…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/LogIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ViewableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/LogIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Router.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Router.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/VerifiableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/SignableIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/SignatureIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Signature.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Utils…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Signature.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/VerifiableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/SignatureIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Utils/Verification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/Abstract…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Viewer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/ESign/ViewableIF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Viewer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Esign data…\' and mixed results in an error\\.$#',
@@ -11494,16 +11184,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' reply\' results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/interface/main…\' results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -11742,11 +11422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/auth.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/main/holidays…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between numeric\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
@@ -11868,16 +11543,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/documents/smarty…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/smarty/smarty/libs…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'error/\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
@@ -13242,24 +12907,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/custom_template/add_custombutton.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<img src\\=\\\\\'\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/custom_template/ajax_code.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/custom_template/ajax_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/js/xl/select2\\.js…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/restoreSession\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and 0\\|0\\.0\\|array\\{\\}\\|string\\|false\\|null results in an error\\.$#',
@@ -13362,11 +13012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/deletedrug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/library/ajax…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dicom_frame.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between mixed and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
@@ -13397,11 +13042,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/public/certs…\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-empty\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
@@ -13410,11 +13050,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/controllers/C…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/documents.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
@@ -14757,16 +14392,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<link  href\\="\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<link href\\="\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'addtolistclass_\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -14827,11 +14452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/sites/\' results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\|\' results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -14848,7 +14468,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 49,
+    'count' => 44,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
@@ -14947,11 +14567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \',\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
@@ -14978,11 +14593,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/options\\.inc\\.php\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report.inc.php',
 ];
@@ -15045,11 +14655,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
@@ -15637,11 +15242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/specialty_forms.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
@@ -15674,11 +15274,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'form_\' and mixed results in an error\\.$#',
     'count' => 19,
-    'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
 ];
 $ignoreErrors[] = [
@@ -15762,19 +15357,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validate_core.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/validation…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/validation/validate_core.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/validation/validate_core.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/validation/LBF…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Patient credential…\' and mixed results in an error\\.$#',
