@@ -466,7 +466,7 @@ class C_FormVitals
 
          // CARO: New change but I still want to be able to save invalid data??
         $validationResult = $this->validateVitals($_POST);
-        if (!$validationResult['valid']) {
+        if (!empty($validationResult['errors'])) {
             $errorMessages = implode("\n", $validationResult['errors']);
             error_log("Vitals validation failed: " . $errorMessages);
             
@@ -476,6 +476,13 @@ class C_FormVitals
             // Stop processing - don't save invalid data
             return;
         }
+
+        if (!empty($validationResult['warnings'])) {
+            $_SESSION['vitals_warnings'] = $validationResult['warnings'];
+        } else {
+            unset($_SESSION['vitals_warnings']);
+        }
+
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
@@ -608,10 +615,10 @@ class C_FormVitals
     // CARO: CHECKKKK UNTIL END OF FILE
         /**
      * Validates vital values are within clinical ranges
-     * Returns validation errors array or empty array if valid
+     * Returns validation warnings and hard validation errors.
      * 
      * @param array $vitals The vitals data to validate
-     * @return array Array of validation errors, empty if no errors
+     * @return array Array with validation errors and warnings.
      */
     private function validateVitalRanges($vitals)
     {
@@ -630,6 +637,10 @@ class C_FormVitals
             }
 
             $range = self::VITAL_RANGES[$field];
+             if (!is_numeric($value)) {
+                $errors[$field] = $range['label'] . ' must be numeric.';
+                continue;
+            }
             $numValue = (float) $value;
 
             // Check for values outside clinical warning thresholds (warnings only)
@@ -640,13 +651,8 @@ class C_FormVitals
                 $warnings[$field] = $range['label'] . ' is outside typical range (' . $range['warning_min'] . '-' . $range['warning_max'] . '). You entered: ' . $value;
             }
         }
-
-        // Store warnings in a session variable that can be displayed to the user
-        if (!empty($warnings)) {
-            $_SESSION['vitals_warnings'] = $warnings;
-        }
-
-        return $errors;
+         return ['errors' => $errors, 'warnings' => $warnings];
+     
     }
 
     /**
@@ -658,7 +664,7 @@ class C_FormVitals
      */
     private function validateVitalConstraints($vitals)
     {
-        $errors = [];
+        $warnings = [];
 
         // Blood pressure constraint: systolic should be >= diastolic
         $bps = isset($vitals['bps']) ? (float) $vitals['bps'] : null;
@@ -666,35 +672,29 @@ class C_FormVitals
 
         if ($bps !== null && $bpd !== null && $bps > 0 && $bpd > 0) {
             if ($bps < $bpd) {
-                $errors['bps'] = 'BP Systolic must be greater than or equal to BP Diastolic. Systolic: ' . $bps . ', Diastolic: ' . $bpd;
-            }
+                $warnings['bps'] = 'BP Systolic is less than BP Diastolic. Systolic: ' . $bps . ', Diastolic: ' . $bpd;
         }
 
-        return $errors;
+        return $warnings;
+        }
     }
+    
 
     /**
      * Main validation method called before saving
      * 
      * @param array $vitals The vitals data to validate
-     * @return array Array with 'valid' boolean and 'errors' array
+     * @return array Array with 'errors' and 'warnings'
      */
     private function validateVitals($vitals)
     {
-        $rangeErrors = $this->validateVitalRanges($vitals);
-        $constraintErrors = $this->validateVitalConstraints($vitals);
-        
-        $allErrors = array_merge($rangeErrors, $constraintErrors);
+        $rangeValidation = $this->validateVitalRanges($vitals);
+        $constraintWarnings = $this->validateVitalConstraints($vitals);
 
         return [
-            'valid' => empty($allErrors),
-            'errors' => $allErrors
+            'errors' => $rangeValidation['errors'],
+            'warnings' => array_merge($rangeValidation['warnings'], $constraintWarnings)
         ];
     }
-
-
-
-
-
 
 }
