@@ -12,16 +12,39 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Cache;
 
 use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheInvalidArgumentException;
 use OpenEMR\Common\Auth\Oidc\Cache\RedisCache;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * In-memory-backed \Redis mock pattern. Each test exercises the real
+ * RedisCache logic; the mock is wired with willReturnCallback to simulate
+ * a Redis server against the private $store/$ttls arrays.
+ */
 final class RedisCacheTest extends TestCase
 {
-    private FakePredisClient $client;
+    /** @var \Redis&MockObject */
+    private \Redis $client;
+
     private RedisCache $cache;
+
+    /** @var array<string, string> */
+    private array $store = [];
+
+    /** @var array<string, int> */
+    private array $ttls = [];
 
     protected function setUp(): void
     {
-        $this->client = new FakePredisClient();
+        $this->store = [];
+        $this->ttls = [];
+
+        $this->client = $this->getMockBuilder(\Redis::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get', 'set', 'setex', 'del', 'exists', 'scan'])
+            ->getMock();
+
+        $this->wireMock();
+
         $this->cache = new RedisCache($this->client);
     }
 
@@ -47,21 +70,21 @@ final class RedisCacheTest extends TestCase
     {
         self::assertTrue($this->cache->set('key1', 'value1'));
         self::assertSame('value1', $this->cache->get('key1'));
-        self::assertNull($this->client->getTtl('oidc_cache:key1'));
+        self::assertNull($this->getTtl('oidc_cache:key1'));
     }
 
     public function testSetWithIntTtl(): void
     {
         self::assertTrue($this->cache->set('key2', 'value2', 3600));
         self::assertSame('value2', $this->cache->get('key2'));
-        self::assertSame(3600, $this->client->getTtl('oidc_cache:key2'));
+        self::assertSame(3600, $this->getTtl('oidc_cache:key2'));
     }
 
     public function testSetWithDateIntervalTtl(): void
     {
         self::assertTrue($this->cache->set('key3', 'value3', new \DateInterval('PT1H')));
         self::assertSame('value3', $this->cache->get('key3'));
-        $ttl = $this->client->getTtl('oidc_cache:key3');
+        $ttl = $this->getTtl('oidc_cache:key3');
         self::assertNotNull($ttl);
         self::assertGreaterThanOrEqual(3598, $ttl);
         self::assertLessThanOrEqual(3602, $ttl);
@@ -128,14 +151,14 @@ final class RedisCacheTest extends TestCase
 
     public function testClearOnlyDeletesOidcKeys(): void
     {
-        // Set a key with the oidc prefix and one without
-        $this->client->set('oidc_cache:oidc-key', serialize('oidc-value'));
-        $this->client->set('other:key', serialize('other-value'));
+        // Seed the backing store directly with one prefixed and one unprefixed key.
+        $this->store['oidc_cache:oidc-key'] = serialize('oidc-value');
+        $this->store['other:key'] = serialize('other-value');
 
         $this->cache->clear();
 
-        self::assertNull($this->client->get('oidc_cache:oidc-key'));
-        self::assertSame(serialize('other-value'), $this->client->get('other:key'));
+        self::assertArrayNotHasKey('oidc_cache:oidc-key', $this->store);
+        self::assertSame(serialize('other-value'), $this->store['other:key']);
     }
 
     public function testGetMultiple(): void
@@ -179,5 +202,76 @@ final class RedisCacheTest extends TestCase
         $this->cache->set('null-val', null);
         // null is cached, so get with a different default should return null
         self::assertNull($this->cache->get('null-val', 'not-null'));
+    }
+
+    // ------------------------------------------------------------------
+    // Test helpers
+    // ------------------------------------------------------------------
+
+    private function getTtl(string $key): ?int
+    {
+        return $this->ttls[$key] ?? null;
+    }
+
+    private function wireMock(): void
+    {
+        $this->client->method('get')->willReturnCallback(
+            fn (string $key): string|false => $this->store[$key] ?? false,
+        );
+
+        $this->client->method('set')->willReturnCallback(
+            function (string $key, string $value): bool {
+                $this->store[$key] = $value;
+                unset($this->ttls[$key]);
+                return true;
+            },
+        );
+
+        $this->client->method('setex')->willReturnCallback(
+            function (string $key, int $seconds, string $value): bool {
+                $this->store[$key] = $value;
+                $this->ttls[$key] = $seconds;
+                return true;
+            },
+        );
+
+        // ext-redis del signature: del(array|string $key, string ...$other_keys): int|false
+        $this->client->method('del')->willReturnCallback(
+            function (array|string $key, string ...$others): int {
+                $keys = is_array($key) ? $key : array_merge([$key], $others);
+                $count = 0;
+                foreach ($keys as $k) {
+                    if (!is_string($k)) {
+                        continue;
+                    }
+                    if (isset($this->store[$k])) {
+                        unset($this->store[$k], $this->ttls[$k]);
+                        $count++;
+                    }
+                }
+                return $count;
+            },
+        );
+
+        $this->client->method('exists')->willReturnCallback(
+            fn (string $key): int => isset($this->store[$key]) ? 1 : 0,
+        );
+
+        // ext-redis scan signature: scan(&$iterator, ?string $pattern = null, int $count = 0, ?string $type = null): array|false
+        // We always return all matched keys in a single batch and signal
+        // completion by setting the iterator to 0.
+        $this->client->method('scan')->willReturnCallback(
+            function (mixed &$iterator, ?string $pattern = null): array|false {
+                $keys = array_keys($this->store);
+                $matched = $pattern === null
+                    ? $keys
+                    : array_values(array_filter(
+                        $keys,
+                        fn (string $k): bool => fnmatch($pattern, $k),
+                    ));
+                $iterator = 0;
+                return $matched === [] ? false : $matched;
+            },
+        );
     }
 }

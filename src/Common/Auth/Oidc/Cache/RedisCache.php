@@ -1,10 +1,12 @@
 <?php
 
 /**
- * PSR-16 simple cache backed by Redis via the existing Predis dependency.
+ * PSR-16 simple cache backed by Redis via the ext-redis PHP extension.
  *
- * Suitable for high-traffic and multi-instance deployments. Uses the Predis
- * client already available in OpenEMR for session storage.
+ * Suitable for high-traffic and multi-instance deployments. Uses the
+ * native `\Redis` class supplied by the `ext-redis` extension that
+ * OpenEMR already requires (`ext-redis: *` in composer.json), the same
+ * client used by `LockingRedisSessionHandler`.
  *
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
@@ -15,7 +17,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\Oidc\Cache;
 
-use Predis\ClientInterface;
 use Psr\SimpleCache\CacheInterface;
 
 final readonly class RedisCache implements CacheInterface
@@ -23,7 +24,7 @@ final readonly class RedisCache implements CacheInterface
     private const KEY_PREFIX = 'oidc_cache:';
 
     public function __construct(
-        private ClientInterface $client,
+        private \Redis $client,
     ) {
     }
 
@@ -32,7 +33,10 @@ final readonly class RedisCache implements CacheInterface
         $this->validateKey($key);
 
         $raw = $this->client->get(self::KEY_PREFIX . $key);
-        if ($raw === null) {
+        if ($raw === false) {
+            return $default;
+        }
+        if (!is_string($raw)) {
             return $default;
         }
 
@@ -57,7 +61,7 @@ final readonly class RedisCache implements CacheInterface
 
         if ($seconds !== null) {
             if ($seconds <= 0) {
-                $this->client->del([$prefixedKey]);
+                $this->client->del($prefixedKey);
                 return true;
             }
             $this->client->setex($prefixedKey, $seconds, $serialized);
@@ -72,26 +76,24 @@ final readonly class RedisCache implements CacheInterface
     {
         $this->validateKey($key);
 
-        $this->client->del([self::KEY_PREFIX . $key]);
+        $this->client->del(self::KEY_PREFIX . $key);
 
         return true;
     }
 
     public function clear(): bool
     {
-        $cursor = '0';
         $pattern = self::KEY_PREFIX . '*';
+        $cursor = null;
 
         do {
-            /** @var array{0: string, 1: list<string>} $result */
-            $result = $this->client->scan($cursor, ['MATCH' => $pattern, 'COUNT' => 100]);
-            $cursor = $result[0];
-            $keys = $result[1];
+            /** @var list<string>|false $keys */
+            $keys = $this->client->scan($cursor, $pattern, 100);
 
-            if ($keys !== []) {
-                $this->client->del($keys);
+            if (is_array($keys) && $keys !== []) {
+                $this->client->del(...$keys);
             }
-        } while ($cursor !== '0');
+        } while ($cursor !== 0 && $cursor !== '0' && $cursor !== null);
 
         return true;
     }

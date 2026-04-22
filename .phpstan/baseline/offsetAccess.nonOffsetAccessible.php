@@ -39588,7 +39588,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'amount\' on mixed\\.$#',
-    'count' => 14,
+    'count' => 13,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -39788,7 +39788,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'umname\' on mixed\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -53142,11 +53142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pubpid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'resourceType\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
@@ -53780,11 +53775,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'last_updated_time\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionProblemsHealthConcernServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionService3_1_1Test.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
