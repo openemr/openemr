@@ -369,7 +369,7 @@ if ($csv) {
                     $datetimepicker_timepicker = true;
                     $datetimepicker_showseconds = true;
                     $datetimepicker_formatInput = true;
-                    include OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                    include OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
                     // Add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
@@ -852,17 +852,17 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     for ($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
     }
 
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
                 case "asc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
                     break;
             }
             break;
