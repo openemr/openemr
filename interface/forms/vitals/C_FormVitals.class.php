@@ -27,6 +27,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\VitalsService;
+use OpenEMR\Services\VitalsValidationService;
 
 class C_FormVitals
 {
@@ -41,60 +42,6 @@ class C_FormVitals
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
-
-
-        // CARO: Fix ranges - code may reference an absolute max/min but I want only the warning max/min
-    private const VITAL_RANGES = [
-        'bps' => [
-            'warning_min' => 80,
-            'warning_max' => 180,
-            'allow_negative' => false,
-            'label' => 'BP Systolic (mmHg)'
-        ],
-        'bpd' => [
-            'warning_min' => 40,
-            'warning_max' => 120,
-            'allow_negative' => false,
-            'label' => 'BP Diastolic (mmHg)'
-        ],
-        'pulse' => [
-            'warning_min' => 40,
-            'warning_max' => 200,
-            'allow_negative' => false,
-            'label' => 'Pulse (bpm)'
-        ],
-        'respiration' => [
-            'warning_min' => 8,
-            'warning_max' => 50,
-            'allow_negative' => false,
-            'label' => 'Respiration (breaths/min)'
-        ],
-        'temperature' => [
-            'warning_min' => 95,
-            'warning_max' => 105,
-            'allow_negative' => false,
-            'label' => 'Temperature (°F)'
-        ],
-        'weight' => [
-            'warning_min' => 5.5,
-            'warning_max' => 650,
-            'allow_negative' => false,
-            'label' => 'Weight (lbs)'
-        ],
-        'height' => [
-            'warning_min' => 11,
-            'warning_max' => 98,
-            'allow_negative' => false,
-            'label' => 'Height (in)'
-        ],
-        'oxygen_saturation' => [
-            'warning_min' => 90,
-            'warning_max' => 100,
-            'allow_negative' => false,
-            'label' => 'Oxygen Saturation (%)'
-        ],
-    ];
-
 
     /**
      * @var array Hashmap of list option vital interpretations where the key is the option_id from list_options
@@ -475,25 +422,25 @@ class C_FormVitals
         if ($temperature == '0' || $temperature == '') {
             $_POST["temp_method"] = "";
         }
+        /** @var array<string, mixed> $postedVitals */
+        $postedVitals = filter_input_array(INPUT_POST) ?? [];
+        $validationResult = (new VitalsValidationService())->validate($postedVitals);
+        if (count($validationResult['errors']) > 0) {
+            $errorMessages = implode("\n", array_values($validationResult['errors']));
+            ServiceContainer::getLogger()->warning("Vitals validation failed", ['errors' => $errorMessages]);
 
-
-         // CARO: New change but I still want to be able to save invalid data??
-        $validationResult = $this->validateVitals($_POST);
-        if (!empty($validationResult['errors'])) {
-            $errorMessages = implode("\n", $validationResult['errors']);
-            error_log("Vitals validation failed: " . $errorMessages);
-            
             // Set error session variable so it can be displayed to user
             $_SESSION['vitals_validation_errors'] = $validationResult['errors'];
+
+            // Stop processing - don't save invalid data
             return;
         }
 
-        if (!empty($validationResult['warnings'])) {
+        if (count($validationResult['warnings']) > 0) {
             $_SESSION['vitals_warnings'] = $validationResult['warnings'];
         } else {
             unset($_SESSION['vitals_warnings']);
         }
-
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
@@ -620,97 +567,6 @@ class C_FormVitals
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $vitals->set_groupname($session->get('authProvider'));
         $vitals->set_user($session->get('authUser'));
-    }
-
-
-    // CARO: CHECKKKK UNTIL END OF FILE
-        /**
-     * Validates vital values are within clinical ranges
-     * Returns validation warnings and hard validation errors.
-     * 
-     * @param array $vitals The vitals data to validate
-     * @return array Array with validation errors and warnings.
-     */
-    private function validateVitalRanges($vitals)
-    {
-        $errors = [];
-        $warnings = [];
-
-        foreach ($vitals as $field => $value) {
-            // Skip empty values
-            if (empty($value) && $value !== 0 && $value !== "0") {
-                continue;
-            }
-
-            // Check if field is in our ranges configuration
-            if (!isset(self::VITAL_RANGES[$field])) {
-                continue;
-            }
-
-            $range = self::VITAL_RANGES[$field];
-             if (!is_numeric($value)) {
-                $errors[$field] = $range['label'] . ' must be numeric.';
-                continue;
-            }
-
-            if (isset($range['allow_negative']) && !$range['allow_negative'] && $numValue < 0) {
-                $errors[$field] = $range['label'] . ' cannot be negative.';
-                 continue;
-            
-            }
-            $numValue = (float) $value;
-
-            // Check for values outside clinical warning thresholds (warnings only)
-            if (
-                ($range['warning_min'] !== null && $numValue < $range['warning_min']) ||
-                ($range['warning_max'] !== null && $numValue > $range['warning_max'])
-            ) {
-                $warnings[$field] = $range['label'] . ' is outside typical range (' . $range['warning_min'] . '-' . $range['warning_max'] . '). You entered: ' . $value;
-            }
-        }
-         return ['errors' => $errors, 'warnings' => $warnings];
-     
-    }
-
-    /**
-     * Validates logical constraints for vital signs
-     * E.g., systolic should be >= diastolic
-     * 
-     * @param array $vitals The vitals data
-     * @return array Array of validation errors, empty if valid
-     */
-    private function validateVitalConstraints($vitals)
-    {
-        $warnings = [];
-
-        // Blood pressure constraint: systolic should be >= diastolic
-        $bps = isset($vitals['bps']) ? (float) $vitals['bps'] : null;
-        $bpd = isset($vitals['bpd']) ? (float) $vitals['bpd'] : null;
-
-        if ($bps !== null && $bpd !== null && $bps > 0 && $bpd > 0) {
-            if ($bps < $bpd) {
-                $warnings['bps'] = 'BP Systolic is less than BP Diastolic. Systolic: ' . $bps . ', Diastolic: ' . $bpd;
-                }
-        }
-        return $warnings;
-    }
-    
-
-    /**
-     * Main validation method called before saving
-     * 
-     * @param array $vitals The vitals data to validate
-     * @return array Array with 'errors' and 'warnings'
-     */
-    private function validateVitals($vitals)
-    {
-        $rangeValidation = $this->validateVitalRanges($vitals);
-        $constraintWarnings = $this->validateVitalConstraints($vitals);
-
-        return [
-            'errors' => $rangeValidation['errors'],
-            'warnings' => array_merge($rangeValidation['warnings'], $constraintWarnings)
-        ];
     }
 
 }

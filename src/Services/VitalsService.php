@@ -313,7 +313,6 @@ class VitalsService extends BaseService
 
     public function save(array $vitals)
     {
-
         // this makes sure we whitelist only values that can be saved in the form.
         $vitalsForm = new FormVitals();
         $vitalsForm->populate_array($vitals);
