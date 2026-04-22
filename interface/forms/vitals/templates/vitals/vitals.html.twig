@@ -51,6 +51,30 @@
         {% endif %}
         <div class="col-sm-12">
             <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION|attr }}/interface/forms/vitals/save.php">
+            {% if vitals_validation_errors is not empty %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <h4 class="alert-heading">{{ "Validation Error"|xlt }}</h4>
+            <ul class="mb-0">
+                {% for field, message in vitals_validation_errors %}
+                <li><strong>{{ field|text }}:</strong> {{ message|text }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if vitals_warnings is not empty %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <h4 class="alert-heading">{{ "Clinical Warning"|xlt }}</h4>
+            <p class="mb-2">{{ "The following vital values are outside typical ranges but have been submitted."|xlt }}</p>
+            <ul class="mb-0">
+                {% for field, message in vitals_warnings %}
+                <li><strong>{{ field|text }}:</strong> {{ message|text }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
                 {% if has_id %}
                 <div class="row">

@@ -361,7 +361,12 @@ class C_FormVitals
             ,'patient_dob' => $patient_dob
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
+            ,'vitals_validation_errors' => $_SESSION['vitals_validation_errors'] ?? []
+            ,'vitals_warnings' => $_SESSION['vitals_warnings'] ?? []
         ];
+        unset($_SESSION['vitals_validation_errors']);
+        unset($_SESSION['vitals_warnings']);
+        
         $twig = (new TwigContainer($this->template_dir, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
         echo $twig->render("vitals.html.twig", $data);
