@@ -4,7 +4,7 @@
  * interface/forms/group_attendance/report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
@@ -12,17 +12,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
-require_once("{$GLOBALS['srcdir']}/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/group.inc.php");
 require_once("functions.php");
-function group_attendance_report($pid, $encounter, $cols, $id)
+function group_attendance_report($pid, $encounter, $cols, $id): void
 {
 
     global $therapy_group;
-    $encounter = $_SESSION["encounter"];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $encounter = $session->get('encounter');
     $sql = "SELECT * FROM `form_group_attendance` WHERE id=? AND group_id = ? AND encounter_id = ?";
-    $res = sqlStatement($sql, array($id,$therapy_group, $encounter));
+    $res = sqlStatement($sql, [$id,$therapy_group, $encounter]);
     $form_data = sqlFetchArray($res);
     $group_data = getGroup($therapy_group);
     $group_name = $group_data['group_name'];

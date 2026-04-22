@@ -17,10 +17,18 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @package OpenEMR\Events
  * @subpackage PatientDemographics
  * @author Ken Chapple <ken@mi-squared.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
 class RenderEvent extends Event
 {
+    /**
+     * This event occurs after a patient demographics section list has been rendered
+     * It allows event listeners to render additional functionality at top of section
+     * list.
+     */
+    const EVENT_SECTION_LIST_RENDER_TOP = 'patientDemographics.render.section.top';
+
     /**
      * This event occurs after a patient demographics section list has been rendered
      * It allows event listeners to render additional functionality after a section
@@ -43,20 +51,12 @@ class RenderEvent extends Event
     const EVENT_RENDER_POST_PAGELOAD = 'patientDemographics.render.post_page_load';
 
     /**
-     * @var null|integer
-     *
-     * Represents the patient we are viewing in the patient demographics
-     */
-    private $pid = null;
-
-    /**
      * constructor.
      *
      * @param integer $pid Patient Identifier
      */
-    public function __construct($pid)
+    public function __construct(private $pid)
     {
-        $this->pid = $pid;
     }
 
     /**

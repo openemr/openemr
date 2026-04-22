@@ -15,6 +15,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Services\LogoFilterEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -34,11 +38,17 @@ class LogoService
      */
     private $fs;
 
-    public function __construct()
+    private readonly EventDispatcherInterface $dispatcher;
+
+    public function __construct(?EventDispatcherInterface $dispatcher = null)
     {
         // Ensure a finder object exists
         $this->resetFinder();
         $this->fs = new Filesystem();
+
+        // cleanest way to refactor for now, is to fallback to global dispatcher
+        // don't like it though
+        $this->dispatcher = $dispatcher ?? OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     private function resetFinder()
@@ -64,8 +74,8 @@ class LogoService
      */
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
-        $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
+        $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -78,7 +88,7 @@ class LogoService
 
         try {
             $logo = $this->findLogo($paths, $filename);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
             $logo = "";
         }
@@ -86,7 +96,16 @@ class LogoService
         // This is critical, the finder must be completely re-instantiated to ensure the proper directories are searched next time.
         $this->resetFinder();
 
-        return $this->convertToWebPath($logo);
+        $webPath = $this->convertToWebPath($logo);
+        $logoFilterEvent = new LogoFilterEvent($type, $logo, $webPath);
+        $filteredEvent = $this->dispatcher->dispatch($logoFilterEvent, LogoFilterEvent::EVENT_NAME);
+        $updatedWebPath = $filteredEvent->getWebPath();
+        // make sure the web path is safe for the logo
+        if ($updatedWebPath != $webPath) {
+            $safePaths = ModulesApplication::filterSafeLocalModuleFiles([$updatedWebPath]);
+            return $safePaths[0] ?? '';
+        }
+        return $webPath;
     }
 
     /**
@@ -97,9 +116,10 @@ class LogoService
      */
     private function convertToWebPath(string $path): string
     {
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         $paths = [
-            $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
-            $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
+            OEGlobalsBag::getInstance()->get('OE_SITE_DIR') => OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT'),
+            $kernel->getImagesAbsolute() => $kernel->getImagesRelative(),
         ];
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $path = str_replace('\\', '/', $path);

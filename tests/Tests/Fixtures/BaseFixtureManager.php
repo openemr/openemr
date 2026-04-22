@@ -2,18 +2,17 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchQueryFragment;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,37 +21,52 @@ abstract class BaseFixtureManager
 {
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
-
-    private $fileName;
-    private $tableName;
     private $hasInstalledFixtured;
-    private $fixtures;
+    /** @var array<string, mixed>[] */
+    private $fixtures = [];
 
-    public function __construct($fileName = "", $tableName = "")
+    public function __construct(private $fileName = "", private $tableName = "")
     {
-        $this->fileName = $fileName;
-        $this->tableName = $tableName;
         $this->hasInstalledFixtured = false;
     }
 
+    /**
+     * @return array<string, mixed>[]
+     */
     protected function getFixturesFromFile()
     {
-        if (empty($this->fixtures)) {
-            $this->fixtures = $this->loadJsonFile($this->fileName);
+        if (count($this->fixtures) === 0) {
+            $this->fixtures = $this->loadPhpFile($this->fileName);
         }
         return $this->fixtures;
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * Load a PHP fixture file that returns a typed array.
+     *
+     * @return array<string, mixed>[]
      */
-    protected function loadJsonFile($fileName)
+    protected function loadPhpFile(string $fileName): array
     {
-        $filePath = dirname(__FILE__) . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file, returning the data as an array of records.
+     * Use for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    protected function loadJsonFile(string $fileName): array
+    {
+        $filePath = __DIR__ . '/' . $fileName;
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents($filePath), true);
         return $parsedRecords;
     }
 
@@ -100,16 +114,16 @@ abstract class BaseFixtureManager
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
-        foreach ($fixtures as $index => $fixture) {
+        foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 if (is_array($fieldValue) && $this->isForeignReference($fieldValue)) {
                     $fragment = $this->getQueryForForeignReference($fieldValue);
                     $sqlColumnValues .= $field . " = " . $fragment->getFragment() . ", ";
                     $sqlBinds = array_merge($sqlBinds, $fragment->getBoundValues());
-                } else if ($this->isFunctionCall($fieldValue)) {
+                } elseif ($this->isFunctionCall($fieldValue)) {
                     $sqlColumnValues .= $field . " = ?, ";
                     $fieldValue = $this->getValueFromFunction($fieldValue);
                     array_push($sqlBinds, $fieldValue);
@@ -119,10 +133,9 @@ abstract class BaseFixtureManager
                 }
             }
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            $isInserted = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) {
-                $insertCount += 1;
-            }
+            // sqlInsert throws on failure, so if we get here the insert succeeded
+            QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $insertCount += 1;
         }
         return $insertCount;
     }
@@ -150,7 +163,7 @@ abstract class BaseFixtureManager
     }
 
     /**
-     * @return a random fixture.
+     * @return array<string, mixed> Random fixture.
      */
     public function getSingleFixture()
     {
@@ -174,7 +187,7 @@ abstract class BaseFixtureManager
             } else {
                 throw new \BadMethodCallException("uuid(table_name) function is missing table name");
             }
-        } else if ($functionName === "generateId") {
+        } elseif ($functionName === "generateId") {
             return QueryUtils::generateId();
         } else {
             throw new \BadMethodCallException("Function could not be interpreted from fixture: " . $value);
@@ -184,7 +197,7 @@ abstract class BaseFixtureManager
 
     private function isFunctionCall($value)
     {
-        return preg_match("/[a-zA-Z]+\(['a-zA-Z_0-9\-]*\)/", $value) === 1;
+        return preg_match("/[a-zA-Z]+\(['a-zA-Z_0-9\-]*\)/", $value ?? '') === 1;
     }
 
     private function isForeignReference(array $reference)
@@ -213,13 +226,14 @@ abstract class BaseFixtureManager
                 return new SearchQueryFragment($sql, [$searchValue]);
             }
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
+            ServiceContainer::getLogger()->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     protected function getSingleEntry($array)
     {

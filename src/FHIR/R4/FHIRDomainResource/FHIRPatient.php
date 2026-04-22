@@ -677,7 +677,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

@@ -4,7 +4,7 @@
  * FacilityService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -17,16 +17,18 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Facility\FacilityCreatedEvent;
+use OpenEMR\Events\Facility\FacilityUpdatedEvent;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Events\Facility\FacilityCreatedEvent;
-use OpenEMR\Events\Facility\FacilityUpdatedEvent;
 use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
@@ -83,7 +85,7 @@ class FacilityService extends BaseService
 
     public function getAllFacility()
     {
-        return $this->get(array("order" => "ORDER BY FAC.name ASC"));
+        return $this->get(["order" => "ORDER BY FAC.name ASC"]);
     }
 
     public function getPrimaryBusinessEntity($options = null)
@@ -108,13 +110,13 @@ class FacilityService extends BaseService
 
     public function getAllServiceLocations($options = null)
     {
-        $args = array(
+        $args = [
             "where" => null,
             "order" => "ORDER BY FAC.name ASC"
-        );
+        ];
 
         if (!empty($options) && !empty($options["orderField"])) {
-            $args["order"] = "ORDER BY FAC." . escape_sql_column_name($options["orderField"], array("facility")) . " ASC";
+            $args["order"] = "ORDER BY FAC." . escape_sql_column_name($options["orderField"], ["facility"]) . " ASC";
         }
 
         $args["where"] = "WHERE FAC.service_location = 1";
@@ -124,20 +126,20 @@ class FacilityService extends BaseService
 
     public function getPrimaryBillingLocation()
     {
-        $record = $this->get(array(
+        $record = $this->get([
             "order" => "ORDER BY FAC.billing_location DESC, FAC.id DESC",
             "limit" => 1
-        ));
+        ]);
         return $record;
     }
 
     public function getAllBillingLocations()
     {
         // TODO: Should we be sorting by id?  seems like we'd want to sort by name like getAllServiceLocations does
-        return $this->get(array(
+        return $this->get([
             "where" => "WHERE FAC.billing_location = 1",
             "order" => "ORDER BY FAC.id ASC"
-        ));
+        ]);
     }
 
     public function getById($id)
@@ -158,12 +160,12 @@ class FacilityService extends BaseService
 
     public function getFacilityForUser($userId)
     {
-        $record = $this->get(array(
+        $record = $this->get([
             "where" => "WHERE USER.id = ?",
-            "data" => array($userId),
+            "data" => [$userId],
             "join" => "JOIN users USER ON FAC.id = USER.facility_id",
             "limit" => 1
-        ));
+        ]);
         return $record;
     }
 
@@ -183,20 +185,20 @@ class FacilityService extends BaseService
             $formatted .= "\n";
             $formatted .= $facility["postal_code"];
 
-            return array("facility_address" => $formatted);
+            return ["facility_address" => $formatted];
         }
 
-        return array("facility_address" => "");
+        return ["facility_address" => ""];
     }
 
     public function getFacilityForEncounter($encounterId)
     {
-        $record = $this->get(array(
+        $record = $this->get([
             "where" => "WHERE ENC.encounter = ?",
-            "data" => array($encounterId),
+            "data" => [$encounterId],
             "join" => "JOIN form_encounter ENC ON FAC.id = ENC.facility_id",
             "limit" => 1
-        ));
+        ]);
         return $record;
     }
 
@@ -214,7 +216,7 @@ class FacilityService extends BaseService
         );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
 
         return $result;
     }
@@ -230,7 +232,7 @@ class FacilityService extends BaseService
         );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
 
         return $facilityId;
     }
@@ -241,7 +243,7 @@ class FacilityService extends BaseService
         $sql .= " facility=?";
         $sql .= " WHERE facility_id=?";
 
-        return sqlStatement($sql, array($facility_name, $facility_id));
+        return sqlStatement($sql, [$facility_name, $facility_id]);
     }
 
     /**
@@ -306,17 +308,17 @@ class FacilityService extends BaseService
             }
             return $returnRecords;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }
 
     private function getPrimaryBusinessEntityLegacy()
     {
-        $record = $this->get(array(
+        $record = $this->get([
             "order" => "ORDER BY FAC.billing_location DESC, FAC.accepts_assignment DESC, FAC.id ASC",
             "limit" => 1
-        ));
+        ]);
         return $record;
     }
 
@@ -331,12 +333,12 @@ class FacilityService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -399,10 +401,10 @@ class FacilityService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

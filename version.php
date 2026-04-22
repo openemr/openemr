@@ -14,9 +14,10 @@
 // This is used for display purposes, and also the major/minor/patch
 // numbers are stored in the database and used to determine which sql
 // upgrade file is the starting point for the next upgrade.
-$v_major = '7';
-$v_minor = '0';
-$v_patch = '4';
+
+$v_major = '8';
+$v_minor = '1';
+$v_patch = '1';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
@@ -28,7 +29,9 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 505;
+// Keep in sync with the v_database comment in sql/database.sql.
+// CI will fail if they don't match.
+$v_database = 537;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -47,8 +50,5 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 76;
+    $v_js_includes = 82;
 }
-
-// Do not modify below
-$GLOBALS['v_js_includes'] = $v_js_includes;

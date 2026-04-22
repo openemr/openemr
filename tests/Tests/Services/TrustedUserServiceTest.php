@@ -3,7 +3,7 @@
 /**
  * TrustedUserServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -35,7 +35,7 @@ class TrustedUserServiceTest extends TestCase
     /**
      * Verify api authorization with a valid user uuid
      */
-    public function testIsTrustedUserWithUserId()
+    public function testIsTrustedUserWithUserId(): void
     {
         $userUuid = (new UserService())->getSystemUser()['uuid'];
         $clientId = Uuid::uuid4()->toString();
@@ -61,7 +61,7 @@ class TrustedUserServiceTest extends TestCase
         $this->assertEquals(true, $isTrusted, "Client with valid user uuid should be trusted");
     }
 
-    public function testSaveTrustedUserThrowsExceptionIfInvalidUserId()
+    public function testSaveTrustedUserThrowsExceptionIfInvalidUserId(): void
     {
         $clientId = Uuid::uuid4()->toString();
         $service = new TrustedUserService();

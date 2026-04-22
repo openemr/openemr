@@ -16,12 +16,14 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/pid.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_GET["set_pid"] ?? '' && ($_GET["set_pid"] != $_SESSION["pid"])) {
+
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (in_array("set_pid", $_GET, true) && !empty($_GET["set_pid"]) && ($_GET["set_pid"] != $session->get('pid'))) {
     setpid($_GET["set_pid"]);
 }
 
@@ -31,7 +33,7 @@ if (($_POST['mode'] ?? '') == 'session_key') {
     $allowedKeys = ['pid', 'encounter'];
 
     if (in_array($key, $allowedKeys, true)) {
-        $current = $_SESSION[$key] ?? ($key === 'pid' ? ($pid ?? 0) : 0);
+        $current = $session->get($key) ?? ($key === 'pid' ? ($pid ?? 0) : 0);
         echo text(js_escape($current));
     }
 }

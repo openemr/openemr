@@ -14,8 +14,8 @@
 
 namespace FHIR;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
+use OpenEMR\ZendModules\FHIR\Listener\CalculatedObservationEventsSubscriber;
 use OpenEMR\ZendModules\FHIR\Listener\UuidMappingEventsSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -26,13 +26,13 @@ class Module
     public function getAutoloaderConfig()
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
-        return array(
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+        return [
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     'OpenEMR\\ZendModules\\' . __NAMESPACE__ => __DIR__ . '/src/' . self::NAMESPACE_NAME,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function onBootstrap(MvcEvent $e)
@@ -42,13 +42,14 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // now we can listen to our module events
-        $menuSubscriber = $serviceManager->get(UuidMappingEventsSubscriber::class);
-        $oemrDispatcher->addSubscriber($menuSubscriber);
+        $uuidSubscriber = $serviceManager->get(UuidMappingEventsSubscriber::class);
+        $oemrDispatcher->addSubscriber($uuidSubscriber);
+        $oemrDispatcher->addSubscriber($serviceManager->get(CalculatedObservationEventsSubscriber::class));
     }
 
     public function getServiceConfig()
     {
-        return array();
+        return [];
     }
 
     public function getConfig()

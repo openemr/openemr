@@ -7,7 +7,7 @@
  * allowing the user to select and print the desired information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
@@ -22,12 +22,13 @@ require_once "$srcdir/appointments.inc.php";
 require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $patient = $_POST['patient'] ?? null;
@@ -64,10 +65,10 @@ $provider  = $_POST['form_provider'] ?? null;
 $facility  = $_POST['form_facility'] ?? null;  #(CHEMED) facility filter
 $form_orderby = (!empty($_POST['form_orderby']) && getComparisonOrder($_POST['form_orderby'])) ?  $_POST['form_orderby'] : 'date';
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }
@@ -89,7 +90,7 @@ if (empty($form_patient)) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -145,7 +146,7 @@ if (empty($form_patient)) {
 <!-- Required for the popup date selectors -->
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-<?php if ($GLOBALS['drug_screen']) { #setting the title of the page based o if drug screening is enabled ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { #setting the title of the page based o if drug screening is enabled ?>
 <span class='title'><?php echo xlt('Patient Flow Board'); ?> - <?php echo xlt('Drug Screen Report'); ?></span>
 <?php } else { ?>
 <span class='title'><?php echo xlt('Patient Flow Board Report'); ?></span>
@@ -156,7 +157,7 @@ if (empty($form_patient)) {
 </div>
 
 <form method='post' name='theform' id='theform' action='patient_flow_board_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -211,7 +212,7 @@ if (empty($form_patient)) {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
+                <td><?php generate_form_field(['data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'], ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -248,7 +249,7 @@ if (empty($form_patient)) {
             <tr>
 
             </tr>
-            <?php if ($GLOBALS['drug_screen']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
             <tr>
                 <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed
@@ -437,7 +438,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         }
 
         #if a patient id is entered just get that patient.
-        if (strlen($form_pid) != 0) {
+        if (strlen((string) $form_pid) != 0) {
             if ($appointment['pid'] != $form_pid) {
                 continue;
             }
@@ -464,7 +465,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         # Get the tracker elements.
         $tracker_elements = collect_Tracker_Elements($tracker_id);
         # $j is incremented for a patient that made it for display.
-        $j = $j + 1;
+        $j += 1;
         ?>
 
     <tr bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
@@ -503,10 +504,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newarrive, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newarrive, 11)) ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newend, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newend, 11)) ?>
         </td>
 
             <?php if ($no_visit != 1) { ?>
@@ -546,10 +547,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     <?php
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-             <td class="detail"><b>&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
+             <td class="detail"><b>&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
                         <?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></td>
                         <?php # figure out the next time of the status
                     }
 
@@ -565,15 +566,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
-                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td><?php
+                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td><?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td>
                         <?php # compute the total time of the status
                     }
 
                     $tracker_time = get_Tracker_Time_Interval($start_tracker_time, $next_tracker_time);
                 # add code to alert if over time interval for status
-                    $timecheck = round(abs(strtotime($start_tracker_time) -  strtotime($next_tracker_time)) / 60, 0);
+                    $timecheck = round(abs(strtotime((string) $start_tracker_time) -  strtotime((string) $next_tracker_time)) / 60, 0);
                     if ($timecheck > $alert_time && ($alert_time != '0')) {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
  <td class="detail font-weight-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php

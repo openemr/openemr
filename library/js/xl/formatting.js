@@ -76,10 +76,11 @@
         const format = typeof date_display_format !== 'undefined' ? date_display_format : 0;
 
         let formatted;
+        // uses php-date-formatter library which in turn uses the php datetime format @see https://www.php.net/manual/en/datetime.format.php
         if (format === 1) {
-            formatted = seconds ? "h:mm:ss a" : "h:mm a";
-        } else { // (format === 0)
-            formatted = seconds ? "HH:mm:ss" : "HH:mm";
+            formatted = seconds ? "h:i:s a" : "h:i a";
+        } else { // (format === 0) 24hour time
+            formatted = seconds ? "H:i:s" : "H:i";
         }
         return formatted;
     }

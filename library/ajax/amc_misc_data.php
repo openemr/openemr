@@ -10,14 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../amc.php");
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //  If all items are valid(ie. not empty) (note object_category and object_id and date_created can be empty), then proceed.
 if (

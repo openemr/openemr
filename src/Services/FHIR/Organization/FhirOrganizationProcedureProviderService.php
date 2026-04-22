@@ -3,7 +3,7 @@
 /**
  * FhirOrganizationProcedureProviderService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,10 +19,9 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\ProcedureProviderService;
-use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -65,6 +64,10 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         if (!isset($openEMRSearchParameters['name'])) {
@@ -84,7 +87,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $organizationResource = new FHIROrganization();
 
@@ -100,10 +103,10 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
 
         $narrativeText = trim($dataRecord['name'] ?? "");
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $organizationResource->setText($text);
         }
 

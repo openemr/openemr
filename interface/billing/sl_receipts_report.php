@@ -9,23 +9,24 @@
  * many other practices have this same need. - rod@sunsetsystems.com
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // TODO: Replace tables with BS4 grid classes for GSoC
 
-
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
@@ -34,23 +35,26 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 //
 require_once('../forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Cash Receipts by Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function is_clinic($code)
 {
     global $bcodes;
-    $i = strpos($code, ':');
+    $i = strpos((string) $code, ':');
     if ($i) {
-        $code = substr($code, 0, $i);
+        $code = substr((string) $code, 0, $i);
     }
 
     return (
@@ -60,7 +64,7 @@ function is_clinic($code)
     );
 }
 
-$form_use_edate  = $_POST['form_use_edate'] ?? null;
+$form_use_edate  = intval($_POST['form_use_edate'] ?? 0);
 
 $form_proc_codefull = trim($_POST['form_proc_codefull'] ?? '');
 // Parse the code type and the code from <code_type>:<code>
@@ -122,7 +126,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -169,7 +173,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
     <div class="row">
         <div class="col-12">
                <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                 <div id="report_parameters">
 
@@ -213,14 +217,15 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                                     echo "   </select>\n";
                                 } else {
-                                    echo "<input type='hidden' name='form_doctor' value='" . attr($_SESSION['authUserID']) . "'>";
+                                    echo "<input type='hidden' name='form_doctor' value='" . attr($session->get('authUserID')) . "'>";
                                 }
                                 ?>
                             </td>
                             <td>
                             <select name='form_use_edate' class='form-control'>
                                 <option value='0'><?php echo xlt('Payment Date'); ?></option>
-                                <option value='1'<?php echo ($form_use_edate) ? ' selected' : ''; ?>><?php echo xlt('Invoice Date'); ?></option>
+                                <option value='1'<?php echo ($form_use_edate == 1) ? ' selected' : ''; ?>><?php echo xlt('Service Date'); ?></option>
+                                <option value='2'<?php echo ($form_use_edate == 2) ? ' selected' : ''; ?>><?php echo xlt('Entry Date'); ?></option>
                             </select>
                             </td>
                         </tr>
@@ -244,7 +249,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <tr>
                             <td class='col-form-label'>
                                 <?php
-                                if (!$GLOBALS['simplified_demographics']) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
                                 } ?>
                             </td>
@@ -252,14 +257,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                                 title='<?php echo xla('Optional procedure/service code'); ?>'
                                 <?php
-                                if ($GLOBALS['simplified_demographics']) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo "style='display:none'";
                                 } ?>>
                             </td>
 
                             <td class='col-form-label'>
                                 <?php
-                                if (!$GLOBALS['simplified_demographics']) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Diagnosis') . ':';
                                 } ?>
                             </td>
@@ -267,7 +272,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
                                 <?php
-                                if ($GLOBALS['simplified_demographics']) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo "style='display: none'";
                                 } ?>>
                             </td>
@@ -315,9 +320,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <?php
                 if (!empty($_POST['form_refresh'])) {
-                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-                        CsrfUtils::csrfNotVerified();
-                    }
+                    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                     ?>
                 <div id="report_results">
@@ -332,7 +335,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                     <?php if ($form_procedures) { ?>
                 <th>
                         <?php
-                        if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                        if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                             echo xlt('Invoice');
                         } else {
                             echo xlt('Name');
@@ -370,12 +373,12 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         $form_doctor = $_POST['form_doctor'];
                         if (!AclMain::aclCheckCore('acct', 'rep_a')) {
                             // only allow user to see their encounter information
-                            $form_doctor = $_SESSION['authUserID'];
+                            $form_doctor = $session->get('authUserID');
                         }
 
-                        $arows = array();
+                        $arows = [];
 
-                        $ids_to_skip = array();
+                        $ids_to_skip = [];
                         $irow = 0;
 
                         // Get copays.  These will be ignored if a CPT code was specified.
@@ -399,7 +402,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $query .= " AND u.id = '$form_doctor'";
                             }
                             *************************************************************/
-                            $sqlBindArray = array();
+                            $sqlBindArray = [];
                             $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
                             "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno " .
                             "FROM billing AS b " .
@@ -424,7 +427,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $res = sqlStatement($query, $sqlBindArray);
                             while ($row = sqlFetchArray($res)) {
                                 $trans_id = $row['trans_id'];
-                                $thedate = substr($row['date'], 0, 10);
+                                $thedate = substr((string) $row['date'], 0, 10);
                                 $patient_id = $row['pid'];
                                 $encounter_id = $row['encounter'];
                             //
@@ -439,7 +442,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
                                     "pid = ? AND encounter = ? AND " .
                                     "code_type = ? AND code LIKE ? AND " .
-                                    "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                    "activity = 1", [$patient_id,$encounter_id,$form_dx_codetype,$form_dx_code]);
                                     if (empty($tmp['count'])) {
                                         $ids_to_skip[$trans_id] = 1;
                                         continue;
@@ -455,13 +458,13 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     $encounter_id,
                                     ++$irow
                                 );
-                                $arows[$key] = array();
+                                $arows[$key] = [];
                                 $arows[$key]['transdate'] = $thedate;
                                 $arows[$key]['amount'] = $row['fee'];
                                 $arows[$key]['docid'] = $row['docid'];
                                 $arows[$key]['project_id'] = 0;
                                 $arows[$key]['memo'] = '';
-                                if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                                if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                                     $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
                                 } else {
                                     $arows[$key]['invnumber'] = "$patient_name";
@@ -491,7 +494,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         // If a doctor was specified.
                         if ($form_doctor) $query .= " AND u.id = '$form_doctor'";
                         ***************************************************************/
-                        $sqlBindArray = array();
+                        $sqlBindArray = [];
                         $query = "SELECT a.pid, a.encounter, a.post_time, a.code, a.modifier, a.pay_amount, " .
                         "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno, s.deposit_date, s.payer_id, " .
                         "b.provider_id, concat(p.lname, ' ', p.fname) as 'pat_fulname' " .
@@ -531,6 +534,8 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                         /**************************************************************/
                         //
+                        $grandtotal1 = 0;
+                        $grandtotal2 = 0;
                         $res = sqlStatement($query, $sqlBindArray);
                         while ($row = sqlFetchArray($res)) {
                             $trans_id = $row['trans_id'];
@@ -543,17 +548,16 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             }
 
                             //
-                            if ($form_use_edate) {
-                                $thedate = substr($row['date'], 0, 10);
-                            } else {
-                                if (!empty($row['deposit_date'])) {
-                                    $thedate = $row['deposit_date'];
-                                } else {
-                                    $thedate = substr($row['post_time'], 0, 10);
-                                }
+
+                            if (empty($form_use_edate)) {
+                                $thedate = !empty($row['deposit_date']) ? $row['deposit_date'] : substr((string) $row['post_time'], 0, 10);
+                            } elseif ($form_use_edate == 1) {
+                                $thedate = substr((string) $row['date'], 0, 10);
+                            } elseif ($form_use_edate == 2) {
+                                $thedate = substr((string) $row['post_time'], 0, 10);
                             }
 
-                            if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) {
+                            if (strcmp((string) $thedate, (string) $form_from_date) < 0 || strcmp((string) $thedate, (string) $form_to_date) > 0) {
                                 continue;
                             }
 
@@ -564,7 +568,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
                                 "pid = ? AND encounter = ? AND " .
                                 "code_type = ? AND code LIKE ? AND " .
-                                "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                "activity = 1", [$patient_id,$encounter_id,$form_dx_codetype,$form_dx_code]);
                                 if (empty($tmp['count'])) {
                                     $ids_to_skip[$trans_id] = 1;
                                     continue;
@@ -581,13 +585,13 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $encounter_id,
                                 ++$irow
                             );
-                            $arows[$key] = array();
+                            $arows[$key] = [];
                             $arows[$key]['transdate'] = $thedate;
                             $arows[$key]['amount'] = 0 - $row['pay_amount'];
                             $arows[$key]['docid'] = $docid;
                             $arows[$key]['project_id'] = empty($row['payer_id']) ? 0 : $row['payer_id'];
                             $arows[$key]['memo'] = $row['code'];
-                            if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                            if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                                 $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
                             } else {
                                 $arows[$key]['invnumber'] = "$patient_name";
@@ -604,7 +608,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $insconame = '';
                             if ($form_proc_codefull  && $row['project_id']) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
-                                "id = ?", array($row['project_id']));
+                                "id = ?", [$row['project_id']]);
                                 $insconame = $tmp['name'];
                             }
 
@@ -642,13 +646,13 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $doctotal2 = 0;
 
                                 $docid = $row['docid'];
-                                $tmp = sqlQuery("SELECT lname, fname FROM users WHERE id = ?", array($docid));
+                                $tmp = sqlQuery("SELECT lname, fname FROM users WHERE id = ?", [$docid]);
                                 $docname = empty($tmp) ? xl('Unknown') : $tmp['fname'] . ' ' . $tmp['lname'];
 
                                 $docnameleft = $docname;
                             }
 
-                            if ($_POST['form_details']) {
+                            if ($_POST['form_details'] ?? '') {
                                 ?>
 
                 <tr>
@@ -666,10 +670,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 <?php
                                 if ($form_proc_code && $form_proc_codetype) {
                                         echo "  <td class='detail' align='right'>";
-                                        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+                                        [$patient_id, $encounter_id] = explode(".", $row['invnumber']);
                                         $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
                                             "pid = ? AND encounter = ? AND " .
-                                            "code_type = ? AND code = ? AND activity = 1", array($patient_id,$encounter_id,$form_proc_codetype,$form_proc_code));
+                                            "code_type = ? AND code = ? AND activity = 1", [$patient_id,$encounter_id,$form_proc_codetype,$form_proc_code]);
                                         echo text(FormatMoney::getBucks($tmp['sum']));
                                         echo "  </td>\n";
                                 }
@@ -699,10 +703,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $doctotal1   += $amount1;
                             $doctotal2   += $amount2;
 
-                            $grandtotal1 = $grandtotal1 ?? null;
                             $grandtotal1 += $amount1;
-
-                            $grandtotal2 = $grandtotal2 ?? null;
                             $grandtotal2 += $amount2;
                         }
                         ?>
@@ -727,7 +728,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td>
-                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($grandtotal1)) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td>

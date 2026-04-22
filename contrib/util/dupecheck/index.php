@@ -4,32 +4,39 @@
  * dupecheck index.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @deprecated Its unlikely these files are used as the functionality has been replaced by the "Merge Patients" feature in the patient summary screen.
  */
+class DupeCheckIndexIsDeprecated
+{
+    public function __construct()
+    {
+        trigger_error("The dupecheck module is deprecated and will be removed in a future version of OpenEMR. Please use the 'Merge Patients' feature in the patient summary screen instead.", E_USER_DEPRECATED);
+    }
+}
 
 require_once("../../../interface/globals.php");
-require_once("./Utils.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;
     }
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplication Check")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Duplication Check", xl("Duplication Check"));
 }
 
 /* Use this code to identify duplicate patients in OpenEMR
@@ -95,7 +102,7 @@ body {
 </head>
 <body>
 <form name="search_form" id="search_form" method="post" action="index.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php echo ($parameters['match_name']) ? "CHECKED" : ""; ?>>
@@ -133,21 +140,12 @@ if ($parameters['go'] == "Go") {
 
     // for EACH patient in OpenEMR find potential matches
     $sqlstmt = "select id, pid, fname, lname, dob, sex, ss from patient_data";
-    switch ($parameters['sortby']) {
-        case 'dob':
-            $orderby = " ORDER BY dob";
-            break;
-        case 'sex':
-            $orderby = " ORDER BY sex";
-            break;
-        case 'ssn':
-            $orderby = " ORDER BY ss";
-            break;
-        case 'name':
-        default:
-            $orderby = " ORDER BY lname, fname";
-            break;
-    }
+    $orderby = match ($parameters['sortby']) {
+        'dob' => " ORDER BY dob",
+        'sex' => " ORDER BY sex",
+        'ssn' => " ORDER BY ss",
+        default => " ORDER BY lname, fname",
+    };
 
     $sqlstmt .= $orderby;
     if ($parameters['limit']) {
@@ -160,7 +158,7 @@ if ($parameters['go'] == "Go") {
             continue;
         }
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sqlstmt = "select id, pid, fname, lname, dob, sex, ss " .
                     " from patient_data where ";
         $sqland = "";
@@ -254,7 +252,7 @@ $(function () {
 
     // perform the database search for duplicates
     $("#do_search").on("click", function() {
-        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
+        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
         $("#search_form").trigger("submit");
         return true;
     });
@@ -263,7 +261,7 @@ $(function () {
     var moreinfoWin = null;
     $(".moreinfo").on("click", function(evt) {
         if (moreinfoWin) { moreinfoWin.close(); }
-        moreinfoWin = window.open("<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
+        moreinfoWin = window.open("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
         evt.stopPropagation();
     });
 
@@ -275,12 +273,17 @@ $(function () {
 
     // begin the merge of a block into a single record
     $(".onerow").on("click", function() {
-        var dupecount = $(this).attr("dupecount");
-        var masterid = $(this).attr("oemrid");
-        var newurl = "mergerecords.php?dupecount=" + encodeURIComponent(dupecount) + "&masterid=" + encodeURIComponent(masterid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        $("[dupecount="+dupecount+"]").each(function (i) {
-            if (this.id != masterid) { newurl += "&otherid[]=" + encodeURIComponent(this.id); }
+        const dupecount = $(this).attr("dupecount");
+        const masterid = $(this).attr("oemrid");
+        const params = new URLSearchParams({
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            dupecount: dupecount,
+            masterid: masterid
         });
+        $("[dupecount="+dupecount+"]").each(function (i) {
+            if (this.id != masterid) { params.append("otherid[]", this.id); }
+        });
+        const newurl = "mergerecords.php?" + params;
         // open a new window and show the merge results
         moreinfoWin = window.open(newurl, "mergewin");
     });

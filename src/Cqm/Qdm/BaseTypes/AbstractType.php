@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -19,7 +20,7 @@ abstract class AbstractType implements \JsonSerializable
             if ($this->propertyExists($property)) {
                 $this->{$property} = $value;
             } else {
-                throw new Exception("Property ${$property} does not exist on " . get_class($this));
+                throw new Exception("Property {${$property}} does not exist on " . static::class);
             }
         }
     }
@@ -30,9 +31,9 @@ abstract class AbstractType implements \JsonSerializable
         return $vars;
     }
 
-    public function propertyExists($property)
+    public function propertyExists(string $property): bool
     {
         $vars = get_object_vars($this);
-        return property_exists($this, $property) || isset($vars);
+        return property_exists($this, $property) || isset($vars[$property]);
     }
 }

@@ -6,7 +6,7 @@
  * engine, events can be removed, rearranged, etc.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -15,7 +15,9 @@
 
 namespace OpenEMR\Events\Appointments;
 
-class CalendarUserGetEventsFilter
+use Symfony\Contracts\EventDispatcher\Event;
+
+class CalendarUserGetEventsFilter extends Event
 {
     /**
      * @var array

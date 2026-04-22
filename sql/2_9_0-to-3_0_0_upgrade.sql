@@ -9,7 +9,7 @@ ALTER TABLE insurance_data
 #EndIf
 
 #IfMissingColumn forms deleted
-ALTER TABLE forms 
+ALTER TABLE forms
     ADD deleted TINYINT DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted';
 #EndIf
 

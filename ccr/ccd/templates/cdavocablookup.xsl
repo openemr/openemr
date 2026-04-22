@@ -2,9 +2,9 @@
 <!--
 Conversion of CCR to Level 3 CCD
 
-Orginal Author:   	Ken Miller
+Original Author:   	Ken Miller
 Solventus LLC
-ken.miller@solventus.coms
+ken.miller@solventus.com
 
 Contributors:
 Richard Braman, EHR Doctors, Inc rbraman@ehrdoctors.com
@@ -43,7 +43,7 @@ License :
                 <xsl:value-of select="$cdaCodeMatch"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="$map/domains/domain[@name=$domain]/item[translate(ccrtext,'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')=$ccrtext_uc]/cdacode"/>    
+                <xsl:value-of select="$map/domains/domain[@name=$domain]/item[translate(ccrtext,'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')=$ccrtext_uc]/cdacode"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -64,7 +64,7 @@ License :
 
     <xsl:template name="CDAVocabularyCodeSystemNameLookup">
         <xsl:param name="domain"/>
-        
+
         <xsl:value-of select="document('cdavocabmap.xml')/domains/domain[@name=$domain]/@codeSystemName"/>
     </xsl:template>
 
@@ -73,5 +73,5 @@ License :
 
         <xsl:value-of select="document('cdavocabmap.xml')/domains/domain[@name=$domain]/@codeSystem"/>
     </xsl:template>
-    
+
 </xsl:stylesheet>

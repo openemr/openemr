@@ -45,28 +45,25 @@ function pnModGetVar($modname, $name)
         return $pnmodvar[$modname][$name];
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulevarstable = $pntable['module_vars'];
     $modulevarscolumn = &$pntable['module_vars_column'];
     $query = "SELECT $modulevarscolumn[value]
               FROM $modulevarstable
-              WHERE $modulevarscolumn[modname] = '" . pnVarPrepForStore($modname) . "'
-              AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulevarscolumn[modname] = ?
+              AND $modulevarscolumn[name] = ?";
+    try {
+        $value = $conn->fetchOne($query, [$modname, $name]);
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($value === false) {
         $pnmodvar[$modname][$name] = false;
         return;
     }
-
-    list($value) = $result->fields;
-    $result->Close();
 
     $pnmodvar[$modname][$name] = $value;
     return $value;
@@ -85,32 +82,29 @@ function pnModSetVar($modname, $name, $value)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $curvar = pnModGetVar($modname, $name);
 
     $modulevarstable = $pntable['module_vars'];
     $modulevarscolumn = &$pntable['module_vars_column'];
-    if (!isset($curvar)) {
-        $query = "INSERT INTO $modulevarstable
-                     ($modulevarscolumn[modname],
-                      $modulevarscolumn[name],
-                      $modulevarscolumn[value])
-                  VALUES
-                     ('" . pnVarPrepForStore($modname) . "',
-                      '" . pnVarPrepForStore($name) . "',
-                      '" . pnVarPrepForStore($value) . "');";
-    } else {
-        $query = "UPDATE $modulevarstable
-                  SET $modulevarscolumn[value] = '" . pnVarPrepForStore($value) . "'
-                  WHERE $modulevarscolumn[modname] = '" . pnVarPrepForStore($modname) . "'
-                  AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
-    }
-
-    $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+    try {
+        if (!isset($curvar)) {
+            $query = "INSERT INTO $modulevarstable
+                         ($modulevarscolumn[modname],
+                          $modulevarscolumn[name],
+                          $modulevarscolumn[value])
+                      VALUES (?, ?, ?)";
+            $conn->executeStatement($query, [$modname, $name, $value]);
+        } else {
+            $query = "UPDATE $modulevarstable
+                      SET $modulevarscolumn[value] = ?
+                      WHERE $modulevarscolumn[modname] = ?
+                      AND $modulevarscolumn[name] = ?";
+            $conn->executeStatement($query, [$value, $modname, $name]);
+        }
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
@@ -131,32 +125,29 @@ function pnModGetIDFromName($module)
         return false;
     }
 
-    static $modid = array();
+    static $modid = [];
     if (isset($modid[$module])) {
         return $modid[$module];
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
     $modulescolumn = &$pntable['modules_column'];
     $query = "SELECT $modulescolumn[id]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($module) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulescolumn[name] = ?";
+    try {
+        $id = $conn->fetchOne($query, [$module]);
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($id === false) {
         $modid[$module] = false;
         return false;
     }
-
-    list($id) = $result->fields;
-    $result->Close();
 
     $modid[$module] = $id;
     return $id;
@@ -175,12 +166,12 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    static $modinfo = array();
+    static $modinfo = [];
     if (isset($modinfo[$modid])) {
         return $modinfo[$modid];
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -193,26 +184,19 @@ function pnModGetInfo($modid)
                      $modulescolumn[description],
                      $modulescolumn[version]
               FROM $modulestable
-              WHERE $modulescolumn[id] = '" . pnVarPrepForStore($modid) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulescolumn[id] = ?";
+    try {
+        $row = $conn->fetchNumeric($query, [$modid]);
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($row === false) {
         $modinfo[$modid] = false;
         return false;
     }
 
-    list($resarray['name'],
-         $resarray['type'],
-         $resarray['directory'],
-         $resarray['regid'],
-         $resarray['displayname'],
-         $resarray['description'],
-         $resarray['version']) = $result->fields;
-    $result->Close();
+    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $row;
 
     $modinfo[$modid] = $resarray;
     return $resarray;
@@ -228,13 +212,13 @@ function pnModGetInfo($modid)
  */
 function pnModAPILoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     if (!empty($loaded["$modname$type"])) {
@@ -248,21 +232,20 @@ function pnModAPILoad($modname, $type = 'user')
                      $modulescolumn[directory],
                      $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulescolumn[name] = ?";
+    try {
+        $row = $conn->fetchNumeric($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception $e) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($row === false) {
         return false;
     }
 
-    list($name, $directory, $state) = $result->fields;
-    $result->Close();
+    [$name, $directory, $state] = $row;
 
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
 
     $osfile = "modules/$osdirectory/pn{$ostype}api.php";
     if (!file_exists($osfile)) {
@@ -278,21 +261,21 @@ function pnModAPILoad($modname, $type = 'user')
         require "modules/$osdirectory/pnlang/eng/{$ostype}api.php";
     }
 
-    // Load datbase info
+    // Load database info
     pnModDBInfoLoad($modname, $directory);
 
     return true;
 }
 
 /**
- * load datbase definition for a module
+ * load database definition for a module
  * @param name - name of module to load database definition for
  * @param directory - directory that module is in (if known)
  * @returns bool
  */
 function pnModDBInfoLoad($modname, $directory = '')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     // Check to ensure we aren't doing this twice
     if (isset($loaded[$modname])) {
@@ -301,24 +284,21 @@ function pnModDBInfoLoad($modname, $directory = '')
 
     // Get the directory if we don't already have it
     if (empty($directory)) {
-        list($dbconn) = pnDBGetConn();
+        $conn = pnDBGetConn();
         $pntable = pnDBGetTables();
         $modulestable = $pntable['modules'];
         $modulescolumn = &$pntable['modules_column'];
         $sql = "SELECT $modulescolumn[directory]
                 FROM $modulestable
-                WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-        $result = $dbconn->Execute($sql);
-        if ($dbconn->ErrorNo() != 0) {
-            return;
-        }
-
-        if ($result->EOF) {
+                WHERE $modulescolumn[name] = ?";
+        try {
+            $directory = $conn->fetchOne($sql, [$modname]);
+        } catch (Doctrine\DBAL\Exception) {
             return false;
         }
-
-        $directory = $result->fields[0];
-        $result->Close();
+        if ($directory === false) {
+            return false;
+        }
     }
 
     // Load the database definition if required
@@ -341,18 +321,17 @@ function pnModDBInfoLoad($modname, $directory = '')
  * load a module
  * @param name - name of module to load
  * @param type - type of functions to load
- * @returns string
- * @return name of module loaded, or false on failure
+ * @return string|false|null name of module loaded, or false on failure
  */
 function pnModLoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -366,22 +345,21 @@ function pnModLoad($modname, $type = 'user')
     $query = "SELECT $modulescolumn[directory],
                      $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulescolumn[name] = ?";
+    try {
+        $row = $conn->fetchNumeric($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception $e) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($row === false) {
         return false;
     }
 
-    list($directory, $state) = $result->fields;
-    $result->Close();
+    [$directory, $state] = $row;
 
     // Load the module and module language files
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
     $osfile = "modules/$osdirectory/pn$ostype.php";
 
     if (!file_exists($osfile)) {
@@ -397,7 +375,7 @@ function pnModLoad($modname, $type = 'user')
         require "modules/$osdirectory/pnlang/eng/$ostype.php";
     }
 
-    // Load datbase info
+    // Load database info
     pnModDBInfoLoad($modname, $directory);
 
     // Return the module name
@@ -412,7 +390,7 @@ function pnModLoad($modname, $type = 'user')
  * @param args - arguments to pass to the function
  * @returns mixed
  */
-function pnModAPIFunc($modname, $type, $func, $args = array())
+function pnModAPIFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -444,7 +422,7 @@ function pnModAPIFunc($modname, $type, $func, $args = array())
  * @param args - argument array
  * @returns mixed
  */
-function pnModFunc($modname, $type, $func, $args = array())
+function pnModFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -477,16 +455,14 @@ function pnModFunc($modname, $type, $func, $args = array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = [], $path = '')
 {
     if (empty($modname)) {
         return false;
     }
 
-    global $HTTP_SERVER_VARS;
-
     // Hostname
-    $host = $HTTP_SERVER_VARS['HTTP_HOST'] ?? '';
+    $host = $_SERVER['HTTP_HOST'] ?? '';
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
         if (empty($host)) {
@@ -504,7 +480,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
         $urlargs[] = "func=$func";
     }
 
-    $urlargs = join('&', $urlargs);
+    $urlargs = implode('&', $urlargs);
     $url = "index.php?$urlargs";
 
 
@@ -526,7 +502,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
 
     //remove characters not belonging in a path, prevent possible injection
     //this may break windows path accesses?
-    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path);
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", (string) $path);
 
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;
@@ -544,7 +520,7 @@ function pnModAvailable($modname)
         return false;
     }
 
-    static $modstate = array();
+    static $modstate = [];
     if (isset($modstate[$modname])) {
         if ($modstate[$modname] == _PNMODULE_STATE_ACTIVE) {
             return true;
@@ -553,27 +529,24 @@ function pnModAvailable($modname)
         }
     }
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
     $modulescolumn = &$pntable['modules_column'];
     $query = "SELECT $modulescolumn[state]
               FROM $modulestable
-              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
-    $result = $dbconn->Execute($query);
-
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $modulescolumn[name] = ?";
+    try {
+        $state = $conn->fetchOne($query, [$modname]);
+    } catch (Doctrine\DBAL\Exception) {
         return;
     }
 
-    if ($result->EOF) {
+    if ($state === false) {
         $modstate[$modname] = _PNMODULE_STATE_MISSING;
         return false;
     }
-
-    list($state) = $result->fields;
-    $result->Close();
 
     $modstate[$modname] = $state;
     if ($state == _PNMODULE_STATE_ACTIVE) {

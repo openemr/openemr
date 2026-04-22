@@ -106,4 +106,3 @@ var app = {
 	version: 1.1
 
 }
-

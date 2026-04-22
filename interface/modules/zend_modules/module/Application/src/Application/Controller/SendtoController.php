@@ -12,21 +12,26 @@
 
 namespace Application\Controller;
 
+use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Application\Listener\Listener;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 class SendtoController extends AbstractActionController
 {
+    /**
+     * @var \Application\Model\SendtoTable
+     */
     protected $sendtoTable;
-    protected $applicationTable;
+    /**
+     * @var Listener
+     */
     protected $listenerObject;
 
-    public function __construct(\Application\Model\ApplicationTable $applicationTable, \Application\Model\SendtoTable $sendToTable)
+    public function __construct(\Application\Model\SendtoTable $sendToTable)
     {
         $this->listenerObject = new Listener();
-        $this->applicationTable = $applicationTable;
         $this->sendtoTable = $sendToTable;
     }
 
@@ -39,8 +44,8 @@ class SendtoController extends AbstractActionController
         $required_butons = $this->params()->fromQuery('required_butons');
         $selected_cform = $this->params()->fromQuery('selected_form');
         $default_send_via = $this->params()->fromQuery('default_send_via');
-        $default_send_via = $default_send_via ? $default_send_via : 'printer';
-        $encounter = $GLOBALS['encounter'];
+        $default_send_via = $default_send_via ?: 'printer';
+        $encounter = OEGlobalsBag::getInstance()->get('encounter');
         $faxRecievers = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections = $this->getSendtoTable()->getCCDAComponents(0);
         $ccda_components = $this->getSendtoTable()->getCCDAComponents(1);
@@ -48,7 +53,7 @@ class SendtoController extends AbstractActionController
         $measures = $reportController->reportMeasures;
 
         $this->layout('layout/sendto');
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'send_via' => $default_send_via,
             'faxRecievers' => $faxRecievers,
             'ccda_sections' => $ccda_sections,
@@ -58,7 +63,7 @@ class SendtoController extends AbstractActionController
             'ccda_components' => $ccda_components,
             'current_measures' => $measures,
             'download_format' => [] // empty array, can be populated by SendToHieHelper...
-        ));
+        ]);
         if ($button_only == 1) {
             $this->layout('layout/embedded_button');
         }
@@ -72,8 +77,8 @@ class SendtoController extends AbstractActionController
     public function ajaxAction()
     {
         $ajax_mode = $this->getRequest()->getPost('ajax_mode', null);
-        $encounter = $GLOBALS['encounter'];
-        $pid = $GLOBALS['pid'];
+        $encounter = OEGlobalsBag::getInstance()->get('encounter');
+        $pid = OEGlobalsBag::getInstance()->get('pid');
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);
@@ -125,20 +130,11 @@ class SendtoController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return type
+     * @return \Application\Model\SendtoTable
      */
     public function getSendtoTable()
     {
         return $this->sendtoTable;
     }
 
-    /**
-     * Table Gateway
-     *
-     * @return type
-     */
-    public function getApplicationTable()
-    {
-        return $this->applicationTable;
-    }
 }

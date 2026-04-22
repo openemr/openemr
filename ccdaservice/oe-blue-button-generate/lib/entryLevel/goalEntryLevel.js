@@ -17,6 +17,7 @@ exports.goalActivityObservation = {
     },
     content: [
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.121"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.121", "2022-06-01"),
         fieldLevel.uniqueId,
         fieldLevel.id, {
             key: "code",
@@ -38,7 +39,18 @@ exports.goalActivityObservation = {
             attributes: {
                 "xsi:type": "ST"
             },
-            text: leafLevel.inputProperty("name")
+            text: leafLevel.inputProperty("name"),
+            existsWhen: condition.propertyEmpty("sdoh_code"),
+        }, {
+            key: "value",
+            attributes: {
+                "xsi:type": "CD",
+                code: leafLevel.inputProperty("sdoh_code"),
+                codeSystem: leafLevel.inputProperty("sdoh_code_system"),
+                codeSystemName: leafLevel.inputProperty("sdoh_code_system_name"),
+                displayName: leafLevel.inputProperty("sdoh_name"),
+            },
+            existsWhen: condition.propertyNotEmpty("sdoh_code"),
         },
         fieldLevel.author,
     ],

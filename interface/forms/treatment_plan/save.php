@@ -4,7 +4,7 @@
  * treatment plan form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Naina Mohamed <naina@capminds.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2013 Naina Mohamed <naina@capminds.com> CapMinds Technologies
@@ -17,16 +17,17 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) ($_GET['id'] ?? '');
 
 $sets = "pid = ?,
   groupname = ?,
@@ -50,9 +51,9 @@ if (empty($id)) {
     $newid = sqlInsert(
         "INSERT INTO form_treatment_plan SET $sets",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             $_POST["provider"],
             $_POST["client_name"],
@@ -73,9 +74,9 @@ if (empty($id)) {
     sqlStatement(
         "UPDATE form_treatment_plan SET $sets WHERE id = ?",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get("pid"),
+            $session->get("authProvider"),
+            $session->get("authUser"),
             $userauthorized,
             $_POST["provider"],
             $_POST["client_name"],

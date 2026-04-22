@@ -4,7 +4,7 @@
  * Bootstrap file for the exporter
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -16,26 +16,17 @@ namespace OpenEMR\Modules\EhiExporter;
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
-use OpenEMR\Events\Core\TwigEnvironmentEvent;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Error\LoaderError;
-use Twig\Loader\FilesystemLoader;
+use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.
-use OpenEMR\Modules\CustomModuleSkeleton\TaskRestController;
 
 
 class Bootstrap
@@ -43,10 +34,6 @@ class Bootstrap
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-ehi-exporter";
     const CERTIFIED_RELEASE_VERSION = "7.0.2";
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -63,18 +50,20 @@ class Bootstrap
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     private static self $instance;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
+    ) {
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
@@ -83,14 +72,13 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->eventDispatcher = $eventDispatcher;
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
-    public static function instantiate(EventDispatcher $eventDispatcher, Kernel $kernel): self
+    public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
     {
         if (!isset(self::$instance)) {
             self::$instance = new Bootstrap($eventDispatcher, $kernel);
@@ -101,20 +89,20 @@ class Bootstrap
 
     public function getAssetPath()
     {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
+        return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
 
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
-        return new SystemLogger();
+        return $this->logger;
     }
 
     public function getExporter()
     {
-        $xmlConfigPath = $GLOBALS['webserver_root'] . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
+        $xmlConfigPath = OEGlobalsBag::getInstance()->get('webserver_root') . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
         // . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
         return new EhiExporter(
-            $GLOBALS['webserver_root'] . $this->getPublicPath(),
+            OEGlobalsBag::getInstance()->get('webserver_root') . $this->getPublicPath(),
             $this->getPublicPath(),
             $xmlConfigPath,
             $this->getTwig()
@@ -123,14 +111,14 @@ class Bootstrap
 
     public function getTwig()
     {
-        $container = new TwigContainer($this->getTemplatePath(), $GLOBALS['kernel']);
+        $container = new TwigContainer($this->getTemplatePath(), OEGlobalsBag::getInstance()->getKernel());
         return $container->getTwig();
     }
 
     public function subscribeToEvents()
     {
 //        $this->addGlobalSettings();
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
     }
 
     public function addCustomModuleMenuItem(MenuEvent $event)
@@ -177,7 +165,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalSettingsSection']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalSettingsSection(...));
     }
 
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)

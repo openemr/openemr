@@ -5,7 +5,7 @@
  * well as print out the Public JSON Web Key Set that can be used for a test System App.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,12 +13,10 @@
 
 namespace OpenEMR\Common\Command;
 
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
-use Lcobucci\JWT\Signer\Rsa\Sha384;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
-use Ramsey\Uuid\Uuid;
+use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 
 class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
 {
@@ -64,7 +62,7 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
             $jwks = file_get_contents($keyLocation . "jwk-public-valid.json");
             echo "JSON Web Key Set (Public Key)\n";
             echo "WARNING - THIS IS FOR TESTING PURPOSES ONLY!\n";
-            echo "DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITED TO THE SOURCE CODE\n\n";
+            echo "DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITTED TO THE SOURCE CODE\n\n";
             echo $jwks . "\n\n";
             return;
         }
@@ -75,36 +73,14 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
             return;
         }
 
-
-        $configuration = Configuration::forAsymmetricSigner(
-        // You may use RSA or ECDSA and all their variations (256, 384, and 512)
-            new Sha384(),
-            LocalFileReference::file($keyLocation . "openemr-rsa384-private.key"),
-            LocalFileReference::file($keyLocation . "openemr-rsa384-public.pem")
-            // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
-        );
-
-        $jti = Uuid::uuid4();
-
-        $now   = new \DateTimeImmutable();
         $oauthTokenUrl = $opts['a'];
         $clientId = $opts['i'];
-        $token = $configuration->builder()
-            // Configures the issuer (iss claim)
-            ->issuedBy($clientId)
-            // Configures the audience (aud claim)
-            ->permittedFor($oauthTokenUrl)
-            // Configures the id (jti claim)
-            ->identifiedBy($jti)
-            // Configures the time that the token was issue (iat claim)
-            ->issuedAt($now)
-            // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($now)
-            // Configures the expiration time of the token (exp claim)
-            ->expiresAt($now->modify('+60 seconds'))
-            ->relatedTo($clientId)
-            ->getToken($configuration->signer(), $configuration->signingKey());
-        $assertion = $token->toString(); // The string representation of the object is a JWT string
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            LocalFileReference::file($keyLocation . "openemr-rsa384-private.key"),
+            LocalFileReference::file($keyLocation . "openemr-rsa384-public.pem"),
+            $oauthTokenUrl,
+            $clientId
+        );
         echo "Generated Client Credentials Assertion\n";
         echo $assertion . "\n";
 

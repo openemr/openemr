@@ -124,7 +124,7 @@ class FHIRStructureMapTransform extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

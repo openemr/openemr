@@ -4,7 +4,7 @@
  * patient reminders gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC
  * @copyright Copyright (c) 2011-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -18,10 +18,11 @@ require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\OeUI\OemrUI;
 
 $thisauth = true;
@@ -32,10 +33,10 @@ if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder',
     $thisauth = false;
 }
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or patients/reminder: Patient Reminders", xl("Patient Reminders"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <html>
@@ -53,8 +54,8 @@ if (!$thisauth) {
 
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
-$mode = ($_GET['mode']) ? $_GET['mode'] : "simple";
+$patient_id = $_GET['patient_id'] ?: "";
+$mode = $_GET['mode'] ?: "simple";
 $sortby = $_GET['sortby'] ?? null;
 $sortorder = $_GET['sortorder'] ?? null;
 $begin = $_GET['begin'] ?? null;
@@ -89,29 +90,29 @@ $oemr_ui = new OemrUI(); //to display heading with selected icons and help modal
 
 //begin - edit as needed
 if ($mode == "simple") {
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
             'heading_title' => xl('Patient Reminders'),
             'include_patient_name' => true,
             'expandable' => true,
-            'expandable_files' => array('patient_reminders_patient_xpd'),//all file names need suffix _xpd
+            'expandable_files' => ['patient_reminders_patient_xpd'],//all file names need suffix _xpd
             'action' => "back",//conceal, reveal, search, reset, link or back
             'action_title' => "",
             'action_href' => "../summary/demographics.php",//only for actions - reset, link or back
             'show_help_icon' => false,
             'help_file_name' => ""
-        );
+        ];
 } else {
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
             'heading_title' => xl('Patient Reminders'),
             'include_patient_name' => false,
             'expandable' => true,
-            'expandable_files' => array('patient_reminders_xpd'),//all file names need suffix _xpd
+            'expandable_files' => ['patient_reminders_xpd'],//all file names need suffix _xpd
             'action' => "conceal",//conceal, reveal, search, reset, link or back
             'action_title' => "",
             'action_href' => "",//only for actions - reset, link or back
             'show_help_icon' => false,
             'help_file_name' => ""
-        );
+        ];
 }
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
@@ -127,7 +128,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="col-sm-12">
                 <?php
                 // This is for sorting the records.
-                $sort = array("category, item", "lname, fname", "due_status", "date_created", "hipaa_allowemail", "hipaa_allowsms", "date_sent", "voice_status", "email_status", "sms_status", "mail_status");
+                $sort = ["category, item", "lname, fname", "due_status", "date_created", "hipaa_allowemail", "hipaa_allowsms", "date_sent", "voice_status", "email_status", "sms_status", "mail_status"];
                 if ($sortby == "") {
                     $sortby = $sort[0];
                 }
@@ -156,7 +157,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // This is for managing page numbering and display beneath the Patient Reminders table.
                 $listnumber = 25;
-                $sqlBindArray = array();
+                $sqlBindArray = [];
                 if (!empty($patient_id)) {
                     $add_sql = "AND a.pid=? ";
                     array_push($sqlBindArray, $patient_id);
@@ -166,11 +167,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   "FROM `patient_reminders` as a, `patient_data` as b " .
                   "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '');
                 $result = sqlStatement($sql, $sqlBindArray);
-                if (sqlNumRows($result) != 0) {
-                    $total = sqlNumRows($result);
-                } else {
-                    $total = 0;
-                }
+                $total = sqlNumRows($result) != 0 ? sqlNumRows($result) : 0;
 
                 if ($begin == "" or $begin == 0) {
                     $begin = 0;
@@ -268,9 +265,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
 
                     //Escape sort by parameter
-                    $escapedsortby = explode(',', $sortby);
+                    $escapedsortby = explode(',', (string) $sortby);
                 foreach ($escapedsortby as $key => $columnName) {
-                    $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
+                    $escapedsortby[$key] = escape_sql_column_name(trim($columnName), ['patient_reminders','patient_data']);
                 }
                     $escapedsortby = implode(', ', $escapedsortby);
 
@@ -285,10 +282,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $result = sqlStatement($sql, $sqlBindArray);
                 while ($myrow = sqlFetchArray($result)) { ?>
                         <tr>
-                          <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $myrow['category']) . " : " .
-                            generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $myrow['item']); ?></td>
+                          <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $myrow['category']) . " : " .
+                            generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $myrow['item']); ?></td>
                           <td><?php echo text($myrow['lname'] . ", " . $myrow['fname']); ?></td>
-                          <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $myrow['due_status']); ?></td>
+                          <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'rule_reminder_due_opt'], $myrow['due_status']); ?></td>
                           <td><?php echo ($myrow['date_created']) ? text($myrow['date_created']) : " "; ?></td>
                           <td><?php echo ($myrow['hipaa_allowemail'] == 'YES') ? xlt("YES") : xlt("NO"); ?></td>
                           <td><?php echo ($myrow['hipaa_allowsms'] == 'YES') ? xlt("YES") : xlt("NO"); ?></td>
@@ -318,7 +315,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </tr>
                         <?php foreach ($rules_default as $rule) { ?>
                           <tr>
-                            <td ><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $rule['id']); ?></td>
+                            <td ><?php echo generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $rule['id']); ?></td>
                             <td class="text-center">
                                 <?php
                                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -375,7 +372,7 @@ $(function () {
       type: 'patient_reminder',
       setting: this.value,
       patient_id: <?php echo js_escape($patient_id); ?>,
-      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
   });
 
@@ -390,7 +387,7 @@ $(function () {
 
    top.restoreSession();
    $.get("../../../library/ajax/collect_new_report_id.php",
-     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
+     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -403,7 +400,7 @@ $(function () {
        $.post("../../../library/ajax/execute_pat_reminder.php",
          {process_type: processType,
           execute_report_id: $("#form_new_report_id").val(),
-          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
    });
 
@@ -417,7 +414,7 @@ $(function () {
    $.post("../../../library/ajax/status_report.php",
      {
        status_report_id: report_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      },
      function(data){
        if (data == "PENDING") {

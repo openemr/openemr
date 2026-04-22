@@ -5,7 +5,7 @@
  * existing transactions.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -19,15 +19,19 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
 $form_id = $title;
 
 // Plugin support.
-$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . convert_safe_file_dir_name($form_id) . ".plugin.php";
+$fname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/LBF/" . convert_safe_file_dir_name($form_id) . ".plugin.php";
 if (file_exists($fname)) {
     include_once($fname);
 }
@@ -38,16 +42,14 @@ $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 $body_onload_code = "";
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-    $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
+    $sqlBindArray = [$form_id, $session->get('authUser'), $session->get('authProvider'), $userauthorized];
 
     if ($transid) {
         array_push($sqlBindArray, $transid);
@@ -60,7 +62,7 @@ if ($mode) {
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_id, seq", array($form_id));
+    "ORDER BY group_id, seq", [$form_id]);
 
     while ($frow = sqlFetchArray($fres)) {
         $data_type = $frow['data_type'];
@@ -71,18 +73,18 @@ if ($mode) {
             if ($value === '') {
                 $query = "DELETE FROM lbt_data WHERE " .
                 "form_id = ? AND field_id = ?";
-                sqlStatement($query, array($transid, $field_id));
+                sqlStatement($query, [$transid, $field_id]);
             } else {
                 $query = "REPLACE INTO lbt_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
-                sqlStatement($query, array($value, $transid, $field_id));
+                sqlStatement($query, [$value, $transid, $field_id]);
             }
         } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbt_data " .
                     "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                    array($newid, $field_id, $value)
+                    [$newid, $field_id, $value]
                 );
             }
         }
@@ -119,7 +121,7 @@ if ($mode) {
 
 $CPR = 4; // cells per row
 
-function end_cell()
+function transaction_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -128,10 +130,10 @@ function end_cell()
     }
 }
 
-function end_row()
+function transaction_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    transaction_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -142,18 +144,18 @@ function end_row()
     }
 }
 
-function end_group()
+function transaction_end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
-        end_row();
+    if (strlen((string) $last_group) > 0) {
+        transaction_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
 }
 
 // If we are editing a transaction, get its ID and data.
-$trow = $transid ? getTransById($transid) : array();
+$trow = $transid ? getTransById($transid) : [];
 ?>
 <html>
 <head>
@@ -162,7 +164,7 @@ $trow = $transid ? getTransById($transid) : array();
 
 <?php Header::setupHeader(['common','datetime-picker','select2']); ?>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
 <script>
 $(function () {
@@ -174,7 +176,7 @@ $(function () {
   }
 });
 
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
 $(function () {
   $("#send_sum_flag").click(function() {
@@ -194,7 +196,7 @@ $(function () {
 
   $(".select-dropdown").select2({
     theme: "bootstrap4",
-    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
   });
   if (typeof error !== 'undefined') {
     if (error) {
@@ -208,7 +210,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
@@ -217,7 +219,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-past').datetimepicker({
@@ -226,7 +228,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-past').datetimepicker({
@@ -235,7 +237,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-future').datetimepicker({
@@ -244,7 +246,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-future').datetimepicker({
@@ -253,7 +255,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 });
@@ -297,17 +299,23 @@ function set_related(codetype, code, selector, codedesc) {
 function sel_related(e) {
     current_sel_name = e.name;
     dlgopen('../encounter/find_code_popup.php<?php
-    if ($GLOBALS['ippf_specific']) {
+    if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
         echo '?codetype=REF';
     } ?>', '_blank', 500, 400);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+ const params = new URLSearchParams({
+  transaction: <?php echo js_escape((string) $transid); ?>,
+  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+ });
+ dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
  return false;
 }
+// AI-generated code end
 
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
@@ -355,7 +363,7 @@ function submitme() {
 }
 
 <?php if (function_exists($form_id . '_javascript')) {
-    call_user_func($form_id . '_javascript');
+    ($form_id . '_javascript')();
 } ?>
 
 </script>
@@ -372,25 +380,25 @@ div.tab {
 }
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Add/Edit Patient Transaction'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "back",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "transactions.php",//only for actions - reset, link and back
     'show_help_icon' => true,
     'help_file_name' => "add_edit_transactions_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
 </head>
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
-        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url((string) $transid); ?>' onsubmit='return validate(this)'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
@@ -431,7 +439,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                         <div class="forms col-sm-5">
                             <?php
-                            if ($GLOBALS['enable_amc_prompting'] && 'LBTref' == $form_id) { ?>
+                            if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting') && 'LBTref' == $form_id) { ?>
                                 <div class='oe-pull-away' style='margin-right:25px;border-style:solid;border-width:1px;'>
                                     <div style='margin:5px 5px 5px 5px;'>
 
@@ -481,14 +489,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
                         $last_group = '';
 
                         while ($frow = sqlFetchArray($fres)) {
                             $this_group = $frow['group_id'];
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -506,7 +514,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
 
                         $last_group = '';
                         $cell_count = 0;
@@ -534,19 +542,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if (!$currvalue && !$transid && $form_id == 'LBTref') {
                                 if ($field_id == 'refer_date') {
                                     $currvalue = date('Y-m-d');
-                                } elseif ($field_id == 'body' && $transid > 0) {
-                                     $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                      "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
-                                    if (!empty($tmp)) {
-                                        $currvalue = $tmp['reason'];
-                                    }
                                 }
                             }
 
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                end_group();
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                transaction_end_group();
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -561,7 +563,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new row.
                             if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                                end_row();
+                                transaction_end_row();
                                 echo " <tr>";
                             }
 
@@ -571,7 +573,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new label cell.
                             if ($titlecols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td width='70' valign='top' colspan='" . attr($titlecols) . "'";
                                 echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
                                 if ($cell_count == 2) {
@@ -599,7 +601,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Handle starting of a new data cell.
                             if ($datacols > 0) {
-                                end_cell();
+                                transaction_end_cell();
                                 echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
                                 // This ID is used by action conditions.
                                 echo " id='value_id_" . attr($field_id) . "'";
@@ -616,7 +618,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo "</div>";
                         }
 
-                        end_group();
+                        transaction_end_group();
                         ?>
                     </div><!-- end of tabContainer div -->
                 </div><!-- end of DEM div -->
@@ -624,7 +626,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </form>
 
         <!-- include support for the list-add selectbox feature -->
-        <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+        <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
     </div> <!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
@@ -640,7 +642,7 @@ var skipArray = [
 // titleChanged();
 <?php
 if (function_exists($form_id . '_javascript_onload')) {
-    call_user_func($form_id . '_javascript_onload');
+    ($form_id . '_javascript_onload')();
 }
 ?>
 

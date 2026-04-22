@@ -5,7 +5,7 @@
  * Special list function
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -13,21 +13,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function generate_list_payment_category($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '', $onchange = '', $PaymentType = 'insurance', $screen = 'new_payment')
+use OpenEMR\BC\Utilities;
+
+function generate_list_payment_category(string $tag_name, string $list_id, string $currvalue, string $title, string $empty_name = ' ', string $class = '', string $onchange = '', string $PaymentType = 'insurance', string $screen = 'new_payment'): string
 {
     $s = '';
     $s .= "<select name='" . attr($tag_name) . "' id='" . attr($tag_name) . "'";
-    if ($class) {
+    if ($class !== '') {
         $s .= " class='" . attr($class) . "'";
     }
-    if ($onchange) {
+    if ($onchange !== '') {
         $s .= " onchange='" . $onchange . "'"; //Need to html escape $onchange prior to the generate_list_payment_category function call
     }
     $s .= " title='" . attr($title) . "'>";
-    if ($empty_name) {
+    if ($empty_name !== '') {
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         $s .= "<option value=''>" . xlt($empty_name) . "</option>";
     }
-    $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+    $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option   id='option_" . attr($lrow['option_id']) . "'" . " value='" . attr($lrow['option_id']) . "'";
@@ -41,10 +44,10 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
         if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
             $s .= " style='background-color: var(--light)' ";
         }
-        $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
+        $title_value = is_string($lrow['title'] ?? null) ? $lrow['title'] : '';
+        $s .= ">" . text(xl_list_label($title_value)) . "</option>\n";
     }
     if (!$got_selected && strlen($currvalue) > 0) {
-        $currescaped = text($currvalue);
         $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         $s .= "</select>";
         $fontTitle = xl('Please choose a valid selection from the list.');
@@ -68,13 +71,13 @@ $Description = '';
 $TypeCode = '';
 $UndistributedAmount = 0;
 if ($payment_id > 0) {
-    $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", array($payment_id));
+    $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$payment_id]);
     $row = sqlFetchArray($rs);
     $pay_total = $row['pay_total'];
     $global_amount = $row['global_amount'];
     $rs = sqlStatement(
         "SELECT sum(pay_amount) sum_pay_amount FROM ar_activity WHERE session_id = ? AND deleted IS NULL",
-        array($payment_id)
+        [$payment_id]
     );
     $row = sqlFetchArray($rs);
     $pay_amount = $row['sum_pay_amount'];
@@ -83,23 +86,23 @@ if ($payment_id > 0) {
     $res = sqlStatement("SELECT check_date ,reference ,insurance_companies.name,
         payer_id,pay_total,payment_type,post_to_date,patient_id ,
         adjustment_code,description,deposit_date,payment_method
-        FROM ar_session left join insurance_companies on ar_session.payer_id=insurance_companies.id where ar_session.session_id =?", array($payment_id));
+        FROM ar_session left join insurance_companies on ar_session.payer_id=insurance_companies.id where ar_session.session_id =?", [$payment_id]);
     $row = sqlFetchArray($res);
     $InsuranceCompanyName = $row['name'];
     $InsuranceCompanyId = $row['payer_id'];
     $PatientId = $row['patient_id'];
     $CheckNumber = $row['reference'];
-    $CheckDate = $row['check_date'] == '0000-00-00' ? '' : $row['check_date'];
+    $CheckDate = Utilities::isDateEmpty($row['check_date']) ? '' : $row['check_date'];
     $PayTotal = $row['pay_total'];
-    $PostToDate = $row['post_to_date'] == '0000-00-00' ? '' : $row['post_to_date'];
+    $PostToDate = Utilities::isDateEmpty($row['post_to_date']) ? '' : $row['post_to_date'];
     $PaymentMethod = $row['payment_method'];
     $PaymentType = $row['payment_type'];
     $AdjustmentCode = $row['adjustment_code'];
-    $DepositDate = $row['deposit_date'] == '0000-00-00' ? '' : $row['deposit_date'];
+    $DepositDate = Utilities::isDateEmpty($row['deposit_date']) ? '' : $row['deposit_date'];
     $Description = $row['description'];
     if ($row['payment_type'] == 'insurance' || $row['payer_id'] * 1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
-            where insurance_companies.id =?", array($InsuranceCompanyId));
+            where insurance_companies.id =?", [$InsuranceCompanyId]);
         $row = sqlFetchArray($res);
         $div_after_save = $row['name'] ?? '';
         $TypeCode = $InsuranceCompanyId;
@@ -108,7 +111,7 @@ if ($payment_id > 0) {
         }
     } elseif ($row['payment_type'] == 'patient' || $row['patient_id'] * 1 > 0) {
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-            where pid =?", array($PatientId));
+            where pid =?", [$PatientId]);
         $row = sqlFetchArray($res);
         $fname = $row['fname'];
         $lname = $row['lname'];
@@ -158,11 +161,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
             <div class="pl-0">
                 <?php
-                if ($PaymentMethod == '' && $screen == 'edit_payment') {
-                    $blankValue = ' ';
-                } else {
-                    $blankValue = '';
-                }
+                $blankValue = $PaymentMethod == '' && $screen == 'edit_payment' ? ' ' : '';
                 echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "", 'CheckVisible("yes")');
                 ?>
             </div>
@@ -190,22 +189,14 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         <div class="forms col-3">
             <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
             <?php
-            if ($PaymentType == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $PaymentType == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "form-control", 'PayingEntityAction()');
             ?>
         </div>
         <div class="forms col-3">
             <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
             <?php
-            if ($AdjustmentCode == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $AdjustmentCode == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_list_payment_category(
                 "adjustment_code",
                 "payment_adjustment_code",

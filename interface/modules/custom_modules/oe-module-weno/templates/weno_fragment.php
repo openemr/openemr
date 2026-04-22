@@ -4,7 +4,7 @@
  * weno_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
@@ -14,6 +14,8 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -23,12 +25,13 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
     return;
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
-if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
-    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings Weno tab to configure Weno Prescriber Id.");
+if (stripos((string) $validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
+    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings or Weno Administrator to configure Weno Prescriber Id.");
     return "Fail";
 }
 
@@ -41,17 +44,17 @@ $cite = <<<CITE
     <span>$status</span>
 </cite>
 CITE;
-if (str_starts_with($pharmacyLog['status'], 'Success')) {
+if (str_starts_with((string) $pharmacyLog['status'], 'Success')) {
     $cite = '';
 }
 
 $hasErrors = !empty($validate->errors['errors']);
 $validate_errors = $validate->errors['string'];
 
-$pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
+$pid = ($pid ?? '') ?: $session->get('pid') ?? '';
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? false;
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? false;
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' .
     ($prim_pharmacy['address_line_1'] ?? '') . ' ' . ($prim_pharmacy['city'] ?? '') .
@@ -65,7 +68,7 @@ $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy
 $res = sqlStatement(
     "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;"
 );
-$pharmacies = array();
+$pharmacies = [];
 foreach ($res as $row) {
     $pharmacies[] = $row;
 }
@@ -81,11 +84,11 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     // parse user weno id and location. If location is present, it is separated by a colon
     // $provider_id is the user id that was passed in the prescription when prescribed.
     // If all else fails then use logged in user id;
-    $match = explode(":", $external_id);
+    $match = explode(":", (string) $external_id);
     if (is_countable($match) && count($match) > 1) {
         $external_id = $match[0];
     }
-    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $provider_id));
+    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", [$external_id, $provider_id]);
     if ($provider) {
         return $provider['fname'] . " " . $provider['lname'];
     } else {
@@ -93,7 +96,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     }
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$session->get('authUserID') ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -101,10 +104,10 @@ while ($row = sqlFetchArray($list)) {
 }
 
 // get weno drugs for patient
-$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", array($pid));
+$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", [$pid]);
 
 ?>
-<script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 <style>
   .dialog-alert {
     font-size: 14px;
@@ -124,11 +127,11 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
             return;
         }
         // Redirect to the new location
-        window.location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
     }
 </script>
 
-<input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
+<input type="hidden" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div>
     <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
@@ -239,13 +242,18 @@ if ($hasErrors) { ?>
     </div>
 <?php } ?>
 <script>
-    $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({
-            trigger: 'hover',
-            placement: 'top'
-        });
+    if ($.fn.popover) {
+        alert('here ...................................')
+    }
+    $(function () {
+        if ($.fn.popover) {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'top',
+                container: 'body'
+            });
+        }
     });
-
     function refreshDemographics() {
         top.restoreSession();
         window.location.href = './demographics.php';

@@ -5,7 +5,7 @@
  * by the module.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,6 +13,7 @@
 
 namespace Carecoordination\Model;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -81,7 +82,7 @@ class CcdaGlobalsConfiguration
 
     public function getMaxSections(): int
     {
-        return intval($GLOBALS[self::GLOBAL_KEY_CCDA_MAX_SECTIONS] ?? 0);
+        return intval(OEGlobalsBag::getInstance()->get(self::GLOBAL_KEY_CCDA_MAX_SECTIONS) ?? 0);
     }
 
     /**
@@ -109,11 +110,11 @@ class CcdaGlobalsConfiguration
     private function getSectionDisplayOrderForType($key = self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER)
     {
         $codeService = new CodeTypesService();
-        $sortOrder = array();
+        $sortOrder = [];
         $sortOrderIndexesByKeys = [];
-        if (!empty($GLOBALS[$key])) {
-            $sortString = $GLOBALS[$key] ?? "";
-            $sortOrder = explode(";", $sortString);
+        if (!empty(OEGlobalsBag::getInstance()->get($key))) {
+            $sortString = OEGlobalsBag::getInstance()->get($key) ?? "";
+            $sortOrder = explode(";", (string) $sortString);
             $sortOrderIndexesByKeys = array_combine($sortOrder, array_keys($sortOrder));
         }
         if (!empty($sortOrder)) {

@@ -4,18 +4,20 @@
  * validate_core.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dror Golan <drorgo@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 /**get all the validation on the page
  * @param $title
  * @return array of validation rules and forms names
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function collectValidationPageRules($title, $active = true)
 {
 
@@ -23,16 +25,16 @@ function collectValidationPageRules($title, $active = true)
 
     if ($active) {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", ['page_validation',1,$title]);
     } else {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND title=?", array('page_validation', $title));
+            "FROM `list_options` WHERE list_id=? AND title=?", ['page_validation', $title]);
     }
 
-    $dataArray = array();
+    $dataArray = [];
     while ($row = sqlFetchArray($sql)) {
-        $formPageNameArray = explode('#', $row['option_id']);
-        $dataArray[$formPageNameArray[1]] = array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
+        $formPageNameArray = explode('#', (string) $row['option_id']);
+        $dataArray[$formPageNameArray[1]] = ['page_name' => $formPageNameArray[0] ,'rules' => $row['notes']];
     }
 
     return $dataArray;
@@ -42,16 +44,12 @@ function collectValidationPageRules($title, $active = true)
  * @param $fileNamePath
  * @output a generated javascript tag with the validation
  */
-function validateUsingPageRules($fileNamePath)
+function validateUsingPageRules($fileNamePath): void
 {
 
     $path = '';
 
-    if ($GLOBALS['webroot'] != '') {
-        $path = str_replace($GLOBALS['webroot'], '', $fileNamePath);
-    } else {
-        $path = $fileNamePath;
-    }
+    $path = OEGlobalsBag::getInstance()->getWebRoot() != '' ? str_replace(OEGlobalsBag::getInstance()->getWebRoot(), '', $fileNamePath) : $fileNamePath;
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
@@ -62,7 +60,7 @@ function validateUsingPageRules($fileNamePath)
         echo("\r\n");
         //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
         $use_validate_js = 1;
-        require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+        require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
         echo("\r\n");
         print '<script>';
         echo ("$(function () {");

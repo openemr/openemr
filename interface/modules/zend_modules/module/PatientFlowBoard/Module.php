@@ -18,7 +18,6 @@
 
 namespace PatientFlowBoard;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\ZendModules\PatientFlowBoard\Listener\PatientFlowBoardEventsSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -29,13 +28,13 @@ class Module
 
     public function getAutoloaderConfig()
     {
-        return array(
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+        return [
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     'OpenEMR\\ZendModules\\' . __NAMESPACE__ => __DIR__ . '/src/' . self::NAMESPACE_NAME,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function onBootstrap(MvcEvent $e)
@@ -51,7 +50,7 @@ class Module
 
     public function getServiceConfig()
     {
-        return array();
+        return [];
     }
 
     public function getConfig()

@@ -12,21 +12,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-//verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$req = array(
+$req = [
     'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),
     'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
-);
+];
 
-function get_patients_list($req)
+function get_patients_list($req): void
 {
     $term = "%" . $req['term'] . "%";
     $clear = "- " . xl("Reset to no patient") . " -";
@@ -36,20 +36,20 @@ function get_patients_list($req)
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
             LIMIT " . escape_limit($req['sql_limit']),
-        array($term)
+        [$term]
     );
     while ($row = sqlFetchArray($response)) {
-        if ($GLOBALS['pid'] == $row['value']) {
+        if (OEGlobalsBag::getInstance()->get('pid') == $row['value']) {
             $row['value'] = "00";
             $row['label'] = xl("Locked") . "-" . xl("In Use") . ":" . $row['label'];
         }
 
         $resultpd[] = $row;
     }
-    $resultpd[] = array(
+    $resultpd[] = [
         'label' => $clear,
         'value' => '00'
-    );
+    ];
 
     echo json_encode($resultpd);
 }

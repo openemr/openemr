@@ -18,9 +18,9 @@ require_once("$srcdir/patient.inc.php");
 
 $CPR = 4; // cells per row
 
-$pprow = array();
+$pprow = [];
 
-function end_cell()
+function ippf_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -29,10 +29,10 @@ function end_cell()
     }
 }
 
-function end_row()
+function ippf_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    ippf_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -43,23 +43,23 @@ function end_row()
     }
 }
 
-function end_group()
+function ippf_end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
-        end_row();
+    if (strlen((string) $last_group) > 0) {
+        ippf_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
 }
 
-function issue_ippf_gcac_newtype()
+function issue_ippf_gcac_newtype(): void
 {
     echo "  var gcadisp = (aitypes[index] == 3) ? '' : 'none';\n";
     echo "  document.getElementById('ippf_gcac').style.display = gcadisp;\n";
 }
 
-function issue_ippf_gcac_save($issue)
+function issue_ippf_gcac_save($issue): void
 {
     $sets = "id = '" . add_escape_custom($issue) . "'";
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -75,22 +75,18 @@ function issue_ippf_gcac_save($issue)
     sqlStatement("REPLACE INTO lists_ippf_gcac SET $sets");
 }
 
-function issue_ippf_gcac_form($issue, $thispid)
+function issue_ippf_gcac_form($issue, $thispid): void
 {
     global $pprow, $item_count, $cell_count, $last_group;
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", array($issue));
-    } else {
-        $pprow = array();
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_gcac' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('GCA', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -123,9 +119,9 @@ function issue_ippf_gcac_form($issue, $thispid)
         }
 
         // Handle a data category (group) change.
-        if (strcmp($this_group, $last_group) != 0) {
-            end_group();
-            $group_seq  = 'gca' . substr($this_group, 0, 1);
+        if (strcmp((string) $this_group, (string) $last_group) != 0) {
+            ippf_end_group();
+            $group_seq  = 'gca' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
@@ -142,7 +138,7 @@ function issue_ippf_gcac_form($issue, $thispid)
 
         // Handle starting of a new row.
         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-            end_row();
+            ippf_end_row();
             echo " <tr>";
         }
 
@@ -152,7 +148,7 @@ function issue_ippf_gcac_form($issue, $thispid)
 
         // Handle starting of a new label cell.
         if ($titlecols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
             if ($cell_count == 2) {
@@ -176,7 +172,7 @@ function issue_ippf_gcac_form($issue, $thispid)
 
         // Handle starting of a new data cell.
         if ($datacols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
             if ($cell_count > 0) {
                 echo " style='padding-left:5pt'";
@@ -195,17 +191,17 @@ function issue_ippf_gcac_form($issue, $thispid)
         }
     }
 
-    end_group();
+    ippf_end_group();
     echo "</div>\n";
 }
 
-function issue_ippf_con_newtype()
+function issue_ippf_con_newtype(): void
 {
     echo "  var condisp = (aitypes[index] == 4) ? '' : 'none';\n";
     echo "  document.getElementById('ippf_con').style.display = condisp;\n";
 }
 
-function issue_ippf_con_save($issue)
+function issue_ippf_con_save($issue): void
 {
     $sets = "id = '" . add_escape_custom($issue) . "'";
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -221,22 +217,18 @@ function issue_ippf_con_save($issue)
     sqlStatement("REPLACE INTO lists_ippf_con SET $sets");
 }
 
-function issue_ippf_con_form($issue, $thispid)
+function issue_ippf_con_form($issue, $thispid): void
 {
     global $pprow, $item_count, $cell_count, $last_group;
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", array($issue));
-    } else {
-        $pprow = array();
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_con' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('CON', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -269,9 +261,9 @@ function issue_ippf_con_form($issue, $thispid)
         }
 
         // Handle a data category (group) change.
-        if (strcmp($this_group, $last_group) != 0) {
-            end_group();
-            $group_seq  = 'con' . substr($this_group, 0, 1);
+        if (strcmp((string) $this_group, (string) $last_group) != 0) {
+            ippf_end_group();
+            $group_seq  = 'con' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
@@ -288,7 +280,7 @@ function issue_ippf_con_form($issue, $thispid)
 
         // Handle starting of a new row.
         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-            end_row();
+            ippf_end_row();
             echo " <tr>";
         }
 
@@ -298,7 +290,7 @@ function issue_ippf_con_form($issue, $thispid)
 
         // Handle starting of a new label cell.
         if ($titlecols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
             if ($cell_count == 2) {
@@ -322,7 +314,7 @@ function issue_ippf_con_form($issue, $thispid)
 
         // Handle starting of a new data cell.
         if ($datacols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
             if ($cell_count > 0) {
                 echo " style='padding-left:5pt'";
@@ -341,6 +333,6 @@ function issue_ippf_con_form($issue, $thispid)
         }
     }
 
-    end_group();
+    ippf_end_group();
     echo "</div>\n";
 }

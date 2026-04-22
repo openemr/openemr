@@ -18,42 +18,17 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Summary")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Order Summary", xl("Order Summary"));
 }
 
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = "($value)";
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
-
-function generate_order_summary($orderid)
+function generate_order_summary($orderid): void
 {
 
   // If requested, save checkbox selections as to which procedures are not sendable.
@@ -63,7 +38,7 @@ function generate_order_summary($orderid)
             "SET do_not_send = 0 WHERE " .
             "procedure_order_id = ? AND " .
             "do_not_send != 0",
-            array($orderid)
+            [$orderid]
         );
         if (!empty($_POST['form_omit'])) {
             foreach ($_POST['form_omit'] as $key) {
@@ -73,7 +48,7 @@ function generate_order_summary($orderid)
                     "procedure_order_id = ? AND " .
                     "do_not_send = 0 AND " .
                     "procedure_order_seq = ?",
-                    array($orderid, intval($key))
+                    [$orderid, intval($key)]
                 );
             }
         }
@@ -97,12 +72,12 @@ function generate_order_summary($orderid)
         "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
         "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
         "WHERE po.procedure_order_id = ?",
-        array($orderid)
+        [$orderid]
     );
 
     $lab_id = intval($orow['lab_id']);
     $patient_id = intval($orow['patient_id']);
-    $encdate = substr($orow['date'], 0, 10);
+    $encdate = substr((string) $orow['date'], 0, 10);
 
   // Get insurance info.
     $ins_policy = '';
@@ -273,7 +248,7 @@ function generate_order_summary($orderid)
         }
 
         $query .= "ORDER BY procedure_order_seq";
-        $res = sqlStatement($query, array($orderid));
+        $res = sqlStatement($query, [$orderid]);
 
         $encount = 0;
 
@@ -298,14 +273,14 @@ function generate_order_summary($orderid)
                 "a.procedure_order_id = ? AND " .
                 "a.procedure_order_seq = ? " .
                 "ORDER BY q.seq, a.answer_seq",
-                array($lab_id, $procedure_code, $orderid, $order_seq)
+                [$lab_id, $procedure_code, $orderid, $order_seq]
             );
 
             $notes = '';
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
                 // out how to deal with that as more labs are supported.
-                $answer = trim($qrow['answer']);
+                $answer = trim((string) $qrow['answer']);
                 $fldtype = $qrow['fldtype'];
                 if ($fldtype == 'G') {
                     $weeks = intval($answer / 7);

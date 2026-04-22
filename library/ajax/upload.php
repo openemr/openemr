@@ -14,32 +14,38 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\MessageService;
+
 // Auth if core or portal.
-require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $isPortal = false;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
 }
 
 require_once(__DIR__ . "/../../interface/globals.php");
 require_once(__DIR__ . "/../documents.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\MessageService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
 // check if this is for dicom image maintenance.
 $action = $_POST['action'] ?? null;
-$doc_id = (int)$_POST['doc_id'] ?? null;
+$doc_id = (int)($_POST['doc_id'] ?? null);
 $json_data = $_POST['json_data'] ?? null;
 
 if ($action == 'save') {
@@ -64,7 +70,7 @@ $patient_id = filter_input(INPUT_GET, 'patient_id');
 $category_id = filter_input(INPUT_GET, 'parent_id');
 
 if ($isPortal ?? false) {
-    $owner = $GLOBALS['userauthorized'];
+    $owner = OEGlobalsBag::getInstance()->get('userauthorized');
     $files = getMultiple();
     if (count($files["file"] ?? []) > 0) {
         $messageService = new MessageService();
@@ -75,7 +81,7 @@ if ($isPortal ?? false) {
         $note['from'] = 'portal-user';
         $note['message_status'] = 'New';
         $note['title'] = 'New Document';
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array($category_id))['id'] ?: 3;
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", [$category_id])['id'] ?: 3;
         foreach ($files["file"] as $file) {
             $name = $file['name'];
             $type = $file['type'];
@@ -117,7 +123,7 @@ if (!empty($_FILES)) {
     $type = $_FILES['file']['type'];
     $tmp_name = $_FILES['file']['tmp_name'];
     $size = $_FILES['file']['size'];
-    $owner = $GLOBALS['userauthorized'];
+    $owner = OEGlobalsBag::getInstance()->get('userauthorized');
 
     addNewDocument($name, $type, $tmp_name, '', $size, $owner, $patient_id, $category_id);
     exit;
@@ -126,13 +132,13 @@ if (!empty($_FILES)) {
 function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
 {
     if ($action == 'save') {
-        $json_data = base64_encode($json_data);
-        return json_encode(sqlQuery("UPDATE documents SET document_data = ? WHERE id = ?", array($json_data, $doc_id)));
+        $json_data = base64_encode((string) $json_data);
+        return json_encode(sqlQuery("UPDATE documents SET document_data = ? WHERE id = ?", [$json_data, $doc_id]));
     }
 
     if ($action == 'fetch') {
-        $qrtn = sqlQuery("Select document_data FROM documents WHERE id = ?", array($doc_id));
-        return base64_decode($qrtn['document_data']);
+        $qrtn = sqlQuery("Select document_data FROM documents WHERE id = ?", [$doc_id]);
+        return base64_decode((string) $qrtn['document_data']);
     }
 
     return xlj("Unknown");
@@ -140,7 +146,7 @@ function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
 
 function getMultiple()
 {
-    $_FILE = array();
+    $_FILE = [];
     foreach ($_FILES as $name => $file) {
         foreach ($file as $property => $keys) {
             foreach ($keys as $key => $value) {

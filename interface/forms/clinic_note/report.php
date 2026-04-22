@@ -12,22 +12,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\Core\OEGlobalsBag;
 
-function clinic_note_report($pid, $encounter, $cols, $id)
+require_once("../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function clinic_note_report($pid, $encounter, $cols, $id): void
 {
     $cols = 1; // force always 1 column
     $count = 0;
     $data = sqlQuery("SELECT * " .
     "FROM form_clinic_note WHERE " .
-    "id = ? AND activity = '1'", array($id));
+    "id = ? AND activity = '1'", [$id]);
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {
             if (
-                $key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
-                $key == "authorized" || $key == "activity" || $key == "date" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
                 $value == "" || $value == "0" || $value == "0.00"
             ) {
                 continue;
@@ -45,7 +46,8 @@ function clinic_note_report($pid, $encounter, $cols, $id)
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td valign='top'><span class='bold'>" . xlt($key) . ": </span><span class='text'>" . text($value) . "&nbsp;</span></td>\n";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td valign="top"><span class="bold">%s: </span><span class="text">%s&nbsp;</span></td>', xlt($key), text($value));
             $count++;
             if ($count == $cols) {
                 $count = 0;

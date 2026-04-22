@@ -4,7 +4,7 @@
  * Functional cognitive status form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>

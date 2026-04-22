@@ -17,12 +17,10 @@ use DOMXPath;
 
 class CdaTextParser
 {
-    private $xml;
-    private mixed $title;
+    private readonly DOMDocument $xml;
 
-    public function __construct($xmlContent, $title = "Imported CarePlan Notes.")
+    public function __construct(string $xmlContent, private readonly string $title = "Imported CarePlan Notes.")
     {
-        $this->title = $title;
         $dom = new DOMDocument();
         $dom->loadXML($xmlContent);
         $this->xml = $dom;
@@ -32,29 +30,42 @@ class CdaTextParser
      * Parse the section with a specific code to extract notes.
      *
      * @param string $sectionCode Section code to search for.
-     * @return array Extracted notes.
+     * @return array<int, array{id: string, caption: string, content: string}> Extracted notes.
      */
-    public function parseSectionByCode($sectionCode): array
+    public function parseSectionByCode(string $sectionCode): array
     {
         $notes = [];
         $xpath = new DOMXPath($this->xml);
 
         // Register namespaces
-        $namespaces = $this->xml->documentElement->lookupNamespaceURI(null);
-        if ($namespaces) {
+        $namespaces = $this->xml->documentElement?->lookupNamespaceURI(null);
+        if ($namespaces !== null) {
             $xpath->registerNamespace('ns', $namespaces); // 'ns' is a generic prefix
         }
 
         // use namespace prefix if present
-        $query = $namespaces ? "//ns:section[ns:code[@code='{$sectionCode}']]" : "//section[code[@code='{$sectionCode}']]";
+        $query = $namespaces !== null ? "//ns:section[ns:code[@code='{$sectionCode}']]" : "//section[code[@code='{$sectionCode}']]";
         $sections = $xpath->query($query);
 
+        if ($sections === false) {
+            return $notes;
+        }
+
         foreach ($sections as $section) {
-            $list = $xpath->query(".//ns:list | .//list", $section)->item(0);
-            if ($list) {
+            if (!$section instanceof DOMElement) {
+                continue;
+            }
+            // Match the section query's pattern: only reference the 'ns'
+            // prefix when it has actually been registered, otherwise the
+            // namespaced branch of the query fails silently and list
+            // elements are dropped.
+            $listQuery = $namespaces !== null ? ".//ns:list" : ".//list";
+            $listResult = $xpath->query($listQuery, $section);
+            $list = $listResult !== false ? $listResult->item(0) : null;
+            if ($list instanceof DOMElement) {
                 foreach ($list->getElementsByTagName("item") as $item) {
-                    $id = $item->getAttribute("ID") ?: "No ID";
-                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "No Caption";
+                    $id = $item->getAttribute("ID") ?: "";
+                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "";
                     $content = $this->extractItemContent($item);
 
                     $notes[] = [
@@ -82,11 +93,11 @@ class CdaTextParser
 
         foreach ($item->childNodes as $child) {
             if ($child->nodeType === XML_TEXT_NODE) {
-                $text = trim(preg_replace('/\s+/', ' ', $child->nodeValue)); // Normalize spaces
+                $text = trim((string) preg_replace('/\s+/', ' ', (string) $child->nodeValue)); // Normalize spaces
                 if ($text !== '') {
                     $contentLines[] = $indent . $text;
                 }
-            } elseif ($child->nodeType === XML_ELEMENT_NODE) {
+            } elseif ($child instanceof DOMElement) {
                 if ($child->tagName === 'list') {
                     // Recursive parsing for nested lists
                     foreach ($child->getElementsByTagName("item") as $nestedItem) {
@@ -96,7 +107,7 @@ class CdaTextParser
                         }
                     }
                 } else {
-                    $text = trim(preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
+                    $text = trim((string) preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
                     if ($text !== '') {
                         $contentLines[] = $indent . $text;
                     }
@@ -110,12 +121,12 @@ class CdaTextParser
     /**
      * Generate textareas from parsed notes.
      *
-     * @param array $notes Parsed notes.
+     * @param array<int, array{id: string, caption: string, content: string}> $notes Parsed notes.
      * @return string Generated HTML.
      */
-    public function generateConsolidatedTextNote($notes): string
+    public function generateConsolidatedTextNote(array $notes): string
     {
-        if (empty($notes)) {
+        if (count($notes) === 0) {
             return '';
         }
         $text = "\n{$this->title}\n";

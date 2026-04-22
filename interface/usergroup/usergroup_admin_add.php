@@ -4,7 +4,7 @@
  * Add new user.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -15,11 +15,13 @@ require_once("../globals.php");
 require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
@@ -29,11 +31,11 @@ use OpenEMR\Services\UserService;
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Add User")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Add User", xl("Add User"));
 }
 
 $alertmsg = '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 <html>
@@ -46,16 +48,12 @@ $alertmsg = '';
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
-if (empty($collectthis)) {
-    $collectthis = "undefined";
-} else {
-    $collectthis = json_sanitize($collectthis["new_user"]["rules"]);
-}
+$collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis["new_user"]["rules"]);
 ?>
 <script>
 
@@ -117,13 +115,19 @@ function submitform() {
         }
     } //secure_pwd if ends here
 
-    // Valiate Google email (if provided)
+    // Validate Google email (if provided)
     if(document.new_user.google_signin_email.value != "" && !isValidEmail(document.new_user.google_signin_email.value)) {
         alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
         return false;
     }
 
-    <?php if ($GLOBALS['erx_enable']) { ?>
+    // Validate email (if provided)
+    if(document.new_user.email.value != "" && !isValidEmail(document.new_user.email.value)) {
+        alert(<?php echo xlj('Email provided is invalid/not properly formatted (e.g. name@example.com)') ?>);
+        return false;
+    }
+
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
    alertMsg='';
    f=document.forms[0];
    for(i=0;i<f.length;i++){
@@ -182,6 +186,8 @@ function submitform() {
         } else {
             dlgclose('reload', false);
         }
+    }).fail(function (xhr, status, error) {
+        alert(<?php echo xlj('Error creating user'); ?> + ': ' + status);
     });
 
     return false;
@@ -222,10 +228,10 @@ function authorized_clicked() {
 <tr>
 <td valign='top'>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
-<input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
+<input type='hidden' name='secure_pwd' value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
 
 <span class="font-weight-bold">&nbsp;</span>
 <table class="border-0" cellpadding='0' cellspacing='0' style="width:600px;">
@@ -236,13 +242,13 @@ function authorized_clicked() {
         // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
         // generate additional rows / table columns which locks us into that format.
         $preRenderEvent = new UserEditRenderEvent('usergroup_admin_add');
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
         ?>
     </td>
 </tr>
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
-<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
 <td style="width:150px;">
     <span class="text"><?php echo xlt('Password'); ?>:</span>
 </td>
@@ -266,12 +272,12 @@ function authorized_clicked() {
 
 </tr>
 <tr>
-<td><span class="text"<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display: none'" : ""; ?>><?php echo xlt('Groupname'); ?>: </span></td>
+<td><span class="text"<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display: none'" : ""; ?>><?php echo xlt('Groupname'); ?>: </span></td>
 <td>
-<select name="groupname" class="form-control"<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display:none'" : ""; ?>>
+<select name="groupname" class="form-control"<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 <?php
 $res = sqlStatement("select distinct name from `groups`");
-$result2 = array();
+$result2 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result2[$iter] = $row;
 }
@@ -305,7 +311,7 @@ foreach ($result2 as $iter) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-    for ($iter = 0; $iter < sizeof($fres); $iter++) {
+    for ($iter = 0; $iter < count($fres); $iter++) {
         $result[$iter] = $fres[$iter];
     }
 
@@ -327,7 +333,7 @@ if ($fres) {
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:120px;" class="form-control">
 <?php
-foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')] as $key => $value) {
     echo " <option value='" . attr($key) . "'";
     echo ">" . text($value) . "</option>\n";
 }
@@ -353,7 +359,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector();
     ?>
   </td>
@@ -396,16 +402,19 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:120px;" class="form-control"></td>
-<td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
+<td class='text'><?php echo xlt('Ensora eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', array('style' => 'width:120px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', ['style' => 'width:120px']); ?>
 </td>
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"] ?? ''); ?>"></td>
 <td><span class="text"><?php echo xlt('Google Email for Login'); ?>: </span></td><td><input type="text" name="google_signin_email" style="width:150px;" class="form-control" value="<?php echo attr($iter["google_signin_email"] ?? ''); ?>"></td>
 </tr>
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<tr>
+<td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type="email" name="email" style="width:120px;" class="form-control"></td>
+</tr>
+<?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
@@ -433,16 +442,16 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <?php } ?>
 
 <!-- facility and warehouse restrictions, optional -->
-<?php if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
  <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
-  <td class="text"><?php echo !empty($GLOBALS['gbl_fac_warehouse_restrictions']) ?
+  <td class="text"><?php echo OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') ?
     xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
   <td colspan="3">
    <select name="schedule_facility[]" multiple style="width:490px;">
     <?php
     $user_id = 0; // in user_admin.php this is intval($_GET["id"]).
-    $userFacilities = getUserFacilities($user_id, 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
-    $ufid = array();
+    $userFacilities = getUserFacilities($user_id, 'id', OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions'));
+    $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
     }
@@ -459,11 +468,11 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
             echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
             // Then generate an option for each of the facility's warehouses.
             // Does not apply if the site does not use warehouse restrictions.
-            if (!empty($GLOBALS['gbl_fac_warehouse_restrictions'])) {
+            if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
-                    array('warehouse', $frow['id'])
+                    ['warehouse', $frow['id']]
                 );
                 while ($lrow = sqlFetchArray($lres)) {
                     echo "    <option";
@@ -512,7 +521,7 @@ foreach ($list_acl_groups as $value) {
                 $fres = $facilityService->getAllBillingLocations();
                 if ($fres) {
                     $billResults = [];
-                    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+                    for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                         $billResults[$iter2] = $fres[$iter2];
                     }
 
@@ -534,7 +543,7 @@ foreach ($list_acl_groups as $value) {
             // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
             // generate additional rows / table columns which locks us into that format.
             $preRenderEvent = new UserEditRenderEvent('usergroup_admin_add.php');
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
             ?>
         </td>
     </tr>
@@ -549,12 +558,12 @@ foreach ($list_acl_groups as $value) {
 
 </tr>
 
-<tr<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display:none'" : ""; ?>>
+<tr<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -581,12 +590,12 @@ foreach ($result as $iter) {
 </td>
 
 </tr>
-<tr<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display:none'" : ""; ?>>
+<tr<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td>
@@ -611,7 +620,7 @@ foreach ($result3 as $iter) {
 <select name='groupname'>
 <?php
 $res = sqlStatement("select distinct name from `groups`");
-$result2 = array();
+$result2 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result2[$iter] = $row;
 }
@@ -630,7 +639,7 @@ foreach ($result2 as $iter) {
 </table>
 
 <?php
-if (empty($GLOBALS['disable_non_default_groups'])) {
+if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
     $res = sqlStatement("select * from `groups` order by name");
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result5[$iter] = $row;
@@ -639,12 +648,12 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     foreach ($result5 as $iter) {
         $grouplist[$iter["name"]] .= $iter["user"] .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
+        text(substr((string) $list, 0, strlen((string) $list) - 2)) . "</span><br />\n";
     }
 }
 ?>

@@ -18,17 +18,18 @@
  */
 
 //require_once("../../../../globals.php");
-require_once $GLOBALS['srcdir'] . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
 }
 
 $widgetConstants = [
@@ -40,19 +41,21 @@ $widgetConstants = [
 global $pid; // we need to grab our pid from our global settings.
 $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $logService = new WenoLogService();
 $pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
 
 $activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
 
 // should always be set, but just in case we will set it to 0 so we can grab it
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$small_form = $small_form ?? '';
+$small_form ??= '';
 
 $pharmacyService = new PharmacyService();
-$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
-$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? [];
+$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? [];
 $prev_prim_pharmacy = js_escape($prev_prim_pharmacy);
 $prev_alt_pharmacy = js_escape($prev_alt_pharmacy);
 
@@ -61,7 +64,7 @@ $res = sqlStatement($sql);
 $error = false;
 
 $pharmacyService = new PharmacyService();
-$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
+$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 
 ?>
 
@@ -102,7 +105,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
 <div id="weno_form"></div>
 
 <template id="weno_template">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
     <hr class="bg-light font-weight-bold text-dark my-0 my-1">
@@ -404,7 +407,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         $('#weno_pharmacy').select2({
             width: '500px',
             ajax: {
-                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -442,7 +445,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             width: 'auto',
             allowClear: true,
             ajax: {
-                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -543,7 +546,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             csrf_token_form: csrf
         };
         $.ajax({
-            url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+            url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
             type: "GET",
             data: data,
             success: function (data) {
@@ -570,8 +573,8 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             },
             // Error handling
             error: function (error) {
-                let msg = jsText(xl('Something went wrong. Try again!')) + ' ' + jsAttr(error);
-                syncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
+                let msg = xl('Something went wrong. Try again!') + ' ' + error;
+                asyncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
             }
         });
     }

@@ -15,10 +15,10 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $drugval = '0';
 if ($_POST['testcomplete'] == 'true') {
@@ -29,5 +29,5 @@ $tracker_id = $_POST['trackerid'];
 if ($tracker_id != 0) {
        sqlStatement("UPDATE patient_tracker SET " .
            "drug_screen_completed = ? " .
-           "WHERE id =? ", array($drugval,$tracker_id));
+           "WHERE id =? ", [$drugval,$tracker_id]);
 }

@@ -5,7 +5,7 @@
  * we need to take care of in the system based on system events.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -14,7 +14,6 @@
 
 namespace CodeTypes;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\ZendModules\CodeTypes\Listener\CodeTypeEventsSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -26,13 +25,13 @@ class Module
     public function getAutoloaderConfig()
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
-        return array(
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+        return [
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     'OpenEMR\\ZendModules\\' . __NAMESPACE__ => __DIR__ . '/src/' . self::NAMESPACE_NAME,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function onBootstrap(MvcEvent $e)
@@ -48,7 +47,7 @@ class Module
 
     public function getServiceConfig()
     {
-        return array();
+        return [];
     }
 
     public function getConfig()

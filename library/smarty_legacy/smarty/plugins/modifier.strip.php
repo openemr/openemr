@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -25,7 +26,7 @@
  */
 function smarty_modifier_strip($text, $replace = ' ')
 {
-    return preg_replace('!\s+!', $replace, $text);
+    return preg_replace('!\s+!', (string) $replace, (string) $text);
 }
 
 /* vim: set expandtab: */

@@ -12,7 +12,7 @@
  * Transfers
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
@@ -23,15 +23,16 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Specify if product or warehouse is the first column.
@@ -47,56 +48,78 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     global $form_from_date, $form_to_date, $form_product;
 
     $whidcond = '';
+    $whidbind = [];
     if ($warehouse_id !== '~') {
-        $whidcond = $warehouse_id === '' ?
-        "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )" :
-        "AND di.warehouse_id = '" . add_escape_custom($warehouse_id) . "'";
+        if ($warehouse_id === '') {
+            $whidcond = "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )";
+        } else {
+            $whidcond = "AND di.warehouse_id = ?";
+            $whidbind[] = $warehouse_id;
+        }
     }
 
     $prodcond = '';
+    $prodbind = [];
     if ($form_product) {
         $product_id = $form_product;
     }
 
     if ($product_id) {
-        $prodcond = "AND di.drug_id = '" . add_escape_custom($product_id) . "'";
+        $prodcond = "AND di.drug_id = ?";
+        $prodbind[] = $product_id;
     }
+
+    $extrabind = array_merge($prodbind, $whidbind);
 
   // Get sum of current inventory quantities + destructions done after the
   // report end date (which is effectively a type of transaction).
     $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
     "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of sales/adjustments/purchases after the report end date.
     $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of transfers out after the report end date.
     $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
 
-function thisLineItem(
-    $product_id,
-    $warehouse_id,
-    $patient_id,
-    $encounter_id,
-    $rowprod,
-    $rowwh,
-    $transdate,
-    $qtys,
-    $irnumber = ''
-) {
+/**
+ * Render a line item for the inventory activity report HTML table.
+ *
+ * @param int $product_id
+ * @param int $warehouse_id
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $rowprod
+ * @param string $rowwh
+ * @param string $transdate
+ * @param array $qtys
+ * @param string $irnumber
+ * @return void
+ */
+function inventoryActivityLineItem(
+    int $product_id,
+    int $warehouse_id,
+    int $patient_id,
+    int $encounter_id,
+    string $rowprod,
+    string $rowwh,
+    string $transdate,
+    array $qtys,
+    string $irnumber = ''
+): void {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
     global $whleft, $prodleft; // left 2 columns, blank where repeated
@@ -197,7 +220,7 @@ function thisLineItem(
             } // End not csv export
         }
 
-        $secqtys = array(0, 0, 0, 0, 0);
+        $secqtys = [0, 0, 0, 0, 0];
         if ($product_first) {
             $whleft = $warehouse = $rowwh;
             $last_warehouse_id = $warehouse_id;
@@ -256,7 +279,7 @@ function thisLineItem(
             } // End not csv export
         }
 
-        $priqtys = array(0, 0, 0, 0, 0);
+        $priqtys = [0, 0, 0, 0, 0];
         if ($product_first) {
             $prodleft = $product = $rowprod;
             $last_product_id = $product_id;
@@ -346,8 +369,7 @@ function thisLineItem(
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory Activity")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Inventory Activity", xl("Inventory Activity"));
 }
 
 // this is "" or "submit" or "export".
@@ -433,7 +455,7 @@ table.mymaintable td, table.mymaintable th {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -456,7 +478,7 @@ table.mymaintable td, table.mymaintable th {
 <h2><?php echo xlt('Inventory Activity'); ?></h2>
 
 <form method='post' action='inventory_activity.php?product=<?php echo attr_url($product_first); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->
@@ -606,12 +628,12 @@ if ($form_action) { // if submit or export
     $prodleft  = "";
     $warehouse = "";
     $whleft    = "";
-    $grandqtys = array(0, 0, 0, 0, 0);
-    $priqtys   = array(0, 0, 0, 0, 0);
-    $secqtys   = array(0, 0, 0, 0, 0);
+    $grandqtys = [0, 0, 0, 0, 0];
+    $priqtys   = [0, 0, 0, 0, 0];
+    $secqtys   = [0, 0, 0, 0, 0];
     $last_inventory_id = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.fee, s.pid, s.encounter, " .
     "s.xfer_inventory_id, s.distributor_id, d.name, lo.title, " .
@@ -655,7 +677,7 @@ if ($form_action) { // if submit or export
                 !empty($row['destroy_date']) && $row['on_hand'] != 0
                 && $row['destroy_date'] <= $form_to_date
             ) {
-                thisLineItem(
+                inventoryActivityLineItem(
                     $row['drug_id'],
                     $row['warehouse_id'],
                     0,
@@ -663,21 +685,17 @@ if ($form_action) { // if submit or export
                     $row['name'],
                     $row['title'],
                     $row['destroy_date'],
-                    array(0, 0, 0, 0, 0 - $row['on_hand']),
+                    [0, 0, 0, 0, 0 - $row['on_hand']],
                     xl('Destroyed')
                 );
             }
         }
 
-        $qtys = array(0, 0, 0, 0, 0);
+        $qtys = [0, 0, 0, 0, 0];
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
-                    $qtys[3] = $row['quantity'];
-                } else {
-                    $qtys[3] = 0 - $row['quantity'];
-                }
+                $qtys[3] = $row['inventory_id'] == $row['xfer_inventory_id'] ? $row['quantity'] : 0 - $row['quantity'];
             } elseif ($row['pid']) {
                 $qtys[0] = 0 - $row['quantity'];
             } elseif ($row['distributor_id']) {
@@ -689,7 +707,7 @@ if ($form_action) { // if submit or export
             }
         }
 
-        thisLineItem(
+        inventoryActivityLineItem(
             $row['drug_id'],
             $row['warehouse_id'],
             $row['pid'] + 0,
@@ -703,7 +721,7 @@ if ($form_action) { // if submit or export
     }
 
     // Generate totals for last product and warehouse.
-    thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0, 0));
+    inventoryActivityLineItem(0, '~', 0, 0, '', '', '0000-00-00', [0, 0, 0, 0, 0]);
 
     // Grand totals line.
     if ($form_action != 'export') { // if submit

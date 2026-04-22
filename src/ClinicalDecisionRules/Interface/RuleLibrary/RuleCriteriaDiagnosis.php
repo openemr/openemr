@@ -19,15 +19,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaDiagnosis extends RuleCriteria
 {
-    var $title;
-    var $codeType;
-    var $id;
-
-    function __construct($title, $codeType = '', $id = '')
+    function __construct(public $title, public $codeType = '', public $id = '')
     {
-        $this->title = $title;
-        $this->codeType = $codeType;
-        $this->id = $id;
     }
 
     function getRequirements()

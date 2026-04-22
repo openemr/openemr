@@ -20,10 +20,11 @@ require_once("$srcdir/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // ensure timeout has not happened
 if (SessionTracker::isSessionExpired()) {
@@ -33,8 +34,8 @@ if (SessionTracker::isSessionExpired()) {
 // keep this below above time out check.
 OpenEMR\Common\Session\SessionUtil::setSession('keepAliveTime', time());
 
-$total_counts = array();
-$other_count = array();
+$total_counts = [];
+$other_count = [];
 // if portal is enabled get various alerts
 if (!empty($_POST['isPortal'])) {
     $total_counts = GetPortalAlertCounts();
@@ -47,7 +48,7 @@ if (!empty($_POST['isServicesOther'])) {
 //Collect number of due reminders
 $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 //Collect number of active messages
-$activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
+$activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 // Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
 $total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');

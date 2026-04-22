@@ -4,7 +4,7 @@
  * report.php displays the misc_billing_form in the encounter view
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2007 Bo Huynh
@@ -13,12 +13,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Billing\MiscBillingOptions;
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 
-function misc_billing_options_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
     $MBO = new OpenEMR\Billing\MiscBillingOptions();
     $count = 0;
@@ -27,9 +29,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                $key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
-                $key == "authorized" || $key == "activity" || $key == "date" || $value == "" ||
-                $value == "0" || $value == "0000-00-00 00:00:00" || $value == "0000-00-00" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
+                Utilities::isDateEmpty($value) || $value == "0" ||
                 ($key == "box_14_date_qual" && ($data['onset_date'] == 0)) ||
                 ($key == "box_15_date_qual" && ($data['date_initial_treatment'] == 0))
             ) {
@@ -61,7 +62,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
 
             if ($key === 'provider_id') {
                 $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
-                         "id = ? ", array($value));
+                         "id = ? ", [$value]);
                 $value = $trow['fname'] . ' ' . $trow['lname'];
                 $key = 'Box 17 Provider';
             }
@@ -77,7 +78,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
 
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
 
             if ($count == $cols) {

@@ -7,26 +7,14 @@ class NotificationSendAddress
     const TYPE_EMAIL = "Email";
     const TYPE_SMS = "SMS";
     const TYPE_OTHER = "Other";
-    /**
-     * @var string
-     */
-    private $name;
 
     /**
-     * @var string
+     * @param string $destination
+     * @param string $name
+     * @param string $type
      */
-    private $destination;
-
-    /**
-     * @var "Email"|"Other"
-     */
-    private $type;
-
-    public function __construct($destination, $name = "", $type = "Email")
+    public function __construct(private $destination, private $name = "", private $type = "Email")
     {
-        $this->destination = $destination;
-        $this->name = $name;
-        $this->type = $type;
     }
 
     /**

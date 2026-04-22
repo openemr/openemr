@@ -3,7 +3,7 @@
 /**
  * SMARTLaunchTokenTest Unit tests the SmartLaunchTokenTest for serialization & deserialization of the token.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class SMARTLaunchTokenTest extends TestCase
 {
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $patientUUID = "555-555-5555";
         $encounterID = "777-777-7777";
@@ -41,7 +41,7 @@ class SMARTLaunchTokenTest extends TestCase
     /**
      * Checks to make sure the hasScope method is working properly
      */
-    public function testDeserializeToken()
+    public function testDeserializeToken(): void
     {
         $patientUUID = "555-555-5555";
         $encounterID = "777-777-7777";

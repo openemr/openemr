@@ -4,7 +4,7 @@
  * This bootstrap file connects the module to the OpenEMR system hooking to the API, api scopes, and event notifications
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -29,18 +29,18 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use Laminas\Form\Element\Tel;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Services\Globals\GlobalSetting;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -50,11 +50,6 @@ class Bootstrap
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "";
     const MODULE_MENU_NAME = "TeleHealth";
-
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     private $moduleDirectoryName;
 
@@ -101,10 +96,7 @@ class Bootstrap
      */
     private $providerRepository;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var TeleHealthCalendarController
@@ -116,21 +108,23 @@ class Bootstrap
      */
     private $serviceRegistry = [];
 
-    public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
-    {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-        $this->eventDispatcher = $dispatcher;
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
+    ) {
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->logger = new SystemLogger();
-        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);
     }
 
     public function getGlobalConfig(): TelehealthGlobalConfig
@@ -145,7 +139,7 @@ class Bootstrap
 
     public function getURLPath()
     {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
+        return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
     }
 
     /**
@@ -192,12 +186,13 @@ class Bootstrap
 
     public function getCurrentLoggedInUser()
     {
-        return $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('authUserID');
     }
 
     public function subscribeToProviderEvents()
     {
-        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, [$this, 'createSessionRecord'], 10);
+        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->createSessionRecord(...), 10);
     }
 
     public function createSessionRecord(AppointmentSetEvent $event)
@@ -215,8 +210,8 @@ class Bootstrap
 
     public function subscribeToTemplateEvents()
     {
-        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
-        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderMainBodyTelehealthScripts']);
+        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, $this->addTemplateOverrideLoader(...));
+        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderMainBodyTelehealthScripts(...));
     }
 
 
@@ -238,7 +233,7 @@ class Bootstrap
     {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
-        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
+        return OEGlobalsBag::getInstance()->get('qualified_site_addr') . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
     }
 
     private function getAssetPath()
@@ -259,7 +254,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalTeleHealthSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalTeleHealthSettings(...));
     }
 
     public function addGlobalTeleHealthSettings(GlobalsInitializedEvent $event)
@@ -272,7 +267,7 @@ class Bootstrap
     {
         return new TeleconferenceRoomController(
             $this->getTwig(),
-            new SystemLogger(),
+            $this->logger,
             $this->getRegistrationController(),
             $this->getMailerService(),
             $this->getFrontendSettingsController(),
@@ -413,9 +408,6 @@ class Bootstrap
 
     private function getService($className)
     {
-        if (isset($this->serviceRegistry[$className])) {
-            return $this->serviceRegistry[$className];
-        }
-        return null;
+        return $this->serviceRegistry[$className] ?? null;
     }
 }

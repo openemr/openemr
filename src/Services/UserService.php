@@ -4,7 +4,7 @@
  * UserService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
@@ -17,10 +17,16 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * @phpstan-import-type UsersRow from TableTypes
+ */
 class UserService
 {
     private $_includeUsername;
@@ -67,7 +73,7 @@ class UserService
      * @param $username
      * @return string|bool
      */
-    public static function getAuthGroupForUser($username)
+    public function getAuthGroupForUser($username)
     {
         $return = false;
         $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
@@ -78,20 +84,24 @@ class UserService
     }
 
     /**
-     * @return array hydrated user object
+     * @param int|string $userId
+     * @return UsersRow|false
      */
     public function getUser($userId)
     {
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
+        /** @var UsersRow|false $record */
         $record = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
         return $this->createResultRecordFromDatabaseResult($record);
     }
 
     /**
-     * @return array hydrated user object
+     * @param string $username
+     * @return UsersRow|false
      */
     public function getUserByUsername($username)
     {
+        /** @var UsersRow|false $record */
         $record = sqlQuery("SELECT * FROM `users` WHERE BINARY `username` = ?", [$username]);
         if (!empty($record)) {
             return $this->createResultRecordFromDatabaseResult($record);
@@ -100,8 +110,9 @@ class UserService
     }
 
     /**
-     * Retrieves the API System User if it exists, returns null if the user does not exist.
-     * @return array
+     * Retrieves the API System User if it exists, returns false if the user does not exist.
+     *
+     * @return UsersRow|false
      */
     public function getSystemUser()
     {
@@ -109,39 +120,46 @@ class UserService
 
         if (!empty($user)) {
             if (empty($user['uuid'])) {
-                // we should always have this setup, but create them just in case.
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                // we should always have this setup, but create it just in case.
+                UuidRegistry::createMissingUuidForRow('users', 'id', $user['id']);
             }
         }
         return $user;
     }
 
     /**
-     * @return array active users (fully hydrated)
+     * @return list<UsersRow>
      */
     public function getActiveUsers()
     {
+        /** @var list<UsersRow> $users */
         $users = [];
         $user = sqlStatement("SELECT * FROM `users` WHERE (`username` != '' AND `username` IS NOT NULL) AND `active` = 1 ORDER BY `lname` ASC, `fname` ASC, `mname` ASC");
         while ($row = sqlFetchArray($user)) {
             // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
+            /** @var UsersRow $row */
             $users[] = $row;
         }
         return $users;
     }
 
     /**
-     * @return array
+     * @return UsersRow|false
      */
     public function getCurrentlyLoggedInUser()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
-        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
+        /** @var UsersRow|false $user */
+        $user = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
+        return $user;
     }
 
     /**
-     * Returns a user by the given UUID.  Can take a byte string or a UUID in string format.
-     * @param $userId string
+     * Returns a user by the given UUID. Can take a byte string or a UUID in string format.
+     *
+     * @param string $uuid
+     * @return UsersRow|false
      */
     public function getUserByUUID($uuid)
     {
@@ -149,6 +167,7 @@ class UserService
             $uuid = UuidRegistry::uuidToBytes($uuid);
         }
 
+        /** @var UsersRow|false $user */
         $user = sqlQuery("SELECT * FROM `users` WHERE `uuid` = ?", [$uuid]);
         // this is very annoying...
         if (!empty($user)) {
@@ -193,7 +212,7 @@ class UserService
         //(CHEMED) facility filter
         $param2 = "";
         if (!empty($facility)) {
-            if ($GLOBALS['restrict_user_facility']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
                 $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
                 $bind[] = $facility;
                 $bind[] = $facility;
@@ -213,15 +232,12 @@ class UserService
         // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
         if (count($records) == 1) {
             $akeys = array_keys($records[0]);
-            foreach ($akeys as $key) {
-                $records[0][$key] = $records[0][$key];
-            }
         }
 
         return ($records ?? null);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT  id,
                         uuid,
@@ -284,13 +300,13 @@ class UserService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT  id,
                         uuid,
@@ -333,7 +349,7 @@ class UserService
 
         if (!empty($search)) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);

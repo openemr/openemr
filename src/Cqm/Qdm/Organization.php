@@ -7,7 +7,7 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.5
+ * @QDM Version 5.6
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
@@ -15,9 +15,9 @@ namespace OpenEMR\Cqm\Qdm;
 class Organization extends Entity
 {
     /**
-     * @property BaseTypes\Code $type
+     * @property BaseTypes\Code $organizationType
      */
-    public $type = null;
+    public $organizationType = null;
 
     /**
      * @property string $hqmfOid
@@ -31,4 +31,3 @@ class Organization extends Entity
 
     public $_type = 'QDM::Organization';
 }
-

@@ -12,41 +12,29 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'ip_tracker')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'ip_tracker', dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("IP Tracker")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
-if (!empty($_POST['showOnlyWithCount'])) {
-    $showOnlyWithCount = true;
-} else {
-    $showOnlyWithCount = false;
-}
+$showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
 
-if (!empty($_POST['showOnlyManuallyBlocked'])) {
-    $showOnlyManuallyBlocked = true;
-} else {
-    $showOnlyManuallyBlocked = false;
-}
+$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']) ? true : false;
 
-if (!empty($_POST['showOnlyAutoBlocked'])) {
-    $showOnlyAutoBlocked = true;
-} else {
-    $showOnlyAutoBlocked = false;
-}
+$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
 
 ?>
 <html>
@@ -77,8 +65,8 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -96,8 +84,8 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -109,8 +97,8 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
             request = new FormData;
             request.append("function", "resetIpCounter");
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -144,7 +132,7 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
 <span class='title'><?php echo xlt('IP Tracker'); ?></span>
 
 <form method='post' name='theform' id='theform' action='ip_tracker.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ip_tracker')); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ip_tracker'); ?>" />
 
     <div id="report_parameters">
 
@@ -227,7 +215,7 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
                 <?php
                 $ipLoginFailsSql = AuthUtils::collectIpLoginFailsSql($showOnlyWithCount, $showOnlyManuallyBlocked, $showOnlyAutoBlocked);
 
-                while ($row = SqlFetchArray($ipLoginFailsSql)) {
+                while ($row = sqlFetchArray($ipLoginFailsSql)) {
                     ?>
 
                     <tr valign='top' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
@@ -241,16 +229,16 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
                             }
                             ?>
                         </td>
-                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
+                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(DateFormatterUtils::oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
                         <td class="detail" id="autoblock-<?php echo attr($row['id']) ?>">
                             <?php
                             $autoBlocked = false;
                             $autoBlockEnd = null;
-                            if ((int)$GLOBALS['ip_max_failed_logins'] != 0 && ($row['ip_login_fail_counter'] > (int)$GLOBALS['ip_max_failed_logins'])) {
-                                if ((int)$GLOBALS['ip_time_reset_password_max_failed_logins'] != 0) {
-                                    if ($row['seconds_last_ip_login_fail'] < (int)$GLOBALS['ip_time_reset_password_max_failed_logins']) {
+                            if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0 && ($row['ip_login_fail_counter'] > OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'))) {
+                                if (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') != 0) {
+                                    if ($row['seconds_last_ip_login_fail'] < OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) {
                                         $autoBlocked = true;
-                                        $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)$GLOBALS['ip_time_reset_password_max_failed_logins'] - $row['seconds_last_ip_login_fail'])));
+                                        $autoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') - $row['seconds_last_ip_login_fail'])));
                                     }
                                 } else {
                                     $autoBlocked = true;
@@ -259,7 +247,7 @@ if (!empty($_POST['showOnlyAutoBlocked'])) {
                             if ($autoBlocked) {
                                 echo xlt("Yes");
                                 if (!empty($autoBlockEnd)) {
-                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($autoBlockEnd)) . ')';
                                 }
                             } else {
                                 echo xlt("No");

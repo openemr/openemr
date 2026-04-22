@@ -3,7 +3,7 @@
 /*
  * soap form
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -11,14 +11,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormSOAP extends Controller
 {
-    private TwigContainer $twig;
+    private readonly TwigContainer $twig;
     public function __construct()
     {
         $path = $this->getTemplatePath();
@@ -36,8 +38,8 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => $GLOBALS['web_root'],
-                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
+                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]
         );
@@ -45,17 +47,13 @@ class C_FormSOAP extends Controller
 
     function view_action($form_id)
     {
-        if (is_numeric($form_id)) {
-            $form = new FormSOAP($form_id);
-        } else {
-            $form = new FormSOAP();
-        }
+        $form = is_numeric($form_id) ? new FormSOAP($form_id) : new FormSOAP();
 
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => $GLOBALS['web_root'],
-                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
+                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]
         );
@@ -71,18 +69,19 @@ class C_FormSOAP extends Controller
         parent::populate_object($this->form);
 
         $this->form->persist();
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
-                $GLOBALS['encounter'],
+                OEGlobalsBag::getInstance()->get('encounter'),
                 "SOAP",
                 $this->form->id,
                 "soap",
-                $GLOBALS['pid'],
-                $_SESSION['userauthorized']
+                OEGlobalsBag::getInstance()->get('pid'),
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

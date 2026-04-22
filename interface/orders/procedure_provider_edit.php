@@ -4,7 +4,7 @@
  * Maintenance for the list of procedure providers.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2014 Rod Roark <rod@sunsetsystems.com>
@@ -15,26 +15,23 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit/Add Procedure Provider", xl("Edit/Add Procedure Provider"));
 }
 
 // Collect user id if editing entry
@@ -42,19 +39,8 @@ $ppid = $_REQUEST['ppid'];
 
 $info_msg = "";
 
-function invalue($name)
-{
-    $fld = add_escape_custom(trim($_POST[$name]));
-    return "'$fld'";
-}
-
-function onvalue($name)
-{
-    $fld = ($_POST[$name] == 'on') ? '1' : '0';
-    return "'$fld'";
-}
-
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <?php Header::setupHeader(['opener']);?>
@@ -101,40 +87,43 @@ function onvalue($name)
     <?php
     // If we are saving, then save and close the window.
     // lab_director is the id of the organization in the users table
-    //
+    // except when it's not in the address book, then it's the name
     if (!empty($_POST['form_save'])) {
         $org_qry = "SELECT organization FROM users WHERE id = ?";
-        $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+        $org_res = sqlQuery($org_qry, [$_POST['form_name']]);
         $org_name = $org_res['organization'];
-        $sets =
-            "name = '" . add_escape_custom($org_name) . "', " .
-            "lab_director = " . invalue('form_name') . ", " .
-            "npi = " . invalue('form_npi') . ", " .
-            "send_app_id = " . invalue('form_send_app_id') . ", " .
-            "send_fac_id = " . invalue('form_send_fac_id') . ", " .
-            "recv_app_id = " . invalue('form_recv_app_id') . ", " .
-            "recv_fac_id = " . invalue('form_recv_fac_id') . ", " .
-            "DorP = " . invalue('form_DorP') . ", " .
-            "direction = " . invalue('form_direction') . ", " .
-            "protocol = " . invalue('form_protocol') . ", " .
-            "remote_host = " . invalue('form_remote_host') . ", " .
-            "login = " . invalue('form_login') . ", " .
-            "password = " . invalue('form_password') . ", " .
-            "orders_path = " . invalue('form_orders_path') . ", " .
-            "results_path = " . invalue('form_results_path') . ", " .
-            "notes = " . invalue('form_notes') . ", " .
-            "active = " . onvalue('form_active');
+        if (empty($org_res) && $ppid) {
+            $org_qry = "SELECT name FROM procedure_providers WHERE ppid = ?";
+            $org_res = sqlQuery($org_qry, [$ppid]);
+            $org_name = $org_res['name'];
+        }
+        $sets = "name = ?, lab_director = ?, npi = ?, send_app_id = ?, " .
+            "send_fac_id = ?, recv_app_id = ?, recv_fac_id = ?, DorP = ?, " .
+            "direction = ?, protocol = ?, remote_host = ?, login = ?, " .
+            "password = ?, orders_path = ?, results_path = ?, notes = ?, active = ?";
+        $params = [$org_name];
+        $postFields = [
+            'form_name', 'form_npi', 'form_send_app_id', 'form_send_fac_id',
+            'form_recv_app_id', 'form_recv_fac_id', 'form_DorP', 'form_direction',
+            'form_protocol', 'form_remote_host', 'form_login', 'form_password',
+            'form_orders_path', 'form_results_path', 'form_notes',
+        ];
+        foreach ($postFields as $field) {
+            $val = $_POST[$field] ?? '';
+            $params[] = is_string($val) ? trim($val) : '';
+        }
+        $params[] = (($_POST['form_active'] ?? '') == 'on') ? '1' : '0';
 
         if ($ppid) {
-            $query = "UPDATE procedure_providers SET $sets " .
-                "WHERE ppid = '" . add_escape_custom($ppid) . "'";
-            sqlStatement($query);
+            $params[] = $ppid;
+            $query = "UPDATE procedure_providers SET $sets WHERE ppid = ?";
+            sqlStatement($query, $params);
         } else {
-            $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets");
+            $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets", $params);
         }
     } elseif (!empty($_POST['form_delete'])) {
         if ($ppid) {
-            sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
+            sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", [$ppid]);
         }
     }
 
@@ -151,8 +140,9 @@ function onvalue($name)
         exit();
     }
 
+    $row = [];
     if ($ppid) {
-        $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
+        $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", [$ppid]);
     }
 
     $ppid_active = $row['active'] ?? null;
@@ -175,14 +165,20 @@ function onvalue($name)
             }
         }
     }
+    // no Address book entry for this provider. Use the one in the procedure_providers table
+    if (empty($optionsStr) && $ppid) {
+        $org_name = $row['name'] ?? '';
+        $selected = "selected";
+        $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" . text($org_name) . "</option>";
+    }
     ?>
     <div class="page-header" name="form_legend" id="form_legend">
         <h4><?php echo xlt('Enter Provider Details'); ?><i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript ml-2" aria-hidden="true"></i></h4>
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="form-check-inline">
                     <label class='form-check-label mr-2' for="form_active"><?php echo xlt('Active'); ?></label>
                     <input type='checkbox' class='form-check-input' name='form_active' id='form_active'
@@ -238,12 +234,12 @@ function onvalue($name)
                                 <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
                                     <?php
                                     foreach (
-                                        array(
+                                        [
                                         'D' => xl('Debugging'),
                                         'P' => xl('Production'),
                                         'T' => xl('Quest Cert Testing'),
                                         'Q' => xl('Quest Cert Debug'),
-                                        ) as $key => $value
+                                        ] as $key => $value
                                     ) {
                                         echo "    <option value='" . attr($key) . "'";
                                         if (!empty($row['DorP']) && ($key == $row['DorP'])) {
@@ -335,13 +331,14 @@ function onvalue($name)
                                     <select name='form_protocol' id='form_protocol' class='form-control'>
                                         <?php
                                         foreach (
-                                            array(
+                                            [
                                             // Add to this list as more protocols are supported.
                                             'DL' => xl('Download'),
                                             'SFTP' => xl('SFTP'),
                                             'FS' => xl('Local Filesystem'),
                                             'WS' => xl('Web Service'),
-                                            ) as $key => $value
+                                            'DORN' => xl('Dorn'),
+                                            ] as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if (!empty($row['protocol']) && ($key == $row['protocol'])) {
@@ -356,10 +353,10 @@ function onvalue($name)
                                     <select name='form_direction' id='form_direction' class='form-control'>
                                         <?php
                                         foreach (
-                                            array(
+                                            [
                                             'B' => xl('Bidirectional'),
                                             'R' => xl('Results Only'),
-                                            ) as $key => $value
+                                            ] as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if (!empty($row['direction']) && ($key == $row['direction'])) {

@@ -14,12 +14,14 @@
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $module_config = 1;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET['setup']) ?? null) {
     /**
      * Example expected data structure for received data.
@@ -31,24 +33,22 @@ if (!empty($_GET['setup']) ?? null) {
      * 'ctsiOrgId' => 'OPENEM2xxxx']];
      *
      * */
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'] ?? '';
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = isset($credentials['ctsiOrgPwd']) ? $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd'])) : '';
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = isset($credentials['ctsiOrgPwd']) ? $cryptoGen->encryptStandard(trim((string) $credentials['ctsiOrgPwd'])) : '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_CMS_ID] = $credentials['ctsiOrgId'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['paypal_subscription_id'] ?? '';
     // Save to globals table.
     foreach ($items as $key => $credential) {
         sqlQuery(
             "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-            array($key, $credential, $key, $credential)
+            [$key, $credential, $key, $credential]
         );
     }
 
@@ -70,7 +70,7 @@ if (!empty($_GET['setup']) ?? null) {
             }
             // fix twig single quote escaping of passed in object.
             let prepared = e.data.replace(/&quot;/ig, '"');
-            let url = 'moduleConfig.php?setup=1&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            let url = 'moduleConfig.php?setup=1&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             fetch(url, {
                 method: 'POST',
                 credentials: 'same-origin',

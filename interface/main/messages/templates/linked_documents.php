@@ -9,22 +9,25 @@
  * as an async validation process.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+// This file is a sub-template included by messages.php. $noteid is a required
+// parameter from the parent context. Return silently if it is missing — this
+// is a missing-parameter guard, not an authorisation failure, so showing the
+// unauthorized template would be misleading.
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
-    echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
-    exit;
+    return;
 }
 
 // Get the related document IDs if any.
@@ -38,7 +41,7 @@ if (empty($tmp)) {
 $enc_list = [];
 if (!empty($prow)) {
     $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
+        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", [$prow['pid']]);
     foreach ($enc_list as $row) {
         $enc_list[] = [
             'encounter' => $row['encounter'],
@@ -51,7 +54,7 @@ if (!empty($prow)) {
 // if we have phimail enabled, we are going to find out if our document is an xml file, if so, we are going to do a validation
 // report on the document.  This would be a great thing for caching if we wanted to do that, we'll just compute on the fly for now.
 $records = [];
-$prow = $prow ?? null;
+$prow ??= null;
 $cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
     if ($record['type1'] == 1) {
@@ -152,16 +155,18 @@ try {
     </div>
 </div>
     <?php }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
-    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <script>
     function previewCCDADocument(event, documentId) {
         event.preventDefault();
-        let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
+        let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
         try {
             window.open(url);
         }
@@ -181,7 +186,7 @@ try {
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
-            let url = "<?php echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken()); ?>
+            let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>
 
             window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
@@ -248,10 +253,10 @@ try {
         top.restoreSession();
         $.ajax({
             type: 'get',
-            url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
+            url: '<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/set_pt.php";?>',
             data: {
                 set_pid: pid,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             async: false
         });

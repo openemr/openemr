@@ -4,7 +4,7 @@
  * BillingViewCard - presentation view of a patient's billing information in a card widget.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 
@@ -21,20 +22,8 @@ class BillingViewCard extends CardModel
 
     private const CARD_ID = 'billing';
 
-    private $pid;
-
-    private $insco_name;
-
-    private $primaryInsurance;
-
-    private $billingNote;
-
-    public function __construct($pid, $insco_name, $billingNote, $primaryInsurance, array $opts = [])
+    public function __construct(private $pid, private $insco_name, private $billingNote, private $primaryInsurance, array $opts = [])
     {
-        $this->pid = $pid;
-        $this->insco_name = $insco_name;
-        $this->primaryInsurance = $primaryInsurance;
-        $this->billingNote = $billingNote;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
@@ -62,7 +51,7 @@ class BillingViewCard extends CardModel
     {
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
-        $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
+        $forceBillingExpandAlways = (OEGlobalsBag::getInstance()->getBoolean('force_billing_widget_open')) ? true : false;
         $patientbalance = get_patient_balance($pid, false);
         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;

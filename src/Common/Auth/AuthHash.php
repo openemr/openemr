@@ -20,7 +20,9 @@
 
 namespace OpenEMR\Common\Auth;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class AuthHash
 {
@@ -31,13 +33,13 @@ class AuthHash
 
     public function __construct()
     {
-        $this->algo = $GLOBALS['gbl_auth_hash_algo'];
+        $this->algo = OEGlobalsBag::getInstance()->get('gbl_auth_hash_algo');
 
         // If SHA512HASH is selected, then ensure CRYPT_SHA512 is supported
         if ($this->algo == "SHA512HASH") {
             if (CRYPT_SHA512 != 1) {
-                $this->algo == "DEFAULT";
-                error_log("OpenEMR WARNING: SHA512HASH not supported, so using DEFAULT instead");
+                $this->algo = "DEFAULT";
+                ServiceContainer::getLogger()->warning("SHA512HASH not supported, using DEFAULT instead");
             }
         }
 
@@ -73,12 +75,12 @@ class AuthHash
         if (($this->algo == "ARGON2ID") && (!defined('PASSWORD_ARGON2ID'))) {
             // argon2id not supported, so will try argon2i instead
             $this->algo = "ARGON2I";
-            error_log("OpenEMR WARNING: ARGON2ID not supported, so using ARGON2I instead");
+            ServiceContainer::getLogger()->warning("ARGON2ID not supported, using ARGON2I instead");
         }
         if (($this->algo == "ARGON2I") && (!defined('PASSWORD_ARGON2I'))) {
             // argon2i not supported, so will use bcrypt instead
             $this->algo = "BCRYPT";
-            error_log("OpenEMR WARNING: ARGON2I not supported, so using BCRYPT instead");
+            ServiceContainer::getLogger()->warning("ARGON2I not supported, using BCRYPT instead");
         }
 
         // Now can safely set up the algorithm and algorithm options
@@ -94,14 +96,14 @@ class AuthHash
             }
             // Set up Argon2 options
             $temp_array = [];
-            if (($GLOBALS['gbl_auth_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_memory_cost']))) {
-                $temp_array['memory_cost'] = $GLOBALS['gbl_auth_argon_hash_memory_cost'];
+            if ((OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost') != "DEFAULT") && (check_integer(OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost')))) {
+                $temp_array['memory_cost'] = OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost');
             }
-            if (($GLOBALS['gbl_auth_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_time_cost']))) {
-                $temp_array['time_cost'] = $GLOBALS['gbl_auth_argon_hash_time_cost'];
+            if ((OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost') != "DEFAULT") && (check_integer(OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost')))) {
+                $temp_array['time_cost'] = OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost');
             }
-            if (($GLOBALS['gbl_auth_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_thread_cost']))) {
-                $temp_array['threads'] = $GLOBALS['gbl_auth_argon_hash_thread_cost'];
+            if ((OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost') != "DEFAULT") && (check_integer(OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost')))) {
+                $temp_array['threads'] = OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost');
             }
             if (!empty($temp_array)) {
                 $this->options = $temp_array;
@@ -109,14 +111,14 @@ class AuthHash
         } elseif ($this->algo == "BCRYPT") {
             // Bcrypt - Using bcrypt and set up bcrypt options
             $this->algo_constant = PASSWORD_BCRYPT;
-            if (($GLOBALS['gbl_auth_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_bcrypt_hash_cost']))) {
-                $this->options = ['cost' => $GLOBALS['gbl_auth_bcrypt_hash_cost']];
+            if ((OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost') != "DEFAULT") && (check_integer(OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost')))) {
+                $this->options = ['cost' => OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost')];
             }
         } elseif ($this->algo == "SHA512HASH") {
             // SHA512HASH - Using crypt and set up crypt option for this algo
             $this->algo_constant = $this->algo;
-            if (check_integer($GLOBALS['gbl_auth_sha512_rounds'])) {
-                $this->options = ['rounds' => $GLOBALS['gbl_auth_sha512_rounds']];
+            if (check_integer(OEGlobalsBag::getInstance()->get('gbl_auth_sha512_rounds'))) {
+                $this->options = ['rounds' => OEGlobalsBag::getInstance()->get('gbl_auth_sha512_rounds')];
             } else {
                 $this->options = ['rounds' => 100000];
             }
@@ -126,7 +128,7 @@ class AuthHash
             //   BCRYPT, ARGON2I, or ARGON2ID.
             // If this happens, then will just go with PHP Default (ie. go with default php algorithm and options).
             $this->algo_constant = PASSWORD_DEFAULT;
-            error_log("OpenEMR WARNING: Unable to resolve hashing preference, so using PHP Default");
+            ServiceContainer::getLogger()->warning("Unable to resolve hashing preference, using PHP Default");
         }
     }
 
@@ -138,14 +140,14 @@ class AuthHash
             $salt = RandomGenUtils::produceRandomString(16, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
             // Create hash
-            return crypt($password, '$6$rounds=' . $this->options['rounds'] . '$' . $salt . '$');
+            return crypt((string) $password, '$6$rounds=' . $this->options['rounds'] . '$' . $salt . '$');
         }
 
         // Process algos supported by standard password_hash
         if (empty($this->options)) {
-            return password_hash($password, $this->algo_constant);
+            return password_hash((string) $password, $this->algo_constant);
         } else {
-            return password_hash($password, $this->algo_constant, $this->options);
+            return password_hash((string) $password, $this->algo_constant, $this->options);
         }
     }
 
@@ -153,17 +155,17 @@ class AuthHash
     {
         if ($this->algo == "SHA512HASH") {
             // Process when going to SHA512HASH algo separately, since not supported by standard password_needs_rehash
-            if (empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            if (empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
                 // algo does not match, so needs rehash
                 return true;
             }
-            preg_match('/^\$6\$rounds=([0-9]*)\$/', $hash, $matches);
+            preg_match('/^\$6\$rounds=([0-9]*)\$/', (string) $hash, $matches);
             $rounds = $matches[1];
             if ($rounds != $this->options['rounds']) {
                 // number of rounds does not match, so needs rehash
                 return true;
             }
-        } elseif (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        } elseif (!empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Process when going from SHA512HASH algo separately, since not supported by standard password_needs_rehash
             // Note we already know that $this->algo != "SHA512HASH", so we return true
             return true;
@@ -185,21 +187,21 @@ class AuthHash
     public static function passwordVerify(&$password, $hash): bool
     {
         if (empty($password) || empty($hash)) {
-            error_log("OpenEMR Error: call to passwordVerify is missing password or hash");
+            ServiceContainer::getLogger()->error("Call to passwordVerify is missing password or hash");
             return false;
         }
 
-        if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStart = round(microtime(true) * 1000);
         }
 
-        if (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        if (!empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Process SHA512HASH algo separately, since uses crypt
-            $valid = hash_equals($hash, crypt($password, $hash));
+            $valid = hash_equals($hash, crypt((string) $password, (string) $hash));
         } else {
             // Process algos supported by standard password_verify
-            $valid = password_verify($password, $hash);
+            $valid = password_verify((string) $password, (string) $hash);
 
             if (!$valid) {
                 // Ensure do not need to process legacy hash (pre 5.0.0), which will get converted to standard hash
@@ -211,21 +213,21 @@ class AuthHash
                 //
                 //  TODO: Consider removing this at some time in the future (early 2022) since it overcomplicates authorization.
                 //
-                if (!empty(preg_match('/^\$2a\$05\$/', $hash)) && (substr($hash, 28, 1) === '.')) {
-                    $fixedSalt = substr($hash, 0, 28) . "$";
+                if (!empty(preg_match('/^\$2a\$05\$/', (string) $hash)) && (substr((string) $hash, 28, 1) === '.')) {
+                    $fixedSalt = substr((string) $hash, 0, 28) . "$";
                     if (strlen($fixedSalt) !== 29) {
                         return false;
                     } else {
-                        $valid = hash_equals($hash, crypt($password, $fixedSalt));
+                        $valid = hash_equals($hash, crypt((string) $password, $fixedSalt));
                     }
                 }
             }
         }
 
-        if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStop = round(microtime(true) * 1000);
-            error_log("Password hash verification execution time was following (milliseconds): " . errorLogEscape($millisecondsStop - $millisecondsStart));
+            ServiceContainer::getLogger()->debug("Password hash verification execution time (ms): {duration}", ['duration' => $millisecondsStop - $millisecondsStart]);
         }
 
         return $valid;
@@ -239,7 +241,7 @@ class AuthHash
         //   password_get_info() call can not identify older bcrypt hashes)
         //  (note also need to preg_match for /^\$6\$rounds=/ to support the SHA512HASH hashing option)
         $hash_info = password_get_info($hash);
-        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $hash)) && empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', (string) $hash)) && empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Invalid hash
             return false;
         } else {

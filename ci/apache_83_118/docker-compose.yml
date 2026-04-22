@@ -1,0 +1,12 @@
+x-includes:
+  node-version: "24"
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mariadb.yml"
+  mailpit-template: "compose-shared-mailpit/compose.yml"
+
+services:
+  mysql:
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+  openemr:
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:821c735f9cbe605872dff47e47a30454e5c041c5b21ca54d1a1dcab181e2d14d

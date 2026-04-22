@@ -4,6 +4,8 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class WenoValidate extends ModuleService
 {
@@ -12,7 +14,7 @@ class WenoValidate extends ModuleService
     private string $userEmail;
     private string $md5UserPassword;
     private mixed $encryptionKey;
-    private Client $client;
+    private readonly Client $client;
 
     public function __construct()
     {
@@ -51,7 +53,7 @@ class WenoValidate extends ModuleService
     {
         $gbl = $this->getVendorGlobals();
         $gbl['weno_encryption_key'] = $key;
-        $GLOBALS['weno_encryption_key'] = $key;
+        OEGlobalsBag::getInstance()->set('weno_encryption_key', $key);
         // save the new key to the database.
         // save will also set the global to stay current.
         $this->saveVendorGlobals($gbl);
@@ -158,8 +160,8 @@ class WenoValidate extends ModuleService
             }
 
             $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
-            return ($response !== false && !empty($newKey)) ? trim($newKey) : false;
-        } catch (\Exception $e) {
+            return ($response !== false && !empty($newKey)) ? trim((string) $newKey) : false;
+        } catch (\Throwable) {
             // Handle Exception
             return false;
         }
@@ -200,7 +202,7 @@ class WenoValidate extends ModuleService
                 $valid = (strtolower($valid) === 'true') || ($valid == '1') && !empty($valid);
             }
             return $valid;
-        } catch (\Exception $e) {
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -225,8 +227,8 @@ class WenoValidate extends ModuleService
                 // more escaping hell!
                 $xmlContent = html_entity_decode($result);
                 $xmlContent = preg_replace('/<string[^>]*>/', '', $xmlContent);
-                $xmlContent = preg_replace('/<\/string>/', '', $xmlContent);
-                $result = simplexml_load_string($xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
+                $xmlContent = preg_replace('/<\/string>/', '', (string) $xmlContent);
+                $result = XmlUtils::tryLoadString((string) $xmlContent, LIBXML_NOCDATA);
                 $result = json_decode(json_encode($result), true); // make associative array.
                 return $result ?: [];
             } else {

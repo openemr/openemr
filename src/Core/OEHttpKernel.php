@@ -1,0 +1,50 @@
+<?php
+
+namespace OpenEMR\Core;
+
+use OpenEMR\BC\ServiceContainer;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+class OEHttpKernel extends HttpKernel
+{
+    private LoggerInterface $logger;
+
+    private readonly OEGlobalsBag $globalsBag;
+
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ControllerResolverInterface $resolver,
+        ?RequestStack $requestStack = null,
+        ?ArgumentResolverInterface $argumentResolver = null,
+        bool $handleAllThrowables = false
+    ) {
+        parent::__construct($dispatcher, $resolver, $requestStack, $argumentResolver, $handleAllThrowables);
+        $this->globalsBag = OEGlobalsBag::getInstance();
+    }
+
+    public function getGlobalsBag(): OEGlobalsBag
+    {
+        return $this->globalsBag;
+    }
+
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->dispatcher;
+    }
+    public function getSystemLogger(): LoggerInterface
+    {
+        if (!isset($this->logger)) {
+            $this->logger = ServiceContainer::getLogger();
+        }
+        return $this->logger;
+    }
+    public function setSystemLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+}

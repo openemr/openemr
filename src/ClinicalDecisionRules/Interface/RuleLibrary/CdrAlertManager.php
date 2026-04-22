@@ -21,8 +21,9 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrResults;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once($GLOBALS['fileroot'] . "/library/clinical_rules.php");
+require_once(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/library/clinical_rules.php");
 
 /**
  * class OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager
@@ -40,7 +41,7 @@ class CdrAlertManager
 
     function populate()
     {
-        $cdra = array();
+        $cdra = [];
 
         $rules = resolve_rules_sql('', 0, true);
 

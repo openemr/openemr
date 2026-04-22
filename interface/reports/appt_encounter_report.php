@@ -20,7 +20,7 @@
  *   billing.pid_encounter
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
@@ -33,22 +33,22 @@ require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments and Encounters")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Appointments and Encounters", xl("Appointments and Encounters"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -59,7 +59,7 @@ $grand_total_charges    = 0;
 $grand_total_copays     = 0;
 $grand_total_encounters = 0;
 
-function postError($msg)
+function postError($msg): void
 {
     global $errmsg;
     if ($errmsg) {
@@ -69,7 +69,7 @@ function postError($msg)
     $errmsg .= text($msg);
 }
 
-function endDoctor(&$docrow)
+function endDoctor(&$docrow): void
 {
     global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
     if (!$docrow['docname']) {
@@ -107,13 +107,13 @@ function endDoctor(&$docrow)
     $docrow['encounters']  = 0;
 }
 
-$form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility  = $_POST['form_facility'] ?? '';
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 if (!empty($_POST['form_refresh'])) {
     // MySQL doesn't grok full outer joins so we do it the hard way.
     //
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "( " .
     "SELECT " .
     "e.pc_eventDate, e.pc_startTime, " .
@@ -221,7 +221,7 @@ if (!empty($_POST['form_refresh'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -237,7 +237,7 @@ if (!empty($_POST['form_refresh'])) {
 </div>
 
 <form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -349,12 +349,12 @@ if (!empty($_POST['form_refresh'])) {
 <tbody>
     <?php
     if ($res) {
-        $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
+        $docrow = ['docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0];
 
         while ($row = sqlFetchArray($res)) {
             $patient_id = $row['pid'];
             $encounter  = $row['encounter'];
-            $docname    = $row['docname'] ? $row['docname'] : xl('Unknown');
+            $docname    = $row['docname'] ?: xl('Unknown');
 
             if ($docname != $docrow['docname']) {
                 endDoctor($docrow);
@@ -371,7 +371,7 @@ if (!empty($_POST['form_refresh'])) {
             $query = "SELECT code_type, code, modifier, authorized, billed, fee, justify " .
             "FROM billing WHERE " .
             "pid = ? AND encounter = ? AND activity = 1";
-            $bres = sqlStatement($query, array($patient_id, $encounter));
+            $bres = sqlStatement($query, [$patient_id, $encounter]);
             //
             while ($brow = sqlFetchArray($bres)) {
                 $code_type = $brow['code_type'];
@@ -379,7 +379,7 @@ if (!empty($_POST['form_refresh'])) {
                     $billed = "";
                 }
 
-                if (!$GLOBALS['simplified_demographics'] && !$brow['authorized']) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') && !$brow['authorized']) {
                     postError(xl('Needs Auth'));
                 }
 
@@ -391,7 +391,7 @@ if (!empty($_POST['form_refresh'])) {
 
                 if ($code_types[$code_type]['fee']) {
                     $charges += $brow['fee'];
-                    if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) {
+                    if ($brow['fee'] == 0 && !OEGlobalsBag::getInstance()->get('ippf_specific')) {
                         postError(xl('Missing Fee'));
                     }
                 } else {
@@ -401,9 +401,9 @@ if (!empty($_POST['form_refresh'])) {
                 }
 
                 // Custom logic for IPPF to determine if a GCAC issue applies.
-                if ($GLOBALS['ippf_specific']) {
+                if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
                     if (!empty($code_types[$code_type]['fee'])) {
-                        $sqlBindArray = array();
+                        $sqlBindArray = [];
                         $query = "SELECT related_code FROM codes WHERE code_type = ? AND code = ? AND ";
                         array_push($sqlBindArray, $code_types[$code_type]['id'], $brow['code']);
                         if ($brow['modifier']) {
@@ -415,13 +415,13 @@ if (!empty($_POST['form_refresh'])) {
 
                         $query .= " LIMIT 1";
                         $tmp = sqlQuery($query, $sqlBindArray);
-                        $relcodes = explode(';', $tmp['related_code']);
+                        $relcodes = explode(';', (string) $tmp['related_code']);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
                             }
 
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             if ($codetype !== 'IPPF') {
                                 continue;
                             }
@@ -464,7 +464,7 @@ if (!empty($_POST['form_refresh'])) {
             if ($gcac_related_visit) {
                  $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
                  "WHERE pid = ? AND encounter = ? AND " .
-                 "deleted = 0 AND formdir = 'LBFgcac'", array($patient_id, $encounter));
+                 "deleted = 0 AND formdir = 'LBFgcac'", [$patient_id, $encounter]);
                 if (empty($grow['count'])) { // if there is no gcac form
                       postError(xl('GCAC visit form is missing'));
                 }
@@ -472,7 +472,7 @@ if (!empty($_POST['form_refresh'])) {
            /*****************************************************************/
 
             if (!$billed) {
-                postError($GLOBALS['simplified_demographics'] ?
+                postError(OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') ?
                 xl('Not checked out') : xl('Not billed'));
             }
 
@@ -505,9 +505,9 @@ if (!empty($_POST['form_refresh'])) {
          }
          *****************************************************************/
         if (empty($row['pc_eventDate'])) {
-            echo text(oeFormatShortDate(substr($row['encdate'], 0, 10)));
+            echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {
-            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr($row['pc_startTime'], 0, 5));
+            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr((string) $row['pc_startTime'], 0, 5));
         }
         ?>
          </td>

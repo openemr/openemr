@@ -4,7 +4,7 @@
  * Clinical Notes form report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -18,25 +18,24 @@
  */
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
-function clinical_notes_report($pid, $encounter, $cols, $id)
+function clinical_notes_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $clinicalNotesService = new ClinicalNotesService();
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($id, $pid, $encounter) ?? [];
-    $data = array_filter($records, function ($val) {
-        return $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE;
-    });
+    $data = array_filter($records, fn($val): bool => $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE);
 
     $viewArgs = [
         'notes' => $data
     ];
 
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
+    $twig = new TwigContainer(__DIR__, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('templates/report.html.twig', $viewArgs);
 }

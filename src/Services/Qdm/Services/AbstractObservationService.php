@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -40,6 +40,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     public function getSqlStatement()
     {
         $observation_type = add_escape_custom($this->getObservationType());
+        // TODO: @adunsulag should this query be moved into the ObservationService?
         $sql = "SELECT `pid`, `encounter`, `date`, `code`, `code_type`, `ob_value`, `ob_unit`,
                 `description`, `ob_code`, `ob_type`, `ob_status`,
                 `ob_reason_status`, `ob_reason_code`, `date_end`

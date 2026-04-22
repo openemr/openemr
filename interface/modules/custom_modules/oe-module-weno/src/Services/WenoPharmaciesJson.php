@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -10,17 +10,16 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
-    private CryptoGen $cryptoGen;
-    private string $encrypted;
+    private readonly string $encrypted;
 
-    public function __construct(CryptoGen $cryptoGen)
+    public function __construct(private readonly CryptoInterface $cryptoGen)
     {
-        $this->cryptoGen = $cryptoGen;
         // Build the JSON data
         $jobJson = $this->buildJson();
         // Define encryption method and key
@@ -61,8 +60,8 @@ class WenoPharmaciesJson
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
-        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $storageLocation = $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
+        $storageLocation = $storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
         $path_to_extract = $storageLocation;
         $storeLocation .= "weno_pharmacy.zip";
         $wenoLog->insertWenoLog("Pharmacy Directory", "'Background Initiated Download started", $url);
@@ -73,26 +72,26 @@ class WenoPharmaciesJson
 
     private function providerEmail()
     {
-        if (empty($GLOBALS['weno_admin_username'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('weno_admin_username'))) {
             return '';
         }
-        return $GLOBALS['weno_admin_username'];
+        return OEGlobalsBag::getInstance()->get('weno_admin_username');
     }
 
     private function providerPassword(): string
     {
-        if (empty($GLOBALS['weno_admin_password'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('weno_admin_password'))) {
             return '';
         }
-        return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']));
+        return md5($this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password')));
     }
 
     private function wenoEncryptionKey(): bool|string
     {
-        if (empty($GLOBALS['weno_encryption_key'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('weno_encryption_key'))) {
             return '';
         }
-        return $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
     }
 
     private function wenoPharmacyDirectoryLink(): string

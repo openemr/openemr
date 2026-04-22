@@ -4,7 +4,7 @@
  * Work/School Note Form print.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
@@ -16,10 +16,13 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION["authUser"]));
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 
 /* name of this form */
 $form_name = "note";

@@ -12,7 +12,7 @@
  * @author Yuriy Gershem <yuriyge@matrix.co.il>
  * @copyright Copyright (c) 2019 Yuriy Gershem <yuriyge@matrix.co.il>
  */
-return array(
+return [
 
     'controllers' => [],
 
@@ -21,4 +21,4 @@ return array(
     'view_manager' => [],
 
     'service_manager' => []
-);
+];

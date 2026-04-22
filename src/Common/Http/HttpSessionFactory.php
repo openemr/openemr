@@ -1,0 +1,105 @@
+<?php
+
+namespace OpenEMR\Common\Http;
+
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Common\Session\SessionConfigurationBuilder;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use OpenEMR\Common\Session\WriteThroughSession;
+use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
+use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
+
+class HttpSessionFactory implements SessionFactoryInterface
+{
+    use SystemLoggerAwareTrait;
+
+    public const SESSION_TYPE_OAUTH = 'oauth';
+    public const SESSION_TYPE_API = 'api';
+
+    public const SESSION_TYPE_CORE = 'core';
+    public const SESSION_TYPE_PORTAL = 'portal';
+    public const DEFAULT_SESSION_TYPE = self::SESSION_TYPE_OAUTH;
+
+    /**
+     * @var string The type of session to create.
+     */
+    private string $sessionType;
+
+    private ?SessionStorageInterface $lastCreatedStorage = null;
+
+    public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
+    {
+        if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
+            throw new \InvalidArgumentException("Invalid session type: $sessionType");
+        }
+        $this->sessionType = $sessionType;
+    }
+
+    public function createSession(): SessionInterface
+    {
+        $settings = $this->getSessionSettings();
+        $sessionKey = $this->getSessionKey();
+        $sessionHandler = $this->getSessionHandlerInterface($settings);
+
+        $storage = new ReadAndCloseNativeSessionStorage($settings, $sessionHandler);
+        $this->lastCreatedStorage = $storage;
+
+        $session = new WriteThroughSession($storage, new AttributeBag($sessionKey));
+        return $session;
+    }
+
+    public function getRequest(): HttpRestRequest
+    {
+        return $this->request;
+    }
+
+    public function getLastCreatedStorage(): ?SessionStorageInterface
+    {
+        return $this->lastCreatedStorage;
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    private function getSessionSettings(): array
+    {
+        return match ($this->sessionType) {
+            self::SESSION_TYPE_OAUTH => SessionConfigurationBuilder::forOAuth($this->web_root),
+            self::SESSION_TYPE_API => SessionConfigurationBuilder::forApi($this->web_root),
+            self::SESSION_TYPE_CORE => SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly),
+            self::SESSION_TYPE_PORTAL => SessionConfigurationBuilder::forPortal($this->web_root, $this->readOnly),
+            default => throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}"),
+        };
+    }
+
+    private function getSessionKey(): string
+    {
+        return match ($this->sessionType) {
+            self::SESSION_TYPE_OAUTH => SessionUtil::OAUTH_SESSION_ID,
+            self::SESSION_TYPE_API => SessionUtil::API_SESSION_ID,
+            self::SESSION_TYPE_PORTAL => SessionUtil::PORTAL_SESSION_ID,
+            default => SessionUtil::CORE_SESSION_ID,
+        };
+    }
+    private function getSessionHandlerInterface(array $settings): ?\SessionHandlerInterface
+    {
+        $sessionHandler = null;
+        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+            $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
+            try {
+                $sessionHandler = (new SentinelUtil())->configure($settings['gc_maxlifetime']);
+            } catch (\Throwable $e) {
+                // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
+                $this->getSystemLogger()->error(
+                    "SessionUtil: failed to configure predis sentinel session storage: " . $e->getMessage(),
+                    ['trace' => $e->getTraceAsString()]
+                );
+                throw new \RuntimeException("Failed to configure predis sentinel session storage: " . $e->getMessage());
+            }
+        }
+        return $sessionHandler;
+    }
+}

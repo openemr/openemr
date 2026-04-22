@@ -12,44 +12,48 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright 2016 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../globals.php");
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 # This is based on session array.
-$pid_list = array();
-$pid_list = $_SESSION['pidList'];
+$pid_list = [];
+$pid_list = $session->get('pidList');
 
 #get label type and number of labels on sheet
 #
 
-if ($GLOBALS['chart_label_type'] == '1') {
+if (OEGlobalsBag::getInstance()->get('chart_label_type') == '1') {
     $pdf = new PDF_Label('5160');
     $last = 30;
-} elseif ($GLOBALS['chart_label_type'] == '2') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '2') {
     $pdf = new PDF_Label('5161');
     $last = 20;
-} elseif ($GLOBALS['chart_label_type'] == '3') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '3') {
     $pdf = new PDF_Label('5162');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '4') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '4') {
     $pdf = new PDF_Label('5163');
     $last = 14; //not sure about $last from here on down
-} elseif ($GLOBALS['chart_label_type'] == '5') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '5') {
     $pdf = new PDF_Label('5164');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '6') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '6') {
     $pdf = new PDF_Label('8600');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '7') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '7') {
     $pdf = new PDF_Label('L7163');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '8') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '8') {
     $pdf = new PDF_Label('3422');
     $last = 14;
 } else {
@@ -65,7 +69,7 @@ foreach ($pid_list as $pid) {
     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
     "p.street, p.city, p.state, p.postal_code, p.pid " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($pid));
+    "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 # sprintf to print data
     $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);

@@ -4,7 +4,7 @@
  * Encounter form save script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
@@ -16,20 +16,20 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $facilityService = new FacilityService();
 $encounterService = new EncounterService();
@@ -41,14 +41,14 @@ $patientService = new PatientService();
  */
 $patient = $patientService->findByPid($pid);
 if (empty($patient)) {
-    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Patient not found, this should never happen");
+    (new \OpenEMR\Common\Logging\SystemLogger())->error("newpatient/save.php: Patient not found, this should never happen");
     die("Patient not found");
 }
 $puuid = UuidRegistry::uuidToString($patient['uuid']);
 
-if ($_POST['mode'] == 'new' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_edit')) {
+if ($_POST['mode'] == 'new' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_edit')) {
     $date = (new DateTime())->format('Y-m-d H:i:s');
-} elseif ($_POST['mode'] == 'update' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_new')) {
+} elseif ($_POST['mode'] == 'update' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_new')) {
     $enc_from_id = sqlQuery("SELECT `encounter` FROM `form_encounter` WHERE `id` = ?", [intval($_POST['id'])]);
     $enc = $encounterService->getEncounterById($enc_from_id['encounter']);
     $enc_data = $enc->getData();
@@ -72,7 +72,7 @@ $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
 $referring_provider_id = $_POST['referring_provider_id'] ?? null;
 //save therapy group if exist in external_id column
-$external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
+$external_id = $_POST['form_gid'] ?? '';
 $ordering_provider_id = $_POST['ordering_provider_id'] ?? null;
 
 $discharge_disposition = $_POST['discharge_disposition'] ?? null;
@@ -85,8 +85,8 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
-$provider_id = $encounter_provider ? $encounter_provider : $provider_id;
+$provider_id = $session->get('authUserID') ?: 0;
+$provider_id = $encounter_provider ?: $provider_id;
 
 $encounter_type = $_POST['encounter_type'] ?? '';
 $encounter_type_code = null;
@@ -103,6 +103,23 @@ if (!empty($encounter_type)) {
         // we don't have any codes installed here so we will just use the encounter_type
         $encounter_type_code = $encounter_type;
         $encounter_type_description = $option['title'];
+    }
+}
+//RM - class_code can't be empty - use default class or if default not set take first in the list
+if (empty($class_code)) {
+    // use default from Value Set ActEncounterCode list
+    $listService = new ListService();
+    $option = $listService->getOptionsByListName('_ActEncounterCode'); //get all classes
+    // find the default
+    foreach ($option as $code) {
+        if ($code['is_default']) {
+            $class_code = $code['option_id'];
+            break;
+        }
+    }
+    if (empty($class_code)) {
+     // what to do? if no default set use first entry ?
+        $class_code = $option[0]['option_id'];
     }
 }
 // Prepare encounter data
@@ -128,8 +145,8 @@ $encounterData = [
     'encounter_type_description' => $encounter_type_description,
     'pid' => $pid,
     'parent_encounter_id' => $parent_enc_id,
-    'user' => $_SESSION['authUser'],
-    'group' => $_SESSION['authProvider'],
+    'user' => $session->get('authUser'),
+    'group' => $session->get('authProvider'),
 ];
 
 if ($mode == 'new') {
@@ -142,7 +159,7 @@ if ($mode == 'new') {
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
     // Get encounter UUID
-    $encResult = sqlQuery("SELECT uuid FROM form_encounter WHERE id = ?", array($id));
+    $encResult = sqlQuery("SELECT uuid FROM form_encounter WHERE id = ?", [$id]);
     if (empty($encResult)) {
         die("Encounter not found");
     }
@@ -163,10 +180,10 @@ setencounter($encounter);
 // Update the list of issues associated with this encounter.
 // always delete the issues for this encounter
 $patientIssueService = new PatientIssuesService();
-$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? []);
+$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? [], $session->get('authUserID'));
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
 ?>
 <html>
 <body>
@@ -180,7 +197,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
             while ($rowresult4 = sqlFetchArray($result4)) {
                 ?>
         EncounterIdArray[Count] =<?php echo js_escape($rowresult4['encounter']); ?>;
-        EncounterDateArray[Count] =<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+        EncounterDateArray[Count] =<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
         CalendarCategoryArray[Count] =<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
         Count++;
                 <?php

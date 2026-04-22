@@ -4,7 +4,7 @@
  * Contains all of the translations used by the client side portion of the TeleHealth.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,25 +14,21 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Twig\Environment;
 
 class TeleHealthFrontendSettingsController
 {
     /**
-     * @var Environment The twig environment
+     * @param string $assetPath
+     * @param Environment $twig The twig environment
+     * @param TelehealthGlobalConfig $config
      */
-    private $twig;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    public function __construct(string $assetPath, Environment $twig, TelehealthGlobalConfig $config)
-    {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->config = $config;
+    public function __construct(
+        private readonly string $assetPath,
+        private readonly Environment $twig,
+        private readonly TelehealthGlobalConfig $config
+    ) {
     }
 
     public function renderFrontendSettings($isPatient = true)
@@ -40,7 +36,7 @@ class TeleHealthFrontendSettingsController
         $assetPath = $this->assetPath;
         // strip off the assets, and public folder to get to the base of our module directory
         // assetPath is a url path but dirname still operates fine on both / and \ characters so we are fine here.
-        $modulePath = dirname(dirname($assetPath)) . "/"; // make sure to end with a path
+        $modulePath = dirname($assetPath, 2) . "/"; // make sure to end with a path
         $data = [
             'settings' => [
                 'translations' => $this->getTranslationSettings()
@@ -61,7 +57,8 @@ class TeleHealthFrontendSettingsController
         // if we ever need to allow local OpenEMR api access to patients we can remove this check, but to minimize api attack surface
         // we will prohibit it for now until a better threat analysis has been done.
         if (!$isPatient) {
-            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken('api');
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken($session, 'api');
         }
         echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }

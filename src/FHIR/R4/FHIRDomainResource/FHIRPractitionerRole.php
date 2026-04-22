@@ -558,7 +558,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

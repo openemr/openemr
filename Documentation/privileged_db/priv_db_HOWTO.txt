@@ -6,12 +6,12 @@ After creating a privileged user and revoking permissions for the default user, 
 
 It is not recommended that you make this change unless you are comfortable with MySQL administration.  In addition, the 'openemr' user no longer has full permissions, so when patching/upgrading the .SQL schema, the user defined in sites/<sitename>sqlconf.php will need to be modified to use a more privileged account (e.g. root, or a “secure” whose creation is being described below.).
 
-Configuration of the privileged user should not be done with phpMyAdmin and is best done with a tool such a MySQL Workbench or with the mysql command-line tool with root db access. This is because you would be trying to change the permissions of the account phpMyAdmin is logged in with and are likely to encounter problem as a result. 
+Configuration of the privileged user should not be done with phpMyAdmin and is best done with a tool such a MySQL Workbench or with the mysql command-line tool with root db access. This is because you would be trying to change the permissions of the account phpMyAdmin is logged in with and are likely to encounter problem as a result.
 
 In this description “openemr” is the MySQL username and 'secure' is the login to be created that has “full permissions.”
 
-Manage the Database Users 
-	an example script is provided in:Documentation/privileged_db/example_user_permissions” 
+Manage the Database Users
+	an example script is provided in:Documentation/privileged_db/example_user_permissions”
 1. Revoke “ALL” privileges for “openemr” by executing this command
 	revoke all on openemr.* FROM 'openemr'@'localhost';
 2. Explicitly grant permissions to each table individually by executing statements like this:

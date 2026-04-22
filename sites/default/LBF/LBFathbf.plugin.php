@@ -14,7 +14,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFathbf_javascript()
+function LBFathbf_javascript(): void
 {
     global $formid;
 
@@ -22,7 +22,7 @@ function LBFathbf_javascript()
     $ptrow = sqlQuery("SELECT DOB, sex FROM patient_data WHERE " .
     "pid = ? LIMIT 1", [$pid]);
     $pt_age = 0 + getpatientAge($ptrow['DOB']);
-    $pt_sex = strtoupper(substr($ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
+    $pt_sex = strtoupper(substr((string) $ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
 
     echo "// Compute Body Fat Percentage.
 function athbfComputeBF() {
@@ -77,7 +77,7 @@ function athbfSFChanged() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFathbf_javascript_onload()
+function LBFathbf_javascript_onload(): void
 {
 
     echo "

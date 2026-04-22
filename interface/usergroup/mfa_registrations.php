@@ -4,7 +4,7 @@
  * Multi-Factor Authentication Management
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
@@ -16,10 +16,12 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-function writeRow($method, $name, $allowEdit = false)
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+function writeRow($method, $name, $allowEdit = false): void
 {
     echo "        <tr><td>&nbsp;";
     if ($name == '') {
@@ -40,18 +42,16 @@ function writeRow($method, $name, $allowEdit = false)
     echo "</td></tr>\n";
 }
 
-$userid = $_SESSION['authUserID'];
+$userid = $session->get('authUserID');
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Delete the indicated MFA instance.
     sqlStatement(
         "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
-        array($userid, $_POST['form_delete_method'], $_POST['form_delete_name'])
+        [$userid, $_POST['form_delete_method'], $_POST['form_delete_name']]
     );
     $message = xl('Delete successful.');
 }
@@ -99,17 +99,17 @@ function addclick(sel) {
 
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Manage Multi Factor Authentication'),
     'include_patient_name' => false,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "mfa_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -133,7 +133,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Current Authentication Method for') . " " . text($user_full_name); ?></legend>
@@ -145,7 +145,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                                 <?php
                                 $res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
-                                "user_id = ? ORDER BY method, name", array($userid));
+                                "user_id = ? ORDER BY method, name", [$userid]);
                                 $disableNewTotp = false;
                                 if (sqlNumRows($res)) {
                                     while ($row = sqlFetchArray($res)) {

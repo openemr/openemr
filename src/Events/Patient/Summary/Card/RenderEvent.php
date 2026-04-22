@@ -113,7 +113,7 @@ class RenderEvent extends Event
             if (count($this->$property) === 0) {
                 $this->$property[] = $object;
             } else {
-                $position = $position ?? -1;
+                $position ??= -1;
                 array_splice($this->$property, $position, 0, $object);
             }
         }

@@ -6,21 +6,22 @@
  * Included in all modules and called by Module Manager.
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-24 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Core\ModulesClassLoader;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
 /* required for config before install */
-$classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
+$classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->get('fileroot'));
 $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\WenoModule\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 $module_config = 1;
 /* renders in a Laminas created iframe */
-require_once dirname(__FILE__) . '/templates/weno_setup.php';
+require_once __DIR__ . '/templates/weno_setup.php';
 exit;

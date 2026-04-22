@@ -4,7 +4,7 @@
  * Facility user-specific settings.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>
@@ -15,21 +15,20 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facility Specific User Information")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Facility Specific User Information", xl("Facility Specific User Information"));
 }
 
 $alertmsg = '';
@@ -41,13 +40,13 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
         "ORDER BY `group_id`, `seq`");
     while ($frow = sqlFetchArray($fres)) {
         $value = get_layout_form_value($frow);
-        $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", array($_POST["user_id"], $_POST["fac_id"], $frow['field_id']));
+        $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", [$_POST["user_id"], $_POST["fac_id"], $frow['field_id']]);
         if (empty($entry_id)) {
             // Insert new entry
-            sqlStatement("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"], $_POST["fac_id"], $frow['field_id'], $value));
+            sqlStatement("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", [$_POST["user_id"], $_POST["fac_id"], $frow['field_id'], $value]);
         } else {
             // Update existing entry
-            sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value, $entry_id['id']));
+            sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", [$value, $entry_id['id']]);
         }
     }
 }
@@ -91,7 +90,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     // Collect all facilities and store them in an array
     $f_res = sqlStatement("select * from `facility` order by `name`");
-    $f_arr = array();
+    $f_arr = [];
     for ($i = 0; $row = sqlFetchArray($f_res); $i++) {
         $f_arr[$i] = $row;
     }
@@ -100,7 +99,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
     $l_res = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
         "ORDER BY group_id, seq");
-    $l_arr = array();
+    $l_arr = [];
     for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
         $l_arr[$i] = $row;
     }
@@ -147,7 +146,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                                     <?php
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                                               "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
+                                                               "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", [$user['id'],$facility['id'],$layout_entry['field_id']]);
                                         echo "<td>" . generate_display_field($layout_entry, ($entry_data['field_value'] ?? '')) . "&nbsp;</td>";
                                     }
                                     ?>

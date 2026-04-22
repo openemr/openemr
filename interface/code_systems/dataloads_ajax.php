@@ -18,8 +18,8 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Ensure script doesn't time out
@@ -27,11 +27,10 @@ set_time_limit(0);
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("External Data Loads")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: External Data Loads", xl("External Data Loads"));
 }
 
-$activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
+$activeAccordionSection = $_GET['aas'] ?? '0';
 
 ?>
 <html>
@@ -131,7 +130,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     //
     // placemaker for when support DSMIV
     //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-    $db_list = array("ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
+    $db_list = ["ICD10", "RXNORM", "SNOMED","CQM_VALUESET"];
     foreach ($db_list as $db) {
         ?>
         <div class="card">

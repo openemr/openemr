@@ -26,7 +26,9 @@
  *
  */
 
-require_once(dirname(__FILE__) . '/../../../../../library/smarty_legacy/smarty/Smarty_Legacy.class.php');
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . '/../../../../../library/smarty_legacy/smarty/Smarty_Legacy.class.php');
 
 class pcSmarty extends Smarty_Legacy
 {
@@ -51,7 +53,7 @@ class pcSmarty extends Smarty_Legacy
         array_push($this->plugins_dir, "modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir, "modules/$pcDir/plugins");
         array_push($this->plugins_dir, "../../../../library/smarty/plugins");
-        $this->compile_dir      =   $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main';
+        $this->compile_dir      =   OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main';
         $this->caching      =   0;
         $this->left_delimiter   =   '[-';
         $this->right_delimiter  =   '-]';
@@ -65,15 +67,11 @@ class pcSmarty extends Smarty_Legacy
         $open_basedir   = ini_get('open_basedir');
 
         $use_safe_mode = ((bool)$safe_mode || (bool)$safe_mode_gid || !empty($open_basedir));
-        if ($use_safe_mode) {
-            $this->use_sub_dirs = false;
-        } else {
-            $this->use_sub_dirs = true;
-        }
+        $this->use_sub_dirs = $use_safe_mode ? false : true;
 
         unset($use_safe_mode, $safe_mode, $safe_mode_gid, $open_basedir);
 
-        $this->autoload_filters = array('output' => array('trimwhitespace'));
+        $this->autoload_filters = ['output' => ['trimwhitespace']];
 
         $lang = 'eng';
         $func = pnVarCleanFromInput('func');
@@ -118,8 +116,8 @@ class pcSmarty extends Smarty_Legacy
         $this->config_dir = "modules/$pcDir/pntemplates/$template_name/config/";
         $this->assign_by_ref('TPL_NAME', $template_name);
         $this->assign_by_ref('TPL_VIEW', $template_view);
-        $this->assign('TPL_IMAGE_PATH', $GLOBALS['rootdir'] . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
-        $this->assign('TPL_ROOTDIR', $GLOBALS['rootdir']);
+        $this->assign('TPL_IMAGE_PATH', OEGlobalsBag::getInstance()->get('rootdir') . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
+        $this->assign('TPL_ROOTDIR', OEGlobalsBag::getInstance()->get('rootdir'));
         $this->assign('TPL_STYLE_PATH', "modules/$pcDir/pntemplates/$template_name/style");
     }
 }

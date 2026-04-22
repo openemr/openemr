@@ -4,7 +4,7 @@
  * InsuranceViewCard - presentation view of a patient's insurance information in a card widget.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,12 +12,13 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use InsuranceCompany;
 use OpenEMR\Services\InsuranceService;
 
 class InsuranceViewCard extends CardModel
@@ -28,13 +29,10 @@ class InsuranceViewCard extends CardModel
 
     private const CARD_ID = 'insurance';
 
-    private $pid;
-
     private $policy_types;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, array $opts = [])
     {
-        $this->pid = $pid;
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
@@ -60,7 +58,7 @@ class InsuranceViewCard extends CardModel
                 'btnLink' => "insurance_edit.php",
                 'linkMethod' => 'html',
                 'initiallyCollapsed' => $initiallyCollapsed ? true : false,
-                'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
+                'enable_eligibility_requests' => OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'),
                 'auth' => $authCheck
             ]
         ];
@@ -83,11 +81,7 @@ class InsuranceViewCard extends CardModel
     private function getInsuranceTypeArray()
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
-        if ($GLOBALS['insurance_only_one']) {
-            $insurance_array = array('primary');
-        } else {
-            $insurance_array = array('primary', 'secondary', 'tertiary');
-        }
+        $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
     private function getInsuranceData()
@@ -126,7 +120,7 @@ class InsuranceViewCard extends CardModel
             $icobj = new InsuranceCompany($row['provider']);
             $adobj = $icobj->get_address();
             $row['insco'] = [
-                'name' => trim($icobj->get_name()),
+                'name' => trim((string) $icobj->get_name()),
                 'display_name' => $icobj->get_display_name(),
                 'address' => [
                     'line1' => $adobj->get_line1(),
@@ -166,7 +160,7 @@ class InsuranceViewCard extends CardModel
     {
         $output = '';
         $pid = $this->pid;
-        if ($GLOBALS["enable_eligibility_requests"]) {
+        if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
             if (($_POST['status_update'] ?? '') === 'true') {
                 unset($_POST['status_update']);
                 $showEligibility = true;

@@ -3,7 +3,7 @@
 /**
  * FhirPatientProviderGroupService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -55,12 +55,16 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['patient_last_updated']);
     }
 
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->service->searchPatientProviderGroups($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();

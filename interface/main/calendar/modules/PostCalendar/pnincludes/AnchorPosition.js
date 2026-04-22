@@ -25,7 +25,7 @@ Last modified: 2/18/02
 DESCRIPTION: These functions find the position of an <A> tag in a document,
 so other elements can be positioned relative to it.
 
-COMPATABILITY: Works with Netscape 4.x, 6.x, IE 5.x on Windows. Some small
+COMPATIBILITY: Works with Netscape 4.x, 6.x, IE 5.x on Windows. Some small
 positioning errors - usually with Window positioning - occur on the
 Macintosh platform.
 

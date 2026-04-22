@@ -4,7 +4,7 @@
  * new_comprehensive_save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
@@ -14,20 +14,23 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\ContactService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Validation for non-unique external patient identifier.
 $alertmsg = '';
 if (!empty($_POST["form_pubpid"])) {
-    $form_pubpid = trim($_POST["form_pubpid"]);
+    $form_pubpid = trim((string) $_POST["form_pubpid"]);
     $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-    "pubpid = ?", array($form_pubpid));
+    "pubpid = ?", [$form_pubpid]);
     if ($result['count']) {
         // Error, not unique.
         $alertmsg = xl('Warning: Patient ID is not unique!');
@@ -41,21 +44,21 @@ require_once("$srcdir/options.inc.php");
 // Update patient_data and employer_data:
 // First, we prepare the data for insert into DB by querying the layout
 // fields to see what valid fields we have to insert from the post we are receiving
-$newdata = array();
-$newdata['patient_data'] = array();
-$newdata['employer_data'] = array();
+$newdata = [];
+$newdata['patient_data'] = [];
+$newdata['employer_data'] = [];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND (uor > 0 OR field_id = 'pubpid') AND field_id != '' " .
   "ORDER BY group_id, seq");
-$addressFieldsToSave = array();
+$addressFieldsToSave = [];
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];
   // $value     = '';
     $colname   = $field_id;
     $tblname   = 'patient_data';
-    if (strpos($field_id, 'em_') === 0) {
-        $colname = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $colname = substr((string) $field_id, 3);
         $tblname = 'employer_data';
     }
 
@@ -76,18 +79,30 @@ if (empty($pid)) {
     die("Internal error: setpid(" . text($pid) . ") failed!");
 }
 setpid($pid);
-if (!$GLOBALS['omit_employers']) {
-    updateEmployerData($pid, $newdata['employer_data'], true);
+if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
+    updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
 if (!empty($addressFieldsToSave)) {
-    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
-    // address information
-    // TODO: how are error messages supposed to display if the save fails?
-    foreach ($addressFieldsToSave as $field => $addressFieldData) {
-        // if we need to save other kinds of addresses we could do that here with our field column...
-        $contactService = new ContactService();
-        $contactService->saveContactsForPatient($pid, $addressFieldData);
+    try {
+        // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+        // address information
+        // TODO: how are error messages supposed to display if the save fails?
+        foreach ($addressFieldsToSave as $addressFieldData) {
+            // if we need to save other kinds of addresses we could do that here with our field column...
+            if (!empty($addressFieldData)) {
+                $contactService = new ContactService();
+                $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+                $contactAddressService = new ContactAddressService();
+                $contactAddressService->saveAddressesForContact($contact->get_id(), $addressFieldData);
+            }
+        }
+    } catch (\Throwable $e) {
+        ServiceContainer::getLogger()->error("Fatal error in address processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
     }
 }
 
@@ -95,7 +110,7 @@ if (!empty($addressFieldsToSave)) {
  * Parse demographics data to listeners who want data that is not directly available in
  * the patient_data table on update
  */
-$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE);
 
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
@@ -103,7 +118,7 @@ $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 newHistoryData($pid);
 // no need to save insurance for simple demos
-if (!$GLOBALS['simplified_demographics']) {
+if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
     newInsuranceData(
         $pid,
         "primary",
@@ -136,7 +151,7 @@ if (!$GLOBALS['simplified_demographics']) {
     );
 
     //Dont save more than one insurance since only one is allowed / save space in DB
-    if (!$GLOBALS['insurance_only_one']) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
         $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
         $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 
@@ -222,4 +237,3 @@ if ($alertmsg) {
 
 </body>
 </html>
-

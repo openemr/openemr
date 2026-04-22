@@ -1,0 +1,51 @@
+<div id="{{ nodeId|default("sub-observation-1")|attr }}" class="sub-observation bg-white border rounded p-3 mb-2">
+    <input type="hidden" name="sub_observation_id[]" value="{{ observation.id|default('')|attr }}">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>{{ "Sub-observation"|xlt }} <span class="sub-obs-number">{{ observation.id|text }}</span></strong>
+        <button type="button" class="btn btn-danger btn-sm btn-remove-sub-observation">
+            <i class="fa fa-trash"></i> {{ "Remove"|xlt }}
+        </button>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="form-label">{{ "Code"|xlt }}:</label>
+                <input type="text" name="sub_ob_code[]" class="form-control code"
+                       value="{{ observation.code|default('')|attr }}"
+                       data-description-target="#sub-description-{{ nodeId|attr }}"
+                       data-code-type-target="#sub-code-type-{{ nodeId|attr }}"
+                >
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="form-label">{{ "Value"|xlt }}:</label>
+                <input type="text" name="sub_ob_value[]" class="form-control"
+                       value="{{ observation.ob_value|default('')|attr }}">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="form-label">{{ "Units"|xlt }}:</label>
+                <input type="text" name="sub_ob_unit[]" class="form-control"
+                       value="{{ observation.ob_unit|default('')|attr }}">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="form-label">{{ "Status"|xlt }}:</label>
+                {{ selectList('sub_ob_status[]', 'observation-status', observation.ob_status, '') }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="form-label">{{ "Description"|xlt }}:</label>
+                <input id="sub-description-{{ nodeId|attr }}" type="text" name="sub_description[]" class="form-control"
+                       value="{{ observation.description|default('')|attr }}">
+                <input id="sub-code-type-{{ nodeId|attr }}" type="hidden" name="sub_code_type[]" class="form-control"
+                       value="{{ observation.code_type|default('')|attr }}">
+                <input id="observation-code-value-description" type="hidden" name="ob_value_code_description" value="{{ observation.ob_value_code_description|default('')|attr }}">
+            </div>
+        </div>
+    </div>
+</div>

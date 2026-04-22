@@ -1,0 +1,33 @@
+<h5 class="mt-3">{{ "Dispensed Medications"|xlt }}</h5>
+<table class="table table-sm table-bordered">
+    <thead>
+    <tr>
+        <th>{{ "Medication"|xlt }}</th>
+        <th>{{ "Quantity"|xlt }}</th>
+        <th>{{ "Dispensed Date"|xlt }}</th>
+        <th>{{ "Status"|xlt }}</th>
+        <th>{{ "Supply Type"|xlt }}</th>
+        <th>{{ "Dosage Instructions"|xlt }}</th>
+    </tr>
+    </thead>
+    {% if e.dispensedMedications is not empty %}
+    <tbody>
+    {% for med in e.dispensedMedications %}
+            <tr>
+                <td>{{ med.medicationName|text }}</td>
+                <td>{{ med.quantity|text }} {{ med.quantityUnits|text }}</td>
+                <td>{{ med.dispensedDate|text }}</td>
+                <td>{{ med.status|text }}</td>
+                <td>{{ med.supplyType|text }}</td>
+                <td>{{ med.dosageInstructions|text }}</td>
+            </tr>
+    {% endfor %}
+    </tbody>
+    {% else %}
+        <tbody>
+        <tr>
+            <td colspan="5"><p class="text-muted">{{ "No medications dispensed during this encounter."|xlt }}</p></td>
+        </tr>
+        </tbody>
+    {% endif %}
+</table>

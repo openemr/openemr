@@ -7,29 +7,29 @@
 // of the License, or (at your option) any later version.
 //
 require_once("ReportTypes.php");
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 
 class ReportManager
 {
     public function __construct()
     {
-        foreach (glob(dirname(__FILE__) . "/library/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/library/*.php") as $filename) {
             require_once($filename);
         }
 
-        foreach (glob(dirname(__FILE__) . "/Cqm/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/Cqm/*.php") as $filename) {
             require_once($filename);
         }
 
-        foreach (glob(dirname(__FILE__) . "/Amc/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/Amc/*.php") as $filename) {
             require_once($filename);
         }
     }
 
-    public function runReport($rowRule, $patients, $dateTarget, $options = array())
+    public function runReport($rowRule, $patients, $dateTarget, $options = [])
     {
         $ruleId = $rowRule['id'];
-        $patientData = array();
+        $patientData = [];
         foreach ($patients as $patient) {
             $patientData [] = $patient['pid'];
         }
@@ -48,7 +48,7 @@ class ReportManager
             $report = $reportFactory->createReport(ReportTypes::getClassName($ruleId), $rowRule, $patientData, $dateTarget, $options);
         }
 
-        $results = array();
+        $results = [];
         if (
             $report instanceof RsReportIF &&
             !$report instanceof RsUnimplementedIF
@@ -56,7 +56,7 @@ class ReportManager
             $report->execute();
             $results = $report->getResults();
         } else {
-            (new SystemLogger())->errorLogCaller("Rule class does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
+            ServiceContainer::getLogger()->error("Rule {ruleId} class {class} does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
         }
 
         return RsHelper::formatClinicalRules($results);

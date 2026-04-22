@@ -65,7 +65,7 @@ class LabResult extends ClinicalType
                     $sql .= "AND procedure_result.result < ? ";
                 }
 
-                $bindings = array( $codeType . ':' . $code, $code, $beginDate, $endDate, $patient->id );
+                $bindings = [ $codeType . ':' . $code, $code, $beginDate, $endDate, $patient->id ];
                 if ($range->lowerBound != Range::NEG_INF) {
                     $bindings [] = $range->lowerBound;
                 }

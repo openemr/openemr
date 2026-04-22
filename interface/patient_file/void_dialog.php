@@ -10,8 +10,8 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -62,12 +62,12 @@ function DoSubmit() {
   <td>
 <?php
 generate_form_field(
-    array(
+    [
         'data_type' => 1,
         'field_id' => 'reason',
         'list_id' => 'void_reasons',
         'empty_title' => 'Select Reason'
-    ),
+    ],
     ''
 );
 ?>

@@ -3,7 +3,7 @@
 /**
  * FhirVitalsServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,6 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use PHPUnit\Framework\TestCase;
 
@@ -32,12 +31,12 @@ class FhirVitalsServiceTest extends TestCase
         QueryUtils::sqlStatementThrowException($sql, $bindValues);
     }
 
-    public function testConstructor()
+    public function testConstructor(): void
     {
         // insert something into the db for a form_service and make sure things are populated
         $sql = "INSERT INTO form_vitals(id,external_id) "
             . "VALUES(?,?)";
-        $id = generate_id();
+        $id = QueryUtils::generateId();
         $values = [$id, 'test-vital-signs'];
         QueryUtils::sqlStatementThrowException($sql, $values);
 

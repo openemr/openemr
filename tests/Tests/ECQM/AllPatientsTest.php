@@ -2,7 +2,7 @@
 
 /**
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -21,13 +21,13 @@ class AllPatientsTest extends TestCase
      *
      * Builds JSON QDM models for all patients in the database.
      */
-    public function testAllPatients()
+    public function testAllPatients(): void
     {
         $builder = new QdmBuilder();
         $models = [];
         try {
             $models = $builder->build(new QdmRequestAll());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
         }
 

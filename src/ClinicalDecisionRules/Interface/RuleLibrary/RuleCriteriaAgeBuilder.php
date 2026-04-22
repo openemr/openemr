@@ -10,9 +10,9 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaAge;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaAge;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
 
 /**
@@ -23,15 +23,15 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
 class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "age_max")) {
+        if (strpos((string) $method, "age_max")) {
             return RuleCriteriaType::from(RuleCriteriaType::ageMax);
         }
 
-        if (strpos($method, "age_min")) {
+        if (strpos((string) $method, "age_min")) {
             return RuleCriteriaType::from(RuleCriteriaType::ageMin);
         }
 

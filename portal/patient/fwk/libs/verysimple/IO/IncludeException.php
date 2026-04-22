@@ -3,7 +3,7 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * NotFoundExeption is thrown when a persisted object is requsted by primary key
+ * NotFoundExeption is thrown when a persisted object is requested by primary key
  * but does not exist in the data store
  *
  * @package verysimple::Phreeze

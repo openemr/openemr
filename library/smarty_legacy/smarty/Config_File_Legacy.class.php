@@ -42,29 +42,29 @@ class Config_File_Legacy {
     /**
      * Controls whether variables with the same name overwrite each other.
      */
-    var $overwrite        =    true;
+    public $overwrite        =    true;
 
     /**
      * Controls whether config values of on/true/yes and off/false/no get
      * converted to boolean values automatically.
      */
-    var $booleanize        =    true;
+    public $booleanize        =    true;
 
     /**
      * Controls whether hidden config sections/vars are read from the file.
      */
-    var $read_hidden     =    true;
+    public $read_hidden     =    true;
 
     /**
      * Controls whether or not to fix mac or dos formatted newlines.
      * If set to true, \r or \r\n will be changed to \n.
      */
-    var $fix_newlines =    true;
+    public $fix_newlines =    true;
     /**#@-*/
 
     /** @access private */
-    var $_config_path    = "";
-    var $_config_data    = array();
+    public $_config_path    = "";
+    public $_config_data    = [];
     /**#@-*/
 
     /**
@@ -126,7 +126,7 @@ class Config_File_Legacy {
                 if(isset($this->_config_data[$file_name]["sections"][$section_name]["vars"][$var_name]))
                     return $this->_config_data[$file_name]["sections"][$section_name]["vars"][$var_name];
                 else
-                    return array();
+                    return [];
             }
         } else {
             if (empty($section_name)) {
@@ -135,7 +135,7 @@ class Config_File_Legacy {
                 if(isset($this->_config_data[$file_name]["sections"][$section_name]["vars"]))
                     return (array)$this->_config_data[$file_name]["sections"][$section_name]["vars"];
                 else
-                    return array();
+                    return [];
             }
         }
     }
@@ -150,7 +150,7 @@ class Config_File_Legacy {
      */
     function &get_key($config_key)
     {
-        list($file_name, $section_name, $var_name) = explode('/', $config_key, 3);
+        [$file_name, $section_name, $var_name] = explode('/', (string) $config_key, 3);
         $result = &$this->get($file_name, $section_name, $var_name);
         return $result;
     }
@@ -216,9 +216,9 @@ class Config_File_Legacy {
     function clear($file_name = NULL)
     {
         if ($file_name === NULL)
-            $this->_config_data = array();
+            $this->_config_data = [];
         else if (isset($this->_config_data[$file_name]))
-            $this->_config_data[$file_name] = array();
+            $this->_config_data[$file_name] = [];
     }
 
 
@@ -231,10 +231,7 @@ class Config_File_Legacy {
      */
     function load_file($file_name, $prepend_path = true)
     {
-        if ($prepend_path && $this->_config_path != "")
-            $config_file = $this->_config_path . $file_name;
-        else
-            $config_file = $file_name;
+        $config_file = $prepend_path && $this->_config_path != "" ? $this->_config_path . $file_name : $file_name;
 
         ini_set('track_errors', true);
         $fp = @fopen($config_file, "r");
@@ -274,37 +271,37 @@ class Config_File_Legacy {
             $contents = preg_replace('!\r\n?!', "\n", $contents);
         }
 
-        $config_data = array();
-        $config_data['sections'] = array();
-        $config_data['vars'] = array();
+        $config_data = [];
+        $config_data['sections'] = [];
+        $config_data['vars'] = [];
 
         /* reference to fill with data */
         $vars =& $config_data['vars'];
 
         /* parse file line by line */
-        preg_match_all('!^.*\r?\n?!m', $contents, $match);
+        preg_match_all('!^.*\r?\n?!m', (string) $contents, $match);
         $lines = $match[0];
         for ($i=0, $count=count($lines); $i<$count; $i++) {
             $line = $lines[$i];
             if (empty($line)) continue;
 
-            if ( substr($line, 0, 1) == '[' && preg_match('!^\[(.*?)\]!', $line, $match) ) {
+            if ( str_starts_with($line, '[') && preg_match('!^\[(.*?)\]!', $line, $match) ) {
                 /* section found */
-                if (substr($match[1], 0, 1) == '.') {
+                if (str_starts_with($match[1], '.')) {
                     /* hidden section */
                     if ($this->read_hidden) {
                         $section_name = substr($match[1], 1);
                     } else {
                         /* break reference to $vars to ignore hidden section */
                         unset($vars);
-                        $vars = array();
+                        $vars = [];
                         continue;
                     }
                 } else {
                     $section_name = $match[1];
                 }
                 if (!isset($config_data['sections'][$section_name]))
-                    $config_data['sections'][$section_name] = array('vars' => array());
+                    $config_data['sections'][$section_name] = ['vars' => []];
                 $vars =& $config_data['sections'][$section_name]['vars'];
                 continue;
             }
@@ -312,7 +309,7 @@ class Config_File_Legacy {
             if (preg_match('/^\s*(\.?\w+)\s*=\s*(.*)/s', $line, $match)) {
                 /* variable found */
                 $var_name = rtrim($match[1]);
-                if (strpos($match[2], '"""') === 0) {
+                if (str_starts_with($match[2], '"""')) {
                     /* handle multiline-value */
                     $lines[$i] = substr($match[2], 3);
                     $var_value = '';
@@ -350,7 +347,7 @@ class Config_File_Legacy {
      */
     function _set_config_var(&$container, $var_name, $var_value, $booleanize)
     {
-        if (substr($var_name, 0, 1) == '.') {
+        if (str_starts_with($var_name, '.')) {
             if (!$this->read_hidden)
                 return;
             else
@@ -363,9 +360,9 @@ class Config_File_Legacy {
         }
 
         if ($booleanize) {
-            if (preg_match("/^(on|true|yes)$/i", $var_value))
+            if (preg_match("/^(on|true|yes)$/i", (string) $var_value))
                 $var_value = true;
-            else if (preg_match("/^(off|false|no)$/i", $var_value))
+            else if (preg_match("/^(off|false|no)$/i", (string) $var_value))
                 $var_value = false;
         }
 

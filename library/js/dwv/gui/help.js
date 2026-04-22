@@ -18,7 +18,7 @@ dwvOemr.gui.appendVersionHtml = function (version)
 /**
  * Build the help HTML.
  * @param {Object} toolList The list of tool objects.
- * @param {Boolean} mobile Flag for mobile or not environement.
+ * @param {Boolean} mobile Flag for mobile or not environment.
  * @param {Object} app The associated app.
  * @param {String} resourcesPath The path to help resources.
  */

@@ -6,7 +6,7 @@
  *
  * @category  Patient_Data
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
@@ -19,11 +19,16 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -33,8 +38,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Merge Patients", xl("Merge Patients"));
 }
 ?>
 <!DOCTYPE html>
@@ -46,7 +50,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
     <script>
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         var el_pt_name;
         var el_pt_id;
@@ -84,21 +88,21 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function deleteRows($tblname, $colname, $source_pid, $target_pid)
+        function deleteRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname)
-                . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
-                array($source_pid)
+                . " WHERE " . escape_sql_column_name($colname, [$tblname]) . " = ?",
+                [$source_pid]
             );
             $count = $crow['count'];
             if ($count) {
                 $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE "
-                    . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                    . escape_sql_column_name($colname, [$tblname]) . " = ?";
                 echo "<br />$sql ($count)";
                 if ($PRODUCTION) {
-                    sqlStatement($sql, array($source_pid));
+                    sqlStatement($sql, [$source_pid]);
                     logMergeEvent(
                         $target_pid,
                         "delete",
@@ -117,25 +121,23 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * @param [type] $colname    the column used for the query.
          * @param [type] $source_pid the source patient id.
          * @param [type] $target_pid the target patient id.
-         *
-         * @return voidd
          */
-        function updateRows($tblname, $colname, $source_pid, $target_pid)
+        function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname)
-                . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
-                array($source_pid)
+                . " WHERE " . escape_sql_column_name($colname, [$tblname]) . " = ?",
+                [$source_pid]
             );
             $count = $crow['count'];
             if ($count) {
                 $sql = "UPDATE " . escape_table_name($tblname) . " SET " .
-                    escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " .
-                    escape_sql_column_name($colname, array($tblname)) . " = ?";
+                    escape_sql_column_name($colname, [$tblname]) . " = ? WHERE " .
+                    escape_sql_column_name($colname, [$tblname]) . " = ?";
                 echo "<br />$sql ($count)";
                 if ($PRODUCTION) {
-                    sqlStatement($sql, array($target_pid, $source_pid));
+                    sqlStatement($sql, [$target_pid, $source_pid]);
                     logMergeEvent(
                         $target_pid,
                         "update",
@@ -157,51 +159,51 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function mergeRows($tblname, $colname, $source_pid, $target_pid)
+        function mergeRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) .
-                " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
-                array($source_pid)
+                " WHERE " . escape_sql_column_name($colname, [$tblname]) . " = ?",
+                [$source_pid]
             );
             $count = $crow['count'];
             if ($count) {
                 echo "<br />lists_touch count is ($count)";
                 $source_sel = "SELECT * FROM " . escape_table_name($tblname) .
                     " WHERE `pid` = ?";
-                $source_res = sqlStatement($source_sel, array($source_pid));
+                $source_res = sqlStatement($source_sel, [$source_pid]);
 
                 $target_sel = "SELECT * FROM " . escape_table_name($tblname) .
                     " WHERE `pid` = ?";
-                $target_res = sqlStatement($target_sel, array($target_pid));
+                $target_res = sqlStatement($target_sel, [$target_pid]);
 
                 while ($source_row = sqlFetchArray($source_res)) {
                     while ($target_row = sqlFetchArray($target_res)) {
                         if ($source_row['type'] == $target_row['type']) {
-                            if (strcmp($source_row['date'], $target_row['date']) < 0) {
+                            if (strcmp((string) $source_row['date'], (string) $target_row['date']) < 0) {
                                 // we delete the entry from the target since the source has
                                 // an older date, then update source to target.
                                 $sql1 = "DELETE FROM " . escape_table_name($tblname) .
-                                    " WHERE " . escape_sql_column_name($colname, array($tblname))
+                                    " WHERE " . escape_sql_column_name($colname, [$tblname])
                                     . " = ? AND `type` = ?";
                                 $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " .
-                                    escape_sql_column_name($colname, array($tblname)) .
+                                    escape_sql_column_name($colname, [$tblname]) .
                                     " = ? WHERE " . escape_sql_column_name(
                                         $colname,
-                                        array($tblname)
+                                        [$tblname]
                                     ) . " = ?  AND `type` = ?";
                                 echo "<br />$sql1";
                                 echo "<br />$sql2";
                                 if ($PRODUCTION) {
                                     sqlStatement(
                                         $sql1,
-                                        array($target_pid, $source_row['type'])
+                                        [$target_pid, $source_row['type']]
                                     );
                                     sqlStatement(
                                         $sql2,
-                                        array($target_pid, $source_pid,
-                                            $source_row['type'])
+                                        [$target_pid, $source_pid,
+                                            $source_row['type']]
                                     );
                                     logMergeEvent(
                                         $target_pid,
@@ -221,13 +223,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                             } else {
                                 // we just delete the entry from the source.
                                 $sql = "DELETE FROM " . escape_table_name($tblname) .
-                                    " WHERE " . escape_sql_column_name($colname, array($tblname))
+                                    " WHERE " . escape_sql_column_name($colname, [$tblname])
                                     . " = ? AND `type` = ?";
                                 echo "<br />$sql";
                                 if ($PRODUCTION) {
                                     sqlStatement(
                                         $sql,
-                                        array($source_pid, $source_row['type'])
+                                        [$source_pid, $source_row['type']]
                                     );
                                     logMergeEvent(
                                         $target_pid,
@@ -247,23 +249,23 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     "SELECT COUNT(*) AS count FROM " .
                     escape_table_name($tblname) . " WHERE " . escape_sql_column_name(
                         $colname,
-                        array($tblname)
+                        [$tblname]
                     ) . " = ?",
-                    array($source_pid)
+                    [$source_pid]
                 );
                 $count = $crow['count'];
                 if ($count) {
                     $sql = "UPDATE " . escape_table_name($tblname) . " SET " .
                         escape_sql_column_name(
                             $colname,
-                            array($tblname)
+                            [$tblname]
                         ) . " = ? WHERE " . escape_sql_column_name(
                             $colname,
-                            array($tblname)
+                            [$tblname]
                         ) . " = ?";
                     echo "<br />$sql ($count)";
                     if ($PRODUCTION) {
-                        sqlStatement($sql, array($target_pid, $source_pid));
+                        sqlStatement($sql, [$target_pid, $source_pid]);
                         logMergeEvent(
                             $target_pid,
                             "update",
@@ -285,12 +287,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function logMergeEvent($target_pid, $event_type, $log_message)
+        function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            EventAuditLogger::instance()->newEvent(
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 $log_message,
                 $target_pid
@@ -303,7 +306,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             // this is where we source components to merge with target encounter.
             $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid IN(?,?) AND e1.reason IS NULL AND e1.encounter_type_code IS NULL LIMIT 1";
-            $source = sqlQuery($sql, array($target_pid, $source_pid));
+            $source = sqlQuery($sql, [$target_pid, $source_pid]);
             // will we need to deduplicate?
             if (empty($source)) {
                 return [];
@@ -314,14 +317,14 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
             $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid = ? AND e1.date = ? LIMIT 1";
-            $target = sqlQuery($sql, array($targetPid, $source['date']));
+            $target = sqlQuery($sql, [$targetPid, $source['date']]);
             if (empty($target)) {
                 // there wasn't a target encounter date match to merge components
                 // so grab an encounter that is within the date period of source encounter.
-                $src_date = date("Ymd", strtotime($source['date']));
+                $src_date = date("Ymd", strtotime((string) $source['date']));
                 $sql = "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid = ? AND ? BETWEEN e1.date and e1.date_end LIMIT 1";
-                $target = sqlQuery($sql, array($targetPid, $src_date));
+                $target = sqlQuery($sql, [$targetPid, $src_date]);
             }
             return [$target ?? null, $source ?? null];
         }
@@ -343,7 +346,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
-                $res = sqlStatement($sql, array($GLOBALS['adodb']['db']->database));
+                $res = sqlStatement($sql, [OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -352,12 +355,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         continue;
                     }
                     $sql = "UPDATE " . escape_table_name($table['encounter_table']) . " SET " .
-                        escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ? WHERE " .
-                        escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ?";
+                        escape_sql_column_name($table['encounter_column'], [$table['encounter_table']]) . " = ? WHERE " .
+                        escape_sql_column_name($table['encounter_column'], [$table['encounter_table']]) . " = ?";
 
                     if ($PRODUCTION) {
-                        sqlStatement($sql, array($target, $source['encounter']));
-                        if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                        sqlStatement($sql, [$target, $source['encounter']]);
+                        if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                             echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                             logMergeEvent(
                                 $target_pid,
@@ -369,16 +372,16 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     }
                 }
                 $sql = "UPDATE " . escape_table_name('forms') . " SET " .
-                    escape_sql_column_name('encounter', array('forms')) . " = ? WHERE " .
-                    escape_sql_column_name('encounter', array('forms')) . " = ? AND " .
-                    escape_sql_column_name('formdir', array('forms')) . " != 'newpatient'";
-                sqlStatement($sql, array($target, $source['encounter']));
+                    escape_sql_column_name('encounter', ['forms']) . " = ? WHERE " .
+                    escape_sql_column_name('encounter', ['forms']) . " = ? AND " .
+                    escape_sql_column_name('formdir', ['forms']) . " != 'newpatient'";
+                sqlStatement($sql, [$target, $source['encounter']]);
                 if ($PRODUCTION) {
                     $sql = "DELETE FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient'";
-                    sqlStatement($sql, array($source['encounter']));
+                    sqlStatement($sql, [$source['encounter']]);
                     $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
-                    sqlStatement($sql, array($source['encounter']));
-                    if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                    sqlStatement($sql, [$source['encounter']]);
+                    if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                         echo "<br />$sql" . text($source['encounter']);
                         logMergeEvent(
                             $target_pid,
@@ -391,9 +394,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
@@ -420,11 +421,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
             $tprow = sqlQuery(
                 "SELECT * FROM patient_data WHERE pid = ?",
-                array($target_pid)
+                [$target_pid]
             );
             $sprow = sqlQuery(
                 "SELECT * FROM patient_data WHERE pid = ?",
-                array($source_pid)
+                [$source_pid]
             );
 
             // Do some checking to make sure source and target exist and are the same person.
@@ -441,10 +442,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 if ($tprow['ss'] != $sprow['ss']) {
                     die(xlt('Target and source SSN do not match'));
                 }
-                if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($tprow['DOB'])) {
                     die(xlt('Target patient has no DOB'));
                 }
-                if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($sprow['DOB'])) {
                     die(xlt('Source patient has no DOB'));
                 }
                 if ($tprow['DOB'] != $sprow['DOB']) {
@@ -460,7 +461,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             // Change normal documents first as that could fail if CouchDB connection fails.
             $dres = sqlStatement(
                 "SELECT * FROM `documents` WHERE `foreign_id` = ?",
-                array($source_pid)
+                [$source_pid]
             );
             while ($drow = sqlFetchArray($dres)) {
                 $d = new Document($drow['id']);
@@ -474,13 +475,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             }
 
             // Move scanned encounter documents and delete their container.
+            // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+            // PIDs are sanitized via intval() (line 400-401) and check_file_dir_name() (line 456-457)
             if (is_dir($sencdir)) {
                 if ($PRODUCTION && !file_exists($tdocdir)) {
                     mkdir($tdocdir);
                 }
 
-                if ($PRODUCTION && !file_exists($tencdir)) {
-                    mkdir($tencdir);
+                if ($PRODUCTION && !file_exists($tencdir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                    mkdir($tencdir); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                 }
 
                 $dh = opendir($sencdir);
@@ -496,8 +499,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     if ($sfname == 'index.html') {
                         echo "<br />" . xlt('Deleting') . " " . text($sencdir) . "/"
                             . text($sfname);
-                        if ($PRODUCTION) {
-                            if (!unlink("$sencdir/$sfname")) {
+                        if ($PRODUCTION) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                            if (!unlink("$sencdir/$sfname")) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                                 die("<br />" . xlt('Delete failed!'));
                             }
                         }
@@ -528,9 +531,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             while ($trow = sqlFetchArray($tres)) {
                 $tblname = array_shift($trow);
                 if (
-                    $tblname == 'patient_data'
-                    || $tblname == 'history_data'
-                    || $tblname == 'insurance_data'
+                    in_array($tblname, ['patient_data', 'history_data', 'insurance_data'])
                 ) {
                     deleteRows($tblname, 'pid', $source_pid, $target_pid);
                 } elseif ($tblname == 'chart_tracker') {
@@ -545,7 +546,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     // Don't mess with log data.
                 } else {
                     $crow = sqlQuery(
-                        "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                        "SHOW COLUMNS FROM " . escape_table_name($tblname) . " WHERE " .
                         "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                     );
                     if (!empty($crow['Field'])) {
@@ -589,7 +590,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             $target_pid = $form_pid1;
             $row = sqlQuery(
                 "SELECT lname, fname FROM patient_data WHERE pid = ?",
-                array($target_pid)
+                [$target_pid]
             );
             $target_string = $row['lname'] . ', ' . $row['fname'] . " ($target_pid)";
         }
@@ -597,7 +598,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             $source_pid = $form_pid2;
             $row = sqlQuery(
                 "SELECT lname, fname FROM patient_data WHERE pid = ?",
-                array($source_pid)
+                [$source_pid]
             );
             $source_string = $row['lname'] . ', ' . $row['fname'] . " ($source_pid)";
         }
@@ -606,7 +607,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         <p>
         </p>
         <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="table-responsive">
                 <table class="table w-100">
                     <tr>

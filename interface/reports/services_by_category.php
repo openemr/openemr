@@ -4,7 +4,7 @@
  * Services by category report.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
@@ -16,13 +16,13 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 ?>
@@ -81,7 +81,7 @@ if (!empty($_POST)) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Services by Category'); ?></span>
 
 <form method='post' action='services_by_category.php' name='theform' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -177,7 +177,7 @@ if (!empty($_POST['form_refresh'])) {
 <tbody>
     <?php
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $filter = sanitizeNumber($_REQUEST['filter']);
     $where = "c.active = 1";
     if ($filter) {
@@ -196,7 +196,7 @@ if (!empty($_POST['form_refresh'])) {
     $last_category = '';
     $irow = 0;
     while ($row = sqlFetchArray($res)) {
-        $category = $row['title'] ? $row['title'] : xl('Uncategorized');
+        $category = $row['title'] ?: xl('Uncategorized');
         $disp_category = ' ';
         if ($category !== $last_category) {
             $last_category = $category;
@@ -222,13 +222,13 @@ if (!empty($_POST['form_refresh'])) {
         if (related_codes_are_used()) {
             // Show related codes.
             echo "   <td class='text'>";
-            $arel = explode(';', $row['related_code']);
+            $arel = explode(';', (string) $row['related_code']);
             foreach ($arel as $tmp) {
-                list($reltype, $relcode) = explode(':', $tmp);
+                [$reltype, $relcode] = explode(':', $tmp);
                 $reltype = $code_types[$reltype]['id'];
                 $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-                "code_type = ? AND code = ? LIMIT 1", array($reltype, $relcode));
-                echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
+                "code_type = ? AND code = ? LIMIT 1", [$reltype, $relcode]);
+                echo text($relcode) . ' ' . text(trim((string) $relrow['code_text'])) . '<br />';
             }
 
             echo "</td>\n";
@@ -238,7 +238,7 @@ if (!empty($_POST['form_refresh'])) {
         "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
         "p.pr_id = ? AND p.pr_selector = '' " .
         "AND p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($row['id']));
+        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", [$row['id']]);
         while ($prow = sqlFetchArray($pres)) {
             echo "   <td class='text' align='right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
         }

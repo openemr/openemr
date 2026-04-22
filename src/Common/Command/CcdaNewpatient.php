@@ -13,6 +13,8 @@
 namespace OpenEMR\Common\Command;
 
 use Carecoordination\Model\CarecoordinationTable;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,9 +36,9 @@ class CcdaNewpatient extends Command
                     new InputOption('document_id', null, InputOption::VALUE_REQUIRED, 'The ccda document id that was imported into the audit table'),
                     new InputOption('debug', null, InputOption::VALUE_NONE, 'Turns on debug mode.'),
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
+                    new InputOption('auth_name', null, InputOption::VALUE_REQUIRED, 'Auth from session', ''),
                 ])
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -49,11 +51,15 @@ class CcdaNewpatient extends Command
             $output->writeln('am_id parameter is missing (required), so exiting');
             return 2;
         }
+        if (empty($input->getOption('auth_name'))) {
+            $output->writeln('auth_name parameter is missing (required), so exiting');
+            return 2;
+        }
 
-        $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class)->insert_patient($input->getOption('am_id'), $input->getOption('document_id'));
+        SessionUtil::setSession('authUser', $input->getOption('auth_name'));
+
         $symfonyStyler = new SymfonyStyle($input, $output);
-
-        $careCoordinationTable = $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class);
+        $careCoordinationTable = OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(CarecoordinationTable::class);
         if ($careCoordinationTable instanceof CarecoordinationTable) {
             if ($input->getOption('debug') !== false) {
                 $careCoordinationTable->setCommandLineStyler($symfonyStyler);

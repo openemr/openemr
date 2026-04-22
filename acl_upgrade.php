@@ -28,7 +28,7 @@
  *   //Update already existing Objects
  *   echo "<BR/><B>Upgrading objects</B><BR/>";
  *
- *   //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+ *   //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
  *   // (will also place in the appropriate group and CREATE a new group if needed)
  *   echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
  *
@@ -43,14 +43,14 @@
  * See header in src/Common/Acl/AclMain.php for list of ACOs
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -136,7 +136,7 @@ if ($acl_version < $upgrade_acl) {
     //Ensure that 'High' sensitivity object order variable is set to 20
     AclExtended::editObjectAcl('sensitivities', 'Sensitivities', 'high', 'High', 20);
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
     //Add 'Physicians' ACL with 'addonly' and collect the ID number (added in 3.0.2)
@@ -285,7 +285,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
     AclExtended::addNewACL('Physicians', 'doc', 'wsome', 'Things that physicians can read and partly modify');
@@ -329,7 +329,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -385,7 +385,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     // echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     // echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -427,8 +427,6 @@ if ($acl_version < $upgrade_acl) {
 
     //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
-    // Add 'Multipledb' object (added in 5.0.1)
-    AclExtended::addObjectAcl('admin', 'Administration', 'multipledb', 'Multipledb');
     AclExtended::addObjectAcl('groups', 'Groups', 'gadd', 'View/Add/Update groups');
     AclExtended::addObjectAcl('groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar');
     AclExtended::addObjectAcl('groups', 'Groups', 'glog', 'Group encounter log');
@@ -437,7 +435,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -448,8 +446,6 @@ if ($acl_version < $upgrade_acl) {
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'glog', 'Group encounter log', 'write');
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gdlog', 'Group detailed log of appointment in patient record', 'write');
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist', 'write');
-    //Insert the 'Multipledb' object from the 'admin' section into the Administrators group write ACL (added in 5.0.1)
-    AclExtended::updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'multipledb', 'Multipledb', 'write');
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
@@ -480,7 +476,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -526,7 +522,6 @@ if ($acl_version < $upgrade_acl) {
 
     AclExtended::updateAcl($back_view, 'Accounting', 'patients', 'Patients', 'alert', 'Clinical Reminders/Alerts (write,addonly optional)', 'view');
 
-    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'multipledb', 'Multipledb', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'menu', 'Menu', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'auth', 'Authorize - my encounters', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'coding', 'Coding - my encounters (write,wsome optional)', 'write');
@@ -570,7 +565,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
     AclExtended::updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'manage_modules', 'Manage modules', 'write');
@@ -603,7 +598,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
     AclExtended::updateAcl($admin_write, 'Administrators', 'patients', 'Patients', 'docs_rm', 'Documents Delete', 'write');
@@ -641,7 +636,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
     AclExtended::updateAcl($admin_write, 'Administrators', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'write');
@@ -688,7 +683,7 @@ if ($acl_version < $upgrade_acl) {
     //Rename "Pharmacy Dispensary" to "Inventory Administration".
     AclExtended::editObjectAcl('admin', 'Administration', 'drugs', 'Inventory Administration', 10);
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -733,7 +728,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -766,7 +761,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
@@ -834,7 +829,7 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 

@@ -3,7 +3,7 @@
 /**
  * ReferenceSearchField.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,13 +16,10 @@ use Psr\Log\InvalidArgumentException;
 class ReferenceSearchField extends BasicSearchField
 {
     /**
-     * @var boolean
+     * @param bool $isUuid
      */
-    private $isUuid;
-
-    public function __construct($field, $values, $isUuid = false)
+    public function __construct($field, $values, private $isUuid = false)
     {
-        $this->isUuid = $isUuid;
         parent::__construct($field, SearchFieldType::REFERENCE, $field, $values);
     }
 
@@ -38,7 +35,7 @@ class ReferenceSearchField extends BasicSearchField
 
             $convertedFields[] = $this->createReferenceSearchValue($value);
         }
-        parent::setValues($convertedFields);
+        return parent::setValues($convertedFields);
     }
 
     /**

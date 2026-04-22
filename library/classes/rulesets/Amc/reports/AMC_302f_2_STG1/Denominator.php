@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_302f_2_STG1_Denominator implements AmcFilterIF
@@ -32,7 +32,7 @@ class AMC_302f_2_STG1_Denominator implements AmcFilterIF
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //Number of unique patients seen by the EP during the EHR reporting period
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
             return true;
         } else {

@@ -36,7 +36,7 @@ class Characteristic extends ClinicalType
                     $return = true;
                 } elseif ($tobaccoStatus == 'quittobacco') {
                     $quitDate = $tmp[2];
-                    if (strtotime($quitDate) > strtotime($beginDate)) {
+                    if (strtotime($quitDate) > strtotime((string) $beginDate)) {
                         $return = true;
                     }
                 }
@@ -48,7 +48,7 @@ class Characteristic extends ClinicalType
                 $tobaccoStatus = $tmp[1];
                 if ($tobaccoStatus == 'quittobacco') {
                     $quitDate = $tmp[2];
-                    if (strtotime($quitDate) < strtotime($beginDate)) {
+                    if (strtotime($quitDate) < strtotime((string) $beginDate)) {
                         $return = true;
                     }
                 } elseif ($tobaccoStatus == 'nevertobacco') {

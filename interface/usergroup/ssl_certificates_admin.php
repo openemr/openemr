@@ -7,7 +7,7 @@
  * Apache SSL server certificate.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,21 +20,21 @@
 require_once("../globals.php");
 require_once("../../library/create_ssl_certificate.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SSL Certificate Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: SSL Certificate Administration", xl("SSL Certificate Administration"));
 }
 
 /* This string contains any error messages if generating
@@ -48,13 +48,13 @@ $error_msg = "";
  * @param $filename  - The file to download.
  * @param $filetype  - The type of file.
  */
-function download_file($filename, $filetype)
+function download_file($filename, $filetype): void
 {
 
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Cache-Control: private");
     header("Content-Type: application/" . $filetype);
-    header("Content-Disposition: attachment; filename=" . basename($filename) . ";");
+    header("Content-Disposition: attachment; filename=" . basename((string) $filename) . ";");
     header("Content-Transfer-Encoding: binary");
     header("Content-Length: " . filesize($filename));
     readfile($filename);
@@ -70,33 +70,33 @@ function download_file($filename, $filetype)
  * A temporary certificate will be written to /tmp/openemr_client_cert.p12.
  * If an error occurs, set the $error_msg (which is displayed later below).
  */
-function create_client_cert()
+function create_client_cert(): void
 {
     global $error_msg;
 
-    if (!$GLOBALS['is_client_ssl_enabled']) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
-    if (!file_exists($GLOBALS['certificate_authority_crt'])) {
+    if (!file_exists(OEGlobalsBag::getInstance()->getString('certificate_authority_crt'))) {
         $error_msg .= xl('Error, the CA Certificate File doesn\'t exist');
         return;
     }
-    if (!file_exists($GLOBALS['certificate_authority_key'])) {
+    if (!file_exists(OEGlobalsBag::getInstance()->getString('certificate_authority_key'))) {
         $error_msg .= xl('Error, the CA Key File doesn\'t exist');
         return;
     }
 
     if ($_POST["client_cert_user"]) {
-        $user = trim($_POST['client_cert_user']);
+        $user = trim((string) $_POST['client_cert_user']);
     }
 
     if ($_POST["client_cert_email"]) {
-        $email = trim($_POST['client_cert_email']);
+        $email = trim((string) $_POST['client_cert_email']);
     }
 
     if ($_POST["clientPassPhrase"]) {
-        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+        $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
     $serial = 0;
@@ -104,16 +104,16 @@ function create_client_cert()
         $user,
         $email,
         $serial,
-        $GLOBALS['certificate_authority_crt'],
-        $GLOBALS['certificate_authority_key'],
-        $GLOBALS['client_certificate_valid_in_days']
+        OEGlobalsBag::getInstance()->getString('certificate_authority_crt'),
+        OEGlobalsBag::getInstance()->getString('certificate_authority_key'),
+        OEGlobalsBag::getInstance()->getInt('client_certificate_valid_in_days')
     );
     if ($data === false) {
         $error_msg .= xl('Error, unable to create client certificate.');
         return;
     }
 
-    $filename = $GLOBALS['temporary_files_dir'] . "/openemr_client_cert.p12";
+    $filename = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_client_cert.p12";
     $handle = fopen($filename, 'w');
     fwrite($handle, $data);
     fclose($handle);
@@ -129,11 +129,11 @@ function create_client_cert()
  *   /tmp/admin.p12
  *   /tmp/ssl.zip
  */
-function delete_certificates()
+function delete_certificates(): void
 {
-    $tempDir = $GLOBALS['temporary_files_dir'];
-    $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
-                   "Server.key", "Server.crt", "admin.p12", "ssl.zip");
+    $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+    $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
+                   "Server.key", "Server.crt", "admin.p12", "ssl.zip"];
 
     foreach ($files as $file) {
         if (file_exists($file)) {
@@ -151,10 +151,10 @@ function delete_certificates()
  * - admin.p12
  * The following form inputs are used:
  */
-function create_and_download_certificates()
+function create_and_download_certificates(): void
 {
     global $error_msg;
-    $tempDir = $GLOBALS['temporary_files_dir'];
+    $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
 
     $zipName = $tempDir . "/ssl.zip";
     if (file_exists($zipName)) {
@@ -173,42 +173,42 @@ function create_and_download_certificates()
 
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
-        $commonName = trim($_POST['commonName']);
+        $commonName = trim((string) $_POST['commonName']);
     }
 
     if ($_POST["emailAddress"]) {
-        $emailAddress = trim($_POST['emailAddress']);
+        $emailAddress = trim((string) $_POST['emailAddress']);
     }
 
     if ($_POST["countryName"]) {
-        $countryName = trim($_POST['countryName']);
+        $countryName = trim((string) $_POST['countryName']);
     }
 
     if ($_POST["stateOrProvinceName"]) {
-        $stateOrProvinceName = trim($_POST['stateOrProvinceName']);
+        $stateOrProvinceName = trim((string) $_POST['stateOrProvinceName']);
     }
 
     if ($_POST["localityName"]) {
-        $localityName = trim($_POST['localityName']);
+        $localityName = trim((string) $_POST['localityName']);
     }
 
     if ($_POST["organizationName"]) {
-        $organizationName = trim($_POST['organizationName']);
+        $organizationName = trim((string) $_POST['organizationName']);
     }
 
     if ($_POST["organizationalUnitName"]) {
-        $organizationName = trim($_POST['organizationalUnitName']);
+        $organizationName = trim((string) $_POST['organizationalUnitName']);
     }
 
     if ($_POST["clientCertValidity"]) {
-        $clientCertValidity = trim($_POST['clientCertValidity']);
+        $clientCertValidity = trim((string) $_POST['clientCertValidity']);
     }
 
     if ($_POST["clientPassPhrase"]) {
-        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+        $clientPassPhrase = trim((string) $_POST['clientPassPhrase']);
     }
 
-    /* Create the Certficate Authority (CA) */
+    /* Create the Certificate Authority (CA) */
     $arr = create_csr(
         "OpenEMR CA for " . $commonName,
         $emailAddress,
@@ -306,8 +306,8 @@ function create_and_download_certificates()
         }
 
         if ($zip->open($zipName, ZipArchive::CREATE)) {
-            $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
-                       "Server.key", "Server.crt", "admin.p12");
+            $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
+                       "Server.key", "Server.crt", "admin.p12"];
             foreach ($files as $file) {
                  $zip->addFile($tempDir . "/" . $file, $file);
             }
@@ -321,7 +321,7 @@ function create_and_download_certificates()
         if (ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
-    } catch (Exception $e) {
+    } catch (\Throwable) {
         SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
         return;
     }
@@ -339,8 +339,9 @@ if (!empty($_POST["mode"]) && ($_POST["mode"] == "create_client_certificate")) {
     create_and_download_certificates();
 }
 
-if (!empty($_SESSION["zip_error"])) {
-    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
+$zip_error = $session->get('zip_error');
+if (!empty($zip_error)) {
+    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($zip_error) . '</td></tr></table></div>';
     SessionUtil::unsetSession('zip_error');
 }
 
@@ -480,12 +481,12 @@ if (!empty($_SESSION["zip_error"])) {
   </ul>
   <br />
         <?php
-        if ($GLOBALS['certificate_authority_crt'] != "" && $GLOBALS['is_client_ssl_enabled']) {
+        if (OEGlobalsBag::getInstance()->getString('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
             echo xlt('OpenEMR already has a Certificate Authority configured.');
         }
         ?>
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
     <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br />
@@ -588,7 +589,7 @@ if (!empty($_SESSION["zip_error"])) {
   <br />
   <div class="borderbox">
     <form name='ssl_frm' method='post'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
     <br /><br />
         <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br />
@@ -620,14 +621,14 @@ if (!empty($_SESSION["zip_error"])) {
     <br />
         <?php
         if (
-            !$GLOBALS['is_client_ssl_enabled'] ||
-            $GLOBALS['certificate_authority_crt'] == ""
+            !OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled') ||
+            OEGlobalsBag::getInstance()->getString('certificate_authority_crt') == ""
         ) {
             echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br />";
         }
         ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
-      <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+      <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
       <input type='hidden' name='mode' value='create_client_certificate'>
       <table>
         <tr class='text'>

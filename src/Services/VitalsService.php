@@ -3,7 +3,7 @@
 /**
  * VitalsService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -14,21 +14,19 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\NumberSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VitalsService extends BaseService
 {
@@ -54,24 +52,21 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        if (isset($units_of_measurement)) {
-            $this->units_of_measurement = $units_of_measurement;
-        } else {
-            $this->units_of_measurement = $GLOBALS['units_of_measurement'];
-        }
-        if (!empty($GLOBALS['kernel'])) {
-            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->units_of_measurement = $units_of_measurement ?? OEGlobalsBag::getInstance()->get('units_of_measurement');
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();
         } else {
             $this->dispatcher = new EventDispatcher();
         }
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
     }
@@ -154,7 +149,7 @@ class VitalsService extends BaseService
                         ,`date` AS date_created
                     FROM
                         forms
-                ) forms ON vitals.id = forms.form_id
+                ) forms ON vitals.id = forms.form_id AND forms.formdir='vitals'
                 LEFT JOIN (
                     select
                         encounter AS eid
@@ -249,11 +244,9 @@ class VitalsService extends BaseService
                 return MeasurementUtils::fhToCelsius($val);
             }
         };
-        $identity = function ($val) {
-            return $val;
-        };
+        $identity = (fn($val) => $val);
 
-        $convertArrayValue = function ($index, $converter, $unit, &$array) {
+        $convertArrayValue = function ($index, $converter, $unit, &$array): void {
             $array[$index] = $converter($array[$index]);
             $array[$index . "_unit"] = $unit;
         };
@@ -372,9 +365,7 @@ class VitalsService extends BaseService
         // set up save columns and binds
         $keys = array_keys($vitalsData);
         $values = array_values($vitalsData);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
         // update or insert query
         $sql = $sqlOperation . self::TABLE_VITALS . " SET " . $sqlSet;
@@ -397,6 +388,8 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
             }
             QueryUtils::sqlStatementThrowException($sql, $values);
+            $vitalsData['eid'] = $eid;
+            $vitalsData['authorized'] = $authorized;
         }
 
         // now go through and update all of our vital details
@@ -494,9 +487,7 @@ class VitalsService extends BaseService
         unset($vitalDetails['id']);
         $keys = array_keys($vitalDetails);
         $values = array_values($vitalDetails);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
 
         $sql = $sqlOperation . FormVitalDetails::TABLE_NAME . " SET " . $sqlSet;

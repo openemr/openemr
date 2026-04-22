@@ -5,7 +5,7 @@
  * data.  It can be used to listen to any patient flow board events and trigger system functionality for the flow board
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
@@ -15,6 +15,7 @@
 
 namespace OpenEMR\ZendModules\PatientFlowBoard\Listener;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientTrackerService;
@@ -29,7 +30,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
     {
         $events = [];
         // we only subscribe to this event if the drug_screen is enabled as a feature
-        if ($GLOBALS['drug_screen']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) {
             $events[ServiceSaveEvent::EVENT_POST_SAVE] = 'onServicePostSaveEvent';
         }
         return $events;
@@ -53,8 +54,8 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
         if (!empty($status)) {
             $apptService = new AppointmentService();
             if ($apptService->isCheckInStatus($status)) {
-                $yearly_limit = $GLOBALS['maximum_drug_test_yearly'];
-                $percentage = $GLOBALS['drug_testing_percentage'];
+                $yearly_limit = OEGlobalsBag::getInstance()->getInt('maximum_drug_test_yearly');
+                $percentage = OEGlobalsBag::getInstance()->getInt('drug_testing_percentage');
                 $this->random_drug_test($trackerData['id'], $percentage, $yearly_limit);
             }
         }
@@ -70,7 +71,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
 
         # Check if randomization has not yet been done (is random_drug_test NULL). If already done, then exit.
         $drug_test_done = sqlQuery("SELECT `random_drug_test`, pid from patient_tracker " .
-            "WHERE id =? ", array($tracker_id));
+            "WHERE id =? ", [$tracker_id]);
         $Patient_id = $drug_test_done['pid'];
 
         if (is_null($drug_test_done['random_drug_test'])) {
@@ -79,7 +80,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
                 # check to see if screens are within the current year.
                 $lastyear = date("Y-m-d", strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));
                 $drug_test_count = sqlQuery("SELECT COUNT(*) from patient_tracker " .
-                    "WHERE drug_screen_completed = '1' AND apptdate >= ? AND pid =? ", array($lastyear,$Patient_id));
+                    "WHERE drug_screen_completed = '1' AND apptdate >= ? AND pid =? ", [$lastyear,$Patient_id]);
             }
 
             # check that the patient is not at the yearly limit.
@@ -98,7 +99,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
             #Update the tracker file.
             sqlStatement("UPDATE patient_tracker SET " .
                 "random_drug_test = ? " .
-                "WHERE id =? ", array($drugtest,$tracker_id));
+                "WHERE id =? ", [$drugtest,$tracker_id]);
         }
     }
 }

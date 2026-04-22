@@ -66,19 +66,14 @@ class PHPFHIRResponseParser
             throw $this->_createNonStringArgumentException($input);
         }
 
-        switch (substr($input, 0, 1)) {
-            case '<':
-                return $this->_parseXML($input);
-
-            case '{':
-                return $this->_parseJson($input);
-
-            default:
-                throw new \RuntimeException(sprintf(
-                    '%s::parse - Unable to determine response type, expected JSON or XML.',
-                    get_class($this)
-                ));
-        }
+        return match (substr($input, 0, 1)) {
+            '<' => $this->_parseXML($input),
+            '{' => $this->_parseJson($input),
+            default => throw new \RuntimeException(sprintf(
+                '%s::parse - Unable to determine response type, expected JSON or XML.',
+                static::class
+            )),
+        };
     }
 
     /**
@@ -96,7 +91,7 @@ class PHPFHIRResponseParser
 
         throw new \DomainException(sprintf(
             '%s::parse - Error encountered while decoding json input.  Error code: %s',
-            get_class($this),
+            static::class,
             $lastError
         ));
     }
@@ -133,7 +128,7 @@ class PHPFHIRResponseParser
             return $jsonEntry;
         }
 
-        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list')) {
+        if (str_contains($fhirElementName, '-primitive') || str_contains($fhirElementName, '-list')) {
             return $jsonEntry;
         }
 
@@ -212,7 +207,7 @@ class PHPFHIRResponseParser
             return $element->saveXML();
         }
 
-        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list')) {
+        if (str_contains($fhirElementName, '-primitive') || str_contains($fhirElementName, '-list')) {
             return (string)$element;
         }
 
@@ -293,7 +288,7 @@ class PHPFHIRResponseParser
     {
         return new \InvalidArgumentException(sprintf(
             '%s::parse - Argument 1 expected to be string, %s seen.',
-            get_called_class(),
+            static::class,
             gettype($input)
         ));
     }

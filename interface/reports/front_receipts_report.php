@@ -4,7 +4,7 @@
  * This report lists front office receipts for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2015 Rod Roark <rod@sunsetsystems.com>
@@ -16,21 +16,21 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Front Office Receipts")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Front Office Receipts", xl("Front Office Receipts"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
@@ -45,7 +45,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
     <?php Header::setupHeader('datetime-picker'); ?>
 
     <script>
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -55,15 +55,19 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
 
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
-            dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + encodeURIComponent(pid) +
-                '&time=' + encodeURIComponent(timestamp), '_blank', 850, 550, '', '', {
+            const params = new URLSearchParams({
+                patient: pid,
+                receipt: '1',
+                time: timestamp
+            });
+            dlgopen('../patient_file/front_payment.php?' + params, '_blank', 850, 550, '', '', {
                 onClosed: 'reload'
             });
          }
@@ -107,7 +111,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 </div>
 
 <form name='theform' method='post' action='front_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -169,7 +173,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
             <td class='col-form-label'>
-                <?php xl('To{{Range}}', 'e'); ?>:
+                <?php echo xl('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
@@ -225,7 +229,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $total1 = 0.00;
         $total2 = 0.00;
 
-        $inputArray = array($from_date . ' 00:00:00', $to_date . ' 23:59:59');
+        $inputArray = [$from_date . ' 00:00:00', $to_date . ' 23:59:59'];
         $query = "SELECT r.pid, r.dtime, " .
         "SUM(r.amount1) AS amount1, " .
         "SUM(r.amount2) AS amount2, " .
@@ -255,12 +259,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         while ($row = sqlFetchArray($res)) {
             // Make the timestamp URL-friendly.
-            $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
+            $timestamp = preg_replace('/[^0-9]/', '', (string) $row['dtime']);
             ?>
    <tr>
     <td nowrap>
      <a href="javascript:show_receipt(<?php echo attr_js($row['pid']); ?>, <?php echo attr_js($timestamp); ?>)">
-            <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['dtime'], 0, 10))) . text(substr((string) $row['dtime'], 10, 6)); ?>
    </a>
   </td>
   <td>

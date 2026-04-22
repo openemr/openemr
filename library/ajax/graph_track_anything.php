@@ -3,32 +3,40 @@
 /**
  * Trending script for graphing objects in track anything module.
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Joe Slam <joe@produnis.de>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Joe Slam <joe@produnis.de>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2014 Joe Slam <joe@produnis.de>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // get $_POSTed data
-$titleGraph       = json_decode($_POST['track'], true);
-$the_date_array   = json_decode($_POST['dates'], true);
-$the_value_array  = json_decode($_POST['values'], true);
-$the_item_names   = json_decode($_POST['items'], true);
-$the_checked_cols = json_decode($_POST['thecheckboxes'], true);
+$titleGraph       = json_decode((string) $_POST['track'], true);
+$the_date_array   = json_decode((string) $_POST['dates'], true);
+$the_value_array  = json_decode((string) $_POST['values'], true);
+$the_item_names   = json_decode((string) $_POST['items'], true);
+$the_checked_cols = json_decode((string) $_POST['thecheckboxes'], true);
 // ++++++/end get POSTed data
+
+// Escape title and item names to prevent XSS - Dygraph renders these via innerHTML
+$titleGraph = attr((string) $titleGraph);
+if (is_array($the_item_names)) {
+    $the_item_names = array_map(fn($name) => attr((string) $name), $the_item_names);
+}
 
 // check if something was sent
 // and quit if not
@@ -43,7 +51,7 @@ if ($the_checked_cols == null) {
 // end check if NULL data
 
 // build labels
-$data_final = array();
+$data_final = [];
 $data_final = xl('Date');
 foreach ($the_checked_cols as $col) {
     if (is_numeric($the_value_array[$col][0])) {
@@ -71,7 +79,7 @@ for ($i = 0; $i < count($the_date_array); $i++) {
 }
 
 // Build and send back the json
-$graph_build = array();
+$graph_build = [];
 $graph_build['data_final'] = $data_final;
 $graph_build['title'] = $titleGraph;
 

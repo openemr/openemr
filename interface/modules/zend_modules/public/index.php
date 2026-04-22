@@ -16,32 +16,7 @@
  * to the application root now.
  */
 
-//fetching controller name and action name from the SOAP request
-$urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
-$countUrlArray = count($urlArray);
-preg_match('/\/(\w*)\?/', ($_SERVER['REQUEST_URI'] ?? ''), $matches);
-$actionName = $matches[1] ?? '';
-$controllerName = $urlArray[$countUrlArray - 2] ?? '';
-
-//skipping OpenEMR authentication if the controller is SOAP and action is INDEX
-//SOAP authentication is done in the controller EncounterccdadispatchController
-if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
-    $ignoreAuth_onsite_portal = false;
-    if (!empty($_REQUEST['me'])) {
-        session_id($_REQUEST['me']);
-        session_start();
-    }
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
-        // Onsite portal was validated and patient authorized and re-validated via forwarded session.
-        $ignoreAuth_onsite_portal = true;
-    }
-}
-
-if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
-    // pick up already running session from api's
-    session_id($_REQUEST['me']);
-    session_start();
-}
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../../globals.php");
 require_once(__DIR__ . "/../../../../library/forms.inc.php");
@@ -53,10 +28,10 @@ chdir(dirname(__DIR__));
 /** @var OpenEMR/Core/ModulesApplication
  * Defined in globals.php
 */
-if (!empty($GLOBALS['modules_application'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('modules_application'))) {
     // $time_start = microtime(true);
     // run the request lifecycle.  The application has already inited in the globals.php
-    $GLOBALS['modules_application']->run();
+    OEGlobalsBag::getInstance()->get('modules_application')->run();
     // $time_end = microtime(true);
     // echo "App runtime: " . ($time_end - $time_start) . "<br />";
 } else {

@@ -62,7 +62,7 @@ class PatientData implements InputFilterAwareInterface
 'race', 'varchar(255)', 'NO', '', '', ''
 'ethnicity', 'varchar(255)', 'NO', '', '', ''
 'religion', 'varchar(40)', 'NO', '', '', ''
-'interpretter', 'varchar(255)', 'NO', '', '', ''
+'interpreter', 'varchar(255)', 'NO', '', '', ''
 'migrantseasonal', 'varchar(255)', 'NO', '', '', ''
 'family_size', 'varchar(255)', 'NO', '', '', ''
 'monthly_income', 'varchar(255)', 'NO', '', '', ''
@@ -156,34 +156,34 @@ class PatientData implements InputFilterAwareInterface
 
 
 
-    public static $inputsValidations = array(
-        array(
+    public static $inputsValidations = [
+        [
             'name'     => 'id',
             'required' => true,
-            'filters'  => array(
-                array('name' => 'Int'),
-            ),
-        ),
-        array(
+            'filters'  => [
+                ['name' => 'Int'],
+            ],
+        ],
+        [
             'name'     => 'fname',
             'required' => true,
 
-        ),
-        array(
+        ],
+        [
             'name'     => 'lname',
             'required' => true,
 
-        ),
+        ],
 
-        array(
+        [
             'name'     => 'sex',
             'required' => true,
-        ),
-        array(
+        ],
+        [
             'name'     => 'DOB',
             'required' => true,
-        )
-    );
+        ]
+    ];
 
 
     public function setInputFilter(InputFilterInterface $inputFilter)

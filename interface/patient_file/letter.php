@@ -4,7 +4,7 @@
  * letter.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007-2011 Rod Roark <rod@sunsetsystems.com>
@@ -13,32 +13,33 @@
  */
 
 require_once("../globals.php");
-require_once($GLOBALS['srcdir'] . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$template_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 // array of field name tags to allow internationalization
 //  of templates
-$FIELD_TAG = array(
+$FIELD_TAG = [
     'DATE'             => xl('DATE'),
     'FROM_TITLE'       => xl('FROM_TITLE'),
     'FROM_FNAME'       => xl('FROM_FNAME'),
@@ -78,13 +79,13 @@ $FIELD_TAG = array(
     'PT_EMAIL'         => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
 
-);
+];
 
 $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.phone_home, p.phone_cell, p.ss, p.email, p.postal_code " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+  "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -98,8 +99,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $form_format   = $_POST['form_format'];
     $form_body     = $_POST['form_body'];
 
-    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
-    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
+    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_from]);
+    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_to]);
 
     $datestr = $form_date;
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
@@ -116,8 +117,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -168,10 +169,10 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'] ?? '', $cpstring);
 
     if ($form_format == "pdf") {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
-            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
+        $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
+        if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php")) {
+            include(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php");
         } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
@@ -214,7 +215,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -240,7 +241,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -262,7 +263,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -278,8 +279,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -297,14 +298,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -320,8 +322,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -338,14 +340,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -372,7 +375,7 @@ while ($urow = sqlFetchArray($ures)) {
     $tmp1 = " <option value='" . attr($urow['id']) . "'";
     $tmp2 = ">" . text($uname) . "</option>\n";
     $optto .= $tmp1 . $tmp2;
-    if ($urow['id'] == $_SESSION['authUserID']) {
+    if ($urow['id'] == $session->get('authUserID')) {
         $tmp1 .= " selected";
     }
 
@@ -478,7 +481,7 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
@@ -539,7 +542,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php echo xlt('none{{Template}}'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$tpldir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) {
     die(xlt('Cannot read') . ' ' . text($tpldir));
@@ -706,7 +709,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 

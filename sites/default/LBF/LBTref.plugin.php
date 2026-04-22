@@ -14,7 +14,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBTref_javascript()
+function LBTref_javascript(): void
 {
   // This JavaScript function is to reload the "Refer To" options when
   // the "External Referral" selection changes.
@@ -48,7 +48,7 @@ function external_changed() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBTref_javascript_onload()
+function LBTref_javascript_onload(): void
 {
     echo "
 external_changed();

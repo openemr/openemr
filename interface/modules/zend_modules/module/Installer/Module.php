@@ -14,10 +14,6 @@
 namespace Installer;
 
 // Add these import statements:
-use Installer\Model\InstModule;
-use Installer\Model\InstModuleTable;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 
 /**
  * Handles the initial module load.  Any configuration should in the module.config.php file
@@ -27,15 +23,15 @@ class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
+        return [
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
             // we need to figure out why that is so we can remove this unnecessary piece.
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()

@@ -12,8 +12,8 @@
 
 namespace OpenEMR\MedicalDevice;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class MedicalDevice
 {
@@ -24,7 +24,7 @@ class MedicalDevice
 
     public function __construct($udi_data)
     {
-        $this->udi_data = json_decode($udi_data, true);
+        $this->udi_data = json_decode((string) $udi_data, true);
     }
 
     // This function returns the GMDN PT Name
@@ -121,13 +121,13 @@ class MedicalDevice
 
     public static function createStandardJson($udi)
     {
-        $logger = new SystemLogger();
+        $logger = ServiceContainer::getLogger();
 
         # Request with udi and return result
         $logger->debug("MedicalDevice::createStandardJson will collect information for udi", ['udi' => $udi]);
         $response = oeHttp::get('https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json', ['udi' => $udi]);
         $data = $response->body();
-        $udiData = json_decode($data, true);
+        $udiData = json_decode((string) $data, true);
 
         # Create standardized results and return this along with raw results
         $results = [

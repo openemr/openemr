@@ -4,7 +4,7 @@
  * Wrapper for implementing tabs. Currently based on jQuery UI Tabs.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
@@ -14,14 +14,14 @@
 
 namespace OpenEMR\Tabs;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class TabsWrapper
 {
-    public $tabsid;
-    public $tabs = array();
+    public $tabs = [];
 
-    function __construct($tabsid = 'tabs')
+    function __construct(public $tabsid = 'tabs')
     {
-        $this->tabsid = $tabsid;
     }
 
     // Declare an initial tab that will not be dynamically created.
@@ -33,11 +33,11 @@ class TabsWrapper
         $content = '<p>Content of first tab.</p>',
         $closeable = false
     ) {
-        $this->tabs[] = array(
+        $this->tabs[] = [
             'title'     => $title,
             'content'   => $content,
             'closeable' => $closeable,
-        );
+        ];
     }
 
     // Generate styling. Call once for each tab set.
@@ -66,7 +66,8 @@ EOD;
           padding: .1em .4em;
         }
 EOD;
-            if ($_SESSION['language_direction'] == 'rtl') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if ($session->get('language_direction') === 'rtl') {
                 $s .= <<<EOD
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }
@@ -138,8 +139,8 @@ function twSetup(tabsid) {
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
     const self = $(this);
+    const panelId = self.parent().attr("href").substring(1);
     const closeTab = function() {
-        const panelId = self.parent().attr("href").substring(1);
         top.restoreSession();
         twCloseTab(tabsid, panelId);
     }
@@ -149,7 +150,7 @@ function twSetup(tabsid) {
         closeTab();
     }
 
-    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+    if (self.data('tab-label') === 'SOAP' && top.isSoapEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
             html: '<p>$modalContent</p>',
@@ -181,7 +182,12 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' id='" + label + "' role='close'>&times;</span></a> </li>";
+  var closeId = panelId + '-close';
+  var li = $("<li class='tabs-tabs'></li>");
+  var anchor = $("<a data-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
+  anchor.append(document.createTextNode(label));
+  anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId).attr('data-tab-label', label));
+  li.append(anchor);
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
@@ -197,29 +203,18 @@ function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
   top.restoreSession();
   if (label === "Fee Sheet") {
-    if (!execute) {
-      twAddTab(
-        tabsid,
-        label,
-        "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
-      );
-      execute = true;
-      temp = panelId;
-      return panelId;
-    } else {
+    if (execute) {
       asyncAlertMsg($message, 3000, 'warning','') ;
       return false;
     }
-  } else {
-    twAddTab(
-      tabsid,
-      label,
-      "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
-    );
-    return panelId;
+    execute = true;
+    temp = panelId;
   }
-  
-  
+  var iframe = $("<iframe class='w-100' style='height:94.5vh;border:0;'>Oops</iframe>")
+    .attr('name', panelId)
+    .attr('src', url);
+  twAddTab(tabsid, label, iframe.prop('outerHTML'));
+  return panelId;
 }
 
 // Remove the specified tab from the specified tab set.

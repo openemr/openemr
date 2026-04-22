@@ -4,7 +4,7 @@
  *  Lab Requisition Form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -18,18 +18,21 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form:Lab Requisition");
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $returnurl = 'encounter_top.php';
 
 $formid = (int) ($_GET['id'] ?? 0);
-$obj = $formid ? formFetch("form_requisition", $formid) : array();
+$obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $_SESSION['encounter'];
+$encounter = $session->get('encounter');
 
 $oid = fetchProcedureId($pid, $encounter);
 
@@ -157,7 +160,7 @@ table, th, td {
                 if (!empty($storeBar)) {
                     $bar = $storeBar['req_id'];
                 } else {
-                    $bar = rand(1000, 999999);
+                    $bar = random_int(1000, 999999);
                     saveBarCode($bar, $pid, $order[0]);
                 }
 
@@ -373,4 +376,3 @@ function printDiv(divname)
 </script>
 </body>
 </html>
-

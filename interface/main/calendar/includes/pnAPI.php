@@ -1,5 +1,8 @@
 <?php
 
+use Doctrine\DBAL\Connection;
+use OpenEMR\BC\Database;
+
 // $Id$
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
@@ -35,7 +38,7 @@
  */
 
 if (ini_get('register_globals') != 1) {
-    $supers = array('_REQUEST',
+    $supers = ['_REQUEST',
                             '_ENV',
                             '_SERVER',
                             '_POST',
@@ -43,11 +46,11 @@ if (ini_get('register_globals') != 1) {
                             '_COOKIE',
                             '_SESSION',
                             '_FILES',
-                            '_GLOBALS' );
+                            '_GLOBALS' ];
 
     foreach ($supers as $__s) {
-        if ((isset($$__s) == true) && (is_array($$__s) == true)) {
-            extract($$__s, EXTR_OVERWRITE);
+        if ((isset(${$__s}) == true) && (is_array(${$__s}) == true)) {
+            extract(${$__s}, EXTR_OVERWRITE);
         }
     }
 
@@ -86,15 +89,12 @@ define('_PN_CONFIG_MODULE', '/PNConfig');
 /**
  * get all configuration variable into $pnconfig
  * will be removed on .8
- * @param none
- * @returns true|false
- * @return none
  */
-function pnConfigInit()
+function pnConfigInit(): bool
 {
     global $pnconfig;
 
-    list($dbconn) = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $table = $pntable['module_vars'];
@@ -106,29 +106,26 @@ function pnConfigInit()
     $query = "SELECT $columns[name],
                      $columns[value]
               FROM $table
-              WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'";
-    $dbresult = $dbconn->Execute($query);
-    if ($dbconn->ErrorNo() != 0) {
+              WHERE $columns[modname]= ?";
+    try {
+        $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+        $rows = $result->fetchAllNumeric();
+    } catch (Doctrine\DBAL\Exception) {
         return false;
     }
 
-    if ($dbresult->EOF) {
-        $dbresult->Close();
+    if (empty($rows)) {
         return false;
     }
 
-    while (!$dbresult->EOF) {
-        list($k, $v) = $dbresult->fields;
-        $dbresult->MoveNext();
+    foreach ($rows as [$k, $v]) {
         if (
-            ($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
-                && ($k != 'dbname') && ($k != 'system') && ($k != 'prefix') && ($k != 'encoded')
+            !in_array($k, ['dbtype', 'dbhost', 'dbuname', 'dbpass', 'dbname', 'system', 'prefix', 'encoded'])
         ) {
             $pnconfig[$k] = $v;
         }
     }
 
-    $dbresult->Close();
     return true;
 }
 
@@ -147,7 +144,7 @@ function pnConfigGetVar($name)
         /*
          * Fetch base data
          */
-        list($dbconn) = pnDBGetConn();
+        $conn = pnDBGetConn();
         $pntable = pnDBGetTables();
 
         $table = $pntable['module_vars'];
@@ -158,37 +155,27 @@ function pnConfigGetVar($name)
          */
         $query = "SELECT $columns[value]
                   FROM $table
-                  WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'
-                    AND $columns[name]='" . pnVarPrepForStore($name) . "'";
-        $dbresult = $dbconn->Execute($query);
-
-        /*
-         * In any case of error return false
-         */
-        if ($dbconn->ErrorNo() != 0) {
+                  WHERE $columns[modname]= ?
+                    AND $columns[name]= ?";
+        try {
+            $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+        } catch (Doctrine\DBAL\Exception) {
             return false;
         }
 
-        if ($dbresult->EOF) {
-            $dbresult->Close();
+        if ($value === false) {
             return false;
         }
 
         /*
          * Get data
          */
-        list ($result) = $dbresult->fields;
-        $result = unserialize($result, ['allowed_classes' => false]);
+        $result = unserialize($value, ['allowed_classes' => false]);
 
         /*
          * Some caching
          */
         $pnconfig[$name] = $result;
-
-        /*
-         * That's all folks
-         */
-        $dbresult->Close();
     }
 
     return $result;
@@ -210,27 +197,15 @@ function pnInit()
         define('LC_TIME', 'LC_TIME');
     }
 
-    // ADODB configuration
-    if (!defined('ADODB_DIR')) {
-        define('ADODB_DIR', dirname(__FILE__) . '/../../../../vendor/adodb/adodb-php');
-    }
-
-    require_once ADODB_DIR . '/adodb.inc.php';
-
     // Initialise and load configuration
     global $pnconfig;
-    $pnconfig = array();
+    $pnconfig = [];
     require 'config.php';
 
     // Initialise and load pntables
     global $pntable;
-    $pntable = array();
+    $pntable = [];
     require 'pntables.php';
-
-    // Connect to database
-    if (!pnDBInit()) {
-        die('Database initialisation failed');
-    }
 
     // Build up old config array
     pnConfigInit();
@@ -242,104 +217,9 @@ function pnInit()
     return true;
 }
 
-function pnDBInit()
+function pnDBGetConn(): Connection
 {
-    // Get database parameters
-    global $pnconfig;
-    $dbtype = $pnconfig['dbtype'];
-    $dbhost = $pnconfig['dbhost'];
-    $dbport = $pnconfig['dbport'];
-    $dbname = $pnconfig['dbname'];
-    $dbuname = $pnconfig['dbuname'];
-    $dbpass = $pnconfig['dbpass'];
-
-    // Database connection is a global (for now)
-    global $dbconn;
-
-    // Start connection
-    $dbconn = ADONewConnection($dbtype);
-    // Set mysql to use ssl, if applicable.
-    // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-    // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-        if (defined('MYSQLI_CLIENT_SSL')) {
-            if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-            ) {
-                // with client side certificate/key
-                $dbconn->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                $dbconn->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                $dbconn->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            } else {
-                // without client side certificate/key
-                $dbconn->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-            }
-            $dbconn->clientFlags = MYSQLI_CLIENT_SSL;
-        }
-    }
-    $dbconn->port = $dbport;
-
-    if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-        $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
-    } else {
-        $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);
-    }
-    if (!$dbh) {
-        //$dbpass = "";
-        //die("$dbtype://$dbuname:$dbpass@$dbhost/$dbname failed to connect" . $dbconn->ErrorMsg());
-        die("<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n<title>PostNuke powered Website</title>\n</head>\n<body>\n<center>\n<h1>Problem in Database Connection</h1>\n<br /><br />\n<h5>This Website is powered by PostNuke</h5>\n<a href=\"http://www.postnuke.com\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/postnuke.butn.gif\" border=\"0\" alt=\"Web site powered by PostNuke\" hspace=\"10\" /></a> <a href=\"https://php.weblogs.com/ADODB\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/adodb2.gif\" alt=\"ADODB database library\" border=\"0\" hspace=\"10\" /></a><a href=\"https://www.php.net\" rel=\"noopener\" target=\"_blank\"><img src=\"images/powered/php2.gif\" alt=\"PHP Scripting Language\" border=\"0\" hspace=\"10\" /></a><br />\n<h5>Although this site is running the PostNuke software<br />it has no other connection to the PostNuke Developers.<br />Please refrain from sending messages about this site or its content<br />to the PostNuke team, the end will result in an ignored e-mail.</h5>\n</center>\n</body>\n</html>");
-    }
-
-    // Modified 5/2009 by BM for UTF-8 project
-    if ($pnconfig['db_encoding'] == "utf8mb4") {
-        $success_flag = $dbconn->Execute("SET NAMES 'utf8mb4'");
-        if (!$success_flag) {
-            error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8MB4 encoding with mysql database", 0);
-        }
-    } elseif ($pnconfig['db_encoding'] == "utf8") {
-        $success_flag = $dbconn->Execute("SET NAMES 'utf8'");
-        if (!$success_flag) {
-            error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8 encoding with mysql database", 0);
-        }
-    }
-
-    // ---------------------------------------
-
-    //Turn off STRICT SQL
-    $sql_strict_set_success = $dbconn->Execute("SET sql_mode = ''");
-    if (!$sql_strict_set_success) {
-        error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set strict sql setting", 0);
-    }
-
-    global $ADODB_FETCH_MODE;
-    $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
-    // force oracle to a consistent date format for comparison methods later on
-    if (strcmp($dbtype, 'oci8') == 0) {
-        $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
-    }
-
-    // Sync MySQL time zone with PHP time zone.
-    $dbconn->Execute("SET time_zone = '" . add_escape_custom((new DateTime())->format("P")) . "'");
-
-    if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
-        error_log("CHECK SSL CIPHER IN CALENDAR ADODB: " . errorLogEscape(print_r($dbconn->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
-    }
-
-    return true;
-}
-
-/**
- * get a list of database connections
- * @returns array
- * @return array of database connections
- */
-function pnDBGetConn()
-{
-    global $dbconn;
-
-    return array($dbconn);
+    return Database::instance()->getDbalConnection();
 }
 
 /**
@@ -361,32 +241,30 @@ function pnDBGetTables()
  * hack attacks don't work
  * @param var name of variable to get
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return mixed prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarCleanFromInput()
 {
-    $search = array('|</?\s*SCRIPT.*?>|si',
+    $search = ['|</?\s*SCRIPT.*?>|si',
                     '|</?\s*FRAME.*?>|si',
                     '|</?\s*OBJECT.*?>|si',
                     '|</?\s*META.*?>|si',
                     '|</?\s*APPLET.*?>|si',
                     '|</?\s*LINK.*?>|si',
                     '|</?\s*IFRAME.*?>|si',
-                    '|STYLE\s*=\s*"[^"]*"|si');
+                    '|STYLE\s*=\s*"[^"]*"|si'];
 
-    $replace = array('');
+    $replace = [''];
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
-        global $$var;
+        global ${$var};
         if (empty($var)) {
             return;
         }
 
-        $ourvar = $$var;
+        $ourvar = ${$var};
         if (!isset($ourvar)) {
             array_push($resarray, null);
             continue;
@@ -416,18 +294,16 @@ function pnVarCleanFromInput()
  * shown exactly as expected
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForDisplay()
 {
     // This search and replace finds the text 'x@y' and replaces
     // it with HTML entities, this provides protection against
     // email harvesters
-    static $search = array('/(.)@(.)/s');
+    static $search = ['/(.)@(.)/s'];
 
-    $resarray = array();
+    $resarray = [];
 
     foreach (func_get_args() as $ourvar) {
         // Prepare var
@@ -468,9 +344,7 @@ function pnVarPrepForDisplay()
  * are allowed through
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepHTMLDisplay()
 {
@@ -481,44 +355,40 @@ function pnVarPrepHTMLDisplay()
     // Note that the use of \024 and \022 are needed to ensure that
     // this does not break HTML tags that might be around either
     // the username or the domain name
-    static $search = array('/([^\024])@([^\022])/s');
+    static $search = ['/([^\024])@([^\022])/s'];
 
     static $allowedhtml;
 
     if (!isset($allowedhtml)) {
-        $allowedhtml = array();
+        $allowedhtml = [];
     }
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Preparse var to mark the HTML that we want
-        $ourvar = preg_replace($allowedhtml, "\022\\1\024", $ourvar);
+        $ourvar = preg_replace($allowedhtml, "\022\\1\024", (string) $ourvar);
 
         // Prepare var
-        $ourvar = htmlspecialchars($ourvar);
+        $ourvar = htmlspecialchars((string) $ourvar);
         $ourvar = preg_replace_callback(
             $search,
-            function ($matches) {
-                return "&#" .
-                sprintf("%03d", ord($matches[1])) .
-                ";&#064;&#" .
-                sprintf("%03d", ord($matches[2])) . ";";
-            },
+            fn($matches): string => "&#" .
+            sprintf("%03d", ord($matches[1])) .
+            ";&#064;&#" .
+            sprintf("%03d", ord($matches[2])) . ";",
             $ourvar
         );
 
         // Fix the HTML that we want
         $ourvar = preg_replace_callback(
             '/\022([^\024]*)\024/',
-            function ($matches) {
-                return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            },
-            $ourvar
+            fn($matches): string => '<' . strtr("$matches[1]", ['&gt;' => '>', '&lt;' => '<', '&quot;' => '\"']) . '>',
+            (string) $ourvar
         );
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
-            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", $ourvar);
+            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", (string) $ourvar);
         }
 
         // Add to array
@@ -534,19 +404,17 @@ function pnVarPrepHTMLDisplay()
 }
 
 /**
- * ready databse output
+ * ready database output
  * <br />
  * Gets a variable, cleaning it up such that the text is
  * stored in a database exactly as expected
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForStore()
 {
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Prepare var
         $ourvar = add_escape_custom($ourvar);
@@ -571,29 +439,28 @@ function pnVarPrepForStore()
  * system is not allowed
  * @param var variable to prepare
  * @param ...
- * @returns string/array
- * @return prepared variable if only one variable passed
- * in, otherwise an array of prepared variables
+ * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForOS()
 {
-    static $search = array('!\.\./!si', // .. (directory traversal)
+    static $search = ['!\.\./!si', // .. (directory traversal)
                            '!^.*://!si', // .*:// (start of URL)
                            '!/!si',     // Forward slash (directory traversal)
-                           '!\\\\!si'); // Backslash (directory traversal)
+                           '!\\\\!si']; // Backslash (directory traversal)
 
-    static $replace = array('',
+    /** @var array $replace */
+    static $replace = ['',
                             '',
                             '_',
-                            '_');
+                            '_'];
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Parse out bad things
-        $ourvar = preg_replace($search, $replace, $ourvar);
+        $ourvar = preg_replace($search, $replace, (string) $ourvar);
 
         // Prepare var
-        $ourvar = addslashes($ourvar);
+        $ourvar = addslashes((string) $ourvar);
 
         // Add to array
         array_push($resarray, $ourvar);
@@ -610,42 +477,27 @@ function pnVarPrepForOS()
 
 /**
  * get base URI for PostNuke
- * @returns string
- * @return base URI for PostNuke
+ *
+ * @return string base URI for PostNuke
  */
-function pnGetBaseURI()
+function pnGetBaseURI(): string
 {
-    global $HTTP_SERVER_VARS;
-
-    // Get the name of this URI
-
     // Start of with REQUEST_URI
-    if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) {
-        $path = $HTTP_SERVER_VARS['REQUEST_URI'];
-    } else {
-        $path = getenv('REQUEST_URI');
-    }
+    $path = $_SERVER['REQUEST_URI'] ?? getenv('REQUEST_URI');
 
-    if (
-        (empty($path)) ||
-        (substr($path, -1, 1) == '/')
-    ) {
+    if (empty($path) || str_ends_with((string) $path, '/')) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');
         if (empty($path)) {
             // No luck there either
             // Try SCRIPT_NAME
-            if (isset($HTTP_SERVER_VARS['SCRIPT_NAME'])) {
-                $path = $HTTP_SERVER_VARS['SCRIPT_NAME'];
-            } else {
-                $path = getenv('SCRIPT_NAME');
-            }
+            $path = $_SERVER['SCRIPT_NAME'] ?? getenv('SCRIPT_NAME');
         }
     }
 
-    $path = preg_replace('/[#\?].*/', '', $path);
-    $path = dirname($path);
+    $path = preg_replace('/[#\?].*/', '', (string) $path);
+    $path = dirname((string) $path);
 
     if (preg_match('!^[/\\\]*$!', $path)) {
         $path = '';

@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -11,8 +11,6 @@
  */
 
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
-use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
-use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
 use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
@@ -48,26 +46,26 @@ if (isset($_POST['checkElig'])) {
 foreach ($insurance as $row) {
     ?>
             <li class="nav-item" role="presentation">
-                <a id="claimrev-ins-<?php echo attr(ucfirst($row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst($row['payer_responsibility']));?>"> <?php echo xlt(ucfirst($row['payer_responsibility']));?>  </a>
+                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo xlt(ucfirst((string) $row['payer_responsibility']));?>  </a>
             </li>
     <?php
     $first = "false";
     $classActive = "";
 }
 ?>
-        
+
     </ul>
     <div class="tab-content">
 <?php
         $classActive = "in active";
 foreach ($insurance as $row) {
     ?>
-            <div id="<?php echo attr(ucfirst($row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
+            <div id="<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
                 <div class="row">
                     <div class="col-2">
-                    
+
                         <form method="post" action="../../patient_file/summary/demographics.php">
-                            <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst($row['payer_responsibility']));?>">
+                            <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
                     </div>
@@ -85,11 +83,11 @@ foreach ($insurance as $row) {
                                 </div>
                                 <div class="col">
             <?php echo xlt("Message"); ?>: <?php echo text($check["response_message"]);?>
-                                </div>                                     
+                                </div>
                             </div>
         <?php
     }//end foreach
-    ?>                        
+    ?>
                     </div>
                 </div>
                 <div class="row">
@@ -113,7 +111,7 @@ foreach ($insurance as $row) {
                         echo xlt("No Results");
         } else {
                     $individualJson = $check["individual_json"];
-                    $individual = json_decode($individualJson);
+                    $individual = json_decode((string) $individualJson);
                     $results = $individual->eligibility;
                     $index = 0;
             foreach ($results as $result) {
@@ -146,7 +144,7 @@ foreach ($insurance as $row) {
                     }
                 }
 
-                ?>                      
+                ?>
                                 <ul class="nav nav-tabs mb-2">
                 <?php
                     $classActive = "active";
@@ -166,7 +164,7 @@ foreach ($insurance as $row) {
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations-<?php echo(attr($index)); ?>"> <?php echo xlt("Validations"); ?></a>
-                                    </li>                                 
+                                    </li>
                 <?php
                         $first = "false";
                         $classActive = "";
@@ -201,7 +199,7 @@ foreach ($insurance as $row) {
                                     </div>
                                 </div>
                                 <div id="eligibility-benefits-<?php echo(attr($index)); ?>" class="tab-pane">
-                                 
+
                                     <div class="row">
                                         <div class="col">
                 <?php
@@ -238,17 +236,17 @@ foreach ($insurance as $row) {
                     ?>
                                         </div>
                                     </div>
-                                </div>     
+                                </div>
                             </div>
-  
+
                 <?php
             }//end foreach eligibility
         }//else results
     }//end main foreach
-    ?>   
+    ?>
                     </div>
                 </div>
-            </div>            
+            </div>
         <?php
         $classActive = "";
 }//end ($insurance as $row)
@@ -256,6 +254,3 @@ foreach ($insurance as $row) {
     </div>
 </div>
 </div>
-
-
-

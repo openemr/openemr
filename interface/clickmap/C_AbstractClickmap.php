@@ -16,10 +16,14 @@
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
-require_once(dirname(__FILE__) . '/../globals.php');
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . '/../globals.php');
 
 /* For the addform() function */
-require_once($GLOBALS['srcdir'] . '/forms.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/forms.inc.php');
 
 /**
  * @class C_AbstractClickmap
@@ -32,56 +36,52 @@ abstract class C_AbstractClickmap extends Controller
     /**
      * the directory to find our template file in.
      *
-     * @var template_dir
+     * @var string
      */
-    var $template_dir;
+    public $template_dir;
 
     /**
      * @brief Initialize a newly created object belonging to this class
      *
-     * @param template_mod
-     *  template module name, passed to Controller's initializer.
+     * @param string $template_mod template module name, passed to Controller's initializer.
      */
     function __construct($template_mod = "general")
     {
         parent::__construct();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
-        $this->template_dir = $GLOBALS['fileroot'] . "/interface/clickmap/template/";
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']);
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->template_dir = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/clickmap/template/";
+        $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot'));
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
     /**
      * @brief Override this abstract function with your implementation of createModel.
      *
-     * @param $form_id
-     *  An optional id of a form, to populate data from.
-     *
-     * @return Model
-     *  An AbstractClickmapModel derived Object.
+     * @param string $form_id An optional id of a form, to populate data from.
+     * @return AbstractClickmapModel An AbstractClickmapModel derived Object.
      */
     abstract public function createModel($form_id = "");
 
     /**
-     * @brief Override this abstract function with your implememtation of getImage
+     * @brief Override this abstract function with your implementation of getImage
      *
-     * @return The path to the image backing this form relative to the webroot.
+     * @return string The path to the image backing this form relative to the webroot.
      */
     abstract function getImage();
 
     /**
      * @brief Override this abstract function to return the label of the optionlists on this form.
      *
-     * @return The label used for all dropdown boxes on this form.
+     * @return string The label used for all dropdown boxes on this form.
      */
     abstract function getOptionsLabel();
 
     /**
-     * @brief Override this abstract functon to return a hash of the optionlist (key=>value pairs).
+     * @brief Override this abstract function to return a hash of the optionlist (key=>value pairs).
      *
-     * @return A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
+     * @return array A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
      */
     abstract function getOptionList();
 
@@ -90,8 +90,8 @@ abstract class C_AbstractClickmap extends Controller
      */
     private function set_context($model)
     {
-        $root = $GLOBALS['webroot'] . "/interface/clickmap";
-        $model->saveAction = $GLOBALS['webroot'] . "/interface/forms/" . $model->getCode() . "/save.php";
+        $root = OEGlobalsBag::getInstance()->get('webroot') . "/interface/clickmap";
+        $model->saveAction = OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/" . $model->getCode() . "/save.php";
         $model->template_dir = $root . "/template";
         $model->image = $this->getImage();
         $optionList = $this->getOptionList();
@@ -106,40 +106,35 @@ abstract class C_AbstractClickmap extends Controller
 
     /**
      * @brief generate an html document from the 'new form' template
-     *
-     * @return the result of smarty's fetch() operation.
+     * @return string
      */
     function default_action()
     {
         $model = $this->createModel();
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     /**
      * @brief generate an html document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
+     * @param string $form_id The id of the form to populate data from.
+     * @return string
      */
     function view_action($form_id)
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     /**
      * @brief generate a fragment of an HTML document from the 'new form' template, populated with form data from the passed in form_id.
-     *
-     * @param form_id
-     *  The id of the form to populate data from.
-     *
-     * @return the result of smarty's fetch() operation.
+     * @param string $form_id The id of the form to populate data from.
+     * @return string
      */
     function report_action($form_id)
     {
@@ -163,18 +158,19 @@ abstract class C_AbstractClickmap extends Controller
         $model = $this->createModel($_POST['id']);
         parent::populate_object($model);
         $model->persist();
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
-                $GLOBALS['encounter'],
+                OEGlobalsBag::getInstance()->get('encounter'),
                 $model->getTitle(),
                 $model->id,
                 $model->getCode(),
-                $GLOBALS['pid'],
-                $_SESSION['userauthorized']
+                OEGlobalsBag::getInstance()->get('pid'),
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

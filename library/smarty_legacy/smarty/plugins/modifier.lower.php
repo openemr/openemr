@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -20,7 +21,7 @@
  */
 function smarty_modifier_lower($string)
 {
-    return strtolower($string);
+    return strtolower((string) $string);
 }
 
 ?>

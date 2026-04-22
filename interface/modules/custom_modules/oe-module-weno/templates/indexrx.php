@@ -2,24 +2,27 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../../../globals.php");
-require_once("$srcdir/patient.inc");
+//header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;", true); // Preserve CSP header for security
 
+require_once("../../../../globals.php");
+require_once("$srcdir/patient.inc.php");
+
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -27,10 +30,10 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 //ensure user has proper access permissions.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Weno eRx", xl("Weno eRx"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Let's see if letting user decide to reset fly's!
 // We really don't need because we can do transparently but Weno requested so...
 $wenoValidate = new WenoValidate();
@@ -55,14 +58,14 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();
 $wenoProperties = new TransmitProperties();
 $wenoLog = new WenoLogService();
-$primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+$primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? [];
 $provider_info = $wenoProperties->getProviderEmail();
 $urlParam = $wenoProperties->cipherPayload();
 $vitals = $wenoProperties->getVitals();
@@ -75,13 +78,15 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
-$urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
+$urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . urlencode($urlParam);
 
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><?php echo xlt('Weno eRx') ?></title>
     <?php Header::setupHeader(); ?>
     <style>
@@ -118,18 +123,18 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             <?php if ((int)$isValidKey > 997) { ?>
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
-                    window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
+                    window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($session->get('pid') ?? $pid ?? '')) ?>";
                 });
             });
             <?php } elseif (!$isValidKey) { ?>
             $(function () {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php
-                    echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
-                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
+                    echo xlt('Decryption failed! The Encryption key is incorrect') . "\n" .
+                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "\n" .
                         xlt('Afterwards you may continue and no other action is required by you.'); ?>";
-                syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
+                asyncAlertMsg(warnMsg, 8000, 'danger', 'lg');
             });
             <?php } else { ?>
             $(function () {
@@ -174,7 +179,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             <form>
                 <header class="bg-light text-dark text-center">
                     <h3>
-                        <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
+                        <a href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($session->get('pid') ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
                             <cite class="small font-weight-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
                         </a>
                         <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-right d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
@@ -205,11 +210,11 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                         </table>
                     </div>
@@ -224,7 +229,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             <iframe id="wenoIframe-compose" title="Weno Compose" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
-            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <a href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($session->get('pid') ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
             <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
             <?php $wenoLog->insertWenoLog("eRx Compose Frame", "Rendered Online Compose.", $urlOut); ?>
         </footer>
@@ -240,7 +245,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                     </div>
                     <div class="modal-body">
                         <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
-                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5($provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
+                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5((string) $provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>

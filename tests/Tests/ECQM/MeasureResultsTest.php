@@ -2,7 +2,7 @@
 
 /**
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Tests\ECQM;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
@@ -63,7 +63,7 @@ class MeasureResultsTest extends TestCase
         }
     }
 
-    public function testAllPatients()
+    public function testAllPatients(): void
     {
         $failures = [];
         foreach ($this->measure_result_map as $measureResult) {
@@ -126,9 +126,9 @@ class MeasureResultsTest extends TestCase
             );
 
             // Check response result against our measure map
-            foreach ($response as $id => $populationSets) {
+            foreach ($response as $populationSets) {
                 foreach ($populationSets as $setName => $populationSet) {
-                    $parts = explode('_', $setName);
+                    $parts = explode('_', (string) $setName);
                     $setNumber = $parts[1];
                     // Only check results if the population set is correct
                     if ($measureResult['pop_set'] == $setNumber) {

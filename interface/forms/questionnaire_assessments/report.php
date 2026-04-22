@@ -9,15 +9,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Services\QuestionnaireResponseService;
-use OpenEMR\Services\QuestionnaireService;
 
 /**
  * @throws Exception
  */
-function questionnaire_assessments_report($pid, $encounter, $cols, $id)
+function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
 {
     $form = formFetch("form_questionnaire_assessments", $id);
     if (!$form) {
@@ -26,13 +25,13 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id)
     }
     $responseService = new QuestionnaireResponseService();
     try {
-        $qr = json_decode($form['questionnaire_response'], true);
+        $qr = json_decode((string) $form['questionnaire_response'], true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             die(xlt('Nothing to report. Parse error.'));
         }
         $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt("Error") . " " . text($e->getMessage());
     }
 }

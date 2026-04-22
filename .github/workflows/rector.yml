@@ -1,0 +1,62 @@
+name: Rector PHP Analysis
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  rector:
+    name: Rector PHP Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.5']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    # Resolve the installed rector version so the cache key invalidates on
+    # tool bumps but survives unrelated dependency changes. Hashing the whole
+    # composer.lock over-invalidates; fallback restore would otherwise serve
+    # a cache produced by a different rector, silently corrupting results.
+    - name: Resolve Rector version
+      id: rector-version
+      run: |
+        version=$(jq -r '
+          (.packages + .["packages-dev"])[]
+          | select(.name == "rector/rector")
+          | .version
+        ' composer.lock)
+        printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
+    - name: Rector Cache
+      uses: actions/cache@v5
+      with:
+        path: /tmp/rector
+        key: ${{ runner.os }}-rector-${{ steps.rector-version.outputs.version }}-${{ hashFiles('rector.php') }}-${{ github.run_id }}
+        restore-keys: ${{ runner.os }}-rector-${{ steps.rector-version.outputs.version }}-${{ hashFiles('rector.php') }}-
+
+    - name: Create Rector cache directory
+      run: mkdir -p /tmp/rector
+
+    - name: Rector List Rules
+      run: vendor/bin/rector list-rules
+
+    - name: Rector Dry Run
+      run: vendor/bin/rector process --dry-run

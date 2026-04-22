@@ -3,7 +3,7 @@
 /**
  * EncounterServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,11 +12,11 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 class EncounterServiceTest extends TestCase
 {
@@ -30,6 +30,9 @@ class EncounterServiceTest extends TestCase
      */
     private $fixtureManager;
 
+    /** @var array<string, mixed> */
+    private $fixture;
+
     protected function setUp(): void
     {
         $this->service = new EncounterService();
@@ -42,10 +45,8 @@ class EncounterServiceTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::getOne
-     */
-    public function testGetOne()
+    #[Test]
+    public function testGetOne(): void
     {
         $this->fixtureManager->installFixtures();
 
@@ -59,12 +60,8 @@ class EncounterServiceTest extends TestCase
         $this->assertNotNull($resultData);
     }
 
-    /**
-     * Ran into a bug where the bound patient id was not being checked correctly.  This test case verifies that the patient
-     * binding for the uuid on the service is correctly set and returns valid data.
-     * @cover ::search
-     */
-    public function testSearchWithBoundPatientUUID()
+    #[Test]
+    public function testSearchWithBoundPatientUUID(): void
     {
         $this->fixtureManager->installFixtures();
 

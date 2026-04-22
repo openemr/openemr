@@ -4,7 +4,7 @@
  * PractitionerService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
@@ -13,9 +13,11 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -75,7 +77,7 @@ class PractitionerService extends BaseService
         return !empty($result->getData());
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // we only retrieve from our database when our practitioners are not null
         if (!empty($search['npi'])) {
@@ -106,6 +108,14 @@ class PractitionerService extends BaseService
             $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
             $search['username']->setModifier(SearchModifier::MISSING);
         }
+        // we are going to grab all users that have a username defined OR that have an included abook_type
+        // we only grab practitioners that have valid npis as defined up above so we don't need to recheck that here
+        $compoundIsAndCondition = false;
+        $compoundUsernameAndAbookType = new CompositeSearchField('compound_username_abook_type', [], $compoundIsAndCondition);
+        $compoundUsernameAndAbookType->addChild($search['username']);
+        $compoundUsernameAndAbookType->addChild(new TokenSearchField('abook_type', ['ord_lab', 'spe','external_provider']));
+        $search['compound_username_abook_type'] = $compoundUsernameAndAbookType;
+        unset($search['username']);
         return parent::search($search, $isAndCondition);
     }
 
@@ -118,12 +128,12 @@ class PractitionerService extends BaseService
      *
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         if (!empty($search)) {
             $fields = $this->getFields();
@@ -173,7 +183,7 @@ class PractitionerService extends BaseService
         if (count($data) > 1) {
             // we will log this error and return just the single value
             $results->setData([$data[0]]);
-            (new SystemLogger())->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
+            ServiceContainer::getLogger()->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
         }
         return $results;
     }
@@ -209,10 +219,10 @@ class PractitionerService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

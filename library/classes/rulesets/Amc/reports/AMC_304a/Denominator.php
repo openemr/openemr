@@ -32,8 +32,8 @@ class AMC_304a_Denominator implements AmcFilterIF
                        "where l.type = 'medication' " .
                        "AND l.pid = ? " .
                        "AND l.date >= ? and l.date <= ? ";
-        $check = sqlQuery($sql, array($patient->id,$beginDate,$endDate,$patient->id,$beginDate,$endDate));
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $check = sqlQuery($sql, [$patient->id,$beginDate,$endDate,$patient->id,$beginDate,$endDate]);
+        $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (
             (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
             !(empty($check))

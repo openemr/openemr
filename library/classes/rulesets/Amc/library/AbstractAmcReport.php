@@ -21,18 +21,20 @@
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author Discover and Change, Inc. <snielson@discoverandchange.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../../library/RsFilterIF.php");
+require_once(__DIR__ . "/../../library/RsFilterIF.php");
 require_once('AmcFilterIF.php');
 require_once('IAmcItemizedReport.php');
-require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
-require_once(dirname(__FILE__) . "/../../../../amc.php");
+require_once(__DIR__ . "/../../../../clinical_rules.php");
+require_once(__DIR__ . "/../../../../amc.php");
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
+use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractAmcReport implements RsReportIF
 {
@@ -41,7 +43,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_amcPopulation;
 
-    protected $_resultsArray = array();
+    protected $_resultsArray = [];
 
     protected $_rowRule;
     protected $_ruleId;
@@ -55,10 +57,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_aggregator;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /*
      * @var int|null
@@ -70,41 +69,41 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_providerId;
 
-    public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
+    public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options, ?LoggerInterface $logger = null)
     {
         // require all .php files in the report's sub-folder
         // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
         // for every single rule we have, over and over again every time the rule is instantiated.
-        $className = get_class($this);
-        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
+        $className = static::class;
+        foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
         $this->_amcPopulation = new AmcPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
         $this->_beginMeasurement = $dateTarget['dateBegin'] ?? '';
         $this->_endMeasurement = $dateTarget['dateTarget'] ?? '';
         $this->_manualLabNumber = $options['labs_manual'] ?? 0;
 
-        if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
+        if (OEGlobalsBag::getInstance()->has('report_itemizing_temp_flag_and_id') && OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
             $this->_aggregator = $options['aggregator'] ?? new AMCItemTracker();
         } else {
             $this->_aggregator = new AMCItemSkipTracker();
         }
-        $this->logger = new SystemLogger();
-        $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->logger->debug(static::class . "->__construct() finished", ['patients' => $patientIdArray]);
 
         $this->_billingFacilityId = $options['billing_facility_id'] ?? null;
         $this->_providerId = $options['provider_id'] ?? null;
@@ -132,15 +131,15 @@ abstract class AbstractAmcReport implements RsReportIF
     public function execute()
     {
 
-        $this->logger->debug(get_class($this) . "->execute() starting function");
+        $this->logger->debug(static::class . "->execute() starting function");
 
         // If itemization is turned on, then iterate the rule id iterator
         //
         // Note that when AMC rules supports different patient populations and
         // numerator calculation, then it will need to change placement of
         // this and mimic the CQM rules mechanism
-        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $GLOBALS['report_itemized_test_id_iterator']++;
+        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+            OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
         }
 
         $numerator = $this->createNumerator();
@@ -162,7 +161,7 @@ abstract class AbstractAmcReport implements RsReportIF
             $object_to_count = "patients";
         }
 
-        $this->logger->debug(get_class($this) . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
+        $this->logger->debug(static::class . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
 
         $numeratorObjects = 0;
         $denominatorObjects = 0;
@@ -172,7 +171,7 @@ abstract class AbstractAmcReport implements RsReportIF
             // not sure how we account for individual reporting here.
             $denominatorObjects = $this->_manualLabNumber;
             $this->logger->debug(
-                get_class($this) . "->execute() manual labs processed",
+                static::class . "->execute() manual labs processed",
                 ['numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -189,7 +188,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
         $this->_resultsArray[] = &$result;
-        $this->logger->debug(get_class($this) . "->execute() leaving rule");
+        $this->logger->debug(static::class . "->execute() leaving rule");
     }
 
     private function executeForPatients($numerator, $denominator, &$numeratorObjects, &$denominatorObjects)
@@ -224,8 +223,8 @@ abstract class AbstractAmcReport implements RsReportIF
             }
             // If itemization is turned on, then record the "passed" item
             $this->_aggregator->addItem(
-                $GLOBALS['report_itemizing_temp_flag_and_id'],
-                $GLOBALS['report_itemized_test_id_iterator'],
+                OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'),
+                OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'),
                 $this->_ruleId,
                 $tempBeginMeasurement,
                 $this->_endMeasurement,
@@ -236,7 +235,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 $denominatorResultItemDetails
             );
             $this->logger->debug(
-                get_class($this) . "->execute() patient processed",
+                static::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -244,11 +243,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
     private function getRuleBeginDateForPatient(AmcPatient $patient)
     {
-        if (empty($this->_beginMeasurement)) {
-            $tempBeginMeasurement = $patient->dob;
-        } else {
-            $tempBeginMeasurement = $this->_beginMeasurement;
-        }
+        $tempBeginMeasurement = empty($this->_beginMeasurement) ? $patient->dob : $this->_beginMeasurement;
         return $tempBeginMeasurement;
     }
 
@@ -286,8 +281,8 @@ abstract class AbstractAmcReport implements RsReportIF
                         $numeratorResultItemDetails = $numerator->getItemizedDataForLastTest();
                     }
                     $this->_aggregator->addItem(
-                        $GLOBALS['report_itemizing_temp_flag_and_id'],
-                        $GLOBALS['report_itemized_test_id_iterator'],
+                        OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'),
+                        OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'),
                         $this->_ruleId,
                         $tempBeginMeasurement,
                         $this->_endMeasurement,
@@ -300,7 +295,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 }
             }
             $this->logger->debug(
-                get_class($this) . "->execute() patient processed",
+                static::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -309,8 +304,8 @@ abstract class AbstractAmcReport implements RsReportIF
     private function collectObjects($patient, $object_label, $begin, $end)
     {
 
-        $results = array();
-        $sqlBindArray = array();
+        $results = [];
+        $sqlBindArray = [];
 
         switch ($object_label) {
             case "transitions-in":
@@ -466,7 +461,7 @@ abstract class AbstractAmcReport implements RsReportIF
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $fres = sqlStatement(
                 "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-                array($row['id'])
+                [$row['id']]
             );
             while ($frow = sqlFetchArray($fres)) {
                 $row[$frow['field_id']] = $frow['field_value'];

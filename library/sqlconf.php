@@ -11,30 +11,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Kernel;
-use OpenEMR\Events\Core\SqlConfigEvent;
+use OpenEMR\Common\System\MissingSiteException;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
-
-if (array_key_exists('kernel', $GLOBALS) && $GLOBALS['kernel'] instanceof Kernel) {
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    $sqlConfigEvent = new SqlConfigEvent();
-
-    if ($eventDispatcher->hasListeners(SqlConfigEvent::EVENT_NAME)) {
-        /**
-         * @var SqlConfigEvent
-         */
-        $configEvent = $eventDispatcher->dispatch(new SqlConfigEvent(), SqlConfigEvent::EVENT_NAME);
-        $configEntity = $configEvent->getConfig();
-
-        // Override the variables set in sites/<site_id>/sqlconf.php file that was required above.
-        $host = $configEntity->getHost();
-        $port = $configEntity->getPort();
-        $login = $configEntity->getUser();
-        $pass = $configEntity->getPass();
-        $dbase = $configEntity->getDatabaseName();
-        $db_encoding = $configEntity->getEncoding();
-        $disable_utf8_flag = $configEntity->getDisableUTF8();
-        $config = $configEntity->getConfig();
+$siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') ?? '';
+if (empty($siteDir)) {
+    if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
+        throw new MissingSiteException();
     }
+    // GLOBALS may not be defined consistently during static analysis.
+    $siteDir = __DIR__ . '/../sites/default';
 }
+
+require_once $siteDir . "/sqlconf.php";

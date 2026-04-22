@@ -9,6 +9,9 @@
 //
 class NQF_0043_Numerator implements CqmFilterIF
 {
+    // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
+    const PNEUMOCOCCAL_VACCINE = 'pro_pneumococcal_vaccine';
+
     public function getTitle()
     {
         return "Numerator";
@@ -17,7 +20,7 @@ class NQF_0043_Numerator implements CqmFilterIF
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $vac_medication     = implode(',', Codes::lookup(Medication::PNEUMOCOCCAL_VAC, 'CVX'));
-        $vac_procedure      = implode(',', Codes::lookup(Procedure::PNEUMOCOCCAL_VACCINE, 'SNOMED'));
+        $vac_procedure      = implode(',', Codes::lookup(self::PNEUMOCOCCAL_VACCINE, 'SNOMED'));
 
         $query = "select count(*) cnt from form_encounter fe " .
                "INNER JOIN procedure_order po on po.patient_id = fe.pid " .
@@ -25,7 +28,7 @@ class NQF_0043_Numerator implements CqmFilterIF
                "WHERE fe.pid = ? AND fe.date between ? and ? " .
                "AND poc.procedure_code in ($vac_procedure) AND po.date_ordered between ? and ? ";
 
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$beginDate,$endDate]);
         if ($sql['cnt'] > 0) {
             return true;
         }
@@ -35,7 +38,7 @@ class NQF_0043_Numerator implements CqmFilterIF
                  "WHERE fe.pid = ? and fe.date between ? and  ? " .
                  "AND imm.cvx_code in ($vac_medication) AND imm.administered_date between ? and ?";
 
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$beginDate,$endDate]);
         if ($sql['cnt'] > 0) {
             return true;
         }

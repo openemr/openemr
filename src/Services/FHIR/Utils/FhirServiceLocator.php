@@ -5,7 +5,7 @@
  * the Capability statement this can take 500-900ms to execute and should be used with caution.
  * TODO: @adunsulag Look at changing up this class to not use the capability statement or optimize that class to be more performant.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,21 +16,16 @@ namespace OpenEMR\Services\FHIR\Utils;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 
+// TODO: @adunsulag this class relies on restConfig but we need to refactor this to use the FHIRRouteFinder
 class FhirServiceLocator
 {
     /**
-     * @var $restConfig
-     */
-    private $restConfig;
-
-    /**
      * FhirExportServiceLocator constructor.
-     * @param \RestConfig $restConfig
+     * @param array $routes
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
-    public function __construct($restConfig)
+    public function __construct(private readonly array $routes = [])
     {
-        $this->restConfig = $restConfig;
     }
 
     /**
@@ -46,8 +41,7 @@ class FhirServiceLocator
 
         $resourceRegistry = [];
         $restHelper = new RestControllerHelper();
-        $restConfig = $this->restConfig;
-        $restCapability = $restHelper->getCapabilityRESTObject($restConfig::$FHIR_ROUTE_MAP);
+        $restCapability = $restHelper->getCapabilityRESTObject($this->routes);
         $resources = $restCapability->getResource();
         foreach ($resources as $resource) {
             $resourceName = $resource->getType()->getValue();

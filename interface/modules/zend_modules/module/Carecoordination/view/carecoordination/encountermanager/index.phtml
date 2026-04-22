@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Qrda\QrdaReportService;
 
 $status_title = array('0' => 'Pending', '1' => 'Completed', '2' => 'Secure Transfer', '3' => 'View');
@@ -18,31 +19,37 @@ $status_details = array();
 foreach ($this->status_details as $row_status) {
     $status_details[$row_status['pid']][] = $row_status;
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <style>
-    .ap-st-st-13.search_date_type_container input {
-        width: 2vw;
-        height: 2.5vh;
-        border: none;
-        box-shadow: none;
-    }
-    .search_date_type_container {
-        display: flex;
-        line-height: 3vh;
-        text-align: center;
-    }
-    .d-none {
-        display: none;
-    }
-    .advanced-button-toggle {
-        cursor: pointer;
-    }
-    .advance-opt-icon {
-        height: 12px;
-        width: 24px;
-        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///9mZmaO7mygAAAAAXRSTlMAQObYZgAAABtJREFUCB1jwATyPxj4PzCwP2BgPsDA2MCACgBiNwRCJW+9iwAAAABJRU5ErkJggg==) right center no-repeat;
-        display: inline-block;
-    }
+  .ap-st-st-13.search_date_type_container input {
+    width: 2vw;
+    height: 2.5vh;
+    border: none;
+    box-shadow: none;
+  }
+
+  .search_date_type_container {
+    display: flex;
+    line-height: 3vh;
+    text-align: center;
+  }
+
+  .d-none {
+    display: none;
+  }
+
+  .advanced-button-toggle {
+    cursor: pointer;
+  }
+
+  .advance-opt-icon {
+    height: 12px;
+    width: 24px;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///9mZmaO7mygAAAAAXRSTlMAQObYZgAAABtJREFUCB1jwATyPxj4PzCwP2BgPsDA2MCACgBiNwRCJW+9iwAAAABJRU5ErkJggg==) right center no-repeat;
+    display: inline-block;
+  }
 </style>
 <script>
     $(function () {
@@ -143,6 +150,7 @@ foreach ($this->status_details as $row_status) {
 
         $("#download_qrda").click(function () {
             $('#downloadqrda3').val('');
+            $('#downloadqrda3_consolidated_input').val('');
             $('#downloadqrda').val('download_qrda');
             $('#theform').submit();
         });
@@ -150,6 +158,14 @@ foreach ($this->status_details as $row_status) {
         $("#download_qrda3").click(function () {
             $('#downloadqrda').val('');
             $('#downloadqrda3').val('download_qrda3');
+            $('#downloadqrda3_consolidated_input').val('');
+            $('#theform').submit();
+        });
+
+        $("#downloadqrda3_consolidated").click(function () {
+            $('#downloadqrda').val('');
+            $('#downloadqrda3').val('');
+            $('#downloadqrda3_consolidated_input').val('download_qrda3_consolidated');
             $('#theform').submit();
         });
 
@@ -207,8 +223,8 @@ foreach ($this->status_details as $row_status) {
                                             $from_format = $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
                                             $to_format = $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
                                             ?>
-                                            $( "#form_date_from" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
-                                            $( "#form_date_to" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $("#form_date_from").datepicker("option", "dateFormat", "<?php echo $display_format;?>");
+                                            $("#form_date_to").datepicker("option", "dateFormat", "<?php echo $display_format;?>");
                                             $("#form_date_from").datepicker("setDate", '<?php echo $from_format;?>');
                                             $("#form_date_to").datepicker("setDate", '<?php echo $to_format;?>');
                                         });
@@ -260,11 +276,11 @@ foreach ($this->status_details as $row_status) {
                                         <label for="form_search_type_date_encounter">
                                             <?php echo $this->listenerObject->z_xlt('Encounter Date'); ?>
                                         </label>
-                                        <input type="radio" id="form_search_type_date_encounter" name="form_search_type_date" value="encounter" <?php echo ($this->form_data['search_type_date'] == "encounter" ? "checked": ""); ?> />
+                                        <input type="radio" id="form_search_type_date_encounter" name="form_search_type_date" value="encounter" <?php echo($this->form_data['search_type_date'] == "encounter" ? "checked" : ""); ?> />
                                         <label for="form_search_type_date_patient_creation">
                                             <?php echo $this->listenerObject->z_xlt('Patient Creation Date'); ?>
                                         </label>
-                                        <input type="radio" id="form_search_type_date_patient_creation" name="form_search_type_date" value="date_patient_creation" <?php echo ($this->form_data['search_type_date'] == "date_patient_creation" ? "checked": ""); ?> />
+                                        <input type="radio" id="form_search_type_date_patient_creation" name="form_search_type_date" value="date_patient_creation" <?php echo($this->form_data['search_type_date'] == "date_patient_creation" ? "checked" : ""); ?> />
                                     </div>
                                 </td>
                             </tr>
@@ -274,12 +290,12 @@ foreach ($this->status_details as $row_status) {
                                     <select id="form_encounter_provider" name="form_provider_id">
                                         <option value="">--<?php echo xlt("All providers"); ?>--</option>
                                         <?php foreach ($this->providers as $provider) : ?>
-                                        <option value="<?php echo attr($provider['id']); ?>"
-                                        <?php echo text(($this->form_data['provider_id'] == $provider['id'] ? "selected" : "")); ?>
-                                        ><?php
-                                            echo text(implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]));
-                                        ?> (<?php echo xlt("NPI"); ?>: <?php echo text($provider['npi'] ?? ""); ?>)
-                                        </option>
+                                            <option value="<?php echo attr($provider['id']); ?>"
+                                                <?php echo text(($this->form_data['provider_id'] == $provider['id'] ? "selected" : "")); ?>
+                                            ><?php
+                                                echo text(implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]));
+                                                ?> (<?php echo xlt("NPI"); ?>: <?php echo text($provider['npi'] ?? ""); ?>)
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </td>
@@ -291,7 +307,7 @@ foreach ($this->status_details as $row_status) {
                                         <option value="">--<?php echo xlt("All Facilities"); ?>--</option>
                                         <?php foreach ($this->billing_facilities as $facility) : ?>
                                             <option value="<?php echo attr($facility['id']); ?>"
-                                                <?php echo ($this->form_data['billing_facility_id'] == $facility['id'] ? "selected" : ""); ?>
+                                                <?php echo($this->form_data['billing_facility_id'] == $facility['id'] ? "selected" : ""); ?>
                                             ><?php echo text($facility['name'] ?? ""); ?> (<?php echo xlt("TIN"); ?>: <?php echo text($facility['federal_ein'] ?? ""); ?>)
                                             </option>
                                         <?php endforeach; ?>
@@ -317,6 +333,8 @@ foreach ($this->status_details as $row_status) {
                                 <input type="hidden" name="downloadqrda" id="downloadqrda" value="">
                                 <div id="download_qrda3" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadqrda3" id="downloadqrda3" value="">
+                                <div id="downloadqrda3_consolidated" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                                <input type="hidden" name="downloadqrda3_consolidated" id="downloadqrda3_consolidated_input" value="">
                                 <input type="hidden" name="components" id="components" value="">
                                 <div style="display:none;" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadccr" id="downloadccr" value="">
@@ -444,10 +462,10 @@ foreach ($this->status_details as $row_status) {
                                             <?php } ?>
                                         </td>
                                         <td style="padding: 5px;">
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $session->get('authUserID'); ?>" rel="noopener" target="_blank" style="text-decoration: none;">
                                                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA'); ?>">
                                             </a>
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $session->get('authUserID'); ?>" rel="noopener" target="_blank" style="text-decoration: none;">
                                                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View QRDA'); ?>">
                                             </a>
                                         </td>
@@ -558,4 +576,3 @@ foreach ($this->status_details as $row_status) {
     </div>
     <div class="clear"></div>
 </div> <!-- New Wrapper ends-->
-

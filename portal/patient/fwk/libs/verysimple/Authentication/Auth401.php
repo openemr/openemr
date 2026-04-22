@@ -39,7 +39,7 @@ class Auth401
      */
     static function GetUsername()
     {
-        return isset($_SERVER ["PHP_AUTH_USER"]) ? $_SERVER ["PHP_AUTH_USER"] : "";
+        return $_SERVER ["PHP_AUTH_USER"] ?? "";
     }
 
     /**
@@ -49,6 +49,6 @@ class Auth401
      */
     static function GetPassword()
     {
-        return isset($_SERVER ["PHP_AUTH_PW"]) ? $_SERVER ["PHP_AUTH_PW"] : "";
+        return $_SERVER ["PHP_AUTH_PW"] ?? "";
     }
 }

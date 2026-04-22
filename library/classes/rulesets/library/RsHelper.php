@@ -11,7 +11,7 @@ class RsHelper
 {
     public static function formatClinicalRules(array $results)
     {
-        $formattedResults = array();
+        $formattedResults = [];
         foreach ($results as $result) {
             if ($result instanceof RsResultIF) {
                 $formattedResults [] = $result->format();

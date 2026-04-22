@@ -4,42 +4,46 @@
  * dupecheck mergerecords.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @deprecated Its unlikely these files are used as the functionality has been replaced by the "Merge Patients" feature in the patient summary screen.
  */
-
+class DupeCheckMergeRecordsIsDeprecated
+{
+    public function __construct()
+    {
+        trigger_error("The dupecheck module is deprecated and will be removed in a future version of OpenEMR. Please use the 'Merge Patients' feature in the patient summary screen instead.", E_USER_DEPRECATED);
+    }
+}
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc.php");
-require_once("./Utils.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;
     }
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     foreach ($_GET as $key => $value) {
         $parameters[$key] = $value;
     }
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Records")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Merge Records", xl("Merge Records"));
 }
 
 ?>
@@ -61,7 +65,7 @@ if (! isset($parameters['otherid'])) {
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id=?";
-$qResults = sqlStatement($sqlstmt, array($parameters['masterid']));
+$qResults = sqlStatement($sqlstmt, [$parameters['masterid']]);
 if (! $qResults) {
     echo "Error fetching master PID.";
     exit;
@@ -79,7 +83,7 @@ if ($parameters['confirm'] == 'yes') {
 foreach ($parameters['otherid'] as $otherID) {
     // get info about the "otherID"
     $sqlstmt = "select lname, pid from patient_data where id=?";
-    $qResults = sqlStatement($sqlstmt, array($otherID));
+    $qResults = sqlStatement($sqlstmt, [$otherID]);
     if (! $qResults) {
         echo "Error fetching master PID.";
         exit;
@@ -127,7 +131,7 @@ foreach ($parameters['otherid'] as $otherID) {
     $newlname = "~~~MERGED~~~" . $orow['lname'];
     $sqlstmt = "update patient_data set lname=? where pid=?";
     if ($commitchanges == true) {
-        $qResults = sqlStatement($sqlstmt, array($newlname, $otherPID));
+        $qResults = sqlStatement($sqlstmt, [$newlname, $otherPID]);
     }
 
     echo "<li>Altered last name of PID " . text($otherPID) . " to '" . text($newlname) . "'</li>";
@@ -147,7 +151,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // add a log entry regarding the merged data
     if ($commitchanges == true) {
-        EventAuditLogger::instance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
+        EventAuditLogger::getInstance()->newEvent("data_merge", $session->get('authUser'), "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
     }
 
     echo "<li>Added entry to log</li>";
@@ -155,7 +159,7 @@ foreach ($parameters['otherid'] as $otherID) {
     echo "<br /><br />";
 } // end of otherID loop
 
-function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
+function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
 {
     global $commitchanges;
 
@@ -165,12 +169,12 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
     if ($qResults) {
         $row = sqlFetchArray($qResults);
         if ($row['numrows'] > 0) {
-            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, array($tablename)) . "=? where " . escape_sql_column_name($pid_col, array($tablename)) . "=?";
+            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, [$tablename]) . "=? where " . escape_sql_column_name($pid_col, [$tablename]) . "=?";
             if ($commitchanges == true) {
-                $qResults = sqlStatement($sqlstmt, array($newvalue, $oldvalue));
+                $qResults = sqlStatement($sqlstmt, [$newvalue, $oldvalue]);
             }
 
-            $rowsupdated = generic_sql_affected_rows();
+            $rowsupdated = \OpenEMR\Common\Database\QueryUtils::affectedRows();
             echo "<li>";
             echo "" . text($tablename) . ": " . text($rowsupdated) . " row(s) updated<br />";
             echo "</li>";
@@ -184,7 +188,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
 Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br />
 Do you wish to commit these changes to the database?
 <form method="post" action="mergerecords.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="masterid" value="<?php echo attr($parameters['masterid']); ?>">
 <input type="hidden" name="dupecount" value="<?php echo attr($parameters['dupecount']); ?>">
     <?php

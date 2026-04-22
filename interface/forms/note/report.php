@@ -4,7 +4,7 @@
  * Work/School Note Form report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
@@ -14,10 +14,13 @@
 
 
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 
-function note_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function note_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_note", $id);
@@ -25,15 +28,8 @@ function note_report($pid, $encounter, $cols, $id)
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                $key == "id" ||
-                $key == "pid" ||
-                $key == "user" ||
-                $key == "groupname" ||
-                $key == "authorized" ||
-                $key == "activity" ||
-                $key == "date" ||
-                $value == "" ||
-                $value == "0000-00-00 00:00:00"
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
+                Utilities::isDateEmpty($value)
             ) {
                 continue;
             }
@@ -43,15 +39,21 @@ function note_report($pid, $encounter, $cols, $id)
             }
 
             $key = ucwords(str_replace("_", " ", $key));
+            $valueText = is_string($value) ? $value : '';
             print("<tr>\n");
             print("<tr>\n");
-            if ($key == "Note Type") {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
-            } elseif ($key == "Date Of Signature") {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . oeFormatShortDate($value) . "</span></td>";
-            } else {
-                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
-            }
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $keyLabel = xlt($key);
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $valueLabel = xlt($valueText);
+            $dateResult = oeFormatShortDate($valueText);
+            $dateLabel = is_string($dateResult) ? text($dateResult) : '';
+            $valueOutput = match ($key) {
+                'Note Type' => $valueLabel,
+                'Date Of Signature' => $dateLabel,
+                default => text($valueText),
+            };
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', $keyLabel, $valueOutput);
 
             $count++;
             if ($count == $cols) {

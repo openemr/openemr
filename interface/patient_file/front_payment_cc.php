@@ -4,7 +4,7 @@
  *  Front Payment CC and Terminal Readers support.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,13 +13,12 @@
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
-use Stripe\Customer;
+use OpenEMR\Core\OEGlobalsBag;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
-use Stripe\Terminal\Location;
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
@@ -35,7 +34,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
             exit();
         }
         $r = $response->getParsedData();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "ok" : "failed";
         $cc['authCode'] = $r->transactionResponse->authCode;
@@ -44,7 +43,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['cc_type'] = $r->transactionResponse->accountType;
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         return $ex->getMessage();
     }
 
@@ -63,7 +62,7 @@ if ($_POST['mode'] == 'Stripe') {
         "FROM patient_data AS p " .
         "LEFT OUTER JOIN insurance_data AS i ON " .
         "i.pid = p.pid AND i.type = 'primary' " .
-        "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
+        "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -82,7 +81,7 @@ if ($_POST['mode'] == 'Stripe') {
             exit();
         }
         $r = $response->getSource();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "ok" : "failed";
         $cc['authCode'] = $r['fingerprint'];
@@ -91,7 +90,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['cc_type'] = $r['brand'];
         $cc['zip'] = $r->address_zip;
         $ccaudit = json_encode($cc);
-    } catch (\Exception $ex) {
+    } catch (\Throwable $ex) {
         echo $ex->getMessage();
     }
 
@@ -105,23 +104,23 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
 
     try {
         $connectionToken = ConnectionToken::create();
-        echo json_encode(array('secret' => $connectionToken->secret), JSON_THROW_ON_ERROR);
-    } catch (\Exception $e) {
+        echo json_encode(['secret' => $connectionToken->secret], JSON_THROW_ON_ERROR);
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -134,15 +133,15 @@ if ($_GET['mode'] == 'cancel_intent') {
         $rtn = $intent->cancel();
 
         echo json_encode(['status' => (string)$rtn->status]);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -156,15 +155,15 @@ if ($_GET['mode'] == 'terminal_capture') {
         $intent = $intent->capture();
 
         echo json_encode($intent);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -177,7 +176,7 @@ if ($_GET['mode'] == 'terminal_create') {
             "FROM patient_data AS p " .
             "LEFT OUTER JOIN insurance_data AS i ON " .
             "i.pid = p.pid AND i.type = 'primary' " .
-            "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
+            "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
 
         $intent = PaymentIntent::create([
             'amount' => $json_obj->amount,
@@ -192,8 +191,8 @@ if ($_GET['mode'] == 'terminal_create') {
                 'Invoice Total' => number_format(($json_obj->amount / 100), 2, '.', '')
                 ]
         ]);
-        echo json_encode(array('client_secret' => $intent->client_secret), JSON_THROW_ON_ERROR);
-    } catch (\Exception $e) {
+        echo json_encode(['client_secret' => $intent->client_secret], JSON_THROW_ON_ERROR);
+    } catch (\Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }

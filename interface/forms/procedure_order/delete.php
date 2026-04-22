@@ -5,7 +5,7 @@
  * associated procedure_order_id as inactive.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -16,40 +16,44 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Delete Encounter Form", xl("Delete Encounter Form"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // when the Cancel button is pressed, where do we go?
 $returnurl = 'forms.php';
 
 if (!empty($_POST['confirm'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
-        sqlStatement($sql, array($_POST['id']));
+        sqlStatement($sql, [$_POST['id']]);
       // set the procedure order to deleted
         $sql = "update procedure_order p
-                left join
-                       forms f
+                left join forms f
                 on f.form_id = p.procedure_order_id
                 set activity=0
                 where f.id=?";
-        sqlStatement($sql, array($_POST['id']));
+        sqlStatement($sql, [$_POST['id']]);
+        $sql = "update procedure_specimen p
+                set deleted=1
+                where `procedure_order_id`=?";
+        sqlStatement($sql, [$_POST['id']]);
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
             "DELETE FROM shared_attributes WHERE " .
@@ -58,14 +62,14 @@ if (!empty($_POST['confirm'])) {
             "f.pid = ? AND f.encounter = ? AND f.formdir LIKE 'LBF%' AND " .
             "f.deleted = 0 AND " .
             "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)",
-            array($pid, $encounter, $pid, $encounter)
+            [$pid, $encounter, $pid, $encounter]
         );
     }
     // log the event
-    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
+    EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
-    $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
+    $address = OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/encounter/" . $returnurl;
     echo "\n<script>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }
@@ -84,7 +88,7 @@ if (!empty($_POST['confirm'])) {
                 <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
                 <form method="post" action="<?php echo $rootdir; ?>/forms/procedure_order/delete.php"
                     name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <?php
                     // output each GET variable as a hidden form input
                     foreach ($_GET as $key => $value) {

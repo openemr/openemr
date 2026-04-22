@@ -5,7 +5,7 @@
  * range, or all patients if no date range is entered.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
@@ -18,12 +18,13 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
@@ -58,7 +59,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -112,7 +113,7 @@ $(function () {
 </div>
 
 <form name='theform' id='theform' method='post' action='patient_list.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -131,7 +132,7 @@ $(function () {
       </td>
       <td>
             <?php
-            generate_form_field(array('data_type' => 10, 'field_id' => 'provider', 'empty_title' => '-- All --'), ($_POST['form_provider'] ?? ''));
+            generate_form_field(['data_type' => 10, 'field_id' => 'provider', 'empty_title' => '-- All --'], ($_POST['form_provider'] ?? ''));
             ?>
       </td>
             <td class='col-form-label'>
@@ -216,7 +217,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php
     } // end not export
     $totalpts = 0;
-    $sqlArrayBind = array();
+    $sqlArrayBind = [];
     $query = "SELECT " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
     "p.postal_code, p.phone_home, p.phone_biz, p.pid, p.pubpid, " .
@@ -268,10 +269,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $age = '';
         if (!empty($row['DOB'])) {
             $dob = $row['DOB'];
-            $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
-            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
-            $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
+            $tdy = $row['edate'] ?: date('Y-m-d');
+            $ageInMonths = (substr((string) $tdy, 0, 4) * 12) + substr((string) $tdy, 5, 2) -
+                   (substr((string) $dob, 0, 4) * 12) - substr((string) $dob, 5, 2);
+            $dayDiff = substr((string) $tdy, 8, 2) - substr((string) $dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
@@ -279,15 +280,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $age = intval($ageInMonths / 12);
         }
 
+        $street = is_string($row['street'] ?? null) ? $row['street'] : '';
+        $city = is_string($row['city'] ?? null) ? $row['city'] : '';
+        $state = is_string($row['state'] ?? null) ? $row['state'] : '';
+
         if ($_POST['form_csvexport']) {
-            echo csvEscape(oeFormatShortDate(substr($row['edate'], 0, 10))) . ',';
+            echo csvEscape(oeFormatShortDate(substr((string) $row['edate'], 0, 10))) . ',';
             echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($row['mname']) . ',';
             echo csvEscape($row['pubpid']) . ',';
-            echo csvEscape(xl($row['street'])) . ',';
-            echo csvEscape(xl($row['city'])) . ',';
-            echo csvEscape(xl($row['state'])) . ',';
+            echo csvEscape($street) . ',';
+            echo csvEscape($city) . ',';
+            echo csvEscape($state) . ',';
             echo csvEscape($row['postal_code']) . ',';
             echo csvEscape($row['phone_home']) . ',';
             echo csvEscape($row['phone_biz']) . "\n";
@@ -295,7 +300,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             ?>
        <tr>
         <td>
-            <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['edate'], 0, 10))); ?>
    </td>
    <td>
             <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
@@ -304,13 +309,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-            <?php echo xlt($row['street']); ?>
+            <?php echo text($street); ?>
    </td>
    <td>
-            <?php echo xlt($row['city']); ?>
+            <?php echo text($city); ?>
    </td>
    <td>
-            <?php echo xlt($row['state']); ?>
+            <?php echo text($state); ?>
    </td>
    <td>
             <?php echo text($row['postal_code']); ?>

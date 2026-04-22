@@ -6,18 +6,18 @@
  * file.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\Globals\GlobalSetting;
+use OpenEMR\Services\ListService;
 
-$fldvalue = $fldvalue ?? '';
-$globalValue = $globalValue ?? '';
-$fldoptions = $fldoptions ?? [];
+$fldvalue ??= '';
+$globalValue ??= '';
+$fldoptions ??= [];
 
 // can't do anything if we have no list
 if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
@@ -25,7 +25,7 @@ if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
     return;
 }
 
-$i = $i ?? 0;
+$i ??= 0;
 
 if ($userMode) {
     $globalTitle = $globalValue;
@@ -44,7 +44,7 @@ foreach ($listOptions as $option) {
 $selectedOptions = [];
 if (!empty($fldvalue)) {
     // we have to retain our sort order here
-    $fldValueOptions = explode(";", trim($fldvalue));
+    $fldValueOptions = explode(";", trim((string) $fldvalue));
 
     foreach ($fldValueOptions as $option) {
         if (isset($listOptionsByOptionId[$option])) {

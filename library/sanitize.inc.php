@@ -14,31 +14,42 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
-// Function to collect ip address(es)
-function collectIpAddresses()
+/**
+ * Function to collect ip address(es)
+ *
+ * @return array{
+ *   ip_string: string,
+ *   ip: string,
+ *   forward_ip: string,
+ * }
+ */
+function collectIpAddresses(): array
 {
-    $mainIp = $_SERVER['REMOTE_ADDR'];
+    /** @var string */
+    $mainIp = $_SERVER['REMOTE_ADDR'] ?? ''; // Fallback to blank for CLI, etc
     $stringIp = $mainIp;
 
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        /** @var string */
         $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $stringIp .= " (" . $forwardIp . ")";
     }
 
-    return array(
+    return [
         'ip_string' => $stringIp,
         'ip' => $mainIp,
         'forward_ip' => $forwardIp ?? ''
-    );
+    ];
 }
 
 // Sanitize a json encoded entry.
 function json_sanitize($json)
 {
-    if (json_decode($json)) {
-        return json_encode(json_decode($json, true));
+    if (json_decode((string) $json)) {
+        return json_encode(json_decode((string) $json, true));
     } else {
         error_log("OPENEMR ERROR: " . errorLogEscape($json) . " is not a valid json ");
         return false;
@@ -48,7 +59,7 @@ function json_sanitize($json)
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)
 {
-    if (preg_match('/[^A-Za-z0-9_.-]/', $label)) {
+    if (preg_match('/[^A-Za-z0-9_.-]/', (string) $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . errorLogEscape($label));
         die(xlt("ERROR: The following variable contains invalid characters") . ": " . attr($label));
     } else {
@@ -59,25 +70,25 @@ function check_file_dir_name($label)
 // Convert all illegal characters to _
 function convert_safe_file_dir_name($label)
 {
-    return preg_replace('/[^A-Za-z0-9_.-]/', '_', $label);
+    return preg_replace('/[^A-Za-z0-9_.-]/', '_', (string) $label);
 }
 
 // Convert all non A-Z a-z 0-9 characters to _
 function convert_very_strict_label($label)
 {
-    return preg_replace('/[^A-Za-z0-9]/', '_', $label);
+    return preg_replace('/[^A-Za-z0-9]/', '_', (string) $label);
 }
 
 // Check integer
 function check_integer($value)
 {
-    return (empty(preg_match('/[^0-9]/', $value)));
+    return (empty(preg_match('/[^0-9]/', (string) $value)));
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
 function basename_international($path)
 {
-    $parts = preg_split('~[\\\\/]~', $path);
+    $parts = preg_split('~[\\\\/]~', (string) $path);
     foreach ($parts as $key => $value) {
         $encoded = urlencode($value);
         $parts[$key] = $encoded;
@@ -103,14 +114,14 @@ function isWhiteFile($file)
 {
     global $white_list;
     if (is_null($white_list)) {
-        $white_list = array();
+        $white_list = [];
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
             $white_list[] = $lrow['option_id'];
         }
         // allow module writers to modify the white list... this only gets executed the first time this function runs
         $event = new IsAcceptedFileFilterEvent($file, $white_list);
-        $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
+        $resultEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
         $white_list = $resultEvent->getAcceptedList();
     }
 
@@ -123,13 +134,13 @@ function isWhiteFile($file)
         $categoryType = $splitMimeType[0];
         if (in_array($categoryType . '/*', $white_list)) {
             $isAllowedFile = true;
-        } else if (isset($GLOBALS['kernel'])) {
+        } else if (OEGlobalsBag::getInstance()->hasKernel()) {
             // we can fire off an event
             // allow module writers to modify the isWhiteFile on the fly.
             $event = new IsAcceptedFileFilterEvent($file, $white_list);
             $event->setAllowedFile(false);
             $event->setMimeType($mimetype);
-            $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
+            $resultEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
             $isAllowedFile = $resultEvent->isAllowedFile();
         }
     }
@@ -197,6 +208,6 @@ function mb_is_string_equal_ci($string1, $string2): bool
 
     $string1_normalized = Normalizer::normalize($string1, Normalizer::FORM_KC);
     $string2_normalized = Normalizer::normalize($string2, Normalizer::FORM_KC);
-    return mb_strtolower($string1_normalized) === mb_strtolower($string2_normalized)
-        || mb_strtoupper($string1_normalized) === mb_strtoupper($string2_normalized);
+    return mb_strtolower((string) $string1_normalized) === mb_strtolower((string) $string2_normalized)
+        || mb_strtoupper((string) $string1_normalized) === mb_strtoupper((string) $string2_normalized);
 }

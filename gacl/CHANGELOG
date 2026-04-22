@@ -434,7 +434,7 @@ Mon Nov 11 2002
         - Fixed bug that prevented ACO/ARO's with the same 'value' in different sections from being assigned to an ACL. - Thanks to Martino
         - Fixed bug that made it seem like assigning a single ARO to a group really added all AROs with the same value to that group. - Thanks to Martino
         - Fixed bug causing virtual subtree'ing to only traverse 2 levels of the tree. - Thanks to Martino
-        - Used dirname(__FILE__) to remove the need for users to manually set the root path in config.inc.php.
+        - Used __DIR__ to remove the need for users to manually set the root path in config.inc.php.
 
 Wed Oct 23 2002
         - Switched away from ID's in favor of VALUES for most functions, including acl_check(). Broke all backwards compatibility.

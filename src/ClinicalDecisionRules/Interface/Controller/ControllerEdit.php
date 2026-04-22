@@ -3,6 +3,7 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalDetail;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervals;
@@ -10,7 +11,6 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleAction;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
-use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 /**
  * interface/super/rules/controllers/edit/controller.php
@@ -83,7 +83,7 @@ class ControllerEdit extends BaseController
         // its a new rule submit
         $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
         // redirect to the intervals page
-        $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
+        $this->redirect("index.php?action=edit!intervals&id=" . urlencode((string) $ruleId));
     }
 
     function _action_intervals()
@@ -190,7 +190,7 @@ class ControllerEdit extends BaseController
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            $columns[] = array("code" => $row['option_id'], "lbl" => xl_list_label($row['title']));
+            $columns[] = ["code" => $row['option_id'], "lbl" => xl_list_label($row['title'])];
         }
 
         $this->emit_json($columns);
@@ -200,7 +200,7 @@ class ControllerEdit extends BaseController
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            $columns[] = array("code" => $row['option_id'], "lbl" => xl_list_label($row['title']));
+            $columns[] = ["code" => $row['option_id'], "lbl" => xl_list_label($row['title'])];
         }
 
         $this->emit_json($columns);
@@ -208,7 +208,7 @@ class ControllerEdit extends BaseController
 
     function _action_columns()
     {
-        $columns = array();
+        $columns = [];
         $table = Common::get('table');
         $stmts = sqlStatement("SHOW COLUMNS FROM " . escape_table_name($table));
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {

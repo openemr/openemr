@@ -10,14 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../report_database.inc.php");
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //  Collect/bookmark a new report id in report_results sql table and send it back.
 if (!empty($_POST['status_report_id'])) {

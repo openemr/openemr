@@ -10,20 +10,23 @@
 */
 
 //Require once the holidays controller for the is_holiday() function
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
 function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 {
-    $restrict = $inventory ? $GLOBALS['gbl_fac_warehouse_restrictions'] : $GLOBALS['restrict_user_facility'];
+    $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
         // No entries in this table means the user is not restricted.
         $countrow = sqlQuery(
             "SELECT count(*) AS count FROM users_facility WHERE " .
             "tablename = 'users' AND table_id = ?",
-            array($uID)
+            [$uID]
         );
     }
     if (!$restrict || empty($countrow['count'])) {
@@ -40,10 +43,10 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
             "WHERE f.id = u.facility_id OR f.id IN " .
             "(SELECT DISTINCT uf.facility_id FROM users_facility AS uf WHERE uf.tablename = 'users' AND uf.table_id = u.id) " .
             "ORDER BY f.$orderby",
-            array($uID)
+            [$uID]
         );
     }
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($rez)) {
         $returnVal[] = $row;
     }
@@ -56,9 +59,9 @@ function getUserFacWH($uID, $fID)
     $res = sqlStatement(
         "SELECT warehouse_id FROM users_facility WHERE tablename = ? " .
         "AND table_id = ? AND facility_id = ?",
-        array('users', $uID, $fID)
+        ['users', $uID, $fID]
     );
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($res)) {
         if ($row['warehouse_id'] === '') {
             continue;
@@ -76,7 +79,7 @@ function getUserFacWH($uID, $fID)
 function is_weekend_day($day)
 {
 
-    if (in_array($day, $GLOBALS['weekend_days'])) {
+    if (in_array($day, OEGlobalsBag::getInstance()->get('weekend_days'))) {
         return true;
     } else {
         return false;
@@ -90,5 +93,5 @@ function is_weekend_day($day)
  */
 function is_holiday($date)
 {
-    Holidays_Controller::is_holiday($date);
+    return Holidays_Controller::is_holiday($date);
 }

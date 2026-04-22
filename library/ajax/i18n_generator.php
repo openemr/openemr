@@ -4,7 +4,7 @@
  * i18n_generator script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Amiel Elboim <amielel@matrix.co.il>
@@ -15,17 +15,17 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
         JOIN lang_constants AS c ON d.cons_id = c.cons_id
         WHERE d.lang_id = ?";
 $tarns = sqlStatement($sql, $_GET['lang_id']);
-$json = array();
-while ($row = SqlFetchArray($tarns)) {
+$json = [];
+while ($row = sqlFetchArray($tarns)) {
     $json[$row['constant_name']] = $row['definition'];
 }
 echo json_encode($json, JSON_UNESCAPED_UNICODE);

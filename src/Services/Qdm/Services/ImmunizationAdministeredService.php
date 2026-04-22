@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -60,7 +60,7 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
         }
 
         if (!empty($record['cvx_code'])) {
-            if (str_starts_with($record['cvx_code'], 'OID:')) {
+            if (str_starts_with((string) $record['cvx_code'], 'OID:')) {
                 // Sometimes codes are nulled out and sdc:valueSet is in the code, like this:
                 // <code nullFlavor="NA" sdtc:valueSet="2.16.840.1.113883.3.526.3.1254"/>
                 $model->addCode(

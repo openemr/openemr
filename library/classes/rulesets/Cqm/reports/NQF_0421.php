@@ -11,7 +11,7 @@ class NQF_0421 extends AbstractCqmReport
 {
     public function createPopulationCriteria()
     {
-         $populationCriteria = array();
+         $populationCriteria = [];
          $populationCriteria[] = new NQF_0421_PopulationCriteria1();
          $populationCriteria[] = new NQF_0421_PopulationCriteria2();
          return $populationCriteria;

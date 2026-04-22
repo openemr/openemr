@@ -266,11 +266,15 @@ function check_lock(modify) {
  */
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
-    var dataURL = id_here.toDataURL('image/jpeg');
+    var dataURL = id_here.toDataURL('image/jpeg','1');
+    const params = new URLSearchParams({
+        id: $("#form_id").val(),
+        canvas: zone
+    });
     top.restoreSession();
     $.ajax({
            type: "POST",
-           url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
+           url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
            imgBase64     : dataURL,  //this contains the canvas + new strokes, the sketch.js foreground
            'zone'        : zone,
@@ -286,8 +290,6 @@ function submit_canvas(zone) {
  *  Function to update the user's preferences
  */
 function update_PREFS() {
-    var checker = $('#PREFS_TOOLTIPS').val();
-    if (checker > '') {
         var url = "../../forms/eye_mag/save.php";
         var formData = {
             'AJAX_PREFS'            : "1",
@@ -301,6 +303,7 @@ function update_PREFS() {
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
             'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
+            'PREFS_VAHx'            : $('#PREFS_VAHx').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -309,6 +312,7 @@ function update_PREFS() {
             'PREFS_ANTSEG_VIEW'     : $('#PREFS_ANTSEG_VIEW').val(),
             'PREFS_RETINA_VIEW'     : $('#PREFS_RETINA_VIEW').val(),
             'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val(),
+            'PREFS_SDRETINA_VIEW'   : $('#PREFS_SDRETINA_VIEW').val(),
             'PREFS_ACT_VIEW'        : $('#PREFS_ACT_VIEW').val(),
             'PREFS_ACT_SHOW'        : $('#PREFS_ACT_SHOW').val(),
             'PREFS_HPI_RIGHT'       : $('#PREFS_HPI_RIGHT').val(),
@@ -316,6 +320,7 @@ function update_PREFS() {
             'PREFS_EXT_RIGHT'       : $('#PREFS_EXT_RIGHT').val(),
             'PREFS_ANTSEG_RIGHT'    : $('#PREFS_ANTSEG_RIGHT').val(),
             'PREFS_RETINA_RIGHT'    : $('#PREFS_RETINA_RIGHT').val(),
+            'PREFS_SDRETINA_RIGHT'  : $('#PREFS_SDRETINA_RIGHT').val(),
             'PREFS_NEURO_RIGHT'     : $('#PREFS_NEURO_RIGHT').val(),
             'PREFS_PANEL_RIGHT'     : $('#PREFS_PANEL_RIGHT').val(),
             'PREFS_IMPPLAN_RIGHT'   : $('#PREFS_IMPPLAN_DRAW').val(),
@@ -326,7 +331,8 @@ function update_PREFS() {
             'setting_PMH'           : $('#setting_PMH').val(),
             'setting_EXT'           : $('#setting_EXT').val(),
             'setting_ANTSEG'        : $('#setting_ANTSEG').val(),
-            'setting_POSTSEG'       : $('#setting_POSTSEG').val(),
+            'setting_RETINA'        : $('#setting_RETINA').val(),
+            'setting_SDRETINA'      : $('#setting_SDRETINA').val(),
             'setting_NEURO'         : $('#setting_NEURO').val(),
             'setting_IMPPLAN'       : $('#setting_IMPPLAN').val(),
         };
@@ -336,7 +342,7 @@ function update_PREFS() {
                url      : url,
                data     : formData
                });
-    }
+
 }
 /*
  *  Function to unlock the form - remove temporary lock at DB level.
@@ -565,8 +571,9 @@ function refresh_GFS() {
     }
 
     config_byday.data.datasets[0].data[indexToUpdate] = $('#ODIOPTARGET').val();
-    config_byday.data.datasets[1].data[indexToUpdate] = ODIOP;
-    config_byday.data.datasets[2].data[indexToUpdate] = OSIOP;
+    config_byday.data.datasets[1].data[indexToUpdate] = $('#OSIOPTARGET').val();
+    config_byday.data.datasets[2].data[indexToUpdate] = ODIOP;
+    config_byday.data.datasets[3].data[indexToUpdate] = OSIOP;
     myLine.update();
 
     var time = $('#IOPTIME').val();
@@ -627,7 +634,7 @@ function populate_form(result) {
  *  To reach a detailed E&M level of documentation the chart
  *  may comment on the status of 3 or more CHRONIC/Inactive problems.
  *  The user can type them into the CHRONIC fields manually, or
- *  we can do it programatically if the user does the following:
+ *  we can do it programmatically if the user does the following:
  *     1.  documenting a PMH diagnosis in the PMSFH area
  *     2.  listing it as "Chronic"
  *     3.  making a comment about it
@@ -701,7 +708,7 @@ function show_right() {
     $("#EXT_1").removeClass("size50").addClass("size100");
     $("#ANTSEG_1").removeClass("size50").addClass("size100");
     $("#NEURO_1").removeClass("size50").addClass("size100");
-    $("#POSTSEG_1").removeClass("size50").addClass("size100");
+    $("#RETINA_1").removeClass("size50").addClass("size100");
     $("#IMPPLAN_1").removeClass("size50").addClass("size100");
     $("#HPI_right").removeClass('nodisplay');
     $("#PMH_right").removeClass('nodisplay');
@@ -709,10 +716,11 @@ function show_right() {
     $("#ANTSEG_right").removeClass('nodisplay');
     $("#NEURO_right").removeClass('nodisplay');
     $("#RETINA_right").removeClass('nodisplay');
+    $("#SDRETINA_right").removeClass('nodisplay');
     $("#IMPPLAN_right").removeClass('nodisplay');
     $("#PMH_1").addClass("clear_both");
     $("#ANTSEG_1").addClass("clear_both");
-    $("#POSTSEG_1").addClass("clear_both");
+    $("#RETINA_1").addClass("clear_both");
     $("#NEURO_1").addClass("clear_both");
     $("#IMPPLAN_1").addClass("clear_both");
     hide_PRIORS();
@@ -734,9 +742,10 @@ function hide_right() {
     $("#ANTSEG_right").addClass('nodisplay');
     $("#NEURO_right").addClass('nodisplay');
     $("#RETINA_right").addClass('nodisplay');
+    $("#SDRETINA_right").addClass('nodisplay');
     $("#PMH_1").removeClass("clear_both");
     $("#ANTSEG_1").removeClass("clear_both");
-    $("#POSTSEG_1").removeClass("clear_both");
+    $("#RETINA_1").removeClass("clear_both");
     $("#NEURO_1").removeClass("clear_both");
     update_PREFS();
 }
@@ -749,13 +758,14 @@ function show_left() {
     $("#EXT_1").removeClass("size100").addClass("size50");
     $("#ANTSEG_1").removeClass("size100").addClass("size50");
     $("#NEURO_1").removeClass("size100").addClass("size50");
-    $("#POSTSEG_1").removeClass("size100").addClass("size50");
+    $("#RETINA_1").removeClass("size100").addClass("size50");
     $("#IMPPLAN_1").removeClass("size100").addClass("size50");
     $("#HPI_left").removeClass('nodisplay');
     $("#PMH_left").removeClass('nodisplay');
     $("#EXT_left").removeClass('nodisplay');
     $("#ANTSEG_left").removeClass('nodisplay');
     $("#RETINA_left").removeClass('nodisplay');
+    $("#SDRETINA_left").removeClass('nodisplay');
     $("#NEURO_left").removeClass('nodisplay');
     $("#IMPPLAN_left").removeClass('nodisplay');
     $("[name$='_left']").removeClass('nodisplay');
@@ -769,7 +779,7 @@ function hide_left() {
     $("#EXT_1").removeClass("size100").addClass("size50");
     $("#ANTSEG_1").removeClass("size100").addClass("size50");
     $("#NEURO_1").removeClass("size100").addClass("size50");
-    $("#POSTSEG_1").removeClass("size100").addClass("size50");
+    $("#RETINA_1").removeClass("size100").addClass("size50");
     $("#IMPPLAN_1").removeClass("size100").addClass("size50");
     $("#HPI_left").addClass('nodisplay');
     $("#PMH_left").addClass('nodisplay');
@@ -797,6 +807,7 @@ function show_DRAW() {
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
+    $("#SDRETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
     $(".Draw_class").removeClass('nodisplay');
@@ -846,6 +857,7 @@ function show_PRIORS() {
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
+    $("#SDRETINA_1").addClass('nodisplay');
     $("#NEURO_right").addClass('canvas');
     $(".PRIORS_class").removeClass('nodisplay');
     if ($("#PREFS_CLINICAL").val() !='1') {
@@ -870,6 +882,7 @@ function show_QP() {
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
+    $("#SDRETINA_right").removeClass('canvas');
     $("#NEURO_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
     $(".QP_class").removeClass('nodisplay');
@@ -915,13 +928,19 @@ function show_PRIORS_section(section,newValue) {
 /**
  *  Function to display a canvas/drawing from a prior visit.
  */
-
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
-    var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
-    var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
-    var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    const params = new URLSearchParams({
+        as_file: 'false',
+        document: '',
+        document_id: newValue,
+        patient_id: pid,
+        retrieve: ''
+    });
+    const result = base + '/controller.php?' + params.toString();
+    const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
+    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
@@ -931,7 +950,7 @@ function show_PRIOR_CANVAS_section(section, newValue) {
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
     cReplace(zone);
-$("#SELECT_CANVAS_"+zone).val('current');
+    $("#SELECT_CANVAS_"+zone).val('current');
     $("#"+zone+"_canvas").removeClass('nodisplay');
     $("#"+zone+"_olddrawing").addClass('nodisplay');
 }
@@ -962,6 +981,8 @@ function hide_DRAW() {
     $("#HPI_right").removeClass('canvas');
     $("#EXT_right").removeClass('canvas');
     $("#RETINA_right").removeClass('canvas');
+    $("#SDRETINA_right").removeClass('canvas');
+    $("#SDRETINA_1").addClass('nodisplay').removeClass('canvas');
     $("#ANTSEG_right").removeClass('canvas');
 }
 /*
@@ -1022,11 +1043,22 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
+            const params = new URLSearchParams({
+                edit: '',
+                id: '',
+                pid: pid,
+                prescription: ''
+            });
+            iam.location.href = base + "/controller.php?" + params;
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&list&id="+encodeURIComponent(pid)
+            const params = new URLSearchParams({
+                id: pid,
+                list: '',
+                prescription: ''
+            });
+            iam.location.href = base + "/controller.php?" + params;
         };
 
         let title = 'Prescriptions';
@@ -1082,7 +1114,7 @@ function menu_select(zone) {
     if (zone == "PMH") scrollTo("PMH_left");
     if (zone == "EXT") scrollTo("EXT_left");
     if (zone == "ANTSEG") scrollTo("ANTSEG_left");
-    if (zone == "POSTSEG") scrollTo("RETINA_left");
+    if (zone == "RETINA") scrollTo("RETINA_left");
     if (zone == "NEURO") scrollTo("NEURO_left");
     if (zone == "IMPPLAN") scrollTo("IMPPLAN_left");
 }
@@ -1359,7 +1391,8 @@ function build_IMPPLAN(items,nodisplay) {
                   if (value.PMSFH_link.match(/Clinical_(.*)/)) {
                     if (typeof obj.Clinical !== "undefined") {
                       var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
-                      if (obj.Clinical[location]!=null ) {
+
+                      if (obj.Clinical !== null) {
                         for (i=0; i < obj.Clinical[location].length; i++) {
                             $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
                             justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
@@ -1863,12 +1896,23 @@ function goto_url(url) {
 }
 //is this used anywhere?  Looks like it should be deleted...
 function openImage() {
-    dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
+    const params = new URLSearchParams({
+        as_file: 'false',
+        document: '',
+        document_id: '10',
+        patient_id: '3',
+        retrieve: ''
+    });
+    dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
 
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
-    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    const params = new URLSearchParams({
+        id: formid,
+        formname: formdir
+    });
+    const url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
         location.href = url;
@@ -2178,7 +2222,10 @@ function showpnotes(docid) {
 function getTimeStamp() {
     var now = new Date();
     var AMPM = now.getHours() >= 12 ? 'PM' : 'AM';
-    return now.getHours() + ':' + ((now.getMinutes() < 10) ? ("0" + now.getMinutes()) : (now.getMinutes())) + AMPM;
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return hours + ':' + minutes + " " + AMPM;
 }
 
 /**
@@ -2187,9 +2234,19 @@ function getTimeStamp() {
  * as a previous setting and the next eye form opened will appear the same way.
  */
 function show_by_setting() {
+    // set display functions for Draw panel appearance
+    // for each DRAW area, if the value AREA_DRAW = 1, show it.
+    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    for (index = '0'; index < zones.length; ++index) {
+        if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+            show_DRAW_section(zones[index]);
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+            show_QP_section(zones[index],'1');
+        }
+    }
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
-    var arrSet = ["HPI","PMH","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
+    var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
     sLen = arrSet.length;
     for (i = 0; i < sLen; i++) {
         var value = $("#setting_"+arrSet[i]).val();
@@ -2207,7 +2264,19 @@ function show_by_setting() {
     } else {
         $("#tabs_left").removeClass('nodisplay');
     }
-show_left();
+    show_left();
+    if ($("#PREFS_SDRETINA_RIGHT").val() == 'DRAW') {
+        $("#SDRETINA_1").removeClass('nodisplay');
+        $("#SDRETINA_right").removeClass('nodisplay').addClass('canvas');
+        $("#Draw_SDRETINA").removeClass('nodisplay');
+    } else {
+        $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
+        $("#Draw_SDRETINA").addClass('nodisplay');
+    }
+    if ($("#PREFS_VAHx").val() == '1') {
+        $("#LayerVision_VAHx").removeClass('nodisplay');
+    }
+
     return true;
 }
 
@@ -2252,7 +2321,7 @@ $(function () {
                   });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
-                  if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
+                  if ($("#PREFS_TOOLTIPS").val() != "<?php echo xla('On'); ?>") {
                     $('[title]').each(function() {
                         var $this = $(this);
                         $this.data('title',$this.attr('title'));
@@ -2306,12 +2375,7 @@ $(function () {
                   $('.close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
-                  $('#ODIOPTARGET').on('change', function() {
-                                           $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
-                                           refresh_GFS();
-                                           });
                   $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
-                                                             //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
                   if ($("#PREFS_KB").val() =='1') {
@@ -2862,16 +2926,6 @@ $(function () {
                                             }
                     });
 
-                  // set display functions for Draw panel appearance
-                  // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
-                  for (index = '0'; index < zones.length; ++index) {
-                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                        show_DRAW_section(zones[index]);
-                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                        show_QP_section(zones[index],'1');
-                    }
-                  }
                   $("body").on("click","[name$='_text_view']" , function() {
                                var header = this.id.match(/(.*)_text_view$/)[1];
                                $("#"+header+"_text_list").toggleClass('wide_textarea');
@@ -3167,14 +3221,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                            });
                   $("#FieldsNormal").on("click", function() {
                                            if ($(this).is(':checked')) {
-                                           $("#ODVF1").removeAttr('checked');
-                                           $("#ODVF2").removeAttr('checked');
-                                           $("#ODVF3").removeAttr('checked');
-                                           $("#ODVF4").removeAttr('checked');
-                                           $("#OSVF1").removeAttr('checked');
-                                           $("#OSVF2").removeAttr('checked');
-                                           $("#OSVF3").removeAttr('checked');
-                                           $("#OSVF4").removeAttr('checked');
+                                                $("[id^='ODVF']").prop('checked', false);
+                                                $("[id^='OSVF']").prop('checked', false);
                                            }
                                            });
                   $("[id^='EXT_prefix']").on("change", function() {
@@ -3300,15 +3348,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
                                                   $("#PREFS_VA").val('0');
-                                                  if (section2 != "IOP")$("#REFRACTION_sections").removeClass('nodisplay');
+                                                  if ((section2 != "IOP") && (section2 != "VAHx")) {
+                                                        $("#REFRACTION_sections").removeClass('nodisplay');
+                                                  }
                                                   if (elem.value == "0" || elem.value =='') {
                                                   elem.value='1';
                                                   if (section2 =="ADDITIONAL") {
                                                   $("#LayerVision_ADDITIONAL").removeClass('nodisplay');
                                                   }
                                                   if (section2 =="IOP") {
-                                                  $("#LayerVision_IOP").removeClass('nodisplay');
-                                                  //plot_IOPs();
+                                                    $("#LayerVision_IOP").removeClass('nodisplay');
+                                                    //plot_IOPs();
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").removeClass('nodisplay');
+                                                    //plot_VAHxs();
                                                   }
                                                   $(section).removeClass('nodisplay');
                                                   $(this).addClass("buttonRefraction_selected");
@@ -3320,6 +3374,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
                                                   if (section2 =="IOP") {
                                                   $("#LayerVision_IOP").addClass('nodisplay');
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
                                                   }
@@ -3401,7 +3458,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, ["Eye_defaults_$providerID"]);
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'] ?? '';
@@ -3415,7 +3472,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
-                                                $add_fields = array();
+                                                $add_fields = [];
                                                 $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
@@ -3432,14 +3489,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
-                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, ["Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq]);
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
@@ -3450,7 +3507,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             }
                                             function startsWith($str, $needle)
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return str_starts_with((string) $str, (string) $needle);
                                             }
                                             ?>
                                             submit_form("eye_mag");
@@ -3707,10 +3764,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  var index   = '0';
                                                  var valued = isNaN($("#"+zone[1]).val());
                                                  if ((zone[2] =='RLSO')||(zone[2] =='LLSO')||(zone[2] =='RRIO')||(zone[2] =='LRIO')) {
-                                                 //find or make a hash tage for "\"
+                                                 //find or make a hash tag for "\"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  } else {
-                                                 //find or make a hash tage for "/"
+                                                 //find or make a hash tag for "/"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  }
                                                  } else {
@@ -3956,7 +4013,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
-                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
+                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.jpg");
                                            //canvas.renderAll();
                                            drawImage(zone);
                                            });
@@ -4056,9 +4113,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   if (zone =="ALL") {
                                                   } else {
                                                   if ($('#PREFS_'+zone+'_RIGHT').val() =="DRAW") {
-                                                  $('#BUTTON_TEXTD_'+zone).trigger("click");//closes draw
-                                                  //maybe this should revert to last right panel state (qp,text)
-                                                  return;
+                                                    $('#BUTTON_TEXTD_'+zone).trigger("click");//closes draw
+                                                    update_PREFS();
+                                                    //maybe this should revert to last right panel state (qp,text)?');
+                                                    return;
                                                   }
                                                   $("#"+zone+"_1").removeClass('nodisplay');
                                                   $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
@@ -4066,8 +4124,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                   $("#Draw_"+zone).removeClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val('DRAW');
-                                                  scrollTo(zone+"_left");
+
                                                   update_PREFS();
+                                                  //scrollTo(zone+"_left");
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").on("click", function() {
@@ -4246,12 +4305,11 @@ $("body").on("click","[name^='old_canvas']", function() {
                     //we are going to display an old image from a previous encounter
                     zone = this.id.match(/CANVAS_(.*)/)[1];
                     if (this.value != 'current') {
+                        show_PRIOR_CANVAS_section(zone, this.value);
                         $("#"+zone+"_canvas").addClass('nodisplay');
                         $("#"+zone+"_olddrawing").removeClass('nodisplay');
-                        show_PRIOR_CANVAS_section(zone, this.value);
                     } else {
                         $("#"+zone+"_canvas").removeClass('nodisplay');
-
                         $("#"+zone+"_olddrawing").addClass('nodisplay');
                     }
                 });
@@ -4400,8 +4458,6 @@ $("body").on("click","[name^='old_canvas']", function() {
                     build_CODING_list();
                   });
 
-                  build_IMPPLAN(obj.IMPPLAN_items);
-
                     $('[id^="BUTTON_TAB_"]').on('click', function () {
                         var item = this.id.match(/BUTTON_TAB_(.*)/)[1];
 
@@ -4411,10 +4467,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#tabs_left").removeClass('nodisplay');
                         update_PREFS();
                     });
-                    show_by_setting();
+
                   $("input,textarea,text").on("focus", function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });
+                $( document ).ready(function() {
+                    show_by_setting();
+                    build_IMPPLAN(obj.IMPPLAN_items);
+                });
                   //This listener no longer works in tabs because of the new tab wrapper.
                   $(window).bind('onbeforeunload', function(){
                     alert('Closing time');

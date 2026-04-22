@@ -4,7 +4,7 @@
  * Patient Service
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -18,10 +18,11 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -29,18 +30,49 @@ use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchConfigClauseBuilder;
-use OpenEMR\Services\Search\SearchQueryConfig;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * @phpstan-import-type PatientDataRow from TableTypes
+ */
 class PatientService extends BaseService
 {
     public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
+
+    /**
+     * Columns allowed for sorting in patient search API.
+     * This whitelist prevents SQL injection via the _sort parameter.
+     */
+    private const ALLOWED_SORT_COLUMNS = [
+        'id',
+        'pid',
+        'pubpid',
+        'title',
+        'fname',
+        'lname',
+        'mname',
+        'DOB',
+        'sex',
+        'street',
+        'city',
+        'state',
+        'postal_code',
+        'country_code',
+        'phone_home',
+        'phone_cell',
+        'phone_biz',
+        'email',
+        'status',
+        'date',
+        'regdate',
+        'last_updated',
+    ];
 
     /**
      * In the case where a patient doesn't have a picture uploaded,
@@ -73,7 +105,7 @@ class PatientService extends BaseService
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
      * @param  $pid unique patient id
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformationActivity($pid)
     {
@@ -88,13 +120,13 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-        return sqlStatement($sql, array($pid));
+        return sqlStatement($sql, [$pid]);
     }
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformation()
     {
@@ -119,7 +151,9 @@ class PatientService extends BaseService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-        return $pid['pid'] === null ? 1 : intval($pid['pid']);
+        /** @var int|string|null $pidValue */
+        $pidValue = $pid['pid'];
+        return $pidValue === null ? 1 : (int) $pidValue;
     }
 
     /**
@@ -133,6 +167,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -142,7 +177,7 @@ class PatientService extends BaseService
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
         // we should never be null here but for legacy reasons we are going to default to this
-        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+        $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $data['created_by'] = $createdBy;
         $data['updated_by'] = $createdBy; // for an insert this is the same
         if (empty($data['pubpid'])) {
@@ -151,7 +186,7 @@ class PatientService extends BaseService
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE);
         $data = $beforePatientCreatedEvent->getPatientData();
 
         $query = $this->buildInsertColumns($data);
@@ -163,7 +198,7 @@ class PatientService extends BaseService
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE);
 
         // If we have a result-set from our insert, return the PID,
         // otherwise return false
@@ -177,7 +212,7 @@ class PatientService extends BaseService
     /**
      * Inserts a new patient record.
      *
-     * @param $data The patient fields (array) to insert.
+     * @param array $data The patient fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
@@ -192,10 +227,10 @@ class PatientService extends BaseService
         $data = $this->databaseInsert($data);
 
         if (false !== $data['pid']) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -215,19 +250,22 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
-        $dataBeforeUpdate = $this->findByPid($data['pid']);
+        /** @var int $pid */
+        $pid = $data['pid'];
+        $dataBeforeUpdate = $this->findByPid($pid);
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
         // we should never be null here but for legacy reasons we are going to default to this
-        $updatedBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the updatedBy
+        $updatedBy = $session->get('authUserID'); // we don't let anyone else but the current user be the updatedBy
         $data['updated_by'] = $updatedBy; // for an insert this is the same
         $table = PatientService::TABLE_NAME;
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -238,18 +276,19 @@ class PatientService extends BaseService
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
-        if (
-            $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
-            || ($dataBeforeUpdate['care_team_facility'] ?? '') != ($data['care_team_facility'] ?? '')
-        ) {
-            // need to save off our care team
-            $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
-        }
-
         if ($sqlResult) {
+            // If portal access is enabled, ensure the portal login username exists
+            if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
+                $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+                $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
+                if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
+                    $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
+                    QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
+                }
+            }
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
 
             return $data;
         } else {
@@ -281,7 +320,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -304,19 +343,23 @@ class PatientService extends BaseService
 
             $originalData = [];
             if ($dataBeforeUpdate->hasData()) {
-                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+                $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
             }
             // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
-            // we need the uuid to be the same binary fomrat as the other event firing.
+            // we need the uuid to be the same binary format as the other event firing.
             if (!empty($originalData['uuid'])) {
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
             $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
         }
         return $processingResult;
     }
 
+    /**
+     * @param array<string, mixed> $record
+     * @return array<string, mixed>
+     */
     protected function createResultRecordFromDatabaseResult($record)
     {
         if (!empty($record['uuid'])) {
@@ -339,14 +382,14 @@ class PatientService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @param $config - Search Query Config has sorting, pagination and other query configuration options for the request.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -355,14 +398,14 @@ class PatientService extends BaseService
             } elseif (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
-            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode');
+            $wildcardFields = ['fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
+            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode'];
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
-            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            // for backwards compatibility, we will make sure we do exact matches on the keys using string comparisons if no object is used
             foreach ($search as $field => $key) {
                 if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
@@ -372,7 +415,7 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search($search, $isAndCondition = true, ?SearchQueryConfig $config = null)
+    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
@@ -447,7 +490,10 @@ class PatientService extends BaseService
 
         if (!empty($config)) {
             $pagination = $config->getPagination();
-            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig(
+                $config,
+                self::ALLOWED_SORT_COLUMNS
+            );
             $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
         } else {
             $orderBy = "";
@@ -466,9 +512,7 @@ class PatientService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
-                return "?";
-            }, $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
+            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults, $pagination);
             $processingResult->getPagination()->setTotalCount($uuidCount);
@@ -605,11 +649,13 @@ class PatientService extends BaseService
     /**
      * Given a pid, find the patient record
      *
-     * @param $pid
+     * @param int $pid
+     * @return PatientDataRow
      */
     public function findByPid($pid)
     {
         $table = PatientService::TABLE_NAME;
+        /** @var PatientDataRow $patientRow */
         $patientRow = self::selectHelper("SELECT * FROM `$table`", [
             'where' => 'WHERE pid = ?',
             'limit' => 1,
@@ -632,7 +678,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -644,10 +690,10 @@ class PatientService extends BaseService
     /**
      * Fetch UUID for the patient id
      *
-     * @param string $id                - ID of Patient
-     * @return false if nothing found otherwise return UUID (in binary form)
+     * @param string $pid ID of Patient
+     * @return false|string false if nothing found otherwise return UUID (in binary form)
      */
-    public function getUuid($pid)
+    public function getUuid(string $pid): false|string
     {
         return self::getUuidById($pid, self::TABLE_NAME, 'pid');
     }
@@ -655,12 +701,6 @@ class PatientService extends BaseService
     public function getPidByUuid($uuid)
     {
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
-    }
-
-    private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)
-    {
-        $careTeamService = new CareTeamService();
-        $careTeamService->createCareTeamHistory($patientData['pid'], $oldProviders, $oldFacilities);
     }
 
     public function formatPreviousName($item)
@@ -671,15 +711,15 @@ class PatientService extends BaseService
     /**
      * Returns a string to be used to display a patient's age
      *
-     * @param type $dobYMD
-     * @param type $asOfYMD
+     * @param string $dobYMD
+     * @param ?string $asOfYMD
      * @return string suitable for displaying patient's age based on preferences
      */
     public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
     {
-        if ($GLOBALS['age_display_format'] == '1') {
+        if (OEGlobalsBag::getInstance()->get('age_display_format') == '1') {
             $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
-            if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
+            if (OEGlobalsBag::getInstance()->has('age_display_limit') && $ageYMD['age'] <= OEGlobalsBag::getInstance()->getInt('age_display_limit')) {
                 return $ageYMD['ageinYMD'];
             } else {
                 return $this->getPatientAge($dobYMD, $asOfYMD);
@@ -700,10 +740,10 @@ class PatientService extends BaseService
             return '';
         }
         // strip any dashes from the DOB
-        $dobYMD = preg_replace("/-/", "", $dobYMD);
-        $dobDay = substr($dobYMD, 6, 2);
-        $dobMonth = substr($dobYMD, 4, 2);
-        $dobYear = (int) substr($dobYMD, 0, 4);
+        $dobYMD = preg_replace("/-/", "", (string) $dobYMD);
+        $dobDay = substr((string) $dobYMD, 6, 2);
+        $dobMonth = substr((string) $dobYMD, 4, 2);
+        $dobYear = (int) substr((string) $dobYMD, 0, 4);
 
         // set the 'now' date values
         if ($nowYMD == null) {
@@ -711,9 +751,9 @@ class PatientService extends BaseService
             $nowMonth = date("m");
             $nowYear = date("Y");
         } else {
-            $nowDay = substr($nowYMD, 6, 2);
-            $nowMonth = substr($nowYMD, 4, 2);
-            $nowYear = substr($nowYMD, 0, 4);
+            $nowDay = substr((string) $nowYMD, 6, 2);
+            $nowMonth = substr((string) $nowYMD, 4, 2);
+            $nowYear = substr((string) $nowYMD, 0, 4);
         }
 
         $dayDiff = $nowDay - $dobDay;
@@ -743,9 +783,8 @@ class PatientService extends BaseService
 
 
     /**
-     *
-     * @param type $dob
-     * @param type $date
+     * @param string $dob
+     * @param ?string $date
      * @return array containing
      *      age - decimal age in years
      *      age_in_months - decimal age in months
@@ -760,6 +799,7 @@ class PatientService extends BaseService
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
             $datenow = preg_replace("/-/", "", $date);
+            assert(is_string($datenow));
             $yearnow = substr($datenow, 0, 4);
             $monthnow = substr($datenow, 4, 2);
             $daynow = substr($datenow, 6, 2);
@@ -767,6 +807,7 @@ class PatientService extends BaseService
         }
 
         $dob = preg_replace("/-/", "", $dob);
+        assert(is_string($dob));
         $dobyear = substr($dob, 0, 4);
         $dobmonth = substr($dob, 4, 2);
         $dobday = substr($dob, 6, 2);
@@ -799,7 +840,7 @@ class PatientService extends BaseService
                 $months_since_birthday = 12 - $dobmonth + $monthnow;
                 $days_since_dobday = $daynow - $dobday;
             }
-        } else // if patient has had birthday this calandar year
+        } else // if patient has had birthday this calendar year
         {
             $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {
@@ -828,10 +869,8 @@ class PatientService extends BaseService
     public function getProviderIDsForPatientPids(array $patientPids)
     {
         // get integer only filtered pids for sql safety
-        $pids = array_map('intval', $patientPids);
-        $pids = array_filter($pids, function ($pid) {
-            return $pid > 0;
-        });
+        $pids = array_map(intval(...), $patientPids);
+        $pids = array_filter($pids, fn($pid): bool => $pid > 0);
 
         $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
         . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";
@@ -849,9 +888,7 @@ class PatientService extends BaseService
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
-        $patientUuids = array_map(function ($uuid) {
-            return UuidRegistry::uuidToBytes($uuid);
-        }, $patientUuids);
+        $patientUuids = array_map(UuidRegistry::uuidToBytes(...), $patientUuids);
 
         $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
             . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";
@@ -876,7 +913,7 @@ class PatientService extends BaseService
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
         foreach ($suffixes as $s) {
-            if (stripos($patientRecord['lname'], $s) !== false) {
+            if (stripos((string) $patientRecord['lname'], (string) $s) !== false) {
                 $suffix = $s;
                 $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
                 break;
@@ -888,7 +925,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
+            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         }
         return $this->patientSuffixKeys;
     }
@@ -909,8 +946,8 @@ class PatientService extends BaseService
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $row = sqlQuery($query, $curUser['id']);
-        $rp = ($row) ? unserialize($row['patients']) : [];
+        $row = sqlQuery($query, [$curUser['id']]);
+        $rp = ($row) ? unserialize($row['patients'], ['allowed_classes' => false]) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
         foreach ($rp as $k => $p) {
@@ -934,7 +971,7 @@ class PatientService extends BaseService
         // Push the new patient to the front of the FIFO list
         array_unshift($rp, $patient);
         // Cap out at max count as set in globals
-        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
+        $rp = array_slice($rp, 0, OEGlobalsBag::getInstance()->getInt('recent_patient_count'));
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
@@ -962,7 +999,7 @@ class PatientService extends BaseService
         // We only want the pid value so we can fetch the data from patient_data...
         //
         $pids = [];
-        foreach (($res) ? unserialize($res['patients']) : [] as $k => $v) {
+        foreach (($res) ? unserialize($res['patients'], ['allowed_classes' => false]) : [] as $v) {
             $pids[]['pid'] = $v['pid'];
         }
         return($pids);

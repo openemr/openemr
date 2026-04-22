@@ -4,7 +4,7 @@
  * new_search_popup.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -18,17 +18,19 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--yellow)' : $GLOBALS['layout_search_color'];
+$searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');
 $simpleSearch = $_GET['simple_search'] ?? null;
 ?>
 <!DOCTYPE html>
@@ -89,22 +91,10 @@ $simpleSearch = $_GET['simple_search'] ?? null;
     color: var(--white);
   }
 </style>
-<script>
-    // This is called when forward or backward paging is done.
-    function submitList(offset) {
-        var f = document.forms[0];
-        var i = parseInt(f.fstart.value) + offset;
-        if (i < 0) {
-            i = 0;
-        }
-        f.fstart.value = i;
-        f.submit();
-    }
-</script>
 </head>
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='fstart' value='<?php echo attr($fstart); ?>' />
         <?php
         $MAXSHOW = 100; // maximum number of results to display at once
@@ -120,23 +110,32 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         //   1. For the main sql statement - $sqlBindArray
         //   2. For the _set_patient_inc_count function - $sqlBindArraySpecial
         //      (this only holds $where and not $relevance binded values)
-        $sqlBindArray = array();
-        $sqlBindArraySpecial = array();
+        $sqlBindArray = [];
+        $sqlBindArraySpecial = [];
         $where = "1 = 0";
+
+        // Whitelist valid column names from patient_data to prevent SQL injection
+        // via user-controlled request parameter names.
+        $pdColumns = sqlListFields('patient_data');
+
         foreach ($_REQUEST as $key => $value) {
-            if (substr($key, 0, 3) != 'mf_') {
+            if (!str_starts_with((string) $key, 'mf_')) {
                 continue; // "match field"
             }
-            $fldname = substr($key, 3);
+            $fldname = substr((string) $key, 3);
+            if (!in_array($fldname, $pdColumns)) {
+                continue; // skip invalid column names
+            }
             // pubpid requires special treatment.  Match on that is fatal.
+            $quotedField = "`" . $fldname . "`";
             if ($fldname == 'pubpid') {
-                $relevance .= " + 1000 * ( " . add_escape_custom($fldname) . " LIKE ? )";
+                $relevance .= " + 1000 * ( " . $quotedField . " LIKE ? )";
                 array_push($sqlBindArray, $value);
             } else {
-                $relevance .= " + ( " . add_escape_custom($fldname) . " LIKE ? )";
+                $relevance .= " + ( " . $quotedField . " LIKE ? )";
                 array_push($sqlBindArray, $value);
             }
-            $where .= " OR " . add_escape_custom($fldname) . " LIKE ?";
+            $where .= " OR " . $quotedField . " LIKE ?";
             array_push($sqlBindArraySpecial, $value);
             echo "<input type='hidden' name='" . attr($key) . "' value='" . attr($value) . "' />\n";
             ++$numfields;
@@ -150,7 +149,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
         $rez = sqlStatement($sql, $sqlBindArray);
-        $result = array();
+        $result = [];
         while ($row = sqlFetchArray($rez)) {
             $result[] = $row;
         }
@@ -168,28 +167,16 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                         echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
                     } ?>
                 </td>
-                <td class='text text-right'>
-                    <?php
-                    // Show start and end row number, and number of rows, with paging links.
-                    $count = $GLOBALS['PATIENT_INC_COUNT'];
-                    $fend = $fstart + $MAXSHOW;
-                    if ($fend > $count) {
-                        $fend = $count;
-                    }
-                    ?>
-                    <?php if ($fstart) { ?>
-                        <a href="javascript:submitList(-<?php echo attr($MAXSHOW); ?>)">
-                            &lt;&lt;
-                        </a>&nbsp;
-                    <?php } ?>
-                    <?php echo ($fstart + 1) . text(" - $fend of $count") ?>
-                    <?php if ($count > $fend) { ?>
-                        &nbsp;&nbsp;
-                        <a href="javascript:submitList(<?php echo attr($MAXSHOW); ?>)">
-                            &gt;&gt;
-                        </a>
-                    <?php } ?>
-                </td>
+                <td class='text text-right'><?php
+                    $paginator = new PaginationUtils();
+                    echo $paginator->render(
+                        offset: $fstart,
+                        pageSize: $MAXSHOW,
+                        totalCount: OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT'),
+                        filename: basename(__FILE__),
+                        separator: '&nbsp;'
+                    );
+                    ?></td>
             </tr>
         </table>
     </div>
@@ -201,7 +188,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                 <th class="srName" scope="col"><?php echo xlt('Name'); ?></th>
                 <?php
                 // This gets address plus other fields that are mandatory, up to a limit of 5.
-                $extracols = array();
+                $extracols = [];
                 $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
                     "WHERE form_id = 'DEM' AND field_id != '' AND " .
                     "( uor > 1 OR uor > 0 AND edit_options LIKE '%D%' ) AND " .

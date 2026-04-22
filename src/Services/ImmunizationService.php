@@ -4,7 +4,7 @@
  * ImmunizationService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -49,7 +49,7 @@ class ImmunizationService extends BaseService
 
         foreach ($dates as $date) {
             if (isset($record[$date])) {
-                $record[$date] = date('c', strtotime($record[$date]));
+                $record[$date] = date('c', strtotime((string) $record[$date]));
             }
         }
         return $record;
@@ -57,10 +57,10 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid', 'provider_uuid'];
+        return ['uuid', 'puuid', 'provider_uuid', 'euuid', 'facility_uuid', 'facility_location_uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT immunizations.id,
                 immunizations.uuid,
@@ -111,7 +111,10 @@ class ImmunizationService extends BaseService
                     ),
                     TRUE,
                     FALSE
-                ) as primarySource
+                ) as primarySource,
+                enc.euuid,
+                enc.facility_uuid,
+                enc.facility_location_uuid
                 FROM immunizations
                 LEFT JOIN (
                     SELECT uuid AS puuid
@@ -136,7 +139,23 @@ class ImmunizationService extends BaseService
                            title AS refusal_reason_description
                    FROM list_options
                    WHERE list_id = 'immunization_refusal_reason'
-               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id";
+               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id
+               LEFT JOIN (
+                   SELECT
+                       form_encounter.uuid AS euuid
+                        , form_encounter.encounter AS eid
+                        , facility.uuid AS facility_uuid
+                        , uuid_mapping.uuid AS facility_location_uuid
+                   FROM
+                       form_encounter
+                   LEFT JOIN
+                       facility ON form_encounter.facility_id = facility.id
+                   LEFT JOIN
+                       uuid_mapping ON facility.uuid = uuid_mapping.target_uuid
+                   WHERE
+                       uuid_mapping.resource = 'Location'
+               ) enc ON immunizations.encounter_id = enc.eid
+               ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -158,13 +177,13 @@ class ImmunizationService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (isset($search['patient.uuid'])) {
             $isValidEncounter = $this->immunizationValidator->validateId(
@@ -195,7 +214,7 @@ class ImmunizationService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -234,6 +253,9 @@ class ImmunizationService extends BaseService
      */
     public function insert($data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 
 
@@ -247,5 +269,8 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 }

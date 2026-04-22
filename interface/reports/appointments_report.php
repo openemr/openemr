@@ -9,7 +9,7 @@
  * RM choose a selection of providers from the drop down menu
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -27,36 +27,40 @@
 $sessionAllowWrite = true;
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
+/**
+ * @global $srcdir
+ */
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
     Acl\AclMain,
     Csrf\CsrfUtils,
-    Twig\TwigContainer,
+    Logging\SystemLogger,
+    Session\SessionUtil,
+    Session\SessionWrapperFactory,
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Appointments Report", xl("Appointments Report"));
 }
 
 # Clear the pidList session whenever load this page.
 # This session will hold array of patients that are listed in this
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
-unset($_SESSION['pidList']);
-unset($_SESSION['apptdateList']);
+SessionUtil::unsetSession(['pidList', 'apptdateList']);
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'] ?? null;
@@ -112,23 +116,26 @@ $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUE
 
 // Reminders related stuff
 $incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
-function fetch_rule_txt($list_id, $option_id)
+function fetch_rule_txt($list_id, $option_id): array|false
 {
     $rs = sqlQuery(
         'SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
-        array($list_id, $option_id)
+        [$list_id, $option_id]
     );
+    if (!$rs) {
+        return false;
+    }
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date)
+function appointments_fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
-    $seq_due = array();
-    $seq_cat = array();
-    $seq_act = array();
+    $seq_due = [];
+    $seq_cat = [];
+    $seq_act = [];
     foreach ($rems as $ix => $rem) {
-        $rem_out = array();
+        $rem_out = [];
         $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);
         $seq_due[$ix] = $rule_txt['seq'];
         $rem_out['due_txt'] = $rule_txt['title'];
@@ -142,8 +149,8 @@ function fetch_reminders($pid, $appt_date)
     }
 
     array_multisort($seq_due, SORT_DESC, $seq_cat, SORT_ASC, $seq_act, SORT_ASC, $rems_out);
-    $rems = array();
-    foreach ($rems_out as $ix => $rem) {
+    $rems = [];
+    foreach ($rems_out as $rem) {
         $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ' : '') .
             $rem['act_txt'] . ' ' . $rem['cat_txt'];
     }
@@ -171,7 +178,7 @@ if (empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -202,7 +209,7 @@ if (empty($_POST['form_csvexport'])) {
                 display: inline;
             }
             #report_results table {
-                margin-top: 0px;
+                margin-top: 0;
             }
         }
 
@@ -228,7 +235,7 @@ if (empty($_POST['form_csvexport'])) {
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -240,7 +247,7 @@ if (empty($_POST['form_csvexport'])) {
         <table class='text'>
             <tr>
                 <td class='col-form-label'><?php echo xlt('Facility'); ?>:</td>
-                <td><?php dropdown_facility($facility, 'form_facility'); ?>
+                <td><?php dropdown_facility($facility); ?>
                 </td>
                 <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
@@ -284,7 +291,7 @@ if (empty($_POST['form_csvexport'])) {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
+                <td><?php generate_form_field(['data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'], ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -493,12 +500,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $appointments = array_merge($appointments, $availableSlots);
     }
 
+    /** @var array<int, array<string, mixed>> $appointments */
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
         // RM generate csv file with same column headers row as used in the report itself
-        $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB'];
-        for ($i = 0; $i < count($appointments); ++$i) {
+        $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB', 'Type', 'Status'];
+        $csvfields = [];
+        $iMax = count($appointments);
+        for ($i = 0; $i < $iMax; ++$i) {
               $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
               $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
               $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
@@ -510,15 +520,22 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]  ;
                 }
             }
-              $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
+            $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
+            $csvfields[$i]["Type"] = xl_appt_category($appointments[$i]['pc_catname']);
+            $csvfields[$i]["Status"] = getListItemTitle('apptstat', $appointments[$i]['pc_apptstatus']);
         }
-        $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
-        if (!empty($spreadsheet->buildSpreadsheet())) {
-            $spreadsheet->downloadSpreadsheet('Csv');
+        try {
+            $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
+            if (!empty($spreadsheet->buildSpreadsheet())) {
+                $spreadsheet->downloadSpreadsheet();
+            }
+        } catch (RuntimeException $e) {
+            $logger = ServiceContainer::getLogger();
+            $logger->logError($e->getMessage());
         }
     } else {
-        $pid_list = array();  // Initialize list of PIDs for Superbill option
-        $apptdate_list = array(); // same as above for the appt details
+        $pid_list = [];  // Initialize list of PIDs for Superbill option
+        $apptdate_list = []; // same as above for the appt details
         $totalAppointments = count($appointments);
         $canceledAppointments = 0;
 
@@ -537,8 +554,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $canceledAppointments++;
             }
             $cntr++;
-            array_push($pid_list, $appointment['pid']);
-            array_push($apptdate_list, $appointment['pc_eventDate']);
+            $pid_list[] = $appointment['pid'];
+            $apptdate_list[] = $appointment['pc_eventDate'];
             $patient_id = $appointment['pid'];
             $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 
@@ -552,7 +569,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                    echo date('D', strtotime($appointment['pc_eventDate']));
+                    echo text(date('D', strtotime((string) $appointment['pc_eventDate'])));
                 ?>
             </td>
 
@@ -596,9 +613,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         </tr>
 
                 <?php
+                $rems = [];
                 if ($patient_id && $incl_reminders) {
                     // collect reminders first, so can skip it if empty
-                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                    $rems = appointments_fetch_reminders($patient_id, $appointment['pc_eventDate']);
                 }
                 ?>
                 <?php
@@ -607,7 +625,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
         <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
                     <?php
-                    if (trim($appointment['pc_hometext'])) {
+                    if (trim((string) $appointment['pc_hometext'])) {
                         echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
                     }
 
@@ -630,14 +648,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $lastdocname = $docname;
         }
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-        $_SESSION['pidList'] = $pid_list;
-        $_SESSION['apptdateList'] = $apptdate_list;
+        $session->set('pidList', $pid_list);
+        $session->set('apptdateList', $apptdate_list);
     } // end not form_csvexport
 
     if (empty($_POST['form_csvexport'])) { ?>
     <tr>
-        <td colspan="2" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppointments);?></td>
-        <td colspan="2" align="left"><?php echo xlt('Total number of canceled appointments'); ?>:&nbsp;<?php echo text($canceledAppointments);?></td>
+        <td colspan="2" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppointments ?? 0);?></td>
+        <td colspan="2" align="left"><?php echo xlt('Total number of canceled appointments'); ?>:&nbsp;<?php echo text($canceledAppointments ?? 0);?></td>
     </tr>
     </tbody>
 </table>

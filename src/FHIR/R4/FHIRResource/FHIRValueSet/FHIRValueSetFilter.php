@@ -184,7 +184,7 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

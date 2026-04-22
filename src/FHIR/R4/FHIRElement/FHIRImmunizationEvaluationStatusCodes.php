@@ -124,7 +124,7 @@ class FHIRImmunizationEvaluationStatusCodes extends FHIRElement implements \Json
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

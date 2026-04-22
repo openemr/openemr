@@ -1,0 +1,15 @@
+includes:
+  - extension.neon
+  - baseline/loader.php
+parameters:
+  reportUnmatchedIgnoredErrors: true
+  strictRules:
+    allRules: false
+    disallowedEmpty: true
+  scanDirectories:
+    - ../vendor/adodb/adodb-php
+  scanFiles:
+    - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
+  excludePaths:
+    - ../sites/default/documents/smarty
+    - ../tests/Rector

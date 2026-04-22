@@ -62,7 +62,7 @@ namespace OpenEMR\FHIR\R4;
  *
  */
 
-class FHIRResourceContainer implements \JsonSerializable
+class FHIRResourceContainer implements \JsonSerializable, \Stringable
 {
     /**
      * @var \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAccount
@@ -3441,7 +3441,7 @@ class FHIRResourceContainer implements \JsonSerializable
     public function __construct($data = [])
     {
         if (is_object($data)) {
-            $n = substr(strrchr(get_class($data), 'FHIR'), 4);
+            $n = substr(strrchr($data::class, 'FHIR'), 4);
             $this->{"set{$n}"}($data);
         } elseif (is_array($data)) {
             if (($cnt = count($data)) > 1) {
@@ -3458,7 +3458,7 @@ class FHIRResourceContainer implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -3468,445 +3468,153 @@ class FHIRResourceContainer implements \JsonSerializable
      */
     public function jsonSerialize(): mixed
     {
-        if (isset($this->Account)) {
-            return $this->Account;
-        }
-        if (isset($this->ActivityDefinition)) {
-            return $this->ActivityDefinition;
-        }
-        if (isset($this->AdverseEvent)) {
-            return $this->AdverseEvent;
-        }
-        if (isset($this->AllergyIntolerance)) {
-            return $this->AllergyIntolerance;
-        }
-        if (isset($this->Appointment)) {
-            return $this->Appointment;
-        }
-        if (isset($this->AppointmentResponse)) {
-            return $this->AppointmentResponse;
-        }
-        if (isset($this->AuditEvent)) {
-            return $this->AuditEvent;
-        }
-        if (isset($this->Basic)) {
-            return $this->Basic;
-        }
-        if (isset($this->Binary)) {
-            return $this->Binary;
-        }
-        if (isset($this->BiologicallyDerivedProduct)) {
-            return $this->BiologicallyDerivedProduct;
-        }
-        if (isset($this->BodyStructure)) {
-            return $this->BodyStructure;
-        }
-        if (isset($this->Bundle)) {
-            return $this->Bundle;
-        }
-        if (isset($this->CapabilityStatement)) {
-            return $this->CapabilityStatement;
-        }
-        if (isset($this->CarePlan)) {
-            return $this->CarePlan;
-        }
-        if (isset($this->CareTeam)) {
-            return $this->CareTeam;
-        }
-        if (isset($this->CatalogEntry)) {
-            return $this->CatalogEntry;
-        }
-        if (isset($this->ChargeItem)) {
-            return $this->ChargeItem;
-        }
-        if (isset($this->ChargeItemDefinition)) {
-            return $this->ChargeItemDefinition;
-        }
-        if (isset($this->Claim)) {
-            return $this->Claim;
-        }
-        if (isset($this->ClaimResponse)) {
-            return $this->ClaimResponse;
-        }
-        if (isset($this->ClinicalImpression)) {
-            return $this->ClinicalImpression;
-        }
-        if (isset($this->CodeSystem)) {
-            return $this->CodeSystem;
-        }
-        if (isset($this->Communication)) {
-            return $this->Communication;
-        }
-        if (isset($this->CommunicationRequest)) {
-            return $this->CommunicationRequest;
-        }
-        if (isset($this->CompartmentDefinition)) {
-            return $this->CompartmentDefinition;
-        }
-        if (isset($this->Composition)) {
-            return $this->Composition;
-        }
-        if (isset($this->ConceptMap)) {
-            return $this->ConceptMap;
-        }
-        if (isset($this->Condition)) {
-            return $this->Condition;
-        }
-        if (isset($this->Consent)) {
-            return $this->Consent;
-        }
-        if (isset($this->Contract)) {
-            return $this->Contract;
-        }
-        if (isset($this->Coverage)) {
-            return $this->Coverage;
-        }
-        if (isset($this->CoverageEligibilityRequest)) {
-            return $this->CoverageEligibilityRequest;
-        }
-        if (isset($this->CoverageEligibilityResponse)) {
-            return $this->CoverageEligibilityResponse;
-        }
-        if (isset($this->DetectedIssue)) {
-            return $this->DetectedIssue;
-        }
-        if (isset($this->Device)) {
-            return $this->Device;
-        }
-        if (isset($this->DeviceDefinition)) {
-            return $this->DeviceDefinition;
-        }
-        if (isset($this->DeviceMetric)) {
-            return $this->DeviceMetric;
-        }
-        if (isset($this->DeviceRequest)) {
-            return $this->DeviceRequest;
-        }
-        if (isset($this->DeviceUseStatement)) {
-            return $this->DeviceUseStatement;
-        }
-        if (isset($this->DiagnosticReport)) {
-            return $this->DiagnosticReport;
-        }
-        if (isset($this->DocumentManifest)) {
-            return $this->DocumentManifest;
-        }
-        if (isset($this->DocumentReference)) {
-            return $this->DocumentReference;
-        }
-        if (isset($this->EffectEvidenceSynthesis)) {
-            return $this->EffectEvidenceSynthesis;
-        }
-        if (isset($this->Encounter)) {
-            return $this->Encounter;
-        }
-        if (isset($this->Endpoint)) {
-            return $this->Endpoint;
-        }
-        if (isset($this->EnrollmentRequest)) {
-            return $this->EnrollmentRequest;
-        }
-        if (isset($this->EnrollmentResponse)) {
-            return $this->EnrollmentResponse;
-        }
-        if (isset($this->EpisodeOfCare)) {
-            return $this->EpisodeOfCare;
-        }
-        if (isset($this->EventDefinition)) {
-            return $this->EventDefinition;
-        }
-        if (isset($this->Evidence)) {
-            return $this->Evidence;
-        }
-        if (isset($this->EvidenceVariable)) {
-            return $this->EvidenceVariable;
-        }
-        if (isset($this->ExampleScenario)) {
-            return $this->ExampleScenario;
-        }
-        if (isset($this->ExplanationOfBenefit)) {
-            return $this->ExplanationOfBenefit;
-        }
-        if (isset($this->FamilyMemberHistory)) {
-            return $this->FamilyMemberHistory;
-        }
-        if (isset($this->Flag)) {
-            return $this->Flag;
-        }
-        if (isset($this->Goal)) {
-            return $this->Goal;
-        }
-        if (isset($this->GraphDefinition)) {
-            return $this->GraphDefinition;
-        }
-        if (isset($this->Group)) {
-            return $this->Group;
-        }
-        if (isset($this->GuidanceResponse)) {
-            return $this->GuidanceResponse;
-        }
-        if (isset($this->HealthcareService)) {
-            return $this->HealthcareService;
-        }
-        if (isset($this->ImagingStudy)) {
-            return $this->ImagingStudy;
-        }
-        if (isset($this->Immunization)) {
-            return $this->Immunization;
-        }
-        if (isset($this->ImmunizationEvaluation)) {
-            return $this->ImmunizationEvaluation;
-        }
-        if (isset($this->ImmunizationRecommendation)) {
-            return $this->ImmunizationRecommendation;
-        }
-        if (isset($this->ImplementationGuide)) {
-            return $this->ImplementationGuide;
-        }
-        if (isset($this->InsurancePlan)) {
-            return $this->InsurancePlan;
-        }
-        if (isset($this->Invoice)) {
-            return $this->Invoice;
-        }
-        if (isset($this->Library)) {
-            return $this->Library;
-        }
-        if (isset($this->Linkage)) {
-            return $this->Linkage;
-        }
-        if (isset($this->List)) {
-            return $this->List;
-        }
-        if (isset($this->Location)) {
-            return $this->Location;
-        }
-        if (isset($this->Measure)) {
-            return $this->Measure;
-        }
-        if (isset($this->MeasureReport)) {
-            return $this->MeasureReport;
-        }
-        if (isset($this->Media)) {
-            return $this->Media;
-        }
-        if (isset($this->Medication)) {
-            return $this->Medication;
-        }
-        if (isset($this->MedicationAdministration)) {
-            return $this->MedicationAdministration;
-        }
-        if (isset($this->MedicationDispense)) {
-            return $this->MedicationDispense;
-        }
-        if (isset($this->MedicationKnowledge)) {
-            return $this->MedicationKnowledge;
-        }
-        if (isset($this->MedicationRequest)) {
-            return $this->MedicationRequest;
-        }
-        if (isset($this->MedicationStatement)) {
-            return $this->MedicationStatement;
-        }
-        if (isset($this->MedicinalProduct)) {
-            return $this->MedicinalProduct;
-        }
-        if (isset($this->MedicinalProductAuthorization)) {
-            return $this->MedicinalProductAuthorization;
-        }
-        if (isset($this->MedicinalProductContraindication)) {
-            return $this->MedicinalProductContraindication;
-        }
-        if (isset($this->MedicinalProductIndication)) {
-            return $this->MedicinalProductIndication;
-        }
-        if (isset($this->MedicinalProductIngredient)) {
-            return $this->MedicinalProductIngredient;
-        }
-        if (isset($this->MedicinalProductInteraction)) {
-            return $this->MedicinalProductInteraction;
-        }
-        if (isset($this->MedicinalProductManufactured)) {
-            return $this->MedicinalProductManufactured;
-        }
-        if (isset($this->MedicinalProductPackaged)) {
-            return $this->MedicinalProductPackaged;
-        }
-        if (isset($this->MedicinalProductPharmaceutical)) {
-            return $this->MedicinalProductPharmaceutical;
-        }
-        if (isset($this->MedicinalProductUndesirableEffect)) {
-            return $this->MedicinalProductUndesirableEffect;
-        }
-        if (isset($this->MessageDefinition)) {
-            return $this->MessageDefinition;
-        }
-        if (isset($this->MessageHeader)) {
-            return $this->MessageHeader;
-        }
-        if (isset($this->MolecularSequence)) {
-            return $this->MolecularSequence;
-        }
-        if (isset($this->NamingSystem)) {
-            return $this->NamingSystem;
-        }
-        if (isset($this->NutritionOrder)) {
-            return $this->NutritionOrder;
-        }
-        if (isset($this->Observation)) {
-            return $this->Observation;
-        }
-        if (isset($this->ObservationDefinition)) {
-            return $this->ObservationDefinition;
-        }
-        if (isset($this->OperationDefinition)) {
-            return $this->OperationDefinition;
-        }
-        if (isset($this->OperationOutcome)) {
-            return $this->OperationOutcome;
-        }
-        if (isset($this->Organization)) {
-            return $this->Organization;
-        }
-        if (isset($this->OrganizationAffiliation)) {
-            return $this->OrganizationAffiliation;
-        }
-        if (isset($this->Patient)) {
-            return $this->Patient;
-        }
-        if (isset($this->PaymentNotice)) {
-            return $this->PaymentNotice;
-        }
-        if (isset($this->PaymentReconciliation)) {
-            return $this->PaymentReconciliation;
-        }
-        if (isset($this->Person)) {
-            return $this->Person;
-        }
-        if (isset($this->PlanDefinition)) {
-            return $this->PlanDefinition;
-        }
-        if (isset($this->Practitioner)) {
-            return $this->Practitioner;
-        }
-        if (isset($this->PractitionerRole)) {
-            return $this->PractitionerRole;
-        }
-        if (isset($this->Procedure)) {
-            return $this->Procedure;
-        }
-        if (isset($this->Provenance)) {
-            return $this->Provenance;
-        }
-        if (isset($this->Questionnaire)) {
-            return $this->Questionnaire;
-        }
-        if (isset($this->QuestionnaireResponse)) {
-            return $this->QuestionnaireResponse;
-        }
-        if (isset($this->RelatedPerson)) {
-            return $this->RelatedPerson;
-        }
-        if (isset($this->RequestGroup)) {
-            return $this->RequestGroup;
-        }
-        if (isset($this->ResearchDefinition)) {
-            return $this->ResearchDefinition;
-        }
-        if (isset($this->ResearchElementDefinition)) {
-            return $this->ResearchElementDefinition;
-        }
-        if (isset($this->ResearchStudy)) {
-            return $this->ResearchStudy;
-        }
-        if (isset($this->ResearchSubject)) {
-            return $this->ResearchSubject;
-        }
-        if (isset($this->RiskAssessment)) {
-            return $this->RiskAssessment;
-        }
-        if (isset($this->RiskEvidenceSynthesis)) {
-            return $this->RiskEvidenceSynthesis;
-        }
-        if (isset($this->Schedule)) {
-            return $this->Schedule;
-        }
-        if (isset($this->SearchParameter)) {
-            return $this->SearchParameter;
-        }
-        if (isset($this->ServiceRequest)) {
-            return $this->ServiceRequest;
-        }
-        if (isset($this->Slot)) {
-            return $this->Slot;
-        }
-        if (isset($this->Specimen)) {
-            return $this->Specimen;
-        }
-        if (isset($this->SpecimenDefinition)) {
-            return $this->SpecimenDefinition;
-        }
-        if (isset($this->StructureDefinition)) {
-            return $this->StructureDefinition;
-        }
-        if (isset($this->StructureMap)) {
-            return $this->StructureMap;
-        }
-        if (isset($this->Subscription)) {
-            return $this->Subscription;
-        }
-        if (isset($this->Substance)) {
-            return $this->Substance;
-        }
-        if (isset($this->SubstanceNucleicAcid)) {
-            return $this->SubstanceNucleicAcid;
-        }
-        if (isset($this->SubstancePolymer)) {
-            return $this->SubstancePolymer;
-        }
-        if (isset($this->SubstanceProtein)) {
-            return $this->SubstanceProtein;
-        }
-        if (isset($this->SubstanceReferenceInformation)) {
-            return $this->SubstanceReferenceInformation;
-        }
-        if (isset($this->SubstanceSourceMaterial)) {
-            return $this->SubstanceSourceMaterial;
-        }
-        if (isset($this->SubstanceSpecification)) {
-            return $this->SubstanceSpecification;
-        }
-        if (isset($this->SupplyDelivery)) {
-            return $this->SupplyDelivery;
-        }
-        if (isset($this->SupplyRequest)) {
-            return $this->SupplyRequest;
-        }
-        if (isset($this->Task)) {
-            return $this->Task;
-        }
-        if (isset($this->TerminologyCapabilities)) {
-            return $this->TerminologyCapabilities;
-        }
-        if (isset($this->TestReport)) {
-            return $this->TestReport;
-        }
-        if (isset($this->TestScript)) {
-            return $this->TestScript;
-        }
-        if (isset($this->ValueSet)) {
-            return $this->ValueSet;
-        }
-        if (isset($this->VerificationResult)) {
-            return $this->VerificationResult;
-        }
-        if (isset($this->VisionPrescription)) {
-            return $this->VisionPrescription;
-        }
-        if (isset($this->Parameters)) {
-            return $this->Parameters;
-        }
-        return null;
+        return $this->Account
+            ?? $this->ActivityDefinition
+            ?? $this->AdverseEvent
+            ?? $this->AllergyIntolerance
+            ?? $this->Appointment
+            ?? $this->AppointmentResponse
+            ?? $this->AuditEvent
+            ?? $this->Basic
+            ?? $this->Binary
+            ?? $this->BiologicallyDerivedProduct
+            ?? $this->BodyStructure
+            ?? $this->Bundle
+            ?? $this->CapabilityStatement
+            ?? $this->CarePlan
+            ?? $this->CareTeam
+            ?? $this->CatalogEntry
+            ?? $this->ChargeItem
+            ?? $this->ChargeItemDefinition
+            ?? $this->Claim
+            ?? $this->ClaimResponse
+            ?? $this->ClinicalImpression
+            ?? $this->CodeSystem
+            ?? $this->Communication
+            ?? $this->CommunicationRequest
+            ?? $this->CompartmentDefinition
+            ?? $this->Composition
+            ?? $this->ConceptMap
+            ?? $this->Condition
+            ?? $this->Consent
+            ?? $this->Contract
+            ?? $this->Coverage
+            ?? $this->CoverageEligibilityRequest
+            ?? $this->CoverageEligibilityResponse
+            ?? $this->DetectedIssue
+            ?? $this->Device
+            ?? $this->DeviceDefinition
+            ?? $this->DeviceMetric
+            ?? $this->DeviceRequest
+            ?? $this->DeviceUseStatement
+            ?? $this->DiagnosticReport
+            ?? $this->DocumentManifest
+            ?? $this->DocumentReference
+            ?? $this->EffectEvidenceSynthesis
+            ?? $this->Encounter
+            ?? $this->Endpoint
+            ?? $this->EnrollmentRequest
+            ?? $this->EnrollmentResponse
+            ?? $this->EpisodeOfCare
+            ?? $this->EventDefinition
+            ?? $this->Evidence
+            ?? $this->EvidenceVariable
+            ?? $this->ExampleScenario
+            ?? $this->ExplanationOfBenefit
+            ?? $this->FamilyMemberHistory
+            ?? $this->Flag
+            ?? $this->Goal
+            ?? $this->GraphDefinition
+            ?? $this->Group
+            ?? $this->GuidanceResponse
+            ?? $this->HealthcareService
+            ?? $this->ImagingStudy
+            ?? $this->Immunization
+            ?? $this->ImmunizationEvaluation
+            ?? $this->ImmunizationRecommendation
+            ?? $this->ImplementationGuide
+            ?? $this->InsurancePlan
+            ?? $this->Invoice
+            ?? $this->Library
+            ?? $this->Linkage
+            ?? $this->List
+            ?? $this->Location
+            ?? $this->Measure
+            ?? $this->MeasureReport
+            ?? $this->Media
+            ?? $this->Medication
+            ?? $this->MedicationAdministration
+            ?? $this->MedicationDispense
+            ?? $this->MedicationKnowledge
+            ?? $this->MedicationRequest
+            ?? $this->MedicationStatement
+            ?? $this->MedicinalProduct
+            ?? $this->MedicinalProductAuthorization
+            ?? $this->MedicinalProductContraindication
+            ?? $this->MedicinalProductIndication
+            ?? $this->MedicinalProductIngredient
+            ?? $this->MedicinalProductInteraction
+            ?? $this->MedicinalProductManufactured
+            ?? $this->MedicinalProductPackaged
+            ?? $this->MedicinalProductPharmaceutical
+            ?? $this->MedicinalProductUndesirableEffect
+            ?? $this->MessageDefinition
+            ?? $this->MessageHeader
+            ?? $this->MolecularSequence
+            ?? $this->NamingSystem
+            ?? $this->NutritionOrder
+            ?? $this->Observation
+            ?? $this->ObservationDefinition
+            ?? $this->OperationDefinition
+            ?? $this->OperationOutcome
+            ?? $this->Organization
+            ?? $this->OrganizationAffiliation
+            ?? $this->Patient
+            ?? $this->PaymentNotice
+            ?? $this->PaymentReconciliation
+            ?? $this->Person
+            ?? $this->PlanDefinition
+            ?? $this->Practitioner
+            ?? $this->PractitionerRole
+            ?? $this->Procedure
+            ?? $this->Provenance
+            ?? $this->Questionnaire
+            ?? $this->QuestionnaireResponse
+            ?? $this->RelatedPerson
+            ?? $this->RequestGroup
+            ?? $this->ResearchDefinition
+            ?? $this->ResearchElementDefinition
+            ?? $this->ResearchStudy
+            ?? $this->ResearchSubject
+            ?? $this->RiskAssessment
+            ?? $this->RiskEvidenceSynthesis
+            ?? $this->Schedule
+            ?? $this->SearchParameter
+            ?? $this->ServiceRequest
+            ?? $this->Slot
+            ?? $this->Specimen
+            ?? $this->SpecimenDefinition
+            ?? $this->StructureDefinition
+            ?? $this->StructureMap
+            ?? $this->Subscription
+            ?? $this->Substance
+            ?? $this->SubstanceNucleicAcid
+            ?? $this->SubstancePolymer
+            ?? $this->SubstanceProtein
+            ?? $this->SubstanceReferenceInformation
+            ?? $this->SubstanceSourceMaterial
+            ?? $this->SubstanceSpecification
+            ?? $this->SupplyDelivery
+            ?? $this->SupplyRequest
+            ?? $this->Task
+            ?? $this->TerminologyCapabilities
+            ?? $this->TestReport
+            ?? $this->TestScript
+            ?? $this->ValueSet
+            ?? $this->VerificationResult
+            ?? $this->VisionPrescription
+            ?? $this->Parameters
+            ?? null;
     }
 
     /**

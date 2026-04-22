@@ -8,7 +8,7 @@
  * processing.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -26,18 +26,13 @@ class PatientUpdatedEvent extends Event
      */
     const EVENT_HANDLE = 'patient.updated';
 
-    private $dataBeforeUpdate;
-    private $newPatientData;
-
     /**
      * PatientUpdatedEvent constructor.
      * @param $dataBeforeUpdate
      * @param $newPatientData
      */
-    public function __construct($dataBeforeUpdate, $newPatientData)
+    public function __construct(private $dataBeforeUpdate, private $newPatientData)
     {
-        $this->dataBeforeUpdate = $dataBeforeUpdate;
-        $this->newPatientData = $newPatientData;
     }
 
     /**

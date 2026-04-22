@@ -1,0 +1,315 @@
+version: 2
+updates:
+  # PHP dependencies
+- package-ecosystem: composer
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+    time: "08:00"
+  rebase-strategy: disabled
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - php
+  commit-message:
+    prefix: chore
+    include: scope
+  groups:
+    symfony:
+      patterns:
+      - symfony/*
+      update-types:
+      - minor
+      - patch
+    laminas:
+      patterns:
+      - laminas/*
+      update-types:
+      - minor
+      - patch
+    development:
+      patterns:
+      - phpunit/*
+      - phpstan/*
+      - rector/rector
+      - shipmonk/*
+      - friendsofphp/*
+      update-types:
+      - minor
+      - patch
+  ignore:
+      # Don't update major versions automatically
+  - dependency-name: '*'
+    update-types: [version-update:semver-major]
+      # submodules are causing problems, so ignore them
+  - dependency-name: '*/onc-certification-g10-test-kit'
+  - dependency-name: '*/inferno-files'
+
+  # JavaScript dependencies (not including ccdaservice)
+- package-ecosystem: npm
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+    time: "08:00"
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - javascript
+  commit-message:
+    prefix: chore
+    include: scope
+  groups:
+    jquery-bootstrap:
+      patterns:
+      - jquery
+      - jquery-*
+      - bootstrap
+      - '@popperjs/core'
+      update-types:
+      - minor
+      - patch
+    ui-components:
+      patterns:
+      - datatables.net*
+      - select2
+      - chart.js
+      - summernote
+      update-types:
+      - minor
+      - patch
+    testing:
+      patterns:
+      - jest
+      - '@types/jest'
+      - jest-*
+      update-types:
+      - minor
+      - patch
+    build-tools:
+      patterns:
+      - gulp*
+      - eslint*
+      - stylelint*
+      - prettier
+      update-types:
+      - minor
+      - patch
+  ignore:
+      # Don't update major versions automatically
+  - dependency-name: '*'
+    update-types: [version-update:semver-major]
+      # Specific packages to keep stable
+  - dependency-name: bootstrap
+    versions: [5.x, 6.x]         # Stay on Bootstrap 4 for compatibility
+  - dependency-name: angular
+    versions: ['>1.8.x']     # Legacy AngularJS, don't update
+
+  # GitHub Actions
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+  labels:
+  - dependencies
+  - github-actions
+  commit-message:
+    prefix: ci
+    include: scope
+  open-pull-requests-limit: 5
+
+  # Docker selenium updates for CI (shared compose file)
+  # Docker dev directories are covered by their own entries below,
+  # which handle selenium alongside all other images.
+- package-ecosystem: docker-compose
+  directories:
+  - ci/compose-shared-selenium/
+  schedule:
+    interval: daily
+  allow:
+  - dependency-name: selenium/standalone-chromium
+  - dependency-name: selenium/video
+  groups:
+    selenium-updates:
+      patterns:
+      - selenium/*
+  labels:
+  - dependencies
+  - selenium
+  - docker
+
+  # Docker CI images (database + PHP + shared services)
+  # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
+  # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
+  # Tooling images (mailpit, dev-nginx, couchdb, redis) are unconstrained.
+- package-ecosystem: docker-compose
+  directories:
+  - ci/apache_82_118/
+  - ci/apache_82_118_redis_sentinel_mtls/
+  - ci/apache_83_118/
+  - ci/apache_84_118/
+  - ci/apache_85_1011/
+  - ci/apache_85_106/
+  - ci/apache_85_114/
+  - ci/apache_85_118/
+  - ci/apache_85_118_redis_sentinel/
+  - ci/apache_85_118_redis_sentinel_tls/
+  - ci/apache_85_118_redis_sentinel_mtls/
+  - ci/apache_85_122/
+  - ci/apache_85_57/
+  - ci/apache_85_80/
+  - ci/apache_85_84/
+  - ci/apache_85_93/
+  - ci/compose-shared-mailpit/
+  - ci/compose-shared-nginx/
+  - ci/compose-shared-redis-sentinel/
+  - ci/inferno/
+  - ci/nginx_82/
+  - ci/nginx_83/
+  - ci/nginx_84/
+  - ci/nginx_85/
+  - ci/nginx_86/
+  schedule:
+    interval: daily
+  ignore:
+    # Block major/minor bumps for version-pinned images only — each CI
+    # directory intentionally tests a specific database + PHP version.
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    redis:
+      patterns:
+      - redis
+  labels:
+  - dependencies
+  - docker
+
+  # Docker dev environments (easy, easy-light, easy-redis, production)
+  # These use a single database version for convenience, not to test a
+  # specific version matrix. Major bumps are blocked (e.g., mariadb 11→12)
+  # but minor and patch updates are welcome.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-easy/
+  - docker/development-easy-light/
+  - docker/development-easy-redis/
+  - docker/production/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    selenium:
+      patterns:
+      - selenium/*
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
+  - docker
+
+  # Docker insane (version-testing matrix)
+  # Like CI, insane intentionally runs specific database + PHP versions.
+  # Block major/minor bumps for version-pinned images.
+- package-ecosystem: docker-compose
+  directories:
+  - docker/development-insane/
+  schedule:
+    interval: daily
+  ignore:
+  - dependency-name: mariadb
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: mysql
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/openemr
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  - dependency-name: openemr/dev-php-fpm
+    update-types: [version-update:semver-major, version-update:semver-minor]
+  groups:
+    mariadb:
+      patterns:
+      - mariadb
+    mysql:
+      patterns:
+      - mysql
+    openemr-images:
+      patterns:
+      - openemr/*
+    couchdb:
+      patterns:
+      - couchdb
+    redis:
+      patterns:
+      - redis
+    selenium:
+      patterns:
+      - selenium/*
+    mailpit:
+      patterns:
+      - axllent/mailpit
+    phpmyadmin:
+      patterns:
+      - phpmyadmin
+  labels:
+  - dependencies
+  - docker
+
+  # JavaScript dependencies (ccdaservice)
+- package-ecosystem: npm
+  directory: /ccdaservice
+  schedule:
+    interval: weekly
+    day: monday
+    time: "08:00"
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - javascript
+  - CCDA Service
+  commit-message:
+    prefix: chore
+    include: scope
+  ignore:
+      # Don't update major versions automatically
+  - dependency-name: '*'
+    update-types: [version-update:semver-major]

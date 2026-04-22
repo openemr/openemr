@@ -7,7 +7,7 @@
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -22,36 +22,36 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Encounters Report", xl("Encounters Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $alertmsg = ''; // not used yet but maybe later
 
 // For each sorting option, specify the ORDER BY argument.
 //
-$ORDERHASH = array(
-  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
-  'patient' => 'lower(p.lname), lower(p.fname), fe.date',
-  'pubpid'  => 'lower(p.pubpid), fe.date',
-  'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
-  'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
-);
+$ORDERHASH = [
+  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date DESC, fe.encounter DESC',
+  'patient' => 'lower(p.lname), lower(p.fname), fe.date DESC, fe.encounter DESC',
+  'pubpid'  => 'lower(p.pubpid), fe.date DESC, fe.encounter DESC',
+  'time'    => 'fe.date DESC, fe.encounter DESC, lower(u.lname), lower(u.fname)',
+  'encounter'    => 'fe.encounter DESC, fe.date DESC, lower(u.lname), lower(u.fname)',
+];
 
-function show_doc_total($lastdocname, $doc_encounters)
+function show_doc_total($lastdocname, $doc_encounters): void
 {
     if ($lastdocname) {
         echo " <tr>\n";
@@ -93,7 +93,7 @@ if ($form_not_esigned) {
     $esign_joins = "LEFT JOIN esign_signatures AS es on es.tid = fe.encounter ";
 }
 
-$sqlBindArray = array();
+$sqlBindArray = [];
 
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
@@ -185,7 +185,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -204,7 +204,11 @@ $res = sqlStatement($query, $sqlBindArray);
         // Called to switch to the specified encounter having the specified DOS.
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+            const params = new URLSearchParams({
+                set_encounterid: enc,
+                set_pid: newpid
+            });
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
     </script>
@@ -220,7 +224,7 @@ $res = sqlStatement($query, $sqlBindArray);
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <table>
@@ -451,7 +455,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                 // Figure product sales into billing status.
                 $sres = sqlStatement("SELECT billed FROM drug_sales " .
-                "WHERE pid = ? AND encounter = ?", array($row['pid'], $row['encounter']));
+                "WHERE pid = ? AND encounter = ?", [$row['pid'], $row['encounter']]);
                 while ($srow = sqlFetchArray($sres)) {
                     if ($srow['billed']) {
                         ++$billed_count;
@@ -476,7 +480,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo ($docname == $lastdocname) ? "" : text($docname) ?>&nbsp;
   </td>
   <td>
-                <?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))) ?>&nbsp;
+                <?php echo text(oeFormatShortDate(substr((string) $row['date'], 0, 10))) ?>&nbsp;
   </td>
   <td>
                 <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>&nbsp;

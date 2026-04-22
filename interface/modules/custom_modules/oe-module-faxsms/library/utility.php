@@ -5,7 +5,7 @@
  * Borrowed from new.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,38 +16,30 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 /* Modify the static create patient */
 $job_id = (($_REQUEST['jobId'] ?? null));
 $search = (($_REQUEST['pop_add_chart'] ?? null)) == 1;
 $data = json_decode(($_REQUEST['data'] ?? ''), true);
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array(OEGlobalsBag::getInstance()->get('full_new_patient_form'), ['2', '3', '4']));
 $title = xlt('Create Patient');
 if ($search) {
     $title = xlt('Copy Fax to Patient');
 }
 
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-        ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-        "ORDER BY group_id, seq");
-}
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_create'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $clientApp = AppDispatch::getApiService('fax');
 
     if (!empty($_POST["pubpid"])) {
-        $form_pubpid = trim($_POST["pubpid"]);
+        $form_pubpid = trim((string) $_POST["pubpid"]);
         $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-            "pubpid = ?", array($form_pubpid));
+            "pubpid = ?", [$form_pubpid]);
         if ($result['count']) {
             unset($_POST['form_create']);
             require_once("./utility.php");
@@ -63,17 +55,13 @@ if ($_POST['form_create'] ?? null) {
     if ($pid == null) {
         $pid = 0;
     }
-    if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-        $mypubpid = $_POST["pubpid"] ?? '';
-    } else {
-        $mypubpid = $pid;
-    }
+    $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));
     $form_lname = ucwords(trim($_POST["lname"] ?? ''));
     $form_mname = ucwords(trim($_POST["mname"] ?? ''));
     $form_sex = trim($_POST["sex"] ?? '');
-    $form_dob = DateToYYYYMMDD(trim($_POST["DOB"] ?? null));
+    $form_dob = DateToYYYYMMDD(trim((string) ($_POST["DOB"] ?? null)));
     $form_street = '';
     $form_city = '';
     $form_postcode = '';
@@ -150,26 +138,20 @@ if ($_POST['form_create'] ?? null) {
     }
 }
 
-function getLayoutUOR($form_id, $field_id)
-{
-    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", array($form_id, $field_id));
-    return 0 + $crow['uor'];
-}
 if (empty($_POST) && !empty($data)) {
     $_POST = $data;
     unset($data);
 }
-$form_pubpid = $_POST['pubpid'] ?? '' ? trim($_POST['pubpid']) : '';
-$form_title = $_POST['title'] ?? '' ? trim($_POST['title']) : '';
-$form_fname = $_POST['fname'] ?? '' ? trim($_POST['fname']) : '';
-$form_mname = $_POST['mname'] ?? '' ? trim($_POST['mname']) : '';
-$form_lname = $_POST['lname'] ?? '' ? trim($_POST['lname']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_sex = $_POST['sex'] ?? '' ? trim($_POST['sex']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_dob = $_POST['DOB'] ?? '' ? trim($_POST['DOB']) : '';
-$form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d');
+$form_pubpid = $_POST['pubpid'] ?? '' ? trim((string) $_POST['pubpid']) : '';
+$form_title = $_POST['title'] ?? '' ? trim((string) $_POST['title']) : '';
+$form_fname = $_POST['fname'] ?? '' ? trim((string) $_POST['fname']) : '';
+$form_mname = $_POST['mname'] ?? '' ? trim((string) $_POST['mname']) : '';
+$form_lname = $_POST['lname'] ?? '' ? trim((string) $_POST['lname']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_sex = $_POST['sex'] ?? '' ? trim((string) $_POST['sex']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_dob = $_POST['DOB'] ?? '' ? trim((string) $_POST['DOB']) : '';
+$form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : date('Y-m-d');
 
 ?>
 <!DOCTYPE html>
@@ -177,7 +159,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
 <head>
     <?php
     Header::setupHeader(['datetime-picker', 'opener']);
-    include_once($GLOBALS['srcdir'] . "/options.js.php");
+    include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php");
     ?>
 
     <script>
@@ -208,14 +190,14 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -231,7 +213,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                     return false;
                 }
                 const f = document.forms[0];
-                let url = <?php echo js_escape($GLOBALS['web_root'] . '/interface/new/new_search_popup.php'); ?>;
+                let url = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root') . '/interface/new/new_search_popup.php'); ?>;
                 let flds = ['fname', 'mname', 'lname', 'DOB'];
                 let separator = '?';
                 for (let i = 0; i < flds.length; ++i) {
@@ -249,12 +231,12 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
 
             function searchme() {
                 var f = document.forms[0];
-                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
                 <?php
-                $lres = getLayoutRes();
+                $lres = getLayoutRes($SHORT_FORM);
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with((string) $field_id, 'em_')) {
                         continue;
                     }
                     $data_type = $lrow['data_type'];
@@ -322,7 +304,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
     <div class="container-fluid">
         <div class='title'><?php echo $title; ?></div>
         <form class="form" name='new_patient' method='post' action="" onsubmit='return validate()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" id="form_create" name="form_create" value="" />
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
             <div class="form-group col">

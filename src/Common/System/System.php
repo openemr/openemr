@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Common\System;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Handles any commands dealing with the operating system.
  */
@@ -23,11 +25,11 @@ class System
 
         $process = proc_open(
             "$whereIsCommand $exec_command",
-            array(
-            0 => array("pipe", "r"), //STDIN
-            1 => array("pipe", "w"), //STDOUT
-            2 => array("pipe", "w"), //STDERR
-            ),
+            [
+            0 => ["pipe", "r"], //STDIN
+            1 => ["pipe", "w"], //STDOUT
+            2 => ["pipe", "w"], //STDERR
+            ],
             $pipes
         );
         if ($process !== false) {
@@ -57,9 +59,9 @@ class System
         $phandle = false;
         if (IS_WINDOWS) {
             $redirect_errors = " > " .
-                $this->escapeshellcmd($GLOBALS['temporary_files_dir'] .
+                $this->escapeshellcmd(OEGlobalsBag::getInstance()->getString('temporary_files_dir') .
                     "/oe-system-start_server.log") . " 2>&1";
-            $cmd = $cmd . $redirect_errors;
+            $cmd .= $redirect_errors;
             $phandle = popen("start /B " . $cmd, "r");
             if ($phandle === false) {
                 error_log("Failed to start local CQM");

@@ -2,7 +2,7 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     omegasystemsgroup.com
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
@@ -12,8 +12,9 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -32,7 +33,7 @@ $task = $_REQUEST['key'] ?? $_POST['key'] ?? '';
 if ($task == 'downloadStatusLog') {
     try {
         $result = downloadWenoLogCsvAndZip();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $result = false;
         $wenoLog->insertWenoLog("log download", text($e->getMessage()));
         error_log('Error downloading log: ' . errorLogEscape($e->getMessage()));
@@ -52,7 +53,7 @@ if ($task == 'downloadStatusLog') {
 // Check if the task is to sync the log
 try {
     $result = $logProperties->logSync($task);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $result = false;
     $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
     error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));
@@ -111,7 +112,7 @@ function downloadWenoLogCsvAndZip()
     $csvFilePath = $tempDir . DIRECTORY_SEPARATOR . $csvFileName;
     $zipFileName = 'weno_support_debug.zip';
     $zipFilePath = $tempDir . DIRECTORY_SEPARATOR . $zipFileName;
-    $wenoDirectory = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+    $wenoDirectory = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
     // Create CSV of log content to temporary file
     $csvFile = fopen($csvFilePath, 'w');
@@ -141,10 +142,10 @@ function downloadWenoLogCsvAndZip()
         RecursiveIteratorIterator::LEAVES_ONLY
     );
 
-    foreach ($files as $name => $file) {
+    foreach ($files as $file) {
         if (!$file->isDir()) {
             $filePath = $file->getRealPath();
-            $relativePath = basename($filePath);
+            $relativePath = basename((string) $filePath);
             $zip->addFile($filePath, $relativePath);
         }
     }

@@ -4,7 +4,7 @@
  * Custom Password Grant
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
-use DateInterval;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -20,22 +19,24 @@ use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
-use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    public function __construct(
+        private readonly SessionInterface $session,
+        UserRepositoryInterface $userRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        ?LoggerInterface $logger = null,
+    )
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         parent::__construct($userRepository, $refreshTokenRepository);
     }
 
@@ -99,10 +100,11 @@ class CustomPasswordGrant extends PasswordGrant
             );
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
-        $_SESSION['pass_user_id'] = $user->getIdentifier();
-        $_SESSION['pass_username'] = $username;
-        $_SESSION['pass_user_role'] = $userrole;
-        $_SESSION['pass_user_email'] = $email;
+
+        $this->session->set('pass_user_id', $user->getIdentifier());
+        $this->session->set('pass_username', $username);
+        $this->session->set('pass_user_role', $userrole);
+        $this->session->set('pass_user_email', $email);
 
         return $user;
     }
@@ -111,12 +113,12 @@ class CustomPasswordGrant extends PasswordGrant
     {
         $client = parent::validateClient($request);
         if (!($client instanceof ClientEntity)) {
-            $this->logger->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            $this->logger->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
 
         if (!$client->isEnabled()) {
-            $this->logger->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            $this->logger->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
         return $client;

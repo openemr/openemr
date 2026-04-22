@@ -1,0 +1,101 @@
+# Validates that TableTypes.php PHPStan type definitions match database.sql
+#
+# This workflow ensures that changes to database schema (sql/database.sql)
+# are reflected in the generated PHPStan type aliases. If this check fails,
+# regenerate TableTypes.php using the command shown in the job summary.
+name: PHPStan Types
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - sql/database.sql
+    - interface/forms/CAMOS/table.sql
+    - src/Common/Database/TableTypes.php
+    - src/Common/Command/GeneratePhpstanTypesCommand.php
+    - bin/generate-phpstan-types.php
+    - .github/workflows/phpstan-types.yml
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - sql/database.sql
+    - interface/forms/CAMOS/table.sql
+    - src/Common/Database/TableTypes.php
+    - src/Common/Command/GeneratePhpstanTypesCommand.php
+    - bin/generate-phpstan-types.php
+    - .github/workflows/phpstan-types.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check-phpstan-types:
+    name: Check TableTypes.php is up-to-date
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.2'
+
+    - name: Regenerate TableTypes.php
+      run: |
+        # Generate types from database.sql
+        php bin/generate-phpstan-types.php sql/database.sql \
+          patient_data users form_encounter insurance_data billing \
+          background_services forms form_vitals layout_options \
+          > src/Common/Database/TableTypes.php
+
+        # Append CAMOS form types (tables defined in form-specific SQL, not database.sql)
+        php bin/generate-phpstan-types.php interface/forms/CAMOS/table.sql \
+          form_CAMOS form_CAMOS_category form_CAMOS_subcategory form_CAMOS_item \
+          | awk '/^ \* @phpstan-type/,/^ \*\//{if(/^ \*\//) next; print}' \
+          > /tmp/camos-types.txt
+
+        # Insert CAMOS types before the closing */ of the interface docblock
+        python3 -c "
+        from pathlib import Path
+        f = Path('src/Common/Database/TableTypes.php')
+        content = f.read_text()
+        block = Path('/tmp/camos-types.txt').read_text().rstrip()
+        marker = ' */\ninterface TableTypes'
+        if marker not in content:
+            raise SystemExit('Marker for inserting CAMOS types not found in TableTypes.php; aborting.')
+        content = content.replace(marker, ' *\n' + block + '\n */\ninterface TableTypes')
+        f.write_text(content)
+        "
+
+    - name: Check for differences
+      run: |
+        if ! git diff --exit-code src/Common/Database/TableTypes.php; then
+          {
+            echo "## ❌ TableTypes.php is out of date"
+            echo ""
+            echo "The generated PHPStan types do not match the database schema."
+            echo ""
+            echo "### How to fix"
+            echo ""
+            echo "See the generation steps in \`.github/workflows/phpstan-types.yml\`"
+            echo "or run \`workflow_dispatch\` to regenerate."
+            echo ""
+            echo "### What changed"
+            echo ""
+            echo "\`\`\`diff"
+            git diff src/Common/Database/TableTypes.php
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+        echo "## ✅ TableTypes.php is up-to-date" >> "$GITHUB_STEP_SUMMARY"

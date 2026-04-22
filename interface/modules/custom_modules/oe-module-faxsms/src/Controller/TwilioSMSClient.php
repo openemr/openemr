@@ -4,7 +4,7 @@
  * Twilio Fax SMS Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,8 +13,9 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
-use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
 use Twilio\Rest\Client;
 
@@ -24,7 +25,7 @@ class TwilioSMSClient extends AppDispatch
     public $uriDir;
     public $serverUrl;
     public $credentials;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private $sid;
     private $appKey;
     private $appSecret;
@@ -39,12 +40,12 @@ class TwilioSMSClient extends AppDispatch
 
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
-        $this->crypto = new CryptoGen();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->crypto = ServiceContainer::getCrypto();
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+        $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
         parent::__construct();
     }
@@ -64,7 +65,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
-        return $this->_getPending($uiDateRangeFlag);
+        return $this->_getPending();
     }
 
     /**
@@ -72,7 +73,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
         $this->accountSID = $credentials['username'] ?? '';
         $this->authToken = $credentials['password'] ?? '';
         $this->sid = $credentials['username'] ?? '';
@@ -90,42 +91,22 @@ class TwilioSMSClient extends AppDispatch
         $from = $from ?: $this->getRequest('from');
         $message = $message ?: $this->getRequest('comments');
 
-        if (empty($from)) {
-            $from = $this->formatPhone($this->credentials['smsNumber']);
-        } else {
-            $from = $this->formatPhone($from);
-        }
+        $from = empty($from) ? $this->formatPhone($this->credentials['smsNumber']) : $this->formatPhone($from);
         $toPhone = $this->formatPhone($toPhone);
         try {
             $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
             $message = $twilio->messages->create(
                 $toPhone,
-                array(
+                [
                     "body" => text($message),
                     "from" => attr($from)
-                )
+                ]
             );
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return text('Error: ' . $message);
         }
         return text($message->sid);
-    }
-
-    /**
-     * @return string
-     */
-
-    public function formatPhone($number): string
-    {
-        // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } else {
-            $n = '+1' . $n;
-        }
-        return $n;
     }
 
     /**
@@ -141,7 +122,7 @@ class TwilioSMSClient extends AppDispatch
         if (!$this->sid || !$this->authToken) {
             return 0;
         }
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 
@@ -160,8 +141,8 @@ class TwilioSMSClient extends AppDispatch
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01Z';
             $timeTo = 'T23:59:59Z';
-            $dateFrom = trim($dateFrom) . $timeFrom;
-            $dateTo = trim($dateTo) . $timeTo;
+            $dateFrom = trim((string) $dateFrom) . $timeFrom;
+            $dateTo = trim((string) $dateTo) . $timeTo;
 
             try {
                 $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
@@ -169,10 +150,10 @@ class TwilioSMSClient extends AppDispatch
                     "dateSentAfter" => $dateFrom,
                     "dateSentBefore" => $dateTo
                 ], 100);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $message = $e->getMessage();
-                $emsg = xlt('Ensure account credentials are correct.');
-                return json_encode(array('error' => $message . " : " . $emsg));
+                $emsg = xlt('Report to Administration');
+                return json_encode(['error' => $message . " : " . $emsg]);
             }
 
             $responseMsgs = [];
@@ -208,10 +189,10 @@ class TwilioSMSClient extends AppDispatch
                     $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
-            $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
-            echo json_encode(array('error' => $responseMsgs));
+            $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
+            echo json_encode(['error' => $responseMsgs]);
             exit();
         }
         if (empty($responseMsgs)) {
@@ -228,13 +209,13 @@ class TwilioSMSClient extends AppDispatch
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
-        $result = sqlStatement($query, array($id));
-        $u = array();
+        $result = sqlStatement($query, [$id]);
+        $u = [];
         foreach ($result as $row) {
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility']);
+        $r = [$u['fname'], $u['lname'], $u['fax'], $u['facility']];
 
         return json_encode($r);
     }
@@ -250,8 +231,8 @@ class TwilioSMSClient extends AppDispatch
 
         try {
             $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
-            $res = sqlStatement($query, array($fromDate, $toDate));
-            $row = array();
+            $res = sqlStatement($query, [$fromDate, $toDate]);
+            $row = [];
             $cnt = 0;
             while ($nrow = sqlFetchArray($res)) {
                 $row[] = $nrow;
@@ -265,7 +246,7 @@ class TwilioSMSClient extends AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return 'Error: ' . text($message) . PHP_EOL;
         }
@@ -302,7 +283,7 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendFax(): string|bool
     {
-        // TODO: Implement sendFax() method.
+        return false;
     }
 
     /**
@@ -318,6 +299,6 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendEmail(): mixed
     {
-        // TODO: Implement sendEmail() method.
+        return false;
     }
 }

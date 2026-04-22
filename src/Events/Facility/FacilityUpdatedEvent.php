@@ -4,7 +4,7 @@
  * FacilityUpdatedEvent
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2020 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,18 +22,13 @@ class FacilityUpdatedEvent extends Event
      */
     const EVENT_HANDLE = 'facility.updated';
 
-    private $dataBeforeUpdate;
-    private $newFacilityData;
-
     /**
      * FacilityUpdatedEvent constructor.
      * @param $dataBeforeUpdate
      * @param $newFacilityData
      */
-    public function __construct($dataBeforeUpdate, $newFacilityData)
+    public function __construct(private $dataBeforeUpdate, private $newFacilityData)
     {
-        $this->dataBeforeUpdate = $dataBeforeUpdate;
-        $this->newFacilityData = $newFacilityData;
     }
 
     /**

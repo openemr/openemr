@@ -12,24 +12,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Collect passed variable(s)
 //  $table is the sql table (or form name if LBF)
 //  $name identifies the desired data item
 //  $title is used as the title of the graph
-$table = trim($_POST['table']);
-$name = trim($_POST['name']);
-$title = trim($_POST['title']);
+$table = trim((string) $_POST['table']);
+$name = trim((string) $_POST['name']);
+$title = trim((string) $_POST['title']);
 
-$is_lbf = substr($table, 0, 3) === 'LBF';
+$is_lbf = str_starts_with($table, 'LBF');
 
 // acl checks here
 //  For now, only allow access for med aco.
@@ -71,9 +71,11 @@ function graphsGetValues($name)
     global $is_lbf, $pid, $table;
     if ($is_lbf) {
         // Like below, but for LBF data.
+        // Use a fixed alias to keep user input out of the SQL structure.
+        // The result column is read via graphsGetValueKey().
         $values = sqlStatement(
             "SELECT " .
-            "ld.field_value AS " . add_escape_custom($name) . ", " .
+            "ld.field_value, " .
             // If data was entered retroactively then cannot use the data entry date.
             "IF (LEFT(f.date, 10) = LEFT(fe.date, 10), f.date, fe.date) AS date " .
             "FROM forms AS f, form_encounter AS fe, lbf_data AS ld WHERE " .
@@ -85,18 +87,18 @@ function graphsGetValues($name)
             "ld.field_id = ? AND " .
             "ld.field_value != '0' " .
             "ORDER BY date",
-            array($pid, $table, $name)
+            [$pid, $table, $name]
         );
     } else {
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
-        $values = SqlStatement("SELECT " .
-            escape_sql_column_name($name, array($table)) . ", " .
+        $values = sqlStatement("SELECT " .
+            escape_sql_column_name($name, [$table]) . ", " .
         "date " .
         "FROM " . escape_table_name($table) . " " .
-        "WHERE " . escape_sql_column_name($name, array($table)) . " != 0 " .
-        "AND pid = ? ORDER BY date", array($pid));
+        "WHERE " . escape_sql_column_name($name, [$table]) . " != 0 " .
+        "AND pid = ? ORDER BY date", [$pid]);
     }
 
     return $values;
@@ -198,11 +200,7 @@ if ($is_lbf) {
     if ($name == "bp_systolic" || $name == "bp_diastolic") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bp_systolic") {
-            $name_alt = "bp_diastolic";
-        } else {
-            $name_alt = "bp_systolic";
-        }
+        $name_alt = $name == "bp_systolic" ? "bp_diastolic" : "bp_systolic";
 
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
@@ -225,19 +223,20 @@ if ($is_lbf) {
 }
 
 // Prepare data
-$data = array();
+$data = [];
+$valueKey = $is_lbf ? 'field_value' : $name;
 while ($row = sqlFetchArray($values)) {
-    if ($row["$name"]) {
+    if ($row[$valueKey]) {
         $x = $row['date'];
         if ($multiplier ?? null) {
             // apply unit conversion multiplier
-            $y = $row["$name"] * $multiplier;
+            $y = $row[$valueKey] * $multiplier;
         } elseif ($isConvertFtoC ?? null) {
             // apply temp F to C conversion
-            $y = convertFtoC($row["$name"]);
+            $y = convertFtoC($row[$valueKey]);
         } else {
            // no conversion, so use raw value
-            $y = $row["$name"];
+            $y = $row[$valueKey];
         }
 
         $data[$x][$name] = $y;
@@ -246,18 +245,19 @@ while ($row = sqlFetchArray($values)) {
 
 if ($isBP) {
   //set up the other blood pressure line
+    $valueKeyAlt = $is_lbf ? 'field_value' : $name_alt;
     while ($row = sqlFetchArray($values_alt)) {
-        if ($row["$name_alt"]) {
+        if ($row[$valueKeyAlt]) {
             $x = $row['date'];
             if ($multiplier ?? null) {
                 // apply unit conversion multiplier
-                $y = $row["$name_alt"] * $multiplier;
+                $y = $row[$valueKeyAlt] * $multiplier;
             } elseif ($isConvertFtoC ?? null) {
                 // apply temp F to C conversion
-                $y = convertFtoC($row["$name_alt"]);
+                $y = convertFtoC($row[$valueKeyAlt]);
             } else {
                // no conversion, so use raw value
-                $y = $row["$name_alt"];
+                $y = $row[$valueKeyAlt];
             }
 
             $data[$x][$name_alt] = $y;
@@ -283,10 +283,11 @@ foreach ($data as $date => $value) {
 }
 
 // Build and send back the json
-$graph_build = array();
+$graph_build = [];
 $graph_build['data_final'] = $data_final;
 $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
+header('Content-Type: application/json');
 echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);

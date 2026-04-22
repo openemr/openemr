@@ -1,4 +1,5 @@
 <?php
+
 /*
  * phpGACL - Generic Access Control List
  * Copyright (C) 2002 Mike Benoit
@@ -30,31 +31,29 @@
 
 
 // Include standard libraries/classes
-require_once(dirname(__FILE__).'/../../vendor/autoload.php');
+require_once(__DIR__.'/../../vendor/autoload.php');
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Gacl\GaclAdminApi;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
-#	$config_file = '../gacl.ini.php';
-	$config_file = dirname(__FILE__).'/../gacl.ini.php';
+#   $config_file = '../gacl.ini.php';
+    $config_file = __DIR__.'/../gacl.ini.php';
 }
 
 //Values supplied in $gacl_options array overwrite those in the config file.
 if ( file_exists($config_file) ) {
-	$config = parse_ini_file($config_file);
+    $config = parse_ini_file($config_file);
 
-	if ( is_array($config) ) {
-		if ( isset($gacl_options) ) {
-			$gacl_options = array_merge($config, $gacl_options);
-		} else {
-			$gacl_options = $config;
-		}
-	}
-	unset($config);
+    if ( is_array($config) ) {
+        $gacl_options = isset($gacl_options) ? array_merge($config, $gacl_options) : $config;
+    }
+    unset($config);
 }
 
-$gacl_api = new GaclAdminApi($gacl_options);
+/** @var array<string, mixed>|null $gacl_options */
+$gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
 $gacl = &$gacl_api;
 
@@ -62,8 +61,8 @@ $db = &$gacl->db;
 
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
-$smarty->setTemplateDir($gacl_options['smarty_template_dir']);
-$smarty->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl');
+$smarty->setTemplateDir($gacl_options['smarty_template_dir'] ?? '');
+$smarty->setCompileDir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/gacl');
 
 /*
  * Email address used in setup.php, please do not change.

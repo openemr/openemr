@@ -16,16 +16,18 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
-
 
 /**
  * Class ThumbnailGenerator
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 class ThumbnailGenerator
 {
-    public static $types_support = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif');
+    public static $types_support = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     private $thumb_obj = null;
     private $couch_obj = null;
 
@@ -34,7 +36,7 @@ class ThumbnailGenerator
      */
     public function __construct()
     {
-        $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
+        $thumb_size = (OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') : null;
         $this->thumb_obj = new Thumbnail($thumb_size);
     }
 
@@ -68,7 +70,7 @@ class ThumbnailGenerator
     public function generate_all()
     {
 
-        $feedback = array('sum_success' => 0, 'sum_failed' => 0, 'success' => array(), 'failed' => array());
+        $feedback = ['sum_success' => 0, 'sum_failed' => 0, 'success' => [], 'failed' => []];
 
         $sql = "SELECT id, url, couch_docid, storagemethod, path_depth FROM documents
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
@@ -95,7 +97,7 @@ class ThumbnailGenerator
             }
 
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
-            $update = sqlStatement($sql, array($new_file, $row['id']));
+            $update = sqlStatement($sql, [$new_file, $row['id']]);
             if ($update) {
                 $feedback['sum_success']++;
                 $feedback['success'][] = $row['url'];
@@ -113,7 +115,7 @@ class ThumbnailGenerator
     private function generate_HD_file($url, $path_depth)
     {
         //remove 'file://'
-        $url = preg_replace("|^(.*)://|", "", $url);
+        $url = preg_replace("|^(.*)://|", "", (string) $url);
 
         //change full path to current webroot.  this is for documents that may have
         //been moved from a different filesystem and the full path in the database
@@ -124,9 +126,9 @@ class ThumbnailGenerator
         //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
         // etc.
         // NOTE that $from_filename and basename($url) are the same thing
-        $from_all = explode("/", $url);
+        $from_all = explode("/", (string) $url);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
+        $from_pathname_array = [];
         for ($i = 0; $i < $path_depth; $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
@@ -134,7 +136,7 @@ class ThumbnailGenerator
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
 
-        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        $temp_url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $from_filename;
 
         if (file_exists($temp_url)) {
             $url = $temp_url;
@@ -174,7 +176,7 @@ class ThumbnailGenerator
             return false;
         }
 
-        $resource = $this->thumb_obj->create_thumbnail(null, base64_decode($resp->data));
+        $resource = $this->thumb_obj->create_thumbnail(null, base64_decode((string) $resp->data));
         if (!$resource) {
             return false;
         }

@@ -1,47 +1,43 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 require_once("gacl_admin.inc.php");
 
 //GET takes precedence.
-if (!empty($_GET['object_type'])) {
-	$object_type = $_GET['object_type'];
-} else {
-	$object_type = $_POST['object_type'];
-}
+$object_type = !empty($_GET['object_type']) ? $_GET['object_type'] : $_POST['object_type'];
 
-switch(strtolower(trim($object_type))) {
+switch(strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
-	$object_table = $gacl_api->_db_table_prefix . 'aco';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
+        $object_table = $gacl_api->_db_table_prefix . 'aco';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
         break;
     case 'aro':
         $object_type = 'aro';
-	$object_table = $gacl_api->_db_table_prefix . 'aro';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
+        $object_table = $gacl_api->_db_table_prefix . 'aro';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
         break;
     case 'axo':
         $object_type = 'axo';
-	$object_table = $gacl_api->_db_table_prefix . 'axo';
-		$object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
+        $object_table = $gacl_api->_db_table_prefix . 'axo';
+        $object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
         break;
     default:
         echo "ERROR: Must select an object type<br />\n";
@@ -69,7 +65,7 @@ switch ($postAction) {
         //Update objects
         if (!empty($_POST['objects'])) {
             foreach ($_POST['objects'] as $row) {
-                list($id, $value, $order, $name) = $row;
+                [$id, $value, $order, $name] = $row;
                 $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
@@ -81,7 +77,7 @@ switch ($postAction) {
 
         //Insert new sections
         foreach ($_POST['new_objects'] as $row) {
-            list($value, $order, $name) = $row;
+            [$value, $order, $name] = $row;
 
             if (!empty($value) AND !empty($name)) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
@@ -109,25 +105,25 @@ switch ($postAction) {
         $rows = $rs->GetRows();
 
         foreach ($rows as $row) {
-            list($id, $section_value, $value, $order_value, $name) = $row;
+            [$id, $section_value, $value, $order_value, $name] = $row;
 
-                $objects[] = array(
+                $objects[] = [
                                                 'id' => $id,
                                                 'section_value' => $section_value,
                                                 'value' => $value,
                                                 'order' => $order_value,
                                                 'name' => $name
-                                            );
+                                            ];
         }
 
         for($i=0; $i < 5; $i++) {
-                $new_objects[] = array(
+                $new_objects[] = [
                                                 'id' => $i,
                                                 'section_value' => NULL,
                                                 'value' => NULL,
                                                 'order' => NULL,
                                                 'name' => NULL
-                                            );
+                                            ];
         }
 
         $smarty->assign('objects', ($objects ?? null));
@@ -154,7 +150,7 @@ $smarty->assign('page_title', 'Edit '. strtoupper($object_type) .' Objects');
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
 $smarty->display('phpgacl/edit_objects.tpl');
 ?>

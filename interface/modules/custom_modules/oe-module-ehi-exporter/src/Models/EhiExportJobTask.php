@@ -5,7 +5,7 @@
  * handle the retrieval of the foreign key values for a table as well as the local key values.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -22,10 +22,10 @@ class EhiExportJobTask
 
     public ?\Document $document;
 
-    public ?int $ehi_task_id;
-    public ?int $ehi_export_job_id;
+    public ?int $ehi_task_id = null;
+    public ?int $ehi_export_job_id = null;
     public string $creation_date;
-    public ?string $completion_date;
+    public ?string $completion_date = null;
 
     /**
      * @var "pending"|"processing"|"failed"|"completed"
@@ -86,7 +86,7 @@ class EhiExportJobTask
     }
     public function addPatientIdList(array $pids)
     {
-        $this->pids = array_map('intval', $pids); // make sure we don't get invalid pids here
+        $this->pids = array_map(intval(...), $pids); // make sure we don't get invalid pids here
     }
     public function getPatientIds()
     {

@@ -5,6 +5,7 @@ namespace OpenEMR\Validators;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -18,7 +19,7 @@ use Particle\Validator\Validator;
  * Supports Insurance Coverage Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
@@ -40,7 +41,7 @@ class CoverageValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid & type are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
         array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT);
@@ -49,14 +50,14 @@ class CoverageValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 if (!$context instanceof OpenEMRParticleValidator) {
                     throw new \RuntimeException("CoverageValidator requires an instance of OpenEMRParticleValidator");
                 }
                 $context->required('pid')->numeric();
-                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required('type')->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value) {
-                        if ($GLOBALS['insurance_only_one']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
                             if ($value !== 'primary') {
                                 throw new InvalidValueException("only primary insurance allowed with insurance_only_one global setting enabled", "INSURANCE_ONLY_ONE::INVALID_INSURANCE_TYPE");
                             }
@@ -146,8 +147,8 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_street')->lengthBetween(2, 255);
                 $context->required('subscriber_postal_code')->lengthBetween(2, 255);
                 $context->required('subscriber_city')->lengthBetween(2, 255);
-                $context->required('subscriber_state')->listOption($GLOBALS['state_list']);
-                $context->optional('subscriber_country')->listOption($GLOBALS['country_list']);
+                $context->required('subscriber_state')->listOption(OEGlobalsBag::getInstance()->getString('state_list'));
+                $context->optional('subscriber_country')->listOption(OEGlobalsBag::getInstance()->getString('country_list'));
                 $context->optional('subscriber_phone')->lengthBetween(2, 255);
                 $context->required('subscriber_sex')->listOption('sex');
                 $context->required('accept_assignment')->inArray(['TRUE', 'FALSE']);
@@ -156,8 +157,8 @@ class CoverageValidator extends BaseValidator
                 $context->optional('subscriber_employer')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_street')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_postal_code')->lengthBetween(2, 255);
-                $context->optional('subscriber_employer_state')->listOption($GLOBALS['state_list']);
-                $context->optional('subscriber_employer_country')->listOption($GLOBALS['country_list']);
+                $context->optional('subscriber_employer_state')->listOption(OEGlobalsBag::getInstance()->getString('state_list'));
+                $context->optional('subscriber_employer_country')->listOption(OEGlobalsBag::getInstance()->getString('country_list'));
                 $context->optional('subscriber_employer_city')->lengthBetween(2, 255);
                 $context->optional('copay')->lengthBetween(2, 255);
                 $context->required('date')->datetime('Y-m-d')
@@ -194,7 +195,7 @@ class CoverageValidator extends BaseValidator
                                     throw new InvalidValueException("A current policy (no end date) already exists for this patient and type.", "Record::DUPLICATE_CURRENT_POLICY");
                                 }
                             }
-                            if (!empty($values['date_end']) && strtotime($values['date']) > strtotime($values['date_end'])) {
+                            if (!empty($values['date_end']) && strtotime((string) $values['date']) > strtotime((string) $values['date_end'])) {
                                 throw new InvalidValueException("Start date cannot be after end date", "DateTime::INVALID_START_DATE");
                             }
                         }
@@ -208,23 +209,19 @@ class CoverageValidator extends BaseValidator
                             }
                         }
                         return false;
-                    }, null, true)
+                    })
                     ->datetime('Y-m-d')
-                    ->callback(function ($value, $values) {
-
-
-                        return true;
-                    });
+                    ->callback(fn($value, $values): true => true);
             }
         );
 
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
+                    function ($rules): void {
                         foreach ($rules as $key => $chain) {
                             if ($key !== 'type') {
                                 $chain->required(false);
@@ -233,20 +230,16 @@ class CoverageValidator extends BaseValidator
                     }
                 );
                 // additional uuid validation
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
             }
         );
 
         $this->validator->context(
             self::DATABASE_SWAP_CONTEXT,
-            function (Validator $context) {
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+            function (Validator $context): void {
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
                 $context->required("pid", "Patient ID")->numeric();
-                $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required("type", "Coverage Type")->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value, $values) {
                         if (empty($values['uuid']) && empty($values['pid'])) {
                             return true; // nothing to do here if we don't have a uuid or pid, so don't run the check and let other failures happen

@@ -2,19 +2,16 @@
 
 namespace OpenEMR\Tests\Api;
 
-use OpenEMR\RestControllers\AuthorizationController;
-use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Capability FHIR Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class SmartConfigurationTest extends TestCase
 {
@@ -48,19 +45,13 @@ class SmartConfigurationTest extends TestCase
         $this->testClient->cleanupClient();
     }
 
-    /**
-     * @covers ::get with an invalid path
-     */
-    public function testInvalidPathGet()
+    public function testInvalidPathGet(): void
     {
         $actualResponse = $this->testClient->get(self::SMART_CONFIG_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
     }
 
-    /**
-     * @covers ::get
-     */
-    public function testGet()
+    public function testGet(): void
     {
         $actualResponse = $this->testClient->get(self::SMART_CONFIG_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());

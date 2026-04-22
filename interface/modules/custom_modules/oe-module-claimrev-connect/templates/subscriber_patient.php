@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -14,7 +14,7 @@
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"><?php echo xlt("Subscriber/Patient Information"); ?></h5>
-        <div class="row"> 
+        <div class="row">
             <div class="col">
                 <strong><?php echo xlt("Name"); ?></strong>
             </div>
@@ -29,5 +29,5 @@
             </div>
         </div>
     </div>
-        
+
 </div>

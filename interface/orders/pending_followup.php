@@ -4,7 +4,7 @@
  * pending followup
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
@@ -16,20 +16,29 @@ require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Pending Followup from Results", xl("Pending Followup from Results"));
 }
 
 $facilityService = new FacilityService();
 
-function thisLineItem($row, $codetype, $code)
+/**
+ * Render a line item for the pending follow-up html table.
+ *
+ * @param array $row
+ * @param string $codetype
+ * @param string $code
+ * @return void
+ */
+function pendingFollowupLineItem(array $row, string $codetype, string $code): void
 {
     global $code_types;
 
@@ -43,7 +52,7 @@ function thisLineItem($row, $codetype, $code)
 
     $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
     "code_type = ? AND " .
-    "code = ? LIMIT 1", array($code_types[$codetype]['id'], $code));
+    "code = ? LIMIT 1", [$code_types[$codetype]['id'], $code]);
     $code_text = $crow['code_text'];
 
     if ($_POST['form_csvexport']) {
@@ -73,10 +82,9 @@ $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -110,7 +118,7 @@ if ($_POST['form_csvexport']) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -124,7 +132,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -187,11 +195,9 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
@@ -231,13 +237,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
             "FROM billing AS b, form_encounter AS fe WHERE " .
@@ -246,14 +252,14 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "b.code = ? AND " .
             "b.activity = 1 AND " .
             "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered . ' 00:00:00'));
+            "fe.date >= ?", [$patient_id, $codetype, $code, $date_ordered . ' 00:00:00']);
 
             // If there was such a service, then this followup is not pending.
             if (!empty($brow['count'])) {
                 continue;
             }
 
-            thisLineItem($row, $codetype, $code);
+            pendingFollowupLineItem($row, $codetype, $code);
         }
     }
 } // end report generation

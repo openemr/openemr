@@ -4,7 +4,7 @@
  * SmartLaunchToken represents the opaque SMART 'launch' context values that are used to send the EHR session context
  * to the app which the app then hands back to the oauth2 authorization server.
  * @package OpenEMR\FHIR\SMART
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,9 +12,7 @@
 
 namespace OpenEMR\FHIR\SMART;
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\BC\ServiceContainer;
 
 class SMARTLaunchToken
 {
@@ -128,13 +126,18 @@ class SMARTLaunchToken
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
         // return to system
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
-        (new SystemLogger())->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
-        $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
-        return $launchParams;
+        ServiceContainer::getLogger()->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
+        $launchParams = $cryptoGen->encryptStandard($jsonEncoded !== false ? $jsonEncoded : null);
+        return base64_encode($launchParams); // make it URL safe
     }
 
+    /**
+     * @param $serialized
+     * @return self
+     * @throws \JsonException
+     */
     public static function deserializeToken($serialized): self
     {
         $token = new self();
@@ -142,17 +145,26 @@ class SMARTLaunchToken
         return $token;
     }
 
+    /**
+     * @param $serialized
+     * @return void
+     * @throws \JsonException
+     */
     public function deserialize($serialized)
     {
-        $cryptoGen = new CryptoGen();
-        $jsonEncoded = $cryptoGen->decryptStandard($serialized);
+        $cryptoGen = ServiceContainer::getCrypto();
+        $jsonEncrypted = base64_decode((string) $serialized);
+        if ($jsonEncrypted === false) {
+            throw new \InvalidArgumentException("serialized token is not valid base64");
+        }
+        $jsonEncoded = $cryptoGen->decryptStandard($jsonEncrypted);
         if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
         }
 
         // invalid json let it throw here
         $context = json_decode($jsonEncoded, true, 512, JSON_THROW_ON_ERROR);
-        (new SystemLogger())->debug(self::class . "->deserialize() Decoded context is ", $context);
+        ServiceContainer::getLogger()->debug(self::class . "->deserialize() Decoded context is ", $context);
         if (!empty($context['p'])) {
             $this->setPatient($context['p']);
         }

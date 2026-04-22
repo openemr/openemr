@@ -4,7 +4,7 @@
  * edit per-facility user information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>
@@ -15,15 +15,16 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit Facility Specific User Information")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit Facility Specific User Information", xl("Edit Facility Specific User Information"));
 }
 
 // Ensure variables exist
@@ -31,6 +32,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     die(xlt("Error"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <html>
@@ -45,7 +47,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         $(function() {
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -78,7 +80,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -88,7 +90,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -98,7 +100,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -108,7 +110,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -118,7 +120,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -128,7 +130,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -140,16 +142,16 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 <body>
     <?php
     // Collect user information
-    $user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));
+    $user_info = sqlQuery("select * from `users` WHERE `id` = ?", [$_GET["user_id"]]);
 
     // Collect facility information
-    $fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]));
+    $fac_info = sqlQuery("select * from `facility` where `id` = ?", [$_GET["fac_id"]]);
 
     // Collect layout information and store them in an array
     $l_res = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
         "ORDER BY group_id, seq");
-    $l_arr = array();
+    $l_arr = [];
     for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
         $l_arr[$i] = $row;
     }
@@ -165,7 +167,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         </div>
         <div class="row">
             <form name='form_facility_user' id='form_facility_user' method='post' action="facility_user.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type=hidden name=mode value="facility_user_id">
                 <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]); ?>">
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]); ?>">
@@ -195,8 +197,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                             <td style="width:270px;">
                                 <?php
                                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                    "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'], $fac_info['id'], $layout_entry['field_id']));
-                                echo generate_form_field($layout_entry, ($entry_data['field_value'] ?? ''));
+                                    "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", [$user_info['id'], $fac_info['id'], $layout_entry['field_id']]);
+                                generate_form_field($layout_entry, ($entry_data['field_value'] ?? ''));
                                 ?>
                             </td>
                         </tr>
@@ -217,7 +219,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         </div>
     </div>
     <!-- include support for the list-add selectbox feature -->
-    <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+    <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
 
     <script>
         <?php echo $date_init; ?>

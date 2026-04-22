@@ -14,17 +14,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
-
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 // block of code to securely support use by the patient portal
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($isPortal) {
     $ignoreAuth_onsite_portal = true;
@@ -32,7 +34,10 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
+// used for form generation utilities
+require_once("$srcdir/options.inc.php");
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -52,10 +57,11 @@ $isAdmin = true;
 $is_authorized = true;
 if (!AclMain::aclCheckForm($_GET["formname"])) {
     $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-    $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-    exit;
+    $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // General error trap. Echo and die.
 try {
@@ -73,7 +79,7 @@ try {
         if (empty($form)) {
             throw new RuntimeException("Can not find encounter form.");
         }
-        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', (int)$session->get('pid', 0));
         $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
         // if empty form will revert to the backup response stored with form.
         if (!empty($qr)) {
@@ -121,7 +127,7 @@ try {
     if ($questionnaire_form == 'New Questionnaire') {
         $q_list = $service->getQuestionnaireList(true);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $msg = "<p style='color: red; font-size: 1.25rem;'>" . xlt("Can not continue") . ": " . text($e->getMessage()) . "</p>";
     die($msg);
 }
@@ -131,8 +137,8 @@ $bottom_note = false;
 
 $loinc_text = "<span class='font-weight-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
 
-if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
-    switch ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
+if (OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) {
+    switch (OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) {
         case '0':
             $top_note = true;
             $bottom_note = false; // not really needed as this is the default!!
@@ -150,28 +156,20 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos((string)OEGlobalsBag::getInstance()->get('portal_css_header'), 'dark') !== false ? 'dark' : 'light';
 } else {
-    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos(OEGlobalsBag::getInstance()->getString('css_header'), 'dark') !== false ? 'dark' : 'light';
 }
 
-if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
+if ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 3) {
     $theme = 'light';
-} elseif (($GLOBALS['questionnaire_display_style'] ?? 0) == 4) {
+} elseif ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 4) {
     $theme = 'dark';
 }
 
 if ($isModule || $isDashboard || $isPortal) {
     $container = 'container-fluid';
-} elseif (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
+} elseif (OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')) {
     $container = 'container';
 } else {
     $container = 'container-fluid';
@@ -191,9 +189,9 @@ if ($isModule || $isDashboard || $isPortal) {
       }
     </style>
     <script>
-        let isPortal = <?php echo js_escape($isPortal); ?>;
-        let portalOther = <?php echo js_escape($patientPortalOther); ?>;
-        let allowCopyright = <?php echo js_escape(!(($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) == '3')); ?>;
+        let isPortal = <?php echo js_escape((int) $isPortal); ?>;
+        let portalOther = <?php echo js_escape((int) $patientPortalOther); ?>;
+        let allowCopyright = <?php echo js_escape((int) !((OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) == '3')); ?>;
         let formOptions = {
             "questionLayout": "vertical",
             "hideTreeLine": true,
@@ -211,7 +209,7 @@ if ($isModule || $isDashboard || $isPortal) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
@@ -469,7 +467,7 @@ if ($isModule || $isDashboard || $isPortal) {
             <?php die();
         } ?>
         <form class="form" method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid ?? ''); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
             <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
             <input type="hidden" id="response_id" name="response_id" value="<?php echo attr($form["response_id"] ?? ''); ?>" />
@@ -487,6 +485,10 @@ if ($isModule || $isDashboard || $isPortal) {
                 </div>
             <?php } ?>
             <div class="mb-3">
+                <div class="input-group isNew d-none">
+                    <label for="category" class="font-weight-bold mt-2 mr-1"><?php echo xlt('Category'); ?>:</label>
+                    <?php echo generate_select_list('category', 'Observation_Types', $form['category'] ?? $q['category'] ?? 'survey', '', 'Unassigned', 'form-control-sm'); ?>
+                </div>
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field bg-light text-dark" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
@@ -549,7 +551,7 @@ if ($isModule || $isDashboard || $isPortal) {
         $(function () {
             window.addEventListener("message", (e) => {
                 if (e.origin !== window.location.origin) {
-                    syncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
+                    asyncAlertMsg(<?php echo xlj("Request is not same origin!"); ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {
@@ -558,7 +560,7 @@ if ($isModule || $isDashboard || $isPortal) {
                         e.preventDefault();
                         document.forms[0].submit();
                     } else {
-                        syncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
+                        asyncAlertMsg(<?php echo xlj("Form validation failed."); ?>);
                         return false;
                     }
                 }

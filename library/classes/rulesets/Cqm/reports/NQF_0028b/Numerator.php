@@ -21,12 +21,12 @@ class NQF_0028b_Numerator implements CqmFilterIF
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             foreach ($dates as $date) {
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-                $date = date('Y-m-d 23:59:59', strtotime($date));
+                $date = date('Y-m-d 23:59:59', strtotime((string) $date));
                 $beginMinus24Months = strtotime('-24 month', strtotime($date));
                 $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
                 $smoke_cess = sqlQuery("SELECT * FROM `rule_patient_data` " .
                                        "WHERE `category`='act_cat_inter' AND `item`='act_tobacco' AND `complete`='YES' " .
-                                       "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date));
+                                       "AND `pid`=? AND `date`>=? AND `date`<=?", [$patient->id,$beginMinus24Months,$date]);
                 // this is basically a check to see if the patient's action has occurred in the two years previous to encounter.
                 // TODO: how to check for the smoking cessation medication types (can also just be a smoking cessation order, ie. prescription)
                 if (
@@ -44,7 +44,7 @@ class NQF_0028b_Numerator implements CqmFilterIF
 
     private function getApplicableEncounters()
     {
-        return array(
+        return [
             Encounter::ENC_OFF_VIS,
             Encounter::ENC_HEA_AND_BEH,
             Encounter::ENC_OCC_THER,
@@ -52,6 +52,6 @@ class NQF_0028b_Numerator implements CqmFilterIF
             Encounter::ENC_PRE_MED_SER_18_OLDER,
             Encounter::ENC_PRE_IND_COUNSEL,
             Encounter::ENC_PRE_MED_GROUP_COUNSEL,
-            Encounter::ENC_PRE_MED_OTHER_SERV );
+            Encounter::ENC_PRE_MED_OTHER_SERV ];
     }
 }

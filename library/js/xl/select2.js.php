@@ -13,7 +13,7 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -21,8 +21,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 ?>
-"dir":<?php echo js_escape($_SESSION['language_direction']); ?>,
+"dir":<?php echo js_escape($session->get('language_direction')); ?>,
 "language": {
     errorLoading: function () {
         return <?php echo xlj('The results could not be loaded'); ?> + '.';

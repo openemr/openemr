@@ -16,13 +16,14 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace PrescriptionTemplates\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
@@ -31,20 +32,21 @@ class PrescriptionTemplatesController extends AbstractActionController
      */
     protected function getDefaultTemplate($id)
     {
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
-        $prescriptions = array();
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $prescriptions = [];
         foreach ($ids as $id) {
             $p = new \Prescription($id);
 
             if (!isset($prescriptions[$p->provider->id])) {
-                $prescriptions[$p->provider->id] = array();
+                $prescriptions[$p->provider->id] = [];
             }
 
             $prescriptions[$p->provider->id][] = $p;
         }
         $patient = $p->patient;
 
-        $defaultHtml = new ViewModel(array('patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $_SESSION['language_direction']));
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $session->get('language_direction')]);
         $defaultHtml->setTemplate("prescription-templates/default.phtml");
 
         return $defaultHtml;

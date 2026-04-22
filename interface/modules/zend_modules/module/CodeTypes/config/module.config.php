@@ -15,10 +15,10 @@ namespace OpenEMR\ZendModules\CodeTypes;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 use OpenEMR\ZendModules\CodeTypes\Listener\CodeTypeEventsSubscriber;
 
-return array(
-    'service_manager' => array(
-        'factories' => array(
+return [
+    'service_manager' => [
+        'factories' => [
             CodeTypeEventsSubscriber::class => InvokableFactory::class
-        )
-    )
-);
+        ]
+    ]
+];

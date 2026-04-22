@@ -13,6 +13,8 @@
  */
 
 // Control access
+use OpenEMR\Core\ModulesApplication;
+
 if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
     echo xlt('Not Authorized');
     exit;
@@ -160,7 +162,7 @@ $help_items = [
                         if ($moduleResult->modName == 'Acl') {
                             continue;
                         }
-                        if ($moduleResult->type == 1) {
+                        if ($moduleResult->type == ModulesApplication::MODULE_TYPE_LAMINAS) {
                             continue;
                         }
                         $count++;
@@ -199,7 +201,7 @@ $help_items = [
                                 ?>
                             </td>
                             <td>
-                                <?php echo $this->escapeHtml(($moduleResult->type == 1) ? "Laminas" : "Custom"); ?>
+                                <?php echo $this->escapeHtml(($moduleResult->type == ModulesApplication::MODULE_TYPE_LAMINAS) ? "Laminas" : "Custom"); ?>
                             </td>
                             <td>
                                 <?php
@@ -233,10 +235,10 @@ $help_items = [
                                     <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','reset_module');" title="<?php echo $listener->z_xla('Click Here to Reset this Module to the initial unregistered and uninstalled state.'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } elseif ($moduleResult->modActive == 1) { ?>
                                     <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
-                                    <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == 0) { ?>
+                                    <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == ModulesApplication::MODULE_TYPE_CUSTOM) { ?>
                                         <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module. All database information is left intact except this module registration entry is removed from database.'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                     <?php } ?>
-                                <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
+                                <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == ModulesApplication::MODULE_TYPE_CUSTOM) { ?>
                                     <?php if ($moduleResult->modUiActive == 1) {
                                         // only allow if module requests by setting the mod_ui_active column
                                         // because module will have to deal with namespace setting for called config script.
@@ -286,7 +288,7 @@ $help_items = [
                         if ($moduleResult->modName == 'Acl') {
                             continue;
                         }
-                        if ($moduleResult->type == 0) {
+                        if ($moduleResult->type == ModulesApplication::MODULE_TYPE_CUSTOM) {
                             continue;
                         }
                         $count++;
@@ -325,7 +327,7 @@ $help_items = [
                                 ?>
                             </td>
                             <td>
-                                <?php echo $this->escapeHtml(($moduleResult->type == 1) ? "Laminas" : "Custom"); ?>
+                                <?php echo $this->escapeHtml(($moduleResult->type == ModulesApplication::MODULE_TYPE_LAMINAS) ? "Laminas" : "Custom"); ?>
                             </td>
                             <td>
                                 <?php

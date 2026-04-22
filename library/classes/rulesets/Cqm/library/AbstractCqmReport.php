@@ -7,13 +7,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . "/../../../../clinical_rules.php");
 
 abstract class AbstractCqmReport implements RsReportIF
 {
     protected $_cqmPopulation;
 
-    protected $_resultsArray = array();
+    protected $_resultsArray = [];
 
     protected $_rowRule;
     protected $_ruleId;
@@ -23,24 +26,24 @@ abstract class AbstractCqmReport implements RsReportIF
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
-        $className = get_class($this);
-        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
+        $className = static::class;
+        foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
         $this->_cqmPopulation = new CqmPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Calculate measurement period
         $tempDateArray = explode("-", ($dateTarget ?? ''));
         $tempYear = $tempDateArray[0];
@@ -69,15 +72,15 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         $populationCriterias = $this->createPopulationCriteria();
         if (!is_array($populationCriterias)) {
-            $tmpPopulationCriterias = array();
+            $tmpPopulationCriterias = [];
             $tmpPopulationCriterias[] = $populationCriterias;
             $populationCriterias = $tmpPopulationCriterias;
         }
 
         foreach ($populationCriterias as $populationCriteria) {
             // If itemization is turned on, then iterate the rule id iterator
-            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $GLOBALS['report_itemized_test_id_iterator']++;
+            if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
             }
 
             if ($populationCriteria instanceof CqmPopulationCrtiteriaFactory) {
@@ -93,7 +96,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
                 $numerators = $populationCriteria->createNumerators();
                 if (!is_array($numerators)) {
-                    $tmpNumerators = array();
+                    $tmpNumerators = [];
                     $tmpNumerators[] = $numerators;
                     $numerators = $tmpNumerators;
                 }
@@ -114,8 +117,8 @@ abstract class AbstractCqmReport implements RsReportIF
                 $denominatorPatientPopulation = 0;
                 $exclusionsPatientPopulation = 0;
                 $exceptionsPatientPopulation = 0; // this is a bridge to no where variable (calculated but not used below). Will keep for now, though.
-                $patExclArr = array();
-                $patExceptArr = array();
+                $patExclArr = [];
+                $patExceptArr = [];
                 $numeratorPatientPopulations = $this->initNumeratorPopulations($numerators);
                 foreach ($this->_cqmPopulation as $patient) {
                     if (!$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
@@ -125,8 +128,8 @@ abstract class AbstractCqmReport implements RsReportIF
                     $initialPatientPopulation++;
 
                     // If itemization is turned on, then record the "Initial Patient population" item
-                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 3, $patient->id);
+                    if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                        insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 3, $patient->id);
                     }
 
                     if (!$denominator->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
@@ -161,8 +164,8 @@ abstract class AbstractCqmReport implements RsReportIF
                     if (count($patExclArr) > 0) {
                         foreach ($patExclArr as $patVal) {
                             // If itemization is turned on, then record the "excluded" item
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 2, $patVal, $title);
+                            if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                                insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 2, $patVal, $title);
                             }
                         }
                     }
@@ -170,8 +173,8 @@ abstract class AbstractCqmReport implements RsReportIF
                     if (count($patExceptArr) > 0) {
                         foreach ($patExceptArr as $patVal) {
                             // If itemization is turned on, then record the "exception" item
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 4, $patVal, $title);
+                            if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                                insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 4, $patVal, $title);
                             }
                         }
                     }
@@ -198,7 +201,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
     private function initNumeratorPopulations(array $numerators)
     {
-        $numeratorPatientPopulations = array();
+        $numeratorPatientPopulations = [];
         foreach ($numerators as $numerator) {
             $numeratorPatientPopulations[$numerator->getTitle()] = 0;
         }
@@ -213,13 +216,13 @@ abstract class AbstractCqmReport implements RsReportIF
                 $numeratorPatientPopulations[$numerator->getTitle()]++;
 
                 // If itemization is turned on, then record the "passed" item
-                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle());
+                if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 1, $patient->id, $numerator->getTitle());
                 }
             } else {
                 // If itemization is turned on, then record the "failed" item
-                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());
+                if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 0, $patient->id, $numerator->getTitle());
                 }
             }
         } else {

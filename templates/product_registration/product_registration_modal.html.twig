@@ -1,0 +1,53 @@
+{#
+Product Registration modal
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
+<div class="product-registration-modal modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                {% if allowEmail %}
+                    <div class="form-group">
+                        <p class="context">
+                            {{ "We kindly ask you to take a moment to register your installation by providing an email. This ensures you receive timely updates, security alerts, and critical announcements from the OpenEMR Foundation. You can opt out of this by simply leaving this field blank."|xlt }}
+                        </p>
+                        <input placeholder="{{ "email"|xla }}" type="email" id="email" class="email w-100 text-body form-control" value="" />
+                        <p class="message font-italic"></p>
+                    </div>
+                    <span class="font-italic"><small>{{ "Registration is not required for Anonymous Telemetry Opt-In" | xlt }}</small></span>
+                    <hr>
+                {% endif %}
+                {% if allowTelemetry %}
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="allow_telemetry" id="allowTelemetry" name="allow_telemetry" checked>
+                            <label class="form-check-label" for="allowTelemetry">
+                                {{ "I consent to share anonymous usage data with the OpenEMR Foundation."|xlt }}
+                                {{ "We are committed to continually improving OpenEMR. By opting in to anonymous telemetry data collection, you help us better understand real-world usage and prioritize new features. No Personal Health Information (PHI) is ever collected. Please consider consenting to share the following data types:"|xlt }}
+                                <div class="m-1">
+                                    <li>{{ "Usage Metrics (features used)"|xlt }}</li>
+                                    <li>{{ "Aggregated User Data (total patients, clinicians, etc.)"|xlt }}</li>
+                                    <li>{{ "Locale Data (restricted to country, region/state, city)"|xlt }}</li>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary submit"><span id="submit_registration_loader" class="fa fa-spinner fa-spin" style="display: none;"></span> {{ "Submit"|xlt }}</button>
+                <button type="button" class="btn btn-secondary nothanks">{{ "Ask again later"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+</div>

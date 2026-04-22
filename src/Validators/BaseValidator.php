@@ -11,7 +11,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * Base class for OpenEMR object validation.
  * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -25,16 +25,17 @@ abstract class BaseValidator
     public const DATABASE_INSERT_CONTEXT = "db-insert";
     public const DATABASE_UPDATE_CONTEXT = "db-update";
 
-    protected $validator;
+    protected Validator $validator;
 
-    protected $supportedContexts;
+    /** @var list<string> */
+    protected array $supportedContexts;
 
     /**
      * Configures the validator instance with validation requirements and rules.
      * This default implementation sets the validator's supported context to include
      * database inserts and updates.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
     }
@@ -48,10 +49,7 @@ abstract class BaseValidator
 
     protected function getInnerValidator(): Validator
     {
-        if (empty($this->validator)) {
-            $this->validator = new Validator();
-        }
-        return $this->validator;
+        return new Validator();
     }
 
     /**
@@ -94,7 +92,7 @@ abstract class BaseValidator
      * @param $table The table in database
      * @param $lookupId The identifier to validateId
      * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     * @return ProcessingResult|true True if valid, ProcessingResult with validation messages otherwise.
      */
     public static function validateId($field, $table, $lookupId, $isUuid = false)
     {
@@ -110,7 +108,7 @@ abstract class BaseValidator
         if ($isUuid) {
             try {
                 $lookupId = UuidRegistry::uuidToBytes($lookupId);
-            } catch (InvalidUuidStringException $e) {
+            } catch (InvalidUuidStringException) {
                 return $validationResult;
             }
         } elseif (!is_int(intval($lookupId))) {
@@ -119,7 +117,7 @@ abstract class BaseValidator
 
         $result = sqlQuery(
             "SELECT $field FROM $table WHERE $field = ?",
-            array($lookupId)
+            [$lookupId]
         );
         if (!empty($result[$field])) {
             return true;
@@ -141,7 +139,7 @@ abstract class BaseValidator
         $sql = "SELECT option_id FROM $table WHERE list_id = ? AND option_id = ?";
         $result = sqlQuery(
             $sql,
-            array($valueset, $code)
+            [$valueset, $code]
         );
         return $result['option_id'] ? true : false;
     }

@@ -5,7 +5,7 @@
  * DAL to be used for Transactions
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
  * @copyright Copyright (c) 2022 Jonathan Moore <Jdcmoore@aol.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,16 +13,10 @@
 
 namespace OpenEMR\Services;
 
-use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Validators\ProcessingResult;
-use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
-use OpenEMR\Validators\BaseValidator;
 
 class PatientTransactionService extends BaseService
 {
@@ -110,7 +104,7 @@ class PatientTransactionService extends BaseService
     private function getOneFromDb($tid)
     {
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_formPredicate);
         array_push($sqlBindArray, $tid);
@@ -123,7 +117,7 @@ class PatientTransactionService extends BaseService
     public function getAll($pid)
     {
         $processingResult = new ProcessingResult();
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_transactionPredicate);
         array_push($sqlBindArray, $pid);
@@ -139,24 +133,29 @@ class PatientTransactionService extends BaseService
 
     public function insert($pid, $data)
     {
-        sqlBeginTrans();
-        $transactionId = $this->insertTransaction($pid, $data);
-        if ($transactionId == false) {
+        try {
+            return QueryUtils::inTransaction(function () use ($pid, $data) {
+                $transactionId = $this->insertTransaction($pid, $data);
+                if ($transactionId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction');
+                }
+
+                $lbtDataId = $this->insertTransactionForm($transactionId, $data);
+                if ($lbtDataId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction form');
+                }
+
+                return ["id" => $transactionId, "form_id" => $lbtDataId];
+            });
+        } catch (PatientTransactionInsertFailedException) {
             return false;
         }
-
-
-        $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if ($lbtDataId == false) {
-            return false;
-        }
-        sqlCommitTrans();
-        return ["id" => $transactionId, "form_id" => $lbtDataId];
     }
 
     public function insertTransaction($pid, $data)
     {
-        $user = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUser');
         $sql =
         "
             INSERT INTO transactions SET
@@ -170,12 +169,12 @@ class PatientTransactionService extends BaseService
 
         $results = sqlInsert(
             $sql,
-            array(
+            [
                 $data["type"],
                 $pid,
                 $data['groupname'],
                 $user
-            )
+            ]
         );
 
         if (!$results) {
@@ -206,20 +205,20 @@ class PatientTransactionService extends BaseService
             (?,  'refer_validThrough', ?)
         ";
 
-        $params = array
-        (
+        $params =
+        [
             $transactionId, $data["body"],
             $transactionId, $data["referralDate"],
             $transactionId, $data["referDiagnosis"],
             $transactionId, $referById,
             $transactionId, $referToId,
-            $transactionId, strtolower($data["riskLevel"]),
+            $transactionId, strtolower((string) $data["riskLevel"]),
             $transactionId, $data["includeVitals"],
             $transactionId, $data["authorization"],
             $transactionId, $data["visits"],
             $transactionId, $data["validFrom"],
             $transactionId, $data["validThrough"],
-        );
+        ];
 
         $results = sqlInsert(
             $sql,
@@ -241,26 +240,26 @@ class PatientTransactionService extends BaseService
         $body = $data["body"];
         $referralDate = $data["referralDate"];
         $referralDiagnosis = $data["referDiagnosis"];
-        $riskLevel = strtolower($data["riskLevel"]);
+        $riskLevel = strtolower((string) $data["riskLevel"]);
         $includeVitals = $data["includeVitals"];
         $authorization = $data["authorization"];
         $visits = $data["visits"];
         $validFrom = $data["validFrom"];
         $validThrough = $data["validThrough"];
 
-        sqlBeginTrans();
-        $this->updateTransactionForm($tid, 'refer_from', $referById);
-        $this->updateTransactionForm($tid, 'refer_to', $referToId);
-        $this->updateTransactionForm($tid, 'body', $body);
-        $this->updateTransactionForm($tid, 'refer_date', $referralDate);
-        $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
-        $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
-        $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
-        $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
-        $this->updateTransactionForm($tid, 'refer_visits', $visits);
-        $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
-        $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
-        sqlCommitTrans();
+        QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            $this->updateTransactionForm($tid, 'refer_from', $referById);
+            $this->updateTransactionForm($tid, 'refer_to', $referToId);
+            $this->updateTransactionForm($tid, 'body', $body);
+            $this->updateTransactionForm($tid, 'refer_date', $referralDate);
+            $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
+            $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
+            $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
+            $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
+            $this->updateTransactionForm($tid, 'refer_visits', $visits);
+            $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
+            $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
+        });
 
         return $this->getOneFromDb($tid);
     }
@@ -269,7 +268,7 @@ class PatientTransactionService extends BaseService
     {
         if (empty($value) == false) {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
-            $params = array($value, $fieldId, $formId);
+            $params = [$value, $fieldId, $formId];
             $res = sqlStatement($sql, $params);
         }
     }
@@ -299,7 +298,7 @@ class PatientTransactionService extends BaseService
     {
         try {
             return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
-        } catch (exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
     }

@@ -4,7 +4,7 @@
  * Immunizations
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,16 +15,24 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+/**
+ * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
+ */
+// @phpstan-ignore nullCoalesce.variable
+$pid ??= $session->get('pid') ?? null;
 
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     /*
      * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
@@ -59,62 +67,64 @@ if (isset($_GET['mode'])) {
             refusal_reason = ?,
             reason_code = ?,
             reason_description = ?,
-            ordering_provider = ?";
-        $sqlBindArray = array(
-            trim($_GET['id']),
+            ordering_provider = ?,
+            encounter_id = ?";
+        $sqlBindArray = [
+            trim((string) $_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
-            trim($_GET['administered_date']), trim($_GET['administered_date']),
+            trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
             trim($_GET['form_immunization_id'] ?? ''),
-            trim($_GET['cvx_code']),
-            trim($_GET['manufacturer']),
+            trim((string) $_GET['cvx_code']),
+            trim((string) $_GET['manufacturer']),
             trim($_GET['lot_number'] ?? ''),
-            trim($_GET['administered_by_id']), trim($_GET['administered_by_id']),
-            trim($_GET['administered_by']), trim($_GET['administered_by']),
-            trim($_GET['education_date']), trim($_GET['education_date']),
-            trim($_GET['vis_date']), trim($_GET['vis_date']),
-            trim($_GET['note']),
+            trim((string) $_GET['administered_by_id']), trim((string) $_GET['administered_by_id']),
+            trim((string) $_GET['administered_by']), trim((string) $_GET['administered_by']),
+            trim((string) $_GET['education_date']), trim((string) $_GET['education_date']),
+            trim((string) $_GET['vis_date']), trim((string) $_GET['vis_date']),
+            trim((string) $_GET['note']),
             $pid,
-            $_SESSION['authUserID'],
-            $_SESSION['authUserID'],
-            trim($_GET['immuniz_amt_adminstrd']),
-            trim($_GET['form_drug_units']),
-            trim($_GET['immuniz_exp_date']), trim($_GET['immuniz_exp_date']),
-            trim($_GET['immuniz_route']),
-            trim($_GET['immuniz_admin_ste']),
-            trim($_GET['immuniz_completion_status']),
-            trim($_GET['immunization_informationsource']),
-            trim($_GET['immunization_refusal_reason']),
-            trim($_GET['reason_code']),
+            $session->get('authUserID'),
+            $session->get('authUserID'),
+            trim((string) $_GET['immuniz_amt_adminstrd']),
+            trim((string) $_GET['form_drug_units']),
+            trim((string) $_GET['immuniz_exp_date']), trim((string) $_GET['immuniz_exp_date']),
+            trim((string) $_GET['immuniz_route']),
+            trim((string) $_GET['immuniz_admin_ste']),
+            trim((string) $_GET['immuniz_completion_status']),
+            trim((string) $_GET['immunization_informationsource']),
+            trim((string) $_GET['immunization_refusal_reason']),
+            trim((string) $_GET['reason_code']),
             trim($_GET['reason_description'] ?? ''),
-            trim($_GET['ordered_by_id'])
-        );
+            trim((string) $_GET['ordered_by_id']),
+            trim((string) $_GET['encounter_id'])
+        ];
         $newid = sqlInsert($sql, $sqlBindArray);
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
-        $newid = $_GET['id'] ? $_GET['id'] : $newid;
-        if ($GLOBALS['observation_results_immunization']) {
+        $newid = $_GET['id'] ?: $newid;
+        if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) {
             saveImmunizationObservationResults($newid, $_GET);
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
+        EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
         $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
-        sqlStatement($sql, array($_GET['id']));
+        sqlStatement($sql, [$_GET['id']]);
     } elseif ($_GET['mode'] == "added_error") {
         $sql = "UPDATE immunizations " .
                "SET added_erroneously=? "  .
                "WHERE id=?";
-        $sql_arg_array = array(
+        $sql_arg_array = [
             ($_GET['isError'] === 'true'),
             $_GET['id']
-        );
+        ];
         sqlStatement($sql, $sql_arg_array);
     } elseif ($_GET['mode'] == "edit") {
         $sql = "select * from immunizations where id = ?";
-        $result = sqlQuery($sql, array($_GET['id']));
+        $result = sqlQuery($sql, [$_GET['id']]);
 
         $administered_date = new DateTime($result['administered_date']);
         $uuid = null;
@@ -137,22 +147,22 @@ if (isset($_GET['mode'])) {
                      "FROM codes " .
                      "LEFT JOIN code_types on codes.code_type = code_types.ct_id " .
                      "WHERE code_types.ct_key = 'CVX' AND codes.code = ?";
-            $result_code_text = sqlQuery($query, array($cvx_code));
+            $result_code_text = sqlQuery($query, [$cvx_code]);
             $code_text = $result_code_text['code_text'];
         }
 
         $manufacturer = $result['manufacturer'];
         $lot_number = $result['lot_number'];
-        $administered_by_id = ($result['administered_by_id'] ? $result['administered_by_id'] : 0);
-        $ordered_by_id      = ($result['ordering_provider'] ? $result['ordering_provider'] : 0);
-        $entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
+        $administered_by_id = ($result['administered_by_id'] ?: 0);
+        $ordered_by_id      = ($result['ordering_provider'] ?: 0);
+        $entered_by_id      = ($result['created_by'] ?: 0);
 
         $administered_by = "";
         if (empty($result['administered_by']) && empty($row['administered_by_id'])) {
             $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
                     "from users where " .
                     "id=?";
-            $user_result = sqlQuery($stmt, array($result['administered_by_id']));
+            $user_result = sqlQuery($stmt, [$result['administered_by_id']]);
             $administered_by = $user_result['full_name'];
         }
 
@@ -169,6 +179,7 @@ if (isset($_GET['mode'])) {
         //set id for page
         $id = $_GET['id'];
 
+        $immunizationEncounter = $result['encounter_id'];
         $imm_obs_data = getImmunizationObservationResults();
     }
 }
@@ -176,17 +187,13 @@ if (isset($_GET['mode'])) {
 $observation_criteria = getImmunizationObservationLists('1');
 $observation_criteria_value = getImmunizationObservationLists('2');
 // Decide whether using the CVX list or the custom list in list_options
-if ($GLOBALS['use_custom_immun_list']) {
+if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
     // user forces the use of the custom list
     $useCVX = false;
 } else {
     if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
-        if (empty($cvx_code)) {
-            $useCVX = false;
-        } else {
-            $useCVX = true;
-        }
+        $useCVX = empty($cvx_code) ? false : true;
     } else { // $_GET['mode'] == "add"
         $useCVX = true;
     }
@@ -203,7 +210,7 @@ if (empty($administered_by) && empty($administered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, array($_SESSION['authUserID']));
+    $row = sqlQuery($stmt, [$session->get('authUserID')]);
     $administered_by = $row['full_name'];
 }
 
@@ -212,23 +219,19 @@ if (!empty($entered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, array($entered_by_id));
+    $row = sqlQuery($stmt, [$entered_by_id]);
     $entered_by = $row['full_name'];
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria = getImmunizationObservationLists('1');
     echo json_encode($observation_criteria);
     exit;
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria_value = getImmunizationObservationLists('2');
     echo json_encode($observation_criteria_value);
     exit;
@@ -237,7 +240,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
 function getImmunizationObservationLists($k)
 {
     if ($k == 1) {
-        $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('immunization_observation'));
+        $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['immunization_observation']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_res); $iter++) {
             $observation_criteria[0]['option_id'] = '';
             $observation_criteria[0]['title']     = 'Unassigned';
@@ -246,7 +249,7 @@ function getImmunizationObservationLists($k)
 
         return $observation_criteria;
     } else {
-        $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('imm_vac_eligibility_results'));
+        $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['imm_vac_eligibility_results']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_value_res); $iter++) {
             $observation_criteria_value[0]['option_id'] = '';
             $observation_criteria_value[0]['title']     = 'Unassigned';
@@ -259,13 +262,14 @@ function getImmunizationObservationLists($k)
 
 function getImmunizationObservationResults()
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $obs_res_q = "SELECT
                   *
                 FROM
                   immunization_observation
                 WHERE imo_pid = ?
                   AND imo_im_id = ?";
-    $res = sqlStatement($obs_res_q, array($_SESSION["pid"],$_GET['id']));
+    $res = sqlStatement($obs_res_q, [$session->get("pid"),$_GET['id']]);
     $imm_obs_data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $imm_obs_data[$iter] = $row;
@@ -274,18 +278,19 @@ function getImmunizationObservationResults()
     return $imm_obs_data;
 }
 
-function saveImmunizationObservationResults($id, $immunizationdata)
+function saveImmunizationObservationResults($id, $immunizationdata): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $imm_obs_data = getImmunizationObservationResults();
     if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
-        foreach ($imm_obs_data as $key => $val) {
+        foreach ($imm_obs_data as $val) {
             if ($val['imo_id'] && $val['imo_id'] != 0) {
                 $sql2                   = " DELETE
                                             FROM
                                               immunization_observation
                                             WHERE imo_im_id = ?
                                               AND imo_pid = ?";
-                $result2                = sqlQuery($sql2, array($val['imo_im_id'],$val['imo_pid']));
+                $result2                = sqlQuery($sql2, [$val['imo_im_id'],$val['imo_pid']]);
             }
         }
     }
@@ -295,8 +300,8 @@ function saveImmunizationObservationResults($id, $immunizationdata)
             $code                     = $immunizationdata['cvx_vac_type_code'][$i];
             $code_text                = $immunizationdata['code_text_hidden'][$i];
             $code_type                = $immunizationdata['code_type_hidden'][$i];
-            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ? $immunizationdata['vis_published_date'][$i] : '';
-            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ? $immunizationdata['vis_presented_date'][$i] : '';
+            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ?: '';
+            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ?: '';
             $imo_criteria_value       = '';
         } elseif ($immunizationdata['observation_criteria'][$i] == 'disease_with_presumed_immunity') {
             $code                     = $immunizationdata['sct_code'][$i];
@@ -329,7 +334,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
                                         )
                                         VALUES
                                           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $res                      = sqlQuery($sql, array($id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval));
+            $res                      = sqlQuery($sql, [$id,$session->get("pid"),$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$session->get('authUserID'),$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
         }
     }
 
@@ -368,7 +373,7 @@ tr.selected {
             </div>
             <div class="col-12">
                 <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />
                     <input type="hidden" name="id" id="id" value="<?php echo attr($id ?? ''); ?>" />
@@ -386,7 +391,7 @@ tr.selected {
                         <label><?php echo xlt('Immunization'); ?></label>
                         <?php
                         // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
-                        generate_form_field(array('data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => 'SKIP'), $immunization_id);
+                        generate_form_field(['data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => 'SKIP'], $immunization_id);
                         ?>
                     </div>
                     <?php } else { ?>
@@ -449,7 +454,7 @@ tr.selected {
                                         $result = sqlStatement($sql);
                                         while ($row = sqlFetchArray($result)) {
                                             echo '<OPTION VALUE=' . attr($row['id']);
-                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                            echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                             echo text($row['full_name']) . '</OPTION>';
                                         }
                                         ?>
@@ -465,7 +470,7 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label>
                             <?php echo xlt('Date of VIS Statement'); ?>
-                            (<a href="https://www.cdc.gov/vaccines/hcp/vis/current-vis.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
+                            (<a href="https://www.cdc.gov/vaccines/hcp/current-vis/index.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
                         </label>
                         <input type='text' size='10' class='datepicker  form-control' name="vis_date" id="vis_date"
                             value='<?php echo (!empty($vis_date)) ? attr($vis_date) : date('Y-m-d'); ?>'
@@ -516,13 +521,25 @@ tr.selected {
                                 $result = sqlStatement($sql);
                                 while ($row = sqlFetchArray($result)) {
                                     echo '<OPTION VALUE=' . attr($row['id']);
-                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
+                                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $session->get('authUserID')) == $row['id'] ? ' selected>' : '>';
                                     echo text($row['full_name']) . '</OPTION>';
                                 }
                                 ?>
                         </select>
                     </div>
 
+                    <?php
+                    // need to add the encounter linkage using the TwigExtension function encounterSelectList
+                    ?>
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Encounter'); ?></label>
+                        <?php
+                        $encounterType = new EncounterListOptionType($pid);
+                        echo $encounterType->render('encounter_id', $immunizationEncounter ?? '');
+                        ?>
+
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-12 text-center">
                             <?php
@@ -530,14 +547,13 @@ tr.selected {
                                 <p><?php echo xlt('Entered By'); ?> <?php echo text($entered_by); ?></p>
                             <?php } ?>
 
-                            <?php if ($GLOBALS['observation_results_immunization']) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) { ?>
                             <button type="button" class="btn btn-primary" onclick="showObservationResultSection();" title='<?php echo xla('Click here to see observation results'); ?>'>
                                 <?php echo xlt('See observation results'); ?>
                             </button>
                             <?php } ?>
                         </div>
                     </div>
-
                     <div class="observation_results" style="display:none;">
                         <fieldset class="obs_res_head">
                             <legend><?php echo xlt('Observation Results'); ?></legend>
@@ -551,11 +567,7 @@ tr.selected {
                                         <div class="form-row" id="or_tr_<?php echo attr(($key + 1)); ?>">
                                             <?php
                                             if ($id == 0) {
-                                                if ($key == 0) {
-                                                    $style = 'display: table-cell;width:765px !important';
-                                                } else {
-                                                    $style = 'display: none;width:765px !important';
-                                                }
+                                                $style = $key == 0 ? 'display: table-cell;width:765px !important' : 'display: none;width:765px !important';
                                             } else {
                                                 $style = 'display : table-cell;width:765px !important';
                                             }
@@ -564,7 +576,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria');?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_<?php echo attr(($key + 1)); ?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
-                                                    <?php foreach ($observation_criteria as $keyo => $valo) { ?>
+                                                    <?php foreach ($observation_criteria as $valo) { ?>
                                                         <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                     <?php } ?>
                                                 </select>
@@ -573,7 +585,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_<?php echo attr(($key + 1)); ?>">
-                                                    <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
+                                                    <?php foreach ($observation_criteria_value as $valoc) { ?>
                                                         <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                     <?php } ?>
                                                 </select>
@@ -606,7 +618,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                                                $vis_published_dateval = $value['imo_vis_date_published'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
@@ -614,7 +626,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ? $value['imo_vis_date_presented'] : '';
+                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
@@ -634,7 +646,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
-                                                <?php foreach ($observation_criteria as $keyo => $valo) { ?>
+                                                <?php foreach ($observation_criteria as $valo) { ?>
                                                     <option value="<?php echo attr($valo['option_id']);?>" <?php echo (!empty($value['imo_criteria']) && ($valo['option_id'] == $value['imo_criteria']) && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                 <?php } ?>
                                                 </select>
@@ -643,7 +655,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
-                                                <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
+                                                <?php foreach ($observation_criteria_value as $valoc) { ?>
                                                     <option value="<?php echo attr($valoc['option_id']);?>" <?php echo (!empty($value['imo_criteria_value']) && ($valoc['option_id'] == $value['imo_criteria_value']) && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                 <?php } ?>
                                                 </select>
@@ -757,11 +769,7 @@ tr.selected {
                         while ($row = sqlFetchArray($result)) {
                             $isError = $row['added_erroneously'];
 
-                            if ($isError) {
-                                $tr_title = 'title="' . xla("Entered in Error") . '"';
-                            } else {
-                                $tr_title = "";
-                            }
+                            $tr_title = $isError ? 'title="' . xla("Entered in Error") . '"' : "";
 
                             if (!empty($id) && ($row["id"] == $id)) {
                                 echo "<tr " . $tr_title . " class='immrow text selected' id='" . attr($row["id"]) . "'>";
@@ -770,13 +778,13 @@ tr.selected {
                             }
 
                             // Figure out which name to use (ie. from cvx list or from the custom list)
-                            if ($GLOBALS['use_custom_immun_list']) {
-                                $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
+                                $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                             } else {
                                 if (!empty($row['code_text_short'])) {
                                     $vaccine_display = xlt($row['code_text_short']);
                                 } else {
-                                    $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                                    $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                                 }
                             }
 
@@ -799,7 +807,7 @@ tr.selected {
 
                             echo "<td>" . $del_tag_open . text($administered_date_summary) . $del_tag_close . "</td>";
                             if ($row["amount_administered"] > 0) {
-                                echo "<td>" . $del_tag_open . text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']) . $del_tag_close . "</td>";
+                                echo "<td>" . $del_tag_open . text($row["amount_administered"]) . " " . generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['amount_administered_unit']) . $del_tag_close . "</td>";
                             } else {
                                 echo "<td>&nbsp</td>";
                             }
@@ -809,16 +817,12 @@ tr.selected {
                             echo "<td>" . $del_tag_open . text($row["lot_number"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["administered_by"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["education_date"]) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'immunization_administered_site'], $row['administration_site']) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["note"]) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'Immunization_Completion_Status'], $row['completion_status']) . $del_tag_close . "</td>";
 
-                            if ($isError) {
-                                $checkbox = "checked";
-                            } else {
-                                $checkbox = "";
-                            }
+                            $checkbox = $isError ? "checked" : "";
 
                                 echo "<td><input type='checkbox' class='error' id='" . attr($row["id"]) . "' value='" . xlt('Error') . "' " . $checkbox . " /></td>";
 
@@ -875,14 +879,14 @@ $(function () {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   // special cases to deal with datepicker items that are added dynamically
@@ -891,7 +895,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
   });
@@ -910,19 +914,19 @@ var SaveForm = function() {
 
 var EditImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 }
 
 var DeleteImm = function(imm) {
     if (confirm(<?php echo xlj('This action cannot be undone.'); ?> + "\n" + <?php echo xlj('Do you wish to PERMANENTLY delete this immunization record?'); ?>)) {
         top.restoreSession();
-        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     }
 }
 
 var ErrorImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 }
 
 //This is for callback by the find-code popup.
@@ -1076,7 +1080,7 @@ function selectCriteria(id,value)
                 dataType: "json",
                 data: {
                     type : 'duplicate_row_2',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 },
                 success: function(thedata){
                     $.each(thedata,function(i,item) {
@@ -1197,7 +1201,7 @@ function addNewRow()
         dataType: "json",
         data: {
             type : 'duplicate_row',
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         },
         success: function(thedata){
             $.each(thedata,function(i,item) {
@@ -1216,7 +1220,7 @@ function sel_code(id)
     id = id.split('sct_code_');
     var checkId = id[1];
     $('#clickId').val(checkId);
-    dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
 }
 
 $(function () {
@@ -1227,7 +1231,7 @@ $(function () {
             dataType: 'json',
             data: function(params) {
                 return {
-                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                   term: params.term
                 };
             },

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -22,9 +23,9 @@
 function smarty_modifier_strip_tags($string, $replace_with_space = true)
 {
     if ($replace_with_space)
-        return preg_replace('!<[^>]*?>!', ' ', $string);
+        return preg_replace('!<[^>]*?>!', ' ', (string) $string);
     else
-        return strip_tags($string);
+        return strip_tags((string) $string);
 }
 
 /* vim: set expandtab: */

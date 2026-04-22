@@ -22,34 +22,11 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
-    );
-    $tmp = xl_list_label($lrow['title'] ?? '');
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    $s = trim($s ?? '');
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
-}
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
@@ -68,7 +45,7 @@ function storeNote($s)
 }
 
 // Display a single row of output including order, report and result information.
-function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
+function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): void
 {
     $lab_id = empty($row['lab_id']) ? 0 : ($row['lab_id'] + 0);
     $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);
@@ -77,9 +54,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     $procedure_code = empty($row['procedure_code']) ? '' : $row['procedure_code'];
     $diagnosis = empty($row['diagnoses']) ? '' : $row['diagnoses'];
     $procedure_name = empty($row['procedure_name']) ? '' : $row['procedure_name'];
-    $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
+    $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
     $date_report_suf = empty($row['date_report_tz']) ? '' : (' ' . $row['date_report_tz']);
-    $date_collected = empty($row['date_collected']) ? '' : substr($row['date_collected'], 0, 16);
+    $date_collected = empty($row['date_collected']) ? '' : substr((string) $row['date_collected'], 0, 16);
     $date_collected_suf = empty($row['date_collected_tz']) ? '' : (' ' . $row['date_collected_tz']);
     $specimen_num = empty($row['specimen_num']) ? '' : $row['specimen_num'];
     $report_status = empty($row['report_status']) ? '' : $row['report_status'];
@@ -98,7 +75,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 
         // Allowing for multiple report notes separated by newlines.
         if (!empty($row['report_notes'])) {
-            $notes = explode("\n", $row['report_notes']);
+            $notes = explode("\n", (string) $row['report_notes']);
             foreach ($notes as $note) {
                 if ($note === '') {
                     continue;
@@ -114,7 +91,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     }
 
     // allow for 0 to be displayed as a result value
-    $rrow['result'] = $rrow['result'] ?? '';
+    $rrow['result'] ??= '';
     if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {
@@ -182,12 +159,12 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         $ctx['lastprid'] = -1; // force report fields on first line of each procedure
         $tmp = text("$procedure_code: $procedure_name: $diagnosis");
         // Get the LOINC code if one exists in the compendium for this order type.
-        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
             $trow = sqlQuery(
                 "SELECT standard_code FROM procedure_type WHERE " .
                 "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
                 "ORDER BY procedure_type_id LIMIT 1",
-                array($lab_id, $procedure_code)
+                [$lab_id, $procedure_code]
             );
             if (!empty($trow['standard_code'])) {
                   $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($trow['standard_code']) .
@@ -231,7 +208,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 
     if ($result_code !== '' || $result_document_id) {
         $tmp = myCellText($result_code);
-        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
+        if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE')) && !empty($result_code)) {
             $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($result_code) .
             ")'>$tmp</a>";
         }
@@ -242,7 +219,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         echo "</td>\n";
         echo "  <td>";
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
-        if ($result_abnormal && strtolower($result_abnormal) != 'no') {
+        if ($result_abnormal && strtolower((string) $result_abnormal) != 'no') {
             echo "<p class='font-weight-bold text-danger'>$tmp</p>";
         } else {
             echo $tmp;
@@ -253,19 +230,19 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         if ($result_document_id) {
             $d = new Document($result_document_id);
             echo "  <td colspan='3'>";
-            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-                echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
-                echo "&retrieve&patient_id=" . attr_url($patient_id) . "&document_id=" . attr_url($result_document_id) . "' ";
+            if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
+                echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document";
+                echo "&retrieve&patient_id=" . attr_url($ctx['patient_id']) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
 
             echo $d->get_url_file();
-            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
                 echo "</a>";
             }
 
             echo "</td>\n";
-            $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", array($result_document_id));
+            $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", [$result_document_id]);
             if (!empty($narrative_notes)) {
                 $nnotes = explode("\n", $narrative_notes['notes'] ?? '');
                 $narrative_note_list = '';
@@ -317,6 +294,8 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
@@ -337,13 +316,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         "LEFT JOIN users AS u ON u.id = po.provider_id " .
         "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
         "WHERE po.procedure_order_id = ?",
-        array($orderid)
+        [$orderid]
     );
     $dres = sqlStatementNoLog(
         "Select diagnoses as codes FROM procedure_order_code WHERE procedure_order_id = ? ",
-        array($orow['procedure_order_id'])
+        [$orow['procedure_order_id']]
     );
-    $codes = array();
+    $codes = [];
     $bld = '';
     while ($diag = sqlFetchArray($dres)) {
         $bld .= $diag['codes'] . ';';
@@ -362,13 +341,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];
-
+    $language_direction = $session->get('language_direction');
     ?>
 
     <?php if ($genstyles) { ?>
 <style>
 
-        <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
+        <?php if (empty($language_direction) || $language_direction === 'ltr') { ?>
     .labres tr.head {
         font-size: 0.8125rem;
         background-color: var(--gray200);
@@ -430,13 +409,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } ?>
 
     <?php if ($input_form) { ?>
-        <script src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/textformat.js"></script>
     <?php } // end if input form
     ?>
 
-    <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+    <?php if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) { ?>
 <script>
-    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
     if (typeof top.webroot_url === "undefined") {
         if (typeof opener.top.webroot_url !== "undefined") {
             top.webroot_url = opener.top.webroot_url;
@@ -474,15 +453,15 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
                 <td width='45%'>
                     <?php
-                    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-                        echo "   <a href='" . $GLOBALS['webroot'];
+                    if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
+                        echo "   <a href='" . OEGlobalsBag::getInstance()->get('webroot');
                         echo "/interface/orders/order_manifest.php?orderid=";
                         echo attr_url($orow['procedure_order_id']);
                         echo "' target='_blank' onclick='top.restoreSession()'>";
                     }
 
                     echo myCellText($orow['procedure_order_id']);
-                    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+                    if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
                         echo "</a>\n";
                     }
 
@@ -508,7 +487,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
-                <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
+                <td><?php echo myCellText(oeFormatShortDate(substr((string) $orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Lab'); ?></td>
@@ -566,20 +545,21 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 "WHERE po.procedure_order_id = ? " .
                 "ORDER BY pc.procedure_order_seq, pr.date_report, pr.procedure_report_id";
 
-            $res = sqlStatement($query, array($orderid));
-            $aNotes = array();
-            $finals = array();
-            $empty_results = array('result_code' => '');
+            $res = sqlStatement($query, [$orderid]);
+            $aNotes = [];
+            $finals = [];
+            $empty_results = ['result_code' => ''];
 
             // Context for this call that may be used in other functions.
-            $ctx = array(
+            $ctx = [
                 'lastpcid' => -1,
                 'lastprid' => -1,
                 'encount' => 0,
                 'lino' => 0,
                 'sign_list' => '',
-                'seen_report_ids' => array(),
-            );
+                'seen_report_ids' => [],
+                'patient_id' => $patient_id
+            ];
 
             while ($row = sqlFetchArray($res)) {
                 $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
@@ -591,12 +571,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     "WHERE ps.procedure_report_id = ? " .
                     "ORDER BY ps.procedure_result_id";
 
-                $rres = sqlStatement($query, array($report_id));
+                $rres = sqlStatement($query, [$report_id]);
 
                 if ($finals_only) {
                     // We are consolidating reports.
                     if (sqlNumRows($rres)) {
-                        $rrowsets = array();
+                        $rrowsets = [];
                         // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
                         // the value being an array of the corresponding result rows. This caters to multiple
                         // occurrences of the same result code in the same report.
@@ -604,7 +584,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                             $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
                             $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
                             if (!isset($rrowsets[$key])) {
-                                $rrowsets[$key] = array();
+                                $rrowsets[$key] = [];
                             }
 
                             $rrowsets[$key][] = $rrow;
@@ -625,12 +605,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                             }
 
                             // $finals[$key][2] indicates if there are multiple results for this result code.
-                            $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+                            $finals[$key] = [$row, $rrowset, isset($finals[$key])];
                         }
                     } else {
                         // We have no results for this report.
                         $key = sprintf('%05d/', $row['procedure_order_seq']);
-                        $finals[$key] = array($row, array($empty_results), false);
+                        $finals[$key] = [$row, [$empty_results], false];
                     }
                 } else {
                     // We are showing all results for all reports.
@@ -689,7 +669,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         <input type='submit' class='btn btn-primary' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
                                title='<?php echo xla('Show only latest values reported for each result code'); ?>'/>
                     <?php } ?>
-                    <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+                    <?php if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) { ?>
                         &nbsp;
                         <input type='button' class='btn btn-primary' value='<?php echo xla('Related Patient Notes'); ?>'
                             onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />

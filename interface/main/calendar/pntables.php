@@ -31,18 +31,18 @@
 
 $prefix = $pnconfig['prefix'];
 
-$pntable = array();
+$pntable = [];
 
 $module_vars = $prefix . '_module_vars';
 $pntable['module_vars'] = $module_vars;
-$pntable['module_vars_column'] = array ('id'      => $module_vars . '.pn_id',
+$pntable['module_vars_column'] =  ['id'      => $module_vars . '.pn_id',
                                         'modname' => $module_vars . '.pn_modname',
                                         'name'    => $module_vars . '.pn_name',
-                                        'value'   => $module_vars . '.pn_value');
+                                        'value'   => $module_vars . '.pn_value'];
 
 $modules = $prefix . '_modules';
 $pntable['modules'] = $modules;
-$pntable['modules_column'] = array ('id'            => $modules . '.pn_id',
+$pntable['modules_column'] =  ['id'            => $modules . '.pn_id',
                                     'name'          => $modules . '.pn_name',
                                     'type'          => $modules . '.pn_type',
                                     'displayname'   => $modules . '.pn_displayname',
@@ -52,4 +52,4 @@ $pntable['modules_column'] = array ('id'            => $modules . '.pn_id',
                                     'version'       => $modules . '.pn_version',
                                     'admin_capable' => $modules . '.pn_admin_capable',
                                     'user_capable'  => $modules . '.pn_user_capable',
-                                    'state'         => $modules . '.pn_state');
+                                    'state'         => $modules . '.pn_state'];

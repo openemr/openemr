@@ -12,4 +12,3 @@ CREATE TABLE IF NOT EXISTS `form_clinical_instructions` (
   `activity` TINYINT DEFAULT 1 NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB;
-

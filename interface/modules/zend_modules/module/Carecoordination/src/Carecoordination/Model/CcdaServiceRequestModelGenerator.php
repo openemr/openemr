@@ -5,7 +5,7 @@
  * service.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -18,6 +18,7 @@
 
 namespace Carecoordination\Model;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Validators\ProcessingResult;
@@ -28,14 +29,8 @@ class CcdaServiceRequestModelGenerator
     private $createdtime;
     private $exportwithDocuments;
 
-    /**
-     * @var EncounterccdadispatchTable
-     */
-    private $encounterCCDADispatchTable;
-
-    public function __construct(EncounterccdadispatchTable $table)
+    public function __construct(private readonly EncounterccdadispatchTable $encounterCCDADispatchTable)
     {
-        $this->encounterCCDADispatchTable = $table;
         $this->data = "";
         $this->exportwithDocuments = $_REQUEST['with_documents'] ?? false;
     }
@@ -58,7 +53,7 @@ class CcdaServiceRequestModelGenerator
     {
         $start = $date_options['date_start'];
         $end = $date_options['date_end'];
-        $document_type = $document_type ?? "ccd"; // default to ccd
+        $document_type ??= "ccd"; // default to ccd
         if ($document_type == 'referral') {
             // we are basing things on a single encounter so we need to try and grab our encounter date
             if (!empty($encounter)) {
@@ -67,9 +62,9 @@ class CcdaServiceRequestModelGenerator
                 $encounterService = new EncounterService();
                 $encounterRecord = ProcessingResult::extractDataArray($encounterService->getEncounterById(intval($encounter)));
                 if (!empty($encounterRecord[0])) {
-                    $start = strtotime($encounterRecord[0]['date']);
+                    $start = strtotime((string) $encounterRecord[0]['date']);
                     if (!empty($end)) {
-                        $end = strtotime($end);
+                        $end = strtotime((string) $end);
                         // TODO: if we add encounter end dates we can populate this
                         $end = $end > $start ? $end : $start + 1800; // 30 minutes
                     }
@@ -85,7 +80,7 @@ class CcdaServiceRequestModelGenerator
                 $patientService = new PatientService();
                 $patientRecord = $patientService->findByPid($pid);
                 if (!empty($patientRecord)) {
-                    $start = date('YmdHisO', strtotime($patientRecord['DOB']));
+                    $start = date('YmdHisO', strtotime((string) $patientRecord['DOB']));
                 }
             }
             if (empty($end) && !empty($pid)) {
@@ -94,7 +89,7 @@ class CcdaServiceRequestModelGenerator
                     $encounterService = new EncounterService();
                     $encounterRecord = ProcessingResult::extractDataArray($encounterService->getEncounterById(intval($encounterId)));
                     if (!empty($encounterRecord[0])) {
-                        $end = date('YmdHisO', strtotime($encounterRecord[0]['date']));
+                        $end = date('YmdHisO', strtotime((string) $encounterRecord[0]['date']));
                     }
                 }
             }
@@ -102,11 +97,11 @@ class CcdaServiceRequestModelGenerator
         // TODO: this is the result of late night coding, hopefully we can come and fix this to be better in the future
         // we essentially need to handle the fall through case where we have a date range that's been sent us
         // that's not in our timestamp format
-        if (strpos($start, "-") !== false) {
-            $start = date('YmdHisO', strtotime($start));
+        if (str_contains((string) $start, "-")) {
+            $start = date('YmdHisO', strtotime((string) $start));
         }
-        if (strpos($end, "-") !== false) {
-            $end = date('YmdHisO', strtotime($end));
+        if (str_contains((string) $end, "-")) {
+            $end = date('YmdHisO', strtotime((string) $end));
         }
         return [
             'start' => $start ?? date('YmdHisO')
@@ -127,12 +122,12 @@ class CcdaServiceRequestModelGenerator
 
         $serviceStartDates = $this->getServiceStartDates($pid, $encounter, $document_type, $date_options);
 
-        $sections_list = explode('|', $sections);
-        $components_list = explode('|', $components);
+        $sections_list = explode('|', (string) $sections);
+        $components_list = explode('|', (string) $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
-        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
-        $this->data .= "<document_location>" . $GLOBALS['OE_SITE_DIR'] . "</document_location>";
+        $this->data .= "<serverRoot>" . OEGlobalsBag::getInstance()->get('webroot') . "</serverRoot>";
+        $this->data .= "<document_location>" . OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "</document_location>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
@@ -161,7 +156,7 @@ class CcdaServiceRequestModelGenerator
                 <postalCode>" . htmlspecialchars($representedOrganization['postal_code'] ?? '', ENT_QUOTES) . "</postalCode>
                 <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
             </representedOrganization>";
-        $this->data .= "<referral_reason><text>" . htmlspecialchars($referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";
+        $this->data .= "<referral_reason><text>" . htmlspecialchars((string) $referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";
 
         /***************CCDA Header Information***************/
         $this->data .= $this->getEncounterccdadispatchTable()->getPatientdata($pid, $encounter);
@@ -174,7 +169,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= $this->getEncounterccdadispatchTable()->getLegalAuthenticator($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getDocumentParticipants($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getAuthenticator($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getPrimaryCareProvider($pid, $encounter);
+        $this->data .= $this->getEncounterccdadispatchTable()->getPatientCareTeam($pid, $encounter);
         /***************CCDA Header Information***************/
 
         /***************CCDA Body Information***************/
@@ -218,7 +213,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if ($this->exportwithDocuments) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid);
         }
 
         /***************CCDA Body Information***************/
@@ -272,6 +267,15 @@ class CcdaServiceRequestModelGenerator
         if (in_array('referral', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid);
         }
+
+        if (in_array('payers', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getPayers($pid);
+        }
+
+        if (in_array('advance_directives', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getAdvanceDirectives($pid);
+        }
+
         return $ccd;
     }
 

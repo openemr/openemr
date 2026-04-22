@@ -4,7 +4,7 @@
  * New patient or search patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -20,66 +20,35 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Layouts\SearchClass;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
-    exit;
+if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Search or Add Patient", xl("Search or Add Patient"));
 }
 
 $CPR = 4; // cells per row
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ?
-  'var(--yellow)' : $GLOBALS['layout_search_color'];
+$searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ?
+  'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');
 
-$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$WITH_SEARCH = (OEGlobalsBag::getInstance()->get('full_new_patient_form') == '1' || OEGlobalsBag::getInstance()->get('full_new_patient_form') == '2' );
+$SHORT_FORM  = (in_array(OEGlobalsBag::getInstance()->get('full_new_patient_form'), ['2', '3', '4']));
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
-function getLayoutRes()
-{
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_id, seq");
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-// Determine layout field search treatment from its data type:
-// 1 = text field
-// 2 = select list
-// 0 = not searchable
-//
-function getSearchClass($data_type)
-{
-    switch ($data_type) {
-        case 1: // single-selection list
-        case 10: // local provider list
-        case 11: // provider list
-        case 12: // pharmacy list
-        case 13: // squads
-        case 14: // address book list
-        case 26: // single-selection list with add
-        case 35: // facilities
-            return 2;
-        case 2: // text field
-        case 3: // textarea
-        case 4: // date
-            return 1;
-    }
-
-    return 0;
-}
-
-$fres = getLayoutRes();
+$fres = getLayoutRes($SHORT_FORM);
 ?>
 <!DOCTYPE html>
 <html>
@@ -92,7 +61,7 @@ $fres = getLayoutRes();
 }
 </style>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
 
 <script><!--
 //Visolve - sync the radio buttons - Start
@@ -102,7 +71,7 @@ if((top.window.parent) && (parent.window)){
         wname.syncRadios();
 }//Visolve - sync the radio buttons - End
 
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
 // This may be changed to true by the AJAX search script.
 var force_submit = false;
@@ -232,7 +201,7 @@ function trimlen(s) {
 function validate(f) {
   var errMsgs = new Array();
     <?php generate_layout_validation('DEM'); ?>
-    <?php if ($GLOBALS['erx_enable']) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
   alertMsg='';
   for(i=0;i<f.length;i++){
     if(f[i].type=='text' && f[i].value)
@@ -338,32 +307,32 @@ function selBlur(elem) {
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+ var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
 
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    $data_type = $lrow['data_type'];
-    $fldname = "form_$field_id";
-    switch (getSearchClass($data_type)) {
-        case 1:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && trimlen(f." . attr($fldname) . ".value) > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".value);\n" .
-            " }\n";
-            break;
-        case 2:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && f." . attr($fldname) . ".selectedIndex > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".options[f." . attr($fldname) . ".selectedIndex].value);\n" .
-            " }\n";
-            break;
+    $fldname = "form_{$field_id}";
+    $af = attr($fldname);
+    $ai = attr($field_id);
+    [$hasValue, $getValue] = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [null, null],
+        SearchClass::TextField => ["trimlen(f.{$af}.value) > 0", "f.{$af}.value"],
+        SearchClass::SelectList => ["f.{$af}.selectedIndex > 0", "f.{$af}.options[f.{$af}.selectedIndex].value"],
+    };
+    if ($hasValue !== null) {
+        printf(<<<'FMT'
+ if (f.%s.style.backgroundColor != '' && %s) {
+  url += '&%s=' + encodeURIComponent(%s);
+ }
+
+FMT, $af, $hasValue, $ai, $getValue);
     }
 }
 ?>
@@ -397,9 +366,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 <div class="accordion" id="dem_according">
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
                       method='post'
-                      onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
+                      onsubmit='return submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
                     <tr>
@@ -410,7 +379,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     } ?>
                     <?php
 
-                    function end_cell()
+                    function comprehensive_end_cell(): void
                     {
                         global $item_count;
                         if ($item_count > 0) {
@@ -419,10 +388,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    function end_row()
+                    function comprehensive_end_row(): void
                     {
                         global $cell_count, $CPR, $BS_COL_CLASS;
-                        end_cell();
+                        comprehensive_end_cell();
                         if ($cell_count > 0 && $cell_count < $CPR) {
                             // Create a cell occupying the remaining bootstrap columns.
                             // BS columns will be less than 12 if $CPR is not 2, 3, 4, 6 or 12.
@@ -435,11 +404,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $cell_count = 0;
                     }
 
-                    function end_group()
+                    function comprehensive_end_group(): void
                     {
                         global $last_group, $SHORT_FORM;
-                        if (strlen($last_group) > 0) {
-                            end_row();
+                        if (strlen((string) $last_group) > 0) {
+                            comprehensive_end_row();
                             echo "</div>\n"; // end BS container
                             if (!$SHORT_FORM) {
                                 echo "</div>\n";
@@ -462,13 +431,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $data_type  = $frow['data_type'];
                         $field_id   = $frow['field_id'];
                         $list_id    = $frow['list_id'];
-                        $currvalue  = '';
+                        $currvalue  = null;
 
                         // Accumulate action conditions into a JSON expression for the browser side.
                         accumActionConditions($frow, $condition_str);
 
-                        if (strpos($field_id, 'em_') === 0) {
-                            $tmp = substr($field_id, 3);
+                        if (str_starts_with((string) $field_id, 'em_')) {
+                            $tmp = substr((string) $field_id, 3);
                             if (isset($result2[$tmp])) {
                                 $currvalue = $result2[$tmp];
                             }
@@ -479,9 +448,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
 
                         // Handle a data category (group) change.
-                        if (strcmp($this_group, $last_group) != 0) {
+                        if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {
-                                end_group();
+                                comprehensive_end_group();
                                 $group_seq++;    // ID for DIV tags
                                 $group_name = $grparr[$this_group]['grp_title'];
 
@@ -504,7 +473,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
-                            } elseif (strlen($last_group) == 0) {
+                            } elseif (strlen((string) $last_group) == 0) {
                                 echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -513,7 +482,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                            end_row();
+                            comprehensive_end_row();
                             echo "<div class='form-group row'>";
                         }
 
@@ -525,7 +494,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         // Handle starting of a new label cell.
                         if ($titlecols > 0) {
-                            end_cell();
+                            comprehensive_end_cell();
                             $bs_cols = $titlecols * intval(12 / $CPR);
                             echo "<div class='$BS_COL_CLASS-$bs_cols ";
                             echo ($frow['uor'] == 2) ? "required" : "";
@@ -551,7 +520,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // Handle starting of a new data cell.
                         if ($datacols > 0) {
                             $id_field_text = "text_" . $frow['field_id'];
-                            end_cell();
+                            comprehensive_end_cell();
                             $bs_cols = $datacols * intval(12 / $CPR);
                             echo "<div class='$BS_COL_CLASS-$bs_cols'";
                             echo " id='" . attr($id_field_text) . "'";
@@ -571,9 +540,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // set flag so we don't bring in session pid data for a new pt form
                         $frow['blank_form'] = false;
                         if (
-                            $frow['data_type'] == "52"
-                            || $frow['data_type'] == "53"
-                            || $frow['data_type'] == "54"
+                            in_array($frow['data_type'], ["52", "53", "54"])
                         ) {
                             $frow['blank_form'] = true;
                         }
@@ -585,20 +552,20 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    end_group();
+                    comprehensive_end_group();
                     ?>
 
                     <?php
-                    if (!$GLOBALS['simplified_demographics']) {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
-                        if ($GLOBALS['insurance_only_one']) {
-                            $insurance_headings = array(xl("Primary Insurance Provider"));
-                            $insurance_info = array();
+                        if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
+                            $insurance_headings = [xl("Primary Insurance Provider")];
+                            $insurance_info = [];
                             $insurance_info[1] = getInsuranceData($pid, "primary");
                         } else {
-                            $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-                            $insurance_info = array();
+                            $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
+                            $insurance_info = [];
                             $insurance_info[1] = getInsuranceData($pid, "primary");
                             $insurance_info[2] = getInsuranceData($pid, "secondary");
                             $insurance_info[3] = getInsuranceData($pid, "tertiary");
@@ -615,7 +582,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="container-xl card-body">
                         HTML;
 
-                        for ($i = 1; $i <= sizeof($insurance_info); $i++) {
+                        for ($i = 1; $i <= count($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
                             ?>
                         <div class="row p-3">
@@ -627,7 +594,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                   <?php
                                     foreach ($insurancei as $iid => $iname) {
                                         echo "<option value='" . attr($iid) . "'";
-                                        if (!empty($result3["provider"]) && (strtolower($iid) == strtolower($result3["provider"]))) {
+                                        if (!empty($result3["provider"]) && (strtolower((string) $iid) == strtolower((string) $result3["provider"]))) {
                                             echo " selected";
                                         }
                                         echo ">" . text($iname) . "</option>\n";
@@ -656,7 +623,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Relationship'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' ', 'smallform' => 'true'), ($result3['subscriber_relationship'] ?? ''));
+                            generate_form_field(['data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' ', 'smallform' => 'true'], ($result3['subscriber_relationship'] ?? ''));
                             ?>
                             <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo attr_url($i); ?>')" class='text'>(<?php echo xlt('Browse'); ?>)</a>
                           </div>
@@ -676,7 +643,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_ss' value="<?php echo attr($result3["subscriber_ss"] ?? ''); ?>" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                             <label class="col-form-label col-md-1 mb-2 required"><?php echo xlt('Subscriber Employer (SE)'); ?>:</label>
                             <div class="col-md-5 mb-2">
                               <input type='entry' class='form-control' aria-describedby="seHelpBlock" size='25' name='i<?php echo attr($i); ?>subscriber_employer' value="<?php echo attr($result3["subscriber_employer"] ?? ''); ?>" onchange="capitalizeMe(this);" />
@@ -684,19 +651,19 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <?php echo xlt('if unemployed enter Student'); ?>, <?php echo xlt('PT Student, or leave blank'); ?>.
                               </small>
                             </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Sex'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'), $result3['subscriber_sex'] ?? '');
+                            generate_form_field(['data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'], $result3['subscriber_sex'] ?? '');
                             ?>
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                             <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Address'); ?>:</label>
                             <div class="col-md-5 mb-2">
                               <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 1'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
@@ -705,54 +672,54 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street_line_2' value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE City'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_employer_city' value="<?php echo attr($result3["subscriber_employer_city"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('City'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_city' value="<?php echo attr($result3["subscriber_city"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</label>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_employer_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>:</label>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['state_data_type'], 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo $i?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"] ?? ''); ?>" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </label>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Zip Code') : xlt('Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_postal_code' value="<?php echo attr($result3["subscriber_postal_code"] ?? ''); ?>" />
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_employer_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
                             ?>
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
                             ?>
                           </div>
-                            <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Subscriber Phone'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"] ?? ''); ?>' onkeyup='phonekeyup(this,mypcc)' />
@@ -808,11 +775,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         </div>
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
-<?php require($GLOBALS['fileroot'] . "/library/options_listadd.inc.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"); ?>
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if ($GLOBALS['new_validate'] == 0) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('new_validate')) { ?>
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -854,8 +821,8 @@ $(function () {
 
     var check = function(e) {
         var f = document.forms[0];
-        <?php if ($GLOBALS['new_validate']) {?>
-            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>, e, "DEM", constraints);
+        <?php if (OEGlobalsBag::getInstance()->getBoolean('new_validate')) {?>
+            var valid = submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>, e, "DEM", constraints);
         <?php } else {?>
             top.restoreSession();
             var valid = validate(f);
@@ -878,7 +845,7 @@ $(function () {
             "ORDER BY group_id, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (strpos($field_id, 'em_') === 0) {
+            if (str_starts_with((string) $field_id, 'em_')) {
                 continue;
             }
 
@@ -889,9 +856,9 @@ $(function () {
             $mflist .= js_escape($field_id);
         }
         ?>
-        <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
+        <?php if ((OEGlobalsBag::getInstance()->get('full_new_patient_form') == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo $GLOBALS['web_root'] . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
+            var url ='<?php echo OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
         <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
@@ -918,21 +885,21 @@ $(function () {
 
 // Set onclick/onfocus handlers for toggling background color.
 <?php
-$lres = getLayoutRes();
+$lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    switch (getSearchClass($lrow['data_type'])) {
-        case 1:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { toggleSearch(this); });\n";
-            break;
-        case 2:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { selClick(this); });\n";
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").blur(function() { selBlur(this); });\n";
-            break;
+    $bindings = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [],
+        SearchClass::TextField => [['click', 'toggleSearch']],
+        SearchClass::SelectList => [['click', 'selClick'], ['blur', 'selBlur']],
+    };
+    $sel = js_escape("#form_" . $field_id);
+    foreach ($bindings as [$event, $handler]) {
+        printf('    $(%s).%s(function() { %s(this); });' . "\n", $sel, $event, $handler);
     }
 }
 ?>
@@ -941,7 +908,7 @@ while ($lrow = sqlFetchArray($lres)) {
         theme: "bootstrap4",
         dropdownAutoWidth: true,
         width: 'resolve',
-        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
         if (error) {
@@ -955,7 +922,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
@@ -964,7 +931,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-past').datetimepicker({
@@ -973,7 +940,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-past').datetimepicker({
@@ -982,7 +949,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-future').datetimepicker({
@@ -991,7 +958,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-future').datetimepicker({
@@ -1000,7 +967,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 
@@ -1020,7 +987,7 @@ $form_id = "DEM";
 
 <?php
 //LBF forms use the new validation depending on the global value
-$use_validate_js = $GLOBALS['new_validate'];
+$use_validate_js = OEGlobalsBag::getInstance()->getBoolean('new_validate');
 include_once("$srcdir/validation/validation_script.js.php");?>
 <script>
     // Array of skip conditions for the checkSkipConditions() function.

@@ -5,13 +5,17 @@
  *
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace MedExApi;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
 error_reporting(0);
@@ -19,15 +23,13 @@ error_reporting(0);
 class CurlRequest
 {
     private $url;
-    private $postData = array();
-    private $cookies = array();
+    private $postData = [];
+    private $cookies = [];
     private $response = '';
     private $handle;
-    private $sessionFile;
 
-    public function __construct($sessionFile)
+    public function __construct(private $sessionFile)
     {
-        $this->sessionFile = $sessionFile;
         $this->restoreSession();
     }
 
@@ -71,7 +73,7 @@ class CurlRequest
 
     private function getCookies()
     {
-        $cookies = array();
+        $cookies = [];
         foreach ($this->cookies as $name => $value) {
             $cookies[] = $name . '=' . $value;
         }
@@ -84,9 +86,9 @@ class CurlRequest
             return;
         }
 
-        if (!file_exists(dirname($this->sessionFile))) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            mkdir(dirname($this->sessionFile, 0755, true));
+        $sessionFileDir = dirname((string) $this->sessionFile);
+        if (!file_exists($sessionFileDir)) {
+            mkdir($sessionFileDir, 0755, true);
         }
 
         file_put_contents($this->sessionFile, json_encode($this->cookies));
@@ -101,7 +103,7 @@ class CurlRequest
         $this->postData = $postData; }
     public function getResponse()
     {
-        return json_decode($this->response, true);  }
+        return json_decode((string) $this->response, true);  }
     public function getRawResponse()
     {
         return $this->response; }
@@ -109,13 +111,11 @@ class CurlRequest
 
 class Base
 {
-    protected $MedEx;
     protected $curl;
 
-    public function __construct($MedEx)
+    public function __construct(protected $MedEx)
     {
-        $this->MedEx = $MedEx;
-        $this->curl = $MedEx->curl;
+        $this->curl = $this->MedEx->curl;
     }
 }
 
@@ -123,23 +123,27 @@ class Practice extends Base
 {
     public function sync($token)
     {
-        global $GLOBALS;
-        $fields2 = array();
-        $fields3 = array();
-        $callback = "https://" . $GLOBALS['_SERVER']['SERVER_NAME'] . $GLOBALS['_SERVER']['PHP_SELF'];
-        $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
-        $fields2['callback_url'] = $callback;
+        $fields2 = [];
+        $fields3 = [];
+        // Build the callback URL from the globally-configured site address
+        // rather than inferring it from $_SERVER. $_SERVER is unavailable when
+        // this service runs via `bin/console background:services run`, which
+        // is the supported non-browser entry point. qualified_site_addr is
+        // composed from site_addr_oath + webroot in interface/globals.php and
+        // respects operator configuration in either environment.
+        $fields2['callback_url'] = OEGlobalsBag::getInstance()->getString('qualified_site_addr')
+            . '/library/MedEx/MedEx.php';
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlQuery($sqlQuery);
-        $providers = explode('|', $my_status['ME_providers']);
+        $providers = explode('|', (string) $my_status['ME_providers']);
         foreach ($providers as $provider) {
             $runQuery = "SELECT * FROM users WHERE id=?";
-            $ures = sqlStatement($runQuery, array($provider));
+            $ures = sqlStatement($runQuery, [$provider]);
             while ($urow = sqlFetchArray($ures)) {
                 $fields2['providers'][] = $urow;
             }
         }
-        $facilities = explode('|', $my_status['ME_facilities']);
+        $facilities = explode('|', (string) $my_status['ME_facilities']);
         $runQuery = "SELECT * FROM facility WHERE service_location='1'";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
@@ -179,7 +183,7 @@ class Practice extends Base
             $fields2['clinical_reminders'][] = $urow;
         }
 
-        $data = array($fields2);
+        $data = [$fields2];
         if (!is_array($data)) {
          //   return false; //throw new InvalidProductException('Invalid practice information');
         }
@@ -192,16 +196,14 @@ class Practice extends Base
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
             $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?";
-            $test2 = sqlStatement($query, array($result1['msg_pc_eid']));
+            $test2 = sqlStatement($query, [$result1['msg_pc_eid']]);
             $result2 = sqlFetchArray($test2);
             //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
             if (
-                $result2['pc_apptstatus'] == '*' ||  //confirmed
-                $result2['pc_apptstatus'] == '%' ||  //cancelled < 24hour
-                $result2['pc_apptstatus'] == 'x'
+                in_array($result2['pc_apptstatus'], ['*', '%', 'x'])
             ) { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
+                sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
             }
         }
@@ -209,13 +211,13 @@ class Practice extends Base
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid LIKE 'recall_%' GROUP BY msg_pc_eid";
         $result = sqlStatement($sql);
         while ($row = sqlFetchArray($result)) {
-            $pid = trim($row['msg_pc_eid'], "recall_");
+            $pid = trim((string) $row['msg_pc_eid'], "recall_");
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
-            $test3 = sqlStatement($query, array($pid));
+            $test3 = sqlStatement($query, [$pid]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, array($result3['pc_eid'],$result2['msg_uid']));
+                sqlQuery($sqlUPDATE, [$result3['pc_eid'],$result2['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $row['msg_pc_eid'];
             }
         }
@@ -232,7 +234,7 @@ class Practice extends Base
         foreach ($responses['messages'] as $data) {
             $data['msg_extra'] = $data['msg_extra'] ?: '';
             $sqlQuery = "SELECT * FROM medex_outgoing WHERE medex_uid=?";
-            $checker = sqlStatement($sqlQuery, array($data['msg_uid']));
+            $checker = sqlStatement($sqlQuery, [$data['msg_uid']]);
             if (sqlNumRows($checker) == '0') {
                 $this->MedEx->callback->receive($data);
             }
@@ -264,7 +266,7 @@ class Campaign extends Base
 {
     public function events($token)
     {
-        $info = array();
+        $info = [];
         $query = "SELECT * FROM medex_prefs";
         $info = sqlFetchArray(sqlStatement($query));
 
@@ -276,7 +278,7 @@ class Campaign extends Base
         ) {
             return false;
         }
-        $results = json_decode($info['status'], true);
+        $results = json_decode((string) $info['status'], true);
         return $results['status']['campaigns'];
     }
 }
@@ -289,7 +291,7 @@ class Events extends Base
         if (empty($events)) {
             return false; //throw new InvalidDataException("You have no Campaign Events on MedEx at this time.");
         }
-        $appt3 = array();
+        $appt3 = [];
         $count_appts = 0;
         $count_recalls = 0;
         $count_recurrents = 0;
@@ -298,15 +300,17 @@ class Events extends Base
         $count_clinical_reminders = 0;
         $count_gogreen = 0;
 
-        $sqlQuery = "SELECT * FROM medex_icons";
+        $sqlQuery = "SELECT msg_type, msg_status, i_html FROM medex_icons";
         $result = sqlStatement($sqlQuery);
+        $matches = [];
         while ($icons = sqlFetchArray($result)) {
-            $title = preg_match('/title=\"(.*)\"/', $icons['i_html']);
+            preg_match('/title="([^"]*)"/', (string) $icons['i_html'], $matches);
+            $title = $matches[1] ?? '';
             $xl_title = xla($title);
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
-        $sql2 = "SELECT * FROM medex_prefs";
+        $sql2 = "SELECT ME_facilities, ME_providers FROM medex_prefs";
         $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
@@ -316,7 +320,7 @@ class Events extends Base
             $target_lang = '';
             $no_dupes = '';
             if (($event['E_language'] > '') && ($event['E_language'] != "all")) {
-                $langs = explode("|", $event['E_language']);
+                $langs = explode("|", (string) $event['E_language']);
                 foreach ($langs as $lang) {
                     if ($lang == 'No preference') {
                         $build_langs .= "pat.language = '' OR ";
@@ -352,8 +356,11 @@ class Events extends Base
                 //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                 //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
                 if ($event['T_appt_stats'] > '') {
-                    $list = implode('|', $event['T_appt_stats']);
-                    $appt_status = " and pc_appstatus in (" . $list . ")";
+                    $statPlaceholders = implode(',', array_fill(0, count($event['T_appt_stats']), '?'));
+                    $appt_status = " and pc_appstatus in (" . $statPlaceholders . ")";
+                    foreach ($event['T_appt_stats'] as $stat) {
+                        $escapedArr[] = $stat;
+                    }
                 }
 
                 $timing = (int)$event['E_fire_time'] - 1;
@@ -361,14 +368,17 @@ class Events extends Base
                 if (($today == "Sunday") || ($today == "Saturday")) {
                     continue;
                 }
-                if ($today == "Friday") {
-                    $timing2 = ($timing + 3) . ":0:1";
-                } else {
-                    $timing2 = ($timing + 1) . ":1:1";
-                }
+                $timing2 = $today == "Friday" ? ($timing + 3) . ":0:1" : ($timing + 1) . ":1:1";
 
                 if (!empty($prefs['ME_facilities'])) {
-                    $places = str_replace("|", ",", $prefs['ME_facilities']);
+                    $facilityIds = array_filter(
+                        array_map(fn($id) => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
+                        fn($id) => $id !== false
+                    );
+                    if ($facilityIds === []) {
+                        continue;
+                    }
+                    $places = implode(',', $facilityIds);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                 LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                 WHERE
@@ -393,13 +403,13 @@ class Events extends Base
                     while ($appt = sqlFetchArray($result)) {
                         if ($appt['e_is_subEvent_of'] > '0') {
                             $query = "select * from medex_outgoing where msg_uid=?";
-                            $event2 = sqlStatement($query, array($appt['e_is_subEvent_of']));
+                            $event2 = sqlStatement($query, [$appt['e_is_subEvent_of']]);
                             if (new DateTime() < new DateTime($event2["msg_date"])) {
                                 // if current time is less than Parent Appt, ignore this appt
                                 continue;
                             }
                         }
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                        [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results == false) {
                             continue;
                         }
@@ -443,12 +453,11 @@ class Events extends Base
                     }
                 }
             } elseif ($event['M_group'] == 'RECALL') {
-                if ($event['time_order'] > '0') {
-                    $interval = "+";
-                } else {
-                    $interval = '-';
+                $interval = $event['time_order'] > '0' ? "+" : '-';
+                $timing = filter_var($event['E_fire_time'], FILTER_VALIDATE_INT);
+                if ($timing === false) {
+                    continue;
                 }
-                $timing = $event['E_fire_time'];
 
                 $query  = "SELECT * FROM medex_recalls AS recall
                             LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
@@ -457,7 +466,7 @@ class Events extends Base
                 $result = sqlStatement($query);
 
                 while ($recall = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $recall, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $recall, $icon);
                     if ($results == false) {
                         continue;
                     }
@@ -470,14 +479,14 @@ class Events extends Base
                         continue;
                     }
 
-                    if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
+                    if (strtotime((string) $recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_" . $recall['r_pid'], $appt3)) {
                             continue;
                         }
                     }
 
                     $count_recalls++;
-                    $recall2 = array();
+                    $recall2 = [];
                     $recall2['pc_pid']        = $recall['r_pid'];
                     $recall2['pc_eventDate']  = $recall['r_eventDate'];
                     $recall2['pc_startTime']  = '10:42:00';
@@ -510,7 +519,7 @@ class Events extends Base
                     continue;
                 }
                 $today = strtotime(date('Y-m-d'));
-                $start = strtotime($event['appts_start']);
+                $start = strtotime((string) $event['appts_start']);
 
                 if ($today < $start) {
                     continue;
@@ -547,7 +556,7 @@ class Events extends Base
                 }
                 if (!empty($event['appt_stats'])) {
                     $prepare_me = '';
-                    $appt_stats = explode('|', $event['appt_stats']);
+                    $appt_stats = explode('|', (string) $event['appt_stats']);
                     foreach ($appt_stats as $appt_stat) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $appt_stat;
@@ -560,7 +569,7 @@ class Events extends Base
 
                 if (!empty($event['providers'])) {
                     $prepare_me = '';
-                    $providers = explode('|', $event['providers']);
+                    $providers = explode('|', (string) $event['providers']);
                     foreach ($providers as $provider) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $provider;
@@ -573,7 +582,7 @@ class Events extends Base
 
                 if (!empty($event['facilities'])) {
                     $prepare_me = '';
-                    $facilities = explode('|', $event['facilities']);
+                    $facilities = explode('|', (string) $event['facilities']);
                     foreach ($facilities as $facility) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $facility;
@@ -586,7 +595,7 @@ class Events extends Base
 
                 if (!empty($event['visit_types'])) {
                     $prepare_me = '';
-                    $visit_types = explode('|', $event['visit_types']);
+                    $visit_types = explode('|', (string) $event['visit_types']);
                     foreach ($visit_types as $visit_type) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $visit_type;
@@ -607,7 +616,7 @@ class Events extends Base
                             ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($sql_ANNOUNCE, $escapedArr);
                 while ($appt = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results == false) {
                         continue;
                     }
@@ -618,7 +627,7 @@ class Events extends Base
                     }
                     $count_announcements++;
 
-                    $appt2 = array();
+                    $appt2 = [];
                     $appt2['pc_pid']        = $appt['pc_pid'];
                     $appt2['pc_eventDate']  = $appt['pc_eventDate'];
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
@@ -674,7 +683,7 @@ class Events extends Base
                     rtrim($escClause['Fac'], ",");
                     $facility_clause = " AND cal.pc_facility in (" . $escClause['Fac'] . ") ";
                 }
-                $all_providers = explode('|', $prefs['ME_providers']);
+                $all_providers = explode('|', (string) $prefs['ME_providers']);
                 foreach ($event['survey'] as $k => $v) {
                     if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
                         continue;
@@ -684,7 +693,7 @@ class Events extends Base
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                     LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                     WHERE (
-                                        cal.pc_eventDate > CURDATE() - INTERVAL " . $event['timing'] . " DAY AND
+                                        cal.pc_eventDate > CURDATE() - INTERVAL " . filter_var($event['timing'], FILTER_VALIDATE_INT, ['options' => ['default' => 180]]) . " DAY AND
                                         cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
                                         pat.pid=cal.pc_pid AND
                                         pc_apptstatus !='%' AND
@@ -694,14 +703,14 @@ class Events extends Base
                                         AND cal.pc_aid IN (?)
                                     GROUP BY pc_pid
                                     ORDER BY pc_eventDate,pc_startTime
-                                    LIMIT " . $v;
+                                    LIMIT " . filter_var($v, FILTER_VALIDATE_INT, ['options' => ['default' => 0, 'min_range' => 0]]);
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                        [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results == false) {
                             continue; //not happening - either not allowed or not possible
                         }
-                        $appt2 = array();
+                        $appt2 = [];
                         $appt2['pc_pid']        = $appt['pc_pid'];
                         $appt2['pc_eventDate']  = $appt['pc_eventDate'];
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
@@ -747,7 +756,7 @@ class Events extends Base
                               ORDER BY `due_status`, `date_created`";
                 $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $urow, $icon);
                     if ($results == false) {
                         continue; //not happening - either not allowed or not possible
                     }
@@ -769,7 +778,7 @@ class Events extends Base
                         $prepare_me .= "?,";
                         $escapedArr[] = $event['appt_stats'];
                     } else {
-                        $appt_stats = explode('|', $event['appt_stats']);
+                        $appt_stats = explode('|', (string) $event['appt_stats']);
                         foreach ($appt_stats as $appt_stat) {
                             $prepare_me .= "?,";
                             $escapedArr[] = $appt_stat;
@@ -783,7 +792,7 @@ class Events extends Base
 
                 if (!empty($event['providers'])) {
                     $prepare_me = '';
-                    $providers = explode('|', $event['providers']);
+                    $providers = explode('|', (string) $event['providers']);
                     foreach ($providers as $provider) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $provider;
@@ -796,7 +805,7 @@ class Events extends Base
 
                 if (!empty($event['facilities'])) {
                     $prepare_me = '';
-                    $facilities = explode('|', $event['facilities']);
+                    $facilities = explode('|', (string) $event['facilities']);
                     foreach ($facilities as $facility) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $facility;
@@ -809,7 +818,7 @@ class Events extends Base
 
                 if (!empty($event['visit_types'])) {
                     $prepare_me = '';
-                    $visit_types = explode('|', $event['visit_types']);
+                    $visit_types = explode('|', (string) $event['visit_types']);
                     foreach ($visit_types as $visit_type) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $visit_type;
@@ -912,21 +921,21 @@ class Events extends Base
                                 ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
-                } catch (\Exception $e) {
+                } catch (\Throwable) {
                     $this->MedEx->logging->log_this($sql_GOGREEN);
                     exit;
                 }
                 while ($appt = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results == false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     if ($no_fu) {
-                        $sql_NoFollowUp = "SELECT pc_pid FROM openemr_postcalendar_events WHERE
+                        $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
                             pc_eventDate > ( ? + INTERVAL " . escape_limit($no_interval) . " DAY)";
-                        $result = sqlQuery($sql_NoFollowUp, array($appt['pc_pid'], $appt['pc_eventDate']));
-                        if (count($result) > '') {
+                        $result = sqlQuery($sql_NoFollowUp, [$appt['pc_pid'], $appt['pc_eventDate']]);
+                        if ($result['num'] > 0) {
                             continue;
                         }
                     }
@@ -936,7 +945,7 @@ class Events extends Base
                         continue;
                     }
                     $count_gogreen++;
-                    $appt2 = array();
+                    $appt2 = [];
                     $appt2['pc_pid']        = $appt['pc_pid'];
                     $appt2['pc_eventDate']  = $appt['pc_eventDate'];
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
@@ -998,8 +1007,8 @@ class Events extends Base
     {
         //get dates in this request
         if ($M_group == "REMINDER") {
-            $start = explode(':', $timing);
-            $end = explode(':', $timing2);
+            $start = explode(':', (string) $timing);
+            $end = explode(':', (string) $timing2);
             $start_date = date('Y-m-d', strtotime($interval . $start[0] . ' day'));
             $stop_date = date('Y-m-d', strtotime($interval . $end[0] . ' day'));
         } else {
@@ -1022,31 +1031,31 @@ class Events extends Base
                 $oldRecurrspec['exdate'] .= $exclude;
             }
             // mod original event recur specs to exclude this date
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?", array(serialize($oldRecurrspec),$appt['pc_eid']));
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?", [serialize($oldRecurrspec),$appt['pc_eid']]);
             // specify some special variables needed for the INSERT
             // no recurr specs, this is used for adding a new non-recurring event
-            $noRecurrspec = array("event_repeat_freq" => "",
+            $noRecurrspec = ["event_repeat_freq" => "",
                         "event_repeat_freq_type" => "",
                         "event_repeat_on_num" => "1",
                         "event_repeat_on_day" => "0",
                         "event_repeat_on_freq" => "0",
                         "exdate" => ""
-                    );
+                    ];
             // Useless garbage that we must save. Anon
             // - ok but why is it useless? RM 2018-11-05
-            $locationspecs = array("event_location" => "",
+            $locationspecs = ["event_location" => "",
                                 "event_street1" => "",
                                 "event_street2" => "",
                                 "event_city" => "",
                                 "event_state" => "",
                                 "event_postal" => ""
-                            );
+                            ];
             $locationspec = serialize($locationspecs);
             $args['duration'] = $appt['duration'];
             // this event is forced to NOT REPEAT
             $args['form_repeat'] = "0";
             $args['recurrspec'] = $noRecurrspec;
-            $args['form_enddate'] = "0000-00-00";
+            $args['form_enddate'] = null;
             //$args['prefcatid'] = (int)$appt['prefcatid'];
 
             $sql = "INSERT INTO openemr_postcalendar_events ( " .
@@ -1058,11 +1067,11 @@ class Events extends Base
             "pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
 
-            $pc_eid = sqlInsert($sql, array($appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
+            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
             $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
             serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
             $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
-            (int)$appt['pc_billing_facility'], $appt['pc_room']));
+            (int)$appt['pc_billing_facility'], $appt['pc_room']]);
 
             #Add a new tracker item for this appt.
             $datetime = date("Y-m-d H:i:s");
@@ -1070,7 +1079,7 @@ class Events extends Base
                 "INSERT INTO `patient_tracker` " .
                             "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                             "VALUES (?,?,?,?,?,'MedEx','0','1')",
-                array($datetime, $selected_date, $appt['pc_startTime'], $pc_eid, $appt['pc_pid'])
+                [$datetime, $selected_date, $appt['pc_startTime'], $pc_eid, $appt['pc_pid']]
             );
         }
         return count($hits);
@@ -1120,18 +1129,18 @@ class Events extends Base
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
-        $data = array();
+        $data = [];
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
                                 WHERE msg_pc_eid=? AND campaign_uid=? AND msg_type=? AND msg_reply='To Send'";
-            sqlQuery($sqlUPDATE, array($appt['reply'],$appt['extra'],$appt['pc_eid'],$appt['C_UID'], $appt['M_type']));
+            sqlQuery($sqlUPDATE, [$appt['reply'],$appt['extra'],$appt['pc_eid'],$appt['C_UID'], $appt['M_type']]);
             if (count($data['appts']) > '100') {
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
                 $this->curl->getResponse();
-                $data       = array();
+                $data       = [];
                 sleep(1);
             }
         }
@@ -1156,7 +1165,7 @@ class Events extends Base
           // PostCalendar Module modified by epsdky and inserted here,         //
           // and modified some more for MedEx.                                 //
           ///////////////////////////////////////////////////////////////////////
-        $data = array();
+        $data = [];
         switch ($event['pc_recurrtype']) {
             //not recurrent
             case '0':
@@ -1169,35 +1178,35 @@ class Events extends Base
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
-                $occurence = $event['pc_eventDate'];
+                [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
+                $occurrence = $event['pc_eventDate'];
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime($occurence) < strtotime($start_date)) {
+                while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 //now we are cooking...
-                while ($occurence <= $stop_date) {
+                while ($occurrence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
-                        foreach (explode(",", $exdate) as $exception) {
+                        foreach (explode(",", (string) $exdate) as $exception) {
                             // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", $occurence) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                 $excluded = true;
                             }
                         }
                     }
 
                     if ($excluded == false) {
-                        $data[] = $occurence;
+                        $data[] = $occurrence;
                     }
-                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
 
@@ -1212,15 +1221,15 @@ class Events extends Base
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
 
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
                 }
 
                 $occurenceYm = "$ny-$nm"; // YYYY-mm
-                $from_dateYm = substr($start_date, 0, 7); // YYYY-mm
-                $stop_dateYm = substr($stop_date, 0, 7); // YYYY-mm
+                $from_dateYm = substr((string) $start_date, 0, 7); // YYYY-mm
+                $stop_dateYm = substr((string) $stop_date, 0, 7); // YYYY-mm
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
                 // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
@@ -1228,7 +1237,7 @@ class Events extends Base
                 // $nd has no influence past the mktime functions.
                 while ($occurenceYm < $from_dateYm) {
                     $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
                 }
 
@@ -1236,31 +1245,31 @@ class Events extends Base
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurence === -1);
+                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurrence === -1);
 
-                    if ($occurence >= $start_date && $occurence <= $stop_date) {
+                    if ($occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
-                            foreach (explode(",", $exdate) as $exception) {
+                            foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurence) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
                         }
 
                         if ($excluded == false) {
-                            $event['pc_eventDate'] = $occurence;
-                            $event['pc_endDate'] = '0000-00-00';
+                            $event['pc_eventDate'] = $occurrence;
+                            $event['pc_endDate'] = null;
                             $events2[] = $event;
                             $data[] = $event['pc_eventDate'];
                         }
                     }
 
                     $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
                 }
                 break;
@@ -1298,13 +1307,13 @@ class Events extends Base
             // and finally make sure we haven't landed on a end week days
             // adjust as necessary
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
-            if (count($GLOBALS['weekend_days']) === 2) {
-                if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+            if (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 2) {
+                if ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                     $f += 2;
-                } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
+                } elseif ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[1]) {
                      $f++;
                 }
-            } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+            } elseif (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 1 && $nextWorkDOW === OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                 $f++;
             }
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d + $f), $y));
@@ -1329,16 +1338,16 @@ class Events extends Base
                         VALUES (?,?,?,?,?)
                         ON DUPLICATE KEY
                         UPDATE r_reason=?, r_eventDate=?, r_provider=?,r_facility=?";
-        sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
+        sqlStatement($queryINS, [$_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']]);
         $query = "UPDATE patient_data
                     SET phone_home=?,phone_cell=?,email=?,
                         hipaa_allowemail=?,hipaa_voice=?,hipaa_allowsms=?,
                         street=?,postal_code=?,city=?,state=?
                     WHERE pid=?";
-        $sqlValues = array($_REQUEST['new_phone_home'],$_REQUEST['new_phone_cell'],$_REQUEST['new_email'],
+        $sqlValues = [$_REQUEST['new_phone_home'],$_REQUEST['new_phone_cell'],$_REQUEST['new_email'],
                         $_REQUEST['new_email_allow'],$_REQUEST['new_voice'],$_REQUEST['new_allowsms'],
                         $_REQUEST['new_address'],$_REQUEST['new_postal_code'],$_REQUEST['new_city'],$_REQUEST['new_state'],
-                        $_REQUEST['new_pid']);
+                        $_REQUEST['new_pid']];
         sqlStatement($query, $sqlValues);
         return;
     }
@@ -1346,10 +1355,10 @@ class Events extends Base
     public function delete_Recall()
     {
         $sqlQuery = "DELETE FROM medex_recalls WHERE r_pid=? OR r_ID=?";
-        sqlStatement($sqlQuery, array($_POST['pid'],$_POST['r_ID']));
+        sqlStatement($sqlQuery, [$_POST['pid'],$_POST['r_ID']]);
 
         $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
-        sqlStatement($sqlDELETE, array('recall_' . $_POST['pid']));
+        sqlStatement($sqlDELETE, ['recall_' . $_POST['pid']]);
     }
 
     public function getAge($dob, $asof = '')
@@ -1357,8 +1366,8 @@ class Events extends Base
         if (empty($asof)) {
             $asof = date('Y-m-d');
         }
-        $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($asof, 0, 10));
+        $a1 = explode('-', substr((string) $dob, 0, 10));
+        $a2 = explode('-', substr((string) $asof, 0, 10));
         $age = $a2[0] - $a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
@@ -1370,7 +1379,7 @@ class Events extends Base
     {
         $start = date('Y-m-d', strtotime($interval . $start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval . $end_days . ' day'));
-        $aryRange = array();
+        $aryRange = [];
 
         $iDateFrom = mktime(1, 0, 0, substr($start, 5, 2), substr($start, 8, 2), substr($start, 0, 4));
         $iDateTo = mktime(1, 0, 0, substr($end, 5, 2), substr($end, 8, 2), substr($end, 0, 4));
@@ -1406,7 +1415,7 @@ class Callback extends Base
                 $data['patient_id'] = $data['e_pid'];
             } elseif ($data['pc_eid']) {
                 $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid=?";
-                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
+                $patient = sqlFetchArray(sqlStatement($query, [$data['pc_eid']]));
                 $data['patient_id'] = $patient['pid'];
             }
         }
@@ -1416,44 +1425,44 @@ class Callback extends Base
             if (!$data['M_type']) {
                 $data['M_type'] = 'pending';
             }
-            sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
+            sqlQuery($sqlINSERT, [$data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']]);
 
             if ($data['msg_reply'] == "CONFIRMED") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
-                sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
+                sqlStatement($sqlUPDATE, [$data['msg_type'],$data['pc_eid']]);
                 $query = "SELECT * FROM patient_tracker WHERE eid=?";
-                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
+                $tracker = sqlFetchArray(sqlStatement($query, [$data['pc_eid']]));
                 if (!empty($tracker['id'])) {
                     sqlStatement(
                         "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE eid=?",
-                        array(($tracker['lastseq'] + 1),$data['pc_eid'])
+                        [($tracker['lastseq'] + 1),$data['pc_eid']]
                     );
                     $datetime = date("Y-m-d H:i:s");
                     sqlInsert(
                         "INSERT INTO `patient_tracker_element` " .
                             "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
                             "VALUES (?,?,?,?,?)",
-                        array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq'] + 1))
+                        [$tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq'] + 1)]
                     );
                 }
             } elseif ($data['msg_reply'] == "CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
-                sqlQuery($sqlUPDATE, array($data['pc_eid']));
+                sqlQuery($sqlUPDATE, [$data['pc_eid']]);
                 //this requires attention.  Send up the FLAG!
                 //$this->MedEx->logging->new_message($data);
             } elseif (($data['msg_type'] == "AVM") && ($data['msg_reply'] == "STOP")) {
                 $sqlUPDATE = "UPDATE patient_data SET hipaa_voice = 'NO' WHERE pid=?";
-                sqlQuery($sqlUPDATE, array($data['patient_id']));
+                sqlQuery($sqlUPDATE, [$data['patient_id']]);
             } elseif (($data['msg_type'] == "SMS") && ($data['msg_reply'] == "STOP")) {
                 $sqlUPDATE = "UPDATE patient_data SET hipaa_allowsms = 'NO' WHERE pid=?";
-                sqlQuery($sqlUPDATE, array($data['patient_id']));
+                sqlQuery($sqlUPDATE, [$data['patient_id']]);
             } elseif (($data['msg_type'] == "EMAIL") && ($data['msg_reply'] == "STOP")) {
                 $sqlUPDATE = "UPDATE patient_data SET hipaa_allowemail = 'NO' WHERE pid=?";
-                sqlQuery($sqlUPDATE, array($data['patient_id']));
+                sqlQuery($sqlUPDATE, [$data['patient_id']]);
             }
             if (($data['msg_reply'] == "SENT") || ($data['msg_reply'] == "READ")) {
                 $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid=? AND msg_reply='To Send'";
-                sqlQuery($sqlDELETE, array($data['pc_eid']));
+                sqlQuery($sqlDELETE, [$data['pc_eid']]);
             }
             $response['comments']   = $data['pc_eid'] . " - " . $data['campaign_uid'] . " - " . $data['msg_type'] . " - " . $data['reply'] . " - " . $data['extra'];
             $response['pid']        = $data['patient_id'];
@@ -1465,7 +1474,7 @@ class Callback extends Base
     }
 }
 
-class Logging extends base
+class Logging extends Base
 {
     public function log_this($data)
     {
@@ -1479,12 +1488,12 @@ class Logging extends base
             if (is_array($data)) {
                 $dumper = print_r($data, true);
                 foreach ($data as $key => $value) {
-                    fputs($std_log, $key . ": " . $value . "\n");
+                    fwrite($std_log, $key . ": " . $value . "\n");
                 }
             } else {
-                fputs($std_log, "\nDATA= " . $data . "\n");
+                fwrite($std_log, "\nDATA= " . $data . "\n");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             fwrite($std_log, $e->getMessage() . "\n");
         }
         fclose($std_log);
@@ -1492,7 +1501,7 @@ class Logging extends base
     }
 }
 
-class Display extends base
+class Display extends Base
 {
     public function navigation($logged_in)
     {
@@ -1503,7 +1512,7 @@ class Display extends base
         function toggle_menu() {
                 var x = document.getElementById('hide_nav');
                 if (x.style.display === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'show',
                         success: function (data) {
                             x.style.display = 'block';
@@ -1511,7 +1520,7 @@ class Display extends base
                         });
 
                 } else {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'hide',
                         success: function (data) {
                             x.style.display = 'none';
@@ -1523,7 +1532,7 @@ class Display extends base
 
         function SMS_bot_list() {
             top.restoreSession();
-            var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
+            var myWindow = window.open('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
             myWindow.focus();
             return false;
         }
@@ -1544,7 +1553,7 @@ class Display extends base
                 </button>
                 <div class="collapse navbar-collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
-                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                                 <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
@@ -1555,7 +1564,7 @@ class Display extends base
                                     } else {
                                         ?>
                                         <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                        <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                        <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
                                     <?php } ?>
                                  </ul>
                             </li>
@@ -1564,13 +1573,13 @@ class Display extends base
                         <li class="nav-item dropdown">
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
                                 <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                             </ul>
                         </li>
@@ -1578,12 +1587,12 @@ class Display extends base
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                             <?php
-                            if ($GLOBALS['disable_calendar'] != '1') {  ?>
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_calendar')) {  ?>
                                 <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                 <li class="dropdown-divider"></li>
                                 <?php
                             }
-                            if ($GLOBALS['disable_pat_trkr'] != '1') {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_pat_trkr')) {
                                 ?>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                 <?php }
@@ -1598,7 +1607,7 @@ class Display extends base
                          </li>
                                 <?php
 
-                                if ($GLOBALS['disable_rcb'] != '1') { ?>
+                                if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                                         <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
@@ -1630,7 +1639,7 @@ class Display extends base
             </nav>
         </div>
             <?php
-            if ($GLOBALS['medex_enable'] == '1') {
+            if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 $error = $this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
@@ -1696,7 +1705,7 @@ class Display extends base
                                                         while ($fac = sqlFetchArray($result)) {
                                                             $checked = "";
                                                             if ($prefs) {
-                                                                $facs = explode('|', $prefs['ME_facilities']);
+                                                                $facs = explode('|', (string) $prefs['ME_facilities']);
                                                                 foreach ($facs as $place) {
                                                                     if ($place == $fac['id']) {
                                                                         $checked = 'checked ="checked"';
@@ -1720,7 +1729,7 @@ class Display extends base
                                                         $checked = "";
                                                         $suffix = "";
                                                         if ($prefs) {
-                                                            $provs = explode('|', $prefs['ME_providers']);
+                                                            $provs = explode('|', (string) $prefs['ME_providers']);
                                                             foreach ($provs as $doc) {
                                                                 if ($doc == $prov['id']) {
                                                                     $checked = 'checked ="checked"';
@@ -1858,26 +1867,29 @@ class Display extends base
         global $rcb_facility;
         global $rcb_provider;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_from_date'])) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
-        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'Y')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'M')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'D')) {
+             $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
         }
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_to_date'])) : $to_date;
+        $patient_id = strip_tags((string) ($_REQUEST['form_patient_id'] ?? ''));
+        $patient_name = strip_tags((string) ($_REQUEST['form_patient_name'] ?? ''));
 
-        $recalls = $this->get_recalls($from_date, $to_date);
+        $recalls = $this->get_recalls(is_string($from_date) ? $from_date : '', is_string($to_date) ? $to_date : '', is_string($rcb_facility) ? $rcb_facility : '', is_string($rcb_provider) ? $rcb_provider : '', $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -1893,17 +1905,20 @@ class Display extends base
             <div class="col-12 jumbotron p-4">
                 <div class="showRFlow text-center" id="show_recalls_params">
                     <?php
-                    if ($GLOBALS['medex_enable'] == '0') {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                         $last_col_width = "nodisplay";
                     }
                     ?>
-
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls" />
-                        <div class="text-center row align-items-center">
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row justify-content-center mx-sm-1">
-                                    <select class="form-control form-control-sm" id="form_facility" name="form_facility"
+                        <div class="text-center mb-4">
+                            <button class="btn btn-primary btn-add" style="width: 200px;" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <select class="form-control" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1921,13 +1936,18 @@ class Display extends base
                                         <?php echo $select_facs; ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
+                                        class="form-control text-center"
+                                        type="text"
+                                        id="form_patient_id"
+                                        name="form_patient_id"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_id'])) ? attr($_REQUEST['form_patient_id']) : ((!empty($form_patient_id)) ? attr($form_patient_id) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row mx-sm-1 justify-content-center">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1937,7 +1957,7 @@ class Display extends base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-control" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -1945,13 +1965,15 @@ class Display extends base
                                         $query = "SELECT id, lname, fname FROM users WHERE " .
                                         "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                                         $ures = sqlStatement($query);
+                                        $userauthorized = $session->get('userauthorized');
+                                        $authUserID = $session->get('authUserID');
                                         //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
                                             echo "<option value='" . attr($provid) . "'";
                                             if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
-                                            } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                            } elseif (!isset($_POST['form_provider']) && $userauthorized && $provid == $authUserID) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -1959,35 +1981,34 @@ class Display extends base
                                         ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input type="text"
+                                        placeholder="<?php echo xla('Patient Name'); ?>"
+                                        class="form-control text-center"
+                                        id="form_patient_name"
+                                        name="form_patient_name"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_name'])) ? attr($_REQUEST['form_patient_name']) : ((!empty($form_patient_name)) ? attr($form_patient_name) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4">
-                                <div class="input-append">
-                                    <div class="form-group row mt-md-5">
-                                        <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label for="flow_to" class="col">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row" role="group">
-                                        <div class="col text-right">
-                                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                            <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
-                                        </div>
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
+                                    <input id="form_from_date" name="form_from_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($from_date)); ?>" />
                                 </div>
                             </div>
-
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+                                    <input id="form_to_date" name="form_to_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($to_date)); ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4 mb-2">
+                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit"
+                                style="width: 200px;" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                         </div>
                         <div name="message" id="message" class="warning">
                         </div>
@@ -2017,9 +2038,13 @@ class Display extends base
                 <div class="tab-content">
                    <div class="tab-pane active" id="tab-all">
                         <?php
-                            $this->recall_board_top();
-                            echo $processed['ALL'] ?? '';
+                        $has_recall = !empty($processed['ALL']);
+                        $this->recall_board_top($has_recall);
+                        if ($has_recall) {
+                            // Output pre-built HTML (escaped at construction in recall_board_process)
+                            echo is_array($processed) ? ($processed['ALL'] ?? '') : ''; // nosemgrep: echoed-request
                             $this->recall_board_bot();
+                        }
                         ?>
                     </div>
                 </div>
@@ -2035,7 +2060,7 @@ class Display extends base
     <script>
         function toggleRcbSelectors() {
             if ($("#rcb_selectors").css('display') === 'none') {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'block',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2043,7 +2068,7 @@ class Display extends base
                     }
                 });
             } else {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'none',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2057,7 +2082,7 @@ class Display extends base
         function SMS_bot(pid) {
             top.restoreSession();
             pid = pid.replace('recall_','');
-            window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+            window.open('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }
         $(function () {
@@ -2067,7 +2092,7 @@ class Display extends base
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -2076,28 +2101,53 @@ class Display extends base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls($from_date = '', $to_date = '')
+    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = '')
     {
-        // Recalls are requests to schedule a future appointment.
-        // Thus there is no r_appt_time (NULL) but there is a DATE set.
-        $query = "SELECT * FROM medex_recalls,patient_data AS pat
-                    WHERE pat.pid=medex_recalls.r_pid AND
-                    r_eventDate >= ? AND
-                    r_eventDate <= ? AND
-                    IFNULL(pat.deceased_date,0) = 0
-                    ORDER BY r_eventDate ASC";
-        $result = sqlStatement($query, array($from_date,$to_date));
+        $recalls = [];
+
+        $query = "SELECT * FROM medex_recalls JOIN patient_data AS pat ON pat.pid=medex_recalls.r_pid
+                  WHERE r_eventDate >= ? AND r_eventDate <= ? AND IFNULL(pat.deceased_date,0) = 0";
+
+        $params = [$from_date, $to_date];
+
+        if (!empty($rcb_facility)) {
+            $query .= " AND r_facility = ?";
+            $params[] = $rcb_facility;
+        }
+
+        if (!empty($rcb_provider)) {
+            $query .= " AND r_provider = ?";
+            $params[] = $rcb_provider;
+        }
+
+        if (!empty($patient_id)) {
+            $query .= " AND r_pid = ?";
+            $params[] = $patient_id;
+        }
+
+        if (!empty($patient_name)) {
+            $escaped_name = addcslashes($patient_name, '%_\\');
+            $query .= " AND (CONCAT(pat.fname, ' ', pat.lname) LIKE ? OR CONCAT(pat.lname, ', ', pat.fname) LIKE ?)";
+            $params[] = "%$escaped_name%";
+            $params[] = "%$escaped_name%";
+        }
+
+        $query .= " ORDER BY r_eventDate ASC";
+
+        $result = sqlStatement($query, $params);
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        return $recalls ?? null;
+
+        return $recalls;
     }
+
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
         global $MedEx;
         $count_facilities = 0;
         $count_providers = 0;
-        $process = array();
+        $process = [];
         if (empty($recalls)) {
             return false;
         }
@@ -2130,10 +2180,11 @@ class Display extends base
                  data-provider="' . attr($recall['r_provider']) . '"
                  data-pname="' . attr($recall['fname'] . " " . $recall['lname']) . '"
                  data-pid="' . attr($recall['pid']) . '"
+                 data-date="' . attr($recall['r_eventDate']) . '"
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
-            $result2 = sqlQuery($query, array($recall['pid']));
+            $result2 = sqlQuery($query, [$recall['pid']]);
             $last_visit = $result2['pc_eventDate'];
             if (empty($result2['DOB'] ?? '')) {
                 $result2['DOB'] = sqlQuery("Select DOB From patient_data Where `pid` = ?", [$recall['pid']])['DOB'];
@@ -2141,7 +2192,7 @@ class Display extends base
             $DOB = oeFormatShortDate($result2['DOB'] ?? '');
             $age = $MedEx->events->getAge($result2['DOB'] ?? 0);
             echo '<td class="divTableCell"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
-            if ($GLOBALS['ptkr_show_pid']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';
             }
             echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Most recent visit") . '" class="small">' . xlt("Last Visit") . ': ' . text(oeFormatShortDate($last_visit)) . '</span>';
@@ -2155,14 +2206,14 @@ class Display extends base
             if (strlen($provider[$recall['r_provider']]) > 14) {
                 $provider[$recall['r_provider']] = substr($provider[$recall['r_provider']], 0, 14) . "...";
             }
-            if (strlen($facility[$recall['r_facility']]) > 20) {
-                $facility[$recall['r_facility']] = substr($facility[$recall['r_facility']], 0, 17) . "...";
+            if (strlen((string) $facility[$recall['r_facility']]) > 20) {
+                $facility[$recall['r_facility']] = substr((string) $facility[$recall['r_facility']], 0, 17) . "...";
             }
 
             if ($count_providers > '1') {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Provider') . "'>" . text($provider[$recall['r_provider']]) . "</span>";
             }
-            if (( $count_facilities > '1' ) && ( $_REQUEST['form_facility'] == '' )) {
+            if (( $count_facilities > '1' ) && empty($_REQUEST['form_facility'])) {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Facility') . "'>" . text($facility[$recall['r_facility']]) . "</span><br />";
             }
 
@@ -2178,8 +2229,8 @@ class Display extends base
             }
             if ($recall['email'] > '') {
                 $mailto = $recall['email'];
-                if (strlen($recall['email']) > 15) {
-                    $recall['email'] = substr($recall['email'], 0, 12) . "...";
+                if (strlen((string) $recall['email']) > 15) {
+                    $recall['email'] = substr((string) $recall['email'], 0, 12) . "...";
                 }
                 echo 'E: <a data-toggle="tooltip" data-placement="auto" title="' . xla('Send an email to ') . attr($mailto) . '" href="mailto:' . attr($mailto) . '">' . text($recall['email']) . '</a><br />';
             }
@@ -2253,13 +2304,13 @@ class Display extends base
         $show['DONE'] = '';
         $query = "SELECT * FROM openemr_postcalendar_events WHERE
                   pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
-        $count = sqlFetchArray(sqlStatement($query, array($recall['r_pid'],$recall['r_eventDate'])));
+        $count = sqlFetchArray(sqlStatement($query, [$recall['r_pid'],$recall['r_eventDate']]));
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
-            sqlStatement($sqlDELETE, array('recall_' . $recall['pid']));
+            sqlStatement($sqlDELETE, ['recall_' . $recall['pid']]);
             $sqlDELETE = "DELETE FROM medex_recalls WHERE r_pid = ?";
-            sqlStatement($sqlDELETE, array($recall['pid']));
+            sqlStatement($sqlDELETE, [$recall['pid']]);
             //log this action "Recall for $pid deleted now()"?
             $show['DONE'] = '1';//tells recall board to move on.
             $show['status'] = 'greenish'; //tells MedEx to move on, don't process this recall - delete it from their servers.
@@ -2269,19 +2320,19 @@ class Display extends base
         }
 
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid = ?  ORDER BY msg_date ASC";
-        $result = sqlStatement($sql, array('recall_' . $recall['pid']));
+        $result = sqlStatement($sql, ['recall_' . $recall['pid']]);
         $something_happened = '';
 
         while ($progress = sqlFetchArray($result)) {
             $i = $progress['campaign_uid'];//if this is a manual entry, this ==0.
 
-            $phpdate = strtotime($progress['msg_date']);
+            $phpdate = strtotime((string) $progress['msg_date']);
             $when = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
 
             if (is_numeric($progress['msg_reply'])) { // it was manually added by id
                 $sql2 = "SELECT * FROM users WHERE id =?";
 
-                $who  = sqlQuery($sql2, array($progress['msg_reply']));
+                $who  = sqlQuery($sql2, [$progress['msg_reply']]);
                 $who_name = $who['fname'] . " " . $who['lname'];
                 //Manually generated actions
                 if ($progress['msg_type'] == 'phone') { //ie. a manual phone call, not an AVM
@@ -2364,9 +2415,10 @@ class Display extends base
                 $show['campaign'][$event['C_UID']] = $event;
                 $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
+                $rEventDate = is_array($recall) ? (is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '') : '';
+                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($rEventDate)));
                 $date1 = date('Y-m-d');
-                $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
+                $date_diff = strtotime($date1) - strtotime($rEventDate);
                 if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
                     $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
                     $show['status'] = "whitish";
@@ -2380,7 +2432,7 @@ class Display extends base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, array($recall['pid'])));
+        $result = sqlFetchArray(sqlStatement($query, [$recall['pid']]));
 
         if ($something_happened || $result) {
             if ($result) {
@@ -2389,7 +2441,7 @@ class Display extends base
                 $show['pc_eid'] = $result['pc_eid'];
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
                 $show['DONE'] = '1';
-            } elseif ($GLOBALS['medex_enable'] == '1') {
+            } elseif (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 if ($logged_in) {
                     if ($camps == '0') {
                         $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
@@ -2400,7 +2452,7 @@ class Display extends base
             } else {
                 $show['status'] = "whitish";
             }
-        } elseif (($GLOBALS['medex_enable'] == '1') && ($camps == '0')) {
+        } elseif ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && ($camps == '0')) {
                 $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
         } else {
             $show['status'] = "whitish";
@@ -2423,7 +2475,7 @@ class Display extends base
     }
     public function possibleModalities($appt)
     {
-        $pat = array();
+        $pat = [];
         $sqlQuery = "SELECT * FROM medex_icons";
         $result = sqlStatement($sqlQuery);
         while ($icons = sqlFetchArray($result)) {
@@ -2435,7 +2487,7 @@ class Display extends base
             $pat['SMS'] = $icon['SMS']['NotAllowed'];
             $pat['ALLOWED']['SMS'] = 'NO';
         } else {
-            $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+            $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
             $pat['SMS'] = $icon['SMS']['ALLOWED'];     // It is allowed and they have a cell phone
         }
         if ((empty($appt["phone_home"]) && (empty($appt["phone_cell"])) || ($appt["hipaa_voice"] == "NO"))) {
@@ -2443,9 +2495,9 @@ class Display extends base
             $pat['ALLOWED']['AVM'] = 'NO';
         } else {
             if (!empty($appt["phone_cell"])) {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
             } else {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_home"]);
+                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_home"]);
             }
             $pat['AVM'] = $icon['AVM']['ALLOWED']; //We have a phone to call and permission!
         }
@@ -2455,16 +2507,16 @@ class Display extends base
         } else {
             $pat['EMAIL'] = $icon['EMAIL']['ALLOWED'];
         }
-        if ($GLOBALS['medex_enable'] == '1') {
+        if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
             $sql = "SELECT * FROM medex_prefs";
             $prefs = sqlFetchArray(sqlStatement($sql));
-            $facs = explode('|', $prefs['ME_facilities']);
+            $facs = explode('|', (string) $prefs['ME_facilities']);
             foreach ($facs as $place) {
                 if (isset($appt['r_facility']) && ($appt['r_facility'] == $place)) {
                     $pat['facility']['status'] = 'ok';
                 }
             }
-            $providers = explode('|', $prefs['ME_providers']);
+            $providers = explode('|', (string) $prefs['ME_providers']);
             foreach ($providers as $provider) {
                 if (isset($appt['r_provider']) && ($appt['r_provider'] == $provider)) {
                     $pat['provider']['status'] = 'ok';
@@ -2473,8 +2525,13 @@ class Display extends base
         }
         return $pat;
     }
-    private function recall_board_top()
+    private function recall_board_top(bool $has_recall = false)
     {
+        if (!$has_recall) {
+            echo '<div id="no_recalls_message" class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
+            return;
+        }
+
         ?>
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -2523,6 +2580,8 @@ class Display extends base
     public function display_add_recall($pid = 'new')
     {
         global $result_pat;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
     <div class="container-fluid">
@@ -2537,7 +2596,7 @@ class Display extends base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ml-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
+                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
@@ -2581,7 +2640,7 @@ class Display extends base
                                 <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox">
                                 <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /> <?php echo xlt('plus 3 years'); ?></label>
                             </div>
-                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
+                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:<span class="text-danger">*</span></span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
 
@@ -2592,25 +2651,25 @@ class Display extends base
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
                             <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>" />
+                                 echo attr(rtrim("|", trim(is_string($result_pat['PLAN'] ?? null) ? $result_pat['PLAN'] : ''))); } ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Provider'); ?></label>
+                                <label><?php echo xlt('Provider'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                     <?php
                                     $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                    $defaultProvider = $_SESSION['authUserID'];
+                                    $defaultProvider = $session->get('authUserID');
+                                    $pc_username = $session->get('pc_username');
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (is_countable($_SESSION['pc_username'])) {
-                                        if (count($_SESSION['pc_username']) >= 1) {
+                                    if (is_countable($pc_username)) {
+                                        if (count($pc_username) >= 1) {
                                             // get the numeric ID of the first provider in the array
-                                            $pc_username = $_SESSION['pc_username'];
-                                            $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
+                                            $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", [$pc_username[0]]));
                                             $defaultProvider = $firstProvider['id'];
                                         }
                                     }
@@ -2637,7 +2696,7 @@ class Display extends base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Facility'); ?></label>
+                                <label><?php echo xlt('Facility'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                 <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
@@ -2759,19 +2818,28 @@ class Display extends base
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
                 <?php
-                if ($_SESSION['pid'] > '') {
+                if ($session->get('pid') > '') {
                     ?>
-                setpatient('<?php echo text($_SESSION['pid']); ?>');
+                setpatient('<?php echo text($session->get('pid')); ?>');
                     <?php
                 }
                 ?>
             var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
             var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
+
+            var translations = {
+                patient_required: <?php echo xlj('Please select a patient'); ?>,
+                date_required: <?php echo xlj('Please select a recall date'); ?>,
+                provider_required: <?php echo xlj('Please select a provider'); ?>,
+                facility_required: <?php echo xlj('Please select a facility'); ?>,
+                no_recalls_found: <?php echo xlj('No Recalls Found'); ?>
+            };
+
 
         </script>
             <?php
@@ -2784,7 +2852,7 @@ class Display extends base
             <?php
             $sqlQuery = "SELECT * FROM medex_icons ORDER BY msg_type";
             $result  = sqlStatement($sqlQuery);
-            $icons = array();
+            $icons = [];
             while ($urow = sqlFetchArray($result)) {
                 $icons['msg_type']['description'] = $urow['i_description'];
                 $icons[$urow['msg_type']][$urow['msg_status']]  = $urow['i_html'];
@@ -2858,7 +2926,7 @@ class Display extends base
 
     public function SMS_bot($logged_in)
     {
-        $fields = array();
+        $fields = [];
         $fields = $_REQUEST;
         if (!empty($_REQUEST['pid']) && $_REQUEST['pid'] != 'find') {
             $this->syncPat($_REQUEST['pid'], $logged_in);
@@ -2883,7 +2951,7 @@ class Display extends base
 
     public function TM_bot($logged_in, $data)
     {
-        $fields = array();
+        $fields = [];
         $fields = $data;
         if (!empty($data['pid']) && $data['pid'] != 'find') {
             $responseA = $this->syncPat($data['pid'], $logged_in);
@@ -2892,7 +2960,8 @@ class Display extends base
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        $fields['providerID'] = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $fields['providerID'] = $session->get('authUserID');
         $fields['token'] = $logged_in['token'];
         $fields['pc_eid'] = $data['pc_eid'];
 
@@ -2917,14 +2986,14 @@ class Display extends base
     {
         if ($pid == 'pat_list') {
             global $data;
-            $values = rtrim($_POST['outpatient']);
+            $values = rtrim(is_string($_POST['outpatient'] ?? null) ? $_POST['outpatient'] : '');
             $match = preg_split("/(?<=\w)\b\s*[!?.]*/", $values, -1, PREG_SPLIT_NO_EMPTY);
             if ((preg_match('/ /', $values)) && (!empty($match[1]))) {
                 $sqlSync = "SELECT * FROM patient_data WHERE (fname LIKE ? OR fname LIKE ?) AND (lname LIKE ? OR lname LIKE ?) LIMIT 20";
-                $datas = sqlStatement($sqlSync, array("%" . $match[0] . "%","%" . $match[1] . "%","%" . $match[0] . "%","%" . $match[1] . "%"));
+                $datas = sqlStatement($sqlSync, ["%" . $match[0] . "%","%" . $match[1] . "%","%" . $match[0] . "%","%" . $match[1] . "%"]);
             } else {
                 $sqlSync = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ? LIMIT 20";
-                $datas = sqlStatement($sqlSync, array("%" . $values . "%","%" . $values . "%"));
+                $datas = sqlStatement($sqlSync, ["%" . $values . "%","%" . $values . "%"]);
             }
 
             while ($hit = sqlFetchArray($datas)) {
@@ -2939,7 +3008,7 @@ class Display extends base
             $response['list_hits'] = $data['list'];
         } else {
             $sqlSync = "SELECT * FROM patient_data WHERE pid=?";
-            $data = sqlQuery($sqlSync, array($pid));
+            $data = sqlQuery($sqlSync, [$pid]);
             $this->curl->setUrl($this->MedEx->getUrl('custom/syncPat&token=' . $logged_in['token']));
             $this->curl->setData($data);
             $this->curl->makeRequest();
@@ -3011,7 +3080,7 @@ class Setup extends Base
                                 <div class="form-group mt-3">
                                     <label for="new_email"><?php echo xlt('E-mail'); ?>:</label>
                                     <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
-                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
+                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr(OEGlobalsBag::getInstance()->get('user_data')['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
                                     <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
@@ -3290,12 +3359,10 @@ class MedEx
 
     public function __construct($url, $sessionFile = 'cookiejar_MedExAPI')
     {
-        global $GLOBALS;
-
         if ($sessionFile == 'cookiejar_MedExAPI') {
-            $sessionFile = $GLOBALS['temporary_files_dir'] . '/cookiejar_MedExAPI';
+            $sessionFile = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
-        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', $url), '/') . '/cart/upload/index.php?route=api/';
+        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', is_string($url) ? $url : ''), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
         $this->practice = new Practice($this);
         $this->campaign = new Campaign($this);
@@ -3324,18 +3391,18 @@ class MedEx
         $versionService = new VersionService();
         $version = $versionService->fetch();
         $this->curl->setUrl($this->getUrl('login'));
-        $this->curl->setData(array(
+        $this->curl->setData([
         'username'  => $info['ME_username'],
         'key'       => $info['ME_api_key'],
         'UID'       => $info['MedEx_id'],
         'MedEx'     => 'OpenEMR',
-        'major'     => attr($version['v_major']),
-        'minor'     => attr($version['v_minor']),
-        'patch'     => attr($version['v_patch']),
-        'database'  => attr($version['v_database']),
-        'acl'       => attr($version['v_acl']),
+        'major'     => (string) $version['v_major'],
+        'minor'     => (string) $version['v_minor'],
+        'patch'     => (string) $version['v_patch'],
+        'database'  => (string) $version['v_database'],
+        'acl'       => (string) $version['v_acl'],
         'callback_key' => $info['callback_key']
-        ));
+        ]);
 
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
@@ -3351,28 +3418,28 @@ class MedEx
         }
 
         $sql = "UPDATE medex_prefs set status = ?";
-        sqlQuery($sql, array(json_encode($response)));
+        sqlQuery($sql, [json_encode($response)]);
         return $response;
     }
 
     public function login($force = '')
     {
-        $info = array();
+        $info = [];
         $info = $this->getPreferences();
 
         if (
-            empty($info) ||
-            empty($info['ME_username']) ||
-            empty($info['ME_api_key']) ||
-            empty($info['MedEx_id']) ||
-            ($GLOBALS['medex_enable'] !== '1')
+            $info === [] ||
+            ($info['ME_username'] ?? '') === '' ||
+            ($info['ME_api_key'] ?? '') === '' ||
+            ($info['MedEx_id'] ?? '') === '' ||
+            (!OEGlobalsBag::getInstance()->getBoolean('medex_enable'))
         ) {
             return false;
         }
         $info['callback_key'] = $_POST['callback_key'];
 
-        if (empty($force)) {
-            $timer = strtotime($info['MedEx_lastupdated']);
+        if ($force === '' || $force === null) {
+            $timer = strtotime(is_string($info['MedEx_lastupdated']) ? $info['MedEx_lastupdated'] : '');
             $utc_now = date('Y-m-d H:m:s');
             $hour_ago = strtotime($utc_now . "-60 minutes");
             if ($hour_ago > $timer) {
@@ -3383,7 +3450,7 @@ class MedEx
             $info['force'] = $force;
             $info = $this->just_login($info);
         } else {
-            $info['status'] = json_decode($info['status'], true);
+            $info['status'] = json_decode(is_string($info['status']) ? $info['status'] : '', true);
         }
 
         if (isset($info['error'])) {
@@ -3413,33 +3480,33 @@ class MedEx
     public function checkModality($event, $appt, $icon = '')
     {
         if ($event['M_type'] == "SMS") {
-            if (empty($appt['phone_cell']) || ($appt["hipaa_allowsms"] == "NO")) {
-                return array($icon['SMS']['NotAllowed'],false);
+            if (($appt['phone_cell'] ?? '') === '' || ($appt["hipaa_allowsms"] == "NO")) {
+                return [$icon['SMS']['NotAllowed'],false];
             } else {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
-                return array($icon['SMS']['ALLOWED'],$phone);     // It is allowed and they have a cell phone
+                $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_cell"]) ? $appt["phone_cell"] : '');
+                return [$icon['SMS']['ALLOWED'],$phone];     // It is allowed and they have a cell phone
             }
         } elseif ($event['M_type'] == "AVM") {
-            if ((empty($appt["phone_home"]) && (empty($appt["phone_cell"])) || ($appt["hipaa_voice"] == "NO"))) {
-                return array($icon['AVM']['NotAllowed'],false);
+            if ((($appt["phone_home"] ?? '') === '' && (($appt["phone_cell"] ?? '') === '') || ($appt["hipaa_voice"] == "NO"))) {
+                return [$icon['AVM']['NotAllowed'],false];
             } else {
-                if (!empty($appt["phone_cell"])) {
-                    $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+                if (($appt["phone_cell"] ?? '') !== '') {
+                    $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_cell"]) ? $appt["phone_cell"] : '');
                 } else {
-                    $phone = preg_replace("/[^0-9]/", "", $appt["phone_home"]);
+                    $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_home"]) ? $appt["phone_home"] : '');
                 }
-                return array($icon['AVM']['ALLOWED'],$phone); //We have a phone to call and permission!
+                return [$icon['AVM']['ALLOWED'],$phone]; //We have a phone to call and permission!
             }
         } elseif ($event['M_type'] == "EMAIL") {
             if (($appt["email"] == "") || ($appt["hipaa_allowemail"] == "NO")) {
-                return array($icon['EMAIL']['NotAllowed'],false);
+                return [$icon['EMAIL']['NotAllowed'],false];
             } else {
                 //need to make sure this is a valid email too eh?
-                return array($icon['EMAIL']['ALLOWED'],$appt["email"]);
+                return [$icon['EMAIL']['ALLOWED'],$appt["email"]];
             }
             //need to add in check for address to send postcards? - when we add in postcards...
         } else {
-            return array(false,false);
+            return [false,false];
         }
     }
 }

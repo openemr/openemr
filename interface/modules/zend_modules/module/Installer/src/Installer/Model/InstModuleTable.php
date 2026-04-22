@@ -16,33 +16,16 @@
 
 namespace Installer\Model;
 
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\Db\TableGateway\TableGateway;
-use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
-use Laminas\Config\Reader\Ini;
-use Laminas\Db\ResultSet\ResultSet;
-use Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
 {
-    protected $tableGateway;
-    protected $adapter;
-    protected $resultSetPrototype;
-
-    /**
-     * @var ApplicationTable
-     */
-    protected $applicationTable;
-
-    /**
-     * We have to create and populate some classes so we use the service container to load them
-     */
-    private $container;
-
     /**
      * The path for the zend modules locations
      *
@@ -53,41 +36,34 @@ class InstModuleTable
     public const MODULE_TYPE_ZEND = 1;
     public const MODULE_TYPE_CUSTOM = 0;
 
-    public function __construct(TableGateway $tableGateway, ContainerInterface $container)
-    {
-        $this->tableGateway = $tableGateway;
-        $adapter = GlobalAdapterFeature::getStaticAdapter();
-        $this->adapter = $adapter;
-        $this->resultSetPrototype = new ResultSet();
-        $this->applicationTable = new ApplicationTable();
-        $this->container = $container;
-        $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
-            . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
+    public function __construct(
+        private readonly ContainerInterface $container
+    ) {
+        $this->module_zend_path = OEGlobalsBag::getInstance()->get('srcdir') . DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('zendModDir') . DIRECTORY_SEPARATOR . "module";
     }
 
     /**
      * Get All Modules Configuration Settings
      *
-     * @return Result
+     * @return array
      */
     public function getConfigSettings($id)
     {
         $sql = "SELECT * FROM module_configuration
                         WHERE module_id =?";
-        $params = array($id);
-        $result = $this->applicationTable->zQuery($sql, $params);
-        return $result;
+        $params = [$id];
+        return QueryUtils::fetchRecords($sql, $params);
     }
 
     /**
-     *
-     * @param type $dir
+     * @param string $dir
      * @return boolean
      */
     public function installSQL($modId, $mod_type, $dir)
     {
         // TODO: we will leave zend modules alone for now until we can come up with a mechanism to allow them to have
-        // backwards compatability to fix the sql line bug.
+        // backwards compatibility to fix the sql line bug.
         $installScript = $this->getInstallScript($dir);
         if (empty($installScript)) {
             error_log("install script does not exist. skipping InstModuleTable->installSQL for module");
@@ -133,16 +109,18 @@ class InstModuleTable
                 $specialPattern = '/#SpecialSql[\w\W]*#EndSpecialSql/sU';
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
-                //separate spacial sql and clean sql string
+                //separate special sql and clean sql string
                 $sql = preg_replace($specialPattern, $specialReplacement, $sql);
                 // Note: this fails if there are any semicolon(;) characters in a string constant
                 // this is why we migrated to installSQLWithUpgradeService
-                $sqla = explode(";", $sql);
+                $sqla = explode(";", (string) $sql);
 
                 foreach ($sqla as $sqlq) {
                     $query = rtrim("$sqlq");
                     if (strlen($query) > 5) {
-                        if (!$this->applicationTable->zQuery($query)) {
+                        try {
+                            QueryUtils::sqlStatementThrowException($query);
+                        } catch (\Throwable) {
                             return false;
                         }
                     }
@@ -153,8 +131,10 @@ class InstModuleTable
                     $query = rtrim("$sqlq");
                     //remove special sql prefix suffix
                     $query = preg_replace($cleanSpecialPattern, $specialReplacement, $query);
-                    if (strlen($query) > 5) {
-                        if (!$this->applicationTable->zQuery($query)) {
+                    if ($query !== null && strlen($query) > 5) {
+                        try {
+                            QueryUtils::sqlStatementThrowException($query);
+                        } catch (\Throwable) {
                             return false;
                         }
                     }
@@ -176,24 +156,19 @@ class InstModuleTable
             try {
                 // TODO: do we want to display any kind of message of the statements that were executed like we do in
                 // sql_upgrade.php ??
-                $fileName = basename($installScript);
-                $dir = dirname($installScript);
+                $fileName = basename((string) $installScript);
+                $dir = dirname((string) $installScript);
                 $sqlUpgradeService = new SQLUpgradeService();
                 $sqlUpgradeService->setThrowExceptionOnError(true);
                 $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
-            } catch (SqlQueryException $exception) {
-                (new SystemLogger())->errorLogCaller(
-                    "Error: " . $exception->getMessage(),
-                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
-                );
-                return false;
-            } catch (\Exception $exception) {
-                (new SystemLogger())->errorLogCaller(
-                    "Error: " . $exception->getMessage(),
-                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
-                );
+            } catch (\Throwable $exception) {
+                $context = ['exception' => $exception];
+                if ($exception instanceof SqlQueryException) {
+                    $context['statement'] = $exception->getSqlStatement();
+                }
+                ServiceContainer::getLogger()->error("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {
@@ -212,34 +187,36 @@ class InstModuleTable
         $sql = "SELECT * FROM module_configuration
                       WHERE field_name = ?
                       AND module_id = ?";
-        $params = array(
+        $params = [
             $fieldName,
             $moduleId,
-        );
-        $createdBy = $_SESSION['authUserID'];
-        $updatedBy = $_SESSION['authUserID'];
-        $result = $this->applicationTable->zQuery($sql, $params);
-        if ($result->count() > 0) {
+        ];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
+        $createdBy = $authUserID;
+        $updatedBy = $authUserID;
+        $result = QueryUtils::fetchRecords($sql, $params);
+        if (count($result) > 0) {
             $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?
                                           WHERE module_id = ?
                                           AND field_name = ?";
-            $params = array(
+            $params = [
                 $fieldValue,
                 $updatedBy,
                 $moduleId,
                 $fieldName,
-            );
-            $result = $this->applicationTable->zQuery($sql, $params);
+            ];
+            QueryUtils::sqlStatementThrowException($sql, $params);
         } else {
             $sql = "INSERT INTO module_configuration SET field_name = ?, field_value = ?, module_id = ?, updated_by = ?, created_by = ?, date_created=NOW()";
-            $params = array(
+            $params = [
                 $fieldName,
                 $fieldValue,
                 $moduleId,
                 $updatedBy,
                 $createdBy
-            );
-            $result = $this->applicationTable->zQuery($sql, $params);
+            ];
+            QueryUtils::sqlStatementThrowException($sql, $params);
         }
     }
 
@@ -251,33 +228,29 @@ class InstModuleTable
     public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
     {
         $sql = "SELECT mod_active FROM modules WHERE mod_directory = ?";
-        $params = array(
+        $params = [
             $directory,
-        );
-        $check = $this->applicationTable->zQuery($sql, $params);
+        ];
+        $check = QueryUtils::fetchRecords($sql, $params);
 
-        if ($check->count() == 0) {
+        if (count($check) == 0) {
             $added = "";
             $typeSet = "";
 
-            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            if (file_exists(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt");
             }
-            if (!empty($lines)) {
-                $name = $lines[0];
-            } else {
-                $name = $directory;
-            }
+            $name = !empty($lines) ? $lines[0] : $directory;
 
-            $uiname = ucwords(strtolower($directory));
+            $uiname = ucwords(strtolower((string) $directory));
             $section_id = 0;
             $sec_count = "SELECT count(*) as total FROM module_acl_sections";
-            $sec_result = $this->applicationTable->zQuery($sec_count);
-            $arr = $sec_result->current();
-            if ($arr['total'] > 0) {
+            $sec_result = QueryUtils::fetchRecords($sec_count);
+            $arr = $sec_result[0] ?? [];
+            if (($arr['total'] ?? 0) > 0) {
                 $sql_max_id = "SELECT MAX(section_id) as max_id FROM module_acl_sections";
-                $sec_result = $this->applicationTable->zQuery($sql_max_id);
-                $arr = $sec_result->current();
+                $sec_result = QueryUtils::fetchRecords($sql_max_id);
+                $arr = $sec_result[0] ?? [];
                 $section_id = $arr['max_id'];
             }
 
@@ -305,22 +278,21 @@ class InstModuleTable
                                       ";
             }
 
-            $params = array(
+            $params = [
                 $section_id,
                 $name,
                 $state,
                 $uiname,
-                strtolower($rel_path),
+                strtolower((string) $rel_path),
                 $directory,
                 $mod_type
-            );
+            ];
 
-            $result = $this->applicationTable->zQuery($sql, $params);
-            $moduleInsertId = $result->getGeneratedValue();
+            $moduleInsertId = QueryUtils::sqlInsert($sql, $params);
 
             $sql = "INSERT INTO module_acl_sections VALUES (?,?,0,?,?)";
-            $params = array($moduleInsertId, $name, strtolower($directory), $moduleInsertId);
-            $result = $this->applicationTable->zQuery($sql, $params);
+            $params = [$moduleInsertId, $name, strtolower((string) $directory), $moduleInsertId];
+            QueryUtils::sqlStatementThrowException($sql, $params);
             return $moduleInsertId;
         }
 
@@ -335,9 +307,7 @@ class InstModuleTable
     public function allModules()
     {
         $sql = "SELECT * FROM modules ORDER BY mod_ui_order ASC";
-        $params = array();
-        $result = $this->applicationTable->zQuery($sql, $params);
-        return $result;
+        return QueryUtils::fetchRecords($sql);
     }
 
     /**
@@ -347,16 +317,14 @@ class InstModuleTable
      */
     public function getInstalledModules()
     {
-        $all = array();
+        $all = [];
         $sql = "select * from modules where mod_active = 1 order by mod_ui_order asc";
-        $res = $this->applicationTable->zQuery($sql);
+        $res = QueryUtils::fetchRecords($sql);
 
-        if (count($res) > 0) {
-            foreach ($res as $row) {
-                $mod = new InstModule();
-                $mod->exchangeArray($row);
-                array_push($all, $mod);
-            }
+        foreach ($res as $row) {
+            $mod = new InstModule();
+            $mod->exchangeArray($row);
+            array_push($all, $mod);
         }
 
         return $all;
@@ -365,20 +333,15 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return Ambigous <boolean, unknown>
+     * @return InstModule
      */
     function getRegistryEntry($id, $cols = "")
     {
         $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
-        $results = $this->applicationTable->zQuery($sql, array($id));
-
-        $resultSet = new ResultSet();
-        $resultSet->initialize($results);
-        $resArr = $resultSet->toArray();
-        $rslt = $resArr[0];
+        $results = QueryUtils::fetchRecords($sql, [$id]);
 
         $mod = new InstModule();
-        $mod->exchangeArray($rslt);
+        $mod->exchangeArray($results[0] ?? []);
 
         return $mod;
     }
@@ -397,11 +360,11 @@ class InstModuleTable
                 $sql = "UPDATE modules SET mod_active = 1,
                                     date = ?
                                WHERE mod_id = ?";
-                $params = array(
+                $params = [
                     date('Y-m-d H:i:s'),
                     $id,
-                );
-                $results = $this->applicationTable->zQuery($sql, $params);
+                ];
+                QueryUtils::sqlStatementThrowException($sql, $params);
             }
         } elseif ($mod == "mod_active=0") {
             $resp = $this->checkDependencyOnDisable($id);
@@ -409,22 +372,22 @@ class InstModuleTable
                 $sql = "UPDATE modules SET mod_active = 0,
                                     date = ?
                                WHERE mod_id = ?";
-                $params = array(
+                $params = [
                     date('Y-m-d H:i:s'),
                     $id,
-                );
-                $results = $this->applicationTable->zQuery($sql, $params);
+                ];
+                QueryUtils::sqlStatementThrowException($sql, $params);
             }
         } else {
             $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?, date=NOW(), sql_version = ?, acl_version = ? WHERE mod_id = ?";
-            $params = array(
+            $params = [
                 $values[0],
                 $values[1],
                 $values[2],
                 ($values[3] ?? null),
                 $id,
-            );
-            $resp = $this->applicationTable->zQuery($sql, $params);
+            ];
+            $resp = QueryUtils::sqlStatementThrowException($sql, $params);
         }
 
         return $resp;
@@ -438,18 +401,16 @@ class InstModuleTable
      */
     public function unRegister($id)
     {
-        $results = -1;
         if ($id) {
             $sql = "DELETE FROM modules WHERE mod_id = ?";
-            $results = $this->applicationTable->zQuery($sql, array($id));
+            try {
+                QueryUtils::sqlStatementThrowException($sql, [$id]);
+                return 'success';
+            } catch (\Throwable) {
+                return 'failure';
+            }
         }
-        if ($results == false) {
-            return 'failure';
-        } elseif (is_string($results) && stripos($results, 'ERROR') !== false) {
-            return 'failure';
-        } else {
-            return 'success';
-        }
+        return 'failure';
     }
 
     /**
@@ -467,19 +428,17 @@ class InstModuleTable
             $type = 2;
         }
 
-        $all = array();
+        $all = [];
         $sql = "SELECT ms.*,mod_directory
                             FROM modules_settings AS ms
                             LEFT OUTER JOIN modules AS m
                             ON ms.mod_id=m.mod_id
                             WHERE m.mod_id=? AND fld_type=?";
-        $res = $this->applicationTable->zQuery($sql, array($mod_id, $type));
-        if ($res) {
-            foreach ($res as $key => $m) {
-                $mod = new InstModule();
-                $mod->exchangeArray($m);
-                array_push($all, $mod);
-            }
+        $res = QueryUtils::fetchRecords($sql, [$mod_id, $type]);
+        foreach ($res as $m) {
+            $mod = new InstModule();
+            $mod->exchangeArray($m);
+            array_push($all, $mod);
         }
 
         return $all;
@@ -490,20 +449,18 @@ class InstModuleTable
      */
     public function getOemrUserGroup()
     {
-        $all = array();
+        $all = [];
         $sql = "SELECT * FROM gacl_aro_groups AS gag
                         LEFT OUTER JOIN gacl_groups_aro_map AS ggam
                         ON gag.id=ggam.group_id
                         WHERE parent_id<>0
                         AND group_id IS NOT NULL
                         GROUP BY id ";
-        $res = $this->applicationTable->zQuery($sql);
-        if ($res) {
-            foreach ($res as $key => $m) {
-                $mod = new InstModule();
-                $mod->exchangeArray($m);
-                array_push($all, $mod);
-            }
+        $res = QueryUtils::fetchRecords($sql);
+        foreach ($res as $m) {
+            $mod = new InstModule();
+            $mod->exchangeArray($m);
+            array_push($all, $mod);
         }
 
         return $all;
@@ -514,7 +471,7 @@ class InstModuleTable
      */
     public function getOemrUserGroupAroMap()
     {
-        $all = array();
+        $all = [];
         $sql = "SELECT group_id,u.id AS id,CONCAT_WS(' ',CONCAT_WS(',',u.lname,u.fname),u.mname) AS user,u.username
                     FROM gacl_aro_groups gag
                     LEFT OUTER JOIN gacl_groups_aro_map AS ggam
@@ -525,11 +482,9 @@ class InstModuleTable
                     ON u.username=ga.value
                     WHERE group_id IS NOT NULL
                     ORDER BY gag.id";
-        $res = $this->applicationTable->zQuery($sql);
-        if ($res) {
-            foreach ($res as $key => $m) {
-                $all[$m['group_id']][$m['id']] = $m['user'];
-            }
+        $res = QueryUtils::fetchRecords($sql);
+        foreach ($res as $m) {
+            $all[$m['group_id']][$m['id']] = $m['user'];
         }
 
         return $all;
@@ -540,17 +495,15 @@ class InstModuleTable
      */
     public function getActiveUsers()
     {
-        $all = array();
+        $all = [];
         $sql = "SELECT id,username,CONCAT_WS(' ',fname,mname,lname) AS USER
                     FROM users
                     WHERE active=1
                     AND username IS NOT NULL
                     AND username<>''";
-        $res = $this->applicationTable->zQuery($sql);
-        if ($res) {
-            foreach ($res as $key => $m) {
-                $all[$m['username']] = $m['USER'];
-            }
+        $res = QueryUtils::fetchRecords($sql);
+        foreach ($res as $m) {
+            $all[$m['username']] = $m['USER'];
         }
 
         return $all;
@@ -558,17 +511,15 @@ class InstModuleTable
 
     public function getTabSettings($mod_id)
     {
-        $all = array();
+        $all = [];
         $sql = "SELECT fld_type,COUNT(*) AS cnt
                   FROM modules_settings
                   WHERE mod_id=?
                   GROUP BY fld_type
                   ORDER BY fld_type ";
-        $res = $this->applicationTable->zQuery($sql, array($mod_id));
-        if ($res) {
-            foreach ($res as $key => $m) {
-                $all[$m['fld_type']] = $m['cnt'];
-            }
+        $res = QueryUtils::fetchRecords($sql, [$mod_id]);
+        foreach ($res as $m) {
+            $all[$m['fld_type']] = $m['cnt'];
         }
 
         return $all;
@@ -579,24 +530,24 @@ class InstModuleTable
      */
     public function getActiveACL($mod_id)
     {
-        $arr = array();
+        $arr = [];
 
         $sql = "SELECT mod_directory FROM modules WHERE mod_id=?";
-        $result = $this->applicationTable->zQuery($sql, array($mod_id));
-        $Section = $result->current();
-        $aco = "modules_" . $Section['mod_directory'];
+        $result = QueryUtils::fetchRecords($sql, [$mod_id]);
+        $Section = $result[0] ?? [];
+        $aco = "modules_" . ($Section['mod_directory'] ?? '');
 
         $sql = "SELECT * FROM gacl_aco_map WHERE section_value=?";
-        $MapRes = $this->applicationTable->zQuery($sql, array($aco));
-        foreach ($MapRes as $key => $MapRow) {
+        $MapRes = QueryUtils::fetchRecords($sql, [$aco]);
+        foreach ($MapRes as $MapRow) {
             $sqlSelect = "SELECT acl_id,value,CONCAT_WS(' ',fname,mname,lname) AS user
                             FROM gacl_aro_map
                             LEFT OUTER JOIN users
                             ON value=username
                             WHERE active=1 AND acl_id=?";
-            $aroRes = $this->applicationTable->zQuery($sqlSelect, array($MapRow['acl_id']));
+            $aroRes = QueryUtils::fetchRecords($sqlSelect, [$MapRow['acl_id']]);
             $i = 0;
-            foreach ($aroRes as $k => $aroRow) {
+            foreach ($aroRes as $aroRow) {
                 $arr[$MapRow['value']][$i]['acl_id'] = $aroRow['acl_id'];
                 $arr[$MapRow['value']][$i]['value'] = $aroRow['value'];
                 $arr[$MapRow['value']][$i]['user'] = $aroRow['user'];
@@ -612,11 +563,11 @@ class InstModuleTable
      */
     public function getActiveHooks($mod_id)
     {
-        $all = array();
+        $all = [];
         $sql = "SELECT msh.*,ms.menu_name FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                 obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON msh.mod_id=m.mod_id
                 WHERE fld_type = '3' AND mod_active = 1 AND msh.mod_id = ? ";
-        $res = $this->applicationTable->zQuery($sql, array($mod_id));
+        $res = QueryUtils::fetchRecords($sql, [$mod_id]);
         foreach ($res as $row) {
             $mod = new InstModule();
             $mod->exchangeArray($row);
@@ -636,10 +587,8 @@ class InstModuleTable
                         WHERE mod_id = ?
                         AND enabled_hooks = ?
                         AND attached_to = ? ";
-            $res = $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
-            foreach ($res as $row) {
-                $modArr = $row;
-            }
+            $res = QueryUtils::fetchRecords($sql, [$modId, $hookId, $hangerId]);
+            $modArr = $res[0] ?? [];
 
             if (!empty($modArr['mod_id'])) {
                 return "1";
@@ -656,7 +605,7 @@ class InstModuleTable
     {
         if ($modId) {
             $sql = "INSERT INTO modules_hooks_settings(mod_id, enabled_hooks, attached_to) VALUES (?,?,?) ";
-            $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
+            QueryUtils::sqlStatementThrowException($sql, [$modId, $hookId, $hangerId]);
         }
     }
 
@@ -670,13 +619,13 @@ class InstModuleTable
                                               obj_name = ?,
                                               menu_name = ?,
                                               path = ?";
-        $params = array(
+        $params = [
             $modId,
             $hook['name'],
             $hook['title'],
             $hook['path'],
-        );
-        $this->applicationTable->zQuery($sql, $params);
+        ];
+        QueryUtils::sqlStatementThrowException($sql, $params);
     }
 
     /**
@@ -685,7 +634,7 @@ class InstModuleTable
     public function DeleteHooks($post)
     {
         if ($post['hooksID']) {
-            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ", array($post['hooksID']));
+            QueryUtils::sqlStatementThrowException("DELETE FROM modules_hooks_settings WHERE id = ? ", [$post['hooksID']]);
         }
     }
 
@@ -696,18 +645,18 @@ class InstModuleTable
     {
         if ($modId) {
             //DELETE MODULE HOOKS
-            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE mod_id = ? ", array($modId));
+            QueryUtils::sqlStatementThrowException("DELETE FROM modules_hooks_settings WHERE mod_id = ? ", [$modId]);
         }
     }
 
     public function checkDependencyOnEnable($mod_id)
     {
-        $retArray = array();
+        $retArray = [];
         $modDirectory = $this->getModuleDirectory($mod_id);
         if ($modDirectory) {
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModules = $this->getDependedModulesByDirectoryName($modDirectory);
-            $requiredModules = array();
+            $requiredModules = [];
             if (count($depModules) > 0) {
                 foreach ($depModules as $depModule) {
                     if ($depModule <> "") {
@@ -740,13 +689,13 @@ class InstModuleTable
 
     public function checkDependencyOnDisable($mod_id)
     {
-        $retArray = array();
+        $retArray = [];
         $depFlag = "0";
         $modArray = $this->getInstalledModules();
 
         //GET MODULE DIRECTORY OF DISABLING MODULE
         $modDirectory = $this->getModuleDirectory($mod_id);
-        $usedModArr = array();
+        $usedModArr = [];
         if (count($modArray) > 0) {
             //LOOP THROUGH INSTALLED MODULES
             foreach ($modArray as $module) {
@@ -792,7 +741,7 @@ class InstModuleTable
     {
         $modDirname = $this->getModuleDirectory($mod_id);
         if ($modDirname <> "") {
-            $depModuleStatusArr = array();
+            $depModuleStatusArr = [];
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr = $this->getDependedModulesByDirectoryName($modDirname);
             $ret_str = "";
@@ -803,7 +752,7 @@ class InstModuleTable
                         $ret_str .= ", ";
                     }
 
-                    $ret_str .= trim($modDir) . "(" . $this->getModuleStatusByDirectoryName($modDir) . ")";
+                    $ret_str .= trim((string) $modDir) . "(" . $this->getModuleStatusByDirectoryName($modDir) . ")";
                     $count++;
                 }
             }
@@ -814,7 +763,7 @@ class InstModuleTable
 
     public function getDependencyModulesDir($mod_id)
     {
-        $depModulesArr = array();
+        $depModulesArr = [];
         $modDirectory = $this->getModuleDirectory($mod_id);
         if ($modDirectory) {
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
@@ -827,10 +776,8 @@ class InstModuleTable
     public function getModuleStatusByDirectoryName($moduleDir)
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
-        $res = $this->applicationTable->zQuery($sql, array(trim($moduleDir)));
-        foreach ($res as $row) {
-            $check = $row;
-        }
+        $res = QueryUtils::fetchRecords($sql, [trim((string) $moduleDir)]);
+        $check = $res[0] ?? [];
 
         if (!empty($check) && is_array($check) && (count($check) > 0)) {
             if ($check['mod_active'] == "1") {
@@ -845,24 +792,22 @@ class InstModuleTable
 
     public function getHangers()
     {
-        return array(
+        return [
             'reports' => "Reports",
             'encounter' => "Encounter",
             'demographics' => "Demographics",
             'modules' => "Modules",
-        );
+        ];
     }
 
     public function getModuleDirectory($mod_id)
     {
         $moduleName = "";
         if ($mod_id <> "") {
-            $res = $this->applicationTable->zQuery("SELECT mod_directory FROM modules WHERE mod_id = ? ", array($mod_id));
-            foreach ($res as $row) {
-                $modArr = $row;
-            }
+            $res = QueryUtils::fetchRecords("SELECT mod_directory FROM modules WHERE mod_id = ? ", [$mod_id]);
+            $modArr = $res[0] ?? [];
 
-            if ($modArr['mod_directory'] <> "") {
+            if (($modArr['mod_directory'] ?? '') <> "") {
                 $moduleName = $modArr['mod_directory'];
             }
 
@@ -873,10 +818,8 @@ class InstModuleTable
     public function checkModuleHookExists($mod_id, $hookId)
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
-        $res = $this->applicationTable->zQuery($sql, array($mod_id, $hookId));
-        foreach ($res as $row) {
-            $modArr = $row;
-        }
+        $res = QueryUtils::fetchRecords($sql, [$mod_id, $hookId]);
+        $modArr = $res[0] ?? [];
 
         if (!empty($modArr['obj_name'])) {
             return "1";
@@ -889,7 +832,7 @@ class InstModuleTable
     public function getModuleHooks($moduleDirectory)
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
-        $hooksArr = array();
+        $hooksArr = [];
         if ($objHooks) {
             $hooksArr = $objHooks->getHookConfig();
         } else {
@@ -906,7 +849,7 @@ class InstModuleTable
     public function getModuleAclSections($moduleDirectory)
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
-        $aclArray = array();
+        $aclArray = [];
         if ($objHooks) {
             $aclArray = $objHooks->getAclConfig();
         }
@@ -916,21 +859,20 @@ class InstModuleTable
 
     public function insertAclSections($acl_data, $mod_dir, $module_id)
     {
-        $obj = new ApplicationTable();
         foreach ($acl_data as $acl) {
             $identifier = $acl['section_id'];
             $name = $acl['section_name'];
             $parent = $acl['parent_section'];
 
             $sql_parent = "SELECT section_id FROM module_acl_sections WHERE section_identifier =?";
-            $result = $obj->zQuery($sql_parent, array($parent));
+            $result = QueryUtils::fetchRecords($sql_parent, [$parent]);
             $parent_id = 0;
             foreach ($result as $row) {
                 $parent_id = $row['section_id'];
             }
 
             $sql_max_id = "SELECT MAX(section_id) as max_id FROM module_acl_sections";
-            $result = $obj->zQuery($sql_max_id);
+            $result = QueryUtils::fetchRecords($sql_max_id);
             $section_id = 0;
             foreach ($result as $row) {
                 $section_id = $row['max_id'];
@@ -938,7 +880,7 @@ class InstModuleTable
 
             $section_id++;
             $sql_if_exists = "SELECT COUNT(*) as count FROM module_acl_sections WHERE section_identifier = ? AND parent_section =?";
-            $result = $obj->zQuery($sql_if_exists, array($identifier, $parent_id));
+            $result = QueryUtils::fetchRecords($sql_if_exists, [$identifier, $parent_id]);
             $exists = 0;
             foreach ($result as $row) {
                 if ($row['count'] > 0) {
@@ -951,11 +893,11 @@ class InstModuleTable
             }
 
             $sql_insert = "INSERT INTO module_acl_sections (`section_id`,`section_name`,`parent_section`,`section_identifier`,`module_id`) VALUES(?,?,?,?,?)";
-            $obj->zQuery($sql_insert, array($section_id, $name, $parent_id, $identifier, $module_id));
+            QueryUtils::sqlStatementThrowException($sql_insert, [$section_id, $name, $parent_id, $identifier, $module_id]);
         }
 
         $sql = "SELECT COUNT(mod_id) AS count FROM modules_settings WHERE mod_id = ? AND fld_type = 1";
-        $result = $obj->zQuery($sql, array($module_id));
+        $result = QueryUtils::fetchRecords($sql, [$module_id]);
         $exists = 0;
         foreach ($result as $row) {
             if ($row['count'] > 0) {
@@ -965,18 +907,17 @@ class InstModuleTable
 
         if (!$exists) {
             $sql = "INSERT INTO modules_settings(`mod_id`,`fld_type`,`obj_name`,`menu_name`) VALUES(?,'1',?,?)";
-            $result = $obj->zQuery($sql, array($module_id, $mod_dir, $mod_dir));
+            QueryUtils::sqlStatementThrowException($sql, [$module_id, $mod_dir, $mod_dir]);
         }
     }
 
     public function deleteACLSections($module_id)
     {
-        $obj = new ApplicationTable();
         $sql = "DELETE FROM module_acl_sections WHERE module_id =? AND parent_section <> 0";
-        $obj->zQuery($sql, array($module_id));
+        QueryUtils::sqlStatementThrowException($sql, [$module_id]);
 
         $sqsl = "DELETE FROM modules_settings WHERE mod_id =? AND fld_type = 1";
-        $obj->zQuery($sql, array($module_id));
+        QueryUtils::sqlStatementThrowException($sql, [$module_id]);
     }
 
     //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
@@ -999,7 +940,7 @@ class InstModuleTable
     {
         if ($modId) {
             $sql = "INSERT INTO modules_settings(mod_id, fld_type, obj_name, menu_name, path) VALUES (?,'3',?,?,?) ";
-            $this->applicationTable->zQuery($sql, array($modId, $hookId, $hookTitle, $hookPath));
+            QueryUtils::sqlStatementThrowException($sql, [$modId, $hookId, $hookTitle, $hookPath]);
         }
     }
 
@@ -1010,7 +951,7 @@ class InstModuleTable
     {
         if ($modId) {
             $sql = "DELETE FROM modules_settings WHERE mod_id = ? AND fld_type = '3'";
-            $this->applicationTable->zQuery($sql, array($modId));
+            QueryUtils::sqlStatementThrowException($sql, [$modId]);
         }
     }
 
@@ -1031,12 +972,12 @@ class InstModuleTable
     public function getSetupObject($moduleDirectory)
     {
         $className = str_replace('[module_name]', $moduleDirectory, '[module_name]\Controller\SetupController');
-        $setup = array();
+        $setup = [];
         if ($this->container->has($className)) {
             $obj = $this->container->get($className);
         }
         if (!empty($obj)) {
-            $setup['module_dir'] = strtolower($moduleDirectory);
+            $setup['module_dir'] = strtolower((string) $moduleDirectory);
             $setup['title'] = $obj->getTitle();
         }
 
@@ -1050,8 +991,8 @@ class InstModuleTable
      *
      * @param string $moduleDirectory Module Directory Name
      * @param string $option          Controller / Form / Setup to create an Object
-     * @param type   $adapter
-     * @return type
+     * @param mixed $adapter
+     * @return mixed
      */
     public function getObject($moduleDirectory, $option = 'Controller', $adapter = '')
     {
@@ -1081,9 +1022,8 @@ class InstModuleTable
     public function validateNickName($name)
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
-        $result = $this->applicationTable->zQuery($sql, array($name));
-        $count = $result->count();
-        return $count;
+        $result = QueryUtils::fetchRecords($sql, [$name]);
+        return count($result);
     }
 
     /**

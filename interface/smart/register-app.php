@@ -1,10 +1,12 @@
 <?php
 
 /**
- * Login screen.
+ * register-app.php Handles the registration of a new OpenEMR OAuth2 application.  This is just a front-end GUI for the
+ * /oauth2/<site>/registration endpoint.
+ * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
@@ -21,20 +23,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\DecisionSupportInterventionService;
 
 // not sure if we need the site id or not...
 $ignoreAuth = true;
 require_once("../globals.php");
-require_once("./../../_rest_config.php");
 
 // exit if fhir api is not turned on
-if (empty($GLOBALS['rest_fhir_api'])) {
+if (empty(OEGlobalsBag::getInstance()->get('rest_fhir_api'))) {
     die(xlt("Not Authorized"));
 }
 
@@ -45,11 +46,11 @@ $loginrow = "row login-row bg-white shadow-lg align-items-center my-sm-5";
 
 // Apply these classes to the logo area if the login page is left or right
 $lrArr = ['left', 'right'];
-$logoarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
-$formarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+$logoarea .= (in_array(OEGlobalsBag::getInstance()->get('login_page_layout'), $lrArr)) ? " col-md-6" : " col-md-12";
+$formarea .= (in_array(OEGlobalsBag::getInstance()->get('login_page_layout'), $lrArr)) ? " col-md-6" : " col-md-12";
 
 // More finite control on a per-setting basis
-switch ($GLOBALS['login_page_layout']) {
+switch (OEGlobalsBag::getInstance()->get('login_page_layout')) {
     case 'left':
         $logoarea .= " order-md-2";
         $formarea .= " order-md-1";
@@ -68,13 +69,17 @@ switch ($GLOBALS['login_page_layout']) {
 }
 
 // TODO: adunsulag find out where our openemr name comes from
-$openemr_name = $openemr_name ?? '';
+$openemr_name ??= '';
 
-$scopeRepo = new ScopeRepository(RestConfig::GetInstance());
+$serverConfig = new ServerConfig();
+$fhirRegisterURL = $serverConfig->getRegistrationUrl();
+$audienceUrl = $serverConfig->getFhirUrl();
+
+$scopeRepo = new ScopeRepository();
+$scopeRepo->setServerConfig($serverConfig);
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
-$fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
-$audienceUrl = (new ServerConfig())->getFhirUrl();
+
 
 $dsiService = new DecisionSupportInterventionService();
 $evidenceService = $dsiService->getEmptyService(ClientEntity::DSI_TYPE_EVIDENCE);
@@ -362,11 +367,11 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
 <form id="app_form" method="POST" autocomplete="off">
     <div class="<?php echo $loginrow; ?> card m-5">
         <div class="<?php echo attr($logoarea); ?>">
-            <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
+            <?php $extraLogo = OEGlobalsBag::getInstance()->getBoolean('extra_logo_login'); ?>
             <?php if ($extraLogo) { ?>
                 <div class="text-center">
                     <span class="d-inline-block w-40">
-                        <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                        <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
                     </span>
                     <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
                     <span class="d-inline-block w-40">
@@ -375,18 +380,18 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 </div>
             <?php } else { ?>
                 <div class="mx-auto m-4 w-75">
-                    <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                    <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
                 </div>
             <?php } ?>
-            <?php if ($GLOBALS['show_label_login']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('show_label_login')) { ?>
             <div class="text-center login-title-label">
                     <?php echo text($openemr_name); ?>
             </div>
             <?php } ?>
             <?php
             // Figure out how to display the tiny logos
-            $t1 = $GLOBALS['tiny_logo_1'];
-            $t2 = $GLOBALS['tiny_logo_2'];
+            $t1 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_1');
+            $t2 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_2');
             if ($t1 && !$t2) {
                 echo $tinylogocode1;
             } if ($t2 && !$t1) {

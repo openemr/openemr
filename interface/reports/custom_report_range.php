@@ -4,33 +4,33 @@
  * Superbill Report
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__file__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Superbill")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Superbill", xl("Superbill"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -48,10 +48,10 @@ if (empty($_POST['start']) || empty($_POST['end'])) {
 
 //Patient related stuff
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }
@@ -158,7 +158,7 @@ if (empty($form_patient)) {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
@@ -189,7 +189,7 @@ if (empty($form_patient)) {
 <div id="report_parameters">
 
 <form method="post" name="theform" id='theform' action="custom_report_range.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>
@@ -268,7 +268,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
     <?php
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
@@ -290,19 +290,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
     $N = 6;
 
-    function postToGet($newpatient, $pids)
-    {
-        $getstring = "";
-        $serialnewpatient = serialize($newpatient);
-        $serialpids = serialize($pids);
-        $getstring = "newpatient=" . urlencode($serialnewpatient) . "&pids=" . urlencode($serialpids);
-
-        return $getstring;
-    }
-
     $iCounter = 0;
     if (empty($newpatient)) {
-        $newpatient = array();
+        $newpatient = [];
     }
 
     foreach ($newpatient as $patient) {
@@ -331,7 +321,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         print "<div id='superbill_billingdata'>";
         print "<h1>" . xlt('Billing Information') . ":</h1>";
         if (!empty($patient)) {
-            $billings = array();
+            $billings = [];
             echo "<table class='table w-100'>";
             echo "<tr>";
             echo "<td class='bold' width='10%'>" . xlt('Date') . "</td>";
@@ -342,13 +332,13 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = 0.00;
             //foreach ($patient as $be) {
 
-            $ta = explode(":", $patient);
+            $ta = explode(":", (string) $patient);
             $billing = getPatientBillingEncounter($pids[$iCounter], $ta[1]);
 
             $billings[] = $billing;
             foreach ($billing as $b) {
                 // grab the date to reformat it in the output
-                $bdate = strtotime($b['date']);
+                $bdate = strtotime((string) $b['date']);
 
                 echo "<tr>\n";
                 echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";

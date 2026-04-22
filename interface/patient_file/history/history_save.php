@@ -4,7 +4,7 @@
  * history_save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,12 +15,13 @@ require_once("$srcdir/patient.inc.php");
 require_once("history.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $module_call_pid = $_GET['requestPid'] ?? null;
 if (!empty($module_call_pid)) {
@@ -31,12 +32,12 @@ if (!empty($module_call_pid)) {
 if (AclMain::aclCheckCore('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt("Not authorized for this squad."));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
-    die(xlt("Not authorized"));
+if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
+    AccessDeniedHelper::deny('Unauthorized access to patient history save');
 }
 
 foreach ($_POST as $key => $val) {
@@ -47,7 +48,7 @@ foreach ($_POST as $key => $val) {
 
 // Update history_data:
 //
-$newdata = array();
+$newdata = [];
 $fres = sqlStatement(
     "SELECT * FROM layout_options " .
     "WHERE form_id LIKE 'HIS%' AND uor > 0 AND field_id != '' " .

@@ -18,13 +18,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 abstract class RuleCriteriaSimpleText extends RuleCriteria
 {
-    var $title;
-    var $value;
-
-    function __construct($title, $value)
+    function __construct(public $title, public $value)
     {
-        $this->title = $title;
-        $this->value = $value;
     }
 
     function getRequirements()

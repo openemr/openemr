@@ -9,7 +9,7 @@
  * the paper form fields or not if enabled in globals.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,11 +17,11 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Hcfa1500;
@@ -38,7 +38,6 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     protected $batch;
 
-
     /**
      * This function is called by the BillingProcessor before the main
      * claim loop starts.
@@ -49,9 +48,6 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     public function setup(array $context)
     {
-        // This is to tell our execute method not to create a new page the first claim
-        $this->createNewPage = false;
-
         // Instantiate mainly for the filename creation
         $this->batch = new BillingClaimBatch('.txt');
     }
@@ -174,7 +170,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This uses our parent's method to print the JS that automatically initiates
             // the download of this file, after the screen bill_log messages have printed
             $this->printDownloadClaimFileJS($this->batch->getBatFilename());

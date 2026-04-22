@@ -16,12 +16,7 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class Option
 {
-    var $id;
-    var $label;
-
-    function __construct($id, $label)
+    function __construct(public $id, public $label)
     {
-        $this->id = $id;
-        $this->label = $label;
     }
 }

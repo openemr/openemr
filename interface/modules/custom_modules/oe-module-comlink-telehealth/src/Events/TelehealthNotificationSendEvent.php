@@ -20,7 +20,7 @@ class TelehealthNotificationSendEvent
     private $patient;
 
     /**
-     * @var The unique pid id of the patient
+     * @var int The unique pid id of the patient
      */
     private $pid;
 
@@ -96,18 +96,17 @@ class TelehealthNotificationSendEvent
     }
 
     /**
-     * @return The
      */
-    public function getPid(): The
+    public function getPid()
     {
         return $this->pid;
     }
 
     /**
-     * @param The $pid
+     * @param $pid
      * @return TelehealthNotificationSendEvent
      */
-    public function setPid(The $pid): TelehealthNotificationSendEvent
+    public function setPid($pid): TelehealthNotificationSendEvent
     {
         $this->pid = $pid;
         return $this;

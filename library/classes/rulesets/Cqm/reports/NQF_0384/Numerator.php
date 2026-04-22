@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0384_Numerator implements CqmFilterIF
@@ -42,7 +42,7 @@ class NQF_0384_Numerator implements CqmFilterIF
                             "AND ( prc.procedure_code = '38208-5') " .
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
 
-        $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
+        $check = sqlQuery($riskCatAssessQry, [$beginDate, $endDate, $patient->id]);
         if ($check['cnt'] > 0) {
             return true;
         } else {

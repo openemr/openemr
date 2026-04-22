@@ -3,7 +3,7 @@
 /**
  * ClientAdminController is both the controller and presentation class for the OAUTH2 clients in the OpenEMR system.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,6 +11,9 @@
 
 namespace OpenEMR\FHIR\SMART;
 
+use Exception;
+use JsonException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -22,37 +25,33 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\Header;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class ClientAdminController
 {
+    use SystemLoggerAwareTrait;
+
     const REVOKE_TRUSTED_USER = 'revoke-trusted-user';
     const REVOKE_ACCESS_TOKEN = 'revoke-access-token';
     const REVOKE_REFRESH_TOKEN = 'revoke-refresh-token';
     const TOKEN_TOOLS_ACTION = 'token-tools';
     const PARSE_TOKEN_ACTION = "parse-token";
-
-    private $actionURL;
-
-    /**
-     * @var ClientRepository
-     */
-    private $clientRepo;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     const CSRF_TOKEN_NAME = 'ClientAdminController';
     const SCOPE_PREVIEW_DISPLAY = 6;
@@ -63,37 +62,61 @@ class ClientAdminController
 
     private Environment $twig;
 
+    private Kernel $kernel;
+
+    private AccessTokenRepository $accessTokenRepository;
+
+    private string $webroot;
+
     /**
      * ClientAdminController constructor.
-     * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
-     * @param $actionURL The URL that we will send requests back to
+     * @param ClientRepository $clientRepo The repository object that let's us retrieve OAUTH2 EntityClient objects
+     * @param string $actionURL The URL that we will send requests back to
      */
-    public function __construct(ClientRepository $repo, LoggerInterface $logger, Environment $twig, $actionURL)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session, private ClientRepository $clientRepo, private string $actionURL)
     {
-        $this->clientRepo = $repo;
-        $this->logger = $logger;
-        $this->actionURL = $actionURL;
-        $this->actionUrlBuilder = new ActionUrlBuilder($actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = $twig;
-        $this->externalCDRController = new RouteController($repo, $logger, $twig, $this->actionUrlBuilder, new DecisionSupportInterventionService());
+        $this->kernel = $this->globalsBag->getKernel();
+        $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
+        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 
-    public function setExternalCDRController(RouteController $controller)
+    public function setTwig(Environment $twig): void
+    {
+        $this->twig = $twig;
+    }
+
+    public function setExternalCDRController(RouteController $controller): void
     {
         $this->externalCDRController = $controller;
     }
 
+    public function getExternalCDRController(): RouteController
+    {
+        if (!isset($this->externalCDRController)) {
+            $this->externalCDRController = new RouteController(
+                $this->session,
+                $this->clientRepo,
+                $this->logger ?? ServiceContainer::getLogger(),
+                $this->getTwig(),
+                $this->actionUrlBuilder,
+                new DecisionSupportInterventionService()
+            );
+        }
+        return $this->externalCDRController;
+    }
+
     /**
      * Validates the given request for CSRF attacks as well as ACL permissions.
-     * @param $request
+     * @param string $action The action that is being requested
      * @throws CsrfInvalidException If the CSRF token is required but invalid for the given action request
      * @throws AccessDeniedException If the user does not have permission to make the requested action
      */
-    public function checkSecurity(string $action, Request $request)
+    public function checkSecurity(string $action): void
     {
         if ($this->shouldCheckCSRFTokenForRequest($action)) {
             $CSRFToken = $this->getCSRFToken();
-            if (!CsrfUtils::verifyCsrfToken($CSRFToken, self::CSRF_TOKEN_NAME)) {
+            if (!CsrfUtils::verifyCsrfToken($CSRFToken, $this->session, self::CSRF_TOKEN_NAME)) {
                 throw new CsrfInvalidException(xlt('Authentication Error'));
             }
         }
@@ -106,84 +129,63 @@ class ClientAdminController
     /**
      * Given an action and request array dispatch the action to the different request routes this
      * controller handles.
-     * @param $action
-     * @param $request
+     * @param Request $request
      * @throws AccessDeniedException
+     * @return Response
      */
-    public function dispatch(Request $request)
+    public function dispatch(Request $request): Response
     {
         $action = $this->normalizeAction($request);
-        $this->checkSecurity($action, $request);
+        $this->checkSecurity($action);
 
-        if (empty($action)) {
-            return $this->listAction($request);
+        if ($action === '' || $action === 'list/') {
+            return $this->listAction();
+        } else if ($this->getExternalCDRController()->supportsRequest($request)) {
+            /** @var Response */
+            return $this->getExternalCDRController()->dispatch($request);
         }
 
         $parts = explode("/", $action);
 
-        $mainAction = $parts[0] ?? null;
-        $mainActionChild = $parts[1] ?? null;
-        $subAction = $parts[2] ?? null;
+        $mainAction = $parts[0];
+        $mainActionChild = $parts[1] ?? '';
+        $subAction = $parts[2] ?? '';
 
         // route /list
-        // TODO: @adunsulag this router has gotten way too big and unwieldy... we need to refactor it into something simpler
-        if ($mainAction == 'list') {
-            $this->listAction($request);
-        } else if ($mainAction == self::TOKEN_TOOLS_ACTION) {
-            if (empty($mainActionChild)) {
-                $this->tokenToolsAction($request);
-            } else if ($mainActionChild == self::PARSE_TOKEN_ACTION) {
-                return $this->parseTokenAction($request);
-            } else if ($mainActionChild == self::REVOKE_ACCESS_TOKEN) {
-                return $this->toolsRevokeAccessTokenAction($request);
-            } else if ($mainActionChild == self::REVOKE_REFRESH_TOKEN) {
-                return $this->toolsRevokeRefreshToken($request);
-            } else {
-                return $this->notFoundAction($request);
-            }
-        } else if ($mainAction == 'edit' && !empty($mainActionChild)) {
-            $clientId = $mainActionChild;
 
-            if (empty($subAction)) { // route /edit/:clientId
-                return $this->editAction($clientId, $request);
-            } else if ($subAction == 'enable') { // route /edit/:clientId/enable
-                return $this->enableAction($clientId, $request);
-            } else if ($subAction == 'disable') { // route /edit/:clientId/disable
-                return $this->disableAction($clientId, $request);
-            } else if ($subAction == self::REVOKE_TRUSTED_USER) {
-                return $this->revokeTrustedUserAction($clientId, $request);
-            } else if ($subAction == self::REVOKE_ACCESS_TOKEN) {
-                return $this->revokeAccessToken($clientId, $request);
-            } else if ($subAction == self::REVOKE_REFRESH_TOKEN) {
-                return $this->revokeRefreshToken($clientId, $request);
-            } else if ($subAction == 'enable-authorization-flow-skip') {
-                return $this->enableAuthorizationFlowSkipAction($clientId, $request);
-            } else if ($subAction == 'disable-authorization-flow-skip') {
-                return $this->disableAuthorizationFlowSkipAction($clientId, $request);
-            } else {
-                return $this->notFoundAction($request);
+        return match ($mainAction) {
+            'list' => $this->listAction(),
+            self::TOKEN_TOOLS_ACTION => match ($mainActionChild) {
+                '' => $this->tokenToolsAction($request)
+                ,self::PARSE_TOKEN_ACTION => $this->parseTokenAction($request)
+                ,self::REVOKE_ACCESS_TOKEN => $this->toolsRevokeAccessTokenAction($request)
+                ,self::REVOKE_REFRESH_TOKEN => $this->toolsRevokeRefreshToken($request)
+                ,default => $this->notFoundAction()
+            },
+            'edit' => match ($subAction) {
+                '' => $this->editAction($mainActionChild, $request)
+                ,'enable' => $this->enableAction($mainActionChild)
+                ,'disable' => $this->disableAction($mainActionChild)
+                ,self::REVOKE_TRUSTED_USER => $this->revokeTrustedUserAction($mainActionChild, $request)
+                ,self::REVOKE_ACCESS_TOKEN => $this->revokeAccessToken($mainActionChild, $request)
+                ,self::REVOKE_REFRESH_TOKEN => $this->revokeRefreshToken($mainActionChild, $request)
+                ,'enable-authorization-flow-skip' => $this->enableAuthorizationFlowSkipAction($mainActionChild)
+                ,'disable-authorization-flow-skip' => $this->disableAuthorizationFlowSkipAction($mainActionChild)
+                , default => $this->notFoundAction()
             }
-        } else if ($this->externalCDRController->supportsRequest($request)) {
-            return $this->externalCDRController->dispatch($request);
-        } else {
-            return $this->notFoundAction($request);
-        }
+            ,default => $this->notFoundAction()
+        };
     }
 
     /**
      * Renders the list of OAUTH2 clients to the screen.
-     * @param $request
      */
-    public function listAction($request)
+    public function listAction(): Response
     {
-        /**
-* <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
- */
         $clients = $this->clientRepo->listClientEntities();
         $clientListRecords = [];
         foreach ($clients as $client) {
+            /** @var string[] $scopeList */
             $scopeList = $client->getScopes();
             $count = count($scopeList);
             if ($count > self::SCOPE_PREVIEW_DISPLAY) {
@@ -199,29 +201,81 @@ class ClientAdminController
             ];
         }
         $params = [
-            'nav' => [
+            'nav' => $this->getDefaultNavData()
+            ,'clients' => $clientListRecords
+        ];
+        return $this->renderTwigPage("interface/smart/admin-client/list", "interface/smart/admin-client/list.html.twig", $params);
+    }
+
+    private function getDefaultNavData(): array
+    {
+        return [
                 'title' => xl('Client Registrations'),
                 'navs' => [
                     ['title' => xl('Token Tools'), 'url' => $this->actionUrlBuilder->buildUrl([self::TOKEN_TOOLS_ACTION])]
-                    ,['title' => xl('Register New App'), 'url' => $GLOBALS['webroot'] . '/interface/smart/register-app.php']
+                    ,['title' => xl('Register New App'), 'url' => $this->webroot . '/interface/smart/register-app.php']
                 ]
-            ]
-            ,'clients' => $clientListRecords
         ];
-        echo $this->twig->render("interface/smart/admin-client/list.html.twig", $params);
+    }
+
+    public function getTwig(): Environment
+    {
+        return $this->twig;
+    }
+
+    /**
+     * @return EventDispatcherInterface
+     * @throws Exception
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->kernel->getEventDispatcher();
+    }
+
+    /**
+     * @param string $pageName
+     * @param string $template
+     * @param array $templateVars
+     * @param int $statusCode
+     * @return Response
+     */
+    private function renderTwigPage(string $pageName, string $template, array $templateVars, int $statusCode = Response::HTTP_OK): Response
+    {
+        try {
+            $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
+            $dispatcher = $this->getEventDispatcher();
+            $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
+            $template = $updatedTemplatePageEvent->getTwigTemplate();
+            $vars = $updatedTemplatePageEvent->getTwigVariables();
+            $responseBody = $this->twig->render($template, $vars);
+        } catch (\Throwable $e) {
+            $this->logger?->error("caught exception rendering template", ['exception' => $e]);
+            try {
+                $responseBody = $this->twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
+            } catch (\Throwable $e) {
+                $this->logger?->error("caught exception rendering error template", ['exception' => $e]);
+                $responseBody = "Error rendering template";
+            }
+        }
+        return new Response($responseBody, $statusCode);
     }
 
     /**
      * Action handler that displays the details/edit view of a client represented by the OAUTH2 $clientId
      * @param $clientId
      * @param $request
+     * @return Response
      */
-    public function editAction($clientId, $request)
+    /**
+     * @param string $clientId
+     * @param Request $request
+     * @return Response
+     */
+    public function editAction(string $clientId, Request $request): Response
     {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
-            $this->notFoundAction($request);
-            return;
+            return $this->notFoundAction();
         }
         $trustedUserService = new TrustedUserService();
         $trustedUsers = $trustedUserService->getTrustedUsersForClient($clientId);
@@ -229,100 +283,119 @@ class ClientAdminController
         $usersWithAccessTokens = [];
         $userService = new UserService();
         $patientService = new PatientService();
+        /** @var array<string, mixed> $user */
         foreach ($trustedUsers as $user) {
             // TODO: we need to open an issue to handle pagination as a client could have thousands / tens of thousands of active tokens
-            if (UuidRegistry::isValidStringUUID($user['user_id'])) {
-                $registryRecord = UuidRegistry::getRegistryRecordForUuid($user['user_id']);
-                if ($registryRecord['table_name'] == 'patient_data') {
+            /** @var string $userId */
+            $userId = $user['user_id'] ?? '';
+            if (UuidRegistry::isValidStringUUID($userId)) {
+                $registryRecord = UuidRegistry::getRegistryRecordForUuid($userId);
+                if (($registryRecord['table_name'] ?? '') === 'patient_data') {
                     $user['user_type'] = 'patient';
-                    $result = $patientService->getOne($user['user_id']);
+                    $result = $patientService->getOne($userId);
                     $patient = $result->hasData() ? $result->getData()[0] : null;
                     $user['patient'] = $patient;
-                    $user['display_name'] = isset($patient) ? $patient['fname'] . ' ' . $patient['lname'] : "Patient record not found";
+                    $user['display_name'] = is_array($patient) ? ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '') : "Patient record not found";
                 } else {
                     $user['user_type'] = 'user';
-                    $user['user'] = $userService->getUserByUUID($user['user_id']);
-                    $user['display_name'] = !empty($user['user']) ? $user['user']['username'] : "Record not found";
+                    $user['user'] = $userService->getUserByUUID($userId);
+                    $user['display_name'] = is_array($user['user']) ? ($user['user']['username'] ?? '') : "Record not found";
                 }
             }
-            $user['accessTokens'] = $this->getAccessTokensForClientUser($clientId, $user['user_id']);
-            $user['refreshTokens'] = $this->getRefreshTokensForClientUser($clientId, $user['user_id']);
+            $user['accessTokens'] = $this->getAccessTokensForClientUser($clientId, $userId);
+            $user['refreshTokens'] = $this->getRefreshTokensForClientUser($clientId, $userId);
             $usersWithAccessTokens[] = $user;
         }
         $client->setTrustedUsers($usersWithAccessTokens);
-        $this->renderEdit($client, $request);
+        return $this->renderEdit($client, $request);
     }
 
-    private function getAccessTokensForClientUser($clientId, $user_id)
+    private function getAccessTokenRepository(): AccessTokenRepository
     {
-        $accessTokenRepository = new AccessTokenRepository();
+        if (!isset($this->accessTokenRepository)) {
+            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
+        }
+        return $this->accessTokenRepository;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getAccessTokensForClientUser(string $clientId, string $userId): array
+    {
+        $accessTokenRepository = $this->getAccessTokenRepository();
         $result = [];
-        $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
+        /** @var array<int, array<string, mixed>> $accessTokens */
+        $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $userId) ?? [];
         foreach ($accessTokens as $token) {
             try {
-                $token['scope'] = json_decode($token['scope'], true);
+                /** @var string $scope */
+                $scope = $token['scope'] ?? '';
+                $token['scope'] = json_decode($scope, true, 512, JSON_THROW_ON_ERROR);
                 $result[] = $token;
-            } catch (\JsonException $exception) {
-                (new SystemLogger())->error("Failed to json_decode api_token scope column. "
-                    . $exception->getMessage(), ['id' => $token['id'], 'clientId' => $clientId, 'user_id' => $user_id]);
+            } catch (JsonException $exception) {
+                $this->logger?->error("Failed to json_decode api_token scope column. "
+                    . $exception->getMessage(), ['id' => $token['id'] ?? '', 'clientId' => $clientId, 'user_id' => $userId]);
             }
         }
-        return $result;
-    }
-
-    private function getRefreshTokensForClientUser($clientId, $user_id)
-    {
-        $tokenRepository = new RefreshTokenRepository();
-        $result = $tokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
         return $result;
     }
 
     /**
-     * * Action handler that takes care of disabling an OAUTH2 client represented by the $clientId
-     * @param $clientId
-     * @param $request
+     * @return array<int, array<string, mixed>>
      */
-    public function disableAction($clientId, $request)
+    private function getRefreshTokensForClientUser(string $clientId, string $userId): array
+    {
+        $tokenRepository = new RefreshTokenRepository();
+        /** @var array<int, array<string, mixed>> $tokens */
+        $tokens = $tokenRepository->getActiveTokensForUser($clientId, $userId) ?? [];
+        return $tokens;
+    }
+
+    /**
+     * * Action handler that takes care of disabling an OAUTH2 client represented by the $clientId
+     * @param string $clientId
+     * @return Response
+     */
+    public function disableAction(string $clientId): Response
     {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
-            $this->notFoundAction($request);
-            return;
+            return $this->notFoundAction();
         }
 
         // TODO: adunsulag when PR brought in disable app
         // TODO: adunsulag we should also as part of the disabling the app piece revoke every single client token
         // including access tokens and refresh tokens...
         $message = xl('Disabled Client') . " " . $client->getName();
-        $this->handleEnabledAction($client, false, $message);
-        exit;
+        return $this->handleEnabledAction($client, false, $message);
     }
 
     /**
      * Action handler that takes care of enabling an OAUTH2 client represented by the $clientId
      * @param $clientId
-     * @param $request
+     * @return Response
      */
-    public function enableAction($clientId, $request)
+    public function enableAction(string $clientId): Response
     {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
-            $this->notFoundAction($request);
-            return;
+            return $this->notFoundAction();
         }
         $message = xl('Enabled Client') . " " . $client->getName();
-        $this->handleEnabledAction($client, true, $message);
-        exit;
+        return $this->handleEnabledAction($client, true, $message);
     }
 
     /**
      * Handles any action that the system doesn't currently know how to address.
-     * @param $request
+     * @return Response
      */
-    public function notFoundAction($request)
+    public function notFoundAction(): Response
     {
-        http_response_code(404);
-        echo $this->twig->render("interface/smart/admin-client/404.html.twig");
+        $params = [
+            'nav' => $this->getDefaultNavData()
+        ];
+        return $this->renderTwigPage("interface/smart/admin-client/404", "interface/smart/admin-client/404.html.twig", $params, Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -332,35 +405,27 @@ class ClientAdminController
      * @param ClientEntity $client
      * @param $isEnabled
      * @param $successMessage
+     * @return Response
      */
-    private function handleEnabledAction(ClientEntity $client, $isEnabled, $successMessage)
+    private function handleEnabledAction(ClientEntity $client, bool $isEnabled, string $successMessage): Response
     {
         $client->setIsEnabled($isEnabled);
         try {
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
-            header("Location: " . $url);
-        } catch (\Exception $ex) {
-            $this->logger->error(
-                "Failed to save client",
-                [
-                    "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
-                    , 'client' => $client->getIdentifier()
-                ]
-            );
-
-            $message = xl('Client failed to save. Check system logs');
-            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
-            header("Location: " . $url);
+            return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
+        } catch (\Throwable $ex) {
+            return $this->returnFailedToSaveClientResponse($ex, $client);
         }
     }
 
     /**
      * Displays the passed in client entity as a form to the screen.
      * @param ClientEntity $client
-     * @param $request
+     * @param Request $request
+     * @return Response
      */
-    private function renderEdit(ClientEntity $client, Request $request)
+    private function renderEdit(ClientEntity $client, Request $request): Response
     {
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
@@ -368,14 +433,13 @@ class ClientAdminController
         $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
         $enableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable-authorization-flow-skip']);
         $isEnabled = $client->isEnabled();
-        $allowSkipAuthSetting = $GLOBALS['oauth_ehr_launch_authorization_flow_skip'] === '1';
+        $allowSkipAuthSetting = $this->globalsBag->getString('oauth_ehr_launch_authorization_flow_skip') === '1';
         $skipAuthorizationFlow = $client->shouldSkipEHRLaunchAuthorizationFlow();
         if (!$allowSkipAuthSetting) {
             $skipAuthorizationFlow = false; // globals overrides this setting
         }
-        $scopes = $client->getScopes();
 
-        $requestMessage = $request->get('message', '');
+        $requestMessage = $request->query->get('message', '');
 
         $formValues = [
             'id' => [
@@ -435,7 +499,7 @@ class ClientAdminController
             'redirectUri' => [
                 'type' => 'text'
                 ,'label' => xl("Redirect URI")
-                ,'value' => implode("|", $client->getRedirectUri())
+                ,'value' => is_array($client->getRedirectUri()) ? implode("|", $client->getRedirectUri()) : $client->getRedirectUri()
             ],
             'launchUri' => [
                 'type' => 'text'
@@ -459,24 +523,28 @@ class ClientAdminController
         }
 
         $trustedUsersList = [];
+        /** @var array<string, mixed> $user */
         foreach ($client->getTrustedUsers() as $user) {
             $accessTokenList = [];
-            foreach ($user['accessTokens'] as $tokenObject) {
+            /** @var array<string, mixed> $tokenObject */
+            foreach (($user['accessTokens'] ?? []) as $tokenObject) {
                 $accessTokenList[] = [
-                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $tokenObject['id']])
+                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $tokenObject['id'] ?? ''])
                     ,'tokenObj' => $tokenObject
                 ];
             }
             $refreshTokenList = [];
-            foreach ($user['refreshTokens'] as $tokenObject) {
+            /** @var array<string, mixed> $tokenObject */
+            foreach (($user['refreshTokens'] ?? []) as $tokenObject) {
                 $refreshTokenList[] = [
-                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_REFRESH_TOKEN, $tokenObject['id']])
+                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_REFRESH_TOKEN, $tokenObject['id'] ?? ''])
                     ,'tokenObj' => $tokenObject
                 ];
             }
+            $user['accessTokens'] = $accessTokenList;
             $user['refreshTokens'] = $refreshTokenList;
             $trustedUsersList[] = [
-                'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_TRUSTED_USER, $user['user_id']])
+                'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_TRUSTED_USER, $user['user_id'] ?? ''])
                 ,'user' => $user
             ];
         }
@@ -506,35 +574,23 @@ class ClientAdminController
             ,'scopes' => $client->getScopes()
             ,'trustedUsers' => $trustedUsersList
             ,'services' => $servicesList
+            ,'nav' => $this->getDefaultNavData()
         ];
-
-        echo $this->twig->render("interface/smart/admin-client/edit.html.twig", $data);
-    }
-
-    private function renderTextarea($key, $setting)
-    {
-        $disabled = $setting['enabled'] !== true ? "disabled readonly" : "";
-        ?>
-        <div class="form-group">
-            <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
-            <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                      class="form-control" rows="10" <?php echo $disabled; ?>><?php echo attr($setting['value']); ?></textarea>
-        </div>
-        <?php
+        return $this->renderTwigPage("interface/smart/admin-client/edit", "interface/smart/admin-client/edit.html.twig", $data);
     }
 
     /**
      * Prepares the default request array passed into the class, filling in any missing parameters
      * the class needs in the request.
-     * @param $request
-     * @return array
+     * @param Request $request
+     * @return string
      */
-    private function normalizeAction(Request $request)
+    private function normalizeAction(Request $request): string
     {
-        $action = $request->query->get('action', '');
+        $action = $request->query->getString('action');
         // if the request is empty with us on a list page we want to populate it
         // anything else we do to the request should be put there
-        if (empty($action)) {
+        if ($action === '') {
             $action = 'list/';
         }
         return $action;
@@ -558,11 +614,10 @@ class ClientAdminController
 
     /**
      * Retrieves the CSRF token string to use
-     * @return bool|string
      */
-    private function getCSRFToken()
+    private function getCSRFToken(): string
     {
-        return CsrfUtils::collectCsrfToken(self::CSRF_TOKEN_NAME);
+        return CsrfUtils::collectCsrfToken($this->session, self::CSRF_TOKEN_NAME);
     }
 
     /**
@@ -573,14 +628,21 @@ class ClientAdminController
      * @param array $options
      * @return string
      */
-    private function getActionUrl($action, $options = array())
+    /**
+     * @param string|array<int, mixed> $action
+     * @param array<string, mixed> $options
+     */
+    private function getActionUrl(string|array $action, array $options = []): string
     {
-        if (\is_array($action)) {
+        if (is_array($action)) {
             $action = implode("/", $action);
         }
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
-        if (!empty($options['queryParams'])) {
-            foreach ($options['queryParams'] as $key => $param) {
+        $csrfToken = $this->getCSRFToken();
+        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($csrfToken !== false ? $csrfToken : '');
+        if (isset($options['queryParams']) && is_array($options['queryParams'])) {
+            /** @var array<string, string> $queryParams */
+            $queryParams = $options['queryParams'];
+            foreach ($queryParams as $key => $param) {
                 $url .= "&" . urlencode($key) . "=" . urlencode($param);
             }
         }
@@ -589,406 +651,300 @@ class ClientAdminController
     }
 
     /**
-     * Renders a list of scope elements for a given client to the screen.  If the preview flag is set to true
-     * it truncates the list to the number specified in self::SCOPE_PREVIEW_DISPLAY
-     * @param ClientEntity $client
-     * @param bool $preview
-     */
-    private function renderScopeList(ClientEntity $client, $preview = false)
-    {
-       // TODO: adunsulag we can in the future can group these and make this list easier to navigate.
-        $scopeList = $client->getScopes();
-        if (empty($scopeList)) {
-            echo xlt("No scopes");
-        }
-
-        $this->renderScopeListArray($scopeList, $preview);
-    }
-
-    private function renderScopeListArray(array $scopeList, $preview = false)
-    {
-        $count = count($scopeList);
-        if ($preview && $count > self::SCOPE_PREVIEW_DISPLAY) {
-            $scopeList = array_splice($scopeList, 0, self::SCOPE_PREVIEW_DISPLAY);
-        }
-        ?>
-        <ul>
-            <?php foreach ($scopeList as $scope) : ?>
-                <li><?php echo text($scope); ?></li>
-            <?php endforeach; ?>
-            <?php if ($preview && $count > self::SCOPE_PREVIEW_DISPLAY) : ?>
-                <li>
-                    <em><?php echo ($count - self::SCOPE_PREVIEW_DISPLAY) . " " . xlt("additional scopes"); ?></em>...
-                </li>
-            <?php endif; ?>
-        </ul>
-        <?php
-    }
-
-    /**
-     * Renders out the header that each controller action will use.
-     */
-    private function renderHeader()
-    {
-        $title = xl('Client Registrations');
-        ?>
-<html>
-    <head>
-        <title><?php echo text($title); ?></title>
-
-        <?php Header::setupHeader(); ?>
-
-    </head>
-    <body class="body_top">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="page-title">
-                        <h2>
-                            <?php echo text($title); ?>
-                            <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
-                        </h2>
-                    </div>
-                </div>
-            </div>
-        <?php
-    }
-
-    /**
-     * Renders the footer html to the screen.
-     */
-    private function renderFooter()
-    {
-        ?>
-        <div class="row mt-5">
-            <div class="col alert alert-info">
-                <p><?php echo xlt("This administration page is for managing the list of OAUTH2 registered applications that are authorized to use the APIs."); ?></p>
-                <p>
-                    <?php echo xlt("SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR."); ?>
-                </p>
-                <p>
-                    <?php echo xlt("Note it is recommended to avoid approving SMART apps that do not register as a confidential client. These apps are less secure and should be highly restricted in the OAUTH2 scopes you allow them to access."); ?>
-                </p>
-            </div>
-        </div>
-        </div> <!-- end .container -->
-    </body> <!-- end body.body_top -->
-</html>
-        <?php
-    }
-
-
-    /**
      * @param $clientId
-     * @param array $request
+     * @param Request $request
      * @throws AccessDeniedException
+     * @return Response
      */
-    private function revokeTrustedUserAction($clientId, Request $request)
+    private function revokeTrustedUserAction(string $clientId, Request $request): Response
     {
-        $action = $request->query->get('action', '');
+        $action = $request->query->getString('action');
         $parts = explode("/", $action);
         $trustedUserId = $parts[3] ?? null;
-        if (empty($trustedUserId)) {
-            return $this->notFoundAction($request);
+        if ($trustedUserId === null || $trustedUserId === '') {
+            return $this->notFoundAction();
         }
         // need to delete the trusted user action
         $trustedUserService = new TrustedUserService();
         $originalUser = $trustedUserService->getTrustedUser($clientId, $trustedUserId);
         // make sure the client is the same
-        if (empty($originalUser)) {
+        if ($originalUser === false || $originalUser === []) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete trusted user for different client");
         }
 
         $trustedUserService->deleteTrustedUserById($originalUser['id']);
 
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked Trusted User")]]);
-        header("Location: " . $url);
-        exit;
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 
-    private function revokeRefreshToken($clientId, Request $request)
+    /**
+     * @param $clientId
+     * @param Request $request
+     * @return Response
+     * @throws AccessDeniedException
+     */
+    private function revokeRefreshToken(string $clientId, Request $request): Response
     {
-        $action = $request->query->get('action', '');
+        $action = $request->query->getString('action');
         $parts = explode("/", $action);
         $tokenId = $parts[3] ?? null;
-        if (empty($tokenId)) {
-            return $this->notFoundAction($request);
+        if ($tokenId === null || $tokenId === '') {
+            return $this->notFoundAction();
         }
         // need to delete the trusted user action
         $service = new RefreshTokenRepository();
+        /** @var array<string, scalar|null>|null $token */
         $token = $service->getTokenById($tokenId);
         // make sure the client is the same
-        if (empty($token) || $token['client_id'] != $clientId) {
+        if ($token === null || ($token['client_id'] ?? '') != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to refresh access token for different client");
         }
-        $service->revokeRefreshToken($token['token']);
+        $service->revokeRefreshToken((string) $token['token']);
 
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked refresh token")]]);
-        header("Location: " . $url);
-        exit;
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 
-    private function toolsRevokeAccessTokenAction(Request $request)
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws AccessDeniedException
+     */
+    private function toolsRevokeAccessTokenAction(Request $request): Response
     {
-        $clientId = $request->query->get('clientId', null);
-        $token = $request->query->get('token', null);
-        $service = new AccessTokenRepository();
-        $accessToken = $service->getTokenById($token);
+        $clientId = $request->query->getString('clientId');
+        $tokenParam = $request->query->getString('token');
+        $service = $this->getAccessTokenRepository();
+        /** @var array<string, scalar|null>|null $accessToken */
+        $accessToken = $service->getTokenById($tokenParam);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
+        if ($accessToken === null || ($accessToken['client_id'] ?? '') != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
         }
-        $service->revokeAccessToken($accessToken['token']);
+        $service->revokeAccessToken((string) $accessToken['token']);
 
         $url = $this->getActionUrl([self::TOKEN_TOOLS_ACTION], ["queryParams" => ['message' => xlt("Successfully revoked access token")]]);
-        header("Location: " . $url);
-        exit;
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 
-    private function toolsRevokeRefreshToken(Request $request)
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws AccessDeniedException
+     */
+    private function toolsRevokeRefreshToken(Request $request): Response
     {
-        $clientId = $request->query->get('clientId', null);
-        $token = $request->query->get('token', null);
+        $clientId = $request->query->getString('clientId');
+        $tokenParam = $request->query->getString('token');
         $service = new RefreshTokenRepository();
-        $accessToken = $service->getTokenById($token);
+        /** @var array<string, scalar|null>|null $accessToken */
+        $accessToken = $service->getTokenById($tokenParam);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
+        if ($accessToken === null || ($accessToken['client_id'] ?? '') != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete refresh token for different client");
         }
-        $service->revokeRefreshToken($accessToken['token']);
+        $service->revokeRefreshToken((string) $accessToken['token']);
 
         $url = $this->getActionUrl([self::TOKEN_TOOLS_ACTION], ["queryParams" => ['message' => xlt("Successfully revoked refresh token")]]);
-        header("Location: " . $url);
-        exit;
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 
-    private function revokeAccessToken($clientId, Request $request)
+    /**
+     * @param $clientId
+     * @param Request $request
+     * @return Response
+     * @throws AccessDeniedException
+     */
+    private function revokeAccessToken(string $clientId, Request $request): Response
     {
-        $action = $request->query->get('action', '');
+        $action = $request->query->getString('action');
         $parts = explode("/", $action);
-        $accessToken = $parts[3] ?? null;
-        if (empty($accessToken)) {
-            return $this->notFoundAction($request);
+        $tokenId = $parts[3] ?? null;
+        if ($tokenId === null || $tokenId === '') {
+            return $this->notFoundAction();
         }
         // need to delete the trusted user action
-        $service = new AccessTokenRepository();
-        $accessToken = $service->getTokenById($accessToken);
+        $service = $this->getAccessTokenRepository();
+        /** @var array<string, scalar|null>|null $accessToken */
+        $accessToken = $service->getTokenById($tokenId);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
+        if ($accessToken === null || ($accessToken['client_id'] ?? '') != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
         }
-        $service->revokeAccessToken($accessToken['token']);
+        $service->revokeAccessToken((string) $accessToken['token']);
 
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked access token")]]);
-        header("Location: " . $url);
-        exit;
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 
-    private function tokenToolsAction(Request $request)
+    private function tokenToolsAction(Request $request): Response
     {
-        $this->renderTokenToolsHeader($request);
-        $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
-        $textSetting = [
+        $params = [
+            'nav' => [
+                'title' => xl('Token Tools')
+                ,'navs' => [
+                    ['title' => xl('Back to Client List'), 'url' => $this->getActionUrl(['list'])]
+                ]
+            ]
+            ,'requestMessage' => $request->query->get('message', '')
+            ,'actionUrl' => $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION])
+            ,'tokenSettings' => [
                 'value' => ''
                 ,'label' => 'Token to parse'
                 ,'type' => 'textarea'
                 ,'enabled' => true
+            ]
         ];
-        ?>
-        <form method="POST" action="<?php echo $actionUrl; ?>">
-        <?php
-            $this->renderTextarea("token", $textSetting);
-        ?>
-        <input type="submit" class="btn btn-sm btn-primary" value="<?php echo xla("Parse Token"); ?>" />
-        <?php
-        $this->renderTokenToolsFooter();
+        return $this->renderTwigPage("interface/smart/admin-client/token-tools", "interface/smart/admin-client/token-tools.html.twig", $params);
     }
 
-    private function parseTokenAction(Request $request)
+    private function parseTokenAction(Request $request): Response
     {
         $parts = null;
-        $token = $request->query->get('token', null);
-        $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
+        $token = $request->request->getString('token');
         $textSetting = [
                 'value' => $token
                 ,'label' => 'Token to parse'
                 ,'type' => 'textarea'
                 ,'enabled' => true
         ];
-        if (!empty($token)) {
-            $parts = $this->parseTokenIntoParts($token);
-            $databaseRecord = $this->getDatabaseRecordForToken($parts['jti'], $parts['token_type']);
-            if (!empty($databaseRecord)) {
-                $parts['client_id'] = $databaseRecord['client_id'];
-                $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
+        $databaseRecord = null;
+        $message = $request->query->get('message', '');
+        try {
+            if ($token !== '') {
+                $parts = $this->parseTokenIntoParts($token);
+                /** @var string $jti */
+                $jti = $parts['jti'] ?? '';
+                /** @var string $tokenType */
+                $tokenType = $parts['token_type'] ?? '';
+                $databaseRecord = $this->getDatabaseRecordForToken($jti, $tokenType);
+                if ($databaseRecord !== null) {
+                    $parts['client_id'] = $databaseRecord['client_id'];
+                    $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
+
+                    $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
+                    if ($parts['token_type'] == 'refresh_token') {
+                        $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
+                    } else {
+                        $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
+                    }
+                    $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
+                } else {
+                    $message = xl("JWT not found in system");
+                    $parts = [];
+                }
             }
-
-            $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
-            if ($parts['token_type'] == 'refresh_token') {
-                $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
-            } else {
-                $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
-            }
-            $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
+        } catch (\Throwable $exception) {
+            $this->logger?->error("caught exception parsing token", ['exception' => $exception]);
+            $message = xl('Failed to parse token. Check system logs');
+            $parts = [];
+            $databaseRecord = null;
         }
-
-        // now let's grab our parser and see what we can do with all of this.
-        $this->renderTokenToolsHeader($request);
-        if (empty($databaseRecord)) {
-            ?>
-        <div class="alert alert-info">
-            <?php echo xlt("JWT not found in system"); ?>
-        </div>
-            <?php
-        }
-        ?>
-        <form method="POST" action="<?php echo $actionUrl; ?>">
-        <?php
-            $this->renderTextarea("token", $textSetting);
-        ?>
-        <input type="submit" class="btn btn-sm btn-primary" value="<?php echo xla("Parse Token"); ?>" />
-
-        <?php if (!empty($databaseRecord)) { ?>
-        <hr />
-        <h3><?php echo xlt("Token details"); ?>
-            <?php if ($databaseRecord['revoked'] == 0) : ?>
-              <a href="<?php echo attr($parts['revoke_link']); ?>"
-                       class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
-            <?php endif; ?>
-        </h3>
-        <ul>
-        <li><?php echo xlt("Token JTI(DB token value)"); ?>: <?php echo text($parts['jti']); ?></li>
-        <li><?php echo xlt("Token DB Id"); ?>: <?php echo text($databaseRecord['id']); ?></li>
-        <li><?php echo xlt("Token Status"); ?>: <?php echo text($parts['status']); ?></li>
-        <li><?php echo xlt("Token Type"); ?>: <?php echo text($parts['token_type']); ?></li>
-        <li><?php echo xlt("Token Expiration"); ?>: <?php echo text($databaseRecord['expiry']); ?></li>
-        <li><?php echo xlt("User UUID"); ?>:
-        <a href="<?php echo attr($parts['user_link']); ?>">
-            <?php echo text($databaseRecord['user_id']); ?>
-        </a>
-        </li>
-        </ul>
-        <pre><?php echo text(json_encode($parts, JSON_PRETTY_PRINT)); ?></pre>
-            <?php
-        }
-
-        $this->renderTokenToolsFooter();
+        $params = [
+            'nav' => [
+                'title' => xl('Token Tools')
+                ,'navs' => [
+                    ['title' => xl('Back to Client List'), 'url' => $this->getActionUrl(['list'])]
+                ]
+            ]
+            ,'requestMessage' => $message
+            ,'actionUrl' => $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION])
+            ,'tokenSettings' => $textSetting
+            ,'databaseRecord' => $databaseRecord
+            ,'parts' => $parts
+            ,'encodedParts' =>  json_encode($parts, JSON_PRETTY_PRINT)
+        ];
+        return $this->renderTwigPage("interface/smart/admin-client/token-parse", "interface/smart/admin-client/token-parse.html.twig", $params);
     }
 
-    private function getDatabaseRecordForToken($tokenId, $tokenType)
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function getDatabaseRecordForToken(string $tokenId, string $tokenType): ?array
     {
-        if ($tokenType == 'refresh_token') {
+        if ($tokenType === 'refresh_token') {
             $repo = new RefreshTokenRepository();
         } else {
-            $repo = new AccessTokenRepository();
+            $repo = $this->getAccessTokenRepository();
         }
+        /** @var array<string, mixed>|null */
         return $repo->getTokenByToken($tokenId);
     }
 
-    private function parseTokenIntoParts($rawToken)
+    /**
+     * @param $rawToken
+     * @return array
+     * @throws OAuth2KeyException if the token is not valid or cannot be parsed
+     */
+    /**
+     * @return array<string, mixed>
+     * @throws OAuth2KeyException if the token is not valid or cannot be parsed
+     */
+    private function parseTokenIntoParts(string $rawToken): array
     {
-        $tokenParts = [];
-        try {
-            $keyConfig = new OAuth2KeyConfig();
-            $keyConfig->configKeyPairs();
-            $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $keyConfig->getPublicKeyLocation());
+        $keyConfig = new OAuth2KeyConfig();
+        $keyConfig->configKeyPairs();
+        $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $keyConfig->getPublicKeyLocation());
 
-            $tokenType = $webKeyParser->getTokenHintFromToken($rawToken);
-            if ($tokenType == 'refresh_token') {
-                $tokenParts = $webKeyParser->parseRefreshToken($rawToken);
-            } else {
-                $tokenParts = $webKeyParser->parseAccessToken($rawToken);
-            }
-            $tokenParts['token_type'] = $tokenType;
-        } catch (OAuth2KeyException $exception) {
-            var_dump($exception->getMessage());
-            // TODO: @adunsulag handle how we will work with our key exceptions
+        $tokenType = $webKeyParser->getTokenHintFromToken($rawToken);
+        if ($tokenType === 'refresh_token') {
+            $tokenParts = $webKeyParser->parseRefreshToken($rawToken);
+        } else {
+            $tokenParts = $webKeyParser->parseAccessToken($rawToken);
         }
+        /** @var array<string, mixed> $tokenParts */
+        $tokenParts['token_type'] = $tokenType;
         return $tokenParts;
     }
 
-    private function renderTokenToolsHeader(Request $request)
-    {
-        $listAction = $this->getActionUrl(['list']);
-        $message = $request->query->get('message') ?? null;
-
-        $this->renderHeader();
-        ?>
-        <div class="card mt-3">
-        <div class="card-header">
-            <h2>
-                <?php echo xlt('Token Tools'); ?>
-            </h2>
-            <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
-        </div>
-        <div class="card-body">
-            <?php if (!empty($message)) : ?>
-            <div class="row">
-                <div class="col-12">
-                    <div class="alert alert-success">
-                        <?php echo text($message); ?>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            <div class="row">
-                <div class="col-12">
-        <?php
-    }
-
-    private function renderTokenToolsFooter()
-    {
-        ?>
-        </div>
-                </div>
-            </div>
-        </div>
-        <?php
-        $this->renderFooter();
-    }
-    private function enableAuthorizationFlowSkipAction(string $clientId, Request $request)
+    private function enableAuthorizationFlowSkipAction(string $clientId): Response
     {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
-            $this->notFoundAction($request);
-            return;
+            return $this->notFoundAction();
         }
         $message = xl('Enabled Authorization Flow Skip') . " " . $client->getName();
-        $this->handleAuthorizationFlowSkipAction($client, true, $message);
-        exit;
+        return $this->handleAuthorizationFlowSkipAction($client, true, $message);
     }
-    private function disableAuthorizationFlowSkipAction(string $clientId, Request $request)
+    private function disableAuthorizationFlowSkipAction(string $clientId): Response
     {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
-            $this->notFoundAction($request);
-            return;
+            return $this->notFoundAction();
         }
         $message = xl('Disabled Authorization Flow Skip') . " " . $client->getName();
-        $this->handleAuthorizationFlowSkipAction($client, false, $message);
-        exit;
+        return $this->handleAuthorizationFlowSkipAction($client, false, $message);
     }
-    private function handleAuthorizationFlowSkipAction(ClientEntity $client, bool $skipFlow, string $successMessage)
+    private function handleAuthorizationFlowSkipAction(ClientEntity $client, bool $skipFlow, string $successMessage): Response
     {
         $client->setSkipEHRLaunchAuthorizationFlow($skipFlow);
         try {
             $this->clientRepo->saveSkipEHRLaunchFlow($client, $skipFlow);
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
-            header("Location: " . $url);
-        } catch (\Exception $ex) {
-            $this->logger->error(
-                "Failed to save client",
-                [
-                    "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
-                    , 'client' => $client->getIdentifier()
-                ]
-            );
-
-            $message = xl('Client failed to save. Check system logs');
-            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
-            header("Location: " . $url);
+            return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
+        } catch (\Throwable $ex) {
+            return $this->returnFailedToSaveClientResponse($ex, $client);
         }
+    }
+
+    /**
+     * @param Exception $ex
+     * @param ClientEntity $client
+     * @return Response
+     */
+    private function returnFailedToSaveClientResponse(\Throwable $ex, ClientEntity $client): Response
+    {
+        $this->logger?->error(
+            "Failed to save client",
+            [
+                "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
+                , 'client' => $client->getIdentifier()
+            ]
+        );
+
+        $message = xl('Client failed to save. Check system logs');
+        $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+        return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
     }
 }

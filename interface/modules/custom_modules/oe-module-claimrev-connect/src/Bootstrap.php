@@ -7,7 +7,7 @@
  * writing modules that can be installed and used in OpenEMR.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -19,22 +19,22 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
-use OpenEMR\Events\Appointments\AppointmentSetEvent;
-
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevRteService;
-
+use OpenEMR\Services\Globals\GlobalSetting;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
@@ -43,10 +43,6 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-claimrev-connect";
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -63,18 +59,18 @@ class Bootstrap
      */
     private $twig;
 
+    private readonly LoggerInterface $logger;
+
     /**
-     * @var SystemLogger
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
      */
-    private $logger;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
+    ) {
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
@@ -83,11 +79,10 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->eventDispatcher = $eventDispatcher;
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents()
@@ -115,13 +110,11 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalSettingsSection']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalSettingsSection(...));
     }
 
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
         $section = xlt("ClaimRev Connect");
         $service->createSection($section, 'Portal');
@@ -129,7 +122,7 @@ class Bootstrap
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $service->appendToSection(
                 $section,
                 $key,
@@ -148,14 +141,14 @@ class Bootstrap
     public function registerDemographicsEvents()
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_ELIGIBILITY_CARD)) {
-            $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderEligibilitySection']);
+            $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, $this->renderEligibilitySection(...));
         }
     }
 
     public function registerEligibilityEvents()
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_REALTIME_ELIGIBILITY)) {
-            $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, [$this, 'renderAppointmentSetEvent']);
+            $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->renderAppointmentSetEvent(...));
         }
     }
     public function renderAppointmentSetEvent(AppointmentSetEvent $event)
@@ -197,7 +190,7 @@ class Bootstrap
             $forceExpandAlways
         );
         ?>
-        
+
         <div> <?php include $path . "/eligibility.php";?> </div>
     </section>
         <?php
@@ -207,7 +200,7 @@ class Bootstrap
      */
     public function registerTemplateEvents()
     {
-        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
+        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, $this->addTemplateOverrideLoader(...));
     }
 
     /**
@@ -236,7 +229,7 @@ class Bootstrap
                 $loader->prependPath($this->getTemplatePath());
             }
         } catch (LoaderError $error) {
-            $this->logger->errorLogCaller("Failed to create template loader", ['innerMessage' => $error->getMessage(), 'trace' => $error->getTraceAsString()]);
+            $this->logger->error("Failed to create template loader", ['exception' => $error]);
         }
     }
 
@@ -249,7 +242,7 @@ class Bootstrap
              * @global $eventDispatcher @see ModulesApplication::loadCustomModule
              * @global $module @see ModulesApplication::loadCustomModule
              */
-            $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+            $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
         }
     }
 
@@ -333,7 +326,7 @@ class Bootstrap
             $scopes[] = 'user/CustomSkeletonResource.read';
             $scopes[] = 'patient/CustomSkeletonResource.read';
             // only add system scopes if they are actually enabled
-            if (\RestConfig::areSystemScopesEnabled()) {
+            if ($event->isSystemScopesEnabled()) {
                 $scopes[] = 'system/CustomSkeletonResource.read';
             }
             $event->setScopes($scopes);

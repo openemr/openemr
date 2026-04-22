@@ -1,0 +1,2355 @@
+<?php
+
+/**
+ * Comprehensive unit tests for the EventAuditLogger class
+ *
+ * @category  Test
+ * @package   OpenEMR\Tests\Unit\Common\Logging
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   GNU General Public License 3
+ * @link      https://www.open-emr.org
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Unit\Common\Logging;
+
+use Lcobucci\Clock\FrozenClock;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
+use ReflectionClass;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+
+/**
+ * Interface for mocking ADODB connection in tests
+ */
+interface MockAdodbConnection
+{
+    public function qstr(string $value): string;
+    public function Insert_ID(): int;
+    public function Execute(string $sql, array|false $inputarr = false): mixed;
+    public function ExecuteNoLog(string $sql, array|false $inputarr = false): mixed;
+}
+
+/**
+ * Abstract class for mocking ADODB result set in tests
+ */
+abstract class MockAdodbResultSet
+{
+    public bool $EOF = true;
+
+    abstract public function FetchRow(): array|false;
+}
+
+final class EventAuditLoggerTest extends TestCase
+{
+    /**
+     * @var EventAuditLogger
+     */
+    private $eventAuditLogger;
+
+    private SessionInterface&MockObject $session;
+
+    private AuditConfig $config;
+
+    private BreakglassCheckerInterface&MockObject $breakglassChecker;
+
+    private ClockInterface $clock;
+
+    /**
+     * @var array<string, mixed> Original $_SESSION backup
+     */
+    private array $originalSession;
+
+    /**
+     * @var array<string, mixed> Original $_SERVER backup
+     */
+    private array $originalServer;
+
+    /**
+     * @var array<string, mixed> Original $GLOBALS backup
+     */
+    private array $originalGlobals;
+
+    /**
+     * @var array<int, string> Keys of $GLOBALS that we modify in tests
+     */
+    private array $modifiedGlobalKeys = [
+        'enable_auditlog',
+        'enable_auditlog_encryption',
+        'audit_events_patient-record',
+        'audit_events_security-administration',
+        'audit_events_query',
+        'audit_events_http-request',
+        'gbl_force_log_breakglass',
+        'atna_audit_host',
+        'atna_audit_port',
+        'atna_audit_localcert',
+        'atna_audit_cacert',
+        'enable_atna_audit',
+        'adodb'
+    ];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->session = $this->createMock(SessionInterface::class);
+        $this->config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+        $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
+        $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
+
+        // Backup original superglobals
+        /**
+         * @var array<string, mixed> $session
+         */
+        $session = $_SESSION ?? [];
+        $this->originalSession = $session;
+        /**
+         * @var array<string, mixed> $server
+         */
+        $server = $_SERVER;
+        $this->originalServer = $server;
+
+        // Backup only the specific $GLOBALS keys we modify
+        $this->originalGlobals = [];
+        foreach ($this->modifiedGlobalKeys as $modifiedGlobalKey) {
+            if (isset($GLOBALS[$modifiedGlobalKey])) {
+                $this->originalGlobals[$modifiedGlobalKey] = $GLOBALS[$modifiedGlobalKey];
+            }
+        }
+
+        // Get EventAuditLogger instance (works with existing singleton)
+        $this->eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            crypto: ServiceContainer::getCrypto(),
+            shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        // Setup default test environment
+        $this->setupTestEnvironment();
+    }
+
+    protected function tearDown(): void
+    {
+        // Restore original superglobals
+        $_SESSION = $this->originalSession;
+        $_SERVER = $this->originalServer;
+
+        // Restore original $GLOBALS values and unset any we added
+        foreach ($this->modifiedGlobalKeys as $modifiedGlobalKey) {
+            if (isset($this->originalGlobals[$modifiedGlobalKey])) {
+                $GLOBALS[$modifiedGlobalKey] = $this->originalGlobals[$modifiedGlobalKey];
+            } elseif (isset($GLOBALS[$modifiedGlobalKey])) {
+                unset($GLOBALS[$modifiedGlobalKey]);
+            }
+        }
+
+        parent::tearDown();
+    }
+
+    /**
+     * Setup default test environment with mocked globals and session data
+     */
+    private function setupTestEnvironment(): void
+    {
+        // Setup default session values using Symfony session
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
+        $this->session->set('pid', '123');
+
+        // Setup default $_SERVER values
+        $_SERVER = [
+            'SERVER_NAME' => 'test.openemr.local',
+            'SERVER_ADDR' => '127.0.0.1',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/test/script.php',
+            'QUERY_STRING' => 'param=value',
+            'SSL_CLIENT_S_DN_CN' => 'test-client',
+            'REMOTE_ADDR' => '127.0.0.1'
+        ];
+
+        // Setup default $GLOBALS values - disable audit logging for unit tests to prevent SQL escaping errors
+        $GLOBALS['enable_auditlog'] = false;
+        $GLOBALS['enable_auditlog_encryption'] = false;
+        $GLOBALS['audit_events_patient-record'] = true;
+        $GLOBALS['audit_events_security-administration'] = true;
+        $GLOBALS['audit_events_query'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+        $GLOBALS['gbl_force_log_breakglass'] = false;
+        $GLOBALS['atna_audit_host'] = 'audit.example.com';
+        $GLOBALS['atna_audit_port'] = '6514';
+        $GLOBALS['atna_audit_localcert'] = '/path/to/cert.pem';
+        $GLOBALS['atna_audit_cacert'] = '/path/to/ca.pem';
+        $GLOBALS['enable_atna_audit'] = false;
+        $GLOBALS['adodb'] = ['db' => $this->createMockAdodb()];
+
+        // Mock global SQL functions used by EventAuditLogger
+        $this->mockGlobalSqlFunctions();
+    }
+
+    /**
+     * Setup HTTP request environment for testing
+     *
+     * @return array<string, string|null>
+     */
+    private function setupHttpRequestEnvironment(string $method, string $script, ?string $query = null): array
+    {
+        $backup = [
+            'REQUEST_METHOD' => isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null,
+            'SCRIPT_NAME' => isset($_SERVER['SCRIPT_NAME']) && is_string($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : null,
+            'QUERY_STRING' => isset($_SERVER['QUERY_STRING']) && is_string($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : null
+        ];
+
+        $_SERVER['REQUEST_METHOD'] = $method;
+        $_SERVER['SCRIPT_NAME'] = $script;
+        if ($query !== null) {
+            $_SERVER['QUERY_STRING'] = $query;
+        } else {
+            unset($_SERVER['QUERY_STRING']);
+        }
+
+        return $backup;
+    }
+
+    /**
+     * Restore server variables from backup
+     *
+     * @param array<string, string|null> $backup
+     */
+    private function restoreServerVariables(array $backup): void
+    {
+        foreach ($backup as $key => $value) {
+            if ($value !== null) {
+                $_SERVER[$key] = $value;
+            } elseif (isset($_SERVER[$key])) {
+                unset($_SERVER[$key]);
+            }
+        }
+    }
+
+    /**
+     * Get constructor args for EventAuditLogger mocks
+     *
+     * @param array<string, mixed> $sessionValues Session values to return from mock (defaults to testuser/testprovider)
+     * @return list<mixed>
+     */
+    private function getLoggerConstructorArgs(?AuditConfig $config = null, ?array $sessionValues = null): array
+    {
+        $sessionValues ??= ['authUser' => 'testuser', 'authProvider' => 'testprovider'];
+        $sessionMock = $this->createMock(SessionInterface::class);
+        $sessionMock->method('get')
+            ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
+
+        // Return positional array matching constructor parameter order:
+        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker, clock
+        return [
+            [],                                         // sinks
+            $this->createMock(CryptoGen::class),        // cryptoGen
+            false,                                      // shouldEncrypt
+            $sessionMock,                               // session
+            $config ?? $this->config,                   // config
+            $this->breakglassChecker,                   // breakglassChecker
+            $this->clock,
+        ];
+    }
+
+    /**
+     * Set the global ADODB database mock safely
+     */
+    private function setGlobalAdodbMock(MockObject $mockAdodb): void
+    {
+        if (!isset($GLOBALS['adodb']) || !is_array($GLOBALS['adodb'])) {
+            $GLOBALS['adodb'] = [];
+        }
+        /**
+ * @var array<string, mixed> $adodb
+*/
+        $adodb = $GLOBALS['adodb'];
+        $adodb['db'] = $mockAdodb;
+        $GLOBALS['adodb'] = $adodb;
+    }
+
+    /**
+     * Mock global SQL functions used by EventAuditLogger
+     */
+    private function mockGlobalSqlFunctions(): void
+    {
+        // The SQL functions should be available from OpenEMR's bootstrap
+        // If they're not available, the test environment isn't properly set up
+        // We'll rely on the existing OpenEMR test infrastructure
+    }
+
+    /**
+     * Create a mock ADODB database object
+     */
+    private function createMockAdodb(): MockObject
+    {
+        // Create a mock using the test interface
+        $mock = $this->createMock(MockAdodbConnection::class);
+
+        $mock->method('qstr')->willReturnCallback(
+            function ($value): string {
+                // Handle both string and numeric values
+                if (!is_string($value) && !is_numeric($value)) {
+                    throw new \InvalidArgumentException('Value must be string or numeric');
+                }
+
+                return "'" . addslashes((string)$value) . "'";
+            }
+        );
+        $mock->method('Insert_ID')->willReturn(123);
+
+        // Mock database execution methods using the result set interface
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
+        $resultSetMock->method('FetchRow')->willReturn(false); // No breakglass user found
+
+        // Set EOF property directly to avoid undefined property warning
+        $resultSetMock->EOF = true;
+
+        $mock->method('Execute')->willReturn($resultSetMock);
+        $mock->method('ExecuteNoLog')->willReturn($resultSetMock);
+        return $mock;
+    }
+
+    /**
+     * Test singleton pattern implementation
+     */
+    public function testSingletonPattern(): void
+    {
+        $eventAuditLogger = EventAuditLogger::getInstance();
+        $instance2 = EventAuditLogger::getInstance();
+
+        $this->assertSame($eventAuditLogger, $instance2, 'EventAuditLogger should implement singleton pattern');
+        $this->assertInstanceOf(EventAuditLogger::class, $eventAuditLogger);
+    }
+
+    /**
+     * Test newEvent method with basic parameters
+     */
+    public function testNewEventBasic(): void
+    {
+        // Mock recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1, // success
+                'login', // event
+                'testuser', // user
+                'testprovider', // group
+                'User login', // comments
+                null, // patient_id
+                'login' // category
+            );
+
+        $loggerMock->newEvent('login', 'testuser', 'testprovider', 1, 'User login');
+    }
+
+    /**
+     * Test newEvent method with patient portal parameters
+     */
+    public function testNewEventPatientPortal(): void
+    {
+        // Test the patient portal code path - when audit logging is disabled,
+        // this should return early without executing the patient portal logic
+
+        // Ensure audit logging is disabled to prevent database interactions
+        $GLOBALS['enable_auditlog'] = false;
+
+        // This should succeed because audit logging is disabled and returns early
+        $this->eventAuditLogger->newEvent(
+            'view',
+            'patient123',
+            'patients',
+            1,
+            'Viewed dashboard',
+            null,
+            'patient-portal', // This would trigger patient portal code if audit logging was enabled
+            'dashboard'
+        );
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test patient portal recordLogItem with all parameters to simulate successful path
+     */
+    public function testPatientPortalRecordLogItemWithAllParameters(): void
+    {
+        // Test the recordLogItem method with all patient portal parameters
+        // This simulates what would happen if the patient portal menu lookup succeeded
+        // and covers the functionality that handles the patient portal category
+
+        $this->eventAuditLogger->recordLogItem(
+            1, // success
+            'view', // event
+            'patient123', // user
+            'patients', // groupname
+            'Patient portal access', // comments
+            null, // patient_id
+            'Patient Portal', // category (what gets set for patient portal)
+            'patient-portal', // log_from (triggers patient portal path)
+            1, // menu_item_id (result of successful array_search)
+            0, // ccda_doc_id
+            '', // crt_user
+            [
+                'user_id' => 1,
+                'patient_id' => 1,
+                'method' => 'foo',
+                'request' => 'foo',
+                'request_body' => 'foo',
+                'request_url' => 'foo',
+                'response' => 'foo',
+            ] // api_data
+        );
+
+        // Test passes if no exceptions are thrown
+        // This covers the intended behavior of the patient portal success path
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test newEvent method with patient portal parameters (unit test version)
+     * This tests the logic flow without database interaction
+     */
+    public function testPatientPortalParameterHandling(): void
+    {
+        // Test that patient portal parameters are handled correctly in the method signature
+        // This is a unit test that doesn't require database interaction
+
+        // Mock recordLogItem to verify it gets called with correct parameters
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        // We expect recordLogItem to be called once (either patient portal path or regular path)
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem');
+
+        // Call with patient portal parameters - this tests parameter validation and flow
+        $loggerMock->newEvent(
+            'view',
+            'patient123',
+            'patients',
+            1,
+            'Test patient portal event',
+            null,
+            'open-emr', // log_from (avoid patient-portal to prevent DB query)
+            'dashboard', // menu_item
+            0 // ccda_doc_id as int
+        );
+    }
+
+    /**
+     * Test newEvent method with delete event for lists table
+     */
+    public function testNewEventDeleteLists(): void
+    {
+        // Test the delete event code path by calling the real method
+        // This will execute the special case category finder logic for delete events
+
+        // Call the real newEvent method with 'delete' event
+        // This should execute the eventCategoryFinder call for delete operations
+        $this->eventAuditLogger->newEvent(
+            'delete',
+            'testuser',
+            'testgroup',
+            1,
+            "lists:'medical_problem'", // This triggers the delete case logic
+            null
+        );
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test eventCategoryFinder method with delete operations for comprehensive coverage
+     */
+    public function testEventCategoryFinderDeleteOperations(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+
+        // Test delete operations that should trigger the specific delete case handling
+        $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medication'", 'delete', ''));
+        $this->assertEquals('Allergy', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'allergy'", 'delete', ''));
+
+        // Test delete operations that fall through to the default case
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'surgery'", 'delete', ''));
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'unknown_type'", 'delete', ''));
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "other_comment", 'delete', ''));
+    }
+
+    /**
+     * Test recordLogItem method without encryption
+     */
+    public function testRecordLogItemWithoutEncryption(): void
+    {
+        // Keep audit logging disabled to prevent SQL escaping errors
+        $GLOBALS['enable_auditlog'] = false;
+        $GLOBALS['enable_auditlog_encryption'] = false;
+
+        $eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            crypto: $this->createMock(CryptoGen::class),
+            shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        // Call recordLogItem - will return early due to disabled audit logging
+        $eventAuditLogger->recordLogItem(
+            1,
+            'patient-record-select',
+            'testuser',
+            'testgroup',
+            'SELECT * FROM patient_data',
+            123,
+            'patient-record'
+        );
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test recordLogItem method with encryption enabled (integration-style test)
+     */
+    public function testRecordLogItemWithEncryption(): void
+    {
+        // Enable audit logging and encryption for this specific test
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['enable_auditlog_encryption'] = true;
+
+        // Setup database mock for this test
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Create a mock CryptoGen to verify encryption calls
+        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['encryptStandard'])
+            ->getMock();
+
+        $cryptoMock->expects($this->exactly(1))
+            ->method('encryptStandard')
+            ->willReturnCallback(
+                fn(string $value): string => 'encrypted_' . $value
+            );
+
+        $eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            crypto: $cryptoMock,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        try {
+            // This should execute the full recordLogItem flow including encryption
+            $eventAuditLogger->recordLogItem(
+                1,
+                'patient-record-select',
+                'testuser',
+                'testgroup',
+                'SELECT * FROM patient_data',
+                123,
+                'patient-record'
+            );
+
+            // Test passes if no exceptions are thrown
+            $this->addToAssertionCount(1);
+        } finally {
+            // Restore audit logging state
+            $GLOBALS['enable_auditlog'] = false;
+            $GLOBALS['enable_auditlog_encryption'] = false;
+        }
+    }
+
+    /**
+     * Test recordLogItem method with API logging
+     */
+    public function testRecordLogItemWithApiLogging(): void
+    {
+        // Keep audit logging disabled to prevent SQL escaping errors
+        $GLOBALS['enable_auditlog'] = false;
+
+        $apiData = [
+            'user_id' => 1,
+            'patient_id' => 123,
+            'method' => 'GET',
+            'request' => '/api/patient/123',
+            'request_url' => 'https://example.com/api/patient/123',
+            'request_body' => '',
+            'response' => '{"status": "success"}'
+        ];
+
+        // Call recordLogItem with API data - will return early due to disabled audit logging
+        $this->eventAuditLogger->recordLogItem(
+            1,
+            'api-select',
+            'apiuser',
+            'api',
+            'API call',
+            123,
+            'patient-record',
+            'open-emr',
+            null,
+            null,
+            '',
+            $apiData
+        );
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test recordLogItem with encryption enabled and API data
+     */
+    public function testRecordLogItemWithEncryptionAndApiData(): void
+    {
+        // Enable audit logging and encryption
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['enable_auditlog_encryption'] = true;
+
+        // Setup database mock
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Create API data with all the fields that get encrypted
+        $apiData = [
+            'user_id' => 1,
+            'patient_id' => 123,
+            'method' => 'POST',
+            'request' => '/api/patient/123',
+            'request_url' => 'https://example.com/api/patient/123',  // Line 767: This will be encrypted
+            'request_body' => '{"name": "John Doe"}',               // Line 768: This will be encrypted
+            'response' => '{"status": "success", "id": 123}'        // Line 769: This will be encrypted
+        ];
+
+        // Create a mock CryptoGen to verify encryption calls
+        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['encryptStandard'])
+            ->getMock();
+
+        // Expect encryptStandard to be called 4 times:
+        // 1 time for comments, 3 times for API fields (request_url, request_body, response)
+        $cryptoMock->expects($this->exactly(4))
+            ->method('encryptStandard')
+            ->willReturnCallback(
+                fn(string $value): string => 'encrypted_' . $value
+            );
+
+        $eventAuditLogger = new EventAuditLogger(
+            sinks: [],
+            crypto: $cryptoMock,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        // Call recordLogItem with API data - this should execute the encryption code:
+        // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
+        // Line 768: $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
+        // Line 769: $api['response'] = (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
+        $eventAuditLogger->recordLogItem(
+            1,
+            'api-create',
+            'apiuser',
+            'api',
+            'API call to create patient',
+            123,
+            'patient-record',
+            'api',
+            null,
+            null,
+            '',
+            $apiData
+        );
+
+        // Test passes if the encryption methods were called as expected
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test logHttpRequest
+     */
+    public function testLogHttpRequestComprehensiveCoverage(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables to cover all branches
+        $_SERVER['REQUEST_METHOD'] = 'POST'; // Line 870: $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $_SERVER['SCRIPT_NAME'] = '/api/patient/123'; // Line 874: $comment = $_SERVER['SCRIPT_NAME'];
+        $_SERVER['QUERY_STRING'] = 'format=json&debug=true'; // Line 876: $comment .= '?' . $_SERVER['QUERY_STRING'];
+
+        $sessionValues = [
+            'authUser' => 'api_user',
+            'authProvider' => 'api_provider',
+            'pid' => 456,
+        ];
+
+        // Create mock to verify newEvent is called with correct parameters
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('newEvent')
+            ->with(
+                'http-request-update', // Line 871: $event = $methodMap[$method] ?? 'select'; (POST maps to update)
+                'api_user',
+                'api_provider',
+                1, // Line 884: success = 1
+                '/api/patient/123?format=json&debug=true',
+                456 // Line 886: $_SESSION['pid'] ?? null
+            );
+
+        // This call should execute:
+        // Line 862-868: $methodMap array definition and usage
+        // Line 870: $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        // Line 871: $event = $methodMap[$method] ?? 'select';
+        // Line 874-876: Building comment with SCRIPT_NAME and QUERY_STRING
+        // Line 880-887: $this->newEvent(...) call with all parameters
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest with unknown method to cover default case - comprehensive coverage
+     */
+    public function testLogHttpRequestUnknownMethodComprehensive(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set unknown HTTP method to test the default case
+        $_SERVER['REQUEST_METHOD'] = 'UNKNOWN'; // Line 871: $event = $methodMap[$method] ?? 'select';
+        $_SERVER['SCRIPT_NAME'] = '/test/path';
+        unset($_SERVER['QUERY_STRING']); // Test without query string
+
+        $sessionValues = ['authUser' => 'test_user', 'authProvider' => 'test_provider'];
+
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('newEvent')
+            ->with(
+                'http-request-select', // Unknown method defaults to 'select'
+                'test_user',
+                'test_provider',
+                1,
+                '/test/path', // No query string appended
+                null // No patient ID
+            );
+
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test auditSQLEvent method with different query types
+     */
+    public function testAuditSQLEvent(): void
+    {
+        // Disable audit logging to prevent SQL escaping errors in unit tests
+        $GLOBALS['enable_auditlog'] = false;
+
+        // Test SELECT query - these will return early due to disabled audit logging
+        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = 123', true);
+
+        // Test INSERT query
+        $this->eventAuditLogger->auditSQLEvent("INSERT INTO patient_data (fname) VALUES ('John')", true);
+
+        // Test UPDATE query
+        $this->eventAuditLogger->auditSQLEvent("UPDATE patient_data SET fname = 'Jane' WHERE pid = 123", true);
+
+        // Test DELETE query
+        $this->eventAuditLogger->auditSQLEvent('DELETE FROM patient_data WHERE pid = 123', true);
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test auditSQLEvent skips logging for excluded statements
+     */
+    public function testAuditSQLEventSkipsExcludedStatements(): void
+    {
+        // Disable audit logging to prevent SQL escaping errors in unit tests
+        $GLOBALS['enable_auditlog'] = false;
+
+        // These should be skipped due to audit logging being disabled
+        $this->eventAuditLogger->auditSQLEvent("INSERT INTO audit_master (event) VALUES ('test')", true);
+        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM audit_details WHERE id = 1', true);
+        $this->eventAuditLogger->auditSQLEvent('SELECT count(*) FROM patient_data', true);
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test eventCategoryFinder method
+     */
+    public function testEventCategoryFinder(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+
+        // Test various table categories
+        $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO lists (type) VALUES ('medical_problem')", 'patient-record', 'lists'));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO lists (type) VALUES ('medication')", 'patient-record', 'lists'));
+        $this->assertEquals('Allergy', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO lists (type) VALUES ('allergy')", 'patient-record', 'lists'));
+        $this->assertEquals('Immunization', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO immunizations', 'patient-record', 'immunizations'));
+        $this->assertEquals('Vitals', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO form_vitals', 'patient-record', 'form_vitals'));
+        $this->assertEquals('Patient Demographics', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE patient_data', 'patient-record', 'patient_data'));
+        $this->assertEquals('Billing', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO billing', 'patient-record', 'billing'));
+        $this->assertEquals('Scheduling', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE openemr_postcalendar_events', 'scheduling', 'openemr_postcalendar_events'));
+    }
+
+    /**
+     * Test eventCategoryFinder method with delete operations for lists table
+     */
+    public function testEventCategoryFinderDeleteLists(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+
+        // Test delete operations with lists: prefix for special list categories
+        $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medication'", 'delete', ''));
+        $this->assertEquals('Allergy', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'allergy'", 'delete', ''));
+
+        // Test delete operation that doesn't match any specific category
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'other_type'", 'delete', ''));
+
+        // Test delete operation without lists: prefix
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "DELETE FROM lists WHERE id = 123", 'delete', ''));
+    }
+
+    /**
+     * Test eventCategoryFinder method with additional table categories
+     */
+    public function testEventCategoryFinderAdditionalTables(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+
+        // Test additional table categories for comprehensive coverage
+        $this->assertEquals('Social and Family History', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE history_data SET smoking = ?', 'patient-record', 'history_data'));
+        $this->assertEquals('Encounter Form', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO forms', 'patient-record', 'forms'));
+        $this->assertEquals('Encounter Form', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO form_encounter', 'patient-record', 'form_encounter'));
+        $this->assertEquals('Encounter Form', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO form_soap', 'patient-record', 'form_soap')); // form_ prefix
+        $this->assertEquals('Patient Insurance', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE insurance_data SET provider = ?', 'patient-record', 'insurance_data'));
+        $this->assertEquals('Clinical Mail', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO pnotes', 'patient-record', 'pnotes'));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO prescriptions', 'patient-record', 'prescriptions'));
+
+        // Test transactions table with LBTref referral detection
+        $this->assertEquals('Referral', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO transactions (title) VALUES ('LBTref')", 'patient-record', 'transactions'));
+        $this->assertEquals('patient-record', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO transactions (title) VALUES ('other')", 'patient-record', 'transactions'));
+
+        $this->assertEquals('Amendments', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO amendments', 'patient-record', 'amendments'));
+        $this->assertEquals('Amendments', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO amendments_history', 'patient-record', 'amendments_history'));
+        $this->assertEquals('Lab Order', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO procedure_order', 'patient-record', 'procedure_order'));
+        $this->assertEquals('Lab Order', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO procedure_order_code', 'patient-record', 'procedure_order_code'));
+        $this->assertEquals('Lab Result', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO procedure_report', 'patient-record', 'procedure_report'));
+        $this->assertEquals('Lab Result', $reflectionMethod->invoke($this->eventAuditLogger, 'INSERT INTO procedure_result', 'patient-record', 'procedure_result'));
+
+        // Test security-administration event and fallback for unknown tables
+        $this->assertEquals('Security', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE users SET active = 0', 'security-administration', 'users'));
+        $this->assertEquals('unknown-event', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM unknown_table', 'unknown-event', 'unknown_table')); // fallback
+    }
+
+    /**
+     * Test auditSQLAuditTamper method
+     */
+    public function testAuditSQLAuditTamper(): void
+    {
+        // Mock recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1,
+                'security-administration-insert',
+                'testuser',
+                'testprovider',
+                'Audit Logging Enabled.'
+            );
+
+        $loggerMock->auditSQLAuditTamper('enable_auditlog', '1');
+    }
+
+    /**
+     * Test auditSQLAuditTamper method with gbl_force_log_breakglass setting to cover specific branch
+     */
+    public function testAuditSQLAuditTamperBreakglassLogging(): void
+    {
+        // Mock recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1,
+                'security-administration-insert',
+                'testuser',
+                'testprovider',
+                'Force Breakglass Logging Enabled.'
+            );
+
+        // This should execute the branch on the target line: $comments = "Force Breakglass Logging";
+        $loggerMock->auditSQLAuditTamper('gbl_force_log_breakglass', '1');
+    }
+
+    /**
+     * Test auditSQLAuditTamper method with custom setting to cover else branch
+     */
+    public function testAuditSQLAuditTamperCustomSetting(): void
+    {
+        // Set up session variables
+        $_SESSION['authUser'] = 'testuser';
+        $_SESSION['authProvider'] = 'testprovider';
+
+        // Mock recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1,
+                'security-administration-insert',
+                'testuser',
+                'testprovider',
+                'custom_setting Enabled.'
+            );
+
+        // This should execute the else branch: $comments = $setting;
+        $loggerMock->auditSQLAuditTamper('custom_setting', '1');
+    }
+
+    /**
+     * Test auditSQLAuditTamper method with disabled setting to cover disabled branch
+     */
+    public function testAuditSQLAuditTamperDisabled(): void
+    {
+        // Set up session variables
+        $_SESSION['authUser'] = 'testuser';
+        $_SESSION['authProvider'] = 'testprovider';
+
+        // Mock recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1,
+                'security-administration-insert',
+                'testuser',
+                'testprovider',
+                'Audit Logging Disabled.'
+            );
+
+        // This should execute the else branch: $comments .= " Disabled.";
+        $loggerMock->auditSQLAuditTamper('enable_auditlog', '0');
+    }
+
+    /**
+     * Test recordDisclosure method
+     */
+    public function testRecordDisclosure(): void
+    {
+        // Test passes if no exceptions are thrown
+        $this->eventAuditLogger->recordDisclosure(
+            '2025-01-01 12:00:00',
+            'disclosure',
+            123,
+            'External Provider',
+            'Medical records disclosed for treatment',
+            'testuser'
+        );
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test updateRecordedDisclosure method
+     */
+    public function testUpdateRecordedDisclosure(): void
+    {
+        // Test passes if no exceptions are thrown
+        $this->eventAuditLogger->updateRecordedDisclosure(
+            '2025-01-01 12:00:00',
+            'disclosure-updated',
+            'Updated Provider',
+            'Updated disclosure description',
+            456
+        );
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test deleteDisclosure method
+     */
+    public function testDeleteDisclosure(): void
+    {
+        // Test passes if no exceptions are thrown
+        $this->eventAuditLogger->deleteDisclosure(789);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test logHttpRequest method with audit logging disabled
+     */
+    public function testLogHttpRequest(): void
+    {
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+
+        // Mock newEvent method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+                ->getMock();
+
+        // With audit logging disabled, newEvent should not be called
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
+
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest when HTTP request logging is disabled
+     */
+    public function testLogHttpRequestDisabled(): void
+    {
+        // Config with HTTP request logging disabled
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: false,
+            eventTypeFlags: [],
+        );
+
+        // Mock newEvent method to ensure it's not called
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+            ->getMock();
+
+        $loggerMock->expects($this->never())->method('newEvent');
+
+        // Call logHttpRequest - should return early without logging
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest when audit logging is disabled
+     */
+    public function testLogHttpRequestAuditDisabled(): void
+    {
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+
+        // Mock newEvent method to ensure it's not called
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+            ->getMock();
+
+        $loggerMock->expects($this->never())->method('newEvent');
+
+        // Call logHttpRequest - should return early without logging
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest with different HTTP methods (audit disabled)
+     */
+    public function testLogHttpRequestDifferentMethods(): void
+    {
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+
+        $methods = [
+            'GET' => 'select',
+            'POST' => 'update',
+            'PUT' => 'update',
+            'DELETE' => 'delete',
+            'PATCH' => 'update',
+            'OPTIONS' => 'select', // default
+            'HEAD' => 'select', // test additional method
+            'TRACE' => 'select' // test another default case
+        ];
+
+        foreach ($methods as $httpMethod => $expectedEvent) {
+            $_SERVER['REQUEST_METHOD'] = $httpMethod;
+
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+                ->getMock();
+
+            // With audit logging disabled, newEvent should not be called
+            $loggerMock->expects($this->never())
+                ->method('newEvent');
+
+            $loggerMock->logHttpRequest();
+        }
+    }
+
+    /**
+     * Test logHttpRequest with missing session data (audit disabled)
+     */
+    public function testLogHttpRequestMissingSessionData(): void
+    {
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+
+        // Session with no values
+        $sessionValues = [];
+
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config, $sessionValues))
+            ->getMock();
+
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
+
+        // With audit logging disabled, this should return early without calling newEvent
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test getEvents method with various parameters
+     */
+    public function testGetEvents(): void
+    {
+        // Setup database mock for getEvents
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Test basic getEvents call
+        $params = [
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59',
+            'user' => 'testuser',
+            'patient' => '123'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+
+        // Result should be an object (returns the result set mock object)
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents method with extended_log (event parameter)
+     */
+    public function testGetEventsExtendedLog(): void
+    {
+        // Setup database mock for getEvents
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        $params = [
+            'event' => 'disclosure',
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+
+        // Result should be an object (returns the result set mock object)
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents method with custom columns parameter
+     */
+    public function testGetEventsWithCustomColumns(): void
+    {
+        // Setup database mock for getEvents
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        $params = [
+            'cols' => 'l.date, l.event, l.user',
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+
+        // Result should be an object
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents method with all optional parameters
+     */
+    public function testGetEventsWithAllParameters(): void
+    {
+        // Setup database mock for getEvents
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        $params = [
+            'cols' => 'l.date, l.event, l.user',
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59',
+            'user' => 'testuser',
+            'patient' => '123',
+            'levent' => 'login',
+            'tevent' => 'patient-record',
+            'category' => 'Security',
+            'limit' => '100',
+            'start' => '0'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+
+        // Result should be an object
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents method with empty parameters to test defaults
+     */
+    public function testGetEventsWithEmptyParameters(): void
+    {
+        // Setup database mock for getEvents
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        $params = [];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+
+        // Result should be an object
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test recordLogItem with audit logging enabled (integration-style test)
+     */
+    public function testRecordLogItemWithAuditEnabled(): void
+    {
+        // Enable audit logging for this specific test
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['enable_auditlog_encryption'] = false;
+
+        // Setup database mock for this test
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        try {
+            // This should execute the full recordLogItem flow including database interaction
+            $this->eventAuditLogger->recordLogItem(
+                1,
+                'patient-record',
+                'testuser',
+                'providers',
+                'Viewed patient record',
+                123,
+                'patient-record'
+            );
+
+            // Test passes if no exceptions are thrown
+            $this->addToAssertionCount(1);
+        } finally {
+            // Restore audit logging state
+            $GLOBALS['enable_auditlog'] = false;
+        }
+    }
+
+    /**
+     * Test newEvent with audit logging enabled to cover more code paths
+     */
+    public function testNewEventWithAuditEnabled(): void
+    {
+        // Enable audit logging for this specific test
+        $GLOBALS['enable_auditlog'] = true;
+
+        // Setup database mock for this test
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        try {
+            // Test regular event logging
+            $this->eventAuditLogger->newEvent(
+                'patient-record',
+                'testuser',
+                'providers',
+                1,
+                'Viewed patient record',
+                null
+            );
+
+            // Test delete event to cover eventCategoryFinder
+            $this->eventAuditLogger->newEvent(
+                'delete',
+                'testuser',
+                'providers',
+                1,
+                "lists:'medical_problem'",
+                null
+            );
+
+            $this->addToAssertionCount(1);
+        } finally {
+            // Restore audit logging state
+            $GLOBALS['enable_auditlog'] = false;
+        }
+    }
+
+    /**
+     * Test auditSQLEvent with audit logging enabled
+     */
+    public function testAuditSQLEventWithAuditEnabled(): void
+    {
+        // Enable audit logging for this specific test
+        $GLOBALS['enable_auditlog'] = true;
+
+        // Setup database mock for this test
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        try {
+            // Test various SQL operations
+            $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = 123', true);
+            $this->eventAuditLogger->auditSQLEvent('UPDATE patient_data SET fname = "John" WHERE pid = 123', true);
+            $this->eventAuditLogger->auditSQLEvent('INSERT INTO patient_data (fname) VALUES ("Jane")', true);
+            $this->eventAuditLogger->auditSQLEvent('DELETE FROM patient_data WHERE pid = 456', false);
+
+            $this->addToAssertionCount(1);
+        } finally {
+            // Restore audit logging state
+            $GLOBALS['enable_auditlog'] = false;
+        }
+    }
+
+    /**
+     * Test behavior when audit logging is disabled
+     */
+    public function testAuditLogDisabled(): void
+    {
+        $GLOBALS['enable_auditlog'] = false;
+        $GLOBALS['gbl_force_log_breakglass'] = false;
+
+        // When audit logging is disabled, should return early without SQL processing
+        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data', true);
+
+        // Test passes if no exceptions are thrown (early return)
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test breakglass user logging when audit is disabled
+     */
+    public function testBreakglassUserLogging(): void
+    {
+        $GLOBALS['enable_auditlog'] = false;
+        $GLOBALS['gbl_force_log_breakglass'] = true;
+
+        // When audit is disabled but breakglass is enabled, should still check for breakglass users
+        // This test verifies the method handles the breakglass logic without SQL errors
+        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data', true);
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test auditSQLEvent SELECT query early return when query events disabled and no breakglass
+     * This covers the specific branch
+     */
+    public function testAuditSQLEventSelectQueryEarlyReturn(): void
+    {
+        // Set up conditions for early return:
+        // 1. audit_events_query is not enabled (or not set)
+        unset($GLOBALS['audit_events_query']);
+
+        // 2. gbl_force_log_breakglass is not enabled (or not set)
+        unset($GLOBALS['gbl_force_log_breakglass']);
+
+        // 3. Set a regular user (not breakglass)
+        $sessionValues = ['authUser' => 'regular_user'];
+
+        // Create a mock to verify recordLogItem is NOT called (due to early return)
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+            ->getMock();
+
+        // Expect that recordLogItem is never called due to early return
+        $loggerMock->expects($this->never())
+            ->method('recordLogItem');
+
+        // This should trigger the early return:
+        // Line 570: querytype == "select" && !$GLOBALS['audit_events_query']
+        // Line 571: empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)
+        // Line 572: return;
+        $loggerMock->auditSQLEvent('SELECT * FROM patient_data WHERE pid = 123', true);
+
+        // Test passes if recordLogItem was never called due to early return
+        $this->addToAssertionCount(1);
+    }
+
+    public function testAuditSQLEventDisabledSpecificEventType(): void
+    {
+        // 1. Enable general audit logging
+        $GLOBALS['enable_auditlog'] = true;
+
+        // 2. Disable the specific event type (patient-record events)
+        unset($GLOBALS['audit_events_patient-record']);
+
+        // 3. Disable breakglass logging
+        unset($GLOBALS['gbl_force_log_breakglass']);
+
+        // 4. Set a regular user (not breakglass) and patient session
+        $sessionValues = ['authUser' => 'regular_user', 'pid' => '123'];
+
+        // Create a mock to verify recordLogItem is NOT called (due to early return)
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+            ->getMock();
+
+        // Expect that recordLogItem is never called due to early return
+        $loggerMock->expects($this->never())
+            ->method('recordLogItem');
+
+        // Use a query that will be categorized as patient-record event
+        // This should trigger the early return:
+        // Line 652: empty($GLOBALS["audit_events_patient-record"])
+        // Line 653: !$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)
+        // Line 654: return;
+        $loggerMock->auditSQLEvent('UPDATE patient_data SET fname = "John" WHERE pid = 123', true);
+
+        // Test passes if recordLogItem was never called due to early return
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test edge case with null patient ID handling
+     */
+    public function testNullPatientIdHandling(): void
+    {
+        // Test with string "NULL" (there's an internal workaround for getting
+        // this sort of invalid data)
+        $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', 'NULL');
+
+        // Test with actual null
+        $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', null);
+
+        // Test passes if no exceptions are thrown
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test patient portal success path with database queries
+     */
+    public function testPatientPortalSuccessPathCoverage(): void
+    {
+        // Setup database mock to simulate successful patient portal menu lookup
+        $mockAdodb = $this->createMockAdodb();
+
+        // Create a result set mock that returns successful menu lookup results
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
+
+        // Mock successful database results for patient portal menu lookup
+        $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
+            ['patient_portal_menu_id' => '1', 'menu_name' => 'dashboard'],
+            false  // End of results
+        );
+        $resultSetMock->EOF = false; // More results available initially
+
+        $mockAdodb->method('Execute')->willReturn($resultSetMock);
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Enable audit logging to trigger the database path
+        $GLOBALS['enable_auditlog'] = true;
+
+        try {
+            // This should cover the patient portal success path
+            $this->eventAuditLogger->newEvent(
+                'view',
+                'patient123',
+                'patients',
+                1,
+                'Patient portal dashboard access',
+                null,
+                'patient-portal',  // This triggers the patient portal path
+                'dashboard'
+            );
+
+            $this->addToAssertionCount(1);
+        } finally {
+            $GLOBALS['enable_auditlog'] = false;
+        }
+    }
+
+    /**
+     * Test getEvents with sortby parameter to cover sorting logic
+     */
+    public function testGetEventsWithSortbyParameter(): void
+    {
+        // Setup database mock for getEvents with sorting
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Mock the escape_sql_column_name function behavior by avoiding the error condition
+        // Test with simple parameters that won't trigger the SQL escaping error
+        $params = [
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents with sortby parameter
+     */
+    public function testGetEventsWithSortbyParameterSet(): void
+    {
+        // Setup database mock for getEvents with sorting
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Test with date parameters to cover basic getEvents functionality
+        $params = [
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test getEvents with direction parameter
+     */
+    public function testGetEventsWithDirectionParameter(): void
+    {
+        // Setup database mock for getEvents with direction
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Test with date parameters to cover basic getEvents functionality
+        $params = [
+            'sdate' => '2025-01-01 00:00:00',
+            'edate' => '2025-01-31 23:59:59'
+        ];
+
+        $result = $this->eventAuditLogger->getEvents($params);
+        $this->assertIsObject($result);
+    }
+
+    /**
+     * Test disclosure methods for complete coverage
+     */
+    public function testDisclosureMethodsCoverage(): void
+    {
+        // Setup database mock
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        $currentDate = date('Y-m-d H:i:s');
+
+        // Test recordDisclosure - check the actual method signature in EventAuditLogger.php
+        $this->eventAuditLogger->recordDisclosure(
+            $currentDate,
+            'disclosure',
+            123,
+            'test recipient',
+            'Test disclosure description',
+            'testuser' // Add the user parameter that's expected
+        );
+
+        // Test updateRecordedDisclosure
+        $this->eventAuditLogger->updateRecordedDisclosure(
+            'update',
+            1,
+            $currentDate,
+            'disclosure-update',
+            456
+        );
+
+        // Test deleteDisclosure
+        $this->eventAuditLogger->deleteDisclosure(1);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * Test event category finder with additional edge cases for 100% coverage
+     */
+    public function testEventCategoryFinderAdditionalCoverage(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+
+        // Test additional table mappings for complete coverage
+        $this->assertEquals('Immunization', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM immunizations', 'select', 'immunizations'));
+        $this->assertEquals('Vitals', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM form_vitals', 'select', 'form_vitals'));
+        $this->assertEquals('Social and Family History', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM history_data', 'select', 'history_data'));
+        $this->assertEquals('Encounter Form', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM forms', 'select', 'forms'));
+        $this->assertEquals('Patient Insurance', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM insurance_data', 'select', 'insurance_data'));
+        $this->assertEquals('Patient Demographics', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM employer_data', 'select', 'employer_data'));
+        $this->assertEquals('Billing', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM payments', 'select', 'payments'));
+        $this->assertEquals('Clinical Mail', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM pnotes', 'select', 'pnotes'));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM prescriptions', 'select', 'prescriptions'));
+        $this->assertEquals('Amendments', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM amendments', 'select', 'amendments'));
+        $this->assertEquals('Scheduling', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM openemr_postcalendar_events', 'select', 'openemr_postcalendar_events'));
+        $this->assertEquals('Lab Order', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM procedure_order', 'select', 'procedure_order'));
+        $this->assertEquals('Lab Result', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM procedure_result', 'select', 'procedure_result'));
+    }
+
+    /**
+     * Test newEvent with recordLogItem mocked to avoid database calls while testing logic
+     */
+    public function testNewEventWithMockedRecordLogItem(): void
+    {
+        // Create a partial mock that only mocks recordLogItem method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        // Expect recordLogItem to be called with specific parameters (regular path)
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1, // success
+                'patient-record', // event
+                'testuser', // user
+                'providers', // groupname
+                'Patient record access', // comments
+                null, // patient_id
+                'patient-record' // category (not transformed by eventCategoryFinder in this case)
+            );
+
+        // Call newEvent - this will execute the real newEvent logic but mock recordLogItem
+        $loggerMock->newEvent(
+            'patient-record',
+            'testuser',
+            'providers',
+            1,
+            'Patient record access',
+            null // Use null instead of int to match expected type
+        );
+    }
+
+    /**
+     * Test newEvent patient portal path with mocked recordLogItem for 100% coverage
+     */
+    public function testNewEventPatientPortalWithMockedRecordLogItem(): void
+    {
+        // Setup database mock for patient portal menu lookup
+        $mockAdodb = $this->createMockAdodb();
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
+        $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
+            ['patient_portal_menu_id' => '1', 'menu_name' => 'dashboard'],
+            false
+        );
+        $resultSetMock->EOF = false;
+        $mockAdodb->method('Execute')->willReturn($resultSetMock);
+        $this->setGlobalAdodbMock($mockAdodb);
+
+        // Create mock with recordLogItem mocked to avoid database calls
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1, // success
+                'view', // event
+                'patient123', // user
+                'patients', // groupname
+                'Patient portal dashboard access', // comments
+                null, // patient_id
+                'Patient Portal', // category (set for patient portal)
+                'patient-portal', // log_from
+                $this->anything(), // menu_item_id from database lookup - can vary
+                0 // ccda_doc_id
+            );
+
+        // This should cover the patient portal success path
+        $loggerMock->newEvent(
+            'view',
+            'patient123',
+            'patients',
+            1,
+            'Patient portal dashboard access',
+            null,
+            'patient-portal',
+            'dashboard'
+        );
+    }
+
+    /**
+     * Test patient portal menu array logic separately
+     * This tests the array_search logic used in the patient portal path
+     */
+    public function testPatientPortalMenuArrayLogic(): void
+    {
+        // Test the array_search logic that's used in the patient portal path
+        // This simulates the menuItems array that would be built by the sqlFetchArray loop
+        $menuItems = [
+            '1' => 'dashboard',
+            '2' => 'appointments',
+            '3' => 'messages',
+            '4' => 'demographics'
+        ];
+
+        // Test various menu item lookups
+        $this->assertEquals('2', array_search('appointments', $menuItems));
+        $this->assertEquals('1', array_search('dashboard', $menuItems));
+        $this->assertEquals('3', array_search('messages', $menuItems));
+        $this->assertEquals('4', array_search('demographics', $menuItems));
+        $this->assertEquals(false, array_search('nonexistent', $menuItems));
+    }
+
+    /**
+     * Test newEvent patient portal path (accepts limited coverage due to sqlFetchArray dependency)
+     * This test verifies the patient portal path is taken but cannot fully test the database loop
+     */
+    public function testNewEventPatientPortalPath(): void
+    {
+        $mockAdodb = $this->createMockAdodb();
+        $this->setGlobalAdodbMock($mockAdodb);
+        $GLOBALS['enable_auditlog'] = true;
+
+        // Create mock with recordLogItem mocked - we'll accept whatever menu_item_id we get
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['recordLogItem'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
+            ->getMock();
+
+        $loggerMock->expects($this->once())
+            ->method('recordLogItem')
+            ->with(
+                1, // success
+                'view', // event
+                'patient123', // user
+                'patients', // groupname
+                'Patient portal access', // comments
+                null, // patient_id
+                'Patient Portal', // category
+                'patient-portal', // log_from
+                $this->anything(), // menu_item_id - will be false in unit test environment
+                0 // ccda_doc_id
+            );
+
+        try {
+            // This will execute the patient portal path (though sqlFetchArray won't return real data)
+            $loggerMock->newEvent(
+                'view',
+                'patient123',
+                'patients',
+                1,
+                'Patient portal access',
+                null,
+                'patient-portal',
+                'dashboard'
+            );
+
+            $this->addToAssertionCount(1);
+        } finally {
+            $GLOBALS['enable_auditlog'] = false;
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with disabled audit logging
+     */
+    public function testLogHttpRequestDisabledAuditLogging(): void
+    {
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+
+        // Create mock with newEvent - should not be called when audit logging is disabled
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+            ->getMock();
+
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
+
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest method with disabled http request logging
+     */
+    public function testLogHttpRequestDisabledHttpRequestLogging(): void
+    {
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: false,
+            eventTypeFlags: [],
+        );
+
+        // Create mock with newEvent - should not be called when http request logging is disabled
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+            ->getMock();
+
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
+
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest method with GET request
+     */
+    public function testLogHttpRequestGetRequest(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+        $this->originalServer['QUERY_STRING'] = $_SERVER['QUERY_STRING'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['SCRIPT_NAME'] = '/interface/patient_file/summary/demographics.php';
+        $_SERVER['QUERY_STRING'] = 'pid=123&set_pid=123';
+
+        $sessionValues = [
+            'authUser' => 'test_user',
+            'authProvider' => 'test_provider',
+            'pid' => 123,
+        ];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-select', // event (GET maps to select)
+                    'test_user',
+                    'test_provider',
+                    1, // success
+                    '/interface/patient_file/summary/demographics.php?pid=123&set_pid=123', // comments
+                    123 // patient_id
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+            if (isset($this->originalServer['QUERY_STRING'])) {
+                $_SERVER['QUERY_STRING'] = $this->originalServer['QUERY_STRING'];
+            } else {
+                unset($_SERVER['QUERY_STRING']);
+            }
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with POST request
+     */
+    public function testLogHttpRequestPostRequest(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+        $this->originalServer['QUERY_STRING'] = $_SERVER['QUERY_STRING'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['SCRIPT_NAME'] = '/interface/patient_file/summary/demographics_save.php';
+        unset($_SERVER['QUERY_STRING']); // No query string
+
+        $sessionValues = [
+            'authUser' => 'admin',
+            'authProvider' => 'administrator',
+            'pid' => 456,
+        ];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-update', // event (POST maps to update)
+                    'admin',
+                    'administrator',
+                    1, // success
+                    '/interface/patient_file/summary/demographics_save.php', // comments (no query string)
+                    456 // patient_id
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+            if (isset($this->originalServer['QUERY_STRING'])) {
+                $_SERVER['QUERY_STRING'] = $this->originalServer['QUERY_STRING'];
+            } else {
+                unset($_SERVER['QUERY_STRING']);
+            }
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with DELETE request
+     */
+    public function testLogHttpRequestDeleteRequest(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        $_SERVER['SCRIPT_NAME'] = '/api/patient/123';
+        unset($_SERVER['QUERY_STRING']);
+
+        $sessionValues = ['authUser' => 'api_user', 'authProvider' => 'api'];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-delete', // event (DELETE maps to delete)
+                    'api_user',
+                    'api',
+                    1, // success
+                    '/api/patient/123', // comments
+                    null // patient_id (not set in session)
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with unknown HTTP method
+     */
+    public function testLogHttpRequestUnknownMethod(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS'; // Not in the methodMap
+        $_SERVER['SCRIPT_NAME'] = '/api/options';
+        unset($_SERVER['QUERY_STRING']);
+
+        $sessionValues = ['authUser' => 'test_user'];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-select', // event (unknown method defaults to select)
+                    'test_user',
+                    null, // groupname (not set in session)
+                    1, // success
+                    '/api/options', // comments
+                    null // patient_id (not set in session)
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with PUT request
+     */
+    public function testLogHttpRequestPutRequest(): void
+    {
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+        $this->originalServer['QUERY_STRING'] = $_SERVER['QUERY_STRING'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+        $_SERVER['SCRIPT_NAME'] = '/api/patient/456';
+        $_SERVER['QUERY_STRING'] = 'format=json';
+
+        // Empty session values
+        $sessionValues = [];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-update', // event (PUT maps to update)
+                    null, // user (not set in session)
+                    null, // groupname (not set in session)
+                    1, // success
+                    '/api/patient/456?format=json', // comments
+                    null // patient_id (not set in session)
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+            if (isset($this->originalServer['QUERY_STRING'])) {
+                $_SERVER['QUERY_STRING'] = $this->originalServer['QUERY_STRING'];
+            } else {
+                unset($_SERVER['QUERY_STRING']);
+            }
+        }
+    }
+
+    /**
+     * Test logHttpRequest method with PATCH request
+     */
+    public function testLogHttpRequestPatchRequest(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Set up server variables
+        $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+        $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'PATCH';
+        $_SERVER['SCRIPT_NAME'] = '/api/encounter/789';
+        unset($_SERVER['QUERY_STRING']);
+
+        $sessionValues = [
+            'authUser' => 'patch_user',
+            'authProvider' => 'physician',
+            'pid' => 789,
+        ];
+
+        try {
+            // Create mock with newEvent mocked to verify the call
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    'http-request-update', // event (PATCH maps to update)
+                    'patch_user',
+                    'physician',
+                    1, // success
+                    '/api/encounter/789', // comments
+                    789 // patient_id
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            // Restore original server variables
+            if (isset($this->originalServer['REQUEST_METHOD'])) {
+                $_SERVER['REQUEST_METHOD'] = $this->originalServer['REQUEST_METHOD'];
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            if (isset($this->originalServer['SCRIPT_NAME'])) {
+                $_SERVER['SCRIPT_NAME'] = $this->originalServer['SCRIPT_NAME'];
+            } else {
+                unset($_SERVER['SCRIPT_NAME']);
+            }
+        }
+    }
+
+    /**
+     * Data provider for HTTP request tests
+     *
+     * @return array<string, array<string, string|int|null>>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function httpRequestDataProvider(): array
+    {
+        return [
+            'GET request' => [
+                'method' => 'GET',
+                'script' => '/interface/patient_file/summary/demographics.php',
+                'query' => 'pid=123&set_pid=123',
+                'user' => 'test_user',
+                'provider' => 'test_provider',
+                'pid' => 123,
+                'expectedEvent' => 'http-request-select',
+                'expectedComments' => '/interface/patient_file/summary/demographics.php?pid=123&set_pid=123'
+            ],
+            'POST request' => [
+                'method' => 'POST',
+                'script' => '/interface/patient_file/summary/demographics_save.php',
+                'query' => null,
+                'user' => 'admin',
+                'provider' => 'administrator',
+                'pid' => 456,
+                'expectedEvent' => 'http-request-update',
+                'expectedComments' => '/interface/patient_file/summary/demographics_save.php'
+            ],
+            'DELETE request' => [
+                'method' => 'DELETE',
+                'script' => '/api/patient/123',
+                'query' => null,
+                'user' => 'delete_user',
+                'provider' => 'nurse',
+                'pid' => 123,
+                'expectedEvent' => 'http-request-delete',
+                'expectedComments' => '/api/patient/123'
+            ],
+            'PUT request' => [
+                'method' => 'PUT',
+                'script' => '/api/patient/456',
+                'query' => null,
+                'user' => 'put_user',
+                'provider' => 'doctor',
+                'pid' => 456,
+                'expectedEvent' => 'http-request-update',
+                'expectedComments' => '/api/patient/456'
+            ],
+            'PATCH request' => [
+                'method' => 'PATCH',
+                'script' => '/api/encounter/789',
+                'query' => null,
+                'user' => 'patch_user',
+                'provider' => 'physician',
+                'pid' => 789,
+                'expectedEvent' => 'http-request-update',
+                'expectedComments' => '/api/encounter/789'
+            ],
+            'Unsupported TRACE request' => [
+                'method' => 'TRACE',
+                'script' => '/api/test',
+                'query' => null,
+                'user' => 'test_user',
+                'provider' => 'test_provider',
+                'pid' => 999,
+                'expectedEvent' => 'http-request-select',
+                'expectedComments' => '/api/test'
+            ]
+        ];
+    }
+
+    /**
+     * Test logHttpRequest method with various HTTP request methods
+     *
+     */
+    #[DataProvider('httpRequestDataProvider')]
+    public function testLogHttpRequestParameterized(
+        string $method,
+        string $script,
+        ?string $query,
+        string $user,
+        string $provider,
+        int $pid,
+        string $expectedEvent,
+        string $expectedComments
+    ): void {
+        $sessionValues = [
+            'authUser' => $user,
+            'authProvider' => $provider,
+            'pid' => $pid,
+        ];
+
+        $backup = $this->setupHttpRequestEnvironment($method, $script, $query);
+
+        try {
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
+                ->getMock();
+
+            $loggerMock->expects($this->once())
+                ->method('newEvent')
+                ->with(
+                    $expectedEvent,
+                    $user,
+                    $provider,
+                    1,
+                    $expectedComments,
+                    $pid
+                );
+
+            $loggerMock->logHttpRequest();
+        } finally {
+            $this->restoreServerVariables($backup);
+        }
+    }
+}

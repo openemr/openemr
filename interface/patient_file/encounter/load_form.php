@@ -4,7 +4,7 @@
  * load_form.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -15,17 +15,19 @@
 require_once("../../globals.php");
 require_once("../../../library/registry.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Telemetry\TelemetryService;
 
 /**
  * @gloal $incdir the include directory
  */
-$incdir = $incdir ?? "";
+$incdir ??= "";
 
 $pageName = "new.php";
-if (!str_starts_with($_GET["formname"], 'LBF')) {
+if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
@@ -37,15 +39,24 @@ if (!str_starts_with($_GET["formname"], 'LBF')) {
     // ensure authorized to see the form
     if (!AclMain::aclCheckForm($_GET["formname"])) {
         $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
-        $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
-        exit;
+        $formLabel = $formLabel !== '' ? (string) $formLabel : (string) $_GET["formname"];
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
     }
 }
 $formLocator = new FormLocator();
 $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
-if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+$telemetryService = new TelemetryService();
+if ($telemetryService->isTelemetryEnabled()) {
+    $telemetryService->reportClickEvent([
+        'eventType' => 'encounterForm',
+        'eventLabel' => $_GET['formname'] ?? 'Unknown',
+        'eventUrl' => str_replace(OEGlobalsBag::getInstance()->getProjectDir(), '', $file),
+        'eventTarget' => $pageName,
+    ]);
+}
+
+if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled') && !($_GET['formname'] == 'fee_sheet')) { ?>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

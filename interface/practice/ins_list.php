@@ -21,11 +21,11 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 
 // Putting a message here will cause a popup window to display it.
@@ -54,7 +54,7 @@ $where = addwhere($where, 'a.city', $_GET['form_city']);
 $where = addwhere($where, 'a.state', $_GET['form_state']);
 $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
-$phone_parts = array();
+$phone_parts = [];
 $area_code = null;
 $prefix = null;
 $digits = null;
@@ -63,7 +63,7 @@ $digits = null;
 if (
     preg_match(
         "/(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -75,7 +75,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -87,7 +87,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {

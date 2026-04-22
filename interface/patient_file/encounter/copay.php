@@ -4,7 +4,7 @@
  * copay.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,17 +15,21 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // This may be more appropriate to move to the library
 // later
 function getInsuranceCompanies($pid)
 {
     $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? " .
-    "ORDER BY type ASC, date DESC", array($pid));
+    "ORDER BY type ASC, date DESC", [$pid]);
     $prevtype = '';
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        if (strcmp($row['type'], $prevtype) == 0) {
+        if (strcmp((string) $row['type'], (string) $prevtype) == 0) {
             continue;
         }
 
@@ -61,7 +65,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class='title'><?php echo xlt('Copay'); ?></span></dt>
@@ -73,7 +77,7 @@ document.copay_form.codeH.value="";
 <input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br /><br />
 
 
-<div<?php if ($GLOBALS['simplified_copay']) {
+<div<?php if (OEGlobalsBag::getInstance()->getBoolean('simplified_copay')) {
     echo " class='d-none'";
     } ?>>
 <input type="radio" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>
@@ -83,10 +87,10 @@ document.copay_form.codeH.value="";
 <input type="radio" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
 <?php
 if ($ret = getInsuranceCompanies($pid)) {
-    if (sizeof($ret) > 0) {
+    if (count($ret) > 0) {
         echo "<select name='insurance_company'>\n";
         foreach ($ret as $iter) {
-            $plan_name = trim($iter['plan_name']);
+            $plan_name = trim((string) $iter['plan_name']);
             if ($plan_name != '') {
                 echo "<option value='"
                 . attr($plan_name)

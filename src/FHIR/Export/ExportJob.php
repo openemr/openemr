@@ -3,7 +3,7 @@
 /**
  * ExportJob.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,7 @@
 /**
  * ExportJob represents a FHIR export job as part of the bulk on fhir specification.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,7 +20,6 @@
 
 namespace OpenEMR\FHIR\Export;
 
-use http\Exception\InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -42,7 +41,10 @@ class ExportJob
     const OUTPUT_FORMAT_FHIR_NDJSON = "application/fhir+ndjson";
     const OUTPUT_FORMAT_APPLICATION_NDJSON = "application/ndjson";
     const OUTPUT_FORMAT_NDJSON = "application/ndjson";
-    const ALLOWED_OUTPUT_FORMATS = [self::OUTPUT_FORMAT_FHIR_NDJSON, self::OUTPUT_FORMAT_APPLICATION_NDJSON, self::OUTPUT_FORMAT_NDJSON];
+
+    const OUTPUT_FORMAT_NDJSON_SHORT = "ndjson";
+
+    const ALLOWED_OUTPUT_FORMATS = [self::OUTPUT_FORMAT_FHIR_NDJSON, self::OUTPUT_FORMAT_APPLICATION_NDJSON, self::OUTPUT_FORMAT_NDJSON, self::OUTPUT_FORMAT_NDJSON_SHORT];
 
     const EXPORT_OPERATION_SYSTEM = 'System';
     const EXPORT_OPERATION_GROUP = 'Group';
@@ -267,7 +269,7 @@ class ExportJob
         } else if (\is_array($resources)) {
             $this->resources = $resources;
         } else {
-            throw new InvalidArgumentException("Resources must be a valid string or array");
+            throw new \InvalidArgumentException("Resources must be a valid string or array");
         }
     }
 

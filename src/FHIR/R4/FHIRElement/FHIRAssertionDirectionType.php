@@ -124,7 +124,7 @@ class FHIRAssertionDirectionType extends FHIRElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

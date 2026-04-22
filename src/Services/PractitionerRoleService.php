@@ -4,7 +4,7 @@
  * PractitionerRoleService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,9 +15,10 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcessingResult;
 
 class PractitionerRoleService extends BaseService
 {
@@ -37,10 +38,10 @@ class PractitionerRoleService extends BaseService
     public function getUuidFields(): array
     {
         // return the individual uuid fields we want converted into strings
-        return ['facility_uuid', 'facility_role_uuid', 'provider_uuid', 'uuid'];
+        return ['facility_uuid', 'facility_role_uuid', 'provider_uuid', 'uuid', 'location_uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // note we are optimizing our key indexes by specifying our list_ids for list_options
         // note because facility_user_ids is denormalized and stores its form data in a Key Value list in order to grab
@@ -48,6 +49,9 @@ class PractitionerRoleService extends BaseService
         // against the same table so we can grab our provider information, provider role info, and provider specialty
         // it seems like a pretty big query but its optimized pretty heavily on the indexes.  We may need a few more
         // indexes on facility_user_ids but we'll have to test this
+
+        // NOTE: we do the complex joins on the telecom info (email,phone,fax, etc) so we can support searching on those fields as well
+        // eventually normalizing the tables with the contact_telecom information
         $sql = "SELECT
                 providers.facility_role_id AS id,
                 providers.facility_role_uuid AS uuid,
@@ -55,6 +59,20 @@ class PractitionerRoleService extends BaseService
                 providers.provider_id,
                 providers.provider_uuid,
                 providers.provider_last_updated,
+
+                providers_location.location_uuid,
+                providers_work_phone.work_phone,
+                providers_work_phone.work_phone_use,
+                providers_work_phone.work_phone_system,
+                providers_work_fax.fax,
+                providers_work_fax.fax_use,
+                providers_work_fax.fax_system,
+                providers_work_email.email,
+                providers_work_email.email_use,
+                providers_work_email.email_system,
+                providers_url.url,
+                providers_url.url_use,
+                providers_url.url_system,
 
                 facilities.facility_uuid,
                 facilities.facility_name,
@@ -93,6 +111,57 @@ class PractitionerRoleService extends BaseService
                         field_id='provider_id'
 
                 ) providers
+                LEFT JOIN (
+                    SELECT
+                        uuid AS location_uuid
+                        ,target_uuid AS location_provider_uuid
+                    FROM uuid_mapping
+                    WHERE resource='location'
+                ) providers_location ON providers_location.location_provider_uuid = providers.provider_uuid
+                LEFT JOIN (
+                    SELECT
+                        fax,
+                        'work' AS fax_use,
+                        'fax' AS fax_system,
+                        id AS fax_user_id
+                    FROM
+                        users
+                    WHERE
+                        users.fax IS NOT NULL AND users.fax != ''
+                ) providers_work_fax ON providers.user_id = providers_work_fax.fax_user_id
+                LEFT JOIN (
+                    SELECT
+                        phonew1 AS work_phone,
+                        'work' AS work_phone_use,
+                        'phone' AS work_phone_system,
+                        id AS work_user_id
+                    FROM
+                        users
+                    WHERE
+                        users.phonew1 IS NOT NULL AND users.phonew1 != ''
+                ) providers_work_phone ON providers.user_id = providers_work_phone.work_user_id
+                LEFT JOIN (
+                    SELECT
+                        email,
+                        'work' AS email_use,
+                        'email' AS email_system,
+                        id AS email_user_id
+                    FROM
+                        users
+                    WHERE
+                        users.fax IS NOT NULL AND users.fax != ''
+                ) providers_work_email ON providers.user_id = providers_work_email.email_user_id
+                LEFT JOIN (
+                    SELECT
+                        url,
+                        'work' AS url_use,
+                        'url' AS url_system,
+                        id AS url_user_id
+                    FROM
+                        users
+                    WHERE
+                        users.url IS NOT NULL AND users.url != ''
+                ) providers_url ON providers.user_id = providers_url.url_user_id
                 JOIN (
                     select
                         field_value AS role_code,
@@ -189,14 +258,14 @@ class PractitionerRoleService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT *,
                 role.title as role,
@@ -225,8 +294,8 @@ class PractitionerRoleService extends BaseService
 
         if (!empty($search)) {
             $sql .= " AND ";
-            $whereClauses = array();
-            $wildcardFields = array('user_name');
+            $whereClauses = [];
+            $wildcardFields = ['user_name'];
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
                 if (in_array($fieldName, $wildcardFields)) {

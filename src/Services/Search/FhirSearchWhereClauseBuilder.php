@@ -3,7 +3,7 @@
 /**
  * FhirSearchWhereClauseBuilder.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,17 +16,17 @@ class FhirSearchWhereClauseBuilder
     /**
      * Given a list of ISearchField objects it constructs a WHERE clause query that can be used in a query statement
      *
-     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param array<string, ISearchField> $search Hashmap of string => ISearchField where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return string The where clause query string.
+     * @return SearchQueryFragment The where clause query fragment.
      */
-    public static function build($search, $isAndCondition = true): SearchQueryFragment
+    public static function build(array $search, $isAndCondition = true): SearchQueryFragment
     {
         $sqlBindArray = [];
-        $whereClauses = array(
+        $whereClauses = [
             'and' => []
         ,'or' => []
-        );
+        ];
 
         if (!empty($search)) {
             // make sure all the parameters are actual search fields and clean up any field that is a uuid

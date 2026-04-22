@@ -3,7 +3,7 @@
 /**
  * MappedServiceCodeTrait.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,6 +19,22 @@ use OpenEMR\Services\Search\TokenSearchValue;
 trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
+    use MappedServiceCategoryTrait;
+
+    public function getServiceListForCategory(TokenSearchField $field)
+    {
+        $serviceList = [];
+        foreach ($this->getMappedServices() as $service) {
+            $categoryCodes = $field->getValues();
+            foreach ($categoryCodes as $categoryCode) {
+                if ($service->supportsCategory($categoryCode->getCode())) {
+                    $serviceList[] = $service;
+                    break;
+                }
+            }
+        }
+        return $serviceList;
+    }
 
     public function getServiceListForCode(TokenSearchField $field)
     {

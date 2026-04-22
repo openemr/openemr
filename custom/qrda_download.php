@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // This program exports(Download) to QRDA Category III XML.
@@ -27,16 +27,17 @@
 require_once("../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $qrda_fname = $_GET['qrda_fname'];
 check_file_dir_name($qrda_fname);
 
 if ($qrda_fname != "") {
-    $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
+    $qrda_file_path = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/cqm_qrda/";
     $xmlurl = $qrda_file_path . $qrda_fname;
 
     header("Pragma: public"); // required

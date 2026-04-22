@@ -4,7 +4,7 @@
  * Class to log audited events - must be high performance
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kyle Wiering <kyle@softwareadvice.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -14,34 +14,99 @@
 
 namespace OpenEMR\Common\Logging;
 
-use DateTime;
-use OpenEMR\Common\Crypto\CryptoGen;
-use Waryway\PhpTraitsLibrary\Singleton;
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+    ServiceContainer,
+};
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Traits\SingletonTrait;
+use OpenEMR\Encryption\CipherSuiteInterface;
+use Psr\Clock\ClockInterface;
+use SensitiveParameter;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/**
+ * @phpstan-import-type ApiData from Audit\Event
+ */
 class EventAuditLogger
 {
-    use Singleton;
+    use SingletonTrait;
+
+    protected static function createInstance(): static
+    {
+        $bag = OEGlobalsBag::getInstance();
+
+        $site = $bag->getString('OE_SITE_DIR');
+        $opts = DatabaseConnectionOptions::forSite($site);
+        // IMPORTANT: this connection must be separate from the main application
+        // connection. See notes in LogTablesSink and BreakglassChecker.
+        $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
+
+        $sinks = [];
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
+
+        $enableAtna = $bag->getBoolean('enable_atna_audit');
+        if ($enableAtna) {
+            $writer = new Audit\Atna\TcpWriter(
+                host: $bag->getString('atna_audit_host'),
+                port: $bag->getInt('atna_audit_port'),
+                localCert: $bag->getString('atna_audit_localcert'),
+                caCert: $bag->getString('atna_audit_cacert'),
+            );
+            $atnaSink = new Audit\AtnaSink(
+                clock: ServiceContainer::getClock(),
+                writer: $writer,
+                host: $bag->getString('atna_audit_host'),
+                serverName: $_SERVER['SERVER_NAME'] ?? '',
+                serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+            );
+
+            $sinks[] = $atnaSink;
+        }
+
+        $auditConfig = new AuditConfig(
+            enabled: $bag->getBoolean('enable_auditlog'),
+            forceBreakglass: $bag->getBoolean('gbl_force_log_breakglass'),
+            queryEvents: $bag->getBoolean('audit_events_query'),
+            httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
+            eventTypeFlags: [
+                'patient-record' => $bag->getBoolean('audit_events_patient-record'),
+                'scheduling' => $bag->getBoolean('audit_events_scheduling'),
+                'order' => $bag->getBoolean('audit_events_order'),
+                'lab-order' => $bag->getBoolean('audit_events_lab-order'),
+                'lab-results' => $bag->getBoolean('audit_events_lab-results'),
+                'security-administration' => $bag->getBoolean('audit_events_security-administration'),
+                'other' => $bag->getBoolean('audit_events_other'),
+            ],
+        );
+
+        return new self(
+            sinks: $sinks,
+            crypto: ServiceContainer::getCrypto(),
+            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
+            session: SessionWrapperFactory::getInstance()->getActiveSession(),
+            config: $auditConfig,
+            breakglassChecker: new BreakglassChecker($auditConn),
+            clock: ServiceContainer::getClock(),
+        );
+    }
 
     /**
-     * @var CryptoGen
+     * @param Audit\SinkInterface[] $sinks
      */
-    private $cryptoGen;
-
-    /**
-     * @var boolean
-     */
-    private $breakglassUser;
-
-    /**
-     * Event action codes indicate whether the event is read/write.
-     * C = create, R = read, U = update, D = delete, E = execute
-     */
-    private const EVENT_ACTION_CODE_EXECUTE = 'E';
-    private const EVENT_ACTION_CODE_CREATE = 'C';
-    private const EVENT_ACTION_CODE_INSERT = 'C';
-    private const EVENT_ACTION_CODE_SELECT = 'R';
-    private const EVENT_ACTION_CODE_UPDATE = 'U';
-    private const EVENT_ACTION_CODE_DELETE = 'D';
+    public function __construct(
+        private readonly array $sinks,
+        private readonly CipherSuiteInterface|CryptoInterface $crypto,
+        private readonly bool $shouldEncrypt,
+        private readonly SessionInterface $session,
+        private readonly AuditConfig $config,
+        private readonly BreakglassCheckerInterface $breakglassChecker,
+        private readonly ClockInterface $clock,
+    ) {
+    }
 
     /**
      * Keep track of the table mapping in a class constant to prevent reloading the data each time the method is called.
@@ -117,43 +182,16 @@ class EventAuditLogger
         "procedure_result" => "lab-results"
     ];
 
-    private const RFC3881_MSG_PRIMARY_TEMPLATE = <<<MSG
-<13>%s %s
-<?xml version="1.0" encoding="ASCII"?>
- <AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">
-  <EventIdentification EventActionCode="%s" EventDateTime="%s" EventOutcomeIndicator="%s">
-   <EventID code="eventIDcode" displayName="%s" codeSystemName="DCM" />
-  </EventIdentification>
-  <ActiveParticipant UserID="%s" UserIsRequestor="true" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-   <RoleIDCode code="110153" displayName="Source" codeSystemName="DCM" />
-  </ActiveParticipant>
-  <ActiveParticipant UserID="%s" UserIsRequestor="false" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-   <RoleIDCode code="110152" displayName="Destination" codeSystemName="DCM" />
-  </ActiveParticipant>
-  <AuditSourceIdentification AuditSourceID="%s" />
-  <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="6" >
-   <ParticipantObjectIDTypeCode code="11" displayName="User Identifier" codeSystemName="RFC-3881" />
-  </ParticipantObjectIdentification>
-  %s
- </AuditMessage>
-MSG;
-
-    private const RFC3881_MSG_PATIENT_TEMPLATE = <<<MSG
-<ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="1">
- <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
-</ParticipantObjectIdentification>
-MSG;
-
     /**
      * @param $event
      * @param $user
      * @param $groupname
      * @param $success
-     * @param string    $comments
-     * @param null      $patient_id
-     * @param string    $log_from
-     * @param string    $menu_item
-     * @param int       $ccda_doc_id
+     * @param string $comments
+     * @param ?int $patient_id
+     * @param string $log_from
+     * @param string $menu_item
+     * @param int    $ccda_doc_id
      */
     public function newEvent(
         $event,
@@ -176,6 +214,7 @@ MSG;
             $sqlMenuItems = "SELECT * FROM patient_portal_menu";
 
             $resMenuItems = sqlStatement($sqlMenuItems);
+            $menuItems = [];
             for ($iter = 0; $rowMenuItem = sqlFetchArray($resMenuItems); $iter++) {
                 $menuItems[$rowMenuItem['patient_portal_menu_id']] = $rowMenuItem['menu_name'];
             }
@@ -208,14 +247,15 @@ MSG;
             $cols = $params['cols'];
         }
 
-        $date1 = date("Y-m-d H:i:s", time());
-        if (isset($params['sdate']) && $params['sdate'] != "") {
-            $date1 = $params['sdate'];
+        $now = $this->clock->now()->format('Y-m-d H:i:s');
+        $date1 = $params['sdate'] ?? $now;
+        if ($date1 === '') {
+            $date1 = $now;
         }
 
-        $date2 = date("Y-m-d H:i:s", time());
-        if (isset($params['edate']) && $params['edate'] != "") {
-            $date2 = $params['edate'];
+        $date2 = $params['edate'] ?? $now;
+        if ($date2 === '') {
+            $date2 = $now;
         }
 
         $user = "";
@@ -271,7 +311,7 @@ MSG;
                 $sortby = "";  //VicarePlus :: since there is no category field in extended_log
             }
 
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $columns = "DISTINCT date, event, user, recipient,patient_id,description";
             $sql = "SELECT $columns FROM extended_log WHERE date >= ? AND date <= ?";
             array_push($sqlBindArray, $date1, $date2);
@@ -292,13 +332,13 @@ MSG;
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('extended_log')) . " DESC"; // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, ['extended_log']) . " DESC"; // descending order
             }
 
             $sql .= " LIMIT 5000";
         } else {
             // do the query
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $sql = "SELECT $cols FROM `log_comment_encrypt` as el " .
                 "LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` " .
                 "LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` " .
@@ -326,7 +366,7 @@ MSG;
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY `" . escape_sql_column_name($sortby, array('log')) . "`  " . escape_sort_order($direction); // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, ['log']) . "  " . escape_sort_order($direction); // descending order
             } else {
                 $sql .= " ORDER BY el.`log_id` DESC";
             }
@@ -338,186 +378,6 @@ MSG;
     }
 
     /**
-     * Event action codes indicate whether the event is read/write.
-     * C = create, R = read, U = update, D = delete, E = execute
-     *
-     * @param  $event
-     * @return string
-     */
-    private function determineRFC3881EventActionCode($event)
-    {
-        switch (substr($event, -7)) {
-            case '-create':
-                return self::EVENT_ACTION_CODE_CREATE;
-                break;
-            case '-insert':
-                return self::EVENT_ACTION_CODE_INSERT;
-                break;
-            case '-select':
-                return self::EVENT_ACTION_CODE_SELECT;
-                break;
-            case '-update':
-                return self::EVENT_ACTION_CODE_UPDATE;
-                break;
-            case '-delete':
-                return self::EVENT_ACTION_CODE_DELETE;
-                break;
-            default:
-                return self::EVENT_ACTION_CODE_EXECUTE;
-                break;
-        }
-    }
-
-    /**
-     * The choice of event codes is up to OpenEMR.
-     * We're using the same event codes as
-     * https://iheprofiles.projects.openhealthtools.org/
-     *
-     * @param $event
-     */
-    private function determineRFC3881EventIdDisplayName($event)
-    {
-
-        $eventIdDisplayName = $event;
-
-        if (strpos($event, 'patient-record') !== false) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (strpos($event, 'view') !== false) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (strpos($event, 'login') !== false) {
-            $eventIdDisplayName = 'Login';
-        } elseif (strpos($event, 'logout') !== false) {
-            $eventIdDisplayName = 'Logout';
-        } elseif (strpos($event, 'scheduling') !== false) {
-            $eventIdDisplayName = 'Patient Care Assignment';
-        } elseif (strpos($event, 'security-administration') !== false) {
-            $eventIdDisplayName = 'Security Administration';
-        }
-
-        return $eventIdDisplayName;
-    }
-
-    /**
-     * Create an XML audit record corresponding to RFC 3881.
-     * The parameters passed are the column values (from table 'log')
-     * for a single audit record.
-     *
-     * @param  $user
-     * @param  $group
-     * @param  $event
-     * @param  $patient_id
-     * @param  $outcome
-     * @param  $comments
-     * @return string
-     */
-    private function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
-    {
-        $eventActionCode = $this->determineRFC3881EventActionCode($event);
-        $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
-
-        $eventDateTime = (new DateTime())->format(DATE_ATOM);
-
-        /* For EventOutcomeIndicator, 0 = success and 4 = minor error */
-        $eventOutcome = ($outcome === 1) ? 0 : 4;
-
-        /*
-         * Variables used in ActiveParticipant section, which identifies
-         * the IP address and application of the source and destination.
-         */
-        $srcUserID = $_SERVER['SERVER_NAME'] . '|OpenEMR';
-        $srcNetwork = $_SERVER['SERVER_ADDR'];
-        $destUserID = $GLOBALS['atna_audit_host'];
-        $destNetwork = $GLOBALS['atna_audit_host'];
-
-        $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id != 0) ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id) : '';
-        /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
-        return sprintf(self::RFC3881_MSG_PRIMARY_TEMPLATE, $eventDateTime, $_SERVER['SERVER_NAME'], $eventActionCode, $eventDateTime, $eventOutcome, $eventIdDisplayName, $srcUserID, $srcNetwork, $destUserID, $destNetwork, $srcUserID, $user, $patientRecordForMsg);
-    }
-
-    /**
-     * Create a TLS (SSLv3) connection to the given host/port.
-     * $localcert is the path to a PEM file with a client certificate and private key.
-     * $cafile is the path to the CA certificate file, for
-     *  authenticating the remote machine's certificate.
-     * If $cafile is "", the remote machine's certificate is not verified.
-     * If $localcert is "", we don't pass a client certificate in the connection.
-     *
-     * Return a stream resource that can be used with fwrite(), fread(), etc.
-     * Returns FALSE on error.
-     *
-     * @param  $host
-     * @param  $port
-     * @param  $localcert
-     * @param  $cafile
-     * @return bool|resource
-     */
-    private function createTlsConn($host, $port, $localcert, $cafile)
-    {
-        $sslopts = array();
-        if ($cafile !== null && $cafile != "") {
-            $sslopts['cafile'] = $cafile;
-            $sslopts['verify_peer'] = true;
-            $sslopts['verify_depth'] = 10;
-        }
-
-        if ($localcert !== null && $localcert != "") {
-            $sslopts['local_cert'] = $localcert;
-        }
-
-        $opts = array('tls' => $sslopts, 'ssl' => $sslopts);
-        $ctx = stream_context_create($opts);
-        $timeout = 60;
-        $flags = STREAM_CLIENT_CONNECT;
-
-        $olderr = error_reporting(0);
-        $conn = stream_socket_client(
-            'tls://' . $host . ":" . $port,
-            $errno,
-            $errstr,
-            $timeout,
-            $flags,
-            $ctx
-        );
-        error_reporting($olderr);
-        return $conn;
-    }
-
-    /**
-     * This function is used to send audit records to an Audit Repository Server,
-     * as described in the Audit Trail and Node Authentication (ATNA) standard.
-     * Given the fields in a single audit record:
-     * - Create an XML audit message according to RFC 3881, including the RFC5425 syslog header.
-     * - Create a TLS connection that performs bi-directions certificate authentication,
-     *   according to RFC 5425.
-     * - Send the XML message on the TLS connection.
-     *
-     * @param $user
-     * @param $group
-     * @param $event
-     * @param $patient_id
-     * @param $outcome
-     * @param $comments
-     */
-    public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
-    {
-        /* If no ATNA repository server is configured, return */
-        if (empty($GLOBALS['atna_audit_host']) || empty($GLOBALS['enable_atna_audit'])) {
-            return;
-        }
-
-        $host = $GLOBALS['atna_audit_host'];
-        $port = $GLOBALS['atna_audit_port'];
-        $localcert = $GLOBALS['atna_audit_localcert'];
-        $cacert = $GLOBALS['atna_audit_cacert'];
-        $conn = $this->createTlsConn($host, $port, $localcert, $cacert);
-        if ($conn !== false) {
-            $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
-            fwrite($conn, $msg);
-            fclose($conn);
-        }
-    }
-
-    /**
      * Add an entry into the audit log table, indicating that an
      * SQL query was performed. $outcome is true if the statement
      * successfully completed.  Determine the event type based on
@@ -525,32 +385,27 @@ MSG;
      *
      * @param $statement
      * @param $outcome
-     * @param null      $binds
+     * @param ?array $binds
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        // Set up crypto object that will be used by this singleton class for encryption/decryption (if not set up already)
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
-        }
-
-        $user =  $_SESSION['authUser'] ?? "";
+        $user = (string) ($this->session->get('authUser') ?? '');
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (empty($GLOBALS['enable_auditlog'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (!$this->config->enabled) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
 
-        $statement = trim($statement);
+        $statement = trim((string) $statement);
 
         if (
             (stripos($statement, "insert into log") !== false)      // avoid infinite loop
             || (stripos($statement, "insert into `log`") !== false) // avoid infinite loop
             || (stripos($statement, "FROM log ") !== false)         // avoid infinite loop
             || (stripos($statement, "FROM `log` ") !== false)       // avoid infinite loop
-            || (strpos($statement, "sequences") !== false)          // Don't log sequences - to avoid the affect due to GenID calls
+            || (str_contains($statement, "sequences"))          // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)         // Skip SELECT count() statements.
         ) {
             return;
@@ -558,7 +413,7 @@ MSG;
 
         /* Determine the query type (select, update, insert, delete) */
         $querytype = "select";
-        $querytypes = array("select", "update", "insert", "delete","replace");
+        $querytypes = ["select", "update", "insert", "delete","replace"];
         foreach ($querytypes as $qtype) {
             if (stripos($statement, $qtype) === 0) {
                 $querytype = $qtype;
@@ -567,25 +422,18 @@ MSG;
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !$this->config->queryEvents) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
 
         $comments = $statement;
 
-        if (is_array($binds)) {
-            // Need to include the binded variable elements in the logging
-            $processed_binds = "";
-            foreach ($binds as $value_bind) {
-                $processed_binds .= "'" . add_escape_custom($value_bind) . "',";
-            }
-            rtrim($processed_binds, ',');
-
-            if (!empty($processed_binds)) {
-                $comments .= " (" . $processed_binds . ")";
-            }
+        if (is_array($binds) && $binds !== []) {
+            // Include the bound variable elements in the logging
+            $quoted = array_map(fn ($v) => "'" . (string) $v . "'", $binds);
+            $comments .= " (" . implode(",", $quoted) . ")";
         }
 
         /* Determine the audit event based on the database tables */
@@ -621,11 +469,11 @@ MSG;
         }
 
         foreach (self::LOG_TABLES as $table => $value) {
-            if (strpos($truncated_sql, $table) !== false) {
+            if (str_contains($truncated_sql, $table)) {
                 $event = $value;
                 $category = $this->eventCategoryFinder($comments, $event, $table);
                 break;
-            } elseif (strpos($truncated_sql, "form_") !== false) {
+            } elseif (str_contains($truncated_sql, "form_")) {
                 $event = "patient-record";
                 $category = $this->eventCategoryFinder($comments, $event, $table);
                 break;
@@ -644,20 +492,19 @@ MSG;
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
-            if (array_key_exists('pid', $_SESSION) && $_SESSION['pid'] != '') {
-                $pid = $_SESSION['pid'];
+            $sessionPid = $this->session->get('pid');
+            if ($sessionPid !== null && $sessionPid != '') {
+                $pid = $sessionPid;
             }
         }
 
-        if (empty($GLOBALS["audit_events_{$event}"])) {
-            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
-                return;
-            }
+        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
+            return;
         }
 
         $event = $event . "-" . $querytype;
 
-        $group = $_SESSION['authProvider'] ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
@@ -670,8 +517,8 @@ MSG;
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $user =  $_SESSION['authUser'] ?? "";
-        $group = $_SESSION['authProvider'] ?? "";
+        $user = $this->session->get('authUser') ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $pid = 0;
         $success = 1;
         $event = "security-administration" . "-" . "insert";
@@ -696,41 +543,60 @@ MSG;
     /**
      * Record the patient disclosures.
      *
-     * @param $dates    - The date when the disclosures are sent to the thrid party.
-     * @param $event    - The type of the disclosure.
-     * @param $pid      - The id of the patient for whom the disclosures are recorded.
-     * @param $comment  - The recipient name and description of the disclosure.
+     * @param $dates   - The date when the disclosures are sent to the third party.
+     * @param $event   - The type of the disclosure.
+     * @param $pid     - The id of the patient for whom the disclosures are recorded.
+     * @param $comment - The recipient name and description of the disclosure.
      * @uname - The username who is recording the disclosure.
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
-            "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
-            "," . $adodb->qstr($recipient) . "," .
-            $adodb->qstr($pid) . "," .
-            $adodb->qstr($description) . ")";
-        $ret = sqlInsertClean_audit($sql);
+        $sql = <<<'SQL'
+        INSERT INTO extended_log (date, event, user, recipient, patient_id, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+        SQL;
+        $values = [
+            $dates,
+            $event,
+            $user,
+            $recipient,
+            $pid,
+            $description,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
-     * @param $dates  - The date when the disclosures are sent to the thrid party.
-     * @param $event  - The type of the disclosure.
-     * param $comment - The recipient and the description of the disclosure are appended.
-     * $logeventid    - The id of the record which is to be edited.
+     * @param $dates - The date when the disclosures are sent to the third party.
+     * @param $event - The type of the disclosure.
+     *               param $comment - The
+     *               recipient and the description
+     *               of the disclosure are
+     *               appended. $logeventid    -
+     *               The id of the record which is
+     *               to be edited.
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "update extended_log set
-                event=" . $adodb->qstr($event) . ",
-                date=" .  $adodb->qstr($dates) . ",
-                recipient=" . $adodb->qstr($recipient) . ",
-                description=" . $adodb->qstr($description) . "
-                where id=" . $adodb->qstr($disclosure_id) . "";
-        $ret = sqlInsertClean_audit($sql);
+        $sql = <<<'SQL'
+        UPDATE extended_log
+        SET
+            event = ?,
+            date = ?,
+            recipient = ?,
+            description = ?
+        WHERE id = ?
+        SQL;
+        $values = [
+            $event,
+            $dates,
+            $recipient,
+            $description,
+            $disclosure_id,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
@@ -741,37 +607,58 @@ MSG;
     public function deleteDisclosure($deletelid)
     {
         $sql = "delete from extended_log where id='" . add_escape_custom($deletelid) . "'";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
-    public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
-    {
+    /**
+     * @param int $success (yes this SHOULD be a boolean)
+     * @param string $event
+     * @param ?string $user
+     * @param ?string $group
+     * @param string $comments
+     * @param string $user_notes
+     * @param ?int $patientId
+     * @param ?string $category
+     * @param string $logFrom,
+     * @param ?int $menuItemId
+     * @param ?int $ccdaDocId
+     * @param ?ApiData $api
+     */
+    public function recordLogItem(
+        $success,
+        $event,
+        $user,
+        $group,
+        $comments,
+        $patientId = null,
+        $category = null,
+        $logFrom = 'open-emr',
+        $menuItemId = null,
+        $ccdaDocId = null,
+        $user_notes = '',
+        $api = null
+    ) {
         if ($patientId == "NULL") {
             $patientId = null;
         }
 
-        // Encrypt if applicable
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
-        }
-        $encrypt = 'No';
-        if (!empty($GLOBALS["enable_auditlog_encryption"])) {
-            // encrypt the comments field
-            $comments =  $this->cryptoGen->encryptStandard($comments);
-            if (!empty($api)) {
-                // api log
-                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
-                $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
-                $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
+        if ($this->shouldEncrypt) {
+            $comments = $this->encrypt($comments);
+            if ($api !== null) {
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->encrypt($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->encrypt($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->encrypt($api['response']);
             }
-            $encrypt = 'Yes';
         } else {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
             $comments = base64_encode($comments);
+
+            // Should this blank out the api fields? Previous behavior was that
+            // it did not.
         }
 
         // Collect timestamp and if pertinent, collect client cert name
-        $current_datetime = date("Y-m-d H:i:s");
+        $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
         $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
@@ -784,8 +671,8 @@ MSG;
         //  3. if api log entry, then insert insert associated entry into api_log
         //  4. if atna server is on, then send entry to atna server
         //
-        // 1. insert entry into log table
-        $logEntry = [
+        $auditEvent = new Audit\Event(
+            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -798,50 +685,52 @@ MSG;
             $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
-            $ccdaDocId
-        ];
-        sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
-        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $checksumGenerate = hash('sha3-512', implode($logEntry));
-        if (!empty($api)) {
-            // api log
-            $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogEntry = [
-                $last_log_id,
-                $api['user_id'],
-                $api['patient_id'],
-                $ipAddress,
-                $api['method'],
-                $api['request'],
-                $api['request_url'],
-                $api['request_body'],
-                $api['response'],
-                $current_datetime
-            ];
-            $checksumGenerateApi = hash('sha3-512', implode($apiLogEntry));
-        } else {
-            $checksumGenerateApi = '';
-        }
-        sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
-            [
-                $last_log_id,
-                $encrypt,
-                $checksumGenerate,
-                $checksumGenerateApi
-            ]
+            $ccdaDocId,
+            $api,
         );
-        // 3. if api log entry, then insert insert associated entry into api_log
-        if (!empty($api)) {
-            // api log
-            sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
+
+        foreach ($this->sinks as $sink) {
+            $sink->record($auditEvent);
         }
-        // 4. if atna server is on, then send entry to atna server
-        if ($patientId == null) {
-            $patientId = 0;
+    }
+
+    /**
+     * Log HTTP request details
+     */
+    public function logHttpRequest()
+    {
+        // Skip if audit logging or http request logging is disabled
+        if (!$this->config->enabled || !$this->config->httpRequestEvents) {
+            return;
         }
-        $this->sendAtnaAuditMsg($user, $group, $event, $patientId, $success, $comments);
+
+        // Map HTTP methods to event action types
+        $methodMap = [
+            'GET' => 'select',
+            'POST' => 'update',
+            'PUT' => 'update',
+            'DELETE' => 'delete',
+            'PATCH' => 'update',
+        ];
+
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $event = $methodMap[$method] ?? 'select';
+
+        // Build the comment with path and query params
+        $comment = $_SERVER['SCRIPT_NAME'];
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            $comment .= '?' . $_SERVER['QUERY_STRING'];
+        }
+
+        // Record the log entry
+        $this->newEvent(
+            "http-request-$event",  // event
+            $this->session->get('authUser'), // user
+            $this->session->get('authProvider'), // groupname
+            1, // success
+            $comment, // comments
+            $this->session->get('pid') // patient_id
+        );
     }
 
     /**
@@ -852,11 +741,11 @@ MSG;
      * @param  $table
      * @return string
      */
-    private function eventCategoryFinder($sql, $event, $table)
+    protected function eventCategoryFinder($sql, $event, $table)
     {
         if ($event == 'delete') {
-            if (strpos($sql, "lists:") === 0) {
-                $fieldValues    = explode("'", $sql);
+            if (str_starts_with((string) $sql, "lists:")) {
+                $fieldValues    = explode("'", (string) $sql);
                 if (in_array('medical_problem', $fieldValues) === true) {
                     return 'Problem List';
                 } elseif (in_array('medication', $fieldValues) === true) {
@@ -868,7 +757,7 @@ MSG;
         }
 
         if ($table == 'lists' || $table == 'lists_touch') {
-            $trimSQL        = stristr($sql, $table);
+            $trimSQL        = stristr((string) $sql, (string) $table);
             $fieldValues    = explode("'", $trimSQL);
             if (in_array('medical_problem', $fieldValues) === true) {
                 return 'Problem List';
@@ -883,20 +772,20 @@ MSG;
             return "Vitals";
         } elseif ($table == 'history_data') {
             return "Social and Family History";
-        } elseif ($table == 'forms' || $table == 'form_encounter' || strpos($table, 'form_') === 0) {
+        } elseif ($table == 'forms' || $table == 'form_encounter' || str_starts_with((string) $table, 'form_')) {
             return "Encounter Form";
         } elseif ($table == 'insurance_data') {
             return "Patient Insurance";
         } elseif ($table == 'patient_data' || $table == 'employer_data') {
             return "Patient Demographics";
-        } elseif ($table == 'payments' || $table == "billing" || $table == "claims") {
+        } elseif (in_array($table, ['payments', "billing", "claims"])) {
             return "Billing";
         } elseif ($table == 'pnotes') {
             return "Clinical Mail";
         } elseif ($table == 'prescriptions') {
             return "Medication";
         } elseif ($table == 'transactions') {
-            $trimSQL        = stristr($sql, "transactions");
+            $trimSQL        = stristr((string) $sql, "transactions");
             $fieldValues    = explode("'", $trimSQL);
             if (in_array("LBTref", $fieldValues)) {
                 return "Referral";
@@ -918,39 +807,12 @@ MSG;
         return $event;
     }
 
-    // Goal of this function is to increase performance in logging engine to check
-    //  if a user is a breakglass user (in this case, will log all activities if the
-    //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    private function isBreakglassUser($user)
+    private function encrypt(#[SensitiveParameter] string $plaintext): string
     {
-        // return false if $user is empty
-        if (empty($user)) {
-            return false;
-        }
-
-        // Return the breakglass user flag if it exists already (it is cached by this singleton class to speed the logging engine up)
-        if (isset($this->breakglassUser)) {
-            return $this->breakglassUser;
-        }
-
-        // see if current user is in the breakglass group
-        //  note we are bypassing gacl standard api to improve performance
-        $queryUser = sqlQueryNoLog(
-            "SELECT `gacl_aro`.`value`
-            FROM `gacl_aro`, `gacl_groups_aro_map`, `gacl_aro_groups`
-            WHERE `gacl_aro`.`id` = `gacl_groups_aro_map`.`aro_id`
-            AND `gacl_groups_aro_map`.`group_id` = `gacl_aro_groups`.`id`
-            AND `gacl_aro_groups`.`value` = 'breakglass'
-            AND BINARY `gacl_aro`.`value` = ?",
-            [$user]
-        );
-        if (empty($queryUser)) {
-            // user is not in breakglass group
-            $this->breakglassUser = false;
+        if ($this->crypto instanceof CipherSuiteInterface) {
+            return $this->crypto->encrypt($plaintext);
         } else {
-            // user is in breakglass group
-            $this->breakglassUser = true;
+            return $this->crypto->encryptStandard($plaintext);
         }
-        return $this->breakglassUser;
     }
 }

@@ -37,7 +37,7 @@ class UuidMappingEventsSubscriberTest extends TestCase
         }
     }
 
-    public function testOnServicePostSaveEventForVitals()
+    public function testOnServicePostSaveEventForVitals(): void
     {
         $uuidMapping = new UuidMapping();
         $uuidRegistry = UuidRegistry::getRegistryForTable(VitalsService::TABLE_VITALS);
@@ -56,15 +56,13 @@ class UuidMappingEventsSubscriberTest extends TestCase
             $resourcePath[] = $record['resource_path'];
         }
         $expectedCodes = ['59408-5', '77606-2', '59576-9', '8289-1'];
-        $expectedPaths = array_map(function ($code) {
-            return "category=vital-signs&code=$code";
-        }, $expectedCodes);
+        $expectedPaths = array_map(fn($code): string => "category=vital-signs&code=$code", $expectedCodes);
         foreach ($expectedPaths as $path) {
             $this->assertContains($path, $resourcePath, "Mapped UUIDs did not contain $path");
         }
     }
 
-    public function testOnServicePostSaveEventForSocialHistory()
+    public function testOnServicePostSaveEventForSocialHistory(): void
     {
         $uuidMapping = new UuidMapping();
         $uuidRegistry = UuidRegistry::getRegistryForTable(SocialHistoryService::TABLE_NAME);
@@ -83,9 +81,7 @@ class UuidMappingEventsSubscriberTest extends TestCase
             $resourcePath[] = $record['resource_path'];
         }
         $expectedCodes = [FhirObservationSocialHistoryService::SMOKING_CESSATION_CODE];
-        $expectedPaths = array_map(function ($code) {
-            return "category=" . FhirObservationSocialHistoryService::CATEGORY . "&code=$code";
-        }, $expectedCodes);
+        $expectedPaths = array_map(fn($code): string => "category=" . FhirObservationSocialHistoryService::CATEGORY . "&code=$code", $expectedCodes);
         foreach ($expectedPaths as $path) {
             $this->assertContains($path, $resourcePath, "Mapped UUIDs did not contain $path");
         }

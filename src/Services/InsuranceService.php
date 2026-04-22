@@ -4,7 +4,7 @@
  * InsuranceService - Service class for patient insurance policy (coverage) data
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -19,13 +19,14 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
     FhirSearchWhereClauseBuilder,
+    ISearchField,
     SearchModifier,
     TokenSearchField,
     TokenSearchValue,
@@ -70,10 +71,10 @@ class InsuranceService extends BaseService
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-        return sqlQuery($sql, array($id, $type));
+        return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
@@ -83,8 +84,8 @@ class InsuranceService extends BaseService
                     SELECT
                     `uuid` AS `insureruuid`,
                     `id` AS `insurerid`
-                    FROM `insurance_companies` 
-                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid` 
+                    FROM `insurance_companies`
+                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid`
                 LEFT JOIN (
                     SELECT
                     `pid` AS `patient_data_pid`,
@@ -123,7 +124,7 @@ class InsuranceService extends BaseService
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
         $sql = "SELECT * FROM insurance_data WHERE uuid=? ";
 
-        $sqlResult = sqlQuery($sql, array($uuidBytes));
+        $sqlResult = sqlQuery($sql, [$uuidBytes]);
         if ($sqlResult) {
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
             $processingResult->addData($sqlResult);
@@ -135,11 +136,11 @@ class InsuranceService extends BaseService
 
     /**
      * @deprecated use search instead
-     * @param $search
+     * @param array<string, string> $search
      * @param $isAndCondition
      * @return ProcessingResult|true
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
 
         // Validating and Converting Patient UUID to PID
@@ -186,11 +187,11 @@ class InsuranceService extends BaseService
             $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
             $search['id'] = $this->getIdByUuid($uuidBytes, self::COVERAGE_TABLE, "id");
         }
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = "SELECT * FROM insurance_data ";
         if (!empty($search)) {
             $sql .= ' WHERE ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
@@ -220,7 +221,7 @@ class InsuranceService extends BaseService
         if (!empty($type)) {
             return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
         }
-        return $this->getOne($pid, $type) !== false;
+        return $this->getOne($pid) !== false;
     }
 
     public function update($data)
@@ -271,7 +272,7 @@ class InsuranceService extends BaseService
 
         $results = sqlStatement(
             $sql,
-            array(
+            [
                 $data["provider"],
                 $data["plan_name"],
                 $data["policy_number"],
@@ -302,7 +303,7 @@ class InsuranceService extends BaseService
                 $data["policy_type"],
                 $data['type'],
                 $uuid
-            )
+            ]
         );
         if ($results) {
             $serviceSavePostEvent = new ServiceSaveEvent($this, $data);
@@ -361,7 +362,7 @@ class InsuranceService extends BaseService
 
         $insuranceDataId = sqlInsert(
             $sql,
-            array(
+            [
                 $data['uuid'],
                 $data['type'],
                 $data["provider"],
@@ -392,7 +393,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
                 $data["policy_type"] ?? ''
-            )
+            ]
         );
         // I prefer exceptions... but we will try to match other service handler formats for consistency
         $processingResult = new ProcessingResult();
@@ -452,11 +453,7 @@ class InsuranceService extends BaseService
                 'date_end' => $compositeDateEnd
             ]
         );
-        if ($insuranceDataResult->hasData()) {
-            $result = $insuranceDataResult->getData();
-        } else {
-            $result = [];
-        }
+        $result = $insuranceDataResult->hasData() ? $insuranceDataResult->getData() : [];
 
         return $result;
     }
@@ -555,7 +552,7 @@ class InsuranceService extends BaseService
                 }
             }
 
-            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
             $this->update($srcInsurance);
 
@@ -572,17 +569,17 @@ class InsuranceService extends BaseService
                 ,'target' => $targetInsurance
             ];
             $processingResult->addData($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $processingResult->addInternalError($e->getMessage());
         } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            } catch (\Exception $e) {
-                (new SystemLogger())->errorLogCaller(
+            } catch (\Throwable $e) {
+                ServiceContainer::getLogger()->error(
                     "Failed to rollback transaction " . $e->getMessage(),
-                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                    ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );
             }
         }

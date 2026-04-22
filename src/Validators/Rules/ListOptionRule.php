@@ -5,7 +5,7 @@
  * This class validates that a list option exists in the list_options table.  It is used by the OpenEMRParticleValidator class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -24,14 +24,11 @@ class ListOptionRule extends Rule
         self::INVALID_LIST_OPTION => '{{ listId }} does not have an option_id of "{{ name }}"',
     ];
 
-    private $listId;
-
     /**
      * @param $listId The id of the list to validate against from the list_options.list_id table
      */
-    public function __construct($listId)
+    public function __construct(private $listId)
     {
-        $this->listId = $listId;
     }
 
     public function validate($value)

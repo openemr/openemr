@@ -7,7 +7,7 @@
  * substituting relevant patient data into its variables.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ruth Moulton
@@ -18,15 +18,17 @@
 
 /* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $nextLocation = 0;      // offset to resume scanning
 $keyLocation  = false;  // offset of a potential {string} to replace
@@ -39,12 +41,12 @@ $itemSeparator = '; ';  // separator between group items
 function keySearch(&$s, $key)
 {
     global $keyLocation, $keyLength;
-    $keyLength = strlen($key);
+    $keyLength = strlen((string) $key);
     if ($keyLength == 0) {
         return false;
     }
 
-    return $key == substr($s, $keyLocation, $keyLength);
+    return $key == substr((string) $s, $keyLocation, $keyLength);
 }
 
 // Replace the {string} at the current location with the specified data.
@@ -52,8 +54,8 @@ function keySearch(&$s, $key)
 function keyReplace(&$s, $data)
 {
     global $keyLocation, $keyLength, $nextLocation;
-    $nextLocation = $keyLocation + strlen($data);
-    return substr($s, 0, $keyLocation) . $data . substr($s, $keyLocation + $keyLength);
+    $nextLocation = $keyLocation + strlen((string) $data);
+    return substr((string) $s, 0, $keyLocation) . $data . substr((string) $s, $keyLocation + $keyLength);
 }
 
 // Do some final processing of field data before it's put into the document.
@@ -91,7 +93,7 @@ function getIssues($type)
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
-    "ORDER BY begdate", array($GLOBALS['pid'], $type));
+    "ORDER BY begdate", [OEGlobalsBag::getInstance()->get('pid'), $type]);
     while ($lrow = sqlFetchArray($lres)) {
         if ($tmp) {
             $tmp .= '; ';
@@ -116,7 +118,7 @@ function doSubs($s)
     $groupLevel   = 0;
     $groupCount   = 0;
 
-    while (($keyLocation = strpos($s, '{', $nextLocation)) !== false) {
+    while (($keyLocation = strpos((string) $s, '{', $nextLocation)) !== false) {
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientName}')) {
@@ -162,7 +164,7 @@ function doSubs($s)
                 $ptphone = $ptrow['phone_biz'];
             }
 
-            if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
+            if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", (string) $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
 
@@ -172,13 +174,13 @@ function doSubs($s)
         } elseif (keySearch($s, '{PatientSex}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
         } elseif (keySearch($s, '{DOS}')) {
-            $s = keyReplace($s, dataFixup(oeFormatShortDate(substr($enrow['date'], 0, 10)), xl('Service Date')));
+            $s = keyReplace($s, dataFixup(oeFormatShortDate(substr((string) $enrow['date'], 0, 10)), xl('Service Date')));
         } elseif (keySearch($s, '{ChiefComplaint}')) {
             $cc = $enrow['reason'];
             $patientid = $ptrow['pid'];
-            $DOS = substr($enrow['date'], 0, 10);
+            $DOS = substr((string) $enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
@@ -206,17 +208,17 @@ function doSubs($s)
 
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
         } elseif (keySearch($s, '{Allergies}')) {
-            $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
+            $tmp = generate_plaintext_field(['data_type' => '24','list_id' => ''], '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
         } elseif (keySearch($s, '{Medications}')) {
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
         } elseif (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
-        } elseif (preg_match('/^{CurrentDate:?.*}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^{CurrentDate:?.*}/', substr((string) $s, $keyLocation), $matches)) {
            /* defaults to ISO standard date format yyyy-mm-dd
             * modified by string following ':' as follows
             * 'global' will use the global date format setting
-            * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' overide the global setting
+            * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' override the global setting
             * anything else is ignored
             *
             * oeFormatShortDate($date = 'today', $showYear = true) - OpenEMR function to format
@@ -230,7 +232,7 @@ function doSubs($s)
                 /* use global setting */
                 $currentdate = oeFormatShortDate(date('Y-m-d'), true);
             } elseif (
-                /* there's an overiding format */
+                /* there's an overriding format */
                     preg_match('/YYYY-MM-DD/i', $matched, $matches)
             ) {
                    /* nothing to do here as this is the default format */
@@ -259,14 +261,14 @@ function doSubs($s)
                 --$groupLevel;
             }
             $s = keyReplace($s, '');
-        } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr((string) $s, $keyLocation), $matches)) {
             // This is how we specify the separator between group items in a way that
             // is independent of the document format. Whatever is between {ITEMSEP} and
             // {/ITEMSEP} is the separator string.  Default is "; ".
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
-        } elseif (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{(LBF\w+):(\w+)\}/', substr((string) $s, $keyLocation), $matches)) {
             // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -277,7 +279,7 @@ function doSubs($s)
             $frow = sqlQuery(
                 "SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND field_id = ? LIMIT 1",
-                array($formname, $fieldid)
+                [$formname, $fieldid]
             );
             if (!empty($frow)) {
                 $ldrow = sqlQuery(
@@ -286,7 +288,7 @@ function doSubs($s)
                     "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
                     "ld.form_id = f.form_id AND ld.field_id = ? " .
                     "ORDER BY f.form_id DESC LIMIT 1",
-                    array($pid, $encounter, $formname, $fieldid)
+                    [$pid, $encounter, $formname, $fieldid]
                 );
                 if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
@@ -299,7 +301,7 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($data, $title));
-        } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr((string) $s, $keyLocation), $matches)) {
             // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -310,7 +312,7 @@ function doSubs($s)
             $frow = sqlQuery(
                 "SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND field_id = ? LIMIT 1",
-                array($formname, $fieldid)
+                [$formname, $fieldid]
             );
             if (!empty($frow)) {
                 $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
@@ -336,17 +338,17 @@ $ptrow = sqlQuery("SELECT pd.*, " .
   "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
-  "WHERE pd.pid = ?", array($pid));
+  "WHERE pd.pid = ?", [$pid]);
 
 $hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " .
-  "ORDER BY date DESC LIMIT 1", array($pid));
+  "ORDER BY date DESC LIMIT 1", [$pid]);
 
-$enrow = array();
+$enrow = [];
 
 // Get some info for the currently selected encounter.
 if ($encounter) {
     $enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " .
-    "encounter = ?", array($pid, $encounter));
+    "encounter = ?", [$pid, $encounter]);
 }
 
 $form_filename = $_REQUEST['form_filename'];
@@ -354,47 +356,38 @@ $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.
-$fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$fname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
-$mimetype = 'application/octet-stream';
-$ext = strtolower(array_pop(explode('.', $filename)));
-if ('dotx' == $ext) {
-    // PHP does not seem to recognize this type.
-    $mimetype = 'application/msword';
-} elseif (function_exists('finfo_open')) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimetype = finfo_file($finfo, $templatepath);
-    finfo_close($finfo);
-} elseif (function_exists('mime_content_type')) {
-    $mimetype = mime_content_type($templatepath);
-} else {
-    if ('doc'  == $ext) {
-        $mimetype = 'application/msword'                             ;
-    } elseif ('dot'  == $ext) {
-        $mimetype = 'application/msword'                             ;
-    } elseif ('htm'  == $ext) {
-        $mimetype = 'text/html'                                      ;
-    } elseif ('html' == $ext) {
-        $mimetype = 'text/html'                                      ;
-    } elseif ('odt'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } elseif ('ods'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
-    } elseif ('ott'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } elseif ('pdf'  == $ext) {
-        $mimetype = 'application/pdf'                                ;
-    } elseif ('ppt'  == $ext) {
-        $mimetype = 'application/vnd.ms-powerpoint'                  ;
-    } elseif ('ps'   == $ext) {
-        $mimetype = 'application/postscript'                         ;
-    } elseif ('rtf'  == $ext) {
-        $mimetype = 'application/rtf'                                ;
-    } elseif ('txt'  == $ext) {
-        $mimetype = 'text/plain'                                     ;
-    } elseif ('xls'  == $ext) {
-        $mimetype = 'application/vnd.ms-excel'                       ;
+$default_mimetype = 'application/octet-stream';
+$ext = strtolower(array_pop(explode('.', (string) $form_filename)));
+$doc_to_mimetype = [
+    'doc'  => 'application/msword',
+    'dot'  => 'application/msword',
+    'dotx' => 'application/msword',
+    'htm'  => 'text/html',
+    'html' => 'text/html',
+    'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
+    'odt'  => 'application/vnd.oasis.opendocument.text',
+    'ott'  => 'application/vnd.oasis.opendocument.text',
+    'pdf'  => 'application/pdf',
+    'ppt'  => 'application/vnd.ms-powerpoint',
+    'ps'   => 'application/postscript',
+    'rtf'  => 'application/rtf',
+    'txt'  => 'text/plain',
+    'xls'  => 'application/vnd.ms-excel',
+];
+$mimetype = $doc_to_mimetype[$ext] ?? $default_mimetype;
+
+// PHP does not seem to recognize 'dotx'
+// so we don't let it override that type.
+if ($ext != 'dotx') {
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimetype = finfo_file($finfo, $templatepath);
+        finfo_close($finfo);
+    } elseif (function_exists('mime_content_type')) {
+        $mimetype = mime_content_type($templatepath);
     }
 }
 
@@ -402,13 +395,13 @@ if ('dotx' == $ext) {
 $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+    $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
 }
 
 // Create a temporary file to hold the template.
-$dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$dname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 file_put_contents($dname, $fileData);
 
 $zipin = new ZipArchive();
@@ -436,7 +429,7 @@ if ($zipin->open($dname) === true) {
 unlink($dname);
 
 // Compute a download name like "filename_lastname_pid.odt".
-$pi = pathinfo($form_filename);
+$pi = pathinfo((string) $form_filename);
 $dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid;
 if ($pi['extension'] !== '') {
     $dlname .= '.' . $pi['extension'];

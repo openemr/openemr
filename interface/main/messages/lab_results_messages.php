@@ -4,7 +4,7 @@
  * lab_results_messages.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -17,11 +17,11 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-function lab_results_messages($set_pid, $rid, $provider_id = "")
+function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 {
     global $userauthorized;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     if ($provider_id != "") {
         $where = "AND id = ?";
         array_push($sqlBindArray, $provider_id);

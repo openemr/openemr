@@ -4,7 +4,7 @@
  * stats.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,11 +16,12 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $twigContainer = new TwigContainer(null, $kernel);
 $t = $twigContainer->getTwig();
@@ -50,11 +51,11 @@ function getListData($pid, $type)
     }
 
 
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $type == 'medication') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_medication_display') && $type == 'medication') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $type == 'allergy') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_allergy_display') && $type == 'allergy') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
@@ -145,18 +146,18 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-    if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
+    if ($old_key == "medication" && OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $erx_upload_complete == 1) {
         $display_current_medications_below = 0;
 
-        if ($GLOBALS['erx_enable']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
             $list = [];
             $rxArr = [];
             while ($row = sqlFetchArray($res)) {
-                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+                $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+                $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+                $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
                 $unit = ($row['size'] > 0) ? text($row['size']) . " " . $row['unit'] : "";
                 $row['unit'] = $unit;
                 $rxArr[] = $row;
@@ -182,7 +183,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     //
     if (count($issues) > 0 || $arr[4] == 1) {
         $old_key = $key;
-        if ($GLOBALS['erx_enable'] && $key = "medication") {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $key == "medication") {
             $sqlUploadedArr = [
                 "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
                 dateEmptySql('enddate'),
@@ -207,8 +208,8 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
         ];
 
-        $btnLinkBase = "return load_location('{$GLOBALS['webroot']}/interface/__page__')";
-        if (in_array($key, ["allergy", "medication"]) && $GLOBALS["erx_enable"]) {
+        $btnLinkBase = "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/__page__')";
+        if (in_array($key, ["allergy", "medication"]) && OEGlobalsBag::getInstance()->getBoolean("erx_enable")) {
             $viewArgs['btnLabel'] = "Add";
             $btnLinkPage = "eRx.php?page=medentry";
         } else {
@@ -245,7 +246,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
         if (sqlNumRows($dres) > 0 && $need_head) {
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
-                list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
+                [$completed, $start_date, $template_name] = explode('|', (string) $row['value'], 3);
                 $formRows['startDate'] = $start_date;
                 $formRws['templateName'] = $template_name;
                 $formRows['id'] = $row['id'];
@@ -264,7 +265,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
 }
 
 // Render the Immunizations card if turned on
-if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
+if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlobalsBag::getInstance()->get('weight_loss_clinic')) :
     $sql = "SELECT i1.id AS id, i1.immunization_id AS immunization_id, i1.cvx_code AS cvx_code, c.code_text_short AS cvx_text,
                 IF(i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short),
                 IF(i1.note,substring(i1.note,1,20),c.code_text_short)) AS immunization_data
@@ -281,17 +282,17 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         $row['immunization_data'] = text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
-            $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
+            $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
                 $row['field'] = htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
-                $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+                $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken()));
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken(session: $session)));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";
@@ -327,7 +328,7 @@ if ($erx_upload_complete == 1) {
         'label' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
         'btnLabel' => 'Edit',
-        'btnLink' => "return load_location(\"{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'btnLink' => "return load_location(\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
         'auth' => true,
         'list' => $rxList,

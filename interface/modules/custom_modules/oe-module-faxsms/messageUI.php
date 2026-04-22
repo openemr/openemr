@@ -4,34 +4,43 @@
  * Fax and SMS Module UI Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+//header("Permissions-Policy: speaker=(self)");
+//header("Feature-Policy: speaker 'self'");
+
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
+$assetBase = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-faxsms/public";
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$title = $service == "1" ? xlt('RingCentral') : '';
-$title = $service == "2" ? xlt('Twilio SMS') : $title;
-$title = $service == "3" ? xlt('etherFAX') : $title;
-$title = $service == "4" ? xlt('Email') : $title;
+$serviceEnum = ServiceType::fromValue($service);
+$title = $serviceEnum->getTranslatedDisplayName();
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
+$site_id = $session->get('site_id');
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -39,8 +48,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
     echo "<script>let pid=" . js_escape($pid ?? 0) . ";let portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
+    echo ServiceType::renderJsConstants();
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.js"></script>
 
     <script>
         $(function () {
@@ -49,26 +59,22 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 $datetimepicker_timepicker = false;
                 $datetimepicker_showseconds = false;
                 $datetimepicker_formatInput = false;
-                require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
-            let dateRange = new Date(new Date().setDate(new Date().getDate() - 7));
+            let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
             $("#fromdate").val(dateRange.toJSON().slice(0, 10));
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
             $(".other").hide();
-            if (currentService == '1' && serviceType == 'fax') {
-                $(".rc-hide").hide();
-                $(".rc-fax-hide").hide();
-            } else if (currentService == '1' && serviceType == 'sms') {
-                $(".rc-hide").hide();
-            } else if (currentService == '2') {
-                $(".etherfax").hide();
-            } else if (currentService == '3') {
-                $(".twilio").hide();
-                $(".etherfax-hide").hide();
-                $(".etherfax").show();
-            }
+            const {hide = [], show = []} = {
+                [ServiceType.RINGCENTRAL]: {hide: ['.rc-hide'].concat(serviceType === 'fax' ? ['.rc-fax-hide'] : [])},
+                [ServiceType.TWILIO_SMS]: {hide: ['.etherfax', '.signalwire']},
+                [ServiceType.ETHERFAX]: {hide: ['.twilio', '.etherfax-hide', '.signalwire'], show: ['.etherfax']},
+                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax', '.rc-hide'], show: ['.signalwire']},
+            }[currentService] ?? {};
+            hide.forEach(s => $(s).hide());
+            show.forEach(s => $(s).show());
             if (serviceType == 'sms') {
                 $(".sms-hide").hide();
             }
@@ -81,35 +87,30 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         });
 
         <?php
-        // modal_size: 'modal-sm', 'modal-md', 'modal-lg', 'modal-xl'
-        // modal_height: dialog height in pixels. Default is 775
-        // modal_size_height: 'full' or 'auto'
-        $param = array(
+        $param = [
             'is_universal' => 1,
             'modal_size' => 'modal-mlg',
             'modal_height' => 775,
             'modal_size_height' => 'full',
             'type' => 'email'
-            );
-        $GLOBALS['kernel']->
-        getEventDispatcher()->
-        dispatch(
+        ];
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
         );
         ?>
+
         const sendFax = function (filePath, from = '') {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send To Contact"); ?>;
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
                 encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog auto restores session cookie
+            dlgopen(url, '', 'modal-sm', 600, '', title, { // dialog auto restores session cookie
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ],
                 resolvePromiseOn: 'close',
-                sizeHeight: 'full'
             }).then(function (contact) {
                 top.restoreSession();
             });
@@ -149,10 +150,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 console.log('Session restore failed!');
             }
             e.preventDefault();
-            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup.php';
-            if (currentService === '1') {
-                url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup_rc.php';
-            }
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/' +
+                (currentService === ServiceType.RINGCENTRAL ? 'setup_rc.php' : 'setup.php');
             let msg = <?php echo xlj('Credentials and Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
                 buttons: [
@@ -173,6 +172,43 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 buttons: [{text: btnClose, close: true, style: 'secondary btn-sm'}]
             });
             return false;
+        };
+
+        // Store the current fax id for assignment; used by setpatient callback
+        let currentFaxForAssignment = null;
+
+        // Callback that patient finder calls on opener
+        function setpatient(pid, lname, fname, dob) {
+            if (!currentFaxForAssignment) {
+                alertMsg(<?php echo xlj('No fax selected for assignment'); ?>);
+                return;
+            }
+            $.post('assignFax?type=fax', {
+                'fax_id': currentFaxForAssignment,
+                'patient_id': pid
+            }, function (response) {
+                if (response && response.success) {
+                    alertMsg(<?php echo xlj('Fax assigned successfully'); ?>);
+                    retrieveMsgs();
+                } else {
+                    alertMsg((response && response.error) || <?php echo xlj('Failed to assign fax'); ?>);
+                }
+            }, 'json').fail(function () {
+                alertMsg(<?php echo xlj('Error assigning fax'); ?>);
+            }).always(function () {
+                currentFaxForAssignment = null;
+            });
+        }
+
+        const assignFaxToPatient = function (faxQueueId) {
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
+            currentFaxForAssignment = faxQueueId;
+            // Open standard patient finder which calls opener.setpatient(...)
+            dlgopen('../../../main/calendar/find_patient_popup.php', '_blank', 750, 550, false, <?php echo xlj('Select Patient'); ?>);
         };
 
         function base64ToArrayBuffer(_base64Str) {
@@ -270,6 +306,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     setTimeout(retrieveMsgs, 1000);
                     return false;
                 }
+
                 if (downFlag == 'true') {
                     let base64 = data.base64;
                     if (data.mime === 'image/tiff' || data.mime === 'image/tif') {
@@ -278,6 +315,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     } else {
                         base64 = '';
                     }
+
                     fetch('disposeDocument?type=fax', {
                         method: 'POST',
                         headers: {
@@ -298,9 +336,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     }).catch(error => {
                         console.error('Error:', error);
                     });
-
                     return false;
                 }
+
                 if (data.mime === 'application/pdf') {
                     showDocument(data.base64, data.mime);
                 } else if (data.mime === 'image/tiff') {
@@ -316,24 +354,83 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             }
         }
 
-        // Function to convert TIFF to PNG/JPEG images
+        // Helper: Convert base64 to ArrayBuffer.
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
         async function convertTiffToImages(tiffData, mime = 'image/jpeg') {
             try {
-                let tiff = new Tiff({buffer: tiffData});
-                const directories = tiff.countDirectory();
-                const promises = [];
-
-                for (let i = 0; i < directories; i++) {
-                    promises.push(new Promise((resolve, reject) => {
-                        tiff.setDirectory(i);
-                        let canvas = tiff.toCanvas();
-                        let imageData = canvas.toDataURL(mime);
-                        resolve(imageData);
-                    }));
+                // Convert base64 string to ArrayBuffer if necessary.
+                if (typeof tiffData === 'string') {
+                    if (tiffData.indexOf('base64,') > -1) {
+                        tiffData = tiffData.split('base64,')[1];
+                    }
+                    tiffData = base64ToArrayBuffer(tiffData);
                 }
-                return Promise.all(promises);
+
+                console.log("TIFF ArrayBuffer byteLength:", tiffData.byteLength);
+
+                // Create a copy of the buffer to avoid issues if UTIF.js detaches the original.
+                const bufferCopy = tiffData.slice(0);
+
+                // Decode the TIFF file to get IFDs (pages).
+                const ifds = UTIF.decode(bufferCopy);
+                if (!ifds || ifds.length === 0) {
+                    throw new Error("No IFDs found in TIFF data.");
+                }
+                console.log("Decoded IFDs:", ifds);
+
+                // Attempt to decode images for all IFDs.
+                UTIF.decodeImage(bufferCopy, ifds);
+
+                const imagePromises = ifds.map((ifd, index) => {
+                    return new Promise((resolve, reject) => {
+                        try {
+                            // If the IFD's data is empty, force decode this IFD.
+                            if (!ifd.data || ifd.data.length === 0) {
+                                UTIF.decodeImage(bufferCopy, ifd);
+                            }
+
+                            // Get RGBA pixel data.
+                            const rgba = UTIF.toRGBA8(ifd);
+                            if (!rgba || rgba.length === 0) {
+                                return reject(new Error(`No pixel data for IFD index ${index}.`));
+                            }
+
+                            const width = ifd.t256 || ifd.width;
+                            const height = ifd.t257 || ifd.height;
+                            if (!width || !height) {
+                                return reject(new Error(`Missing dimensions for IFD index ${index}.`));
+                            }
+
+                            // Create a canvas and draw the image.
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            const imageData = new ImageData(new Uint8ClampedArray(rgba), width, height);
+                            ctx.putImageData(imageData, 0, 0);
+
+                            // Convert the canvas to a data URL.
+                            const dataURL = canvas.toDataURL(mime);
+                            resolve(dataURL);
+                        } catch (error) {
+                            console.error(`Error processing IFD index ${index}:`, error);
+                            reject(error);
+                        }
+                    });
+                });
+
+                return Promise.all(imagePromises);
             } catch (error) {
-                console.error('Failed to convert TIFF to images:', error);
+                console.error("Failed to convert TIFF to images using UTIF.js:", error);
                 return [];
             }
         }
@@ -411,26 +508,22 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 e.stopPropagation();
             }
 
-            let actionUrl = (serviceType === 'fax') ? 'getPending?type=fax' : '';
-            if (serviceType === 'sms' && currentService == '1') { //RC
-                actionUrl = 'getPending?type=sms';
-            } else if (serviceType === 'sms') {
-                actionUrl = 'fetchSMSList?type=sms';
-            } else if (serviceType === 'email') {
-                actionUrl = 'fetchEmailList?type=email';
-            }
+            const actionUrl = {
+                fax: 'getPending?type=fax',
+                sms: currentService === ServiceType.RINGCENTRAL ? 'getPending?type=sms' : 'fetchSMSList?type=sms',
+                email: 'fetchEmailList?type=email',
+            }[serviceType] ?? '';
 
             const datefrom = $('#fromdate').val();
             const dateto = $('#todate').val();
 
             // Cache DOM elements
-            const brandElement = $(".brand");
             const rcvDetailsBody = $("#rcvdetails tbody");
             const sentDetailsBody = $("#sent-details tbody");
             const msgDetailsBody = $("#msgdetails tbody");
 
             // Start loading animation
-            brandElement.addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             rcvDetailsBody.empty();
             sentDetailsBody.empty();
             msgDetailsBody.empty();
@@ -441,9 +534,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 'datefrom': datefrom,
                 'dateto': dateto
             }, null, 'json').done(function (data) {
-                brandElement.removeClass('fa fa-spinner fa-spin');
-
                 if (data.error) {
+                    $(".brand").removeClass('fa fa-spinner fa-spin');
                     alertMsg(data.error);
                     return false;
                 }
@@ -452,16 +544,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 sentDetailsBody.append(data[1]);
                 msgDetailsBody.append(data[2]);
 
-                // Get call logs if the service type is SMS
-                if (serviceType === 'sms') {
+                if (serviceType) {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
-                const message = `Error: ${error || 'Request to fetch pending new faxes failed with Unknown error!'}<br />Perhaps invalid or missing credentials. Verify, fix and try again if so.`;
+                const message = `Error: ${error || 'Request to fetch pendings failed with Unknown error!'}`;
                 alertMsg(message, 10000);
-                console.error('Request failed: ', status, error);
             }).always(function () {
-                brandElement.removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -536,8 +626,32 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             return $('#resource option:selected').val();
         }
 
-        function messageShow(id) {
-            $("." + id).toggleClass("d-none");
+        function messageShow(id, uri) {
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
+
+            $(".brand").addClass('fa fa-spinner fa-spin');
+            let actionUrl = 'fetchTextMessage?type=sms';
+            $.post(actionUrl, {
+                'id': id,
+                'uri': uri
+            }, null, 'json').done(function (data) {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+                if (data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                $("." + id).empty().append(data);
+            }).fail(function (xhr, status, error) {
+                const message = `Error: ${error || 'Request to fetch message failed with Unknown error!'}`;
+                alertMsg(message, 10000);
+                console.error('Request failed: ', status, error);
+            }).always(function () {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+            });
         }
 
         function messageReply(phone) {
@@ -587,12 +701,63 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             return false;
         }
 
+        function rc_enable_popup() {
+            //alert('RC Testing...');
+            $(".rc_enable_popup_btn_loader").addClass('fa fa-spinner fa-spin');
+
+            let actionUrl = 'install?type=' + serviceType;
+            let data = [];
+            return $.post(actionUrl,
+                {}, function () {
+                }, 'json').done(function (data) {
+                console.log(data);
+                $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
+                if (data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                if (data.msg) {
+                    $(".rc_enable_popup_btn_loader").html(data.msg);
+                }
+            });
+            $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
+        }
+
+        function makeRingoutCall(callTo, callFrom = '', id = '') {
+            $(".brand").addClass('fa fa-spinner fa-spin');
+            let actionUrl = (serviceType === 'fax') ? 'makeRingoutCall?type=fax' : 'makeRingoutCall?type=sms';
+            let data = [];
+            $.post(actionUrl, {
+                'toPhone': callTo,
+                'fromPhone': callFrom,
+                'id': id,
+            }, null, 'json').done(function (data) {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+                if (data && data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                if (data.msg) {
+                    $(".rc_test_call_loader").html(data.msg);
+                }
+                if (id) {
+                    $("." + id).empty().append(data);
+                }
+            }).fail(function (xhr, status, error) {
+                const message = `Error: ${error || 'Request to make call failed with Unknown error!'}`;
+                alertMsg(message, 10000);
+                console.error('Request failed: ', status, error);
+            }).always(function () {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+            });
+        }
+
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;
         $(function () {
             var fileTypes = '';
-            if (currentService === '3') {
+            if (currentService === ServiceType.ETHERFAX) {
                 fileTypes = "application/pdf, image/*";
             }
             const faxQueue = new Dropzone("#faxQueue", {
@@ -656,8 +821,10 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             });
         });
     </script>
+
 </head>
 <body class="body_top">
+    <!--<iframe src="library/rc_phone_widget.php" style="width: 100%; height: 100%;"></iframe>-->
     <div class="sticky-top">
         <nav class="navbar navbar-expand-xl navbar-light bg-light">
             <div class="container">
@@ -687,12 +854,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                                 <?php if ($serviceType == 'sms') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                                 <?php } ?>
                                 <?php if ($serviceType == 'email') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
                                 <?php } ?>
                                 <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                             </div>
@@ -736,9 +903,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         <?php if ($serviceType == 'email') { ?>
                             <?php
                             $param = ['is_universal' => 1, 'type' => 'email'];
-                            $GLOBALS['kernel']->getEventDispatcher()->
+                            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->
                             dispatch(
-                                new SendNotificationEvent($pid, $param),
+                                new SendNotificationEvent($pid ?? 0, $param),
                                 SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST
                             );
                             ?>
@@ -807,7 +974,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                                 <th><?php echo xlt("Caller Id") ?></th>
                                                 <th><?php echo xlt("To") ?></th>
                                                 <th><?php echo xlt("Pages") ?></th>
-                                                <th><?php echo xlt("Length") ?></th>
+                                                <th><?php echo xlt("Name") ?></th>
                                                 <th><?php echo xlt("Status") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
                                                 <th><i role="button" id="delete-selected-sent" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
@@ -820,7 +987,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                             </tbody>
                                         </table>
                                     </div>
-                                <?php } else { ?>
+                                <?php } elseif ($service != '1') { // not RC ?>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-striped" id="sent-details">
                                             <thead>
@@ -852,7 +1019,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                         <tr>
                                             <th><?php echo xlt("Date") ?></th>
                                             <th><?php echo xlt("Type") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
+                                            <th><?php echo xlt("Send By") ?></th>
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Result") ?></th>
                                             <th class="other"><?php echo xlt("Download") ?></th>
@@ -922,75 +1089,120 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <?php }
                     if ($service == '1') { ?>
                         <div class="tab-content">
-                            <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="rcvdetails">
-                                        <thead>
-                                        <tr>
-                                            <th><?php echo xlt("Start Time") ?></th>
-                                            <th><?php echo xlt("End Time") ?></th>
-                                            <th><?php echo xlt("Pages") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Status") ?></th>
-                                            <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                            <?php if ($serviceType == 'fax') { ?>
+                                <div class="tab-pane fade in active" id="received">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="rcvdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Start Time") ?></th>
+                                                <th><?php echo xlt("End Time") ?></th>
+                                                <th><?php echo xlt("Pages") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                            <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="sent-details">
-                                        <thead>
-                                        <tr>
-                                            <th><?php echo xlt("Start Time") ?></th>
-                                            <th><?php echo xlt("End Time") ?></th>
-                                            <th><?php echo xlt("Pages") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Status") ?></th>
-                                            <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="tab-pane fade" id="sent">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="sent-details">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Start Time") ?></th>
+                                                <th><?php echo xlt("End Time") ?></th>
+                                                <th><?php echo xlt("Pages") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                                <th><i role="button" id="delete-selected-sent" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                            <div role="tabpanel" class="container-fluid tab-pane fade d-none" id="messages">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="msgdetails">
-                                        <thead>
-                                        <tr>
-                                            <th><?php echo xlt("Date") ?></th>
-                                            <th><?php echo xlt("Type") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Result") ?></th>
-                                            <th class="twilio"><?php echo xlt("Download") ?></th>
-                                            <th class="ringcentral"><?php echo xlt("Message") ?></th>
-                                            <th><?php echo xlt("View") ?></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                            <?php } else { ?>
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="rcvdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="sent-details">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="messages">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="msgdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            <?php } ?>
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="logs">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped" id="logdetails">

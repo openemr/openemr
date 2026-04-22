@@ -6,7 +6,7 @@
  * The functions of this class support the billing process like the script billing_process.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -23,71 +23,103 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
-use OpenEMR\Billing\ParseERA;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("New Payment")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
 }
 
 //===============================================================================
     $screen = 'new_payment';
 //===============================================================================
+
 // Initialisations
-$mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
-$payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
+$mode = filter_input(INPUT_POST, 'mode') ?: '';
+$payment_id = filter_input(INPUT_GET, 'payment_id', FILTER_VALIDATE_INT)
+    ?: filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT)
+    ?: 0;
+
+// Verify CSRF token for all POST actions
+if ($mode !== '') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+}
 $request_payment_id      = $payment_id ;
-$hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
-$default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
-$hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hidden_type_code'] : '';
+$hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';
+$default_search_patient  = $_POST['default_search_patient'] ?? '';
+$hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 //===============================================================================
 //ar_session addition code
 //===============================================================================
 
-if ($mode == "new_payment" || $mode == "distribute") {
-    if (trim($_POST['type_name']) == 'insurance') {
-        $QueryPart = "payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
-    } elseif (trim($_POST['type_name']) == 'patient') {
-        $QueryPart = "payer_id = '0', patient_id = '" . add_escape_custom($hidden_type_code);
+if ($mode === "new_payment" || $mode === "distribute") {
+    // Validate and extract POST inputs at the source with filter_input
+    $type_name = trim(filter_input(INPUT_POST, 'type_name') ?: '');
+    $hidden_type_code_int = filter_input(INPUT_POST, 'hidden_type_code', FILTER_VALIDATE_INT) ?: 0;
+    $check_number = trim(filter_input(INPUT_POST, 'check_number') ?: '');
+    $payment_amount = filter_input(INPUT_POST, 'payment_amount', FILTER_VALIDATE_FLOAT) ?: 0.0;
+    $description = trim(filter_input(INPUT_POST, 'description') ?: '');
+    $adjustment_code = trim(filter_input(INPUT_POST, 'adjustment_code') ?: '');
+    $payment_method = trim(filter_input(INPUT_POST, 'payment_method') ?: '');
+
+    if ($type_name === 'insurance') {
+        $payer_id = $hidden_type_code_int;
+        $patient_id = 0;
+    } else {
+        $payer_id = 0;
+        $patient_id = $hidden_type_code_int;
     }
-      $user_id = $_SESSION['authUserID'];
-      $closed = 0;
-      $modified_time = date('Y-m-d H:i:s');
-      $check_date = DateToYYYYMMDD(formData('check_date'));
-      $deposit_date = DateToYYYYMMDD(formData('deposit_date'));
-      $post_to_date = DateToYYYYMMDD(formData('post_to_date'));
-    if ($post_to_date == '') {
+
+    $user_id = $session->get('authUserID');
+    $modified_time = date('Y-m-d H:i:s');
+    $check_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'check_date') ?: ''));
+    $deposit_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'deposit_date') ?: ''));
+    $post_to_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'post_to_date') ?: ''));
+    if ($post_to_date === '') {
         $post_to_date = date('Y-m-d');
     }
-    if ($_POST['deposit_date'] == '') {
+    if ((filter_input(INPUT_POST, 'deposit_date') ?: '') === '') {
         $deposit_date = $post_to_date;
     }
-      $payment_id = sqlInsert("insert into ar_session set "    .
-        $QueryPart .
-        "', user_id = '"     . trim(add_escape_custom($user_id))  .
-        "', closed = '"      . trim(add_escape_custom($closed))  .
-        "', reference = '"   . trim(formData('check_number')) .
-        "', check_date = '"  . trim(add_escape_custom($check_date)) .
-        "', deposit_date = '" . trim(add_escape_custom($deposit_date))  .
-        "', pay_total = '"    . trim(formData('payment_amount')) .
-        "', modified_time = '" . trim(add_escape_custom($modified_time))  .
-        "', payment_type = '"   . trim(formData('type_name')) .
-        "', description = '"   . trim(formData('description')) .
-        "', adjustment_code = '"   . trim(formData('adjustment_code')) .
-        "', post_to_date = '" . trim(add_escape_custom($post_to_date))  .
-        "', payment_method = '"   . trim(formData('payment_method')) .
-        "'");
+
+    $payment_id = QueryUtils::sqlInsert(
+        "INSERT INTO ar_session SET
+            payer_id = ?, patient_id = ?, user_id = ?, closed = 0,
+            reference = ?, check_date = ?, deposit_date = ?,
+            pay_total = ?, modified_time = ?, payment_type = ?,
+            description = ?, adjustment_code = ?, post_to_date = ?,
+            payment_method = ?",
+        [
+            $payer_id,
+            $patient_id,
+            $user_id,
+            $check_number,
+            $check_date,
+            $deposit_date,
+            $payment_amount,
+            $modified_time,
+            $type_name,
+            $description,
+            $adjustment_code,
+            $post_to_date,
+            $payment_method,
+        ]
+    );
 }
 
 //===============================================================================
 //ar_activity addition code
 //===============================================================================
 if ($mode == "PostPayments" || $mode == "FinishPayments") {
-    $user_id = $_SESSION['authUserID'];
+    $user_id = $session->get('authUserID');
     $created_time = date('Y-m-d H:i:s');
     for ($CountRow = 1;; $CountRow++) {
         if (isset($_POST["HiddenEncounter$CountRow"])) {
@@ -97,11 +129,11 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
         }
     }
     if ($_REQUEST['global_amount'] == 'yes') {
-        sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) : ''), $payment_id]);
+        sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim((string) $_POST["HidUnappliedAmount"]) : ''), $payment_id]);
     }
     if ($mode == "FinishPayments") {
         // @todo This is not useful. Gonna let fall through to form init.
-        header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
+        header("Location: edit_payment.php?payment_id=" . $payment_id . "&ParentPage=new_payment");
         die();
     }
     $mode = "search";
@@ -125,8 +157,8 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <script>
         var mypcc = '1';
     </script>
-    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
         function CancelDistribute() {
             // Used in the cancel button.Helpful while cancelling the distribution.
@@ -271,7 +303,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -292,17 +324,17 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["new_payment_xpd", "search_payments_xpd", "era_payments_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -337,6 +369,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 } else {
                     echo 'return false;';
                 }?>" style="display:inline">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <fieldset>
                         <div class="jumbotron py-4">
@@ -385,7 +418,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo attr($default_search_patient); ?>' />
                     <input id='ajax_mode' name='ajax_mode' type='hidden' value='' />
                     <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($mode);?>" />
-                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo attr($payment_id);?>" />
+                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo $payment_id;?>" />
                     <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr($hidden_type_code);?>" />
                     <input id='global_amount' name='global_amount' type='hidden' value='' />
                 </form>

@@ -5,16 +5,18 @@
  * Forms generated from formsWiz
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\Core\OEGlobalsBag;
 
-function ros_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function ros_report($pid, $encounter, $cols, $id): void
 {
 
     $count = 0;
@@ -22,7 +24,7 @@ function ros_report($pid, $encounter, $cols, $id)
     $data = formFetch("form_ros", $id);
 
     if ($data) {
-        $cmap = array(
+        $cmap = [
                 "id" => '',
                 "pid" => '',
                 "user" => '',
@@ -84,7 +86,7 @@ function ros_report($pid, $encounter, $cols, $id)
                 "fh_blood_problems" => "FH Blood Problems",
                 "hiv" => "HIV",
                 "hai_status" => "HAI Status",
-        );
+        ];
 
         print "<div id='form_ros_values'><table class='report_results'><tr>";
 
@@ -101,8 +103,7 @@ function ros_report($pid, $encounter, $cols, $id)
 
             // skip the N/A values -- cfapress, Jan 2009 OR blank or zero date values
             if (
-                $value == "N/A" || $value == "" ||
-                $value == "0000-00-00" || $value == "0000-00-00 00:00:00"
+                in_array($value, ["N/A", "", "0000-00-00", "0000-00-00 00:00:00"])
             ) {
                 continue;
             }
@@ -111,7 +112,9 @@ function ros_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xlt($key), xlt($value));
+            $valueStr = is_string($value) ? $value : '';
+            // @phpstan-ignore argument.type, argument.type (legacy on-the-fly translation of dynamic values; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), xlt($valueStr));
             $count++;
 
             if ($count == $cols) {

@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -12,24 +12,22 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Common\Session\SessionWrapperFactory;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
     $tab = "setup";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/manage_modules: ClaimRev Connect - Setup", xl("ClaimRev Connect - Setup"));
 }
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "ClaimRevModule")) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: "ClaimRevModule", dieOnFail: true);
 }
 
 $services = ClaimRevModuleSetup::getBackgroundServices();
@@ -50,24 +48,24 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
     <head>
         <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
-    
+
     <title> <?php echo xlt("ClaimRev Connect - Setup"); ?></title>
 
 
 <body>
-    <div class="row"> 
+    <div class="row">
         <div class="col">
             <?php
                 require '../templates/navbar.php';
             ?>
         </div>
     </div>
-    <div class="row"> 
+    <div class="row">
         <div class="col">
-            <h1><?php echo xlt("Setup"); ?></h1>        
+            <h1><?php echo xlt("Setup"); ?></h1>
         </div>
     </div>
-    <div class="row"> 
+    <div class="row">
         <div class="col-6">
             <div class="card">
                 <ul>
@@ -84,50 +82,50 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                     <li>
                         <h6>
                             <?php echo xlt("Background Services"); ?>
-                            
+
                         </h6>
                         <?php echo xlt("There are required background services that are needed to send claims, pick up reports, and check eligibility. They are listed below in a table, but if there is something strange going on use the button to re-create the records."); ?>
-                        
+
                         <form method="post" action="setup.php">
                             <button type="submit" name="backgroundService" class="btn btn-primary"><?php echo xlt("Set Defaults"); ?></button>
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                         </form>
                     </li>
                     <li>
                         <h6>
                             <?php echo xlt("SFTP Background Service"); ?>
-                            
+
                         </h6>
                         <?php
                         if (ClaimRevModuleSetup::couldSftpServiceCauseIssues()) {
                             echo xlt("The SFTP service is still activated to send claims. We have noticed that this service can cause our service not to work correctly. If you would like to deactivate it, click the following button. Note: if you're sending claims elsewhere through SFTP, this would stop that.");
-                            ?>                                
-                                
+                            ?>
+
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         } else {
                             echo xlt("The SFTP Service has been disabled, this is good and will prevent the service from working against sending your claims. However if you would like to reactivate it then click this button.");
                             ?>
-                                
+
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         }
                         ?>
                     </li>
                 </ul>
-             
+
                 </div>
         </div>
     </div>
-    <div class="row"> 
+    <div class="row">
         <div class="col">
-            <h1><?php echo xlt("Background Services")?></h1>        
+            <h1><?php echo xlt("Background Services")?></h1>
         </div>
     </div>
     <div class="row">
@@ -140,9 +138,9 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                             <th scope="col"><?php echo xlt("Active"); ?></th>
                             <th scope="col"><?php echo xlt("Running"); ?></th>
                             <th scope="col"><?php echo xlt("Next Run"); ?></th>
-                            <th scope="col"><?php echo xlt("Execute Interval"); ?></th>   
-                            <th scope="col"><?php echo xlt("Function"); ?></th>       
-                            <th scope="col"><?php echo xlt("Require Once"); ?></th>          
+                            <th scope="col"><?php echo xlt("Execute Interval"); ?></th>
+                            <th scope="col"><?php echo xlt("Function"); ?></th>
+                            <th scope="col"><?php echo xlt("Require Once"); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,7 +168,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                                     </td>
                                     <td>
                                     <?php echo text($service["require_once"]) ?>
-                                    </td>                                  
+                                    </td>
                                 </tr>
                                 <?php
                             }

@@ -4,7 +4,7 @@
  * DrugService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -50,18 +50,18 @@ class DrugService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Patient uuid to return drug resources that are only visible to the current patient
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -92,7 +92,7 @@ class DrugService extends BaseService
         return $this->search($search);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT
                 drug_table.drug_id,
@@ -166,10 +166,10 @@ class DrugService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
@@ -184,7 +184,7 @@ class DrugService extends BaseService
             // removed the RXCUI concatenation out of the db query and into the code here
             // some parts of OpenEMR adds the RXCUI designation in the drug_code such as the inventory/dispensary module
             // and this causes the FHIR medication resource to not get the actual RXCUI code.
-            if ($row['drug_code'] == $record['rxnorm_drugcode'] && strpos($row['drug_code'], ':') === false) {
+            if ($row['drug_code'] == $record['rxnorm_drugcode'] && !str_contains((string) $row['drug_code'], ':')) {
                 $codes = $this->addCoding("RXCUI:" . $row['drug_code']);
             } else {
                 $codes = $this->addCoding($row['rxnorm_drugcode']);

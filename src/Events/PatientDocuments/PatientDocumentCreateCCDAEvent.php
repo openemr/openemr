@@ -4,7 +4,7 @@
  * PatientDocumentCreateCCDAEvent is fired when the dispatcher wants to generate a ccda document in the system for a patient.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,10 +12,11 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use OpenEMR\Services\Search\DateSearchField;
 use DateTime;
+use OpenEMR\Services\Search\DateSearchField;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class PatientDocumentCreateCCDAEvent
+class PatientDocumentCreateCCDAEvent extends Event
 {
     const EVENT_NAME_CCDA_CREATE = "patient.ccda.create";
 
@@ -79,7 +80,7 @@ class PatientDocumentCreateCCDAEvent
     public function __construct($pid)
     {
         $this->setPid($pid);
-        $this->setComponents(array());
+        $this->setComponents([]);
         $this->setFormat("xml");
         $this->setRecipient("self");
         $this->dateFrom = null;
@@ -127,7 +128,7 @@ class PatientDocumentCreateCCDAEvent
      */
     public function setComponents(array $components): PatientDocumentCreateCCDAEvent
     {
-        $this->components = array_filter($components, 'is_string');
+        $this->components = array_filter($components, is_string(...));
         return $this;
     }
 

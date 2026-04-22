@@ -4,7 +4,7 @@
  * This module creates the Barbados Daily Record.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
@@ -15,70 +15,53 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Might want something different here.
 //
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Clinic Daily Record")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Clinic Daily Record", xl("Clinic Daily Record"));
 }
 
 $facilityService = new FacilityService();
 
 $from_date     = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility = $_POST['form_facility'] ?? '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 $report_title = xl('Clinic Daily Record');
 $report_col_count = 12;
 
 // This will become the array of reportable values.
-$areport = array();
+$areport = [];
 
 // This accumulates the bottom line totals.
-$atotals = array();
+$atotals = [];
 
 $cellcount = 0;
 
-function genStartRow($att)
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
-}
-
-function genEndRow()
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
-}
-
-// Usually this generates one cell, but allows for two or more.
-//
-function genAnyCell($data, $right = false, $class = '')
+/**
+ * Usually this generates one cell, but allows for two or more.
+ *
+ * @param string|array $data
+ */
+function ippf_daily_genAnyCell($data, bool $right = false, string $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
-        $data = array(0 => $data);
+        $data = [0 => $data];
     }
 
     foreach ($data as $datum) {
@@ -105,14 +88,21 @@ function genAnyCell($data, $right = false, $class = '')
     }
 }
 
-function genHeadCell($data, $right = false)
+/**
+ * @param string|array $data
+ */
+function ippf_daily_genHeadCell($data, bool $right = false): void
 {
-    genAnyCell($data, $right, 'dehead');
+    ippf_daily_genAnyCell($data, $right, 'dehead');
 }
 
-// Create an HTML table cell containing a numeric value, and track totals.
-//
-function genNumCell($num, $cnum)
+/**
+ * Create an HTML table cell containing a numeric value, and track totals.
+ *
+ * @param int|float|string $num
+ * @param int $cnum
+ */
+function ippf_daily_genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -120,7 +110,7 @@ function genNumCell($num, $cnum)
         $num = '&nbsp;';
     }
 
-    genAnyCell($num, true, 'detail');
+    ippf_daily_genAnyCell($num, true, 'detail');
 }
 
 // If we are doing the CSV export then generate the needed HTTP headers.
@@ -153,7 +143,7 @@ if ($form_output == 3) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -167,7 +157,7 @@ if ($form_output == 3) {
 <h2><?php echo text($report_title); ?></h2>
 
 <form name='theform' method='post' action='ippf_daily.php?t=<?php echo attr_url($report_type); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
  <tr>
@@ -203,7 +193,7 @@ if ($form_output == 3) {
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
     <?php
-    foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+    foreach ([1 => 'Screen', 2 => 'Printer', 3 => 'Export File'] as $key => $value) {
         echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
         if ($key == $form_output) {
             echo ' checked';
@@ -230,13 +220,13 @@ if ($_POST['form_submit']) {
     $lores = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'contrameth' AND activity = 1 ORDER BY title");
     while ($lorow = sqlFetchArray($lores)) {
-        $areport[$lorow['option_id']] = array($lorow['title'],
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        $areport[$lorow['option_id']] = [$lorow['title'],
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
-    $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    $areport['zzz'] = ['Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     // This gets us all MA codes, with encounter and patient
     // info attached and grouped by patient and encounter.
@@ -277,7 +267,7 @@ if ($_POST['form_submit']) {
                 "l.pid = ? AND l.begdate <= ? AND " .
                 "( l.enddate IS NULL OR l.enddate > ? ) AND " .
                 "l.activity = 1 AND l.type = 'contraceptive' AND lc.id = l.id " .
-                "ORDER BY l.begdate DESC LIMIT 1", array($last_pid, $from_date, $from_date));
+                "ORDER BY l.begdate DESC LIMIT 1", [$last_pid, $from_date, $from_date]);
                 $amethods = explode('|', empty($crow) ? 'zzz' : $crow['new_method']);
 
                 // TBD: We probably want to select the method with highest CYP here,
@@ -286,8 +276,8 @@ if ($_POST['form_submit']) {
 
                 if (empty($areport[$method])) {
                         // This should not happen.
-                        $areport[$method] = array("Unlisted method '$method'",
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        $areport[$method] = ["Unlisted method '$method'",
+                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 }
 
                 // Count total clients.
@@ -368,31 +358,31 @@ if ($_POST['form_submit']) {
 
   // Generate headings.
     genStartRow("bgcolor='#dddddd'");
-    genHeadCell(xl('Method'));
-    genHeadCell(xl('New Clients'), true);
-    genHeadCell(xl('Old Clients'), true);
-    genHeadCell(xl('Total Clients'), true);
-    genHeadCell(xl('Contra Clients'), true);
-  // genHeadCell(xl('O.A.F.V.'       ), true);
-    genHeadCell(xl('Pap Smear'), true);
-    genHeadCell(xl('Preg Test'), true);
-    genHeadCell(xl('Dr Check'), true);
-    genHeadCell(xl('Dr Visit'), true);
-    genHeadCell(xl('Advice'), true);
-    genHeadCell(xl('Couns by Method'), true);
-    genHeadCell(xl('Infert Couns'), true);
-    genHeadCell(xl('STD/AIDS Couns'), true);
+    ippf_daily_genHeadCell(xl('Method'));
+    ippf_daily_genHeadCell(xl('New Clients'), true);
+    ippf_daily_genHeadCell(xl('Old Clients'), true);
+    ippf_daily_genHeadCell(xl('Total Clients'), true);
+    ippf_daily_genHeadCell(xl('Contra Clients'), true);
+  // ippf_daily_genHeadCell(xl('O.A.F.V.'       ), true);
+    ippf_daily_genHeadCell(xl('Pap Smear'), true);
+    ippf_daily_genHeadCell(xl('Preg Test'), true);
+    ippf_daily_genHeadCell(xl('Dr Check'), true);
+    ippf_daily_genHeadCell(xl('Dr Visit'), true);
+    ippf_daily_genHeadCell(xl('Advice'), true);
+    ippf_daily_genHeadCell(xl('Couns by Method'), true);
+    ippf_daily_genHeadCell(xl('Infert Couns'), true);
+    ippf_daily_genHeadCell(xl('STD/AIDS Couns'), true);
     genEndRow();
 
     $encount = 0;
 
-    foreach ($areport as $key => $varr) {
+    foreach ($areport as $varr) {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
         genStartRow("bgcolor='" . attr($bgcolor) . "'");
-        genAnyCell($varr[0], false, 'detail');
+        ippf_daily_genAnyCell($varr[0], false, 'detail');
         // Generate data and accumulate totals for this row.
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
-            genNumCell($varr[$cnum + 1], $cnum);
+            ippf_daily_genNumCell($varr[$cnum + 1], $cnum);
         }
 
         genEndRow();
@@ -401,9 +391,9 @@ if ($_POST['form_submit']) {
     if ($form_output != 3) {
         // Generate the line of totals.
         genStartRow("bgcolor='#dddddd'");
-        genHeadCell(xl('Totals'));
+        ippf_daily_genHeadCell(xl('Totals'));
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
-            genHeadCell($atotals[$cnum], true);
+            ippf_daily_genHeadCell($atotals[$cnum], true);
         }
 
         genEndRow();

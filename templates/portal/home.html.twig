@@ -8,7 +8,7 @@
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -50,12 +50,29 @@
         white-space: nowrap;
       }
 
-      .dropdown-menu {
-        position: absolute;
-      }
-
       .navbar-nav .dropdown:hover .dropdown-menu {
         display: block;
+      }
+
+      @media (max-width: 768px) {
+        .jumbotron {
+          padding: 1rem;
+        }
+        .card {
+          margin-bottom: 1rem;
+        }
+        .navbar-nav .dropdown-menu {
+          position: static;
+          float: none;
+          width: 100%;
+          text-align: center;
+        }
+        .navbar-nav .dropdown-menu a {
+          padding: 10px;
+        }
+        .card-body {
+          padding: 10px;
+        }
       }
     </style>
     <script>
@@ -75,9 +92,11 @@
         var jsGlobals = {
             languageDirection: jsLanguageDirection,
             date_display_format: {{ dateDisplayFormat | js_escape }},
+            time_display_format: {{ timeDisplayFormat | js_escape }},
             timezone: {{ timezone | js_escape }},
             assetVersion: {{ assetVersion | js_escape }}
         };
+
         function restoreSession() {
             return true;
         }
@@ -137,8 +156,8 @@
             window.addEventListener('scroll', resetLogOutTimer, true);
 
             function logoutWarn() {
-                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '<br />' + xl('Please take action to prevent being logged out!');
-                syncAlertMsg(warnMsg, 28000); // from utility.js
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '\n' + xl('Please take action to prevent being logged out!');
+                asyncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
             function logout() {
@@ -171,6 +190,29 @@
         }
 
         $(function () {
+            {% if isTelemetryAllowed == 1 %}
+
+            $('a[id$="-go"]').on('click', function (e) {
+                const cardId = e.currentTarget.id;
+                const target = e.currentTarget.dataset.windowTitle;
+                const url = e.currentTarget.href;
+                // send telemetry data
+                fetch('lib/track_portal_events.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        csrf_token_form: {{ csrfUtils | js_escape }},
+                        'action': 'portalCardClickData',
+                        'eventType': 'patientPortal',
+                        'eventLabel': target,
+                        'eventTarget': cardId,
+                        'eventUrl': url
+                    })
+                });
+            });
+
+            {% endif %}
+
             $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
                 updateWindowTitle(e.target);
@@ -179,7 +221,7 @@
             $('#quickstart-card [data-parent="#cardgroup"]' +
                 ', #reports-list-card [data-parent="#cardgroup"]'
                 + ',.reports-list-back-btn').on('click', (e) => {
-                // we use currentTarget so we grab the event with the original data-parent, if there are buttons or
+                // we use currentTarget, so we grab the event with the original data-parent, if there are buttons or
                 // other stuff inside we want to go to the href.
                 persist($(e.currentTarget).attr('href'), false);
                 updateWindowTitle(e.currentTarget);
@@ -582,7 +624,7 @@
                                     } %}
                                 {% endif %}
                                 <!-- Reports -->
-                                {% if ccdaOk or 'allow_custom_report' or portal_onsite_document_download %}
+                                {% if ccdaOk or allow_custom_report or portal_onsite_document_download %}
                                     {% include "portal/partial/_nav_icon.html.twig"
                                         with {
                                         url: "reports-list-card"|attr_url
@@ -617,9 +659,10 @@
                                     , id: "help-go"
                                 } %}
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
+                                <!-- Infeg: Updated logout URL to point to portal/logout.php -->
                                 {% include "portal/partial/_nav_icon.html.twig"
                                     with {
-                                    url:  webroot ~ "./logout.php"
+                                    url:  "./logout.php"
                                     ,localLink: false
                                     , icon: "right-from-bracket"
                                     , navText: "Logout"|xl
@@ -687,7 +730,7 @@
                     title: "Medical Reports"|xl
                     ,icon: "gear"
                     ,description: "Setup your digital signature for signing your clinical documents, update your login credentials, or change application settings in the portal."|xl
-                    ,enabled: ccdaOk or 'allow_custom_report' or portal_onsite_document_download
+                    ,enabled: ccdaOk or allow_custom_report or portal_onsite_document_download
                 }
                 ,{
                     title: "PRO Assessment"|xl
@@ -762,7 +805,7 @@
                         , localLink: false
                     } %}
                 {% endif %}
-                {% if 'allow_custom_report' %}
+                {% if allow_custom_report %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
                         url: "reportcard"|attr_url

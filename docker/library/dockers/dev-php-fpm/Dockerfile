@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1
 
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
 # prevent Debian's PHP packages from being installed
 # https://github.com/docker-library/php/pull/542
@@ -208,6 +209,8 @@ RUN set -eux; \
 	find /usr/local -type f -executable -exec ldd '{}' ';' \
 		| awk '/=>/ { print $(NF-1) }' \
 		| sort -u \
+		| xargs -r realpath 2>/dev/null \
+		| sort -u \
 		| xargs -r dpkg-query --search \
 		| cut -d: -f1 \
 		| sort -u \
@@ -278,7 +281,7 @@ STOPSIGNAL SIGQUIT
 ### Verify
 ###
 RUN set -x \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.5' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.6' \
 	&& /usr/local/sbin/php-fpm --test \
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
 	&& if [ -n "${PHP_ERROR}" ]; then echo "${PHP_ERROR}"; false; fi

@@ -4,7 +4,7 @@
  * Edit Layout Properties.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2021 Rod Roark <rod@sunsetsystems.com>
@@ -14,10 +14,12 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Gacl\GaclApi;
 
 $alertmsg = "";
@@ -25,8 +27,7 @@ $alertmsg = "";
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit Layout Properties")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Edit Layout Properties", xl("Edit Layout Properties"));
 }
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
@@ -43,7 +44,7 @@ td { font-size:10pt; }
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -99,21 +100,20 @@ function get_related() {
 <body class="body_top">
 
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_submit']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($group_id) {
         $sets =
             "grp_subtitle = ?, "   .
             "grp_init_open = ?, "  .
             "grp_columns = ?";
-        $sqlvars = array(
+        $sqlvars = [
             $_POST['form_subtitle'],
             empty($_POST['form_init_open' ]) ? 0 : 1,
             intval($_POST['form_columns']),
-        );
+        ];
     } else {
         $sets =
             "grp_title = ?, "      .
@@ -133,7 +133,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_services = ?, "   .
             "grp_products = ?, "   .
             "grp_diags = ?";
-        $sqlvars = array(
+        $sqlvars = [
             $_POST['form_title'],
             $_POST['form_subtitle'],
             $_POST['form_mapping'],
@@ -151,7 +151,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
-        );
+        ];
     }
 
     if ($layout_id) {
@@ -176,11 +176,11 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             $alertmsg = xl('Layout ID is required');
         } elseif ($form_title == '') {
             $alertmsg = xl('Title is required');
-        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', $form_form_id)) {
+        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', (string) $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",
-                array($form_form_id)
+                [$form_form_id]
             );
             if (empty($row)) {
                 $sqlvars[] = $form_form_id;
@@ -210,7 +210,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
     exit();
 }
 
-$row = array(
+$row = [
     'grp_form_id'    => '',
     'grp_title'      => '',
     'grp_subtitle'   => '',
@@ -230,13 +230,13 @@ $row = array(
     'grp_products'   => '',
     'grp_diags'      => '',
     'grp_last_update' => '',
-);
+];
 
 if ($layout_id) {
     $row = sqlQuery(
         "SELECT * FROM layout_group_properties WHERE " .
         "grp_form_id = ? AND grp_group_id = ?",
-        array($layout_id, $group_id)
+        [$layout_id, $group_id]
     );
     if (empty($row)) {
         die(xlt('This layout does not exist.'));
@@ -245,7 +245,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <table class='w-100 border-0'>
@@ -391,14 +391,15 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     $itres = sqlStatement(
         "SELECT type, singular FROM issue_types " .
         "WHERE category = ? AND active = 1 ORDER BY singular",
-        array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
+        [OEGlobalsBag::getInstance()->get('ippf_specific') ? 'ippf_specific' : 'default']
     );
     while ($itrow = sqlFetchArray($itres)) {
+        $singularStr = is_string($itrow['singular'] ?? null) ? $itrow['singular'] : '';
         echo "<option value='" . attr($itrow['type']) . "'";
         if ($itrow['type'] == $row['grp_issue_type']) {
             echo " selected";
         }
-        echo ">" . xlt($itrow['singular']) . "</option>\n";
+        echo ">" . text(xl_list_label($singularStr)) . "</option>\n";
     }
     ?>
    </select>
@@ -422,17 +423,28 @@ for ($cols = 2; $cols <= 12; ++$cols) {
             continue;
         }
         asort($list_aco_objects[$seckey]);
+        // get_section_data() and get_object_data() in src/Gacl/GaclApi.php
+        // are docblocked as returning array but can actually return false
+        // on a missing row. The is_array() guard below keeps the offset
+        // access safe at runtime; PHPStan marks it "always true" because
+        // it trusts the (wrong) docblock, so we ignore that specific rule.
         $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-        $aco_section_title = $aco_section_data[3];
+        $aco_section_title = is_array($aco_section_data) && is_string($aco_section_data[3] ?? null) /* @phpstan-ignore function.alreadyNarrowedType */
+            ? $aco_section_data[3]
+            : '';
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
         foreach ($list_aco_objects[$seckey] as $acokey) {
             $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-            $aco_title = $aco_data[0][3];
+            $aco_title = is_array($aco_data) && is_array($aco_data[0] ?? null) && is_string($aco_data[0][3] ?? null) /* @phpstan-ignore function.alreadyNarrowedType */
+                ? $aco_data[0][3]
+                : '';
             echo "  <option value='" . attr("$seckey|$acokey") . "'";
             if ("$seckey|$acokey" == $row['grp_aco_spec']) {
                 echo " selected";
             }
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo ">" . xlt($aco_title) . "</option>\n";
         }
         echo " </optgroup>\n";

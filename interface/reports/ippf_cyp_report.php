@@ -4,7 +4,7 @@
  * ippf_cyp_report.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2010 Rod Roark <rod@sunsetsystems.com>
@@ -15,15 +15,16 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 function formatcyp($amount)
@@ -35,16 +36,19 @@ function formatcyp($amount)
     return '';
 }
 
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
-}
-
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber = '')
+/**
+ * Render a line item for the CYP report HTML table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $description
+ * @param string $transdate
+ * @param int $qty
+ * @param float $cypfactor
+ * @param string $irnumber
+ * @return void
+ */
+function cypReportLineItem(int $patient_id, int $encounter_id, string $description, string $transdate, int $qty, float $cypfactor, string $irnumber = ''): void
 {
     global $product, $productcyp, $producttotal, $productqty, $grandtotal, $grandqty;
 
@@ -141,8 +145,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("CYP Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: CYP Report", xl("CYP Report"));
 }
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
@@ -188,7 +191,7 @@ if ($_POST['form_csvexport']) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -202,7 +205,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('CYP Report')?></h2>
 
 <form method='post' action='ippf_cyp_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -290,7 +293,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $productqty = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, c.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -311,18 +314,18 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'],
             $row['cyp_factor'],
             $row['invoice_refno']
         );
     }
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
     "d.name, d.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -344,11 +347,11 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['cyp_factor'],
             $row['invoice_refno']

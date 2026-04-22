@@ -4,23 +4,26 @@
  * prior auth form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 
-function prior_auth_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function prior_auth_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_prior_auth", $id);
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value)) {
                 continue;
             }
 
@@ -28,12 +31,13 @@ function prior_auth_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            if ($key == "from_date" || "to_date") {
+            if ($key === "from_date" || $key === "to_date") {
                 $value = oeFormatShortDate($value);
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
             if ($count == $cols) {
                 $count = 0;

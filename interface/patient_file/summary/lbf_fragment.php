@@ -4,7 +4,7 @@
  * Functions to globally validate and prepare data for sql database insertion.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -15,10 +15,11 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $lbf_form_id = $_GET['formname'];
 ?>
@@ -34,7 +35,7 @@ $lbf_form_id = $_GET['formname'];
         "fe.pid = f.pid AND fe.encounter = f.encounter " .
         "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
         "LIMIT 1",
-        array($pid, $lbf_form_id)
+        [$pid, $lbf_form_id]
     );
 
     if (!$result) { //If there are none
@@ -45,13 +46,13 @@ $lbf_form_id = $_GET['formname'];
         <span class='text'><b>
         <?php
         echo text(xl('Most recent from') . ": " .
-        oeFormatShortDate(substr($result['date'], 0, 10)));
+        oeFormatShortDate(substr((string) $result['date'], 0, 10)));
         ?>
   </b></span>
         <br />
         <br />
         <?php
-        include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/LBF/report.php");
         lbf_report('', '', 2, $result['form_id'], $lbf_form_id);
         ?>
         <span class='text'>

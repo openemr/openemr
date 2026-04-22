@@ -64,7 +64,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [32.2.0] 2022-10-18
 ### Added
-- Added support the currenly published URI for the preferred terminology server
+- Added support the currently published URI for the preferred terminology server
   extension, though that URI will be changing
   (https://jira.hl7.org/browse/FHIR-23977).
 
@@ -293,7 +293,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [29.1.1] 2021-06-24
 ### Changed
-- Removed direct refereces to angular in FHIR lib files.
+- Removed direct references to angular in FHIR lib files.
 
 ## [29.1.0] 2021-05-27
 ### Added
@@ -310,7 +310,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [29.0.1] 2021-04-29
 ### Fixed
-- Fixed a bug that minValue extention is not imported correctly when the value is 0
+- Fixed a bug that minValue extension is not imported correctly when the value is 0
 
 ## [29.0.0] 2020-12-23
 ### Changes
@@ -365,7 +365,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [27.1.1] 2020-12-17
 ### Fixed
-- Fixed a bug that nummeric value of 0 was not exported in QuestionnaireResponse
+- Fixed a bug that numeric value of 0 was not exported in QuestionnaireResponse
 
 ## [27.1.0] 2020-12-09
 ### Added
@@ -888,7 +888,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [15.1.0] 2019-03-22
 ### Added
-- Support for the questionnaire-observationLinkPeriod extenstion for
+- Support for the questionnaire-observationLinkPeriod extension for
   pre-population.  (Extraction is not yet supported.)
 
 ## [15.0.1] 2019-03-20
@@ -961,7 +961,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Added
 - Support for the FHIR extension "variable" has been added, but as with the
   "questionnaire-initialExpression" and "questionnaire-calculatedExpression"
-  support is currently limited to FHIRPath-based expresions.
+  support is currently limited to FHIRPath-based expressions.
 
 ## [13.9.1] 2019-01-02
 ### Fixed.
@@ -985,7 +985,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [13.7.1] 2018-12-07
 ### Fixed
-- FHIRPath intialization has been corrected, so that the context passed in is
+- FHIRPath initialization has been corrected, so that the context passed in is
   now the item on which the expression is attached, and %resource is set to the
   QustionnaireResponse object.
 
@@ -1028,7 +1028,7 @@ object.
 
 ## [13.2.0] 2018-10-24
 ### Added
-- LForms.Util.addFormToPage can now accept a form defintion object as its first
+- LForms.Util.addFormToPage can now accept a form definition object as its first
   argument rather than just a variable name that holds that object.
 ### Fixed
 - There were several problems with the FHIR APIs in LForms.Util.  Tests were

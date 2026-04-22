@@ -32,14 +32,13 @@
  */
 
 
-function smarty_function_xlt($params, &$smarty)
+function smarty_function_xlt($params, &$smarty): void
 {
-    if (empty($params['t'])) {
-        trigger_error("xlt: missing 't' parameter", E_USER_WARNING);
+    if (empty($params['t']) || !is_string($params['t'])) {
+        trigger_error("xlt: missing or non-string 't' parameter", E_USER_WARNING);
         return;
-    } else {
-        $translate = $params['t'];
     }
 
-    echo xlt($translate);
+    // @phpstan-ignore argument.type (Smarty template strings are not statically analyzable as literal-string)
+    echo xlt($params['t']);
 }

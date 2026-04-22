@@ -2,7 +2,7 @@
 
 /**
  * Class to be called from Laminas Module Manager for reporting management actions.
- * Example is if the module is enabled, disabled or unregistered ect.
+ * Example is if the module is enabled, disabled or unregistered etc.
  *
  * The class is in the Laminas "Installer\Controller" namespace.
  * Currently, register isn't supported of which support should be a part of install.
@@ -106,7 +106,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $logMessage = 'Claimrev Background tasks have been enabled';
         // Register background services
         $sql = "UPDATE `background_services` SET `active` = '1' WHERE `name` = ? OR `name` = ? OR `name` = ?";
-        $status = sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
+        $status = sqlQuery($sql, ['ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive']);
         error_log($logMessage . ' ' . text($status));
         // Return the current action status from Module Manager in case of error from its action.
         return $currentActionStatus;
@@ -122,7 +122,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $logMessage = 'Claimrev Background tasks have been disabled';
         // Unregister background services
         $sql = "UPDATE `background_services` SET `active` = '0' WHERE `name` = ? OR `name` = ? OR `name` = ?";
-        $status = sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
+        $status = sqlQuery($sql, ['ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive']);
         error_log($logMessage . ' ' . text($status));
         return $currentActionStatus;
     }
@@ -136,7 +136,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
     {
         $logMessage = 'Claimrev Background tasks have been removed'; // Initialize an empty string to store log messages
         $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ? OR `name` = ?";
-        $status = sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
+        $status = sqlQuery($sql, ['ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive']);
         error_log($logMessage . ' ' . text($status));
         return $currentActionStatus;
     }

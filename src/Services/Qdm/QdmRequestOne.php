@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -15,25 +15,17 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestOne implements QdmRequestInterface
 {
-    protected $pid = '';
+    protected BoundFilter $filter;
 
-    protected $filter = null;
-
-    /**
-     * QdmQuery constructor.
-     *
-     * @param $pid
-     */
-    public function __construct($pid)
+    public function __construct(protected string $pid)
     {
-        $this->pid = $pid;
         $this->filter = new BoundFilter();
         $this->filter->setFilterClause("pid = ?");
         $this->filter->setBoundValues([$this->pid]);
     }
 
 
-    public function getFilter()
+    public function getFilter(): BoundFilter
     {
         return $this->filter;
     }

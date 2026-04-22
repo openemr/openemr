@@ -4,31 +4,34 @@
  * prior auth form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormPriorAuth extends Controller
 {
-    var $template_dir;
+    public $template_dir;
 
     function __construct($template_mod = "general")
     {
         parent::__construct();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
-        $this->template_dir = dirname(__FILE__) . "/templates/prior_auth/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $this->template_dir = __DIR__ . "/templates/prior_auth/";
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->getWebRoot());
+        $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->get('form_exit_url'));
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
     function default_action()
@@ -40,11 +43,7 @@ class C_FormPriorAuth extends Controller
 
     function view_action($form_id)
     {
-        if (is_numeric($form_id)) {
-            $prior_auth = new FormPriorAuth($form_id);
-        } else {
-            $prior_auth = new FormPriorAuth();
-        }
+        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($form_id) : new FormPriorAuth();
 
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);
@@ -62,12 +61,13 @@ class C_FormPriorAuth extends Controller
 
 
         $this->form->persist();
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Prior Authorization", $this->form->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Prior Authorization", $this->form->id, "prior_auth", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";
         }
         return;

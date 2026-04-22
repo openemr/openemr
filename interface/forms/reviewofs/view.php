@@ -4,7 +4,7 @@
  * Review of Systems Checks form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    cfapress <cfapress>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
@@ -18,9 +18,11 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -40,7 +42,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
         </div>
         <div class="row">
             <form method=post action="<?php echo $rootdir; ?>/forms/reviewofs/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" onsubmit="return top.restoreSession()">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('General')?></legend>
                     <div class="row">

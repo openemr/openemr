@@ -10,7 +10,7 @@
  * The class retrieves messages where the patient is either the recipient, or the patient is the sender of the message.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -40,15 +40,13 @@ class ExportOnsiteMessagesTableDefinition extends ExportTableDefinition
         // recip_id is a json array of pids if the message originates from a user in the users table
         // recip_id is a josn array of usernames if the message originates from a patient in the patient_data table
         $query = "SELECT $selectQuery FROM onsite_messages WHERE $likeClause";
-        $bindParams = array_map(function ($pid) {
-            return "%\"$pid\"%";
-        }, $patientPids);
+        $bindParams = array_map(fn($pid): string => "%\"$pid\"%", $patientPids);
         $records = QueryUtils::fetchRecords($query, $bindParams);
         $resultRecords = [];
         if (!empty($records)) {
             $patientPidsHash = array_combine($patientPids, $patientPids);
             foreach ($records as $record) {
-                $recipIdDecoded = json_decode($record['recip_id'], true);
+                $recipIdDecoded = json_decode((string) $record['recip_id'], true);
                 if (is_array($recipIdDecoded)) {
                     // don't think I need the string piece here.
 //                    $recipIdDecoded = array_map(function($pid) {

@@ -4,7 +4,7 @@
  * Config Module.
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -21,7 +21,7 @@ class ModuleLoadEvents extends Event
      * getters for the modules loaded and any that failed to load.
      */
     public const MODULES_LOADED = 'modules.loaded';
-    private array $modules;
+    private readonly array $modules;
     public function __construct($modules, $bootstrapFailures = [])
     {
         $modules = array_merge($modules, $bootstrapFailures);

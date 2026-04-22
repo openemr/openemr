@@ -7,7 +7,7 @@
  *  New Patients, Visited patients, Total Charges, Total Co-pay and Balance amount for the selected facility & providers wise.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rishabh Software
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Rishabh Software
@@ -19,29 +19,29 @@ require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Daily Summary Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Daily Summary Report", xl("Daily Summary Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
 
 $from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d'); // From date filter
 $to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
-$selectedFacility = isset($_POST['form_facility']) ? $_POST['form_facility'] : "";  // facility filter
-$selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "";  // provider filter
+$selectedFacility = $_POST['form_facility'] ?? "";  // facility filter
+$selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 ?>
 
 <html>
@@ -79,7 +79,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -93,7 +93,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         <span class='title'><?php echo xlt('Daily Summary Report'); ?></span>
         <!-- start of search parameters -->
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div id="report_parameters">
                 <table class="tableonly">
                     <tr>
@@ -118,8 +118,8 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
                                             <?php
-                                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                                            'empty_title' => '-- All Providers --'), $selectedProvider);
+                                            generate_form_field(['data_type' => 10, 'field_id' => 'provider',
+                                            'empty_title' => '-- All Providers --'], $selectedProvider);
                                             ?>
                                         </td>
                                 </table>
@@ -161,7 +161,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         }
 
         // define all the variables as initial blank array
-        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = array();
+        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = [];
 
         // define all the where condition variable as initial value set 1=1
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
@@ -181,7 +181,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         // define provider and facility as null
         $providerID = $facilityID = null;
         // define all the bindarray variables as initial blank array
-        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
+        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = [];
 
         // make all condition on by default today's date
         if ($dateSet != 1 && $facilitySet != 1) {
@@ -304,7 +304,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                                                     GROUP BY `b`.`encounter`,Date,provider_name ORDER BY Date ASC", $sqlBindArrayTotalPayment);
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
-            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] = $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ?? null;
+            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ??= 0;
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
@@ -344,6 +344,12 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 </tr>
                 <?php
                 if (count($dailySummaryReport) > 0) { // check if daily summary array has value
+                    $totalAppointments = 0;
+                    $totalNewRegisterPatient = 0;
+                    $totalVisits = 0;
+                    $totalPayments = 0;
+                    $totalPaidAmount = 0;
+                    $totalDueAmount = 0;
                     foreach ($dailySummaryReport as $date => $dataValue) { //   daily summary array which consists different/dynamic values
                         foreach ($facilities as $facility) { // facility array
                             if (isset($dataValue[$facility])) {
@@ -372,22 +378,11 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                     </tr>
                                     <?php
                                     if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
-                                        $totalAppointments = $totalAppointments ?? null;
-                                        $totalAppointments += ($information['appointments'] ?? null);
-
-                                        $totalNewRegisterPatient = $totalNewRegisterPatient ?? null;
-                                        $totalNewRegisterPatient += ($information['newPatient'] ?? null);
-
-                                        $totalVisits = $totalVisits ?? null;
-                                        $totalVisits += ($information['visits'] ?? null);
-
-                                        $totalPayments = $totalPayments ?? null;
+                                        $totalAppointments += ($information['appointments'] ?? 0);
+                                        $totalNewRegisterPatient += ($information['newPatient'] ?? 0);
+                                        $totalVisits += ($information['visits'] ?? 0);
                                         $totalPayments += floatval(str_replace(",", "", ($information['payments'] ?? '')));
-
-                                        $totalPaidAmount = $totalPaidAmount ?? null;
                                         $totalPaidAmount += floatval(str_replace(",", "", ($information['paidAmount'] ?? '')));
-
-                                        $totalDueAmount = $totalDueAmount ?? null;
                                         $totalDueAmount += $dueAmount;
                                     }
                                 }

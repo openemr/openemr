@@ -3,46 +3,56 @@
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
  *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Vinish K <vinish@zhservices.com>
- * @author    Riju K P <rijukp@zhservices.com>
- * @author    Stephen Nielson <snielson@discoverandchange.com>_
- * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package    OpenEMR
+ * @link       https://www.open-emr.org
+ * @author     Vinish K <vinish@zhservices.com>
+ * @author     Riju K P <rijukp@zhservices.com>
+ * @author     Stephen Nielson <snielson@discoverandchange.com>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright  Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace Carecoordination\Model;
 
 use Application\Listener\Listener;
-use Application\Model\ApplicationTable;
+use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Matrix\Exception;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\PersonService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Services\Search\SearchQueryFragment;
-use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
+use RuntimeException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
 
-class EncounterccdadispatchTable extends AbstractTableGateway
+class EncounterccdadispatchTable
 {
     const CCDA_DOCUMENT_FOLDER = "CCDA";
     public $amc_num_result = [
@@ -56,8 +66,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFiltered = false;
     private $encounterFilterList = [];
 
+    private readonly SessionInterface $session;
+
     public function __construct()
     {
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     /**
@@ -75,7 +88,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $dateValues = [];
 
         if (!empty($options['date_start'])) {
-            $searchFromDate = strtotime($options['date_start']);
+            $searchFromDate = strtotime((string)$options['date_start']);
             // date values for search fields have to be in ISO8601
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
             $dateStart = date(DATE_ATOM, $searchFromDate);
@@ -88,7 +101,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         if (!empty($options['date_end'])) {
-            $searchToDate = strtotime($options['date_end']);
+            $searchToDate = strtotime((string)$options['date_end']);
             // date values for search fields have to be in ISO8601
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
             $dateEnd = date(DATE_ATOM, $searchToDate);
@@ -144,18 +157,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function resolveRace($race)
     {
-        $appTable = new ApplicationTable();
         $res_cur = null;
         $query = "SELECT title, notes FROM list_options WHERE list_id='race' AND option_id=?";
         $option['race']['title'] = '';
         $option['race']['code'] = '';
         $option['race_cat']['title'] = '';
         $option['race_cat']['code'] = '';
-        if (strpos($race, '|') !== false) {
-            $first = explode('|', $race);
+        if (str_contains((string)$race, '|')) {
+            $first = explode('|', (string)$race);
             foreach ($first as $i => $title) {
-                $result = $appTable->zQuery($query, array($title));
-                $r = $result->current();
+                $result = QueryUtils::fetchRecords($query, [$title]);
+                $r = $result[0] ?? [];
                 // ensure at least one
                 if ($i == 0) {
                     $option['race']['title'] = $r['title'];
@@ -163,12 +175,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
                 if (
                     in_array(
-                        trim($r['title']),
+                        trim((string)$r['title']),
                         ['American Indian or Alaska Native',
-                        'Asian',
-                        'Black or African American',
-                        'Native Hawaiian or Other Pacific Islander',
-                        'White']
+                            'Asian',
+                            'Black or African American',
+                            'Native Hawaiian or Other Pacific Islander',
+                            'White']
                     )
                 ) {
                     $option['race']['title'] = $r['title'];
@@ -179,8 +191,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
             }
         } elseif (!empty($race)) {
-            $result = $appTable->zQuery($query, array($race));
-            $r = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$race]);
+            $r = $result[0] ?? [];
             $option['race']['title'] = $r['title'] ?? '';
             $option['race']['code'] = $r['notes'] ?? '';
             $option['race_cat']['title'] = '';
@@ -195,8 +207,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPreviousAddresses($pid): array
     {
-        $address = new ContactService();
-        return $address->getContactsForPatient($pid) ?? [];
+        if (empty($pid)) {
+            return [];
+        }
+
+        $sql = "SELECT ca.* FROM contact_address ca JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ? WHERE ca.status = 'A'";
+        $contactData = QueryUtils::fetchRecords($sql, [$pid]) ?? [];
+        $resultSet = [];
+        foreach ($contactData as $record) {
+            $contactAddress = new ContactAddress();
+            $contactAddress->populate_array($record);
+            $address = $contactAddress->getAddress();
+            $arrAddress = $address->toArray();
+            // overwrite any duplicate values in address with the contact data (the id property will be contact data)
+            $arrAddress = array_merge($arrAddress, $contactAddress->toArray());
+            $resultSet[] = $arrAddress;
+        }
+        return $resultSet;
     }
 
     /**
@@ -209,32 +236,397 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $nameService->getPatientNameHistory($pid) ?? [];
     }
 
+    public function getSdohData($pid, $encounter)
+    {
+        // Pull latest assessment row and (optionally) the mapped code from list_options
+        $sql = "
+    SELECT
+        f.disability_status,
+        f.disability_status_notes,
+        f.disability_scale,
+        f.pregnancy_status,
+        l1.codes AS disability_code,
+        l1.title AS disability_title,
+        l2.codes AS pregnancy_code,
+        l2.title AS pregnancy_title
+    FROM form_history_sdoh AS f
+    LEFT JOIN list_options AS l1 ON l1.list_id = ? AND l1.option_id = f.disability_status
+    LEFT JOIN list_options AS l2 ON l2.list_id = ? AND l2.option_id = f.pregnancy_status
+    WHERE f.pid = ?
+    ORDER BY COALESCE(f.updated_at, f.created_at) DESC
+    LIMIT 1
+    ";
+        $row = sqlQuery($sql, ['disability_status', 'pregnancy_status', $pid]) ?: [];
+
+        $disability_code = ($row['disability_code'] ?? '');
+        $disability_status = $row['disability_title'] ?? '';
+        $pregnancy_code = ($row['pregnancy_code'] ?? '');
+        if (!empty($row)) {
+            if (!empty($disability_code)) {
+                $parts = explode(':', (string)$disability_code, 2);
+                $disability_code = $parts[1] ?? $disability_code;
+            }
+            if (!empty($pregnancy_code)) {
+                $parts = explode(':', (string)$pregnancy_code, 2);
+                $pregnancy_code = $parts[1] ?? $pregnancy_code;
+            }
+        }
+
+        $xml = '<sdoh_data>' .
+            '<disability_code>' . xmlEscape($disability_code) . '</disability_code>' .
+            '<disability>' . xmlEscape(($row['disability_status'] ?? '')) . '</disability>' .
+            '<disability_title>' . xmlEscape(($row['disability_title'] ?? '')) . '</disability_title>' .
+            '<pregnancy_code>' . xmlEscape($pregnancy_code) . '</pregnancy_code>' .
+            '<pregnancy>' . xmlEscape(($row['pregnancy_status'] ?? '')) . '</pregnancy>' .
+            '<pregnancy_title>' . xmlEscape(($row['pregnancy_title'] ?? '')) . '</pregnancy_title>';
+
+        // Add detailed disability assessment if available
+        if (!empty($row['disability_scale'])) {
+            $scale = json_decode((string)$row['disability_scale'], true) ?: [];
+            // Map sub-questions to their LOINC codes
+            $questions = [
+                'walk_climb' => ['code' => '69859-7', 'display' => 'Difficulty walking or climbing stairs'],
+                'seeing' => ['code' => '69861-3', 'display' => 'Difficulty seeing'],
+                'hearing' => ['code' => '69860-5', 'display' => 'Difficulty hearing'],
+                'cognitive' => ['code' => '69862-1', 'display' => 'Difficulty concentrating, remembering, or making decisions'],
+                'dressing_bathing' => ['code' => '69863-9', 'display' => 'Difficulty dressing or bathing'],
+                'errands' => ['code' => '69864-7', 'display' => 'Difficulty doing errands alone']
+            ];
+
+            $xml .= '<disability_assessment>';
+            // Overall CUBS status if present
+            if (!empty($row['disability_status'])) {
+                $status_code = $disability_code;
+                $status_display = $row['disability_title'] ?? '';
+                if ($status_code) {
+                    $xml .= '<overall_status>' .
+                        '<code>89571-4</code>' .
+                        '<code_system>2.16.840.1.113883.6.1</code_system>' .
+                        '<code_system_name>LOINC</code_system_name>' .
+                        '<display>Overall disability status CUBS</display>' .
+                        '<answer_code>' . xmlEscape($status_code) . '</answer_code>' .
+                        '<answer_display>' . xmlEscape($status_display) . '</answer_display>' .
+                        '</overall_status>';
+                }
+            }
+            // Individual disability questions
+            $xml .= '<disability_questions>';
+            foreach ($questions as $key => $info) {
+                if (isset($scale[$key]['code'])) {
+                    $answer = $scale[$key]['code'];
+                    $answer_code = '';
+                    $answer_display = '';
+                    // Map answer codes
+                    if (in_array($answer, ['yes', 'LA33-6'])) {
+                        $answer_code = 'LA33-6';
+                        $answer_display = 'Yes';
+                    } elseif (in_array($answer, ['no', 'LA32-8'])) {
+                        $answer_code = 'LA32-8';
+                        $answer_display = 'No';
+                    } elseif (in_array($answer, ['declined', 'LA30122-8'])) {
+                        $answer_code = 'LA30122-8';
+                        $answer_display = 'Declined to answer';
+                    }
+                    if ($answer_code) {
+                        $xml .= '<question>' .
+                            '<code>' . xmlEscape($info['code']) . '</code>' .
+                            '<code_system>2.16.840.1.113883.6.1</code_system>' .
+                            '<code_system_name>LOINC</code_system_name>' .
+                            '<display>' . xmlEscape($info['display']) . '</display>' .
+                            '<answer_code>' . xmlEscape($answer_code) . '</answer_code>' .
+                            '<answer_display>' . xmlEscape($answer_display) . '</answer_display>' .
+                            '</question>';
+                    }
+                }
+            }
+            $xml .= '</disability_questions>';
+            // Add notes if present
+            if (!empty($row['disability_status_notes'])) {
+                $xml .= '<disability_notes>' . xmlEscape($row['disability_status_notes']) . '</disability_notes>';
+            }
+            $xml .= '</disability_assessment>';
+        }
+        $xml .= '</sdoh_data>';
+
+        return $xml;
+    }
+
+    public function getPatientOccupation($pid)
+    {
+        $sql = "SELECT
+            p.pid,
+            p.fname,
+            p.lname,
+            p.last_updated,
+            p.occupation AS occupation_code,
+            occ.title     AS occupation_title,
+            occ.codes     AS occupation_codes,
+            p.industry    AS industry_code,
+            ind.title     AS industry_title,
+            ind.codes     AS industry_codes
+        FROM patient_data p
+        LEFT JOIN list_options occ ON occ.list_id = 'OccupationODH' AND occ.option_id = p.occupation
+        LEFT JOIN list_options ind ON ind.list_id = 'IndustryODH' AND ind.option_id = p.industry
+        WHERE p.pid = ?";
+        $row = sqlQuery($sql, [$pid]) ?: [];
+        if (empty($row)) {
+            return '';
+        }
+        $start_date = $industry_start_date = !empty($row['last_updated'] ?? null) ? date("Ymd", strtotime($row['last_updated'])) : date("Ymd");
+        $occupation_code = ($row['occupation_codes'] ?? '');
+        $occupation_title = ($row['occupation_title'] ?? '');
+        $industry_code = ($row['industry_codes'] ?? '');
+        $industry_title = ($row['industry_title'] ?? '');
+        $xml = '<occupation>' .
+            '<start_date>' . xmlEscape($start_date) . '</start_date>' .
+            '<industry_start_date>' . xmlEscape($industry_start_date) . '</industry_start_date>' .
+            '<occupation_code>' . xmlEscape($occupation_code) . '</occupation_code>' .
+            '<occupation_title>' . xmlEscape($occupation_title) . '</occupation_title>' .
+            '<industry_code>' . xmlEscape($industry_code) . '</industry_code>' .
+            '<industry_title>' . xmlEscape($industry_title) . '</industry_title>' .
+            '</occupation>';
+        return $xml;
+    }
+
+    public function getRelatedPersons($foreign_id)
+    {
+        $contactService = new ContactService();
+        $relationService = new ContactRelationService();
+        $personService = new PersonService();
+        $addressService = new ContactAddressService();
+        $telecomService = new ContactTelecomService();
+
+        $relatedPersons = [];
+
+        try {
+            // Get the contact for this entity
+            /**
+             * @global string $foreign_table The foreign table name (e.g., 'patient_data')
+             * @global int    $foreign_id    The foreign ID (e.g., patient ID)
+             */
+            $foreign_table = 'patient_data';
+            $foreign_id ??= 0;
+            $ownerContact = $contactService->getForEntity($foreign_table, $foreign_id);
+            if ($ownerContact) {
+                $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
+                $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
+                // For each relationship, get addresses and telecoms
+                foreach ($relatedPersonRecords as $record) {
+                    // Get target person's contact record
+                    $targetId = $record['person_id'];
+                    $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
+                    $targetContactId = $targetContact->get_id();
+
+                    $relatedPerson = [
+                        'owner_contact_relation_id' => $record['owner_contact_relation_id'],
+                        'owner_contact_id' => $record['owner_contact_id'],
+                        'target_table' => 'person',
+                        'target_id' => $targetId,
+                        'target_contact_id' => $targetContactId,
+                        'first_name' => $record['first_name'] ?? '',
+                        'last_name' => $record['last_name'] ?? '',
+                        'gender' => $record['gender'] ?? '',
+                        'birth_date' => $record['birth_date'] ?? '',
+                        'relationship' => $record['relationship'] ?? '',
+                        'role' => $record['role'] ?? '',
+                        'contact_priority' => $record['contact_priority'] ?? 1,
+                        'is_primary_contact' => $record['is_primary_contact'] ?? false,
+                        'is_emergency_contact' => $record['is_emergency_contact'] ?? false,
+                        'can_make_medical_decisions' => $record['can_make_medical_decisions'] ?? false,
+                        'can_receive_medical_info' => $record['can_receive_medical_info'] ?? false,
+                        'active' => $record['active'] ?? true,
+                        'start_date' => $record['start_date'] ?? '',
+                        'end_date' => $record['end_date'] ?? '',
+                        'notes' => $record['notes'] ?? '',
+                        'addresses' => [],
+                        'telecoms' => []
+                    ];
+                    if ($record['person_id']) {
+                        // Get addresses for this person's contact
+                        $addressRecords = $addressService->getAddressesForContact($targetContactId, true);
+                        foreach ($addressRecords as $addr) {
+                            $relatedPerson['addresses'][] = [
+                                'contact_address_id' => $addr['contact_address_id'] ?? $addr['id'],
+                                'use' => $addr['use'] ?? 'home',
+                                'type' => $addr['type'] ?? 'postal',
+                                'line1' => $addr['line1'] ?? '',
+                                'line2' => $addr['line2'] ?? '',
+                                'city' => $addr['city'] ?? '',
+                                'state' => $addr['state'] ?? '',
+                                'zip' => $addr['zip'] ?? '',
+                                'country' => $addr['country'] ?? '',
+                                'district' => $addr['district'] ?? '',
+                                'status' => $addr['status'] ?? 'A',
+                                'is_primary' => $addr['is_primary'] ?? 'N'
+                            ];
+                        }
+                        // Get telecoms for this person's contact
+                        $telecomRecords = $telecomService->getTelecomsForContact($targetContactId, true);
+                        foreach ($telecomRecords as $telecom) {
+                            $relatedPerson['telecoms'][] = [
+                                'contact_id' => $targetContactId,
+                                'contact_telecom_id' => $telecom['contact_telecom_id'] ?? $telecom['id'],
+                                'system' => $telecom['system'] ?? 'phone',
+                                'use' => $telecom['use'] ?? 'home',
+                                'value' => $telecom['value'] ?? '',
+                                'rank' => $telecom['rank'] ?? 1,
+                                'status' => $telecom['status'] ?? 'A',
+                                'is_primary' => $telecom['is_primary'] ?? 'N',
+                                'notes' => $telecom['notes'] ?? ''
+                            ];
+                        }
+                    }
+                    $relatedPersons[] = $relatedPerson;
+                }
+            }
+        } catch (\Throwable) {
+            error_log("fail related person");
+            return '';
+        }
+        return $relatedPersons;
+    }
+
     /* Fetch Patient data from EMR
     * @param    $pid
     * @param    $encounter
     * @return   $patient_data   Patient Data in XML format
     */
-    /**
-     * @param $pid
-     * @param $encounter
-     * @return string
-     */
     public function getPatientdata($pid, $encounter): string
     {
         // Ensure we have UUIDs for patient identifier in document.
         UuidRegistry::createMissingUuidsForTables(['patient_data']);
+
+        $patient_data = '';
+
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion
-            , l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
-            ,patient_data.updated_by AS provenance_updated_by
-            from patient_data
-            left join list_options as l1 on l1.list_id=? AND l1.option_id=race
-            left join list_options as l2 on l2.list_id=? AND l2.option_id=ethnicity
-            left join list_options AS l3 ON l3.list_id=? AND l3.option_id=religion
-            left join list_options AS l4 ON l4.list_id=? AND l4.option_id=language
-                        where pid=?";
-        $appTable = new ApplicationTable();
-        $row = $appTable->zQuery($query, array('race', 'ethnicity', 'religious_affiliation', 'language', $pid));
-        // Render previous names
+        , l3.notes as religion_code, l4.notes as language_code, l4.title as language_title, l5.title as tribal_title, l5.notes as tribal_code
+        ,patient_data.updated_by AS provenance_updated_by
+        from patient_data
+        left join list_options as l1 on l1.list_id=? AND l1.option_id=race
+        left join list_options as l2 on l2.list_id=? AND l2.option_id=ethnicity
+        left join list_options AS l3 ON l3.list_id=? AND l3.option_id=religion
+        left join list_options AS l4 ON l4.list_id=? AND l4.option_id=language
+        left join list_options AS l5 ON l5.list_id=? AND l5.option_id=tribal_affiliations
+        where pid=?";
+
+        $row = QueryUtils::fetchRecords($query, ['race', 'ethnicity', 'religious_affiliation', 'language', 'tribal_affiliations', $pid]);
+// --- Related persons using new Contact/Person/Relationship services ---
+// Call your existing getRelatedPersons method
+        $relatedPersons = $this->getRelatedPersons($pid);
+
+// Build <related_persons> XML
+        $related_persons_xml = "<related_persons>";
+
+        $index = 1;
+        foreach ($relatedPersons as $relatedPerson) {
+            // Build the related person data array matching your old format
+            $rp = [
+                'fname' => $relatedPerson['first_name'] ?? '',
+                'lname' => $relatedPerson['last_name'] ?? '',
+                'relationship' => $relatedPerson['relationship'] ?? '',
+                'sex' => $relatedPerson['gender'] ?? '',
+                'street' => '',
+                'city' => '',
+                'state' => '',
+                'postalCode' => '',
+                'country' => '',
+                'phone' => '',
+                'work_phone' => '',
+                'email' => '',
+            ];
+
+            // Get primary address if available
+            if (!empty($relatedPerson['addresses'])) {
+                foreach ($relatedPerson['addresses'] as $addr) {
+                    // Use primary address or first address
+                    if ($addr['is_primary'] === 'Y' || empty($rp['street'])) {
+                        $street = $addr['line1'] ?? '';
+                        if (!empty($addr['line2'])) {
+                            $street .= ' ' . $addr['line2'];
+                        }
+                        $rp['street'] = $street;
+                        $rp['city'] = $addr['city'] ?? '';
+                        $rp['state'] = $addr['state'] ?? '';
+                        $rp['postalCode'] = $addr['zip'] ?? '';
+                        $rp['country'] = $addr['country'] ?? '';
+
+                        if ($addr['is_primary'] === 'Y') {
+                            break; // Found primary, stop looking
+                        }
+                    }
+                }
+            }
+
+            // Get phone numbers if available
+            if (!empty($relatedPerson['telecoms'])) {
+                foreach ($relatedPerson['telecoms'] as $telecom) {
+                    if ($telecom['system'] === 'phone') {
+                        if ($telecom['use'] === 'home' && empty($rp['phone'])) {
+                            $rp['phone'] = $telecom['value'] ?? '';
+                        } elseif ($telecom['use'] === 'work' && empty($rp['work_phone'])) {
+                            $rp['work_phone'] = $telecom['value'] ?? '';
+                        }
+                    } elseif ($telecom['system'] === 'email' && empty($rp['email'])) {
+                        $rp['email'] = $telecom['value'] ?? '';
+                    }
+                }
+            }
+
+            // Skip if no meaningful data
+            $hasData = false;
+            foreach ($rp as $v) {
+                if ((string)$v !== '') {
+                    $hasData = true;
+                    break;
+                }
+            }
+            if (!$hasData) {
+                continue;
+            }
+
+            // Get UUID for the person - need to fetch from person record
+            $person_uuid = '2.16.840.1.113883.4.6'; // Default OID
+            if (!empty($relatedPerson['target_id'])) {
+                // If you need the UUID, you'll need to fetch it from the person table
+                $personService = new PersonService();
+                $personResult = $personService->get($relatedPerson['target_id']);
+                if ($personResult->hasData()) {
+                    $personData = $personResult->getData()[0];
+                    if (!empty($personData['uuid'])) {
+                        $person_uuid = UuidRegistry::uuidToString($personData['uuid']);
+                    }
+                }
+            }
+
+            $sex_code = $rp['sex'] !== '' ? strtoupper(substr((string)$rp['sex'], 0, 1)) : '';
+
+            $related_persons_xml .= "
+<participant index=\"{$index}\">
+    <type>" . xmlEscape("IND") . "</type>
+    <organization_id>" . xmlEscape($person_uuid) . "</organization_id>
+    <organization_ext>" . xmlEscape($index) . "</organization_ext>
+    <class_code>" . xmlEscape("PRS") . "</class_code>
+    <fname>" . xmlEscape($rp['fname']) . "</fname>
+    <lname>" . xmlEscape($rp['lname']) . "</lname>
+    <code>" . xmlEscape($rp['relationship']) . "</code>
+    <sex>" . xmlEscape($rp['sex']) . "</sex>
+    <sex_code>" . xmlEscape($sex_code) . "</sex_code>
+    <street>" . xmlEscape($rp['street']) . "</street>
+    <city>" . xmlEscape($rp['city']) . "</city>
+    <state>" . xmlEscape($rp['state']) . "</state>
+    <postalCode>" . xmlEscape($rp['postalCode']) . "</postalCode>
+    <country>" . xmlEscape($rp['country']) . "</country>
+    <phone>" . xmlEscape($rp['phone']) . "</phone>
+    <work_phone>" . xmlEscape($rp['work_phone']) . "</work_phone>
+    <email>" . xmlEscape($rp['email']) . "</email>
+</participant>";
+            $index++;
+            if ($index > 5) {
+                break;
+            }
+        }
+        $related_persons_xml .= "</related_persons>"; // Close related person xml
+        // --- Previous names ---
         $names = $this->getPreviousNames($pid);
         $previous_names = "<previous_names>";
         foreach ($names as $n) {
@@ -246,11 +638,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <lname>" . xmlEscape($n['previous_name_last']) . "</lname>
             <suffix>" . xmlEscape($n['previous_name_suffix']) . "</suffix>
             <end_date>" . xmlEscape($end) . "</end_date>
-            ";
+        ";
         }
         $previous_names .= "</previous_names>";
 
-        // Render previous addresses
+        // --- Previous addresses ---
         $addresses = $this->getPreviousAddresses($pid);
         $previous_addresses = "<previous_addresses>";
         foreach ($addresses as $a) {
@@ -266,19 +658,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <country>" . xmlEscape($a['country'] ?? '') . "</country>
             <period_start>" . xmlEscape($start) . "</period_start>
             <period_end>" . xmlEscape($end) . "</period_end>
-            </address>
-            ";
+        </address>";
         }
         $previous_addresses .= "</previous_addresses>";
 
+        // Build main patient/guardian XML
         foreach ($row as $result) {
             $pid_uuid = UuidRegistry::uuidToString($result['uuid']);
             $race = $this->resolveRace($result['race']);
             $provenanceRecord = [
-                'author_id' => $result['provenance_updated_by']
-                ,'time' => $result['date']
+                'author_id' => $result['provenance_updated_by'],
+                'time' => $result['date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
+
             $patient_data = "<patient>" . $provenanceXml . "
             <id>" . xmlEscape($result['pid']) . "</id>
             <uuid>" . xmlEscape($pid_uuid) . "</uuid>
@@ -303,11 +696,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <ssn>" . xmlEscape($result['ss'] ?: '') . "</ssn>
             <dob>" . xmlEscape(str_replace('-', '', $result['DOB'])) . "</dob>
             <gender>" . xmlEscape($result['sex']) . "</gender>
-            <gender_code>" . xmlEscape(strtoupper(substr($result['sex'], 0, 1))) . "</gender_code>
+            <gender_code>" . xmlEscape(strtoupper(substr((string)$result['sex'], 0, 1))) . "</gender_code>
+            <sex_observation>" . xmlEscape($result['sex_identified']) . "</sex_observation>
             <status>" . xmlEscape($result['status'] ?: "") . "</status>
-            <status_code>" . xmlEscape($result['status'] ? strtoupper(substr($result['status'], 0, 1)) : 0) . "</status_code>
+            <status_code>" . xmlEscape($result['status'] ? strtoupper(substr((string)$result['status'], 0, 1)) : 0) . "</status_code>
             <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
-            <phone_mobile>" . xmlEscape(($result['phone_cell'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <phone_mobile>" . xmlEscape(($result['phone_cell'] ?: '')) . "</phone_mobile>
             <phone_work>" . xmlEscape(($result['phone_biz'] ?: '')) . "</phone_work>
             <phone_emergency>" . xmlEscape(($result['phone_contact'] ?: '')) . "</phone_emergency>
             <email>" . xmlEscape(($result['email'] ?: '')) . "</email>
@@ -321,11 +715,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <ethnicity_code>" . xmlEscape($result['ethnicity_code']) . "</ethnicity_code>
             <language>" . xmlEscape(Listener::z_xlt($result['language_title'])) . "</language>
             <language_code>" . xmlEscape($result['language_code']) . "</language_code>
-            </patient>
+            <tribal_code>" . xmlEscape($result['tribal_code']) . "</tribal_code>
+            <tribal_title>" . xmlEscape($result['tribal_title']) . "</tribal_title>
+            <tribal>" . xmlEscape($result['tribal_affiliations']) . "</tribal>
+            " . $related_persons_xml . "
+        </patient>
         <guardian>
             <fname>" . xmlEscape($result['fname'] ?? '') . "</fname>
             <lname>" . xmlEscape($result['lname'] ?? '') . "</lname>
-            <code>" . xmlEscape($result['code'] ?? '') . "</code>
+            <code>" . xmlEscape($result['guardianrelationship']) . "</code>
             <relation>" . xmlEscape($result['guardianrelationship']) . "</relation>
             <display_name>" . xmlEscape($result['guardiansname']) . "</display_name>
             <street>" . xmlEscape($result['guardianaddress']) . "</street>
@@ -337,7 +735,90 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         </guardian>";
         }
 
-        return $patient_data ?? '';
+        $occupation = $this->getPatientOccupation($pid);
+        $sdoh = $this->getSdohData($pid, $encounter);
+        return $patient_data . $sdoh . $occupation;
+    }
+
+    /**
+     * Get advance directive documents and observations for CCDA
+     *
+     * @param     $pid
+     * @param int $encounter
+     * @return string
+     */
+    public function getAdvanceDirectives($pid, $encounter = null): string
+    {
+        $advanceDirectiveService = new PatientAdvanceDirectiveService();
+        // Get all FHIR resources for a patient test for FHIR bundle generation
+        /*
+         $bundle = $advanceDirectiveService->getFhirBundle($pid);
+        $docRefs = $advanceDirectiveService->getFhirDocumentReferences($pid);
+        $results = $advanceDirectiveService->searchFhirResources([
+            'patient' => 'Patient/' . $pid,
+            'type' => '75320-2' // Living Will
+        ]);*/
+        //$validation = $advanceDirectiveService->validateFhirResource($resource, 'DocumentReference');
+
+        $data = $advanceDirectiveService->getPatientAdvanceDirectives($pid);
+
+        return $this->convertAdvanceDirectivesToXml($data, $pid);
+    }
+
+    /**
+     * Convert advance directive data to XML format for CCDA
+     *
+     * @param array $data
+     * @param int   $pid
+     * @return string
+     */
+    private function convertAdvanceDirectivesToXml($data, $pid): string
+    {
+        $advance_directives = "<advance_directives>";
+
+        $site_id = $this->session->get('site_id');
+        // Combine documents and observations into organizer format
+        foreach ($data['documents'] as $document) {
+            $provenanceXml = $this->getAuthorXmlForRecord($document['provenance'], $pid, null);
+
+            // Find corresponding observation
+            $observation = null;
+            foreach ($data['observations'] as $obs) {
+                if ($obs['document_id'] == $document['id']) {
+                    $observation = $obs;
+                    break;
+                }
+            }
+
+            $advance_directives .= "<directive>" . $provenanceXml . "
+            <id>" . xmlEscape($document['id']) . "</id>
+            <uuid>" . xmlEscape($document['uuid']) . "</uuid>
+            <extension>" . xmlEscape(base64_encode($site_id . $document['id'])) . "</extension>
+            <sha_extension>" . xmlEscape($this->formatUid($site_id . $document['id'] . $document['type'])) . "</sha_extension>
+            <type>" . xmlEscape($document['type']) . "</type>
+            <status>" . xmlEscape($document['status']) . "</status>
+            <effective_date>" . xmlEscape($document['effective_date']) . "</effective_date>
+            <location>" . xmlEscape($document['location']) . "</location>
+            <document_reference>" . xmlEscape($document['uuid']) . "</document_reference>";
+
+            if ($observation) {
+                $advance_directives .= "
+            <observation>
+                <code>" . xmlEscape($observation['code']) . "</code>
+                <code_system>" . xmlEscape($observation['code_system']) . "</code_system>
+                <display>" . xmlEscape($observation['code_display']) . "</display>
+                <value_code>" . xmlEscape($observation['value_code']) . "</value_code>
+                <value_code_system>" . xmlEscape($observation['value_system']) . "</value_code_system>
+                <value_display>" . xmlEscape($observation['value_display']) . "</value_display>
+                <effective_date>" . xmlEscape($observation['effective_date']) . "</effective_date>
+            </observation>";
+            }
+
+            $advance_directives .= "</directive>";
+        }
+
+        $advance_directives .= "</advance_directives>";
+        return $advance_directives;
     }
 
     /**
@@ -350,8 +831,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $provider_details = '';
         if (!$encounter) {
             $query_enc = "SELECT encounter FROM form_encounter WHERE pid=? ORDER BY date DESC LIMIT 1";
-            $appTable = new ApplicationTable();
-            $res_enc = $appTable->zQuery($query_enc, array($pid));
+            $res_enc = QueryUtils::fetchRecords($query_enc, [$pid]);
             foreach ($res_enc as $row_enc) {
                 $encounter = $row_enc['encounter'];
             }
@@ -361,15 +841,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         JOIN users AS u ON u.id =  fe.provider_id
                         JOIN facility AS f ON f.id = u.facility_id
                         WHERE fe.pid = ? AND fe.encounter = ?";
-        $appTable = new ApplicationTable();
-        $row = $appTable->zQuery($query, array($pid, $encounter));
+        $row = QueryUtils::fetchRecords($query, [$pid, $encounter]);
         foreach ($row as $result) {
             $provider_details = "<encounter_provider>
                 <facility_id>" . xmlEscape($result['id']) . "</facility_id>
                 <facility_npi>" . xmlEscape($result['facility_npi']) . "</facility_npi>
                 <facility_oid>" . xmlEscape($result['oid']) . "</facility_oid>
                 <facility_name>" . xmlEscape($result['name']) . "</facility_name>
-                <facility_phone>" . xmlEscape(($result['phone'] ? $result['phone'] : 0)) . "</facility_phone>
+                <facility_phone>" . xmlEscape(($result['phone'] ?: 0)) . "</facility_phone>
                 <facility_fax>" . xmlEscape($result['fax']) . "</facility_fax>
                 <facility_street>" . xmlEscape($result['street']) . "</facility_street>
                 <facility_city>" . xmlEscape($result['city']) . "</facility_city>
@@ -427,7 +906,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         return [
             'author' => $details
-            ,'time' => $time
+            , 'time' => $time
         ];
     }
 
@@ -440,7 +919,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter)
     {
         $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
-
+        if (empty($provenanceRecord)) {
+            return '';
+        }
         $time = $provenanceRecord['time'];
         $details = $provenanceRecord['author'];
         $uuid = UuidRegistry::uuidToString($details['uuid']);
@@ -470,9 +951,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <physician_type_system>" . xmlEscape($type_system) . "</physician_type_system>
         <physician_type_system_name>" . xmlEscape($type_system_name) . "</physician_type_system_name>
         <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
-        <facility_oid>" . xmlEscape($details['facility_oid']) . "</facility_oid>
-        <facility_npi>" . xmlEscape($details['facility_npi']) . "</facility_npi>
-        <facility_name>" . xmlEscape($details['facility_name']) . "</facility_name>
+        <facility_oid>" . xmlEscape($details['facility_oid'] ?? '') . "</facility_oid>
+        <facility_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</facility_npi>
+        <facility_name>" . xmlEscape($details['facility_name'] ?? '') . "</facility_name>
         <city>" . xmlEscape($details['city'] ?? '') . "</city>
         <state>" . xmlEscape($details['state'] ?? '') . "</state>
         <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
@@ -494,9 +975,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     private function getDocumentAuthorRecord($pid, $encounter)
     {
         $details = $this->getDetails('hie_author_id');
-        if (!$details && !empty($_SESSION['authUserID'])) {
+        $authUserID = $this->session->get('authUserID');
+        if (!$details && !empty($authUserID)) {
             // function expects an int
-            $details = $this->getDetails(intval($_SESSION['authUserID']));
+            $details = $this->getDetails(intval($authUserID));
         }
         if (!$details) {
             $providerId = $this->getProviderId($pid);
@@ -509,7 +991,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         if (!$details) {
             // at this point we really can't do anything as we can't provide an author piece
-            (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable: Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
             return null;
         }
 
@@ -675,8 +1157,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $providerId = $this->getProviderId($pid);
             if (empty($providerId)) {
                 return $participant;
-            } else {
-                $providerId = $providerId;
             }
             $refer_date = $records[0]['refer_date'] ?? date("Y-m-d");
         } else {
@@ -699,18 +1179,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $participant = "<participant>
             <date_time>" . xmlEscape($referralDate) . "</date_time>
-            <fname>" . xmlEscape($details['fname']) . "</fname>
-            <lname>" . xmlEscape($details['lname']) . "</lname>
-            <organization>" . xmlEscape($details['organization']) . "</organization>
+            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
-            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
-            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
+            <organization_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</organization_npi>
+            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy'] ?? '') . "</organization_taxonomy>
             <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
-            <street>" . xmlEscape($details['street']) . "</street>
-            <city>" . xmlEscape($details['city']) . "</city>
-            <state>" . xmlEscape($details['state']) . "</state>
-            <postalCode>" . xmlEscape($details['zip']) . "</postalCode>
-            <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+            <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
             <address_use>WP</address_use>
             <type>REFB</type>
         </participant>";
@@ -733,11 +1213,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
             } else {
                 $organization_uuid = ''; // leave it an empty string as we don't even know if we have a connected organization.
-                (new SystemLogger())->errorLogCaller(
-                    "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
+                ServiceContainer::getLogger()->error(
+                    "EncounterccdadispatchTable: Failed to find facility uuid for hie_office_contact {fname} {lname}, uuid is either missing or office contact has no connected organization",
                     ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
-                    ,
-                    'npi' => $details['facility_npi']]
+                        ,
+                        'npi' => $details['facility_npi']]
                 );
             }
         }
@@ -745,18 +1225,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $time = $this->getAuthorDate($pid, $encounter);
         $officeContact = "<participant>
             <date_time>" . xmlEscape($time) . "</date_time>
-            <fname>" . xmlEscape($details['fname']) . "</fname>
-            <lname>" . xmlEscape($details['lname']) . "</lname>
-            <organization>" . xmlEscape($details['organization']) . "</organization>
+            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
-            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
-            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
+            <organization_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</organization_npi>
+            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy'] ?? '') . "</organization_taxonomy>
             <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
-            <street>" . xmlEscape($details['street']) . "</street>
-            <city>" . xmlEscape($details['city']) . "</city>
-            <state>" . xmlEscape($details['state']) . "</state>
-            <postalCode>" . xmlEscape($details['zip']) . "</postalCode>
-            <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+            <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
             <address_use>WP</address_use>
             <type>CALLBCK</type>
         </participant>";
@@ -798,10 +1278,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getInformationRecipient($pid, $encounter, $recipients, $params)
     {
         $information_recipient = '';
-        $field_name = array();
+        $field_name = [];
         $details = $this->getDetails('hie_recipient_id');
-
-        $appTable = new ApplicationTable();
 
         if ($recipients == 'hie') {
             $details['fname'] = 'MyHealth';
@@ -815,15 +1293,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $field_name[] = $params;
         } else {
             if (!$params) {
-                $params = $_SESSION['authUserID'];
+                $params = $this->session->get('authUserID');
             }
             $query = "select fname, lname, organization, street, city, state, zip, phonew1, facility from users where id = ?";
             $field_name[] = $params;
         }
 
         if ($recipients != 'hie') {
-            $res = $appTable->zQuery($query, $field_name);
-            $result = $res->current();
+            $res = QueryUtils::fetchRecords($query, $field_name);
+            $result = $res[0] ?? [];
             if (empty($result['organization'])) {
                 $result['organization'] = $result['facility'];
             }
@@ -838,14 +1316,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $information_recipient = "<information_recipient>
-        <fname>" . xmlEscape($details['fname']) . "</fname>
-        <lname>" . xmlEscape($details['lname']) . "</lname>
-        <organization>" . xmlEscape($details['organization']) . "</organization>
-        <street>" . xmlEscape($details['street']) . "</street>
-        <city>" . xmlEscape($details['city']) . "</city>
-        <state>" . xmlEscape($details['state']) . "</state>
-        <zip>" . xmlEscape($details['zip']) . "</zip>
-        <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+        <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+        <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+        <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
+        <street>" . xmlEscape($details['street'] ?? '') . "</street>
+        <city>" . xmlEscape($details['city'] ?? '') . "</city>
+        <state>" . xmlEscape($details['state'] ?? '') . "</state>
+        <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
+        <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
         </information_recipient>";
 
         return $information_recipient;
@@ -904,115 +1382,144 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $encounter
      * @return string
      */
-    public function getPrimaryCareProvider($pid, $encounter): string
+    public function getPatientCareTeam($pid, $encounter): string
     {
-        // primary from demographics
+        // Existing provenance / primary provider setup (unchanged)
         $getprovider = $this->getProviderId($pid);
-        // @TODO I don't like this much. Should add date UI in care team assignments.
         $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
-        $provider_since_date = !empty($getprovider_status['provider_since_date']) ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date'])) : date('Y-m-d H:i:sO');
-        $provenanceXml = ""; // if we can't get the provenance information we'll just have to leave it as empty
-        if (!empty($getprovider)) { // from patient_data
+        $provider_since_date = !empty($getprovider_status['provider_since_date'])
+            ? date('Y-m-d H:i:sO', strtotime((string)$getprovider_status['provider_since_date']))
+            : date('Y-m-d H:i:sO');
+
+        $provenanceXml = "";
+        if (!empty($getprovider)) {
             $details = $this->getUserDetails($getprovider);
-            $provenanceSql = "select updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
-            $provenanceRecord = [];
-            $appTable = new ApplicationTable();
-            $res = $appTable->zQuery($provenanceSql, array($pid));
+            $provenanceSql = "SELECT updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
+            $res = QueryUtils::fetchRecords($provenanceSql, [$pid]);
             foreach ($res as $row) {
                 $provenanceRecord = [
-                    'author_id' => $row['provenance_updated_by']
-                    ,'time' => $row['date_modified']
+                    'author_id' => $row['provenance_updated_by'],
+                    'time' => $row['date_modified']
                 ];
             }
-            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-        } else { // get from CCM setup
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord ?? [], $pid, $encounter);
+        } else {
+            // Fallback to CC settings if no assigned provider
             $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
             if (!empty($getprovider)) {
                 $details = $this->getUserDetails($getprovider);
                 $provenanceRecord = $this->getCarecoordinationProvenanceForField('hie_primary_care_provider_id');
                 $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             }
-            $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
         }
 
+        // ───────────────────────────────────────────────────────────────
+        // NEW: Load care team via CareTeamService instead of direct SQL
+        // ───────────────────────────────────────────────────────────────
+        $careTeamMembers = [];
+        $careTeamStatus = $getprovider_status['care_team_status'] ?? 'active';
 
+        try {
+            $service = new CareTeamService();
+            $teamData = $service->getCareTeamData((int)$pid) ?? [];
 
-
-        // Note for NPI: Many times a care team member may not have an NPI so instead of
-        // an NPI OID use facility/document unique OID with user table reference for extension.
-        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid) ?? '');
-        if (empty($getprovider)) {
-            // Last chance. Get the first care team member as primary.
-            if (!empty($get_care_team_provider[0])) {
-                $getprovider = $get_care_team_provider[0];
-                $details = $this->getUserDetails($getprovider);
+            if (!empty($teamData['members']) && is_array($teamData['members'])) {
+                $careTeamMembers = $teamData['members'];
             }
+            if (!empty($teamData['team_status'])) {
+                $careTeamStatus = (string)$teamData['team_status'];
+            }
+        } catch (\Throwable) {
+            // If service fails, we gracefully fall back to empty team (primary provider fallback below still works)
+            // You may want to log $e->getMessage() via OpenEMR Logger here.
         }
-        if (!empty($details)) {
-            $primary_care_provider = "
-        <primary_care_provider>
-          <provider>" . $provenanceXml . "
-            <prefix>" . xmlEscape($details['title'] ?? '') . "</prefix>
-            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
-            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
-            <speciality>" . xmlEscape($details['specialty'] ?? '') . "</speciality>
-            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
-            <telecom>" . xmlEscape((($details['phonew1'] ?? '') ? $details['phonew1'] : 0)) . "</telecom>
-            <street>" . xmlEscape($details['street'] ?? '') . "</street>
-            <city>" . xmlEscape($details['city'] ?? '') . "</city>
-            <state>" . xmlEscape($details['state'] ?? '') . "</state>
-            <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
-            <table_id>" . xmlEscape("provider-" . $getprovider ?? '') . "</table_id>
-            <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
-            <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
-            <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
-            <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
-            <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
-            <provider_since>" . xmlEscape($provider_since_date ?: null) . "</provider_since>
-          </provider>
-        </primary_care_provider>";
+
+        $team_count = $teamData['member_count'] ?? 0;
+        if (empty($team_count)) {
+            $careTeamStatus = 'inactive';
+        }
+        // Primary Care Provider fallback (unchanged)
+        $primary_care_provider = '';
+        if (!empty($details) && $team_count === 0) {
+            $primary_care_provider =
+                " <primary_care_provider>
+                <provider>" . $provenanceXml . "
+                    <prefix>" . xmlEscape($details['title'] ?? '') . "</prefix>
+                    <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+                    <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+                    <speciality>" . xmlEscape($details['specialty'] ?? '') . "</speciality>
+                    <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
+                    <telecom>" . xmlEscape($details['phonew1'] ?? '') . "</telecom>
+                    <street>" . xmlEscape($details['street'] ?? '') . "</street>
+                    <city>" . xmlEscape($details['city'] ?? '') . "</city>
+                    <state>" . xmlEscape($details['state'] ?? '') . "</state>
+                    <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
+                    <table_id>" . xmlEscape("provider-" . $getprovider) . "</table_id>
+                    <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
+                    <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
+                    <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
+                    <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
+                    <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
+                    <provider_since>" . xmlEscape($provider_since_date) . "</provider_since>
+                    <role_code>primary</role_code>
+                    <role_display>Primary Care Provider</role_display>
+                </provider>
+            </primary_care_provider>";
         } else {
-            $primary_care_provider = '';
+            $primary_care_provider = '<primary_care_provider></primary_care_provider>';
         }
 
-        $care_team_provider = "<care_team>" . $provenanceXml
-            . "<is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
-        foreach ($get_care_team_provider as $team_member) {
-            if ((int)$getprovider === (int)$team_member) {
-                // primary should be a part of care team but just in case
-                // I've kept primary separate. So either way, primary gets included.
-                // in this case, we don't want to duplicate the provider.
+        // Build care team XML from the service-provided members
+        // (keeps your provenance and active flag handling)
+        $care_team_provider = "<care_team>" . $provenanceXml .
+            "<is_active>" . xmlEscape($careTeamStatus ?: 'active') . "</is_active>";
+
+        foreach ($careTeamMembers as $row) {
+            // Service should provide user_id; we still resolve details from users table for addresses, etc.
+            $user_id = (int)($row['user_id'] ?? 0);
+            if ($user_id <= 0) {
                 continue;
             }
-            $details2 = $this->getUserDetails($team_member);
-            if (empty($details2)) {
+
+            $ud = $this->getUserDetails($user_id);
+            if (empty($ud)) {
                 continue;
             }
-            $care_team_provider .= "<provider>
-            <prefix>" . xmlEscape($details2['title']) . "</prefix>
-            <fname>" . xmlEscape($details2['fname']) . "</fname>
-            <lname>" . xmlEscape($details2['lname']) . "</lname>
-            <speciality>" . xmlEscape($details2['specialty']) . "</speciality>
-            <organization>" . xmlEscape($details2['organization']) . "</organization>
-            <telecom>" . xmlEscape(($details2['phonew1'] ?: '')) . "</telecom>
-            <street>" . xmlEscape($details2['street'] ?? '') . "</street>
-            <city>" . xmlEscape($details2['city'] ?? '') . "</city>
-            <state>" . xmlEscape($details2['state'] ?? '') . "</state>
-            <zip>" . xmlEscape($details2['zip'] ?? '') . "</zip>
-            <table_id>" . xmlEscape("provider-" . $team_member) . "</table_id>
-            <npi>" . xmlEscape($details2['npi']) . "</npi>
-            <physician_type>" . xmlEscape($details2['physician_type']) . "</physician_type>
-            <physician_type_code>" . xmlEscape($details2['physician_type_code']) . "</physician_type_code>
-            <taxonomy>" . xmlEscape($details2['taxonomy']) . "</taxonomy>
-            <taxonomy_description>" . xmlEscape($details2['taxonomy_desc']) . "</taxonomy_description>
-            <provider_since>" . xmlEscape($provider_since_date) . "</provider_since>
-          </provider>
-          ";
+
+            // Normalize role_code: strip "SNOMED-CT:" prefix if present to match prior behavior
+            $rawRoleCode = (string)($row['role'] ?? '');
+            $normRoleCode = preg_replace('/^SNOMED-CT:/i', '', $rawRoleCode);
+
+            $care_team_provider .=
+                " <provider>
+                <prefix>" . xmlEscape($ud['title'] ?? '') . "</prefix>
+                <fname>" . xmlEscape($ud['fname'] ?? '') . "</fname>
+                <lname>" . xmlEscape($ud['lname'] ?? '') . "</lname>
+                <speciality>" . xmlEscape($ud['specialty'] ?? '') . "</speciality>
+                <organization>" . xmlEscape($ud['organization'] ?? '') . "</organization>
+                <telecom>" . xmlEscape($ud['phonew1'] ?? '') . "</telecom>
+                <street>" . xmlEscape($ud['street'] ?? '') . "</street>
+                <city>" . xmlEscape($ud['city'] ?? '') . "</city>
+                <state>" . xmlEscape($ud['state'] ?? '') . "</state>
+                <zip>" . xmlEscape($ud['zip'] ?? '') . "</zip>
+                <table_id>" . xmlEscape("provider-" . $user_id) . "</table_id>
+                <npi>" . xmlEscape($ud['npi'] ?? '') . "</npi>
+                <physician_type>" . xmlEscape($ud['physician_type'] ?? '') . "</physician_type>
+                <physician_type_code>" . xmlEscape($ud['physician_type_code'] ?? '') . "</physician_type_code>
+                <taxonomy>" . xmlEscape($ud['taxonomy'] ?? '') . "</taxonomy>
+                <taxonomy_description>" . xmlEscape($ud['taxonomy_desc'] ?? '') . "</taxonomy_description>
+                <provider_since>" . xmlEscape($row['provider_since'] ?? '') . "</provider_since>
+                <role_code>" . xmlEscape($normRoleCode ?? '') . "</role_code>
+                <role_display>" . xmlEscape($row['role_title'] ?? '') . "</role_display>
+                <status>" . xmlEscape($row['status'] ?? '') . "</status>
+            </provider>";
         }
-        $care_team_provider .= "</care_team>
-        ";
+
+        $care_team_provider .= "</care_team>";
+
         return $primary_care_provider . $care_team_provider;
     }
+
 
     /*
     #******************************************************#
@@ -1034,19 +1541,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         LEFT JOIN list_options AS lo ON lo.list_id = ? AND lo.option_id = l.severity_al
                         left join users author ON l.user = author.username
                         WHERE l.type = ? AND l.pid = ?";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array('severity_ccda', 'allergy', $pid));
+        $res = QueryUtils::fetchRecords($query, ['severity_ccda', 'allergy', $pid]);
 
+        $site_id = $this->session->get('site_id');
         $allergies = "<allergies>";
         foreach ($res as $row) {
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string)$row['code']);
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $code = $code_text = $code_rx = $code_text_rx = $code_snomed = $code_text_snomed = $reaction_text = $reaction_code = '';
                 $get_code_details = explode(':', $single_code);
 
@@ -1078,27 +1585,27 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 if ($row['reaction']) {
                     $reaction_text = (new CarecoordinationTable())->getListTitle($row['reaction'], 'reaction', '');
                     $reaction_code = (new CarecoordinationTable())->getCodes($row['reaction'], 'reaction');
-                    $reaction_code = explode(':', $reaction_code);
+                    $reaction_code = explode(':', (string)$reaction_code);
                 }
 
                 $allergies .= "<allergy>" . $provenanceXml . "
-                <id>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . $single_code)) . "</id>
+                <id>" . xmlEscape(base64_encode($site_id . $row['id'] . $single_code)) . "</id>
                 <sha_id>" . xmlEscape("36e3e930-7b14-11db-9fe1-0800200c9a66") . "</sha_id>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
-                <diagnosis_code>" . xmlEscape(($code ? $code : 0)) . "</diagnosis_code>
+                <diagnosis_code>" . xmlEscape(($code ?: 0)) . "</diagnosis_code>
                 <diagnosis>" . xmlEscape(($code_text ? Listener::z_xlt($code_text) : "")) . "</diagnosis>
-                <rxnorm_code>" . xmlEscape(($code_rx ? $code_rx : 0)) . "</rxnorm_code>
+                <rxnorm_code>" . xmlEscape(($code_rx ?: 0)) . "</rxnorm_code>
                 <rxnorm_code_text>" . xmlEscape(($code_text_rx ? Listener::z_xlt($code_text_rx) : "")) . "</rxnorm_code_text>
-                <snomed_code>" . xmlEscape(($code_snomed ? $code_snomed : 0)) . "</snomed_code>
+                <snomed_code>" . xmlEscape(($code_snomed ?: 0)) . "</snomed_code>
                 <snomed_code_text>" . xmlEscape(($code_text_snomed ? Listener::z_xlt($code_text_snomed) : "")) . "</snomed_code_text>
                 <status_table>" . ($status_table ? xmlEscape($status_table) : "") . "</status_table>
                 <status>" . ($active ? xmlEscape($active) : "") . "</status>
                 <allergy_status>" . ($allergy_status ? xmlEscape($allergy_status) : "") . "</allergy_status>
                 <status_code>" . ($status_code ? xmlEscape($status_code) : 0) . "</status_code>
                 <outcome>" . xmlEscape(($row['observation'] ? Listener::z_xlt($row['observation']) : "")) . "</outcome>
-                <outcome_code>" . xmlEscape(($row['observation_code'] ? $row['observation_code'] : 0)) . "</outcome_code>
-                <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', $row['begdate']) : "00000000") . "</startdate>
-                <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', $row['enddate']) : "00000000") . "</enddate>
+                <outcome_code>" . xmlEscape(($row['observation_code'] ?: 0)) . "</outcome_code>
+                <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', (string)$row['begdate']) : "00000000") . "</startdate>
+                <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', (string)$row['enddate']) : "00000000") . "</enddate>
                 <reaction_text>" . xmlEscape($reaction_text ? Listener::z_xlt($reaction_text) : "") . "</reaction_text>
                 <reaction_code>" . xmlEscape($reaction_code[1] ?? '') . "</reaction_code>
                 <reaction_code_type>" . xmlEscape(str_replace('-', ' ', $reaction_code[0] ?? '') ?: '') . "</reaction_code_type>
@@ -1132,9 +1639,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                        left join list_options as l4 on l4.option_id=`interval` AND l4.list_id = ?
                        left join users as u on u.id = l.provider_id
                        where l.patient_id = ? and l.active = 1";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array('drug_units', 'drug_form', 'drug_route', 'drug_interval', $pid));
+        $res = QueryUtils::fetchRecords($query, ['drug_units', 'drug_form', 'drug_route', 'drug_interval', $pid]);
 
+        $site_id = $this->session->get('site_id');
         $medications = "<medications>";
         foreach ($res as $row) {
             if (!$row['rxnorm_drugcode']) {
@@ -1142,7 +1649,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by'] ?? $row['provider_id']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $unit = $str = $active = '';
@@ -1153,21 +1660,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $str = $unit . " " . Listener::z_xlt($row['route']) . " " . $row['dosage'] . " " . Listener::z_xlt($row['form'] . " " . $row['interval']);
 
-            if ($row['active'] > 0) {
-                $active = 'active';
-            } else {
-                $active = 'completed';
-            }
+            $active = $row['active'] > 0 ? 'active' : 'completed';
 
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
-                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
-                ;
+                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
             }
 
             $medications .= "<medication>" . $provenanceXml . "
     <id>" . xmlEscape($row['id']) . "</id>
-    <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
+    <extension>" . xmlEscape(base64_encode($site_id . $row['id'])) . "</extension>
     <sha_extension>" . xmlEscape("cdbd33f0-6cde-11db-9fe1-0800200c9a66") . "</sha_extension>
     <performer_name>" . xmlEscape($row['fname'] . " " . $row['mname'] . " " . $row['lname']) . "</performer_name>
     <fname>" . xmlEscape($row['fname']) . "</fname>
@@ -1183,9 +1685,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <drug>" . xmlEscape($row['drug']) . "</drug>
     <direction>" . xmlEscape($str) . "</direction>
     <dosage>" . xmlEscape($row['dosage']) . "</dosage>
-    <size>" . xmlEscape(($row['size'] ? $row['size'] : 0)) . "</size>
+    <size>" . xmlEscape(($row['size'] ?: 0)) . "</size>
     <unit>" . xmlEscape(($row['unit'] ? preg_replace('/\s*/', '', Listener::z_xlt($row['unit'])) : '')) . "</unit>
-    <unit_code>" . xmlEscape(($row['unit_code'] ? $row['unit_code'] : 0)) . "</unit_code>
+    <unit_code>" . xmlEscape(($row['unit_code'] ?: 0)) . "</unit_code>
     <form>" . xmlEscape(Listener::z_xlt($row['form'])) . "</form>
     <form_code>" . xmlEscape(Listener::z_xlt($row['form_code'])) . "</form_code>
     <route_code>" . xmlEscape($row['route_code'] ?: $row['route']) . "</route_code>
@@ -1223,20 +1725,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ?"; // patched out /* AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)*/
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array('outcome', 'medical_problem', $pid, 1));
+        $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_problem', $pid, 1]);
 
+        $site_id = $this->session->get('site_id');
         $problem_lists .= '<problem_lists>';
         foreach ($res as $row) {
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string)$row['code']);
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
                 $code_type = ($code_type == 'SNOMED' || $code_type == 'SNOMED-CT') ? "SNOMED CT" : "ICD-10-CM";
@@ -1263,13 +1765,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $observation = $row['observation'];
-                $observation_code = explode(':', $row['observation_code']);
+                $observation_code = explode(':', (string)$row['observation_code']);
                 $observation_code = $observation_code[1] ?? null;
                 $problem_lists .= "<problem>" . $provenanceXml . "
                 <problem_id>" . ($code ? xmlEscape($row['id']) : '') . "</problem_id>
-                <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
+                <extension>" . xmlEscape(base64_encode($site_id . $row['id'])) . "</extension>
                 <sha_extension>" . xmlEscape($row['uuid']) . "</sha_extension>
-                <title>" . xmlEscape(trim($row['title'])) . "</title>
+                <title>" . xmlEscape(trim((string)$row['title'])) . "</title>
                 <code>" . ($code ? xmlEscape($code) : '') . "</code>
                 <code_type>" . ($code ? xmlEscape($code_type) : '') . "</code_type>
                 <code_text>" . xmlEscape(($code_text ?: '')) . "</code_text>
@@ -1302,8 +1804,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     private function getAmcCount($pid, $list_type, $current_count)
     {
         if (empty($current_count)) {
-            $no_list_count = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = ?", array($pid, $list_type));
-            $list_count = sqlQuery("select count(*) as cnt from lists where pid = ? and type = ?", array($pid, $list_type));
+            $no_list_count = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = ?", [$pid, $list_type]);
+            $list_count = sqlQuery("select count(*) as cnt from lists where pid = ? and type = ?", [$pid, $list_type]);
             $current_count = $no_list_count['cnt'] + $list_count['cnt'];
         }
         return $current_count;
@@ -1321,18 +1823,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ? AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array('outcome', 'medical_device', $pid, 1, $pid));
+        $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_device', $pid, 1, $pid]);
 
+        $site_id = $this->session->get('site_id');
         $medical_devices .= '<medical_devices>';
         foreach ($res as $row) {
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string)$row['code']);
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
                 $code_type = ($code_type == 'SNOMED' || $code_type == 'SNOMED-CT') ? "SNOMED CT" : "ICD-10-CM";
@@ -1358,12 +1860,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $observation = $row['observation'];
-                $observation_code = explode(':', $row['observation_code']);
+                $observation_code = explode(':', (string)$row['observation_code']);
                 $observation_code = $observation_code[1] ?? '';
 
                 $medical_devices .= "<device>" . $provenanceXml . "
-                <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
-                <sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['udi'])) . "</sha_extension>
+                <extension>" . xmlEscape(base64_encode($site_id . $row['id'])) . "</extension>
+                <sha_extension>" . xmlEscape($this->formatUid($site_id . $row['udi'])) . "</sha_extension>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
                 <code>" . ($code ? xmlEscape($code) : '') . "</code>
                 <code_type>" . ($code ? xmlEscape($code_type) : '') . "</code_type>
@@ -1405,20 +1907,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN users AS u ON u.id = im.administered_by_id
             LEFT JOIN facility AS f ON f.id = u.facility_id
             WHERE im.patient_id=? AND added_erroneously = 0";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($pid));
+        $res = QueryUtils::fetchRecords($query, [$pid]);
 
+        $site_id = $this->session->get('site_id');
         $immunizations .= '<immunizations>';
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['update_date']
+                , 'time' => $row['update_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
 
             $immunizations .= "
         <immunization>" . $provenanceXml . "
-        <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
+        <extension>" . xmlEscape(base64_encode($site_id . $row['id'])) . "</extension>
         <sha_extension>" . xmlEscape("e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92") . "</sha_extension>
         <id>" . xmlEscape($row['id']) . "</id>
         <cvx_code>" . xmlEscape($row['cvx_code']) . "</cvx_code>
@@ -1438,7 +1940,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <administered_formatted>" . xmlEscape($row['administered_formatted']) . "</administered_formatted>
         <note>" . xmlEscape($row['note']) . "</note>
         <route_of_administration>" . xmlEscape(Listener::z_xlt($row['route_of_administration'])) . "</route_of_administration>
-        <route_code>" . (xmlEscape($row['route_code']) ?: xmlEscape($row['route_code_notes']) ) . "</route_code>
+        <route_code>" . (xmlEscape($row['route_code']) ?: xmlEscape($row['route_code_notes'])) . "</route_code>
         <status>completed</status>
         <facility_name>" . xmlEscape($row['name']) . "</facility_name>
         <facility_phone>" . xmlEscape($row['phone']) . "</facility_phone>
@@ -1460,7 +1962,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
         $rows = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " b.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -1478,8 +1980,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     LEFT JOIN facility AS f ON f.id = fe.facility_id
     WHERE $wherCon b.pid = ? and b.activity = ?";
         array_push($sqlBindArray, $pid, 1);
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
         foreach ($res as $row) {
             $rows[] = $row;
         }
@@ -1518,31 +2019,37 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     LEFT JOIN facility AS f ON f.id = fe.facility_id
     WHERE $wherCon (po.procedure_order_type = 'order' OR po.procedure_order_type = 'procedure') AND po.patient_id = ? AND po.activity = ?";
         // same bindings
-        $res_proc = $appTable->zQuery($query_procedures, $sqlBindArray);
+        $res_proc = QueryUtils::fetchRecords($query_procedures, $sqlBindArray);
         foreach ($res_proc as $row) {
             $rows[] = $row;
         }
+
+        $site_id = $this->session->get('site_id');
         $procedure = '<procedures>';
         foreach ($rows as $row) {
-            $tmp = explode(':', $row['code']);
+            $tmp = explode(':', (string)$row['code']);
             if (count($tmp ?? []) === 2) {
                 $row['code_type'] = $tmp[0];
                 $row['code'] = $tmp[1];
+            }
+            $system_oid = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['system_oid'];
+            if ($row['code_type'] == 'SNOMED-PR') {
+                $row['code_type'] = 'SNOMED CT';
             }
             if (empty($row['code_text'] ?? null)) {
                 $row['code_text'] = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['code_text'] ?? null;
             }
             $provenanceRecord = [
-            'author_id' => $row['provenance_updated_by'], 'time' => $row['proc_date']
+                'author_id' => $row['provenance_updated_by'], 'time' => $row['proc_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $procedure .= "<procedure>" . $provenanceXml . "
-            <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . ($row['encounter'] ?? ''))) . "</extension>
+            <extension>" . xmlEscape(base64_encode($site_id . ($row['encounter'] ?? ''))) . "</extension>
             <sha_extension>" . xmlEscape("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d") . "</sha_extension>
             <description>" . xmlEscape($row['code_text']) . "</description>
             <code>" . xmlEscape($row['code']) . "</code>
             <code_type>" . xmlEscape($row['code_type']) . "</code_type>
-            <date>" . xmlEscape(substr($row['date'], 0, 10)) . "</date>
+            <date>" . xmlEscape(substr((string)$row['date'], 0, 10)) . "</date>
             <npi>" . xmlEscape($row['npi']) . "</npi>
             <fname>" . xmlEscape($row['fname']) . "</fname>
             <mname>" . xmlEscape($row['mname']) . "</mname>
@@ -1552,7 +2059,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <state>" . xmlEscape($row['state']) . "</state>
             <zip>" . xmlEscape($row['zip']) . "</zip>
             <work_phone>" . xmlEscape($row['phonew1']) . "</work_phone>
-            <facility_extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['fid'])) . "</facility_extension>
+            <facility_extension>" . xmlEscape(base64_encode($site_id . $row['fid'])) . "</facility_extension>
             <facility_sha_extension>" . xmlEscape("c2ee9ee9-ae31-4628-a919-fec1cbb58686") . "</facility_sha_extension>
             <facility_name>" . xmlEscape($row['name']) . "</facility_name>
             <facility_address>" . xmlEscape($row['fstreet']) . "</facility_address>
@@ -1561,7 +2068,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <facility_country>" . xmlEscape($row['country_code']) . "</facility_country>
             <facility_zip>" . xmlEscape($row['fzip']) . "</facility_zip>
             <facility_phone>" . xmlEscape($row['fphone']) . "</facility_phone>
-            <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr($row['proc_date'], 0, 10))) . "</procedure_date>
+            <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr((string)$row['proc_date'], 0, 10))) . "</procedure_date>
             </procedure>";
         }
         $procedure .= '</procedures>';
@@ -1577,7 +2084,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " po.encounter_id IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " po.encounter_id IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -1595,10 +2102,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         WHERE $wherCon po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         array_push($sqlBindArray, $pid);
 
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
-        $results_list = array();
+        $results_list = [];
         foreach ($res as $row) {
             if (empty($row['result_code']) && empty($row['abnormal_flag'])) {
                 continue;
@@ -1614,15 +2120,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
             $results_list[$row['test_code']]['procedure_code'] = $row['procedure_code'];
             $results_list[$row['test_code']]['procedure_name'] = $row['procedure_name'];
-            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_code'] = ($row['result_code'] ? $row['result_code'] : 0);
+            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_code'] = ($row['result_code'] ?: 0);
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_desc'] = $row['result_desc'];
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['units'] = $row['units'];
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['range'] = $row['range'];
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_value'] = $row['result_value'];
-            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
+            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_time'] = substr((string)preg_replace('/-/', '', (string)$row['result_time']), 0, 8);
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['abnormal_flag'] = $row['abnormal_flag'];
         }
 
+        $site_id = $this->session->get('site_id');
         $results = '<results>';
         foreach ($results_list as $row) {
             $order_status = $order_status_table = '';
@@ -1638,12 +2145,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
 
             $results .= '<result>' . $provenanceXml . '
-        <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row['test_code'])) . '</extension>
+        <extension>' . xmlEscape(base64_encode($site_id . $row['test_code'])) . '</extension>
         <root>' . xmlEscape("7d5a02b0-67a4-11db-bd13-0800200c9a66") . '</root>
         <date_ordered>' . xmlEscape($row['date_ordered']) . '</date_ordered>
         <date_ordered_table>' . xmlEscape($row['date_ordered_table']) . '</date_ordered_table>
@@ -1654,10 +2161,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <order_status>' . xmlEscape($order_status) . '</order_status>';
             foreach ($row['subtest'] as $row_1) {
                 $units = $row_1['units'] ?: '';
-                $highlow = preg_split("/[\s,-\--]+/", $row_1['range']);
+                $highlow = preg_split("/[\s,-\--]+/", (string)$row_1['range']);
                 $results .= '
             <subtest>
-            <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row_1['result_code'])) . '</extension>
+            <extension>' . xmlEscape(base64_encode($site_id . $row_1['result_code'])) . '</extension>
             <root>' . xmlEscape("7d5a02b0-67a4-11db-bd13-0800200c9a66") . '</root>
             <range>' . xmlEscape($row_1['range']) . '</range>
             <low>' . xmlEscape(trim($highlow[0])) . '</low>
@@ -1665,7 +2172,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <unit>' . xmlEscape($units) . '</unit>
             <result_code>' . xmlEscape($row_1['result_code']) . '</result_code>
             <result_desc>' . xmlEscape($row_1['result_desc']) . '</result_desc>
-            <result_value>' . xmlEscape(($row_1['result_value'] ? $row_1['result_value'] : 0)) . '</result_value>
+            <result_value>' . xmlEscape(($row_1['result_value'] ?: 0)) . '</result_value>
             <result_time>' . xmlEscape($row_1['result_time']) . '</result_time>
             <abnormal_flag>' . xmlEscape($row_1['abnormal_flag']) . '</abnormal_flag>
             </subtest>';
@@ -1693,7 +2200,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -1711,16 +2218,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         WHERE $wherCon fe.pid = ? ORDER BY fe.date";
         array_push($sqlBindArray, $pid);
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
         $primary_diagnosis = '';
+        $site_id = $this->session->get('site_id');
         $results = "<encounter_list>";
         foreach ($res as $row) {
             $tmp = explode(":", $row['physician_type_code'] ?? '');
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
-            $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(($row['date']))) : '';
+            $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(((string)$row['date']))) : '';
             $date_zone_end = !empty($date_zone) ? date("Y-m-d H:i:sO", strtotime('+30 minutes', strtotime($date_zone))) : '';
             $encounter_reason = '';
             if (empty($row['reason'])) {
@@ -1733,22 +2240,22 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 JOIN code_types AS ct ON ct.ct_key = ?
                 JOIN codes AS c ON c.code = b.code AND c.code_type = ct.ct_id
                 WHERE b.pid = ? AND b.code_type = ? AND activity = 1 AND b.encounter = ?";
-            $appTable_procedures = new ApplicationTable();
-            $res_procedures = $appTable_procedures->zQuery($query_procedures, array('CPT4', $pid, 'CPT4', $row['encounter']));
+            $res_procedures = QueryUtils::fetchRecords($query_procedures, ['CPT4', $pid, 'CPT4', $row['encounter']]);
             $issue_q = "SELECT ll.diagnosis AS encounter_diagnosis, ll.diagnosis as raw_diagnosis,
                 ll.title, ll.begdate, ll.enddate, ie.list_id From issue_encounter AS ie
                 Left JOIN lists AS ll ON ll.id = ie.list_id Where ie.encounter = ?";
-            $res_issues = $appTable_procedures->zQuery($issue_q, array($row['encounter']));
+            $res_issues = QueryUtils::fetchRecords($issue_q, [$row['encounter']]);
             foreach ($res_procedures as $row_procedures) {
                 $codes .= "
                 <procedures>
                 <code>" . xmlEscape($row_procedures['code']) . "</code>
-                <code_type>" . xmlEscape("CPT4") . "</code_type>
+                <code_type_name>" . xmlEscape("CPT4") . "</code_type_name>
+                <code_type>" . xmlEscape("2.16.840.1.113883.6.12") . "</code_type>
                 <text>" . xmlEscape($row_procedures['code_text']) . "</text>
                 </procedures>";
             }
-            $encounter_ext = base64_encode($_SESSION['site_id'] . $row['encounter']);
-            $encounter_root = $this->formatUid($_SESSION['site_id'] . $row['encounter']);
+            $encounter_ext = base64_encode($site_id . $row['encounter']);
+            $encounter_root = $this->formatUid($site_id . $row['encounter']);
             $problem = '';
             $primary_diagnosis = '';
             $issue_codes = '';
@@ -1756,16 +2263,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $i = 0;
                 foreach ($res_issues as $issue) {
                     $i++;
-                    $tmp = explode(":", $issue['raw_diagnosis']);
+                    $tmp = explode(":", (string)$issue['raw_diagnosis']);
                     $code_type = str_replace('-', ' ', $tmp[0]);
 
                     $encounter_activity = '';
-                    if ($issue['enddate'] !== '') {
-                        $encounter_activity = 'Completed';
-                    } else {
-                        $encounter_activity = 'Active';
-                    }
-                    $issue_ext = base64_encode($_SESSION['site_id'] . $issue['list_id']);
+                    $encounter_activity = $issue['enddate'] !== '' ? 'Completed' : 'Active';
+                    $issue_ext = base64_encode($site_id . $issue['list_id']);
                     $issue_codes .= "
                     <problem>
                     <extension>" . $issue_ext . "</extension>
@@ -1860,9 +2363,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <location>" . xmlEscape($row['name']) . "</location>
         <location_details>" . xmlEscape($location_details) . "</location_details>
         <date>" . xmlEscape($date_zone) . "</date>
-        <date_formatted>" . xmlEscape(str_replace("-", '', substr($row['date'], 0, 10))) . "</date_formatted>
-        <facility_extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['fid'])) . "</facility_extension>
-        <facility_sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['fid'])) . "</facility_sha_extension>
+        <date_formatted>" . xmlEscape(str_replace("-", '', substr((string)$row['date'], 0, 10))) . "</date_formatted>
+        <facility_extension>" . xmlEscape(base64_encode($site_id . $row['fid'])) . "</facility_extension>
+        <facility_sha_extension>" . xmlEscape($this->formatUid($site_id . $row['fid'])) . "</facility_sha_extension>
         <facility_npi>" . xmlEscape($row['fnpi']) . "</facility_npi>
         <facility_oid>" . xmlEscape($row['foid']) . "</facility_oid>
         <facility_name>" . xmlEscape($row['name']) . "</facility_name>
@@ -1914,7 +2417,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $progress_notes .= "<progressNotes>";
         if (!empty($result)) {
             foreach ($result as $row) {
-                foreach ($row as $key => $value) {
+                foreach ($row as $value) {
                     $progress_notes .= "<item>" . xmlEscape($value) . "</item>";
                 }
             }
@@ -2496,7 +2999,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $first_encounter = null;
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") ";
+            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") ";
             $first_encounter = reset($this->encounterFilterList);
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
@@ -2504,6 +3007,35 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return "<vitals_list></vitals_list>";
         }
 
+        $vitalIds = QueryUtils::fetchRecords("SELECT `form_id` FROM `forms` WHERE `form_name` = 'Vitals' AND `deleted` = 0 AND `pid` = ?", [$pid]);
+        $form_ids = array_column($vitalIds, 'form_id');
+        $bpMean = null;
+        $avg_systolic = null;
+        $avg_diastolic = null;
+        if (!empty($form_ids)) {
+            $bpMean = $this->calculateBPMeanForIds($form_ids);
+        }
+        // Compute Average Blood Pressures
+        $bp_avg_value = '';
+        try {
+            if (!empty($bpMean['components'])) {
+                foreach ($bpMean['components'] as $comp) {
+                    if (($comp['vitals_column'] ?? '') === 'bps') {
+                        $avg_systolic = (float)$comp['value'];
+                    }
+                    if (($comp['vitals_column'] ?? '') === 'bpd') {
+                        $avg_diastolic = (float)$comp['value'];
+                    }
+                }
+                if ($avg_systolic !== null && $avg_diastolic !== null) {
+                    // Mean Arterial Pressure (MAP) as the Average Blood Pressure value
+                    $bp_avg_value = round(($avg_systolic + (2.0 * $avg_diastolic)) / 3.0, 1);
+                }
+            }
+        } catch (\Throwable) {
+            // do not fail CCDA generation if calculation service errors
+            $bp_avg_value = '';
+        }
 
         $vitals = '';
         $query = "SELECT DATE(fe.date) AS date, fe.encounter, fv.id, fv.*
@@ -2513,21 +3045,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 LEFT JOIN users as u on u.username = fv.user
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
                 ORDER BY fe.date DESC";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($pid));
+        $res = QueryUtils::fetchRecords($query, [$pid]);
 
-
+        $site_id = $this->session->get('site_id');
         $vitals .= "<vitals_list>";
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
             $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
             $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
-            if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
+            if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
                 $height_value = $convHeightValue;
@@ -2538,7 +3069,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", $temp);
+                $tempArr = explode(" ", (string)$temp);
                 $weight_value = (float)$tempArr[0];
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
@@ -2548,49 +3079,97 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
 
             $vitals .= "<vitals>" . $provenanceXml . "
-            <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
+            <extension>" . xmlEscape(base64_encode($site_id . $row['encounter'])) . "</extension>
             <sha_extension>" . xmlEscape("c6f88321-67ad-11db-bd13-0800200c9a66") . "</sha_extension>
-            <date>" . xmlEscape(date('Y-m-d', strtotime($row['date'])) ?: '') . "</date>
-            <effectivetime>" . xmlEscape(date('Y-m-d H:i:s', strtotime($row['date']))) . "</effectivetime>
+            <date>" . xmlEscape(date('Y-m-d', strtotime((string)$row['date'])) ?: '') . "</date>
+            <effectivetime>" . xmlEscape(date('Y-m-d H:i:s', strtotime((string)$row['date']))) . "</effectivetime>
             <temperature>" . xmlEscape($temp_value ?: '') . "</temperature>
             <unit_temperature>" . xmlEscape($temp_unit ?: '') . "</unit_temperature>
-            <extension_temperature>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'temperature')) . "</extension_temperature>
+            <extension_temperature>" . xmlEscape(base64_encode($site_id . $row['id'] . 'temperature')) . "</extension_temperature>
             <bpd>" . xmlEscape(($row['bpd'] ?: '')) . "</bpd>
-            <extension_bpd>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bpd')) . "</extension_bpd>
+            <extension_bpd>" . xmlEscape(base64_encode($site_id . $row['id'] . 'bpd')) . "</extension_bpd>
             <bps>" . xmlEscape(($row['bps'] ?: '')) . "</bps>
-            <extension_bps>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bps')) . "</extension_bps>
+            <extension_bps>" . xmlEscape(base64_encode($site_id . $row['id'] . 'bps')) . "</extension_bps>
+            <bp_avg>" . xmlEscape(($bp_avg_value !== '' ? $bp_avg_value : '')) . "</bp_avg>
+            <extension_bp_avg>" . xmlEscape(base64_encode($site_id . $row['id'] . 'bp_avg')) . "</extension_bp_avg>
+            <avg_systolic>" . xmlEscape(($avg_systolic !== null ? round($avg_systolic, 1) : '')) . "</avg_systolic>
+            <extension_avg_systolic>" . xmlEscape(base64_encode($site_id . $row['id'] . 'avg_systolic')) . "</extension_avg_systolic>
+            <avg_diastolic>" . xmlEscape(($avg_diastolic !== null ? round($avg_diastolic, 1) : '')) . "</avg_diastolic>
+            <extension_avg_diastolic>" . xmlEscape(base64_encode($site_id . $row['id'] . 'avg_diastolic')) . "</extension_avg_diastolic>
+
             <head_circ>" . xmlEscape(((float)$row['head_circ'] ?: '')) . "</head_circ>
-            <extension_head_circ>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'head_circ')) . "</extension_head_circ>
+            <extension_head_circ>" . xmlEscape(base64_encode($site_id . $row['id'] . 'head_circ')) . "</extension_head_circ>
             <pulse>" . xmlEscape(((float)$row['pulse'] ?: '')) . "</pulse>
-            <extension_pulse>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'pulse')) . "</extension_pulse>
+            <extension_pulse>" . xmlEscape(base64_encode($site_id . $row['id'] . 'pulse')) . "</extension_pulse>
             <height>" . xmlEscape($height_value ?: '') . "</height>
-            <extension_height>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'height')) . "</extension_height>
+            <extension_height>" . xmlEscape(base64_encode($site_id . $row['id'] . 'height')) . "</extension_height>
             <unit_height>" . xmlEscape($height_unit ?: '') . "</unit_height>
             <oxygen_saturation>" . xmlEscape(((float)$row['oxygen_saturation'] ?: '')) . "</oxygen_saturation>
-            <extension_oxygen_saturation>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'oxygen_saturation')) . "</extension_oxygen_saturation>
+            <extension_oxygen_saturation>" . xmlEscape(base64_encode($site_id . $row['id'] . 'oxygen_saturation')) . "</extension_oxygen_saturation>
             <breath>" . xmlEscape(((float)$row['respiration'] ?: '')) . "</breath>
-            <extension_breath>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'breath')) . "</extension_breath>
+            <extension_breath>" . xmlEscape(base64_encode($site_id . $row['id'] . 'breath')) . "</extension_breath>
             <weight>" . xmlEscape($weight_value ?: '') . "</weight>
-            <extension_weight>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'weight')) . "</extension_weight>
+            <extension_weight>" . xmlEscape(base64_encode($site_id . $row['id'] . 'weight')) . "</extension_weight>
             <unit_weight>" . xmlEscape($weight_unit ?: '') . "</unit_weight>
             <BMI>" . xmlEscape(((float)$row['BMI'] ?: '')) . "</BMI>
-            <extension_BMI>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'BMI')) . "</extension_BMI>
+            <extension_BMI>" . xmlEscape(base64_encode($site_id . $row['id'] . 'BMI')) . "</extension_BMI>
             <BMI_status>" . xmlEscape(($row['BMI_status'] ?: '')) . "</BMI_status>
-            <extension_oxygen_flow_rate>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'oxygen_flow_rate')) . "</extension_oxygen_flow_rate>
+            <extension_oxygen_flow_rate>" . xmlEscape(base64_encode($site_id . $row['id'] . 'oxygen_flow_rate')) . "</extension_oxygen_flow_rate>
             <oxygen_flow_rate>" . xmlEscape(((float)$row['oxygen_flow_rate'] ?: '')) . "</oxygen_flow_rate>
-            <extension_ped_weight_height>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_weight_height')) . "</extension_ped_weight_height>
+            <extension_ped_weight_height>" . xmlEscape(base64_encode($site_id . $row['id'] . 'ped_weight_height')) . "</extension_ped_weight_height>
             <ped_weight_height>" . xmlEscape(((float)$row['ped_weight_height'] ?: '')) . "</ped_weight_height>
-            <extension_ped_bmi>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_bmi')) . "</extension_ped_bmi>
+            <extension_ped_bmi>" . xmlEscape(base64_encode($site_id . $row['id'] . 'ped_bmi')) . "</extension_ped_bmi>
             <ped_bmi>" . xmlEscape(((float)$row['ped_bmi'] ?: '')) . "</ped_bmi>
-            <extension_ped_head_circ>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_head_circ')) . "</extension_ped_head_circ>
+            <extension_ped_head_circ>" . xmlEscape(base64_encode($site_id . $row['id'] . 'ped_head_circ')) . "</extension_ped_head_circ>
             <ped_head_circ>" . xmlEscape(((float)$row['ped_head_circ'] ?: '')) . "</ped_head_circ>
-            <extension_inhaled_oxygen_concentration>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'inhaled_oxygen_concentration')) . "</extension_inhaled_oxygen_concentration>
+            <extension_inhaled_oxygen_concentration>" . xmlEscape(base64_encode($site_id . $row['id'] . 'inhaled_oxygen_concentration')) . "</extension_inhaled_oxygen_concentration>
             <inhaled_oxygen_concentration>" . xmlEscape(((float)$row['inhaled_oxygen_concentration'] ?: '')) . "</inhaled_oxygen_concentration>
             </vitals>";
         }
 
         $vitals .= "</vitals_list>";
         return $vitals;
+    }
+
+    /**
+     * Borrowed from OpenEMR\Services\VitalsCalculatedService.
+     * TODO sjp need to refactor out to use the services
+     * @param array $ids
+     * @return array|null
+     */
+    public function calculateBPMeanForIds(array $ids): ?array
+    {
+        $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+        $sql = "SELECT AVG(CAST(bps AS DECIMAL(10,2))) as avg_systolic, AVG(CAST(bpd AS DECIMAL(10,2))) as avg_diastolic,
+                MIN(date) as date_start, MAX(date) as date_end
+                FROM form_vitals WHERE id IN ($placeholders)";
+
+        $test = [3, 4, 1235];
+        $records = QueryUtils::fetchRecords($sql, $ids);
+
+        if (empty($records) || $records[0]['avg_systolic'] === null || $records[0]['avg_diastolic'] === null) {
+            return null;
+        }
+
+        return [
+            'date_start' => $records[0]['date_start'],
+            'date_end' => $records[0]['date_end'],
+            'vitals' => $ids,
+            'components' => [
+                [
+                    'vitals_column' => 'bps',
+                    'value' => round($records[0]['avg_systolic'], 1),
+                    'value_unit' => 'mm[Hg]',
+                    'component_order' => 0
+                ],
+                [
+                    'vitals_column' => 'bpd',
+                    'value' => round($records[0]['avg_diastolic'], 1),
+                    'value_unit' => 'mm[Hg]',
+                    'component_order' => 1
+                ]
+            ]
+        ];
     }
 
     /*
@@ -2607,7 +3186,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getSocialHistory($pid)
     {
         $social_history = '';
-        $arr = array(
+        $arr = [
             'alcohol' => '160573003',
             'drug' => '363908000',
             'employment' => '364703007',
@@ -2616,48 +3195,52 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             'diet' => '364393001',
             'smoking' => '229819007',
             'toxic_exposure' => '425400000'
-        );
-        $arr_status = array(
-            'currenttobacco' => 'Current',
-            'quittobacco' => 'Quit',
-            'nevertobacco' => 'Never',
+        ];
+        $arr_status = [
+            'currenttobacco' => 'Current every day smoker',
+            'quittobacco' => 'Former smoker',
+            'nevertobacco' => 'Never smoker',
             'currentalcohol' => 'Current',
             'quitalcohol' => 'Quit',
             'neveralcohol' => 'Never'
-        );
-
-        $snomeds_status = array(
+        ];
+        $arr_code = [
+            'currenttobacco' => '449868002',
+            'quittobacco' => '8517006',
+            'nevertobacco' => '266919005',
+        ];
+        $snomeds_status = [
             'currenttobacco' => 'completed',
             'quittobacco' => 'completed',
             'nevertobacco' => 'completed',
             'not_applicabletobacco' => 'completed'
-        );
+        ];
 
-        $snomeds = array(
+        $snomeds = [
             '1' => '449868002',
             '2' => '428041000124106',
             '3' => '8517006',
             '4' => '266919005',
             '5' => '77176002'
-        );
+        ];
 
-        $alcohol_status = array(
+        $alcohol_status = [
             'currentalcohol' => 'completed',
             'quitalcohol' => 'completed',
             'neveralcohol' => 'completed'
-        );
+        ];
 
-        $alcohol_status_codes = array(
+        $alcohol_status_codes = [
             'currentalcohol' => '11',
             'quitalcohol' => '22',
             'neveralcohol' => '33'
-        );
+        ];
 
         $query = "SELECT id, tobacco, alcohol, exercise_patterns, recreational_drugs,date,created_by AS provenance_updated_by
                     FROM history_data WHERE pid=? ORDER BY id DESC LIMIT 1";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($pid));
+                $res = QueryUtils::fetchRecords($query, [$pid]);
 
+        $site_id = $this->session->get('site_id');
         $social_history .= "<social_history>";
         foreach ($res as $row) {
             $tobacco = explode('|', $row['tobacco'] ?? '');
@@ -2665,23 +3248,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $status_code = str_replace("SNOMED-CT:", "", $status_code);
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date']
+                , 'time' => $row['date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $social_history .= "<history_element>" . $provenanceXml . "
-                                  <extension>" . xmlEscape(base64_encode('smoking' . $_SESSION['site_id'] . $row['id'])) . "</extension>
+                                  <extension>" . xmlEscape(base64_encode('smoking' . $site_id . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1") . "</sha_extension>
                                   <element>" . xmlEscape('Smoking') . "</element>
-                                  <description>" . xmlEscape((new CarecoordinationTable())->getListTitle($tobacco[3] ?? '', 'smoking_status')) . "</description>
-                                  <status_code>" . xmlEscape(($status_code ? $status_code : '')) . "</status_code>
-                                  <status>" . xmlEscape((($snomeds_status[$tobacco[1] ?? ''] ?? '') ? $snomeds_status[$tobacco[1]] : "")) . "</status>
+                                  <description>" . xmlEscape(($arr_status[$tobacco[1] ?? ''] ?? '')) . "</description>
+                                  <status_code>" . xmlEscape(($status_code ?: '')) . "</status_code>
+                                  <status>" . xmlEscape(($snomeds_status[$tobacco[1] ?? ''] ?? '')) . "</status>
                                   <date>" . (($tobacco[2] ?? '') ? xmlEscape($this->date_format($tobacco[2])) : '') . "</date>
                                   <date_formatted>" . (($tobacco[2] ?? '') ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : '') . "</date_formatted>
-                                  <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : '')) . "</code>
+                                  <code>" . xmlEscape(($arr_code[$tobacco[1] ?? ''] ?? '')) . "</code>
                             </history_element>";
             $alcohol = explode('|', $row['alcohol'] ?? '');
             $social_history .= "<history_element>" . $provenanceXml . "
-                                  <extension>" . xmlEscape(base64_encode('alcohol' . $_SESSION['site_id'] . $row['id'])) . "</extension>
+                                  <extension>" . xmlEscape(base64_encode('alcohol' . $site_id . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("37f76c51-6411-4e1d-8a37-957fd49d2cef") . "</sha_extension>
                                   <element>" . xmlEscape('Alcohol') . "</element>
                                   <description>" . xmlEscape($alcohol[0] ?? '') . "</description>
@@ -2715,10 +3298,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "SELECT c.id, c.name as cat_name, d.id AS document_id, d.id, d.type, d.mimetype, d.url, d.hash, d.docdate, d.name as file_name
                 FROM `categories` AS c, documents AS d, `categories_to_documents` AS c2d
                 WHERE c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($pid));
+                $result = QueryUtils::fetchRecords($query, [$pid]);
         foreach ($result as $row_folders) {
-            if ((stripos($row_folders['file_name'], 'unstructured') !== false) || $row_folders['cat_name'] == 'CCDA') {
+            if ((stripos((string)$row_folders['file_name'], 'unstructured') !== false) || $row_folders['cat_name'] == 'CCDA') {
                 continue;
             }
             $doc = Documents::getDocument($row_folders['document_id']);
@@ -2792,10 +3374,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getCarecoordinationModuleSettingValue($field_name)
     {
         $query = "SELECT field_value FROM modules AS mo "
-        . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
-        . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($field_name));
+            . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
+            . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
+                $res = QueryUtils::fetchRecords($query, [$field_name]);
         foreach ($res as $result) {
             return $result['field_value'];
         }
@@ -2811,13 +3392,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "SELECT updated_by AS provenance_updated_by, date_modified FROM modules AS mo "
             . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
             . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($field_name));
+                $res = QueryUtils::fetchRecords($query, [$field_name]);
         $provenanceRecord = null;
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
         }
         return $provenanceRecord;
@@ -2827,7 +3407,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $field_name
      * @return void
      */
-    public function getDetails($field_name)
+    public function getDetails($field_name): ?array
     {
         if ($field_name == 'hie_custodian_id') {
             $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
@@ -2859,11 +3439,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         WHERE u.id=?";
         }
 
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($field_name));
+                $res = QueryUtils::fetchRecords($query, [$field_name]);
         foreach ($res as $result) {
             if (!empty($result['phonew1'])) {
-                $result['phonew1'] = trim($result['phonew1']);
+                $result['phonew1'] = trim((string)$result['phonew1']);
             }
             if (empty($result['facility_oid'])) {
                 // TODO: set the oid to an NPI number as our default if we don't have one.
@@ -2871,12 +3450,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             return $result;
         }
+        return null;
     }
 
     /*
     Get the Age of a patient
     * @param    int     $pid    Patient Internal Identifier.
-
     * return    int     $age    Age of a patient will be returned
     */
     /**
@@ -2886,16 +3465,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getAge($pid, $date = null)
     {
-        if ($date != '') {
-            $date = $date;
-        } else {
-            $date = date('Y-m-d H:i:s');
-        }
+        $date = $date ?: date('Y-m-d H:i:s');
 
         $age = 0;
         $query = "select ROUND(DATEDIFF('$date',DOB)/365.25) AS age from patient_data where pid= ? ";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($pid));
+                $res = QueryUtils::fetchRecords($query, [$pid]);
 
         foreach ($res as $row) {
             $age = $row['age'];
@@ -2910,10 +3484,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getRepresentedOrganization()
     {
         $query = "select * from facility where primary_business_entity = ? Limit 1";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array(1));
+                $res = QueryUtils::fetchRecords($query, [1]);
 
-        $records = array();
+        $records = [];
         foreach ($res as $row) {
             $records = $row;
         }
@@ -2940,10 +3513,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "select * from ccda_table_mapping
             left join ccda_field_mapping as ccf on ccf.table_id = ccda_table_mapping.id
             where ccda_component = ? and ccda_component_section = ? and user_id = ? and deleted = 0";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($ccda_component, $ccda_section, $user_id));
+                $res = QueryUtils::fetchRecords($query, [$ccda_component, $ccda_section, $user_id]);
         $field_names_type3 = '';
-        $ret = array();
+        $ret = [];
         $field_names_type1 = '';
         $field_names_type2 = '';
         foreach ($res as $row) {
@@ -2956,21 +3528,21 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $field_names_type1 .= $row['ccda_field'];
-                $ret[$row['ccda_component_section'] . "_" . $form_dir] = array($form_type, $table_name, $form_dir, $field_names_type1);
+                $ret[$row['ccda_component_section'] . "_" . $form_dir] = [$form_type, $table_name, $form_dir, $field_names_type1];
             } elseif ($form_type == 2) {
                 if ($field_names_type2) {
                     $field_names_type2 .= ',';
                 }
 
                 $field_names_type2 .= $row['ccda_field'];
-                $ret[$row['ccda_component_section'] . "_" . $form_dir] = array($form_type, $table_name, $form_dir, $field_names_type2);
+                $ret[$row['ccda_component_section'] . "_" . $form_dir] = [$form_type, $table_name, $form_dir, $field_names_type2];
             } elseif ($form_type == 3) {
                 if ($field_names_type3) {
                     $field_names_type3 .= ',';
                 }
 
                 $field_names_type3 .= $row['ccda_field'];
-                $ret[$row['ccda_component_section'] . "_" . $form_dir] = array($form_type, $table_name, $form_dir, $field_names_type3);
+                $ret[$row['ccda_component_section'] . "_" . $form_dir] = [$form_type, $table_name, $form_dir, $field_names_type3];
             }
         }
 
@@ -2995,23 +3567,35 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (empty($encounter)) {
             return "";
         }
-        $res = array();
+        $res = [];
         $count_folder = 0;
         foreach ($formTables as $formTables_details) {
             /***************Fetching the form id for the patient***************/
+
+            if (!is_string($formTables_details[2]) || !SafeIncludeResolver::isSafePathComponent($formTables_details[2])) {
+                continue;
+            }
+
+            $formDir = $formTables_details[2];
+
             $query = "select form_id,encounter from forms where pid = ? and formdir = ? AND deleted=0";
-            $appTable = new ApplicationTable();
-            $form_ids = $appTable->zQuery($query, array($pid, $formTables_details[2]));
-            /***************Fetching the form id for the patient***************/
+                        $form_ids = QueryUtils::fetchRecords($query, [$pid, $formDir]);
 
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
+                    $formsBasePath = OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms';
+                    $resolvedReportPath = SafeIncludeResolver::resolve($formsBasePath, $formDir . '/report.php');
+                    $reportPathValid = $resolvedReportPath !== false;
+
                     foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             ob_start();
-                            if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
-                                include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                call_user_func($formTables_details[2] . "_report", $pid, $encounter, 2, $value);
+                            if ($reportPathValid) {
+                                include_once($resolvedReportPath);
+                                $reportFn = $formDir . '_report';
+                                if (function_exists($reportFn)) {
+                                    $reportFn($pid, $encounter, 2, $value);
+                                }
                             }
 
                             $res[0][$value] = ob_get_clean();
@@ -3020,8 +3604,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 } else {//Fetching a single field from the table
                     $primary_key = '';
                     $query = "SHOW INDEX FROM ? WHERE Key_name='PRIMARY'";
-                    $appTable = new ApplicationTable();
-                    $res_primary = $appTable->zQuery($query, array($formTables_details[1]));
+                                        $res_primary = QueryUtils::fetchRecords($query, [$formTables_details[1]]);
                     foreach ($res_primary as $row_primary) {
                         $primary_key = $row_primary['Column_name'];
                     }
@@ -3031,30 +3614,29 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $query = "select " . $formTables_details[3] . " from " . $formTables_details[1] . "
                     join forms as f on f.pid=? AND f.encounter=? AND f.form_id=" . $formTables_details[1] . "." . $primary_key . " AND f.formdir=?
                     where 1 = 1 ";
-                    $appTable = new ApplicationTable();
-                    $result = $appTable->zQuery($query, array($pid, $encounter, $formTables_details[2]));
+                                        $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formDir]);
 
                     foreach ($result as $row) {
                         foreach ($row as $key => $value) {
-                            $res[0][$key] .= trim($value);
+                            $res[0][$key] .= trim((string)$value);
                         }
                     }
                 }
             } elseif ($formTables_details[0] == 2) {//Fetching the values from an LBF form
                 if (!$formTables_details[1]) {//Fetching the complete LBF
                     foreach ($form_ids as $row) {
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             //This section will be used to fetch complete LBF. This has to be completed. We are working on this.
                         }
                     }
                 } elseif (!$formTables_details[3]) {//Fetching the complete group from an LBF
                     foreach ($form_ids as $row) {//Fetching the values of each encounters
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             ob_start();
                             ?>
                             <table>
                                 <?php
-                                display_layout_rows_group_new($formTables_details[2], '', '', $pid, $value, array($formTables_details[1]), '');
+                                display_layout_rows_group_new($formDir, '', '', $pid, $value, [$formTables_details[1]], '');
                                 ?>
                             </table>
                             <?php
@@ -3064,7 +3646,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 } else {
                     $formid_list = "";
                     foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             if ($formid_list) {
                                 $formid_list .= ',';
                             }
@@ -3073,16 +3655,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         }
                     }
 
-                    $formid_list = $formid_list ? $formid_list : "''";
+                    $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    $filename = "{$GLOBALS['srcdir']}/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
-                    if (file_exists($filename)) {
+                    $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
+                    $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
+                    if ($filename !== false) {
                         include_once($filename);
                     }
 
-                    $field_ids = explode(',', $formTables_details[3]);
+                    $field_ids = explode(',', (string)$formTables_details[3]);
                     $fields_str = '';
-                    foreach ($field_ids as $key => $value) {
+                    foreach ($field_ids as $value) {
                         if ($fields_str != '') {
                             $fields_str .= ",";
                         }
@@ -3093,11 +3676,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $query = "select * from " . $lbf . "
                     join forms as f on f.pid = ? AND f.form_id = " . $lbf . ".form_id AND f.formdir = ? AND " . $lbf . ".field_id IN (" . $fields_str . ")
                     where deleted = 0";
-                    $appTable = new ApplicationTable();
-                    $result = $appTable->zQuery($query, array($pid, $formTables_details[2]));
+                                        $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
 
                     foreach ($result as $row) {
-                        preg_match('/\.$/', trim($row['field_value']), $matches);
+                        preg_match('/\.$/', trim((string)$row['field_value']), $matches);
                         if (count($matches) == 0) {
                             $row['field_value'] .= ". ";
                         }
@@ -3110,8 +3692,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 FROM categories AS c, documents AS d, categories_to_documents AS c2d
                 WHERE c.id = ? AND c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
 
-                $appTable = new ApplicationTable();
-                $result = $appTable->zQuery($query, array($formTables_details[2], $pid));
+                                $result = QueryUtils::fetchRecords($query, [$formDir, $pid]);
 
                 foreach ($result as $row_folders) {
                     $r = \Documents\Plugin\Documents::getDocument($row_folders['document_id']);
@@ -3127,7 +3708,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     }
 
     /*
-    * Retrive the saved settings of the module from database
+    * Retrieve the saved settings of the module from database
     *
     * @param    string      $module_directory       module directory name
     * @param    string      $field_name             field name as in the module_settings table
@@ -3135,18 +3716,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     /**
      * @param $module_directory
      * @param $field_name
-     * @return void
+     * @return string|null
      */
-    public function getSettings($module_directory, $field_name)
+    public function getSettings($module_directory, $field_name): ?string
     {
         $query = "SELECT mo_conf.field_value FROM modules AS mo
         LEFT JOIN module_configuration AS mo_conf ON mo_conf.module_id = mo.mod_id
         WHERE mo.mod_directory = ? AND mo_conf.field_name = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($module_directory, $field_name));
+                $result = QueryUtils::fetchRecords($query, [$module_directory, $field_name]);
         foreach ($result as $row) {
             return $row['field_value'];
         }
+        return null;
     }
 
     /*
@@ -3161,10 +3742,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getEncounterDate($date)
     {
-        $date_list = array();
+        $date_list = [];
         $query = "select pid, encounter from form_encounter where date between ? and ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($date, $date));
+                $result = QueryUtils::fetchRecords($query, [$date, $date]);
 
         $count = 0;
         foreach ($result as $row) {
@@ -3192,32 +3772,28 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
-        $appTable = new ApplicationTable();
-        $result_patient_data = $appTable->zQuery($query_patient_data, array($pid));
+                $result_patient_data = QueryUtils::fetchRecords($query_patient_data, [$pid]);
         foreach ($result_patient_data as $row_patient_data) {
         }
 
         $query_dem = "SELECT field_id FROM layout_options WHERE form_id = ?";
-        $appTable = new ApplicationTable();
-        $result_dem = $appTable->zQuery($query_dem, array('DEM'));
+                $result_dem = QueryUtils::fetchRecords($query_dem, ['DEM']);
 
         foreach ($result_dem as $row_dem) {
             $query_insert_patient_data = "INSERT INTO combination_form_locked_data SET pid = ?, encounter = ?, form_dir = ?, field_name = ?, field_value = ?";
-            $appTable = new ApplicationTable();
-            $result_dem = $appTable->zQuery($query_insert_patient_data, array($pid, $encounter, 'DEM', $row_dem['field_id'], $row_patient_data[$row_dem['field_id']]));
+            QueryUtils::sqlStatementThrowException($query_insert_patient_data, [$pid, $encounter, 'DEM', $row_dem['field_id'], $row_patient_data[$row_dem['field_id']]]);
         }
 
         /*************************************/
 
         $query_saved_forms = "SELECT formid FROM combined_encountersaved_forms WHERE pid = ? AND encounter = ?";
-        $appTable = new ApplicationTable();
-        $result_saved_forms = $appTable->zQuery($query_saved_forms, array($pid, $encounter));
+                $result_saved_forms = QueryUtils::fetchRecords($query_saved_forms, [$pid, $encounter]);
         $count = 0;
         foreach ($result_saved_forms as $row_saved_forms) {
             $form_dir = '';
             $form_type = 0;
             $form_id = 0;
-            $temp = explode('***', $row_saved_forms['formid']);
+            $temp = explode('***', (string)$row_saved_forms['formid']);
             if ($temp[1] == 1) { //Fetch HTML form id from the Combination form template
                 $form_type = 0;
                 $form_dir = $temp[0];
@@ -3236,12 +3812,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             /*Fetch form id from the concerned tables*/
             if ($form_dir == 'HIS') { //Fetching History form id
                 $query_form_id = "SELECT MAX(id) AS form_id FROM history_data WHERE pid = ?";
-                $appTable = new ApplicationTable();
-                $result_form_id = $appTable->zQuery($query_form_id, array($pid));
+                                $result_form_id = QueryUtils::fetchRecords($query_form_id, [$pid]);
             } else { //Fetching normal form id
                 $query_form_id = "select form_id from forms where pid = ? and encounter = ? and formdir = ?";
-                $appTable = new ApplicationTable();
-                $result_form_id = $appTable->zQuery($query_form_id, array($pid, $encounter, $form_dir));
+                                $result_form_id = QueryUtils::fetchRecords($query_form_id, [$pid, $encounter, $form_dir]);
             }
 
             foreach ($result_form_id as $row_form_id) {
@@ -3281,15 +3855,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function lockedthisform($pid, $encounter, $formdir, $formtype, $formid)
     {
         $query = "select count(*) as count from combination_form where pid = ? and encounter = ? and form_dir = ? and form_type = ? and form_id = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($pid, $encounter, $formdir, $formtype, $formid));
+                $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formdir, $formtype, $formid]);
         foreach ($result as $count) {
         }
 
         if ($count['count'] == 0) {
             $query_insert = "INSERT INTO combination_form SET pid = ?, encounter = ?, form_dir = ?, form_type = ?, form_id = ?";
-            $appTable = new ApplicationTable();
-            $result = $appTable->zQuery($query_insert, array($pid, $encounter, $formdir, $formtype, $formid));
+            QueryUtils::sqlStatementThrowException($query_insert, [$pid, $encounter, $formdir, $formtype, $formid]);
         }
     }
 
@@ -3305,15 +3877,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getCCDAComponents($type)
     {
-        $components = array();
-        $query = "select * from ccda_components where ccda_type = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($type));
-
-        foreach ($result as $row) {
-            $components[$row['ccda_components_field']] = $row['ccda_components_name'];
-        }
-
+        $get = new SendtoTable();
+        $components = $get->getCcdaComponents($type);
+        // removed dependency on the ccda_table_mapping table sjp 07/25/25
         return $components;
     }
 
@@ -3343,9 +3909,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
-        $content = base64_decode($content);
+        $content = base64_decode((string)$content);
         $document = new \Document();
-        $document_type = $document_type ?? '';
+        $document_type ??= '';
 
         // we need to populate the category id based upon the document_type
         // TOC -> CCDA folder
@@ -3379,9 +3945,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $mimeType = "text/xml";
 
-        try {
-            \sqlBeginTrans();
-
+        // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
+        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer) {
             // set the foreign key so we can track documents connected to a specific export
             $result = $document->createDocument(
                 $pid,
@@ -3402,14 +3967,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $referralId = $this->getMostRecentPatientReferral($pid);
 
             $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $appTable = new ApplicationTable();
-            $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
+            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
 
             // now let's go ahead and log our amc actions for this behavior
             if (!empty($emr_transfer)) {
                 $this->logAmc($pid, $referralId);
             }
-            $moduleInsertId = $result->getGeneratedValue();
 
             // if we have an id, then let's update our document with the foreign key reference
             $document->set_foreign_reference_id($moduleInsertId);
@@ -3420,12 +3983,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $document->set_encounter_id($encounter);
             }
             $document->persist(); // save the updated references here.
-            \sqlCommitTrans();
-        } catch (\Exception $exception) {
-            \sqlRollbackTrans();
-            // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
-            throw $exception;
-        }
+
+            return $moduleInsertId;
+        });
         return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $file_name, $content);
     }
 
@@ -3437,19 +3997,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     private function getMostRecentPatientReferral($pid)
     {
-        $appTable = new ApplicationTable();
-        // this segment of code is attempting to connect a CCDA to a Referral form (stored in the transactions)
+                // this segment of code is attempting to connect a CCDA to a Referral form (stored in the transactions)
         // table so we can track for Automated Measure Calculation (AMC) purposes.  This assumes that a referral
         // form has been created before the CCDA was sent (otherwise the transaction id is 0)
 
         // this query is only true if the referral was inserted as part of the ccda generation process.  This is code migrated from EncountermanagerTable
-        $refs = $appTable->zQuery("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", array($pid));
-        if ($refs->count() == 0) {
+        $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
+        if (count($refs) == 0) {
             // the choose the most recent transaction to link this up...  This could create problems in the
             // future if multiple referrals are created BEFORE sending the CCDA.
             // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
-            $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", array($pid));
-            $trans_cur = $trans->current();
+            $trans = QueryUtils::fetchRecords("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", [$pid]);
+            $trans_cur = $trans[0] ?? [];
             $trans_id = $trans_cur['id'] ?? null;
         } else {
             foreach ($refs as $r) {
@@ -3469,7 +4028,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         if (empty($referralId)) {
             // user is sending a CCDA w/o any kind of connecting referral... we will log the error and continue
-            (new SystemLogger())->errorLogCaller("Failed to log amc information due to missing referral id.  User is sending CCDA w/o any connecting referral record", ['pid' => $pid]);
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable::logAmc: Failed to log amc information due to missing referral id. User is sending CCDA w/o any connecting referral record for pid {pid}", ['pid' => $pid]);
             return;
         }
 
@@ -3487,9 +4046,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getCcdaLogDetails($logID = 0)
     {
         $query_ccda_log = "SELECT pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer FROM ccda WHERE id = ?";
-        $appTable = new ApplicationTable();
-        $res_ccda_log = $appTable->zQuery($query_ccda_log, array($logID));
-        return $res_ccda_log->current();
+        $res_ccda_log = QueryUtils::fetchRecords($query_ccda_log, [$logID]);
+        return $res_ccda_log[0] ?? [];
     }
 
     /*
@@ -3512,7 +4070,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $format = $format ?: 'm/d/y';
-        $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
+        $temp = explode(' ', (string)$date); //split using space and consider the first portion, in case of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -3543,22 +4101,22 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function generate_code($code_text)
     {
-        $rx = sqlQuery("Select drug_code From drugs Where name = ?", array("$code_text"));
+        $rx = sqlQuery("Select drug_code From drugs Where name = ?", ["$code_text"]);
         if (!empty($rx)) {
             return $rx['drug_code'];
         }
-        $encrypted = sha1($code_text);
+        $encrypted = sha1((string)$code_text);
         $code = '';
         for ($i = 0, $iMax = strlen($encrypted); $i <= $iMax;) {
             $code .= $encrypted[$i];
-            $i = $i + 2;
+            $i += 2;
         }
 
         $encrypted = $code;
         $code = '';
         for ($i = 0, $iMax = strlen($encrypted); $i <= $iMax;) {
             $code .= $encrypted[$i];
-            $i = $i + 2;
+            $i += 2;
         }
 
         $code = strtoupper(substr($code, 0, 6));
@@ -3571,10 +4129,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getProviderId($pid)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT providerID FROM patient_data WHERE `pid`  = ?";
-        $result = $appTable->zQuery($query, array($pid));
-        $row = $result->current();
+        $result = QueryUtils::fetchRecords($query, [$pid]);
+        $row = $result[0] ?? [];
         return $row['providerID'] ?? null;
     }
 
@@ -3584,123 +4141,157 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPatientProviderStatus($pid)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT provider_since_date, care_team_status FROM patient_data WHERE `pid`  = ?";
-        $result = $appTable->zQuery($query, array($pid));
-        $row = $result->current();
-        return $row ?? null;
+        $result = QueryUtils::fetchRecords($query, [$pid]);
+        $row = $result[0] ?? [];
+        return $row ?: null;
     }
 
     /**
      * @param $uid
      * @return void
      */
-    public function getUserDetails($uid)
+    public function getUserDetails($uid): ?array
     {
         $query = "SELECT u.title,npi,fname,mname,lname,street,city,state,zip,CONCAT_WS(' ','',phonew1) AS phonew1, lo.title as  physician_type, facility As organization, taxonomy, lous.title as taxonomy_desc, specialty, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as physician_type_code FROM users as u
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         LEFT JOIN list_options AS lous ON lous.list_id = 'us-core-provider-specialty' AND lous.option_id = u.taxonomy
         WHERE `id` = ?";
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($uid));
+                $res = QueryUtils::fetchRecords($query, [$uid]);
         foreach ($res as $result) {
             if (!empty($result['phonew1'])) {
                 // not sure why we are concat_ws the phone but we need to trim off any excess white space to fix
                 // our phone formatting issues on the node side.
-                $result['phonew1'] = trim($result['phonew1']);
+                $result['phonew1'] = trim((string)$result['phonew1']);
             }
             return $result;
         }
+        return null;
+    }
+
+    /**
+     * Map a FHIR system URL to our ccda "code_type" label.
+     */
+    private function ccSystemToCodeType(?string $system): string
+    {
+        if (!$system) {
+            return '';
+        }
+        $s = strtolower($system);
+        if (str_contains($s, 'loinc')) {
+            return 'LOINC';
+        }
+        if (str_contains($s, 'snomed')) {
+            return 'SNOMED CT';
+        }
+        if (str_contains($s, 'rxnorm')) {
+            return 'RXNORM';
+        }
+        return '';
+    }
+
+    /** Safe text for CodeableConcept or string (reuses your SDOH service helper). */
+    private function ccText($cc): string
+    {
+        return HistorySdohService::ccDisplay($cc);
     }
 
     /**
      * Checks to see if the snomed codes are installed and we can then query against them.
      */
-    private function is_snomed_codes_installed(ApplicationTable $appTable)
+    private function is_snomed_codes_installed(): bool
     {
-        $codes_installed = false;
         // this throws an exception... which is sad
         // TODO: is there a better way to know if the snomed codes are installed instead of using this method?
-        // we set $error=false or else it will display on the screen, which seems counterintuitive... it also suppresses the exception
-        $result = $appTable->zQuery("Describe `sct_descriptions`", $params = '', $log = true, $error = false);
-        if ($result !== false) { // will return false if there is an error
-            $codes_installed = true;
+        try {
+            QueryUtils::fetchRecords("Describe `sct_descriptions`");
+            return true;
+        } catch (\Throwable) {
+            return false;
         }
-
-        return $codes_installed;
     }
 
     /**
      * get details from care plan form
-     * @param $pid Patient Internal Identifier.
+     *
+     * @param $pid string  Internal Identifier.
      * @return string $planofcare  XML which contains the details collected from the patient.
      */
     public function getPlanOfCare($pid, $encounter)
     {
         $wherCon = '';
-        $appTable = new ApplicationTable();
-        $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
+                $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon = " AND f.encounter IN (" . implode(",", array_map("intval", $this->encounterFilterList)) . ")";
+            $wherCon = " AND f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ")";
         } elseif ($this->searchFiltered) {
             // there are no encounters to filter on in the form and we are filtering the data...
             return "<planofcare></planofcare><goals></goals><health_concerns></health_concerns>";
         }
 
         UuidRegistry::createMissingUuidsForTables(['lists']);
-        // TODO: implement referrals.  Our transactions table does not keep a code value which is required to report for ccda.
-        //  We used to grab the referrals but since we have no codes for the referral we ended up just skipping all the data
-        //  We removed the care plan transaction information here as it wasn't being used here or with serveccda.  When we
-        //  support codes in the transaction table we can add that back in.
-        $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
-            , u.id AS provenance_updated_by, f.date AS modifydate, f.form_id
-            FROM forms AS f
-            LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
-            LEFT JOIN codes AS c ON c.code = fcp.code
-            LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
-            LEFT JOIN users as u on u.username = fcp.user
-            LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
-            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon Order By fcp.encounter DESC";
-        $res = $appTable->zQuery($query, $sqlBindArray);
+
+        // Your existing care_plan query (with proposed_date/plan_status)
+        $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,
+                     l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues,
+                     fcp.plan_status, fcp.proposed_date, u.id AS provenance_updated_by, f.date AS modifydate, f.form_id
+              FROM forms AS f
+              LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
+              LEFT JOIN codes AS c ON c.code = fcp.code
+              LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
+              LEFT JOIN users as u on u.username = fcp.user
+              LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
+              WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
+              ORDER BY fcp.encounter DESC";
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
+
         $status = 'Pending';
         $status_entry = 'active';
         $planofcare = '<planofcare>';
         $goals = '<goals>';
         $concerns = '<health_concerns>';
+
+        $site_id = $this->session->get('site_id');
         foreach ($res as $row) {
-            // we are handling the dates differently here than the other filtered data types because the transaction
-            // table stores the refer_date as a textual string and we can't convert it in a cross-database fashion right
-            // now to do our date comparisons like we do all of the other fields.
+            // handle date filtering when searchFiltered enabled
             if ($this->searchFiltered) {
-                $rowDate = strtotime($row['date']);
-                // if we can't format the date and we are filtering then we exclude it,
+                $rowDate = strtotime((string)$row['date']);
                 if (
                     $rowDate === false
-                    // we have a from date so we filter by it
                     || (isset($this->searchFromDate) && $rowDate < $this->searchFromDate)
-                    // we have a to date so we filter by it
                     || (isset($this->searchToDate) && $rowDate > $this->searchToDate)
                 ) {
                     continue;
                 }
             }
+
             $provenanceRecord = [
-                'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                'author_id' => $row['provenance_updated_by'],
+                'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-            $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
-            $tmp = explode(":", $row['code']);
-            $code_type = $tmp[0];
+
+            $careType = strtolower(trim($row['care_plan_type'] ?? ''));
+            $isPlannedProc = ($careType === 'planned_procedure');
+            $moodCode = $isPlannedProc ? 'RQO' : $row['moodCode'];
+
+            $proposedDate = !empty($row['proposed_date']) ? substr((string)$row['proposed_date'], 0, 10) : '';
+            $status = trim($row['plan_status'] ?? $status); // planned|active|completed|canceled
+            // Strip { | ... | } markup from description. Embedded issue codes are handled separately.
+            $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', (string)$row['description']);
+            $tmp = explode(":", (string)$row['code']);
+            $code_type = $tmp[0] ?? '';
             $code = $tmp[1] ?? '';
-            if ($row['care_plan_type'] === 'health_concern') {
+
+            // Health Concern (SNOMED CT)
+            if ($careType === 'health_concern') {
+                // Build linked issue UUIDs
                 $issue_uuid = "<issues>\n";
                 if (!empty($row['note_issues'])) {
-                    $issues = json_decode($row['note_issues'], true);
+                    $issues = json_decode((string)$row['note_issues'], true);
                     foreach ($issues as $issue) {
-                        $q = "Select uuid from lists Where id = ?";
-                        $uuid = sqlQuery($q, array($issue))['uuid'];
+                        $q = "SELECT uuid FROM lists WHERE id = ?";
+                        $uuid = sqlQuery($q, [$issue])['uuid'];
                         if (empty($uuid)) {
                             continue;
                         }
@@ -3711,19 +4302,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $concerns .= "<concern>" . $provenanceXml .
                     $issue_uuid . "</issues>" .
                     "<encounter>" . xmlEscape($row['encounter']) . "</encounter>
-                <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
+                <extension>" . xmlEscape(base64_encode($site_id . $row['encounter'])) . "</extension>
                 <sha_extension>" . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . "</sha_extension>
-                <text>" . xmlEscape($row['date'] . " " . $row['description']) . '</text>
-                <code>' . xmlEscape($code) . '</code>
-                <code_type>' . xmlEscape($code_type) . '</code_type>
-                <code_text>' . xmlEscape($row['codetext']) . '</code_text>
-                <date>' . xmlEscape($row['date']) . '</date>
-                <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
-                </concern>';
+                <text>" . xmlEscape($row['date'] . " " . $row['description']) . "</text>
+                <code>" . xmlEscape($code) . "</code>
+                <code_type>" . xmlEscape($code_type) . "</code_type>
+                <code_text>" . xmlEscape($row['codetext']) . "</code_text>
+                <date>" . xmlEscape($row['date']) . "</date>
+                <date_formatted>" . xmlEscape(str_replace("-", '', $row['date'])) . "</date_formatted>
+                <assessment>" . xlx('Encounter') . "</assessment>
+             </concern>";
             }
-            if ($row['care_plan_type'] === 'goal') {
+            // Goal (SNOMED CT or LOINC)
+            // Planned Procedure (SNOMED CT) - treated as a care plan item (not a goal)
+            // All other Care Plan Types (SNOMED CT, LOINC)
+            if ($careType === 'goal') {
                 $goals .= '<item>' . $provenanceXml . '
-                <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . '</extension>
+                <extension>' . xmlEscape(base64_encode($site_id . $row['encounter'])) . '</extension>
                 <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
                 <encounter>' . xmlEscape($row['encounter']) . '</encounter>
@@ -3735,11 +4330,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <status>' . xmlEscape($status) . '</status>
                 <status_entry>' . xmlEscape($status_entry) . '</status_entry>
                 <code_type>' . xmlEscape($code_type) . '</code_type>
-                <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
-                </item>';
-            } elseif ($row['care_plan_type'] !== 'health_concern') {
+                <value_type>ST</value_type>
+                <moodCode>' . xmlEscape($moodCode) . '</moodCode>
+            </item>';
+            } elseif ($careType !== 'health_concern') {
+                // All others incl. planned_procedure (RQO)
                 $planofcare .= '<item>' . $provenanceXml . '
-                <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . '</extension>
+                <extension>' . xmlEscape(base64_encode($site_id . $row['encounter'])) . '</extension>
                 <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
                 <encounter>' . xmlEscape($row['encounter']) . '</encounter>
@@ -3748,25 +4345,246 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <description>' . xmlEscape($row['description']) . '</description>
                 <date>' . xmlEscape($row['date']) . '</date>
                 <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+                <proposed_date>' . xmlEscape($proposedDate) . '</proposed_date>
                 <status>' . xmlEscape($status) . '</status>
                 <status_entry>' . xmlEscape($status_entry) . '</status_entry>
                 <code_type>' . xmlEscape($code_type) . '</code_type>
-                <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
-                </item>';
+                <moodCode>' . xmlEscape($moodCode) . '</moodCode>
+            </item>';
             }
+        }
+        // --- Append SDOH Goals, Concerns, and Interventions from HistorySdohService ---
+        try {
+            $sdoh = (HistorySdohService::getCurrentAssessment((int)$pid)) ?? null;
+            if ($sdoh) {
+                // Author/provenance (use last updater or current user)
+                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? (OEGlobalsBag::getInstance()->get('authUserID') ?? null);
+                $authorTime = $sdoh['updated_at'] ?? $sdoh['assessment_date'] ?? date('Y-m-d');
+                $encId = (int)($sdoh['encounter'] ?? $encounter ?? 0);
+
+                $provenanceXml = $this->getAuthorXmlForRecord(
+                    ['author_id' => $authorId, 'time' => $authorTime],
+                    $pid,
+                    $encounter
+                );
+                $extension = base64_encode($site_id . $encId);
+
+                // Goals
+                $calcGoals = HistorySdohService::buildGoals($sdoh, $pid);
+                foreach ($calcGoals as $g) {
+                    $measure = $g['target'][0]['measure'] ?? null; // CodeableConcept
+                    $code = $measure['coding'][0]['code'] ?? '';
+                    $codeType = $this->ccSystemToCodeType($measure['coding'][0]['system'] ?? '');
+                    $codeText = $this->ccText($measure ?: ($g['description'] ?? ''));
+                    $desc = $this->ccText($g['description'] ?? '');
+                    $date = substr($g['startDate'] ?? $authorTime, 0, 10);
+                    $sha = $this->formatUid(($sdoh['id'] ?? 'sdoh') . $desc . $date);
+
+                    $descCode = $g["description"]["coding"][0]["code"] ?? '';
+                    $descCodeType = $this->ccSystemToCodeType($g["description"]["coding"][0]["system"] ?? '');
+                    $descCodeSystem = "2.16.840.1.113883.6.96"; // SNOMED CT OID
+                    $descCodeText = $desc;
+                    $value_type = $descCode ? "CD" : "";
+
+                    $goals .= '<item>' . $provenanceXml . '
+                    <extension>' . xmlEscape($extension) . '</extension>
+                    <sha_extension>' . xmlEscape($sha) . '</sha_extension>
+                    <care_plan_type>goal</care_plan_type>
+                    <date>' . xmlEscape($date) . '</date>
+                    <date_formatted>' . xmlEscape(str_replace("-", "", $date)) . '</date_formatted>
+                    <encounter>' . xmlEscape($encId) . '</encounter>
+                    <code>' . xmlEscape($code) . '</code>
+                    <code_text>' . xmlEscape($codeText) . '</code_text>
+                    <code_type>' . xmlEscape($codeType) . '</code_type>
+                    <description>' . xmlEscape($desc) . '</description>
+                    <value_type>' . xmlEscape($value_type) . '</value_type>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <moodCode>GOL</moodCode>
+                    <sdoh_code>' . xmlEscape($descCode) . '</sdoh_code>
+                    <sdoh_code_text>' . xmlEscape($descCodeText) . '</sdoh_code_text>
+                    <sdoh_code_type>' . xmlEscape($descCodeType) . '</sdoh_code_type>
+                    <sdoh_code_system>' . xmlEscape($descCodeSystem) . '</sdoh_code_system>
+                </item>';
+                }
+                // End Goals
+                // --- SDOH Health Concerns from current assessment (mirrors goals/interventions)
+                $sdohConcerns = HistorySdohService::concernsFromCurrentAssessmentV3($pid);
+                foreach ($sdohConcerns as $c) {
+                    $provXml = $this->getAuthorXmlForRecord(
+                        ['author_id' => $c['author']['author_id'] ?? null, 'time' => $c['author']['time'] ?? ($c['date'] ?? null)],
+                        $pid,
+                        $encounter
+                    );
+
+                    $issuesXml = "<issues>";
+                    foreach (($c['issues']['issue_uuid'] ?? []) as $u) {
+                        if ($u === '' || $u === null) {
+                            continue;
+                        }
+                        $issuesXml .= "<issue_uuid>" . xmlEscape((string)$u) . "</issue_uuid>";
+                    }
+                    $issuesXml .= "</issues>";
+
+                    $encId = (int)($sdoh['encounter'] ?? $encounter ?? 0);
+                    $extension = base64_encode($site_id . $encId);
+                    $sha = $this->formatUid('sdoh_assess_concern' . ($c['code'] ?? '') . ($c['date'] ?? '') . ($c['text'] ?? ''));
+
+                    $concerns .= "<concern>{$provXml}
+                        {$issuesXml}
+                        <encounter>" . xmlEscape($encId) . "</encounter>
+                        <extension>" . xmlEscape($extension) . "</extension>
+                        <sha_extension>" . xmlEscape($sha) . "</sha_extension>
+                        <text>" . xmlEscape($c['text'] ?? '') . "</text>
+                        <code>" . xmlEscape($c['code'] ?? '') . "</code>
+                        <code_type>" . xmlEscape($c['code_type'] ?? '') . "</code_type>
+                        <code_text>" . xmlEscape($c['code_text'] ?? '') . "</code_text>
+                        <date>" . xmlEscape($c['date'] ?? '') . "</date>
+                        <date_formatted>" . xmlEscape($c['date_formatted'] ?? '') . "</date_formatted>
+                        <assessment>" . xmlEscape('SDOH') . "</assessment>
+                    </concern>";
+                }
+
+                // Interventions
+                $calcInterventions = HistorySdohService::buildInterventions($sdoh, (int)$pid, ['include_manual' => true]);
+                foreach ($calcInterventions as $sr) {
+                    $codeCC = $sr['code'] ?? []; // CodeableConcept
+                    $coding0 = $codeCC['coding'][0] ?? [];
+                    $icode = $coding0['code'] ?? '';
+                    $icodeSys = $coding0['system'] ?? '';
+                    $codeType = $this->ccSystemToCodeType($icodeSys) ?: 'SNOMED-CT';
+                    $codeText = $this->ccText($codeCC);
+                    $desc = $codeText;
+                    $date = substr($sr['authoredOn'] ?? $authorTime, 0, 10);
+                    $proposed = isset($sr['occurrenceDateTime']) ? substr($sr['occurrenceDateTime'], 0, 10) : '';
+                    $sha = $this->formatUid(($sdoh['id'] ?? 'sdoh') . $desc . $date);
+
+                    $planofcare .= '<item>' . $provenanceXml . '
+                    <extension>' . xmlEscape($extension) . '</extension>
+                    <sha_extension>' . xmlEscape($sha) . '</sha_extension>
+                    <date>' . xmlEscape($date) . '</date>
+                    <care_plan_type>test_or_order</care_plan_type>
+                    <encounter>' . xmlEscape($encId) . '</encounter>
+                    <code>' . xmlEscape($icode) . '</code>
+                    <code_text>' . xmlEscape($codeText) . '</code_text>
+                    <description>' . xmlEscape($desc) . '</description>
+                    <date_formatted>' . xmlEscape(str_replace("-", "", $date)) . '</date_formatted>
+                    <proposed_date>' . xmlEscape($proposed) . '</proposed_date>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <code_type>' . xmlEscape($codeType) . '</code_type>
+                    <moodCode>RQO</moodCode>
+                </item>';
+                }
+            }
+        } catch (\Throwable) {
+            // Optional: error_log('CCDA SDOH error: ' . $e->getMessage());
         }
 
         $planofcare .= '</planofcare>';
         $goals .= '</goals>';
         $concerns .= '</health_concerns>';
-        return $planofcare . $goals . $concerns;
+        $sdoh_social = $this->getSocialHistorySDOH($pid);
+        return $planofcare . $goals . $concerns . $sdoh_social;
+    }
+
+    public function getSocialHistorySDOH($pid)
+    {
+        $sql = "
+        SELECT
+            hunger_q1,
+            hunger_q2,
+            hunger_score,
+            food_insecurity,
+            disability_status,
+            disability_scale,
+            assessment_date
+        FROM form_history_sdoh
+        WHERE pid = ?
+        ORDER BY COALESCE(updated_at, created_at) DESC
+        LIMIT 1
+    ";
+
+        $sdoh = sqlQuery($sql, [$pid]);
+        if (!$sdoh) {
+            return '<social_history_sdoh></social_history_sdoh>';
+        }
+
+        $xml = '<social_history_sdoh>';
+        $assessDate = $sdoh['assessment_date'] ?? date('Y-m-d');
+        $assessDateFormatted = str_replace('-', '', $assessDate);
+
+        // Hunger Vital Signs Assessment (Food Insecurity)
+        if (!empty($sdoh['hunger_q1']) || !empty($sdoh['hunger_q2'])) {
+            $xml .= '<hunger_vital_signs>';
+            $xml .= '<assessment_date>' . xmlEscape($assessDateFormatted) . '</assessment_date>';
+            $xml .= '<score>' . xmlEscape($sdoh['hunger_score'] ?? '0') . '</score>';
+
+            // Overall food insecurity risk determination
+            $risk_code = '';
+            $risk_display = '';
+            if ($sdoh['food_insecurity'] == 'at_risk') {
+                $risk_code = 'LA19952-3';
+                $risk_display = 'At risk';
+            } elseif ($sdoh['food_insecurity'] == 'no_risk') {
+                $risk_code = 'LA19983-8';
+                $risk_display = 'No risk';
+            }
+
+            $xml .= '<risk_status>';
+            $xml .= '<code>88124-3</code>';
+            $xml .= '<code_system>2.16.840.1.113883.6.1</code_system>';
+            $xml .= '<display>Food insecurity risk</display>';
+            $xml .= '<answer_code>' . xmlEscape($risk_code) . '</answer_code>';
+            $xml .= '<answer_display>' . xmlEscape($risk_display) . '</answer_display>';
+            $xml .= '</risk_status>';
+
+            // Question 1: Worried about food running out
+            if (!empty($sdoh['hunger_q1'])) {
+                $q1_display = $this->getHungerAnswerDisplay($sdoh['hunger_q1']);
+                $xml .= '<question1>';
+                $xml .= '<code>88122-7</code>';
+                $xml .= '<code_system>2.16.840.1.113883.6.1</code_system>';
+                $xml .= '<display>Within past 12 months we worried whether our food would run out before we got money to buy more</display>';
+                $xml .= '<answer_code>' . xmlEscape($sdoh['hunger_q1']) . '</answer_code>';
+                $xml .= '<answer_display>' . xmlEscape($q1_display) . '</answer_display>';
+                $xml .= '</question1>';
+            }
+
+            // Question 2: Food didn't last
+            if (!empty($sdoh['hunger_q2'])) {
+                $q2_display = $this->getHungerAnswerDisplay($sdoh['hunger_q2']);
+                $xml .= '<question2>';
+                $xml .= '<code>88123-5</code>';
+                $xml .= '<code_system>2.16.840.1.113883.6.1</code_system>';
+                $xml .= '<display>Within past 12 months the food we bought just didn\'t last and we didn\'t have money to get more</display>';
+                $xml .= '<answer_code>' . xmlEscape($sdoh['hunger_q2']) . '</answer_code>';
+                $xml .= '<answer_display>' . xmlEscape($q2_display) . '</answer_display>';
+                $xml .= '</question2>';
+            }
+
+            $xml .= '</hunger_vital_signs>';
+        }
+
+        $xml .= '</social_history_sdoh>';
+        return $xml;
+    }
+
+    private function getHungerAnswerDisplay($code)
+    {
+        $map = [
+            'LA28397-0' => 'Often true',
+            'LA28398-8' => 'Sometimes true',
+            'LA28399-6' => 'Never true',
+            'LA30122-8' => 'Declined to answer'
+        ];
+        return $map[$code] ?? '';
     }
 
     /*
    * get details from functional and cognitive status form
    * @param    int     $pid           Patient Internal Identifier.
    * @param    int     $encounter     Current selected encounter.
-
    * return    string  $functional_cognitive  XML which contains the details collected from the patient.
    */
     /**
@@ -3779,7 +4597,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -3792,8 +4610,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 LEFT JOIN form_functional_cognitive_status AS ffcs ON ffcs.id = f.form_id
                 WHERE $wherCon f.pid = ? AND f.formdir = ? AND f.deleted = ?";
         array_push($sqlBindArray, $pid, 'functional_cognitive_status', 0);
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
         foreach ($res as $row) {
             // $row['activity'] designates functional or cognitive status
@@ -3839,7 +4656,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($this->encounterFilterList)) {
                 return "<clinical_notes></clinical_notes>";
             } else {
-                $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+                $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
             }
         } elseif ($encounter) {
             $wherCon = " f.encounter = ? AND ";
@@ -3848,13 +4665,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $clinical_notes = '';
         $query = "SELECT fnote.*, u.*, fac.*,u.id AS provenance_updated_by, f.date AS modifydate, fac.oid AS facility_oid FROM forms AS f
-                LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`form_id` = f.`form_id`
+                LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`form_id` = f.`form_id` AND fnote.`activity` > 0
                 LEFT JOIN users as u on u.username = fnote.user
                 LEFT JOIN facility as fac on fac.id = u.facility_id
                 WHERE $wherCon f.`pid` = ? AND f.`formdir` = ? AND f.`deleted` = ? Order By fnote.`encounter`, fnote.`date`, fnote.`clinical_notes_type` DESC";
         array_push($sqlBindArray, $pid, 'clinical_notes', 0);
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
         $clinical_notes .= '<clinical_notes>';
         foreach ($res as $row) {
@@ -3863,10 +4679,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-            $tmp = explode(":", $row['code']);
+            $tmp = explode(":", (string)$row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
             $clt = xmlEscape($row['clinical_notes_type']);
@@ -3899,11 +4715,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getCareTeamProviderId($pid)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT care_team_provider FROM patient_data WHERE `pid`  = ?";
-        $result = $appTable->zQuery($query, array($pid));
-        $row = $result->current();
-        return $row['care_team_provider'];
+        $result = QueryUtils::fetchRecords($query, [$pid]);
+        $row = $result[0] ?? [];
+        return $row['care_team_provider'] ?? null;
     }
 
     /**
@@ -3915,7 +4730,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -3926,8 +4741,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 LEFT JOIN form_clinical_instructions AS fci ON fci.id = f.form_id
                 WHERE $wherCon f.pid = ? AND f.formdir = ? AND f.deleted = ?";
         array_push($sqlBindArray, $pid, 'clinical_instructions', 0);
-        $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, $sqlBindArray);
+                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
         $clinical_instructions = '<clinical_instruction>';
         foreach ($res as $row) {
             $clinical_instructions .= '<item>' . xmlEscape($row['instruction']) . '</item>';
@@ -3947,8 +4761,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [$pid];
         $wherCon .= "ORDER BY date DESC";
 
-        $appTable = new ApplicationTable();
-        $query = "SELECT ref_body.field_value AS body, ref_to.field_value AS refer_to
+                $query = "SELECT ref_body.field_value AS body, ref_to.field_value AS refer_to
                     , ref_from.field_value AS refer_from, ref_billing_facility_id.field_value AS billing_facility_id
                     , t.date AS creation_date, ref_date.field_value AS refer_date
                     , u.id AS provenance_updated_by
@@ -3962,13 +4775,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                             AND ref_billing_facility_id.field_id = 'billing_facility_id'
                     WHERE pid = ? $wherCon";
 
-        $result = $appTable->zQuery($query, $sqlBindArray);
+        $result = QueryUtils::fetchRecords($query, $sqlBindArray);
         $records = [];
         foreach ($result as $row) {
             // because of the way transactions store dates as string and we don't have a cross data base compliant way of
             // converting fields to dates we have to sort the dates in the application layer.
             if ($this->searchFiltered) {
-                $rowDate = strtotime($row['refer_date']);
+                $rowDate = strtotime((string)$row['refer_date']);
                 // if we can't format the date and we are filtering then we exclude it,
                 if (
                     $rowDate === false
@@ -4000,7 +4813,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                            <date>' . xmlEscape($referral['refer_date']) . '</date>';
             $provenanceRecord = [
                 'author_id' => $referral['provenance_updated_by']
-                ,'time' => $referral['creation_date']
+                , 'time' => $referral['creation_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $referralsXML .= $provenanceXml;
@@ -4017,9 +4830,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getLatestEncounter($pid)
     {
         $encounter = '';
-        $appTable = new ApplicationTable();
-        $query = "SELECT encounter FROM form_encounter  WHERE pid = ? ORDER BY id DESC LIMIT 1";
-        $result = $appTable->zQuery($query, array($pid));
+                $query = "SELECT encounter FROM form_encounter  WHERE pid = ? ORDER BY id DESC LIMIT 1";
+        $result = QueryUtils::fetchRecords($query, [$pid]);
         foreach ($result as $row) {
             $encounter = $row['encounter'];
         }
@@ -4033,8 +4845,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function formatUid($str)
     {
-        $sha = sha1($str);
-        return substr(preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
+        $sha = sha1((string)$str);
+        return substr((string)preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
     }
 
     /**
@@ -4045,8 +4857,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     private function getEncounterListForDateRange($pid, $encounter)
     {
         $encounter = '';
-        $appTable = new ApplicationTable();
-        $boundParams = [$pid];
+                $boundParams = [$pid];
         $query = "SELECT encounter FROM form_encounter  WHERE pid = ? ";
         if (!empty($encounter)) {
             $query .= " AND encounter = ? ";
@@ -4059,7 +4870,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $query .= " ORDER BY id DESC";
-        $result = $appTable->zQuery($query, $boundParams);
+        $result = QueryUtils::fetchRecords($query, $boundParams);
         $encounters = [];
         foreach ($result as $row) {
             $encounters[] = intval($row['encounter']);
@@ -4067,6 +4878,195 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         return $encounters;
     }
-}
 
-?>
+    public function getPayers($pid): string
+    {
+        $xml = "<payers>";
+        // $types = ['primary', 'secondary', 'tertiary'];
+        $types = ['primary'];
+
+        foreach ($types as $type) {
+            $sql = "
+            SELECT i.*, c.name AS company_name,
+                   c.uuid as compuuid,
+                   a.line1, a.line2, a.city, a.state, a.zip, a.plus_four, a.country,
+                   a.foreign_id,
+                   p.uuid AS piduuid,
+                   p.fname AS patient_fname, p.mname AS patient_mname, p.lname AS patient_lname,
+                   p.street AS patient_street, p.city AS patient_city, p.state AS patient_state,
+                   p.postal_code AS patient_postal_code, p.DOB AS patient_dob
+            FROM insurance_data i
+            JOIN insurance_companies c ON i.provider = c.id
+            JOIN addresses a ON c.id = a.foreign_id
+            JOIN patient_data p ON i.pid = p.pid
+            WHERE i.type = ? AND i.pid = ?
+            ORDER BY i.date DESC
+        ";
+            $res = sqlStatement($sql, [$type, $pid]);
+            $row = sqlFetchArray($res);
+            if (!$row) {
+                continue; // no data for this type
+            }
+            $cuuid = xmlEscape(UuidRegistry::uuidToString($row['compuuid']));
+            $puuid = xmlEscape(UuidRegistry::uuidToString($row['piduuid']));
+
+            $companyName = xmlEscape($row['company_name']);
+            $companyPhone = xmlEscape($row['phone'] ?: '(000)000-0000');
+            $planName = xmlEscape($row['plan_name'] ?: '');
+            $policyId = xmlEscape($row['policy_number'] ?: '');
+            $policyGroup = xmlEscape($row['group_number'] ?: '');
+            $startDate = xmlEscape($row['date'] ?: '');
+            $endDate = xmlEscape($row['date_end'] ?: '');
+
+            $addrLine1 = xmlEscape($row['line1']);
+            $addrLine2 = xmlEscape($row['line2']);
+            $addrCity = xmlEscape($row['city']);
+            $addrState = xmlEscape($row['state']);
+            $addrZip = xmlEscape($row['zip']);
+            $addrCountry = xmlEscape($row['country'] ?: 'US');
+
+            $subFirst = xmlEscape($row['subscriber_fname'] ?: '');
+            $subLast = xmlEscape($row['subscriber_lname'] ?: '');
+            $subPhone = xmlEscape($row['subscriber_phone'] ?: '(000)000-0000');
+            $subStreet = xmlEscape($row['subscriber_street'] ?: '');
+            $subCity = xmlEscape($row['subscriber_city'] ?: '');
+            $subState = xmlEscape($row['subscriber_state'] ?: '');
+            $subZip = xmlEscape($row['subscriber_postal_code'] ?: '00000');
+
+            $patFirst = xmlEscape($row['patient_fname']);
+            $patLast = xmlEscape($row['patient_lname']);
+            $patMiddle = xmlEscape($row['patient_mname']);
+            $patStreet = xmlEscape($row['patient_street']);
+            $patCity = xmlEscape($row['patient_city']);
+            $patState = xmlEscape($row['patient_state']);
+            $patZip = xmlEscape($row['patient_postal_code']);
+            $authCode = '72'; // default auth code for self pay. Unsure how we handle in billing for if insurance company auth use and when.
+            $xml .= <<<XML
+  <payer>
+    <identifiers>
+      <identifier>{$cuuid}</identifier>
+    </identifiers>
+    <policy>
+      <identifiers>
+        <identifier>{$puuid}</identifier>
+         <extension>{$policyGroup}</extension>
+      </identifiers>
+      <code code="{$authCode}" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" name="PPO" />
+      <plan_name>{$planName}</plan_name>
+      <insurance>
+        <code code="PAYOR" code_system="2.16.840.1.113883.5.110" code_system_name="RoleCode" name="Invoice Payor" />
+        <performer>
+          <identifiers>
+            <identifier>2.16.840.1.113883.18</identifier>
+          </identifiers>
+          <address>
+            <street_lines>{$addrLine1}</street_lines>
+            <street_lines2>{$addrLine2}</street_lines2>
+            <city>{$addrCity}</city>
+            <state>{$addrState}</state>
+            <zip>{$addrZip}</zip>
+            <country>{$addrCountry}</country>
+            <use>work place</use>
+          </address>
+          <phone>
+            <number>{$companyPhone}</number>
+            <type>work place</type>
+          </phone>
+          <organization>
+            <name>{$companyName}</name>
+            <address>
+              <street_lines>{$addrLine1} {$addrLine2}</street_lines>
+              <city>{$addrCity}</city>
+              <state>{$addrState}</state>
+              <zip>{$addrZip}</zip>
+              <country>{$addrCountry}</country>
+              <use>work place</use>
+            </address>
+            <phone>
+              <number>{$companyPhone}</number>
+              <type>work place</type>
+            </phone>
+          </organization>
+        </performer>
+      </insurance>
+    </policy>
+    <guarantor>
+      <code code="GUAR" code_system_name="HL7 Role" />
+      <identifiers><identifier>{$puuid}</identifier></identifiers>
+      <name>
+        <prefix>Mr.</prefix>
+        <first>{$subFirst}</first>
+        <middle>Subscriber</middle>
+        <last>{$subLast}</last>
+      </name>
+      <address>
+        <street_lines>{$subStreet}</street_lines>
+        <city>{$subCity}</city>
+        <state>{$subState}</state>
+        <zip>{$subZip}</zip>
+        <country>US</country>
+        <use>primary home</use>
+      </address>
+      <phone>
+        <number>{$subPhone}</number>
+        <type>primary home</type>
+      </phone>
+    </guarantor>
+    <participant>
+      <time_low>{$startDate}</time_low>
+      <time_high>{$endDate}</time_high>
+      <code name="Self" code="SELF" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" />
+      <performer>
+        <identifiers>
+          <identifier>{$puuid}</identifier>
+          <extension>{$policyId}</extension>
+        </identifiers>
+        <address>
+          <street_lines>{$patStreet}</street_lines>
+          <city>{$patCity}</city>
+          <state>{$patState}</state>
+          <zip>{$patZip}</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+        <code>
+          <name>Self</name>
+          <code>SELF</code>
+          <code_system>"2.16.840.1.113883.3.221.5"</code_system>
+          <code_system_name>Insurance Type Code</code_system_name>
+        </code>
+      </performer>
+      <name>
+        <first>{$patFirst}</first>
+        <middle>{$patMiddle}</middle>
+        <last>{$patLast}</last>
+      </name>
+    </participant>
+    <policy_holder>
+      <performer>
+        <identifiers>
+          <identifier>2.16.840.1.113883.19</identifier>
+          <extension>{$policyId}</extension>
+        </identifiers>
+        <address>
+          <street_lines>{$subStreet}</street_lines>
+          <city>{$subCity}</city>
+          <state>{$subState}</state>
+          <zip>{$subZip}</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+      </performer>
+    </policy_holder>
+    <authorization>
+        <authorization_code>{$authCode}</authorization_code>
+        <identifiers><identifier>{$puuid}</identifier></identifiers>
+    </authorization>
+  </payer>
+
+XML;
+        }
+        $xml .= "</payers>";
+        return $xml;
+    }
+}

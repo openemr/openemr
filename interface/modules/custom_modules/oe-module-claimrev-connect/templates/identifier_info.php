@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -28,10 +28,10 @@ if ($benefit->identifiers != null && $benefit->identifiers) {
                                                 <div class="col">
                                                 <?php echo text($ident->referenceQualifierDesc) ?>
                                                 </div>
-                                                <div class="col">                                                
+                                                <div class="col">
                                                 <?php echo text($ident->referenceValue) ?>
                                                 </div>
-                                                <div class="col">                                                
+                                                <div class="col">
                                                 <?php echo text($ident->referenceDesc) ?>
                                                 </div>
                                             </div>

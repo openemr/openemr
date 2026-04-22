@@ -5,7 +5,7 @@
  * to various input selection criteria.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
@@ -18,20 +18,20 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions and Dispensations")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Prescriptions and Dispensations", xl("Prescriptions and Dispensations"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
@@ -39,7 +39,7 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
 $form_patient_id = trim($_POST['form_patient_id'] ?? '');
 $form_drug_name  = trim($_POST['form_drug_name'] ?? '');
 $form_lot_number = trim($_POST['form_lot_number'] ?? '');
-$form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility   = $_POST['form_facility'] ?? '';
 ?>
 <html>
 <head>
@@ -59,7 +59,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -112,7 +112,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 </div>
 
 <form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -217,7 +217,7 @@ if (!empty($_POST['form_refresh'])) {
 <tbody>
     <?php
     if ($_POST['form_refresh']) {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $where = "r.date_modified >= ? AND " .
         "r.date_modified <= ?";
@@ -278,15 +278,15 @@ if (!empty($_POST['form_refresh'])) {
             $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
             $ndc_number      = $row['ndc_number'];
             $drug_units      = text($row['size']) . ' ' .
-                   generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']);
+                   generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']);
             $refills         = $row['refills'];
             $reactions       = $row['reactions'];
             $instructed      = text($row['dosage']) . ' ' .
-                   generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
+                   generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
                    ' ' .
-                       generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row['interval']);
+                       generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']);
             //if ($row['patient_id'] == $last_patient_id) {
-            if (strcmp($row['pubpid'], $last_patient_id) == 0) {
+            if (strcmp((string) $row['pubpid'], (string) $last_patient_id) == 0) {
                 $patient_name = $patient_id  = '';
                 if ($row['id'] == $last_prescription_id) {
                     $prescription_id = $drug_name = $ndc_number = $drug_units = $refills = $reactions = $instructed = '';

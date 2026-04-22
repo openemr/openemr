@@ -2,11 +2,11 @@
 
 /**
  * Patient report
- * TODO: Note that this file can be refactored to re-use shared code with the portal_patient_report.php file
- * that file has been refactored to use twig templates and this file could be reworked to re-use much of that code
+ * TODO: Note that this file can be refactored to reuse shared code with the portal_patient_report.php file
+ * that file has been refactored to use twig templates and this file could be reworked to reuse much of that code
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -21,10 +21,12 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -32,8 +34,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Patient Reports", xl("Patient Reports"));
 }
 // get various authorization levels
 $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
@@ -44,10 +45,12 @@ $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 ?>
 <!DOCTYPE>
 <html>
@@ -76,17 +79,17 @@ function show_date_fun(){
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Patient Reports'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "report_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -107,7 +110,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             <?php
-            if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
+            if (OEGlobalsBag::getInstance()->getBoolean('activate_ccr_ccd_report')) { // show CCR/CCD reporting options ?>
                 <div class="mt-3" id="ccr_report">
                     <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
                         <fieldset>
@@ -143,7 +146,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="generateCCR_download_p btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
 
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccr_enable')) { ?>
                                     <button type="button" class="viewCCR_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccr_send_dialog" style="display: none">
@@ -178,7 +181,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="viewNewCCD btn btn-primary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate New Report'); ?></button>
                                 <button type="button" class="viewCCD_download btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccd_enable')) { ?>
                                     <button type="button" class="viewCCD_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccd_send_dialog" style="display: none">
@@ -240,7 +243,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <br />
                                     <input type='checkbox' name='include_billing' id='include_billing' value="billing"
                                     <?php
-                                    if (!$GLOBALS['simplified_demographics']) {
+                                    if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                         echo 'checked';
                                     } ?> /><?php echo xlt('Billing'); ?>
                                     <br />
@@ -298,7 +301,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php
                                         // get issues
                                         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-                                        "ORDER BY type, begdate", array($pid));
+                                        "ORDER BY type, begdate", [$pid]);
                                         $lasttype = "";
                                         while ($prow = sqlFetchArray($pres)) {
                                             if ($lasttype != $prow['type']) {
@@ -322,10 +325,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             $rowid = $prow['id'];
-                                            $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
+                                            $disptitle = trim((string) $prow['title']) ? $prow['title'] : "[Missing Title]";
 
                                             $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
-                                            "pid = ? AND list_id = ?", array($pid, $rowid));
+                                            "pid = ? AND list_id = ?", [$pid, $rowid]);
 
                                             echo "    <tr class='text'>\n";
                                             echo "     <td>&nbsp;</td>\n";
@@ -375,12 +378,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         "forms.pid = ? AND form_encounter.pid = ? AND " .
                                         "form_encounter.encounter = forms.encounter " .
                                         " AND forms.deleted=0 " . // --JRM--
-                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
+                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", [$pid, $pid]);
                                         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
-                                        $html_strings = array();
-                                        $registry_form_name = array();
+                                        $html_strings = [];
+                                        $registry_form_name = [];
                                         while ($result2 = sqlFetchArray($res2)) {
-                                            array_push($registry_form_name, trim($result2['name']));
+                                            array_push($registry_form_name, trim((string) $result2['name']));
                                         }
 
                                         while ($result = sqlFetchArray($res)) {
@@ -393,7 +396,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
-                                                    $html_strings = array();
+                                                    // AI-generated code (Claude Code) - start
+                                                    // Print any forms not in the registry (e.g. custom LBF layouts)
+                                                    foreach ($html_strings as $key => $toprint) {
+                                                        if (!in_array($key, $registry_form_name, true)) {
+                                                            foreach ($toprint as $item) {
+                                                                print $item;
+                                                            }
+                                                        }
+                                                    }
+                                                    // AI-generated code (Claude Code) - end
+                                                    $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
                                                     echo "<br />";
@@ -409,16 +422,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // show encounter reason, not just 'New Encounter'
                                                 // trim to a reasonable length for display purposes --cfapress
                                                 $maxReasonLength = 20;
-                                                if (strlen($result["reason"]) > $maxReasonLength) {
+                                                if (strlen((string) $result["reason"]) > $maxReasonLength) {
                                                     // The default encoding for this mb_substr() call is set near top of globals.php
-                                                    $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
+                                                    $result['reason'] = mb_substr((string) $result['reason'], 0, $maxReasonLength) . " ... ";
                                                 }
                                                 echo text($result["reason"]) .
-                                                " (" . text(date("Y-m-d", strtotime($result["date"]))) .
+                                                " (" . text(date("Y-m-d", strtotime((string) $result["date"]))) .
                                                 ")\n";
                                                 echo "<div class='encounter_forms'>\n";
                                             } else {
-                                                $form_name = trim($result["form_name"]);
+                                                $form_name = trim((string) $result["form_name"]);
                                                 //if form name is not in registry, look for the closest match by
                                                 // finding a registry name which is  at the start of the form name.
                                                 //this is to allow for forms to put additional helpful information
@@ -433,13 +446,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
                                                 if (!$form_name_found_flag) {
                                                     foreach ($registry_form_name as $var) {
-                                                        if (strpos($form_name, $var) == 0) {
+                                                        if (str_starts_with($form_name, $var)) {
                                                             $form_name = $var;
                                                         }
                                                     }
                                                 }
                                                 if (empty($html_strings[$form_name]) || !is_array($html_strings[$form_name])) {
-                                                    $html_strings[$form_name] = array();
+                                                    $html_strings[$form_name] = [];
                                                 }
                                                 array_push($html_strings[$form_name], "<input type='checkbox' " .
                                                     " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'" .
@@ -459,6 +472,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                             }
                                         }
+                                        // AI-generated code (Claude Code) - start
+                                        // Print any forms not in the registry (e.g. custom LBF layouts)
+                                        foreach ($html_strings as $key => $toprint) {
+                                            if (!in_array($key, $registry_form_name, true)) {
+                                                foreach ($toprint as $item) {
+                                                    print $item;
+                                                }
+                                            }
+                                        }
+                                        // AI-generated code (Claude Code) - end
                                         ?>
 
                                         <?php
@@ -488,7 +511,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
                                     "WHERE po.patient_id = ? " .
                                     "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-                                    array($pid)
+                                    [$pid]
                                 );
                                 while ($row = sqlFetchArray($res)) {
                                     $poid = $row['procedure_order_id'];
@@ -501,7 +524,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $opres = sqlStatement(
                                         "SELECT procedure_code, procedure_name FROM procedure_order_code " .
                                         "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
-                                        array($poid)
+                                        [$poid]
                                     );
                                     while ($oprow = sqlFetchArray($opres)) {
                                         $tmp = $oprow['procedure_name'];
@@ -526,12 +549,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <ul>
                         <?php
                         // show available documents
-                        $db = $GLOBALS['adodb']['db'];
+                        $db = OEGlobalsBag::getInstance()->get('adodb')['db'];
                         $sql = "SELECT d.id, d.url, d.name as document_name, c.name, c.aco_spec FROM documents AS d " .
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
                                 "d.foreign_id = ? AND d.deleted = 0";
-                        $result = $db->Execute($sql, array($pid));
+                        $result = $db->Execute($sql, [$pid]);
                         if ($db->ErrorMsg()) {
                             echo $db->ErrorMsg();
                         }
@@ -564,7 +587,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 
@@ -630,7 +653,7 @@ $(function () {
         // there's a lot of ways to do this but for now, we'll go with this!
         top.restoreSession();
         let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
-            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken() ?>");
+            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken(session: $session) ?>");
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -671,7 +694,7 @@ $(function () {
         $("#ccr_form").submit();
     });
 
-    <?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccr_enable')) { ?>
         $(".viewCCR_send_dialog").click(function() {
             $("#ccr_send_dialog").toggle();
         });
@@ -713,7 +736,7 @@ $(function () {
         });
     <?php }
 
-    if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+    if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccd_enable')) { ?>
         $(".viewCCD_send_dialog").click(function() {
             $("#ccd_send_dialog").toggle();
         });

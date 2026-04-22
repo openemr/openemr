@@ -5,13 +5,13 @@
 /** Serialized Array of big names, thousand, million, etc
 * @package NumberToText */
 
-define("N2T_BIG", serialize(array('thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion')));
+define("N2T_BIG", serialize(['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion']));
 /** Serialized Array of medium names, twenty, thirty, etc
 * @package NumberToText */
-define("N2T_MEDIUM", serialize(array(2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty', 6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety')));
+define("N2T_MEDIUM", serialize([2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty', 6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety']));
 /** Serialized Array of small names, zero, one, etc.. up to eighteen, nineteen
 * @package NumberToText */
-define("N2T_SMALL", serialize(array('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')));
+define("N2T_SMALL", serialize(['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']));
 /** Word for "dollars"
 * @package NumberToText */
 define("N2T_DOLLARS", "dollars");
@@ -33,17 +33,8 @@ define("N2T_NEGATIVE", "negative");
 
 class NumberToText
 {
-    var $number;
-    var $currency;
-    var $capatalize;
-    var $and;
-
-    function __construct($number, $currency = false, $capatalize = false, $and = false)
+    function __construct(public $number, public $currency = false, public $capitalize = false, public $and = false)
     {
-        $this->number = $number;
-        $this->currency = $currency;
-        $this->capatalize = $capatalize;
-        $this->and = $and;
     }
 
     /** Number to text converter. Converts a number into a textual description, such as
@@ -56,17 +47,16 @@ class NumberToText
     * @version 1.1
     * @param int  $number      The number to convert
     * @param bool $currency    True to convert as a dollar amount
-    * @param bool $capatalize  True to capatalize every word (except "and")
+    * @param bool $capitalize  True to capitalize every word (except "and")
     * @param bool $and         True to use "and"  (ie. "one hundred AND six")
-    * @return The textual description of the number, as a string.
+    * @return string The textual description of the number.
     * @package NumberToText
     */
-
     function convert()
     {
         $number = $this->number;
         $currency = $this->currency;
-        $capatalize = $this->capatalize;
+        $capitalize = $this->capitalize;
         $and = $this->and;
 
         $big = unserialize(N2T_BIG, ['allowed_classes' => false]);
@@ -87,18 +77,18 @@ class NumberToText
 
         //$negative = ($number < 0); // check for negative
         //$number = abs($number); // make sure we have a +ve number
-        if (substr($number, 0, 1) == "-") {
+        if (str_starts_with((string) $number, "-")) {
             $negative = true;
-            $number = substr($number, 1); // abs()
+            $number = substr((string) $number, 1); // abs()
         } else {
             $negative = false;
         }
 
         // get the integer and decimal parts
         //$int_o = $int = floor($number); // store into two vars
-        if ($pos = strpos($number, ".")) {
-            $int_o = $int = substr($number, 0, $pos);
-            $decimal_o = $decimal = substr($number, $pos + 1);
+        if ($pos = strpos((string) $number, ".")) {
+            $int_o = $int = substr((string) $number, 0, $pos);
+            $decimal_o = $decimal = substr((string) $number, $pos + 1);
         } else {
             $int_o = $int = $number;
             $decimal_o = $decimal = 0;
@@ -121,12 +111,12 @@ class NumberToText
             } else {
                 // we can handle it
 
-                if (strlen($int) < 3) {
+                if (strlen((string) $int) < 3) {
                       $convert = $int;
                       $int = 0;
                 } else {
-                      $convert = substr($int, -3); // grab the last 3 digits
-                      $int = substr($int, 0, -1 * strlen($convert));
+                      $convert = substr((string) $int, -3); // grab the last 3 digits
+                      $int = substr((string) $int, 0, -1 * strlen($convert));
                 }
 
                 if ($convert > 0) {
@@ -181,13 +171,13 @@ class NumberToText
             $text = N2T_NEGATIVE . " " . $text;
         }
 
-        // capatalize words
-        if ($capatalize) {
-            // easier to capatalize all words then un-capatalize "and"
-            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
+        // capitalize words
+        if ($capitalize) {
+            // easier to capitalize all words then un-capitalize "and"
+            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords((string) $text));
         }
 
-        return trim($text);
+        return trim((string) $text);
     }
 
     /** This is a utility function of n2t. It converts a 3-digit number
@@ -197,7 +187,7 @@ class NumberToText
     * @param  bool $and        True to put the "and" in the string
     * @param  bool $preceding  True if there are preceding members, puts an
     *                          explicit and in (ie 1001 => one thousand AND one)
-    * @return The textual description of the number, as a string
+    * @return string The textual description of the number.
     * @package NumberToText
     */
     function n2t_convertthree($number, $and, $preceding)
@@ -234,7 +224,7 @@ class NumberToText
 
     function getmicrotime()
     {
-        list($usec, $sec) = explode(" ", microtime());
+        [$usec, $sec] = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
 }

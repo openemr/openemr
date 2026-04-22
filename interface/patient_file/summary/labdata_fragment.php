@@ -4,7 +4,7 @@
  * labdata_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Joe Slam <joe@produnis.de>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Joe Slam <joe@produnis.de>
@@ -15,10 +15,10 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
 <div id='labdata' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
@@ -33,7 +33,7 @@ $spell = "SELECT procedure_report.date_collected AS thedate, " .
             "JOIN procedure_order_code ON procedure_order.procedure_order_id = procedure_order_code.procedure_order_id " .
             "WHERE procedure_order.patient_id = ? " .
             "ORDER BY procedure_report.date_collected DESC ";
-$result = sqlQuery($spell, array($pid));
+$result = sqlQuery($spell, [$pid]);
 
 if (!$result) { //If there are no lab data recorded
     ?>

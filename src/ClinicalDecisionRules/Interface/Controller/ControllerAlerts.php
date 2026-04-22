@@ -19,9 +19,8 @@
 //
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
-use OpenEMR\ClinicalDecisionRules\Interface\stdClass;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 
 class ControllerAlerts extends BaseController
 {
@@ -36,7 +35,7 @@ class ControllerAlerts extends BaseController
         // Instantiating object if does not exist to avoid
         //    "creating default object from empty value" warning.
         if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
+            $this->viewBean = new \stdClass();
         }
 
         $this->viewBean->rules = $c->populate();
@@ -57,33 +56,18 @@ class ControllerAlerts extends BaseController
 
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
         // So, we have to manually create the entitre arrays with right values.
-        $actives_final = array();
-        $passives_final = array();
-        $reminders_final = array();
+        $actives_final = [];
+        $passives_final = [];
+        $reminders_final = [];
 
 
         $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
-            if (!empty($actives[$i]) && ($actives[$i] == "on")) {
-                $actives_final[] = "1";
-            } else {
-                $actives_final[] = "0";
-                ;
-            }
+            $actives_final[] = !empty($actives[$i]) && $actives[$i] == "on" ? "1" : "0";
 
-            if (!empty($passives[$i]) && ($passives[$i] == "on")) {
-                $passives_final[] = "1";
-            } else {
-                $passives_final[] = "0";
-                ;
-            }
+            $passives_final[] = !empty($passives[$i]) && $passives[$i] == "on" ? "1" : "0";
 
-            if (!empty($reminders[$i]) && ($reminders[$i] == "on")) {
-                $reminders_final[] = "1";
-            } else {
-                $reminders_final[] = "0";
-                ;
-            }
+            $reminders_final[] = !empty($reminders[$i]) && $reminders[$i] == "on" ? "1" : "0";
         }
 
         // Reflect the changes to the database.
@@ -92,7 +76,7 @@ class ControllerAlerts extends BaseController
         // Instantiating object if does not exist to avoid
         //    "creating default object from empty value" warning.
         if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
+            $this->viewBean = new \stdClass();
         }
 
         $this->forward("listactmgr");

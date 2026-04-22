@@ -5,7 +5,7 @@
  * range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2015 Rod Roark <rod@sunsetsystems.com>
@@ -17,12 +17,13 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
@@ -78,7 +79,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
      });
 });
@@ -122,7 +123,7 @@ $(function () {
 </div>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -221,7 +222,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_labels'])) {
     "c2.id = i2.provider " .
     "GROUP BY p.lname, p.fname, p.mname, p.pid, i1.date, i2.date " .
     "ORDER BY p.lname, p.fname, p.mname, p.pid, i1.date DESC, i2.date DESC";
-    $res = sqlStatement($query, array($form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59'));
+    $res = sqlStatement($query, [$form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59']);
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
@@ -235,9 +236,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_labels'])) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'];
-            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
-            $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
+            $ageInMonths = (substr((string) $tdy, 0, 4) * 12) + substr((string) $tdy, 5, 2) -
+                   (substr((string) $dob, 0, 4) * 12) - substr((string) $dob, 5, 2);
+            $dayDiff = substr((string) $tdy, 8, 2) - substr((string) $dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
@@ -253,7 +254,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_labels'])) {
             ?>
        <tr>
         <td>
-            <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['edate'], 0, 10))); ?>
    </td>
    <td>
             <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>

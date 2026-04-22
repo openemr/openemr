@@ -4,7 +4,7 @@
  * physical_exam report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
@@ -12,16 +12,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once("lines.php");
 
-function physical_exam_report($pid, $encounter, $cols, $id)
+function physical_exam_report($pid, $encounter, $cols, $id): void
 {
     global $pelines;
 
-    $rows = array();
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", array($id));
+    $rows = [];
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", [$id]);
     while ($row = sqlFetchArray($res)) {
         $rows[$row['line_id']] = $row;
     }
@@ -29,7 +31,9 @@ function physical_exam_report($pid, $encounter, $cols, $id)
     echo "<table cellpadding='0' cellspacing='0'>\n";
 
     foreach ($pelines as $sysname => $sysarray) {
-        $sysnamedisp = xl($sysname);
+        $sysnameStr = is_string($sysname) ? $sysname : '';
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+        $sysnamedisp = xl($sysnameStr);
         foreach ($sysarray as $line_id => $description) {
             $linedbrow = $rows[$line_id];
             if (

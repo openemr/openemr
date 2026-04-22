@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -25,7 +25,7 @@ class PrintProperty
                 echo("</div>");
                 echo("<div class='col' style='" . attr($style)  . "' >");
             if ($ending == "%") {
-                $propertyValue = $propertyValue * 100;
+                $propertyValue *= 100;
             }
             echo text($qualifier . $propertyValue . $ending);
                  echo("</div>");

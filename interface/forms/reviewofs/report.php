@@ -4,23 +4,26 @@
  * Review of Systems Checks form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 
-function reviewofs_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function reviewofs_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_reviewofs", $id);
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value)) {
                 continue;
             }
 
@@ -31,11 +34,13 @@ function reviewofs_report($pid, $encounter, $cols, $id)
             $key = ucwords(str_replace("_", " ", $key));
 
             //modified by BM 07-2009 for internationalization
-            if ($key == "Additional Notes") {
-                    print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
-            } else {
-                    print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
-            }
+            $valueText = is_string($value) ? $value : '';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $keyLabel = xlt($key);
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $valueLabel = xlt($valueText);
+            $valueOutput = $key == 'Additional Notes' ? text($valueText) : $valueLabel;
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', $keyLabel, $valueOutput);
 
             $count++;
             if ($count == $cols) {

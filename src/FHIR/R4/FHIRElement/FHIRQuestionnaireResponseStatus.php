@@ -124,7 +124,7 @@ class FHIRQuestionnaireResponseStatus extends FHIRElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }

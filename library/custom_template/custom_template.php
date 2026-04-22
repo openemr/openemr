@@ -31,11 +31,14 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/user.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // mdsupport : li code
-function listitemCode($strDisp, $strInsert, $ref = '')
+function listitemCode($strDisp, $strInsert, $ref = ''): void
 {
     if ($strInsert) {
         if (!empty($ref)) {
@@ -57,9 +60,10 @@ if (empty($isNN)) {
     $contextName = empty($contextName) ? "Encounters" : $contextName;
 }
 // either NN context from layout or text template default.
-$rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", array($contextName));
+$rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", [$contextName]);
+$contextHint = '';
 if (empty($isNN) && empty($rowContext)) {
-    $contextName .= " <small><em>(" . xlt("Add Missing Context Template.") . ")</em></small>";
+    $contextHint = " <small><em>(" . xlt("Add Missing Context Template.") . ")</em></small>";
 }
 ?>
 <html>
@@ -85,13 +89,13 @@ if ($isNN) {
 }
     Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', $ckeditorConfig]);
 ?>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
     // note these variables are set on backend server side, leaving comment for server side readers
     const isNationNotes = <?php echo $isNN ? "true" : "false"; ?>;
     const dataAsPlainText = !isNationNotes;
-    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     const allowTemplateWarning = <?php echo $allowTemplateWarning ? "true" : "false"; ?>;
     function refreshme() {
         top.restoreSession();
@@ -114,7 +118,7 @@ if ($isNN) {
                     },
                     dataType: 'json',
                 },
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
 
             $('#contextSearch').on('select2:select', function (e) {
@@ -222,16 +226,20 @@ if ($isNN) {
             $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
         });
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function sortableCallback(elem){
-            let clorder  = [];
+            const params = new URLSearchParams({
+                action: "updateRecordsListings"
+            });
             for (let i=0; i< elem.length; i++) {
                 let ele = elem[i];
                 if(ele.tagName == "DIV"){
-                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
+                    params.append("clorder[]", ele.firstElementChild.id.split("_")[1]);
                 }
             }
-            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+            $.post("updateDB.php", params.toString());
         }
+        // AI-generated code end
         oeSortable(sortableCallback);
 
         // let's popup a warning dialog if we're in a context that is text only templates
@@ -246,15 +254,14 @@ if ($isNN) {
     });
 </script>
 <script>
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 </script>
 </head>
 <body class="body_top">
 <div class="container-fluid">
   <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id'] ?? ''; ?>" />
   <?php if (($rowContext['cl_list_item_long'] ?? null) || !$isNN) { ?>
-  <!-- don't escape $contextName it's html -->
-  <h3 class="text-center"><?php echo (text($rowContext['cl_list_item_long'] ?? ''))  ?: $contextName; ?></h3>
+  <h3 class="text-center"><?php echo (text($rowContext['cl_list_item_long'] ?? ''))  ?: text((string)$contextName) . $contextHint; ?></h3>
     <div id="tab1" class="tabset_content tabset_content_active">
         <form id="mainForm">
             <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>" />
@@ -277,9 +284,9 @@ if ($isNN) {
                 <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
                     <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
-                    $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)));
+                    $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", [$session->get('authUserID'), ($rowContext['cl_list_id'] ?? null)]);
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
-                        echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
+                        echo "<option value='" . htmlspecialchars((string) $rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
                     }
                     ?>
                 </select>
@@ -287,7 +294,7 @@ if ($isNN) {
               <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
                 <?php
-                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
+                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$session->get('authUserID')]);
                 while ($row = sqlFetchArray($res)) { ?>
                     <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>
@@ -307,7 +314,7 @@ if ($isNN) {
                             if ($pid != '') {
                                 $row = sqlQuery("SELECT p.*, IF(ISNULL(p.providerID), NULL, CONCAT(u.lname,',',u.fname)) pcp " .
                                     "FROM patient_data p LEFT OUTER JOIN users u " .
-                                    "ON u.id=p.providerID WHERE pid=?", array($pid));
+                                    "ON u.id=p.providerID WHERE pid=?", [$pid]);
                                 ?>
                                 <li>
                                     <a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'), ENT_QUOTES); ?></a>
@@ -324,7 +331,7 @@ if ($isNN) {
                                 </li>
                                 <?php
                                 foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
-                                    $res = sqlStatement('SELECT title, id, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
+                                    $res = sqlStatement('SELECT title, id, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', [$pid, $issType]);
                                     if (sqlNumRows($res)) { ?>
                                     <li>
                                         <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
@@ -334,7 +341,7 @@ if ($isNN) {
                                                 if (!empty($isNN)) {
                                                     $row['id'] = "";
                                                 }
-                                                listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']), $row['id']);
+                                                listitemCode((strlen((string) $row['title']) > 20) ? (substr((string) $row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']), $row['id']);
                                             }
                                             ?>
                                         </ul>

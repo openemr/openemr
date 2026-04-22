@@ -9,13 +9,13 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaAllergy;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDiagnosis;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaMedicalIssue;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaMedication;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSurgery;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaListsBuilder
@@ -25,13 +25,13 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSurgery;
 class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "lists")) {
+        if (strpos((string) $method, "lists")) {
             if ($methodDetail == 'medical_problem') {
-                $exploded = explode("::", $value);
+                $exploded = explode("::", (string) $value);
                 if ($exploded[0] == "CUSTOM") {
                     // its a medical issue
                     return RuleCriteriaType::from(RuleCriteriaType::issue);
@@ -57,11 +57,11 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {
-        $exploded = explode("::", $value);
+        $exploded = explode("::", (string) $value);
 
         if ($ruleCriteriaType->code == 'issue') {
             return new RuleCriteriaMedicalIssue(xl("Medical Issue"), $exploded[1]);

@@ -2,16 +2,14 @@
 
 namespace OpenEMR\Validators;
 
+use Particle\Validator\Chain;
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Facility Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,14 +21,14 @@ class FacilityValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required('name')->lengthBetween(2, 255);
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
                 $context->optional('domain_identifier')->numeric();
@@ -62,19 +60,19 @@ class FacilityValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    /** @param array<string, Chain> $rules */
+                    function (array $rules): void {
+                        foreach ($rules as $chain) {
+                            /** @var Chain $chain */
                             $chain->required(false);
                         }
                     }
                 );
                 // additional euuid validation
-                $context->required("uuid", "Facility UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "facility", $value, true);
-                })->uuid();
+                $context->required("uuid", "Facility UUID")->callback(fn($value) => $this->validateId("uuid", "facility", $value, true))->uuid();
             }
         );
     }

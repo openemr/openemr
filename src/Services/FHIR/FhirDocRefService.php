@@ -4,7 +4,7 @@
  * FhirDocRefService handles the creation / retrieve of Clinical Summary of Care (CCD) documents for a patient.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,20 +12,11 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
-use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
-use OpenEMR\Services\CDADocumentService;
-use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
@@ -33,19 +24,18 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use Ramsey\Uuid\Uuid;
 
 // TODO: @adunsulag look at putting this into its own operations folder
 class FhirDocRefService
 {
     use ResourceServiceSearchTrait;
     use PatientSearchTrait;
+    use SystemLoggerAwareTrait;
 
     private $resourceSearchParameters;
 
@@ -82,6 +72,7 @@ class FhirDocRefService
      */
     public function getAll($searchParams, $puuidBind): ProcessingResult
     {
+        $this->getSystemLogger()->debug("FhirDocRefService::getAll called", ['searchParams' => $searchParams]);
         $fhirSearchResult = new ProcessingResult();
         $oeSearchParameters = $this->createOpenEMRSearchParameters($searchParams, $puuidBind);
         $type = $oeSearchParameters['type'] ?? $this->createDefaultType();
@@ -94,7 +85,7 @@ class FhirDocRefService
 
         // if no start & end, return current CCD
         if ($this->shouldReturnMostCurrentCCD($oeSearchParameters)) {
-            $documentReference = $this->getMostCurrentCCDReference($oeSearchParameters, $fhirSearchResult);
+            $documentReference = $this->getMostCurrentCCDReference($oeSearchParameters);
         } else {
             // else
             // generate CCD using start & end
@@ -126,12 +117,13 @@ class FhirDocRefService
 
     private function getPatientRecordForSearchParameters($oeSearchParameters): array
     {
-        $mappedField = reset($this->getPatientContextSearchField()->getMappedFields()); // grab the first one
+        $mappedFields = $this->getPatientContextSearchField()->getMappedFields();
+        $mappedField = reset($mappedFields); // grab the first one
         $searchPatient = $oeSearchParameters[$mappedField->getField()];
 
         // we only allow one patient CCD to be generated at a time.
-        if (empty($searchPatient->getValues()) || count($searchPatient->getValues()) > 1) {
-            throw new SearchFieldException($mappedField->getField(), "Field is required and cardinality is 1..1");
+        if (empty($searchPatient) || empty($searchPatient->getValues()) || count($searchPatient->getValues()) > 1) {
+            throw new SearchFieldException($mappedField->getField(), "patient field is required and cardinality is 1..1");
         }
 
         $fhirPatientService = new FhirPatientService();
@@ -142,7 +134,7 @@ class FhirDocRefService
         $patientService = new PatientService();
         $patient = $patientService->search([$field => $newSearchField])->getData() ?? null;
         if (empty($patient)) {
-            (new SystemLogger())->errorLogCaller("Failed to find patient with uuid", ['uuids' => $searchPatient->getValues()]);
+            $this->getSystemLogger()->error("Failed to find patient with uuid {uuids}", ['uuids' => $searchPatient->getValues()]);
             throw new SearchFieldException($field, "Invalid argument");
         } else {
             $patient = $patient[0];
@@ -213,7 +205,10 @@ class FhirDocRefService
     private function getDocumentReferenceForCCDAEvent(PatientDocumentCreateCCDAEvent $event)
     {
         // this creates our CCDA
-        $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
+        $createdEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
+        if (empty($createdEvent->getPid())) {
+            throw new \Exception("Failed to create ccda event, pid is empty");
+        }
         if (empty($createdEvent->getCcdaId())) {
             // TODO: handle the case where nothing was generated
             throw new \Exception("Failed to generate ccda");
@@ -230,7 +225,14 @@ class FhirDocRefService
         // and that it is always the same data
         $patientDocService = new FhirPatientDocumentReferenceService();
         $docStringUuid = UuidRegistry::uuidToString($doc->get_uuid());
-        $result = $patientDocService->getOne($docStringUuid, $patient['uuid']); // make sure we don't deviate from the patient
+        $patientPid = $createdEvent->getPid();
+        $patientService = new PatientService();
+        $uuid = $patientService->getUuid($patientPid);
+        if (empty($uuid)) {
+            throw new \Exception("Patient uuid could not be found for pid " . $patientPid);
+        }
+
+        $result = $patientDocService->getOne($docStringUuid, UuidRegistry::uuidToString($uuid)); // make sure we don't deviate from the patient
 
         if (!$result->hasData()) {
             throw new \Exception("Fhir DocumentReference resource could not be found for uuid");

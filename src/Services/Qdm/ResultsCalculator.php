@@ -4,7 +4,7 @@
  * // @see projectcypress/cypress lib/cypress/expected_results_calculator.rb
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -12,30 +12,23 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
-use GuzzleHttp\Psr7;
-use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\Patient;
-use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class ResultsCalculator
 {
-    protected $correlation_id;
     protected $patient_sup_map;
     protected $measure_result_hash;
-    protected $effective_date;
 
-    // @param [Array] patients the list of patients that are included in the aggregate results
-    // @param [String] correlation_id the id used to associate a group of patients
-    // @param [String] effective_date used when generating the query_cache_object for HDS QRDA Cat III export
-    // @param [Hash] options :individual_results are the raw results from CqmExecutionCalc
-    public function __construct(array $patients, $correlation_id, $effective_date)
+    /**
+     * @param array $patients the list of patients that are included in the aggregate results
+     * @param mixed $correlation_id the id used to associate a group of patients
+     * @param mixed $effective_date used when generating the query_cache_object for HDS QRDA Cat III export
+     */
+    public function __construct(array $patients, protected $correlation_id, protected $effective_date)
     {
-        $this->correlation_id = $correlation_id;
         // Hash of patient_id and their supplemental information
         $this->patient_sup_map = [];
         $this->measure_result_hash = [];
-        $this->effective_date = $effective_date;
         foreach ($patients as $patient) {
             $this->add_patient_to_sup_map($patient);
         }
@@ -71,9 +64,7 @@ class ResultsCalculator
          */
         $this->measure_result_hash[$measure->hqmf_id] = [];
         $population_set_keys = array_map(
-            function ($ps) use ($measure) {
-                return $measure->key_for_population_set($ps);
-            },
+            $measure->key_for_population_set(...),
             $measure->population_sets_and_stratifications_for_measure()
         );
         foreach ($population_set_keys as $psk) {
@@ -125,7 +116,7 @@ class ResultsCalculator
         // TODO: not storing results in DB
         // # If individual_results are provided, use them.  Otherwise, look them up in the database by measure id and correlation_id
         //          individual_results ||= CQM::IndividualResult.where('measure_id' => measure._id, correlation_id: @correlation_id)
-        $observation_hash = array();
+        $observation_hash = [];
         foreach ($individual_results as $individual_result) {
             // type safety and let's us get intellisense
             if (!($individual_result instanceof IndividualResult)) {
@@ -335,9 +326,7 @@ class ResultsCalculator
     {
         return array_reduce(
             $this->filter_null_values($arr),
-            function ($sum, $item) {
-                return $sum + $item;
-            },
+            fn($sum, $item): float|int|array => $sum + $item,
             0
         );
 

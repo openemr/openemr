@@ -36,7 +36,7 @@ abstract class BaseController
 
     public function getControllerName()
     {
-        $class = get_class($this);
+        $class = static::class;
         $parts = explode('\\', $class);
         $name = str_replace('Controller', '', end($parts));
         return $name;
@@ -104,7 +104,7 @@ abstract class BaseController
     public function addHelper($helper)
     {
         if (is_null($this->viewBean->helpers ?? null)) {
-            $this->viewBean->helpers = array();
+            $this->viewBean->helpers = [];
         }
 
         array_push($this->viewBean->helpers, $helper);

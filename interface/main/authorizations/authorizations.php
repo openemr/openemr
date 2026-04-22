@@ -4,7 +4,7 @@
  * Authorizations script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,30 +19,32 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
 // increase to a high number to make the mini frame more useful.
 $N = 50;
 
-$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", array($_SESSION['authUser']));
+$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", [$session->get('authUser')]);
 $see_auth = $atemp['see_auth'];
 
-$imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
+$imauthorized = $session->get('userauthorized') || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-    $retVal = getProviderId($_SESSION['authUser']);
-    EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
-    sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pid"]));
+    $retVal = getProviderId($session->get('authUser'));
+    EventAuditLogger::getInstance()->newEvent("authorize", $session->get("authUser"), $session->get("authProvider"), 1, $_GET["pid"]);
+    sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update forms set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update pnotes set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update transactions set authorized=1 where pid=?", [$_GET["pid"]]);
 }
 ?>
 <html>
@@ -70,10 +72,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif" />
+    <img src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/max.gif" />
 </div>
 <div id="min" title="Minimize this information">
-    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif" />
+    <img src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/min.gif" />
 </div>
 
 <?php if ($imauthorized) { ?>
@@ -98,7 +100,7 @@ if ($imauthorized && $see_auth > 1) {
         $res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
         "from billing LEFT JOIN users as u on billing.user = u.id where " .
         "billing.authorized = 0 and billing.activity = 1 and " .
-        "groupname = ?", array($groupname))
+        "groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result1[$iter] = $row;
@@ -107,7 +109,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result1) {
             foreach ($result1 as $iter) {
                 $authorize[$iter["pid"]]["billing"] .= "<span class='text'>" .
-                text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["code_text"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -116,7 +118,7 @@ if ($imauthorized && $see_auth > 1) {
 //fetch transaction information:
     if (
         $res = sqlStatement("select * from transactions where " .
-        "authorized = 0 and groupname = ?", array($groupname))
+        "authorized = 0 and groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result2[$iter] = $row;
@@ -124,18 +126,19 @@ if ($imauthorized && $see_auth > 1) {
 
         if ($result2) {
             foreach ($result2 as $iter) {
-                $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" .
-                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" . // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                // @phpstan-ignore argument.type, argument.type
+                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
     }
 
-    if (empty($GLOBALS['ignore_pnotes_authorization'])) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('ignore_pnotes_authorization')) {
           //fetch pnotes information:
         if (
             $res = sqlStatement("select * from pnotes where authorized = 0 and " .
-            "groupname = ?", array($groupname))
+            "groupname = ?", [$groupname])
         ) {
             for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result3[$iter] = $row;
@@ -143,8 +146,9 @@ if ($imauthorized && $see_auth > 1) {
 
             if ($result3) {
                 foreach ($result3 as $iter) {
-                    $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" .
-                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                    $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" . // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                    // @phpstan-ignore argument.type, argument.type
+                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                     "</span><br />\n";
                 }
             }
@@ -154,7 +158,7 @@ if ($imauthorized && $see_auth > 1) {
 //fetch forms information:
     if (
         $res = sqlStatement("select * from forms where authorized = 0 and " .
-        "groupname = ?", array($groupname))
+        "groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result4[$iter] = $row;
@@ -163,7 +167,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result4) {
             foreach ($result4 as $iter) {
                 $authorize[$iter["pid"]]["forms"] .= "<span class='text'>" .
-                text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["form_name"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -182,7 +186,7 @@ if ($imauthorized && $see_auth > 1) {
             $name = getPatientData($ppid);
 
             // If I want to see mine only and this patient is not mine, skip it.
-            if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id']) {
+            if ($see_auth == 2 && $session->get('authUserID') != $name['id']) {
                 continue;
             }
 
@@ -203,7 +207,7 @@ if ($imauthorized && $see_auth > 1) {
             echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
             text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
-            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
+            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
 
             /****
@@ -218,7 +222,7 @@ if ($imauthorized && $see_auth > 1) {
             // Don't use sqlQuery because there might be no match.
             $providerName = sqlFetchArray(sqlStatement(
                 "select lname from users where id = ?",
-                array($name['providerID'])
+                [$name['providerID']]
             ));
 
             echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .
@@ -262,7 +266,12 @@ var EditNote = function(note) {
     var parts = note.id.split("~");
 <?php if (true) : ?>
     top.restoreSession();
-    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + encodeURIComponent(parts[1]) + "&set_pid=" + encodeURIComponent(parts[0]) + "&active=1";
+    const params = new URLSearchParams({
+        active: '1',
+        noteid: parts[1],
+        set_pid: parts[0]
+    });
+    location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/pnotes_full.php?" + params;
 <?php else : ?>
     // no-op
     alert(<?php echo xlj('You do not have access to view/edit this note'); ?>);

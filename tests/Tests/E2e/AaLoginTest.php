@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    zerai
+ * @author    zerai
  * @author    Dixon Whitmire
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 zerai
@@ -21,17 +21,17 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class AaLoginTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
+    #[Test]
     public function testGoToOpenemrLoginPage(): void
     {
         $this->base();
@@ -47,6 +47,7 @@ class AaLoginTest extends PantherTestCase
         $this->client->quit();
     }
 
+    #[Test]
     public function testLoginUnauthorized(): void
     {
         $this->base();
@@ -62,12 +63,12 @@ class AaLoginTest extends PantherTestCase
         $this->client->quit();
     }
 
-    /** @test */
+    #[Test]
     public function testurlWithoutTokenShouldRedirectToLoginPage(): void
     {
         $this->base();
         try {
-            $this->crawler = $this->client->request('GET', '/interface/main/tabs/main.php?site=default');
+            $this->crawler = $this->client->request('GET', '/interface/main/tabs/main.php?site=default&testing_mode=1');
             $title = $this->client->getTitle();
             $this->assertSame('OpenEMR Login', $title, 'FAILED to redirect to login page');
         } catch (\Throwable $e) {
@@ -80,9 +81,24 @@ class AaLoginTest extends PantherTestCase
         $this->client->quit();
     }
 
+    #[Test]
+    public function testAdminPageLoads(): void
+    {
+        $this->base();
+        try {
+            $this->crawler = $this->client->request('GET', '/admin.php');
+            $title = $this->client->getTitle();
+            $this->assertSame('OpenEMR Site Administration', $title, 'FAILED to load admin.php');
+        } catch (\Throwable $e) {
+            $this->client->quit();
+            throw $e;
+        }
+        $this->client->quit();
+    }
+
     private function loginPage(): void
     {
-        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
+        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
         $title = $this->client->getTitle();
         $this->assertSame('OpenEMR Login', $title, 'FAILED to show login page');
     }

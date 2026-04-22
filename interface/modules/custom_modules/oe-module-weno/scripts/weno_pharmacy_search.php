@@ -14,22 +14,21 @@
 
 require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Search", xl("Pharmacy Search"));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $params = [];
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
-    $return_arr = array();
+    $return_arr = [];
     $term = filter_input(INPUT_GET, "term");
     $val = $term . '%';
     $params[] = $val;
@@ -48,7 +47,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     $params[] = $val;
 
-    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL OR `Deleted` = '') AND Business_Name LIKE ?";
+    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL) AND Business_Name LIKE ?";
 
     $weno_coverage = $_GET['coverage'] ?? false ?: '';
     $weno_state = $_GET['weno_state'] ?? false ?: '';
@@ -56,7 +55,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
     $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
     $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
-    $weno_test_pharmacies = $_GET['test_pharmacy'] ?? '' == 'true' ? 'True' : '';
+    $weno_test_pharmacies = ($_GET['test_pharmacy'] ?? '') == 'true' ? 'True' : '';
 
 
     // mail order is special case.
@@ -79,7 +78,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     if ($weno_coverage == 'State') {
         $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
-        $params[] = trim($weno_state);
+        $params[] = trim((string) $weno_state);
     } else {
         $sql .= " AND (state_wide_mail_order = 'Local')";
     }
@@ -102,18 +101,18 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        if (strlen($row['ncpdp_safe']) < 8) {
-            $return_arr[] = array(
+        if (strlen((string) $row['ncpdp_safe']) < 8) {
+            $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']
-            );
+            ];
         }
     }
     echo json_encode($return_arr);
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
-    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL OR `Deleted` = '')";
+    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL)";
 
     $weno_coverage = $_GET['coverage'] ?: '';
     $weno_state = $_GET['weno_state'] ?: '';
@@ -143,7 +142,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
 
     if ($weno_coverage == 'State') {
         $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
-        $params[] = trim($weno_state);
+        $params[] = trim((string) $weno_state);
     } else {
         $sql .= " AND (state_wide_mail_order = 'Local')";
     }
@@ -165,11 +164,11 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        if (strlen($row['ncpdp_safe']) < 8) {
-            $return_arr[] = array(
+        if (strlen((string) $row['ncpdp_safe']) < 8) {
+            $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']
-            );
+            ];
         }
     }
     echo json_encode($return_arr);

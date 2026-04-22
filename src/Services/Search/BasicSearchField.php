@@ -5,7 +5,7 @@
  * field functionality that child classes can leverage to quickly implement new types of search fields.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,9 +13,7 @@
 
 namespace OpenEMR\Services\Search;
 
-use OpenEMR\Services\Search\SearchFieldType;
-
-class BasicSearchField implements ISearchField
+class BasicSearchField implements ISearchField, \Stringable
 {
     private $field;
     private $name;
@@ -30,7 +28,7 @@ class BasicSearchField implements ISearchField
      * @param $type The type of
      * @param $field
      * @param $values
-     * @param null $modifier
+     * @param ?string $modifier
      * @param bool $isAnd
      */
     public function __construct($name, $type, $field, $values, $modifier = null)
@@ -39,7 +37,7 @@ class BasicSearchField implements ISearchField
         $this->setType($type);
         $this->setField($field);
         $this->setModifier($modifier);
-        $values = $values ?? [];
+        $values ??= [];
         $values = is_array($values) ? $values : [$values];
         $isAnd = count($values) > 0 ? false : true;
         $this->setIsAnd($isAnd);
@@ -147,11 +145,7 @@ class BasicSearchField implements ISearchField
             $values = $this->values;
             $newValues = [];
             foreach ($values as $value) {
-                if (is_object($value)) {
-                    $newValues[] = clone $value;
-                } else {
-                    $newValues[] = $value;
-                }
+                $newValues[] = is_object($value) ? clone $value : $value;
             }
             $this->values = $values;
         }
@@ -161,7 +155,7 @@ class BasicSearchField implements ISearchField
      * Useful for debugging, you can echo the object to see its values.
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return "(field=" . $this->getField() . ",type=" . $this->getType()
             . ",values=[" . implode(",", $this->getValues()) . "],modifier=" . ($this->getModifier() ?? "") . ")";

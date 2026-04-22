@@ -4,7 +4,7 @@
  * pro.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>
@@ -12,16 +12,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Easipro\Easipro;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,13 +56,13 @@ use OpenEMR\OeUI\OemrUI;
                 url: "../../library/ajax/easipro_util.php",
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'list_forms'
                 },
                 dataType: "json",
                 success: function (data) {
                     if (data.Error) {
-                        syncAlertMsg(data.Error, 10000);
+                        asyncAlertMsg(data.Error, 10000);
                         // let drop through to show available categories.
                     }
                     $('#form-list').html("");
@@ -206,7 +209,7 @@ use OpenEMR\OeUI\OemrUI;
                             url: "../../library/ajax/easipro_util.php",
                             type: "POST",
                             data: {
-                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                                 'function': 'order_form',
                                 'formOID': formOID
                             },
@@ -237,7 +240,7 @@ use OpenEMR\OeUI\OemrUI;
                 url: "../../library/ajax/easipro_util.php",
                 type: 'POST',
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'request_assessment',
                     'formOID': formOID,
                     'formName': formName,
@@ -255,17 +258,17 @@ use OpenEMR\OeUI\OemrUI;
         <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
     </script>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Patient Reported Outcomes'),
         'include_patient_name' => true,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -310,9 +313,9 @@ use OpenEMR\OeUI\OemrUI;
                     <?php foreach ($records1 as $value1) { ?>
                         <tr>
                             <td><?php echo text($value1['form_name']); ?></td>
-                            <td><?php echo text(oeFormatDateTime($value1['deadline'])); ?></td>
+                            <td><?php echo text(DateFormatterUtils::oeFormatDateTime($value1['deadline'])); ?></td>
                             <td><?php echo text($value1['status']); ?></td>
-                            <td><?php echo text(substr($value1['score'], 0, 4)); ?></td>
+                            <td><?php echo text(substr((string) $value1['score'], 0, 4)); ?></td>
                         </tr>
                     <?php } ?>
                 </table>

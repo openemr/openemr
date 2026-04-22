@@ -28,7 +28,7 @@ class Dispatcher
 
     /**
      * FAST_LOOKUP mode instructs the dispatcher to assume that the controller and method
-     * supplied by the router are valid and not do any checking for the existance of
+     * supplied by the router are valid and not do any checking for the existence of
      * the controller file or the method before trying to call it
      *
      * @var boolean use fast lookup mode if true
@@ -88,7 +88,7 @@ class Dispatcher
         }
 
         // get the route and normalize the controller name
-        list ( $controller_param, $method_param ) = $router->GetRoute($action);
+        [$controller_param, $method_param] = $router->GetRoute($action);
         $controller_class = $controller_param . "Controller";
 
         if (self::$FAST_LOOKUP) {
@@ -116,10 +116,10 @@ class Dispatcher
             $controller_filepath = null;
 
             // search for the controller file in the default locations, then the include path
-            $paths = array_merge(array (
+            $paths = array_merge([
                     './libs/',
                     './'
-            ), explode(PATH_SEPARATOR, get_include_path()));
+            ], explode(PATH_SEPARATOR, get_include_path()));
 
             $found = false;
             foreach ($paths as $path) {
@@ -156,10 +156,10 @@ class Dispatcher
 
         // we have a valid instance, just verify there is a matching method
         if (
-            ! is_callable(array (
+            ! is_callable([
                 $controller,
                 $method_param
-            ))
+            ])
         ) {
             throw new Exception("'" . $controller_class . "." . $method_param . "' is not a valid action");
         }
@@ -167,10 +167,7 @@ class Dispatcher
         // do not call the requested method/route if the controller request has been cancelled
         if (! $controller->IsTerminated()) {
             // file, class and method all are ok, go ahead and call it
-            call_user_func(array (
-                    &$controller,
-                    $method_param
-            ));
+            $controller->$method_param();
         }
 
         // reset error handling back to whatever it was
@@ -184,7 +181,7 @@ class Dispatcher
      * Fired by the PHP error handler function.
      * Calling this function will
      * always throw an exception unless error_reporting == 0. If the
-     * PHP command is called with @ preceeding it, then it will be ignored
+     * PHP command is called with @ preceding it, then it will be ignored
      * here as well.
      *
      * @deprecated use ExceptionThrower::HandleError instead

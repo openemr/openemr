@@ -289,7 +289,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

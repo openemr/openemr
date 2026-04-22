@@ -3,7 +3,7 @@
 /**
  * MappedServiceTrait.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
-use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -39,7 +38,7 @@ trait MappedServiceTrait
             if ($service instanceof FhirServiceBase) {
                 $validServices[] = $service;
             } else {
-                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . get_class($service));
+                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . $service::class);
             }
         }
         $this->services = $validServices;

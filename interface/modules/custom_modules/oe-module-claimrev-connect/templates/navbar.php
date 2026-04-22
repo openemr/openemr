@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -36,18 +36,18 @@
             <li class="nav-item <?php if ($tab == "x12") {
                 echo "active";
                                 } ?>" >
-                <a class="nav-link" href="x12Tracker.php"><?php echo xlt("X12 Tracker"); ?></a>                            
+                <a class="nav-link" href="x12Tracker.php"><?php echo xlt("X12 Tracker"); ?></a>
             </li>
             <li class="nav-item <?php if ($tab == "setup") {
                 echo "active";
                                 } ?>" >
-                <a class="nav-link" href="setup.php"><?php echo xlt("Setup"); ?></a>                            
+                <a class="nav-link" href="setup.php"><?php echo xlt("Setup"); ?></a>
             </li>
             <li class="nav-item <?php if ($tab == "connectivity") {
                 echo "active";
                                 } ?>" >
-                <a class="nav-link" href="debug-info.php"><?php echo xlt("Connectivity"); ?></a>                            
+                <a class="nav-link" href="debug-info.php"><?php echo xlt("Connectivity"); ?></a>
             </li>
-        </ul>        
+        </ul>
     </div>
-</nav>       
+</nav>

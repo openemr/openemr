@@ -3,7 +3,7 @@
 /**
  * PatientContextSearchController.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,20 +19,8 @@ use Psr\Log\LoggerInterface;
 
 class PatientContextSearchController
 {
-    /**
-     * @var PatientService
-     */
-    private $service;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(PatientService $service, LoggerInterface $logger)
+    public function __construct(private readonly PatientService $service, private readonly LoggerInterface $logger)
     {
-        $this->service = $service;
-        $this->logger = $logger;
     }
 
     /**
@@ -49,6 +37,9 @@ class PatientContextSearchController
         }
         $user = new UserService();
         $user = $user->getUserByUUID($userUUID);
+        if (empty($user)) {
+            throw new AccessDeniedException('patients', 'demo', "Illegal access to patients requested");
+        }
 
         $this->checkUserAccessPatientData($user);
         $result = $this->service->getOne($patientUUID);

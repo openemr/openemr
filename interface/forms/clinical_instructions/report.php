@@ -4,7 +4,7 @@
  * Clinical instructions form report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
@@ -12,10 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+use OpenEMR\Core\OEGlobalsBag;
 
-function clinical_instructions_report($pid, $encounter, $cols, $id)
+require_once(__DIR__ . '/../../globals.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+
+function clinical_instructions_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_clinical_instructions", $id);

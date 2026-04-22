@@ -6,7 +6,7 @@
  * will be contained inside a div.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -32,7 +32,7 @@ class UserEditRenderEvent extends TemplatePageEvent
      * @param int|null $userId The userid that is being edited, null if this is a brand new user
      * @param array $context
      */
-    public function __construct(string $pageName, ?int $userId = null, $context = array())
+    public function __construct(string $pageName, ?int $userId = null, $context = [])
     {
         parent::__construct($pageName, $context);
         $this->setUserId($userId);

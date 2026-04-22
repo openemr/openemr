@@ -1,0 +1,39 @@
+name: Composer Checks
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  composer:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-version: ['8.2']
+    steps:
+    - name: "Checkout Code"
+      uses: actions/checkout@v6
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: "Validate Composer"
+      run: composer validate --strict
+
+    - name: "Check Composer Normalized"
+      run: composer normalize --dry-run

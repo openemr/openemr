@@ -25,14 +25,13 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
 
-$STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
-$STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-$STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['print_command']);
+$STMT_TEMP_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.txt";
+$STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.pdf";
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF
@@ -48,7 +47,7 @@ $STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['pr
  */
 function make_statement($stmt)
 {
-    if ($GLOBALS['statement_appearance'] == "1") {
+    if (OEGlobalsBag::getInstance()->get('statement_appearance') == "1") {
         if (!empty($_POST['form_portalnotify']) && is_auth_portal($stmt['pid'])) {
             return osp_create_HTML_statement($stmt);
         } else {
@@ -71,7 +70,7 @@ function report_header_2($stmt, $providerID = '1')
     //We get the service facility from the encounter.  In cases with multiple service facilities
     //OpenEMR sends the correct facility
 
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $facility = sqlFetchArray($service_query);
 
     $DOB = oeFormatShortDate($titleres['DOB']);
@@ -84,10 +83,10 @@ function report_header_2($stmt, $providerID = '1')
         <tr>
             <?php
                 $haveLogo = false;
-            if (empty(!$GLOBALS['statement_logo'])) {
-                $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo']);
+            if (empty(!OEGlobalsBag::getInstance()->getString('statement_logo'))) {
+                $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/" . convert_safe_file_dir_name(OEGlobalsBag::getInstance()->getString('statement_logo'));
             } else { // 'ya never know.
-                    $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif"; // can see is safe...
+                    $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/practice_logo.gif"; // can see is safe...
             }
 
                 //Author Daniel Pflieger - daniel@growlingflea.com
@@ -134,12 +133,12 @@ function create_HTML_statement($stmt)
     }
 
 #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion'] && ($_POST['form_category'] !== "All")) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion') && ($_POST['form_category'] !== "All")) {
         return "";
     }
 
 // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -147,7 +146,7 @@ function create_HTML_statement($stmt)
 
 
 // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -158,7 +157,7 @@ function create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -169,24 +168,24 @@ function create_HTML_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= $GLOBALS['first_dun_msg_set']:
-                    $dun_message = $GLOBALS['first_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['second_dun_msg_set']:
-                    $dun_message = $GLOBALS['second_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['third_dun_msg_set']:
-                    $dun_message = $GLOBALS['third_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['fourth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fourth_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= $GLOBALS['fifth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fifth_dun_msg_text'];
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -229,7 +228,7 @@ function create_HTML_statement($stmt)
     $count = 5;
 
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -238,14 +237,10 @@ function create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -260,7 +255,7 @@ function create_HTML_statement($stmt)
         $prev_ddate = '';
         $last_activity_date = $dos;
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -273,14 +268,14 @@ function create_HTML_statement($stmt)
 
             if (!empty($ddata['pmt'])) {
                 $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-                $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                    substr(oeFormatShortDate($ddate), 8, 2) .
+                $desc = xl('Paid') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                    substr((string) oeFormatShortDate($ddate), 8, 2) .
                     ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                 // $ddata['plv'] is the 'payer_type' field in `ar_activity`, passed in via InvoiceSummary
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
-                    $desc = xl('Pt paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                    substr(oeFormatShortDate($ddate), 8, 2);
+                    $desc = xl('Pt paid') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                    substr((string) oeFormatShortDate($ddate), 8, 2);
                 }
             } elseif (!empty($ddata['rsn'])) {
                 if ($ddata['chg']) {
@@ -292,8 +287,8 @@ function create_HTML_statement($stmt)
                             // only 1 note per item or results in too much detail
                             continue;
                         } else {
-                            $desc = xl('Note') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                                substr(oeFormatShortDate($ddate), 8, 2) .
+                            $desc = xl('Note') . ' ' . substr((string) oeFormatShortDate($ddate), 0, 6) .
+                                substr((string) oeFormatShortDate($ddate), 8, 2) .
                                 ': ' . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                             $note_flag = true;
                         }
@@ -336,9 +331,9 @@ function create_HTML_statement($stmt)
         // If first bill then make the amount due current and reset aging date
         if ($stmt['dun_count'] == '0') {
             $last_activity_date = date('Y-m-d');
-            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $row['pid'], $row['encounter']));
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", [date('Y-m-d'), $row['pid'], $row['encounter']]);
         }
-        $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $last_activity_date)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
@@ -358,7 +353,7 @@ function create_HTML_statement($stmt)
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -369,17 +364,17 @@ function create_HTML_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $row['phone'] );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $row['phone'] );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
     $out .= "\n\n\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
@@ -401,14 +396,14 @@ function create_HTML_statement($stmt)
     $out .= "\n";
     // $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if ($GLOBALS['statement_message_to_patient']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = $GLOBALS['statement_msg_text'];
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
 
-    if ($GLOBALS['show_aging_on_custom_statement']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
             sprintf(" %.2f", $aging[$age_index]);
@@ -416,9 +411,9 @@ function create_HTML_statement($stmt)
         $count++;
     }
 
-    if ($GLOBALS['number_appointments_on_statement'] != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = $GLOBALS['number_appointments_on_statement'];
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
@@ -428,8 +423,8 @@ function create_HTML_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
@@ -459,8 +454,8 @@ function create_HTML_statement($stmt)
     $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
     $out .= $label_sign . '  ______________________________________________<br />';
     $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
-    $practice_cards = $GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
+    $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         $out .= "<img src='$practice_cards' style='width:90px;height:auto; margin:4px auto;'><br /><p>\n<b>" .
             $label_totaldue . "</b>: " . $stmt['amount'] . "<br/>" . xlt('Payment Tracking Id') . ": " .
             text($stmt['pid']);
@@ -581,7 +576,7 @@ function create_statement($stmt)
     }
 
     #minimum_amount_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion')) {
         return "";
     }
 
@@ -589,7 +584,7 @@ function create_statement($stmt)
     // TBD: read this from the facility table
 
     // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -597,7 +592,7 @@ function create_statement($stmt)
 
 
     // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -620,24 +615,24 @@ function create_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= $GLOBALS['first_dun_msg_set']:
-                    $dun_message = $GLOBALS['first_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['second_dun_msg_set']:
-                    $dun_message = $GLOBALS['second_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['third_dun_msg_set']:
-                    $dun_message = $GLOBALS['third_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['fourth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fourth_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= $GLOBALS['fifth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fifth_dun_msg_text'];
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -708,7 +703,7 @@ function create_statement($stmt)
     //
     $count = 25;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -721,14 +716,10 @@ function create_statement($stmt)
 
 
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -738,13 +729,13 @@ function create_statement($stmt)
         ksort($line['detail']);
         # Compute the aging bucket index and accumulate into that bucket.
         #
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
 
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -799,16 +790,16 @@ function create_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the bottom portion of the page.
     $out .= "\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
     }
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
     }
 
@@ -829,22 +820,22 @@ function create_statement($stmt)
     $out .= "\n";
     $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if ($GLOBALS['statement_message_to_patient']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = $GLOBALS['statement_msg_text'];
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
     }
 
-    if ($GLOBALS['show_aging_on_custom_statement']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
             sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
     }
 
-    if ($GLOBALS['number_appointments_on_statement'] != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = $GLOBALS['number_appointments_on_statement'];
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
@@ -854,8 +845,8 @@ function create_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
                     ' ' .  $events[$j]['ulname'];
             } else {
@@ -884,7 +875,7 @@ function osp_create_HTML_statement($stmt)
     }
 
     #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion')) {
         return "";
     }
 
@@ -892,7 +883,7 @@ function osp_create_HTML_statement($stmt)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-    " where  service_location=1", array($stmt['pid']));
+    " where  service_location=1", [$stmt['pid']]);
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -910,7 +901,7 @@ function osp_create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -921,24 +912,24 @@ function osp_create_HTML_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= $GLOBALS['first_dun_msg_set']:
-                    $dun_message = $GLOBALS['first_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['second_dun_msg_set']:
-                    $dun_message = $GLOBALS['second_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['third_dun_msg_set']:
-                    $dun_message = $GLOBALS['third_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= $GLOBALS['fourth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fourth_dun_msg_text'];
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= $GLOBALS['fifth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fifth_dun_msg_text'];
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -981,7 +972,7 @@ function osp_create_HTML_statement($stmt)
     //
     $count = 6;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -990,14 +981,10 @@ function osp_create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        $tmp = substr((string) $description, 0, 14);
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -1006,13 +993,13 @@ function osp_create_HTML_statement($stmt)
         $dos = $line['dos'];
         ksort($line['detail']);
         # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
 
         foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
+            $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
@@ -1054,7 +1041,7 @@ function osp_create_HTML_statement($stmt)
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -1065,17 +1052,17 @@ function osp_create_HTML_statement($stmt)
     $label_call = xl('Please call or message if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
     $out .= "\n";
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
 
-    if ($GLOBALS['use_dunning_message']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
@@ -1097,14 +1084,14 @@ function osp_create_HTML_statement($stmt)
     $out .= "\n";
     $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if ($GLOBALS['statement_message_to_patient']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = $GLOBALS['statement_msg_text'];
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
 
-    if ($GLOBALS['show_aging_on_custom_statement']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
             sprintf(" %.2f", $aging[$age_index]);
@@ -1112,9 +1099,9 @@ function osp_create_HTML_statement($stmt)
         $count++;
     }
 
-    if ($GLOBALS['number_appointments_on_statement'] != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = $GLOBALS['number_appointments_on_statement'];
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
@@ -1124,8 +1111,8 @@ function osp_create_HTML_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
@@ -1152,8 +1139,8 @@ function osp_create_HTML_statement($stmt)
     $out .= $label_cardnum . ': {TextInput}  ' . $label_expiry . ': {smTextInput} / {smTextInput} <br /><br />';
     $out .= $label_sign . '  {PatientSignature}<br />';
     $out .= "      </td><td style=width:2.0in;vertical-align:middle;'>";
-    $practice_cards = $GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
+    $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
         $out .= "<br /><p>" . $label_totaldue . ": " . $stmt['amount'] . "</p>";
     }

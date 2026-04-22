@@ -7,7 +7,7 @@
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
@@ -22,12 +22,13 @@ require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 # Get the information for fields
@@ -38,7 +39,7 @@ $trow = sqlQuery("SELECT apptdate, appttime, patient_tracker_element.room AS las
                         "LEFT JOIN patient_tracker_element " .
                         "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                         "AND patient_tracker.lastseq = patient_tracker_element.seq " .
-                        "WHERE patient_tracker.id =?", array($_GET['tracker_id']));
+                        "WHERE patient_tracker.id =?", [$_GET['tracker_id']]);
 
 $tkpid = $trow['pid'];
 $appttime = $trow['appttime'];
@@ -54,12 +55,10 @@ $theroom = '';
 
 <?php
 if (!empty($_POST['statustype'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $status = $_POST['statustype'];
-    if (strlen($_POST['roomnum']) != 0) {
+    if (strlen((string) $_POST['roomnum']) != 0) {
          $theroom = $_POST['roomnum'];
     }
 
@@ -68,19 +67,19 @@ if (!empty($_POST['statustype'])) {
         // if an encounter is found it is returned to be carried forward with status changes.
         // otherwise 0 which is table default.
         $is_tracker = is_tracker_encounter_exist($apptdate, $appttime, $tkpid, $pceid);
-        if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !$is_tracker) {
+        if (OEGlobalsBag::getInstance()->get('auto_create_new_encounters') && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !$is_tracker) {
             # Gather information for encounter fields
             $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
-                      "from openemr_postcalendar_events where pc_eid =? ", array($pceid));
+                      "from openemr_postcalendar_events where pc_eid =? ", [$pceid]);
             $encounter = todaysEncounterCheck($tkpid, $apptdate, $genenc['reason'], $genenc['facility'], $genenc['billing_facility'], $genenc['provider'], $genenc['category'], false);
             # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
             if (!empty($pceid)) {
-                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $encounter);
+                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $session->get('authUser'), $status, $theroom, $encounter);
             }
         } else {
             # Capture the appt status and room number for patient tracker.
             if (!empty($pceid)) {
-                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $is_tracker);
+                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $session->get('authUser'), $status, $theroom, $is_tracker);
             }
         }
     }
@@ -94,7 +93,7 @@ if (!empty($_POST['statustype'])) {
 
 #get the patient name for display
 $row = sqlQuery("select fname, lname " .
-"from patient_data where pid =? limit 1", array($tkpid));
+"from patient_data where pid =? limit 1", [$tkpid]);
 ?>
 
 <body>
@@ -104,8 +103,8 @@ $row = sqlQuery("select fname, lname " .
                 <h2><?php echo xlt('Change Status for') . " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
         </div>
-        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" enctype="multipart/form-data" >
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" enctype="multipart/form-data" >
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="form-group">
                 <label for="statustype"><?php echo xlt('Status Type'); ?></label>
                 <?php echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>
@@ -124,4 +123,3 @@ $row = sqlQuery("select fname, lname " .
     </div>
 </body>
 </html>
-

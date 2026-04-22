@@ -4,7 +4,7 @@
  * find_code_popup.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2014 Rod Roark <rod@sunsetsystems.com>
@@ -13,26 +13,23 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'] ?? '';
-if (!empty($codetype)) {
-    $allowed_codes = split_csv_line($codetype);
-} else {
-    $allowed_codes = array_keys($code_types);
-}
+$allowed_codes = !empty($codetype) ? split_csv_line($codetype) : array_keys($code_types);
 
 $form_code_type = $_POST['form_code_type'] ?? '';
 
@@ -99,11 +96,7 @@ $focus = "document.theform.search_term.select();";
     <div class="container-fluid">
         <?php
         $string_target_element = "";
-        if (!empty($target_element)) {
-            $string_target_element = "?target_element=" . attr_url($target_element) . "&";
-        } else {
-            $string_target_element = "?";
-        }
+        $string_target_element = !empty($target_element) ? "?target_element=" . attr_url($target_element) . "&" : "?";
         ?>
         <?php if (!empty($allowed_codes)) { ?>
         <form class="form-inline" method='post' name='theform'
@@ -112,7 +105,7 @@ $focus = "document.theform.search_term.select();";
         <form class="form-inline" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="form-group">
                 <div class="input-group mt-1">
                 <?php
@@ -205,9 +198,9 @@ $focus = "document.theform.search_term.select();";
                     } else {
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
-                            $itertext = ucfirst(strtolower(trim($row['code_text'])));
+                            $itertext = ucfirst(strtolower(trim((string) $row['code_text'])));
                             $dynCodeType = $form_code_type ?: $codetype;
-                            if (stripos($dynCodeType, 'VALUESET') !== false) {
+                            if (stripos((string) $dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
                             }
                             if (!empty($target_element)) {

@@ -12,14 +12,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
+// removed as jquery is already called in messages page (if you need to use jQuery, uncomment it further down)
 require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $days_to_show = 30;
-$alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
+$alerts_to_show = OEGlobalsBag::getInstance()->getInt('dated_reminders_max_alerts_to_show');
 $updateDelay = 60; // time is seconds
 
 
@@ -29,17 +33,15 @@ $today = strtotime(date('Y/m/d'));
 // ----- set $hasAlerts to false, this is used for auto-hiding reminders if there are no due or overdue reminders
 $hasAlerts = false;
 
-// mulitply $updateDelay by 1000 to get miliseconds
-$updateDelay = $updateDelay * 1000;
+// multiply $updateDelay by 1000 to get milliseconds
+$updateDelay *= 1000;
 
 //-----------------------------------------------------------------------------
 // HANDLE AJAX TO MARK REMINDERS AS READ
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // set as processed
     setReminderAsProcessed($_POST['drR']);
@@ -105,10 +107,14 @@ $(function () {
 function openAddScreen(id){
   if (id == 0){
     top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
   } else {
     top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>', '_drAdd', 700, 500);
+    const params = new URLSearchParams({
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+        mID: id
+    });
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
 }
 
@@ -126,15 +132,15 @@ function updateme(id){
 
   // Send the skip_timeout_reset parameter to not count this as a manual entry in the
   // timing out mechanism in OpenEMR.
-  $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php",
+  $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders.php",
     {
       drR: id,
       skip_timeout_reset: "1",
-      csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+      csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
     },
     function(data) {
     if (data == 'error') {
-      alert("<?php echo xls('Error Removing Message') ?>");
+      alert(<?php echo xlj('Error Removing Message') ?>);
     } else {
       if (id > 0) {
         $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
@@ -149,7 +155,7 @@ function updateme(id){
 
 function openLogScreen(){
   top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
 }
 
 function goPid(pid) {

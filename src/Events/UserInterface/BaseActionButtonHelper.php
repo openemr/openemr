@@ -3,12 +3,12 @@
 /**
  * A helper class for simple interaction with the PageHeadingRenderEvent in an interface-compliant manner
  *
- * This is usefull for the most basic of requirements. If your code requires any type of business logic, it should be
- * handled with its own class, returnin a ActionButtonInterface-compliant class. This class sets up the basics to get
+ * This is useful for the most basic of requirements. If your code requires any type of business logic, it should be
+ * handled with its own class, returning an ActionButtonInterface-compliant class. This class sets up the basics to get
  * rapidly inject a button into the page heading but does not handle ACL or advanced logic.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech

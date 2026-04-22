@@ -3,7 +3,7 @@
 /**
  * FhirDocumentReferenceService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,21 +11,23 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FHIR\DocumentReference\FhirClinicalNotesService;
+use OpenEMR\Services\FHIR\DocumentReference\FhirDocumentReferenceAdvanceCareDirectiveService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService, IFhirExportableResourceService
 {
@@ -34,6 +36,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
     use MappedServiceCodeTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     const US_CORE_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference";
 
@@ -44,6 +47,15 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
         // for regular documents we need to handle the attachment.content.url so we also retrieve all of the documents
         // connected to a patient
         $this->addMappedService(new FhirPatientDocumentReferenceService($fhirApiURL));
+        $this->addMappedService(new FhirDocumentReferenceAdvanceCareDirectiveService($fhirApiURL));
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        parent::setSession($session);
+        foreach ($this->getMappedServices() as $service) {
+            $service->setSession($session);
+        }
     }
 
     /**
@@ -71,9 +83,6 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
     /**
      * Retrieves all of the fhir observation resources mapped to the underlying openemr data elements.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
@@ -86,7 +95,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
             if (isset($fhirSearchParameters['category'])) {
                 $category = $fhirSearchParameters['category'];
-                $categorySearchField = new TokenSearchField('category', $category);
+                $categorySearchField = new TokenSearchField('category', explode(",",$category));
                 ;
 
                 $service = $this->getServiceForCategory($categorySearchField, 'clinical-notes');
@@ -103,7 +112,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
+            ServiceContainer::getLogger()->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -120,8 +129,9 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
      */
     function getProfileURIs(): array
     {
-        return [
-            self::US_CORE_PROFILE
+        $profileSets = [
+            $this->getProfileForVersions(self::US_CORE_PROFILE, $this->getSupportedVersions())
         ];
+        return array_merge(...$profileSets);
     }
 }

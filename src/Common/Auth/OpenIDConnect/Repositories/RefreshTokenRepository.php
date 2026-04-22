@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,10 +17,12 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\RefreshTokenEntity;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var boolean
      */
@@ -39,7 +41,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     {
         $token = $this->getTokenByToken($refreshTokenEntity->getIdentifier());
         if (!empty($token)) {
-            throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
+            throw UniqueTokenIdentifierConstraintViolationException::create();
         }
 
         $exp_date = $refreshTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s');
@@ -58,7 +60,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function revokeRefreshToken($tokenId)
     {
         // Some logic to revoke the refresh token in a database
-        (new SystemLogger())->debug(self::class . "->revokeRefreshToken() attempting to revoke refresh token ", ['tokenId' => $tokenId]);
+        $this->getSystemLogger()->debug(self::class . "->revokeRefreshToken() attempting to revoke refresh token ", ['tokenId' => $tokenId]);
         $sql = "UPDATE api_refresh_token SET revoked = 1 WHERE token = ?";
         QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
     }
@@ -79,11 +81,12 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     public function getNewRefreshToken()
     {
+        $token = null;
         if ($this->issueNewRefreshToken) {
-            return new RefreshTokenEntity();
-        } else {
-            return null;
+            $token = new RefreshTokenEntity();
         }
+        $this->getSystemLogger()->debug(self::class . "->getNewRefreshToken() returning new refresh token", ['issueNewRefreshToken' => $this->issueNewRefreshToken]);
+        return $token;
     }
 
     public function getActiveTokensForUser($clientId, $userUuid)

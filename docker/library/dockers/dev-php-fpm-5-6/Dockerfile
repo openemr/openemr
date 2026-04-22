@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 #
 # Copyright (C) 2018 Brady Miller <brady.g.miller@gmail.com>
 #
@@ -11,33 +12,32 @@
 #
 FROM php:5.6-fpm
 
-# Update
-RUN apt-get update
-
 # Add mysql-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
-RUN apt-get install -y mysql-client \
-                       imagemagick
+RUN apt-get update \
+ && apt-get install -y imagemagick \
+                       mysql-client
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
-RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions pdo_mysql \
-                           ldap \
-                           xsl \
-                           gd \
-                           zip \
-                           soap \
+RUN chmod uga+x /usr/local/bin/install-php-extensions \
+ && sync \
+ && install-php-extensions gd \
                            gettext \
+                           ldap \
                            mysqli \
+                           pdo_mysql \
+                           soap \
                            sockets \
                            tokenizer \
-                           xmlreader
-
-# Copy over the php.ini conf
-COPY php.ini /usr/local/etc/php/php.ini
+                           xmlreader \
+                           xsl \
+                           zip
 
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 www-data
+
+# Copy over the php.ini conf
+COPY php.ini /usr/local/etc/php/php.ini

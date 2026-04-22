@@ -4,7 +4,7 @@
  * fax dispatch
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
@@ -19,14 +19,16 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($_GET['file']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'fax';
     $filename = $_GET['file'];
@@ -34,11 +36,9 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->getString('hylafax_basedir') . '/recvq/' . $filename;
 } elseif ($_GET['scan']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'scan';
     $filename = $_GET['scan'];
@@ -46,24 +46,24 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->getString('scanner_output_directory') . '/' . $filename;
 } else {
     die("No filename was given.");
 }
 
-$ext = substr($filename, strrpos($filename, '.'));
+$ext = substr((string) $filename, strrpos((string) $filename, '.'));
 $filebase = basename("/$filename", $ext);
-$faxcache = $GLOBALS['OE_SITE_DIR'] . "/faxcache/$mode/$filebase";
+$faxcache = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcache/$mode/$filebase";
 
 $info_msg = "";
 
 // This function builds an array of document categories recursively.
 // Kittens are the children of cats, you know.  :-)getKittens
 //
-function getKittens($catid, $catstring, &$categories)
+function getKittens($catid, $catstring, &$categories): void
 {
     $cres = sqlStatement("SELECT id, name FROM categories " .
-    "WHERE parent = ? ORDER BY name", array($catid));
+    "WHERE parent = ? ORDER BY name", [$catid]);
     $childcount = 0;
     while ($crow = sqlFetchArray($cres)) {
         ++$childcount;
@@ -84,7 +84,7 @@ function mergeTiffs()
     global $faxcache;
     $msg = '';
     $inames = '';
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
   // form_images are the checkboxes to the right of the images.
     foreach ($_POST['form_images'] as $inbase) {
@@ -96,7 +96,7 @@ function mergeTiffs()
         die(xlt("Internal error - no pages were selected!"));
     }
 
-    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
+    $tmp0 = exec("cd " . escapeshellarg((string) $faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
     if ($tmp2) {
         $msg .= "tiffcp returned $tmp2: $tmp0 ";
     }
@@ -107,12 +107,10 @@ function mergeTiffs()
 // If we are submitting...
 //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $action_taken = false;
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
 
     if ($_POST['form_cb_copy']) {
@@ -122,17 +120,17 @@ if ($_POST['form_save']) {
         }
 
         // Compute the name of the target directory and make sure it exists.
-        $docdir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id);
+        $docdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . check_file_dir_name($patient_id);
         exec("mkdir -p " . escapeshellarg($docdir));
 
         // If copying to patient documents...
         //
         if ($_POST['form_cb_copy_type'] == 1) {
             // Compute a target filename that does not yet exist.
-            $ffname = check_file_dir_name(trim($_POST['form_filename']));
-            $i = strrpos($ffname, '.');
+            $ffname = check_file_dir_name(trim((string) $_POST['form_filename']));
+            $i = strrpos((string) $ffname, '.');
             if ($i) {
-                $ffname = trim(substr($ffname, 0, $i));
+                $ffname = trim(substr((string) $ffname, 0, $i));
             }
 
             if (!$ffname) {
@@ -162,7 +160,7 @@ if ($_POST['form_save']) {
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
             } else {
-                $newid = generate_id();
+                $newid = QueryUtils::generateId();
                 $fsize = filesize($target);
                 $catid = (int) $_POST['form_category'];
                 // Update the database.
@@ -172,13 +170,13 @@ if ($_POST['form_save']) {
                 "?, 'file_url', ?, NOW(), ?, " .
                 "'application/pdf', ?, ? " .
                 ")";
-                sqlStatement($query, array($newid, $fsize, 'file://' . $target, $patient_id, $docdate));
+                sqlStatement($query, [$newid, $fsize, 'file://' . $target, $patient_id, $docdate]);
                 $query = "INSERT INTO categories_to_documents ( " .
                 "category_id, document_id" .
                 " ) VALUES ( " .
                 "?, ? " .
                 ")";
-                sqlStatement($query, array($catid, $newid));
+                sqlStatement($query, [$catid, $newid]);
             } // end not error
 
             // If we are posting a note...
@@ -187,13 +185,13 @@ if ($_POST['form_save']) {
                 // See pnotes_full.php which uses this to auto-display the document.
                 $note = "$ffname$ffmod$ffsuff";
                 for ($tmp = $catid; $tmp;) {
-                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
                     $note = $catrow['name'] . "/$note";
                     $tmp = $catrow['parent'];
                 }
 
                 $note = "New scanned document $newid: $note";
-                $form_note_message = trim($_POST['form_note_message']);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -229,7 +227,7 @@ if ($_POST['form_save']) {
                 // The following is cloned from contrib/forms/scanned_notes/new.php:
                 //
                 $query = "INSERT INTO form_scanned_notes ( notes ) VALUES ( ? )";
-                $formid = sqlInsert($query, array($_POST['form_copy_sn_comments']));
+                $formid = sqlInsert($query, [$_POST['form_copy_sn_comments']]);
                 addForm(
                     $encounter_id,
                     "Scanned Notes",
@@ -239,7 +237,7 @@ if ($_POST['form_save']) {
                     $userauthorized
                 );
                 //
-                $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id) . "/encounters";
+                $imagedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . check_file_dir_name($patient_id) . "/encounters";
                 $imagepath = "$imagedir/" . check_file_dir_name($encounter_id) . "_" . check_file_dir_name($formid) . ".jpg";
                 if (! is_dir($imagedir)) {
                         $tmp0 = exec('mkdir -p ' . escapeshellarg($imagedir), $tmp1, $tmp2);
@@ -256,7 +254,7 @@ if ($_POST['form_save']) {
 
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
-                $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
+                $cmd = "convert -resize 800 -density 96 " . escapeshellarg((string) $tmp_name) . " -append " . escapeshellarg($imagepath);
                 $tmp0 = exec($cmd, $tmp1, $tmp2);
                 if ($tmp2) {
                     die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
@@ -265,8 +263,8 @@ if ($_POST['form_save']) {
 
             // If we are posting a patient note...
             if ($_POST['form_cb_note'] && !$info_msg) {
-                $note = "New scanned encounter note for visit on " . substr($erow['date'], 0, 10);
-                $form_note_message = trim($_POST['form_note_message']);
+                $note = "New scanned encounter note for visit on " . substr((string) $erow['date'], 0, 10);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -286,22 +284,22 @@ if ($_POST['form_save']) {
     } // end copy to chart
 
     if ($_POST['form_cb_forward']) {
-        $form_from     = trim($_POST['form_from']);
-        $form_to       = trim($_POST['form_to']);
-        $form_fax      = trim($_POST['form_fax']);
-        $form_message  = trim($_POST['form_message']);
+        $form_from     = trim((string) $_POST['form_from']);
+        $form_to       = trim((string) $_POST['form_to']);
+        $form_fax      = trim((string) $_POST['form_fax']);
+        $form_message  = trim((string) $_POST['form_message']);
         $form_finemode = $_POST['form_finemode'] ? '-m' : '-l';
 
         // Generate a cover page using enscript.  This can be a cool thing
         // to do, as enscript is very powerful.
         //
-        $tmp1 = array();
+        $tmp1 = [];
         $tmp2 = 0;
         $tmpfn1 = tempnam("/tmp", "fax1");
         $tmpfn2 = tempnam("/tmp", "fax2");
         $tmph = fopen($tmpfn1, "w");
         $cpstring = '';
-        $fh = fopen($GLOBALS['OE_SITE_DIR'] . "/faxcover.txt", 'r');
+        $fh = fopen(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcover.txt", 'r');
         while (!feof($fh)) {
             $cpstring .= fread($fh, 8192);
         }
@@ -314,7 +312,7 @@ if ($_POST['form_save']) {
         $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
-        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd((new CryptoGen())->decryptStandard($GLOBALS['more_secure']['hylafax_enscript'])) .
+        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd(OPENEMR_HYLAFAX_ENSCRIPT) .
         " -o " . escapeshellarg($tmpfn2) . " " . escapeshellarg($tmpfn1), $tmp1, $tmp2);
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";
@@ -369,8 +367,8 @@ if ($_POST['form_save']) {
 
     if ($form_cb_delete == '2' && !$info_msg) {
         // Delete the tiff file, with archiving if desired.
-        if ($GLOBALS['hylafax_archdir'] && $mode == 'fax') {
-            rename($filepath, $GLOBALS['hylafax_archdir'] . '/' . $filename);
+        if (OEGlobalsBag::getInstance()->get('hylafax_archdir') && $mode == 'fax') {
+            rename($filepath, OEGlobalsBag::getInstance()->get('hylafax_archdir') . '/' . $filename);
         } else {
             unlink($filepath);
         }
@@ -399,7 +397,7 @@ if ($_POST['form_save']) {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -453,7 +451,7 @@ if (! is_dir($faxcache)) {
 }
 
 // Get the categories list.
-$categories = array();
+$categories = [];
 getKittens(0, '', $categories);
 
 // Get the users list.
@@ -469,7 +467,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <script>
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
  function divclick(cb, divid) {
   var divstyle = document.getElementById(divid).style;
@@ -496,7 +494,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   // This loads the patient's list of recent encounters:
   f.form_copy_sn_visit.options.length = 0;
   f.form_copy_sn_visit.options[0] = new Option('Loading...', '0');
-  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>);
 <?php } ?>
  }
 
@@ -586,7 +584,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -598,8 +596,8 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <h2 class="text-center"><?php echo xlt('Dispatch Received Document'); ?></h2>
 
 <form method='post' name='theform'
- action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>' onsubmit='return validate()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
@@ -703,7 +701,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     <div class="col-10">
                         <?php
                         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
+                        generate_form_field(['data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'], '');
                         ?>
                     </div>
                 </div>
@@ -827,7 +825,7 @@ if (! $dh) {
     die("Cannot read " . text($faxcache));
 }
 
-$jpgarray = array();
+$jpgarray = [];
 while (false !== ($jfname = readdir($dh))) {
     if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
         $jpgarray[$matches[1]] = $jfname;
@@ -839,11 +837,12 @@ closedir($dh);
 // by filename so the display order matches the original document.
 ksort($jpgarray);
 $page = 0;
+$site_id = $session->get('site_id');
 foreach ($jpgarray as $jfnamebase => $jfname) {
     ++$page;
     echo " <tr>\n";
     echo "  <td valign='top'>\n";
-    echo "   <img src='../../sites/" . attr($_SESSION['site_id']) . "/faxcache/" . attr($mode) . "/" . attr($filebase) . "/" . attr($jfname) . "' />\n";
+    echo "   <img src='../../sites/" . attr($site_id) . "/faxcache/" . attr($mode) . "/" . attr($filebase) . "/" . attr($jfname) . "' />\n";
     echo "  </td>\n";
     echo "  <td align='center' valign='top'>\n";
     echo "   <input type='checkbox' name='form_images[]' value='" . attr($jfnamebase) . "' checked />\n";

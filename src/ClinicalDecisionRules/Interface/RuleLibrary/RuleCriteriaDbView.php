@@ -16,15 +16,15 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class RuleCriteriaDbView
 {
-    var $method;
-    var $methodDetail;
-    var $optional;
-    var $inclusion;
+    public $method;
+    public $methodDetail;
+    public $optional;
+    public $inclusion;
 
-    var $interval;
-    var $intervalType;
+    public $interval;
+    public $intervalType;
 
-    var $value;
+    public $value;
 
     function __construct()
     {

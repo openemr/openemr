@@ -16,19 +16,14 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class RuleType
 {
-    var $code;
-    var $lbl;
-
     const ActiveAlert = "activealert";
     const PassiveAlert = "passivealert";
     const CQM = "cqm";
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct($code, $lbl)
+    function __construct(public $code, public $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**
@@ -50,14 +45,14 @@ class RuleType
 
     private static function map()
     {
-        $map = array(
+        $map = [
             self::ActiveAlert => new RuleType(self::ActiveAlert, xl('Active Alert')),
             self::PassiveAlert => new RuleType(self::PassiveAlert, xl('Passive Alert')),
             // not yet supported
 //            self::CQM   =>  new OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType( self::CQM, xl( 'CQM' ) ),
 //            self::AMC   =>  new OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType( self::AMC, xl( 'AMC' ) ),
             self::PatientReminder => new RuleType(self::PatientReminder, xl('Patient Reminder'))
-        );
+        ];
         return $map;
     }
 }

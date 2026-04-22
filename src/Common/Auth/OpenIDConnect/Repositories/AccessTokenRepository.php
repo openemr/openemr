@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,16 +14,19 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\Config\ServerConfig;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var SMARTSessionTokenContextBuilder
      */
@@ -36,9 +39,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     private $contextForNewTokens;
 
-    public function __construct()
+    public function __construct(private ServerConfig $serverConfig, private SessionInterface $session)
     {
-        $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
         $this->contextForNewTokens = null;
     }
 
@@ -60,7 +62,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     {
         $token = $this->getTokenByToken($accessTokenEntity->getIdentifier());
         if (!empty($token)) {
-            throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
+            throw UniqueTokenIdentifierConstraintViolationException::create();
         }
 
         $access_token = (string) $accessTokenEntity;
@@ -82,7 +84,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function revokeAccessToken($tokenId)
     {
-        (new SystemLogger())->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
+        $this->getSystemLogger()->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
         // Some logic to revoke the refresh token in a database
         $sql = "UPDATE api_token SET revoked = 1 WHERE token = ?";
         QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
@@ -112,12 +114,19 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
     {
         $accessToken = new AccessTokenEntity();
+        // issuer needs to match what is in the 'issuer' tag of the /oauth2/openid-configuration
+        $accessToken->setIssuer($this->serverConfig->getOauthAuthorizationUrl());
         $accessToken->setClient($clientEntity);
         foreach ($scopes as $scope) {
             $accessToken->addScope($scope);
         }
         $accessToken->setUserIdentifier($userIdentifier);
 
+        $this->getSystemLogger()->debug("AccessTokenRepository->getNewToken() creating new access token", [
+            'clientId' => $clientEntity->getIdentifier(),
+            'userIdentifier' => $userIdentifier,
+            'issuer' => $accessToken->getIssuer()
+        ]);
         return $accessToken;
     }
 
@@ -130,7 +139,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * Retrieves a token record for given database token id.
-     * @param $id The database identifier for the token (see table api_token.id
+     * @param string $id The database identifier for the token (see table api_token.id
      * @return array|null
      */
     public function getTokenById($id)
@@ -148,12 +157,20 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     }
 
     /**
-     * Sets the context array that will be saved to the database for new acess tokens.
+     * Sets the context array that will be saved to the database for new access tokens.
      * @param $context The array of context variables.  If this is not an array the context is set to null;
      */
     public function setContextForNewTokens($context)
     {
         $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
+    }
+
+    private function getBuilderForAccessToken(): SMARTSessionTokenContextBuilder
+    {
+        if (empty($this->builder)) {
+            $this->builder = new SMARTSessionTokenContextBuilder($this->serverConfig, $this->session);
+        }
+        return $this->builder;
     }
 
     /**
@@ -165,9 +182,9 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private function getContextForNewAccessTokens($scopes)
     {
         if (!empty($this->contextForNewTokens)) {
-            $context = $this->builder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
         } else {
-            $context = $this->builder->getContextForScopes($scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopes($scopes) ?? [];
         }
         return $context;
     }

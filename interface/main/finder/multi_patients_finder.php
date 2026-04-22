@@ -4,7 +4,7 @@
  * Multi select patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -18,17 +18,18 @@ require_once('../../globals.php');
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for editing selected patients
 if (isset($_GET['patients'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-    $patients = rtrim($_GET['patients'], ";");
+    $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
-    $results = array();
+    $results = [];
     foreach ($patients as $patient) {
         $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
@@ -141,14 +142,14 @@ if (isset($_GET['patients'])) {
             <tbody id="searchResults">
             <?php
             if (isset($_GET['patients'])) {
-                foreach ($results as $index => $result) {
+                foreach ($results as $result) {
                     echo '<tr id="row' . attr($result['pid']) . '">' .
                             '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
                             '<td>' . text($result['phone_home']) . '</td>' .
                             '<td>' . text($result['ss']) . '</td>' .
                             '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                             '<td>' . text($result['pubpid']) . '</td>' .
-                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(js_escape((string) $result['pid'])) . ')"></i></td>' .
                         '<tr>';
                 }
             } ?>
@@ -178,13 +179,13 @@ $('#by-id, #by-name').select2({
             var query = {
                 search: params.term,
                 type: $(this).attr('id'),
-                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
             }
             return query;
         },
         dataType: 'json',
     },
-    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient
@@ -195,7 +196,7 @@ $('#by-id').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-id').val(),
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
         },
         dataType: 'json'
     }).done(function(data){
@@ -215,7 +216,7 @@ $('#by-name').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-name').val(),
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
         },
         dataType: 'json'
     }).done(function(data){

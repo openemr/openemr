@@ -4,7 +4,7 @@
  * Display patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -19,17 +19,19 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // form parameter docid can be passed to restrict the display to a document.
 $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
 //ajax for type 2 notes widget
 if (isset($_GET['docUpdateId'])) {
-    return disappearPnote($_GET['docUpdateId']);
+    return disappearPnote($_GET['docUpdateId'], $pid);
 }
 
 ?>
@@ -37,7 +39,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = $GLOBALS['num_of_messages_displayed'];
+    $N = OEGlobalsBag::getInstance()->getInt('num_of_messages_displayed');
     $has_note = 0;
     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
@@ -71,7 +73,7 @@ if (isset($_GET['docUpdateId'])) {
             echo "<thead>\n<tr>";
             echo "<th class='text' >" . xlt('From') . "</th>\n";
             echo "<th class='text' >" . xlt('To{{Destination}}') . "</th>\n";
-            if ($GLOBALS['messages_due_date']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) {
                 echo "<th class='text' >" . xlt('Due date') . "</th>\n";
             } else {
                 echo "<th class='text' >" . xlt('Date') . "</th>\n";
@@ -84,16 +86,16 @@ if (isset($_GET['docUpdateId'])) {
                 $has_note = 1;
 
                 $body = $iter['body'];
-                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
-                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
+                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', (string) $body);
+                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
                 echo " <tr class='text' id=" . text($iter['id']) . ">\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";
                 echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
-                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
+                echo "<td class='text'>" . text(DateFormatterUtils::oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
                 echo "  <td class='text'><b>";
-                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                 echo "</b></td>\n";
 
                 echo "  <td class='text'>" . pnoteConvertLinks(nl2br(text($body))) . "</td>\n";
@@ -110,7 +112,7 @@ if (isset($_GET['docUpdateId'])) {
             <span class='text'>
             <?php
                 echo xlt("There are no messages on file for this patient.");
-            if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
+            if (AclMain::aclCheckCore('patients', 'notes', '', ['write', 'addonly'])) {
                 echo " ";
                 echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                 echo xlt("To add messages, please click here");
@@ -122,7 +124,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
-            <b><?php echo text($N);?></b><br />
+            <b><?php echo $N;?></b><br />
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
         } ?>
