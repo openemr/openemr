@@ -626,7 +626,65 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
             <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
             // Initialize the Vitals form if it is registered and user is authorized.
-            placeHtml("vitals_fragment.php", "vitals_ps_expand");
+            placeHtml("vitals_fragment.php", "vitals_ps_expand").then(() => {
+                // Handler for opening the modal
+                $(document).off('click.quickVitals').on('click.quickVitals', '.quick-vitals-btn', function () {
+                    let pid = $(this).data('pid') || top.pid;
+                    let encounter = $(this).data('encounter') || top.encounter;
+
+                    $.post("quick_vitals_save.php", {
+                        pid: pid,
+                        encounter: encounter,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    }, function (res) {
+                        if (res.success) {
+                            $.get("/interface/forms/vitals/quick_edit.php", { pid: pid, encounter: res.encounter }, function (html) {
+                                $("#quickVitalsModal, .quick-vitals-backdrop").remove();
+                                $("body").append(`
+                                    <div id="quickVitalsModal" style="display:block; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:3000; background:#fff; width:500px; padding:20px; border-radius:8px; box-shadow: 0 0 20px rgba(0,0,0,0.4);">
+                                        ${html}
+                                    </div>
+                                    <div class="modal-backdrop fade show quick-vitals-backdrop" style="z-index:2999; background: rgba(0,0,0,0.5); position:fixed; top:0; left:0; width:100%; height:100%;"></div>
+                                `);
+                            });
+                        } else {
+                            alert("App Error: " + res.error);
+                        }
+                    }, "json").fail(function(xhr) {
+                        console.error("Quick Vitals initialization failed:", xhr.responseText);
+                        alert("An error occurred while loading the vitals form.");
+                    });
+                });
+
+                // 2. SAVE HANDLER
+                $(document).off('click.vitalsSave').on('click.vitalsSave', '#saveQuickVitals', function () {
+                    $.ajax({
+                        url: "/interface/forms/vitals/quick_save.php",
+                        type: "POST",
+                        data: $('#quickVitalsForm').serialize(),
+                        dataType: "json",
+                        success: function (res) {
+                            if (res.success) {
+                                $("#quickVitalsModal, .quick-vitals-backdrop").remove();
+                                // Reload the fragment to show the new data
+                                placeHtml("vitals_fragment.php", "vitals_ps_expand");
+                            } else {
+                                alert("Save Failed: " + res.error);
+                            }
+                        },
+                        error: function (xhr) {
+                            $("#quickVitalsModal, .quick-vitals-backdrop").remove();
+                            console.error("Quick Vitals save failed:", xhr.responseText);
+                            alert("An error occurred while saving vitals. Please check your connection.");
+                        }
+                    });
+                });
+
+                // 3. CANCEL HANDLER
+                $(document).on('click', '.btn-cancel-vitals', function() {
+                    $("#quickVitalsModal, .quick-vitals-backdrop").remove();
+                });
+            });
             <?php } ?>
 
             <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr') && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_crw')) { ?>
