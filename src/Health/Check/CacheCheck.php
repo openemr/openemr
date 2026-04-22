@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Health\Check;
 
+use OpenEMR\Common\Session\Predis\SentinelUtil;
 use OpenEMR\Health\HealthCheckInterface;
 use OpenEMR\Health\HealthCheckResult;
-use Predis\Client;
 
 class CacheCheck implements HealthCheckInterface
 {
@@ -65,27 +65,33 @@ class CacheCheck implements HealthCheckInterface
         $redisTls = getenv('REDIS_TLS') === 'yes';
         $redisPassword = getenv('REDIS_PASSWORD') ?: null;
 
-        $parameters = [
-            'scheme' => $redisTls ? 'tls' : 'tcp',
-            'host' => $redisServer,
-            'port' => (int)$redisPort,
-        ];
+        $redis = new \Redis();
+        $host = $redisTls ? 'tls://' . $redisServer : $redisServer;
+        $options = [];
+        if ($redisTls) {
+            $certKeyPath = getenv('REDIS_TLS_CERT_KEY_PATH') ?: '';
+            $sslOptions = [
+                'verify_peer'      => true,
+                'verify_peer_name' => true,
+            ];
+            if ($certKeyPath !== '') {
+                $sslOptions['cafile'] = $certKeyPath . '/redis-master-ca';
+            }
+            if (getenv('REDIS_X509') === 'yes' && $certKeyPath !== '') {
+                $sslOptions['local_cert'] = $certKeyPath . '/redis-master-cert';
+                $sslOptions['local_pk']   = $certKeyPath . '/redis-master-key';
+            }
+            $options['stream'] = $sslOptions;
+        }
+
+        $redis->connect($host, (int) $redisPort, 3.0, null, 0, 3.0, $options);
 
         if ($redisPassword !== null && $redisPassword !== '') {
-            $parameters['password'] = $redisPassword;
+            $redis->auth($redisPassword);
         }
 
-        if ($redisTls) {
-            $parameters['ssl'] = [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ];
-        }
-
-        $redis = new Client($parameters);
-        $response = $redis->ping();
-
-        if ($response->getPayload() !== 'PONG') {
+        $pong = $redis->ping();
+        if ($pong !== true) {
             return new HealthCheckResult(
                 $this->getName(),
                 false,
@@ -97,7 +103,10 @@ class CacheCheck implements HealthCheckInterface
     }
 
     /**
-     * Check Redis Sentinel connection
+     * Check Redis Sentinel connection.
+     *
+     * Reuses SentinelUtil::configureClient() so TLS / mTLS settings are
+     * automatically picked up from the environment.
      */
     private function checkRedisSentinel(): ?HealthCheckResult
     {
@@ -106,45 +115,10 @@ class CacheCheck implements HealthCheckInterface
             return null;
         }
 
-        $sentinels = getenv('REDIS_SENTINELS');
-        if ($sentinels === false || $sentinels === '') {
-            return new HealthCheckResult(
-                $this->getName(),
-                false,
-                'Redis sentinels not configured'
-            );
-        }
+        $redis = (new SentinelUtil())->configureClient();
+        $pong = $redis->ping();
 
-        $sentinelHosts = array_filter(explode('|||', $sentinels), fn($s): bool => $s !== '');
-        if (count($sentinelHosts) === 0) {
-            return new HealthCheckResult(
-                $this->getName(),
-                false,
-                'Invalid Redis sentinel configuration'
-            );
-        }
-
-        $masterName = getenv('REDIS_MASTER') ?: 'mymaster';
-
-        $sentinelParameters = array_map(
-            fn($sentinel): array => ['host' => $sentinel],
-            $sentinelHosts
-        );
-
-        $options = [
-            'replication' => 'sentinel',
-            'service' => $masterName,
-        ];
-
-        $password = getenv('REDIS_MASTER_PASSWORD');
-        if ($password !== false && $password !== '') {
-            $options['parameters'] = ['password' => $password];
-        }
-
-        $redis = new Client($sentinelParameters, $options);
-        $response = $redis->ping();
-
-        if ($response->getPayload() !== 'PONG') {
+        if ($pong !== true) {
             return new HealthCheckResult(
                 $this->getName(),
                 false,

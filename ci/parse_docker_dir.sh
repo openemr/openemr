@@ -21,6 +21,8 @@ parse() {
   local webserver_template
   local database_template
   local mailpit_template
+  local redis_sentinel_template
+  local redis_sentinel_enabled
   local mysql_image
 
   # Parse docker directory name
@@ -41,6 +43,8 @@ parse() {
   webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
   database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
   mailpit_template=$(yq '.x-includes.mailpit-template' "ci/${docker_dir}/docker-compose.yml")
+  redis_sentinel_template=$(yq '.x-includes."redis-sentinel-template" // ""' "ci/${docker_dir}/docker-compose.yml")
+  [[ -n "${redis_sentinel_template}" ]] && redis_sentinel_enabled=true || redis_sentinel_enabled=false
 
   # Check if docker_dir ends with "_no-e2e"
   [[ ${docker_dir} = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
@@ -79,7 +83,11 @@ parse() {
 
   # Compose file path (first entry must be directly in ci/, not a subdirectory,
   # because Docker Compose resolves all relative paths from the first file's directory)
-  compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
+  if [[ -n "${redis_sentinel_template}" ]]; then
+    compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${redis_sentinel_template}:ci/${docker_dir}/docker-compose.yml"
+  else
+    compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
+  fi
 
   jq -cn \
     --arg compose_file "${compose_file}" \
@@ -92,6 +100,8 @@ parse() {
     --arg mailpit_template "${mailpit_template}" \
     --arg node_version "${node_version}" \
     --arg php "${php}" \
+    --arg redis_sentinel_enabled "${redis_sentinel_enabled}" \
+    --arg redis_sentinel_template "${redis_sentinel_template}" \
     --arg save_composer_cache "${save_composer_cache}" \
     --arg save_node_cache "${save_node_cache}" \
     --arg selenium_template "${selenium_template}" \
@@ -113,6 +123,8 @@ parse() {
         node_version: $node_version,
         openemr_dir: $openemr_dir,
         php: $php,
+        redis_sentinel_enabled: $redis_sentinel_enabled,
+        redis_sentinel_template: $redis_sentinel_template,
         save_composer_cache: $save_composer_cache,
         save_node_cache: $save_node_cache,
         selenium_template: $selenium_template,

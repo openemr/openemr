@@ -164,7 +164,6 @@ return ['includes' => [
     __DIR__ . '/staticProperty.deprecated.php',
     __DIR__ . '/ternary.alwaysFalse.php',
     __DIR__ . '/ternary.alwaysTrue.php',
-    __DIR__ . '/ternary.resultUnused.php',
     __DIR__ . '/throws.notThrowable.php',
     __DIR__ . '/throws.unusedType.php',
     __DIR__ . '/throws.void.php',

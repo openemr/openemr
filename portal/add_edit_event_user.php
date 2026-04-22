@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Calendar\RecurrenceStartDateAdjuster;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -83,7 +84,7 @@ if (!empty($_POST['form_pid'])) {
         echo xlt("Error: Invalid Patient ID");
         exit();
     }
-    $event_date = fixDate($_POST['form_date']);
+    $event_date = fixDate(is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null);
     if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $form_provider_ae)) {
         echo xlt("Error: No available slots for selected provider(s)");
         exit();
@@ -165,7 +166,9 @@ if ($form_action !== '') {
 }
 
 if ($form_action === "save") {
-    $event_date = fixDate($_POST['form_date']);
+    $formDate = is_string($_POST['form_date'] ?? null) ? $_POST['form_date'] : null;
+    $formEnddate = is_string($_POST['form_enddate'] ?? null) ? $_POST['form_enddate'] : null;
+    $event_date = fixDate($formDate);
 
 // Compute start and end time strings to be saved.
     if ($_POST['form_allday'] ?? null) {
@@ -220,91 +223,10 @@ if ($form_action === "save") {
         ]);
     }
 
-//The modification of the start date for events that take place on one day of the week
-//for example monday, or thursday. We set the start date on the first day of the week
-//that the event is scheduled. For example if you set the event to repeat on each monday
-//the start date of the event will be set on the first monday after the day the event is scheduled
-    if ($form_repeat_type === 5) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 6) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 7) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 8) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 9) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    }//if end
+    // Repeat types 5-9 map to target weekdays (Mon-Fri). Advance the start
+    // date to the next occurrence of that weekday so the recurrence begins on
+    // the correct day.
+    $event_date = RecurrenceStartDateAdjuster::adjust((string) $event_date, $form_repeat_type);
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/
@@ -348,14 +270,25 @@ if ($form_action === "save") {
                             pc_eventstatus, pc_sharing, pc_facility
                         ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                         [
-                            $_POST['form_category'], $row['pc_multiple'], $to_be_inserted,
-                            $pid, $_POST['form_title'], $_POST['form_comments'],
-                            $session->get('providerId'), $event_date,
-                            fixDate($_POST['form_enddate']), ($duration * 60),
-                            ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
-                            $starttime, $endtime, $_POST['form_allday'],
-                            $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                            $locationspec, $facility,
+                            $_POST['form_category'],
+                            $row['pc_multiple'],
+                            $to_be_inserted,
+                            $pid,
+                            $_POST['form_title'],
+                            $_POST['form_comments'],
+                            $session->get('providerId'),
+                            $event_date,
+                            fixDate($formEnddate, null),
+                            ($duration * 60),
+                            ($_POST['form_repeat'] ? '1' : '0'),
+                            $recurrspec,
+                            $starttime,
+                            $endtime,
+                            $_POST['form_allday'],
+                            $_POST['form_apptstatus'],
+                            $_POST['form_prefcat'],
+                            $locationspec,
+                            $facility,
                         ]
                     );
                 } // foreach
@@ -374,13 +307,24 @@ if ($form_action === "save") {
                         pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
                         WHERE pc_aid = ? AND pc_multiple = ?",
                     [
-                        $_POST['form_category'], $pid, $_POST['form_title'],
-                        $_POST['form_comments'], $session->get('providerId'),
-                        $event_date, fixDate($_POST['form_enddate']),
-                        ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
-                        $recurrspec, $starttime, $endtime, $_POST['form_allday'],
-                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        $facility, $provider, $row['pc_multiple'],
+                        $_POST['form_category'],
+                        $pid,
+                        $_POST['form_title'],
+                        $_POST['form_comments'],
+                        $session->get('providerId'),
+                        $event_date,
+                        fixDate($formEnddate, null),
+                        ($duration * 60),
+                        ($_POST['form_repeat'] ? '1' : '0'),
+                        $recurrspec,
+                        $starttime,
+                        $endtime,
+                        $_POST['form_allday'],
+                        $_POST['form_apptstatus'],
+                        $_POST['form_prefcat'],
+                        $facility,
+                        $provider,
+                        $row['pc_multiple'],
                     ]
                 );
             } // foreach
@@ -401,13 +345,24 @@ if ($form_action === "save") {
                     pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
                     WHERE pc_eid = ?",
                 [
-                    $_POST['form_category'], $prov, $pid, $_POST['form_title'],
-                    $_POST['form_comments'], $session->get('providerId'),
-                    $event_date, fixDate($_POST['form_enddate'] ?? ''),
-                    ($duration * 60), (($_POST['form_repeat'] ?? null) ? '1' : '0'),
-                    $recurrspec, $starttime, $endtime, $_POST['form_allday'] ?? '',
-                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? '',
-                    $facility, $eid,
+                    $_POST['form_category'],
+                    $prov,
+                    $pid,
+                    $_POST['form_title'],
+                    $_POST['form_comments'],
+                    $session->get('providerId'),
+                    $event_date,
+                    fixDate($formEnddate, null),
+                    ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec,
+                    $starttime,
+                    $endtime,
+                    ($_POST['form_allday'] ?? ''),
+                    $_POST['form_apptstatus'],
+                    ($_POST['form_prefcat'] ?? ''),
+                    $facility,
+                    $eid,
                 ]
             );
         }
@@ -444,14 +399,25 @@ if ($form_action === "save") {
                         pc_eventstatus, pc_sharing, pc_facility
                     ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                     [
-                        $_POST['form_category'], $new_multiple_value, $provider,
-                        $pid, $_POST['form_title'], $_POST['form_comments'],
-                        $session->get('providerId'), $event_date,
-                        fixDate($_POST['form_enddate']), ($duration * 60),
-                        ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
-                        $starttime, $endtime, $_POST['form_allday'],
-                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        $locationspec, $facility,
+                        $_POST['form_category'],
+                        $new_multiple_value,
+                        $provider,
+                        $pid,
+                        $_POST['form_title'],
+                        $_POST['form_comments'],
+                        $session->get('providerId'),
+                        $event_date,
+                        fixDate($formEnddate, null),
+                        ($duration * 60),
+                        ($_POST['form_repeat'] ? '1' : '0'),
+                        $recurrspec,
+                        $starttime,
+                        $endtime,
+                        $_POST['form_allday'],
+                        $_POST['form_apptstatus'],
+                        $_POST['form_prefcat'],
+                        $locationspec,
+                        $facility,
                     ]
                 );
             } // foreach
@@ -467,14 +433,24 @@ if ($form_action === "save") {
                     pc_eventstatus, pc_sharing, pc_facility
                 ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                 [
-                    $_POST['form_category'], $form_provider_ae,
-                    $pid, $_POST['form_title'], $_POST['form_comments'],
-                    $session->get('providerId'), $event_date,
-                    fixDate($_POST['form_enddate'] ?? ''), ($duration * 60),
-                    (($_POST['form_repeat'] ?? null) ? '1' : '0'), $recurrspec,
-                    $starttime, $endtime, $_POST['form_allday'] ?? '',
-                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? null,
-                    $locationspec, $facility,
+                    $_POST['form_category'],
+                    $form_provider_ae,
+                    $pid,
+                    $_POST['form_title'],
+                    $_POST['form_comments'],
+                    $session->get('providerId'),
+                    $event_date,
+                    fixDate($formEnddate, null),
+                    ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec,
+                    $starttime,
+                    $endtime,
+                    ($_POST['form_allday'] ?? ''),
+                    $_POST['form_apptstatus'],
+                    ($_POST['form_prefcat'] ?? null),
+                    $locationspec,
+                    $facility,
                 ]
             );
         } // INSERT single

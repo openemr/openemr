@@ -717,11 +717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get_url\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method ServerInfo\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/about.php',
@@ -1694,6 +1689,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getDbRecordId\\(\\) on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEventCategories\\(\\) on Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\CalendarEventCategoryRepository\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEventCategoryForId\\(\\) on Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\CalendarEventCategoryRepository\\|null\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
 ];
 $ignoreErrors[] = [
@@ -6257,11 +6262,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getPayload\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Health/Check/CacheCheck.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getMenu\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
@@ -8487,17 +8487,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getCurrentOffsetId\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getField\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getLimit\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
 ];

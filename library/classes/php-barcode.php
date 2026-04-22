@@ -114,11 +114,11 @@ class Barcode
         }
 
         if ($b2d) {
-            $width = is_null($width) ? 5 : $width;
+            $width ??= 5;
             $height = $width;
         } else {
-            $width = is_null($width) ? 1 : $width;
-            $height = is_null($height) ? 50 : $height;
+            $width ??= 1;
+            $height ??= 50;
             $digit = self::bitStringTo2DArray($digit);
         }
 

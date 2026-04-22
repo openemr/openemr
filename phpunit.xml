@@ -74,6 +74,11 @@ This file configures the kind that requires initialization.
     </testsuite>
     <testsuite name="common">
       <directory>tests/Tests/Common</directory>
+      <!-- Redis Sentinel integration tests live here but run via the redis-sentinel testsuite -->
+      <exclude>tests/Tests/Common/Session/Predis</exclude>
+    </testsuite>
+    <testsuite name="redis-sentinel">
+      <directory>tests/Tests/Common/Session/Predis</directory>
     </testsuite>
 <testsuite name="certification">
       <directory>tests/Tests/Certification/HIT1</directory>
