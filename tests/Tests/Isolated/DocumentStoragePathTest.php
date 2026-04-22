@@ -13,12 +13,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated;
 
 use Document;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Document::class)]
 #[Group('isolated')]
 class DocumentStoragePathTest extends TestCase
 {
