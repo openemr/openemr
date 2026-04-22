@@ -61,8 +61,11 @@ final class Version20260000010055 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pc_eventDate', Types::DATE_MUTABLE, ['default' => '0000-00-00']);
-        $table->addColumn('pc_endDate', Types::DATE_MUTABLE, ['default' => '0000-00-00']);
+        $table->addColumn('pc_eventDate', Types::DATE_MUTABLE);
+        $table->addColumn('pc_endDate', Types::DATE_MUTABLE, [
+            'default' => null,
+            'notnull' => false,
+        ]);
         $table->addColumn('pc_duration', Types::BIGINT, ['default' => 0]);
         $table->addColumn('pc_recurrtype', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_recurrspec', Types::TEXT, ['notnull' => false, 'length' => 65535]);
