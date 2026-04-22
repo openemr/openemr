@@ -22,8 +22,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class RedisCacheTest extends TestCase
 {
-    /** @var \Redis&MockObject */
-    private \Redis $client;
+    private \Redis&MockObject $client;
 
     private RedisCache $cache;
 
