@@ -151,3 +151,12 @@ ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date NOT NULL;
 #IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
 ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
 #EndIf
+
+#IfNotTable migrations
+CREATE TABLE `migrations` (
+    `version` varchar(191) COLLATE utf8mb4_general_ci NOT NULL,
+    `executed_at` datetime DEFAULT NULL,
+    `execution_duration_ms` int DEFAULT NULL,
+    PRIMARY KEY (`version`)
+) ENGINE=InnoDB;
+#EndIf
