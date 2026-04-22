@@ -154,7 +154,7 @@ ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
 
 #IfNotTable migrations
 CREATE TABLE `migrations` (
-    `version` varchar(191) COLLATE utf8mb4_general_ci NOT NULL,
+    `version` varchar(191) NOT NULL,
     `executed_at` datetime DEFAULT NULL,
     `execution_duration_ms` int DEFAULT NULL,
     PRIMARY KEY (`version`)
