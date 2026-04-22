@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 #[Group('isolated')]
-class DocumentStoragePathTest extends TestCase
+class DocumentTest extends TestCase
 {
     /**
      * @return array<string, array{
@@ -33,7 +33,7 @@ class DocumentStoragePathTest extends TestCase
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function storagePathProvider(): array
+    public static function calculateStoragePathProvider(): array
     {
         return [
             'valid patient, no higher level path' => [
@@ -72,6 +72,15 @@ class DocumentStoragePathTest extends TestCase
                 'expectedDepth' => 2,
                 'expectedPatientId' => 0,
             ],
+            'invalid patient (negative), no higher level path - uses random subdir' => [
+                'higherLevelPath' => '',
+                'patientId' => -5,
+                'pathDepth' => 1,
+                'randomSubdir' => 999,
+                'expectedPath' => '-5/999/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 0,
+            ],
             'invalid patient (zero), with higher level path - uses random subdir' => [
                 'higherLevelPath' => 'exports',
                 'patientId' => 0,
@@ -104,8 +113,9 @@ class DocumentStoragePathTest extends TestCase
 
     /**
      * @param int|string $patientId
+     * @param int|string $expectedPatientId
      */
-    #[DataProvider('storagePathProvider')]
+    #[DataProvider('calculateStoragePathProvider')]
     public function testCalculateStoragePath(
         string $higherLevelPath,
         int|string $patientId,
@@ -132,7 +142,7 @@ class DocumentStoragePathTest extends TestCase
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function sanitizationProvider(): array
+    public static function calculateStoragePathSanitizationProvider(): array
     {
         return [
             'alphanumeric unchanged' => [
@@ -162,8 +172,8 @@ class DocumentStoragePathTest extends TestCase
         ];
     }
 
-    #[DataProvider('sanitizationProvider')]
-    public function testHigherLevelPathSanitization(string $input, string $expected): void
+    #[DataProvider('calculateStoragePathSanitizationProvider')]
+    public function testCalculateStoragePathSanitization(string $input, string $expected): void
     {
         $result = Document::calculateStoragePath(
             higherLevelPath: $input,
