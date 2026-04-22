@@ -46,7 +46,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common', 'select2']); ?>
 <title><?php echo xlt("History & Lifestyle");?></title>
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
 <script>
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
@@ -200,7 +200,7 @@ $(function () {
 
     $(".select-dropdown").select2({
         theme: "bootstrap4",
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
         if (error) {
@@ -212,14 +212,14 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 
@@ -304,7 +304,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
+            <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
         </div>
     </div>
 </div><!--end of container div-->

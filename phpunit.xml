@@ -95,6 +95,7 @@ This file configures the kind that requires initialization.
       <directory>.</directory>
     </include>
     <exclude>
+      <directory>config</directory>
       <directory>vendor</directory>
     </exclude>
   </source>

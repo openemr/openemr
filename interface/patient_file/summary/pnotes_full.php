@@ -11,10 +11,10 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/pnotes.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/gprelations.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/pnotes.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/gprelations.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -29,7 +29,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['set_pid'])) {
-    require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/pid.inc.php');
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 

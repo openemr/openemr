@@ -149,7 +149,7 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
@@ -516,7 +516,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->get('webroot')); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
@@ -700,13 +700,13 @@ if (!empty($row['lab_id'])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             let datetimepicker = {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             $('.datepicker').datetimepicker(datepicker);
             $('.datetimepicker').datetimepicker(datetimepicker);

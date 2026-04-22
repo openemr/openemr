@@ -53,7 +53,7 @@ class Controller extends Smarty implements ControllerInterface
          $this->_state = true;
          $this->setCompileDir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main');
          $this->setCompileCheck(true);
-         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->get('vendor_dir') . "/smarty/smarty/libs/plugins"]);
+         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->getKernel()->getVendorDir() . "/smarty/smarty/libs/plugins"]);
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
@@ -98,7 +98,7 @@ class Controller extends Smarty implements ControllerInterface
 
     public function function_argument_error(): never
     {
-         $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "error/" . $this->template_mod . "_function_argument.html");
+         $this->display(OEGlobalsBag::getInstance()->getKernel()->getTemplateDir() . "error/" . $this->template_mod . "_function_argument.html");
          exit;
     }
 
@@ -196,7 +196,7 @@ class Controller extends Smarty implements ControllerInterface
         }
 
         // Load controller file
-        $controllerFile = OEGlobalsBag::getInstance()->getString('fileroot') . "/controllers/$className.class.php";
+        $controllerFile = OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/$className.class.php";
         if (!$this->i_once($controllerFile)) {
             throw new NotFoundHttpException("Unable to load controller: $className");
         }

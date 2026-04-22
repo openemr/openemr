@@ -208,7 +208,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
         ];
 
-        $btnLinkBase = "return load_location('" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/__page__')";
+        $btnLinkBase = "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/__page__')";
         if (in_array($key, ["allergy", "medication"]) && OEGlobalsBag::getInstance()->getBoolean("erx_enable")) {
             $viewArgs['btnLabel'] = "Add";
             $btnLinkPage = "eRx.php?page=medentry";
@@ -328,7 +328,7 @@ if ($erx_upload_complete == 1) {
         'label' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
         'btnLabel' => 'Edit',
-        'btnLink' => "return load_location(\"" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'btnLink' => "return load_location(\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
         'auth' => true,
         'list' => $rxList,

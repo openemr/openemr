@@ -38,7 +38,7 @@ require_once "$srcdir/api.inc.php";
 require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
+require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
 /**
@@ -449,7 +449,7 @@ if (
 
     </style>
 
-    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -481,7 +481,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -521,7 +521,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -530,7 +530,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -539,7 +539,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -548,7 +548,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -557,7 +557,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -566,7 +566,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -602,7 +602,7 @@ if (
                         pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
                         selector: selector
                     });
-                    $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+                    $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
             }
@@ -822,7 +822,7 @@ if (
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -851,7 +851,7 @@ if (
                 pricelevel: f.form_fs_pricelevel.value,
                 selector: a[2]
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -879,7 +879,7 @@ if (
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to selecting a package of codes.
@@ -892,7 +892,7 @@ if (
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });
-                $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+                $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;
         }
@@ -1892,7 +1892,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
+                <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

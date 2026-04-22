@@ -539,7 +539,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
 
     <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -1837,7 +1837,7 @@ while ($urow = sqlFetchArray($ures)) {
 <script>
     var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     // This clears tax amounts in preparation for recomputing taxes.
     // TBD: Probably don't need this at all.
@@ -2147,7 +2147,7 @@ while ($urow = sqlFetchArray($ures)) {
             $.ajax({
                 dataType: "json",
                 async: false, // We cannot continue without an answer.
-                url: "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/check_szf_referrals_ajax.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/check_szf_referrals_ajax.php",
                 data: {
                     "pid": <?php echo intval($patient_id); ?>,
                     "encounter": <?php echo intval($encounter_id); ?>,

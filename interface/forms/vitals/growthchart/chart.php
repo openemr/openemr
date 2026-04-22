@@ -39,7 +39,7 @@
  */
 
 require_once("../../../../interface/globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -49,7 +49,7 @@ use OpenEMR\Services\VitalsService;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$chartpath = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/vitals/growthchart/";
+$chartpath = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/vitals/growthchart/";
 $name = "";
 $pid = $_GET['pid'];
 

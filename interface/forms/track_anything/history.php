@@ -13,7 +13,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -71,7 +71,7 @@ echo "<html><head>";
 //******* **********************************
 ?>
 
-<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader('dygraphs'); ?>
 
@@ -168,7 +168,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
@@ -425,7 +425,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {

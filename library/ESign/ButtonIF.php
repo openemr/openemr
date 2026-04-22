@@ -17,8 +17,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ViewableIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ViewableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
 
 interface ButtonIF extends ViewableIF
 {

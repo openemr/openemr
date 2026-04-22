@@ -17,11 +17,11 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/FactoryIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Configuration.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Signable.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Button.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Log.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/FactoryIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Signable.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Button.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Log.php';
 
 class Encounter_Factory implements FactoryIF
 {

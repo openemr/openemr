@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b0740880b9524593d8f0a1d1706fdc5d20d1c6038fddbb07efbae2ff4bdc0c11
+    image: openemr/openemr:flex-edge@sha256:c9bb565aabe859071781359acd2b6239b09950ff5be1a340d1b9a755a7871385
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b0740880b9524593d8f0a1d1706fdc5d20d1c6038fddbb07efbae2ff4bdc0c11
+    image: openemr/openemr:flex-edge@sha256:c9bb565aabe859071781359acd2b6239b09950ff5be1a340d1b9a755a7871385
     ports:
     - 8098:80
     - 9098:443
@@ -619,14 +619,14 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:latest@sha256:96096b1a03f287e424506646200d27a8a8f8e2e1fb9d4bd750ca2e2294b2e909
+    image: phpmyadmin:latest@sha256:84f72ebfc049c696b7649cf4e861efaa429f6bac479958e9369033df2fa6422d
     ports:
     - 8200:80
     environment:
       PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-old-old,mariadb-ssl
   couchdb:
     restart: always
-    image: couchdb:3.5.1@sha256:297cd556c7ba358a408fd009e7b8e3b91318ccfc4d57c9b0264a2fb051ad9ef7
+    image: couchdb:3.5.1@sha256:61ab333a29552dc0f3ac33031ea1273b006c8b7b6684331195cb189a01d684a3
     ports:
     - 5984:5984
     - 6984:6984
@@ -789,7 +789,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
-    image: redis:latest@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:latest@sha256:83619e7d06f34b2f209c8ffae597329abaa9d59dbfca34844945c2f1d81a846c
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7

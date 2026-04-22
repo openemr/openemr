@@ -22,7 +22,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -117,7 +117,7 @@ $viewArgs = [
     ]
     ,'check_res' => $check_res
     ,'alertMessage' => $alertMessage
-    ,'rootdir' => OEGlobalsBag::getInstance()->get('rootdir')
+    ,'rootdir' => OEGlobalsBag::getInstance()->getKernel()->getRootDir()
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory

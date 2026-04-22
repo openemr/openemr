@@ -3,33 +3,35 @@ name: Nightly Build development 8.6 php-fpm Docker
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *' # (daily) run at 1 AM UTC
+  - cron: '0 1 * * *'   # (daily) run at 1 AM UTC
 
 permissions:
   contents: read
 
 jobs:
   build:
-    # Only run from master branch on the main repository
-    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
+    env:
+      # Only publish the image from master of the canonical repo; other branches / forks build dry-run.
+      PUSH_IMAGE: ${{ github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push dev-php-fpm:pre-build-dev-86 docker
-        uses: docker/build-push-action@v7
-        with:
-          context: ./docker/library/dockers/dev-php-fpm
-          tags: openemr/dev-php-fpm:pre-build-dev-86
-          platforms: linux/amd64
-          push: true
-          no-cache: true
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+    - name: Login to Docker Hub
+      if: env.PUSH_IMAGE == 'true'
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build (and push on master) dev-php-fpm:pre-build-dev-86 docker
+      uses: docker/build-push-action@v7
+      with:
+        context: ./docker/library/dockers/dev-php-fpm
+        tags: openemr/dev-php-fpm:pre-build-dev-86
+        platforms: linux/amd64
+        push: ${{ env.PUSH_IMAGE == 'true' }}
+        no-cache: true

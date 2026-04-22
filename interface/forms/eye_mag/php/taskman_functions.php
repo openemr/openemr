@@ -70,7 +70,7 @@ function make_task($ajax_req): void
     } elseif (($task['ID'] ?? '') && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
-                                    onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+                                    onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                     title='" . xla('View the Summary Report sent to') .
                                             text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) . "'>
 								    <i class='far fa-file-pdf fa-fw'></i>
@@ -129,7 +129,7 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+        $send['DOC_link'] = "<a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
                                 text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";

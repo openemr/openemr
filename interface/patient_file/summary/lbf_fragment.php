@@ -52,7 +52,7 @@ $lbf_form_id = $_GET['formname'];
         <br />
         <br />
         <?php
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/LBF/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/LBF/report.php");
         lbf_report('', '', 2, $result['form_id'], $lbf_form_id);
         ?>
         <span class='text'>

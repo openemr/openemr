@@ -44,6 +44,7 @@ This file configures the kind that does not require initialization.
       <directory>.</directory>
     </include>
     <exclude>
+      <directory>config</directory>
       <directory>vendor</directory>
     </exclude>
   </source>
