@@ -929,7 +929,7 @@ class Document extends ORDataObject
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
-   * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
+   * @param  int     $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
@@ -944,7 +944,7 @@ class Document extends ORDataObject
         $mimetype,
         &$data,
         $higher_level_path = '',
-        $path_depth = 1,
+        int $path_depth = 1,
         $owner = 0,
         $tmpfile = null,
         $date_expires = null,
@@ -1048,28 +1048,15 @@ class Document extends ORDataObject
 
             // Storing document files locally.
             $repository = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'];
-            $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
-            $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
-            if ((!empty($higher_level_path)) && $validPatientId !== false) {
-                // Allow higher level directory structure in documents directory and a patient is mapped.
-                $filepath = $repository . $higher_level_path . "/";
-            } elseif (!empty($higher_level_path)) {
-                // Allow higher level directory structure in documents directory and there is no patient mapping
-                // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
-                ++$path_depth;
-            } elseif ($validPatientId === false) {
-                // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
-                // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
-                $path_depth = 2;
-                $patient_id = 0;
-            } else {
-                // This is the default action where the patient is used as one level directory structure
-                // in documents directory.
-                $filepath = $repository . $patient_id . '/';
-                $path_depth = 1;
-            }
+            $storagePathResult = self::calculateStoragePath(
+                higherLevelPath: $higher_level_path,
+                patientId: $patient_id,
+                pathDepth: $path_depth,
+                randomSubdir: random_int(1, 10000),
+            );
+            $filepath = $repository . $storagePathResult['relativePath'];
+            $path_depth = $storagePathResult['depth'];
+            $patient_id = $storagePathResult['patientId'];
 
             if (!file_exists($filepath)) {
                 if (!mkdir($filepath, 0700, true)) {
