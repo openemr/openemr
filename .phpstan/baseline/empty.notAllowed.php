@@ -2573,7 +2573,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 18,
+    'count' => 16,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [

@@ -1069,10 +1069,8 @@ class Document extends ORDataObject
             $filenameUuid = UuidRegistry::uuidToString($this->drive_uuid);
 
             $this->url = "file://" . $filepath . $filenameUuid;
-            if (is_numeric($path_depth)) {
-                // this is for when directory structure is more than one level
-                $this->path_depth = $path_depth;
-            }
+            // this is for when directory structure is more than one level
+            $this->path_depth = $path_depth;
 
             // Store the file.
             $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, keySource: KeySource::Database) : $data;

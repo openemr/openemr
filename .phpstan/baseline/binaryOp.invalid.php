@@ -9488,17 +9488,22 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and string results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 19,
+    'count' => 15,
+    'path' => __DIR__ . '/../../library/classes/Document.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between string and mixed results in an error\\.$#',
+    'count' => 4,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [

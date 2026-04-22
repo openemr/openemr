@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#7 \\$path_depth \\(int\\) of method Document\\:\\:createDocument\\(\\) is incompatible with type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$foreign_id \\(string\\) of method Note\\:\\:notes_factory\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
