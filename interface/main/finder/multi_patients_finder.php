@@ -185,7 +185,7 @@ $('#by-id, #by-name').select2({
         },
         dataType: 'json',
     },
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient

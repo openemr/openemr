@@ -230,7 +230,7 @@ while ($row = sqlFetchArray($res)) {
 <script>
 
 <?php if ($popup) {
-    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
 } ?>
 
 // Callback from popups to refresh this display.

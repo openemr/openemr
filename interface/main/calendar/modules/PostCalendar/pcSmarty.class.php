@@ -116,8 +116,8 @@ class pcSmarty extends Smarty_Legacy
         $this->config_dir = "modules/$pcDir/pntemplates/$template_name/config/";
         $this->assign_by_ref('TPL_NAME', $template_name);
         $this->assign_by_ref('TPL_VIEW', $template_view);
-        $this->assign('TPL_IMAGE_PATH', OEGlobalsBag::getInstance()->get('rootdir') . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
-        $this->assign('TPL_ROOTDIR', OEGlobalsBag::getInstance()->get('rootdir'));
+        $this->assign('TPL_IMAGE_PATH', OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
+        $this->assign('TPL_ROOTDIR', OEGlobalsBag::getInstance()->getKernel()->getRootDir());
         $this->assign('TPL_STYLE_PATH', "modules/$pcDir/pntemplates/$template_name/style");
     }
 }

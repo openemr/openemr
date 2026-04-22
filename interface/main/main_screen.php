@@ -64,7 +64,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -407,7 +407,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $session->set('facilityId', $facility_id);
     if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->get('webroot')]);
+        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 }
 

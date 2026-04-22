@@ -152,12 +152,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     </script>
 
     <?php if ($session->get('language_direction') === "rtl") { ?>
-      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
-      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } ?>
 
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 </head>
 
 <body>
@@ -828,7 +828,7 @@ function myLocalJS(SessionInterface $session): void
         function toggleSelectors() {
             top.restoreSession();
             if ($("#flb_selectors").css('display') === 'none') {
-                $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
@@ -840,7 +840,7 @@ function myLocalJS(SessionInterface $session): void
                         $("#flb_caret").addClass('text-body');
                 });
             } else {
-                $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
@@ -973,10 +973,10 @@ function myLocalJS(SessionInterface $session): void
             else {
                 top.restoreSession();
                 if (enc > 0) {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
                 }
                 else {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
                 }
             }
         }
@@ -1105,7 +1105,7 @@ function myLocalJS(SessionInterface $session): void
             $('body').on('click', '#setting_new_window', function () {
                 $('#setting_new_window').val(this.checked ? 'checked' : ' ');
                 top.restoreSession();
-                $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
@@ -1124,7 +1124,7 @@ function myLocalJS(SessionInterface $session): void
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

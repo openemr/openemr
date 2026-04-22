@@ -115,7 +115,7 @@ function recursiveDelete($typeid): void
 
     <script>
 
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         // The name of the form field for find-code popup results.
         var rcvarname;

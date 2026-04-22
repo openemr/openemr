@@ -48,7 +48,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
-<?php  require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php"); ?>
+<?php  require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
