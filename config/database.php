@@ -124,7 +124,11 @@ return [
     },
 
     // TODO: config 1.x fixing autowiring or redo EM
-    EntityManager::class,
+    EntityManager::class => fn (TC $c) => new EntityManager(
+        conn: $c->get(Connection::class),
+        config: $c->get(Configuration::class),
+        eventManager: $c->get(EventManager::class),
+    ),
     EntityManagerInterface::class => EntityManager::class,
     EventManager::class => function (TC $c): EventManager {
         $manager = new EventManager();
