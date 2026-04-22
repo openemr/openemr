@@ -1,7 +1,11 @@
 {% if field.hide %}
 <tr class="hide">
     {%else %}
-<tr>
+
+
+
+<tr> {% if field.input in vitals_validation_errors %}
+class="table-danger"{% endif %}>
 {% endif %}
     <td class="graph" id="{{ field.input|attr }}"><span class="vitals-title">{{ field.title|text }}</span> {% if field.codes is not empty %}<small>({{ field.codes|text }})</small>{% endif %}</td>
     <td>{{ unit|text }}</td>
@@ -16,7 +20,11 @@
         <input type="text" class="form-control skip-template-editor" size='5' name='{{ field.input|attr }}' id='{{ field.input|attr }}_input'
                value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals, field.vitalsValue)|attr }}{% endif %}"/>
         {% endif %}
-
+        {% if field.input in vitals_validation_errors %}
+        <div class="invalid-feedback d-block">
+            {{ vitals_validation_errors[field.input]|text }}
+        </div>
+        {% endif %}
     </td>
     <td class="editonly">
         {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}

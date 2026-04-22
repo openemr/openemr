@@ -15,6 +15,8 @@
     {% if units_of_measurement == MEASUREMENT_METRIC_ONLY  %}
     <tr class="hide">
     {% else %}
+        <tr {% if field.input in vitals_validation_errors %}class="table-danger"{% endif %}>
+    {% endif %}
     <tr>
     {% endif %}
     {% if units_of_measurement == MEASUREMENT_PERSIST_IN_METRIC  %}
@@ -43,6 +45,11 @@
                    data-system="usa" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
                    data-target-input-conv="{{ field.input|attr }}_input_metric"
                    title='{{ field.vitalsValueUSAHelpTitle|default('')|attr }}'/>
+                   {% if field.input in vitals_validation_errors %}
+            <div class="invalid-feedback d-block">
+                {{ vitals_validation_errors[field.input]|text }}
+            </div>
+            {% endif %}
         </td>
         <td class="editonly">
             {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}

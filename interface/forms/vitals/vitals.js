@@ -11,33 +11,183 @@
 
     let translations = {};
     let webroot = null;
+    const VITAL_RANGES = {
+        'bps': {
+            warning_min: 80, warning_max: 180,
+            label: 'BP Systolic (mmHg)'
+        },
+        'bpd': {
+            warning_min: 40, warning_max: 120,
+            label: 'BP Diastolic (mmHg)'
+        },
+        'pulse': {
+            warning_min: 40, warning_max: 200,
+            label: 'Pulse (bpm)'
+        },
+        'respiration': {
+            warning_min: 8, warning_max: 50,
+            label: 'Respiration (breaths/min)'
+        },
+        'temperature': {
+            warning_min: 95, warning_max: 105,
+            label: 'Temperature (°F)'
+        },
+        'weight': {
+            warning_min: 5.5, warning_max: 650,
+            label: 'Weight (lbs)'
+        },
+        'height': {
+            warning_min: 11, warning_max: 98,
+            label: 'Height (in)'
+        },
+        'oxygen_saturation': {
+            warning_min: 90, warning_max: 100,
+            label: 'Oxygen Saturation (%)'
+        }
+    };
 
-    function vitalsFormSubmitted() {
-        var invalid = "";
+    function validateVitalValue(fieldId, value) {
+        if (!value || value === '' || isNaN(value)) {
+            return { valid: true, error: null, warning: null };
+        }
 
-        var elementsToValidate = ['weight_input_usa', 'weight_input_metric', 'height_input_usa', 'height_input_metric', 'bps_input', 'bpd_input'];
+        const numValue = parseFloat(value);
+        const range = VITAL_RANGES[fieldId];
 
-        for (var i = 0; i < elementsToValidate.length; i++) {
-            var current_elem_id = elementsToValidate[i];
-            var tag_name = vitalsTranslations[current_elem_id] || "<unknown_tag_name>";
+        if (!range) {
+            return { valid: true, error: null, warning: null };
+        }
 
-            document.getElementById(current_elem_id).classList.remove('error');
+         if (
+            (range.warning_min !== null && numValue < range.warning_min) ||
+            (range.warning_max !== null && numValue > range.warning_max)
+        ) {
+            return {
+                valid: true,
+                error: null,
+                warning: range.label + ' is outside typical range (' + range.warning_min + '-' + range.warning_max + ')'
+            };
+        }
 
-            if (isNaN(document.getElementById(current_elem_id).value)) {
-                invalid += vitalsTranslations['invalidField'] + ":" + vitalsTranslations[current_elem_id] + "\n";
-                document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
-                document.getElementById(current_elem_id).focus();
-            }
+        return { valid: true, error: null, warning: null };
+    }
 
-            if (invalid.length > 0) {
-                invalid += "\n" + vitalsTranslations['validateFailed'];
-                alert(invalid);
-                return false;
-            } else {
-                return top.restoreSession();
-            }
+    /**
+     * Validate blood pressure constraint: systolic >= diastolic
+     */
+    function validateBPConstraint() {
+        const bpsInput = document.getElementById('bps_input');
+        const bpdInput = document.getElementById('bpd_input');
+        
+        if (!bpsInput || !bpdInput) return null;
+
+        const bps = parseFloat(bpsInput.value);
+        const bpd = parseFloat(bpdInput.value);
+
+        if (isNaN(bps) || isNaN(bpd) || bps === 0 || bpd === 0) {
+            return null;
+        }
+
+        if (bps < bpd) {
+            return 'BP Systolic must be greater than or equal to BP Diastolic';
+        }
+
+        return null;
+    }
+
+        /**
+     * Add visual feedback to a field (error or warning)
+     */
+    function updateFieldStatus(fieldId, validation) {
+        const field = document.getElementById(fieldId + '_input') || 
+                      document.getElementById(fieldId + '_input_usa') ||
+                      document.getElementById(fieldId + '_input_metric');
+        
+        if (!field) return;
+
+        // Remove existing feedback
+        field.classList.remove('is-invalid', 'is-warning');
+        const existingFeedback = field.parentElement?.querySelector('.invalid-feedback, .warning-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+
+        if (validation.error) {
+            field.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = validation.error;
+            field.parentElement?.appendChild(errorDiv);
+        } else if (validation.warning) {
+            field.classList.add('is-warning');
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning-feedback d-block';
+            warningDiv.style.color = '#856404';
+            warningDiv.textContent = '⚠ ' + validation.warning;
+            field.parentElement?.appendChild(warningDiv);
         }
     }
+    /**
+     * Real-time validation on field change
+     */
+    function onVitalFieldChange(event) {
+        const field = event.target;
+        const fieldId = field.id.replace('_input', '').replace('_usa', '').replace('_metric', '');
+        
+        const validation = validateVitalValue(fieldId, field.value);
+        updateFieldStatus(fieldId, validation);
+    }
+
+    function vitalsFormSubmitted() {
+        let hasErrors = false;
+        let errorMessages = [];
+        let warnings = [];
+
+        // UPDATED: Validate all vital fields with ranges
+        const fieldsToValidate = ['bps', 'bpd', 'pulse', 'respiration', 'temperature', 'weight', 'height', 'oxygen_saturation'];
+
+        for (let fieldId of fieldsToValidate) {
+            const field = document.getElementById(fieldId + '_input') ||
+                         document.getElementById(fieldId + '_input_usa') ||
+                         document.getElementById(fieldId + '_input_metric');
+            
+            if (!field || !field.value) continue;
+
+            const validation = validateVitalValue(fieldId, field.value);
+            updateFieldStatus(fieldId, validation);
+
+            if (!validation.valid) {
+                hasErrors = true;
+                errorMessages.push(validation.error);
+            } else if (validation.warning) {
+                warnings.push(validation.warning);
+            }
+        }
+
+        // Check BP constraint
+        const bpError = validateBPConstraint();
+        if (bpError) {
+            hasErrors = true;
+            errorMessages.push(bpError);
+            updateFieldStatus('bps', { valid: false, error: bpError, warning: null });
+        }
+
+        // Show errors or warnings
+        if (hasErrors) {
+            alert(errorMessages.join('\n'));
+            return false;
+        }
+
+        if (warnings.length > 0) {
+            const confirmMessage = warnings.join('\n') + '\n\nThese values are outside typical ranges. Continue anyway?';
+            if (!confirm(confirmMessage)) {
+                return false;
+            }
+        }
+
+        return top.restoreSession();
+    }
+
 
     function convInputElement(evt) {
         let node = evt.currentTarget;
@@ -87,6 +237,7 @@
         if (targetSaveUnit == "weight_input_usa" || targetSaveUnit == "height_input_usa") {
             calculateBMI();
         }
+         onVitalFieldChange(evt);
     }
 
     function initDOMEvents() {
@@ -117,6 +268,14 @@
         let vitalsConvInputs = vitalsForm.querySelectorAll(".vitals-conv-unit");
         vitalsConvInputs.forEach(function(node) {
             node.addEventListener('change', convInputElement);
+            node.addEventListener('blur', onVitalFieldChange);
+        });
+
+        const allVitalInputs = vitalsForm.querySelectorAll('input[type="text"][name]');
+        allVitalInputs.forEach(function(node) {
+            if (node.id && (node.id.includes('_input') || VITAL_RANGES[node.name])) {
+                node.addEventListener('blur', onVitalFieldChange);
+            }
         });
     }
     function init(webRootParam, vitalsTranslations) {
