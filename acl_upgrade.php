@@ -796,13 +796,13 @@ if ($acl_version < $upgrade_acl) {
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
-    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
     //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
-    AclExtended::shiftAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'med', 'Medical/History (write, addonly optional)', 'addonly');
+    AclExtended::shiftAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'med', 'Medical/History (write,addonly optional)', 'addonly');
     AclExtended::updateAcl($clin_write, 'Clinicians', 'patients', 'Patients', 'med', 'Medical/History (write,addonly optional)', 'write');
 
     //DONE with upgrading to this version
