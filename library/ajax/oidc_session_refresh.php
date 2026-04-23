@@ -18,7 +18,6 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcRefreshAuditLogger;
-use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
@@ -30,6 +29,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 header('Content-Type: application/json');
 
@@ -105,7 +106,7 @@ if (!is_dir($cacheDir)) {
 }
 
 $httpClient = new GuzzleHttp\Client(['timeout' => 10]);
-$cache = new FilesystemCache($cacheDir);
+$cache = new Psr16Cache(new FilesystemAdapter('', 0, $cacheDir));
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 
 $handler = new OidcSessionRefreshHandler(

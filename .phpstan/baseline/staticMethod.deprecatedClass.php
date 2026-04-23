@@ -38,12 +38,6 @@ New code should use existing DB tooling and not directly create new connections\
     'path' => __DIR__ . '/../../src/BC/Database.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method file\\(\\) of deprecated class Lcobucci\\\\JWT\\\\Signer\\\\Key\\\\LocalFileReference\\:
-please use \\{@see InMemory\\} instead$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionCommand.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method createDbal\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
 New code should use existing DB tooling and not directly create new connections\\.$#',
     'count' => 1,
@@ -60,12 +54,6 @@ $ignoreErrors[] = [
 New code should use existing DB tooling and not directly create new connections\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method file\\(\\) of deprecated class Lcobucci\\\\JWT\\\\Signer\\\\Key\\\\LocalFileReference\\:
-please use \\{@see InMemory\\} instead$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

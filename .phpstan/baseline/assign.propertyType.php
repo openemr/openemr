@@ -1032,6 +1032,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/AccessTokenEntity.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$oaEncryptionKey \\(string\\) does not accept string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$passphrase \\(string\\) does not accept string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:\\$contacts \\(array\\<string\\>\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
@@ -1075,11 +1085,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:\\$constraints \\(array\\<string, mixed\\>\\) does not accept array\\<int\\|string, array\\<mixed\\>\\|string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:\\:\\$contextForNewTokens \\(array\\) does not accept array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\JWT\\\\JsonWebKeySet\\:\\:\\$content \\(string\\) does not accept mixed\\.$#',
