@@ -173,7 +173,7 @@ final class RecurrenceSpecBuilderTest extends TestCase
         $malicious = "\r\nFAKE LOG LINE<script>alert(1)</script>";
         try {
             RecurrenceSpecBuilder::fromRepeatForm($malicious, 5, 1);
-            $this->fail('Expected InvalidArgumentException was not thrown.');
+            $this->fail('Expected InvalidArgumentException was not thrown.'); // @codeCoverageIgnore
         } catch (\InvalidArgumentException $e) {
             $this->assertStringNotContainsString("\r", $e->getMessage());
             $this->assertStringNotContainsString("\n", $e->getMessage());
