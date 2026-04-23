@@ -115,18 +115,20 @@ run_testsuite() {
     # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
 
     # Run PHPUnit tests with coverage if enabled
+    local exit_code=0
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         phpunit --testsuite certification \
                 --coverage-clover coverage.inferno-phpunit.clover.xml \
                 --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     else
         phpunit --testsuite certification \
                 --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     fi
 
     echo 'Certification Tests Executed'
+    return "${exit_code}"
 }
 
 collect_inferno_coverage() {
