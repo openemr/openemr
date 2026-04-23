@@ -160,9 +160,26 @@ final class RecurrenceSpecBuilderTest extends TestCase
         // unsupported freq type, sending __increment() into an infinite loop.
         // Bail out loudly instead.
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("'not a date'");
+        $this->expectExceptionMessage('event date is unparsable');
 
         RecurrenceSpecBuilder::fromRepeatForm('not a date', 5, 2);
+    }
+
+    public function testExceptionMessageDoesNotEchoUserInput(): void
+    {
+        // Exception messages must not embed $eventDate -- control chars would
+        // forge log lines (CWE-117) and unescaped HTML could trigger XSS in
+        // any error handler that renders the message (CWE-79).
+        $malicious = "\r\nFAKE LOG LINE<script>alert(1)</script>";
+        try {
+            RecurrenceSpecBuilder::fromRepeatForm($malicious, 5, 1);
+            $this->fail('Expected InvalidArgumentException was not thrown.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringNotContainsString("\r", $e->getMessage());
+            $this->assertStringNotContainsString("\n", $e->getMessage());
+            $this->assertStringNotContainsString('<script>', $e->getMessage());
+            $this->assertStringNotContainsString('FAKE LOG LINE', $e->getMessage());
+        }
     }
 
     #[DataProvider('invalidRepeatTypeProvider')]

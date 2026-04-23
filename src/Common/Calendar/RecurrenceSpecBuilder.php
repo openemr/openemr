@@ -76,12 +76,15 @@ final class RecurrenceSpecBuilder
         // The REPEAT_ON weekday/nth computation requires a real date; bail out
         // explicitly rather than persist a REPEAT row with an unsupported
         // freq type, which would make __increment() loop forever downstream.
+        // Do not embed $eventDate in the exception message: it originates
+        // from user-controlled POST input and would pass control characters
+        // straight into the log stream (CWE-117) or into any error page that
+        // renders the message unescaped (CWE-79).
         $timestamp = strtotime($eventDate);
         if ($timestamp === false) {
-            throw new \InvalidArgumentException(sprintf(
-                'Cannot build REPEAT_ON recurrence spec: event date %s is unparsable.',
-                var_export($eventDate, true),
-            ));
+            throw new \InvalidArgumentException(
+                'Cannot build REPEAT_ON recurrence spec: event date is unparsable.',
+            );
         }
 
         $repeatOnDay = (int) date('w', $timestamp);

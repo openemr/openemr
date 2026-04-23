@@ -356,8 +356,13 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
 
         // Set up working variables related to repeated events.
         $my_recurrtype = 0;
-        $my_repeat_freq = 0 + ($_POST['form_repeat_freq'] ?? null);
-        $my_repeat_type = 0 + ($_POST['form_repeat_type'] ?? null);
+        // Parse as int at the HTTP boundary: the builder has strict int
+        // parameters, and "0 + $_POST[...]" would yield a float for crafted
+        // decimal input, triggering TypeError before the builder can reject
+        // it. FILTER_VALIDATE_INT returns int or false/null, and the builder
+        // validates the 0 -> out-of-bounds case itself.
+        $my_repeat_freq = filter_input(INPUT_POST, 'form_repeat_freq', FILTER_VALIDATE_INT) ?: 0;
+        $my_repeat_type = filter_input(INPUT_POST, 'form_repeat_type', FILTER_VALIDATE_INT) ?: 0;
         $my_repeat_on_num  = 1;
         $my_repeat_on_day  = 0;
         $my_repeat_on_freq = 0;
