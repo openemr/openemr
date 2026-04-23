@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\Background;
 
 use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Services\Background\BackgroundServiceProcessSpawner;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * @phpstan-import-type BackgroundServicesRow from TableTypes
@@ -97,26 +99,81 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertContains('svc1', $runner->releasedLocks);
     }
 
-    public function testRunAllServicesInOrder(): void
+    public function testRunAllDelegatesActiveServicesToSpawnerInOrder(): void
     {
-        $order = [];
+        // Run-all-due isolates each active service behind a subprocess
+        // boundary so that exit()/die()/fatals in one service cannot
+        // abort subsequent services in the same tick (GH #11794).
+        // The parent loop skips inactive services without spawning;
+        // inactivity is trivially decidable from the row.
+        $spawner = new RecordingSpawner([
+            'svc1' => 'executed',
+            'svc2' => 'not_due',
+        ]);
         $runner = new BackgroundServiceRunnerStub(
             services: [
                 self::makeService('svc1'),
                 self::makeService('svc2'),
                 self::makeService('svc3', active: false),
             ],
-            executeCallback: function (array $service) use (&$order): void {
-                $order[] = $service['name'];
-            },
+            spawner: $spawner,
         );
+
         $results = $runner->run();
 
-        $this->assertCount(3, $results);
-        $this->assertSame('executed', $results[0]['status']);
+        $this->assertSame(
+            [
+                ['name' => 'svc1', 'status' => 'executed'],
+                ['name' => 'svc2', 'status' => 'not_due'],
+                ['name' => 'svc3', 'status' => 'skipped'],
+            ],
+            $results,
+        );
+        // Inactive services must never be spawned. Skip is a pure
+        // parent-side decision and spawning one wastes a bootstrap.
+        $this->assertSame(['svc1', 'svc2'], $spawner->spawnedNames);
+    }
+
+    public function testRunAllContinuesAfterSpawnerReportsError(): void
+    {
+        // Regression guard for GH #11794: a service whose subprocess
+        // exits abnormally (surfaced by the spawner as status=error)
+        // must not prevent subsequent services from being spawned.
+        $spawner = new RecordingSpawner([
+            'svc1' => 'error',
+            'svc2' => 'executed',
+        ]);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [
+                self::makeService('svc1'),
+                self::makeService('svc2'),
+            ],
+            spawner: $spawner,
+        );
+
+        $results = $runner->run();
+
+        $this->assertSame('error', $results[0]['status']);
         $this->assertSame('executed', $results[1]['status']);
-        $this->assertSame('skipped', $results[2]['status']);
-        $this->assertSame(['svc1', 'svc2'], $order);
+        $this->assertSame(['svc1', 'svc2'], $spawner->spawnedNames);
+    }
+
+    public function testRunAllNeverPassesForceToSpawner(): void
+    {
+        // Even if the --force flag somehow reached run(null, true),
+        // the orchestrator deliberately drops it. The run-all-due
+        // path must behave identically to a pure cron-equivalent
+        // advance to stay consistent with the command's documented
+        // "--force is ignored without --name" semantics.
+        $spawner = new RecordingSpawner(['svc1' => 'executed']);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            spawner: $spawner,
+        );
+
+        $runner->run(null, force: true);
+
+        $this->assertSame([false], $spawner->forceArgs);
     }
 
     public function testRunSkipsManualModeServiceWithoutForce(): void
@@ -188,7 +245,9 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         private readonly array $services = [],
         private readonly ?string $lockFailureReason = null,
         private readonly ?\Closure $executeCallback = null,
+        ?BackgroundServiceProcessSpawner $spawner = null,
     ) {
+        parent::__construct(new NullLogger(), $spawner);
     }
 
     protected function getServices(?string $serviceName, bool $force): array
@@ -217,5 +276,35 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         if ($this->executeCallback !== null) {
             ($this->executeCallback)($service);
         }
+    }
+}
+
+/**
+ * Test double for BackgroundServiceProcessSpawner that returns canned
+ * per-service statuses from a fixture map and records each invocation.
+ *
+ * Tests use this to exercise the run-all-due orchestrator without
+ * spawning actual PHP subprocesses.
+ */
+class RecordingSpawner implements BackgroundServiceProcessSpawner
+{
+    /** @var list<string> */
+    public array $spawnedNames = [];
+
+    /** @var list<bool> */
+    public array $forceArgs = [];
+
+    /**
+     * @param array<string, string> $statusByName
+     */
+    public function __construct(private readonly array $statusByName)
+    {
+    }
+
+    public function spawn(string $name, bool $force): array
+    {
+        $this->spawnedNames[] = $name;
+        $this->forceArgs[] = $force;
+        return ['name' => $name, 'status' => $this->statusByName[$name] ?? 'error'];
     }
 }

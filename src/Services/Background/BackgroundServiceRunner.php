@@ -57,13 +57,30 @@ class BackgroundServiceRunner
 
     private readonly LoggerInterface $logger;
 
-    public function __construct(?LoggerInterface $logger = null)
-    {
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        private ?BackgroundServiceProcessSpawner $spawner = null,
+    ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
      * Run one or all background services.
+     *
+     * ## Isolation model
+     *
+     * - **Single service (`$serviceName !== null`):** executed inline in
+     *   the current process. `acquireLock`/`executeService` failures are
+     *   caught as normal exceptions, but `exit()`/`die()`/fatals in the
+     *   service function will terminate this process just like any other
+     *   PHP script. Callers (REST, AJAX, CLI with --name) that invoke a
+     *   single named service accept that blast radius.
+     * - **Run-all-due (`$serviceName === null`):** each active, due
+     *   service is executed in its own subprocess via
+     *   `BackgroundServiceProcessSpawner`. This is the only safe way to
+     *   survive `exit()`/`die()`/fatal errors from one service. No
+     *   catch block in PHP can recover from them, so process boundaries
+     *   are the isolation mechanism. See GH #11794.
      *
      * @param string|null $serviceName Specific service name, or null for all
      * @param bool $force Bypass interval check
@@ -73,67 +90,133 @@ class BackgroundServiceRunner
      *   - 'skipped'         — inactive, or manual-mode without --force
      *   - 'already_running' — another process holds an unexpired lease
      *   - 'not_due'         — interval has not elapsed yet (NOW() <= next_run)
-     *   - 'error'           — exception during lock acquisition or execution
+     *   - 'error'           — exception during lock acquisition or execution,
+     *                         or subprocess terminated abnormally (run-all-due)
      *   - 'not_found'       — requested service name does not exist
      */
     public function run(?string $serviceName = null, bool $force = false): array
     {
-        $this->registerShutdownHandler();
-
         if ($serviceName === '') {
             $serviceName = null;
         }
 
-        $results = [];
+        if ($serviceName === null) {
+            return $this->runAllDueIsolated();
+        }
+
+        $this->registerShutdownHandler();
+
         $services = $this->getServices($serviceName, $force);
 
-        if ($serviceName !== null && $services === []) {
+        if ($services === []) {
             return [['name' => $serviceName, 'status' => 'not_found']];
         }
 
+        // Single named service: always exactly one row.
+        return [$this->runOne($services[0], $force)];
+    }
+
+    /**
+     * Orchestrate the run-all-due path with per-service subprocess
+     * isolation. Each active service scheduled on an interval is
+     * delegated to the process spawner; inactive services are reported
+     * as 'skipped' without spawning (skip-vs-run is trivially decidable
+     * from the row, no need to pay bootstrap cost to confirm).
+     *
+     * The spawner is responsible for turning any abnormal subprocess
+     * termination into `status => 'error'` with a log entry. This loop
+     * therefore advances through every service regardless of what the
+     * previous one did.
+     *
+     * @return list<array{name: string, status: string}>
+     */
+    private function runAllDueIsolated(): array
+    {
+        $services = $this->getServices(null, false);
+        $results = [];
+        $spawner = null;
+
         foreach ($services as $service) {
-            $name = $service['name'];
-
             // ADOdb returns string values; use loose comparison for DB row checks.
-            // Note: the `running` column is not consulted here — acquireLock()
-            // is authoritative and can steal a lease left by a crashed worker.
             if ($service['active'] == 0) {
-                $results[] = ['name' => $name, 'status' => 'skipped'];
+                $results[] = ['name' => $service['name'], 'status' => 'skipped'];
                 continue;
             }
-
-            // Manual-mode services (execute_interval = 0) require --force
-            if ($service['execute_interval'] == 0 && !$force) {
-                $results[] = ['name' => $name, 'status' => 'skipped'];
-                continue;
-            }
-
-            try {
-                $lockFailureReason = $this->acquireLock($service, $force);
-            } catch (SqlQueryException) {
-                $results[] = ['name' => $name, 'status' => 'error'];
-                continue;
-            }
-
-            if ($lockFailureReason !== null) {
-                $results[] = ['name' => $name, 'status' => $lockFailureReason];
-                continue;
-            }
-
-            // Only track for shutdown cleanup after lock is acquired
-            $this->currentServiceName = $name;
-
-            try {
-                $this->executeService($service);
-                $results[] = ['name' => $name, 'status' => 'executed'];
-            } catch (\Throwable) {
-                $results[] = ['name' => $name, 'status' => 'error'];
-            } finally {
-                $this->safeReleaseLock($name);
-                $this->currentServiceName = null;
-            }
+            // Lazy-construct the spawner only when at least one active
+            // service needs it. Installs with every service disabled
+            // shouldn't have to resolve PHP_BINARY / project dir.
+            $spawner ??= $this->resolveSpawner();
+            $results[] = $spawner->spawn($service['name'], false);
         }
         return $results;
+    }
+
+    /**
+     * Execute one already-fetched service row inline in the current process.
+     *
+     * Extracted from run() so that the run-all-due orchestrator can
+     * isolate each service via subprocess spawning while the single-
+     * named-service path continues to run inline. Called by the child
+     * side of a spawned subprocess (via run() with --name), not directly
+     * by the parent orchestrator.
+     *
+     * @param BackgroundServicesRow $service
+     * @return array{name: string, status: string}
+     */
+    private function runOne(array $service, bool $force): array
+    {
+        $name = $service['name'];
+
+        // ADOdb returns string values; use loose comparison for DB row checks.
+        // Note: the `running` column is not consulted here. acquireLock()
+        // is authoritative and can steal a lease left by a crashed worker.
+        if ($service['active'] == 0) {
+            return ['name' => $name, 'status' => 'skipped'];
+        }
+
+        // Manual-mode services (execute_interval = 0) require --force
+        if ($service['execute_interval'] == 0 && !$force) {
+            return ['name' => $name, 'status' => 'skipped'];
+        }
+
+        try {
+            $lockFailureReason = $this->acquireLock($service, $force);
+        } catch (SqlQueryException) {
+            return ['name' => $name, 'status' => 'error'];
+        }
+
+        if ($lockFailureReason !== null) {
+            return ['name' => $name, 'status' => $lockFailureReason];
+        }
+
+        // Only track for shutdown cleanup after lock is acquired
+        $this->currentServiceName = $name;
+
+        try {
+            $this->executeService($service);
+            return ['name' => $name, 'status' => 'executed'];
+        } catch (\Throwable) {
+            return ['name' => $name, 'status' => 'error'];
+        } finally {
+            $this->safeReleaseLock($name);
+            $this->currentServiceName = null;
+        }
+    }
+
+    /**
+     * Return the configured spawner, constructing the default
+     * SymfonyBackgroundServiceSpawner lazily if one was not injected.
+     *
+     * Kept separate so tests can inject a fake spawner via the
+     * constructor and avoid any PHP_BINARY / project-dir resolution.
+     */
+    private function resolveSpawner(): BackgroundServiceProcessSpawner
+    {
+        if ($this->spawner === null) {
+            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
+            $this->spawner = new SymfonyBackgroundServiceSpawner($projectDir, $this->logger);
+        }
+        return $this->spawner;
     }
 
     /**

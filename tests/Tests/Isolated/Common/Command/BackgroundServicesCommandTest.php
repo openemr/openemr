@@ -298,6 +298,73 @@ class BackgroundServicesCommandTest extends TestCase
         $this->assertTrue($command->runner->lastForce);
     }
 
+    /**
+     * With --name and --json, the command emits exactly one JSON result
+     * line on stdout and suppresses human-readable output. This is the
+     * contract consumed by SymfonyBackgroundServiceSpawner in the
+     * run-all-due orchestrator.
+     */
+    public function testRunEmitsJsonLineWhenJsonOptionGiven(): void
+    {
+        $command = new BackgroundServicesCommandStub(
+            services: [],
+            runnerResults: [['name' => 'phimail', 'status' => 'executed']],
+        );
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'run', '--name' => 'phimail', '--json' => true]);
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $output = trim($tester->getDisplay());
+        // Drop any banner spacing. The JSON line should be the only
+        // non-empty content emitted in --json mode.
+        $lines = array_values(array_filter(
+            preg_split('/\R/', $output) ?: [],
+            static fn($line) => trim((string) $line) !== '',
+        ));
+        $this->assertCount(1, $lines, "Expected exactly one output line in --json mode, got: {$output}");
+        $decoded = json_decode($lines[0], true);
+        $this->assertSame(['name' => 'phimail', 'status' => 'executed'], $decoded);
+    }
+
+    public function testRunJsonModePropagatesErrorExitCode(): void
+    {
+        $command = new BackgroundServicesCommandStub(
+            services: [],
+            runnerResults: [['name' => 'phimail', 'status' => 'error']],
+        );
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'run', '--name' => 'phimail', '--json' => true]);
+
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $output = trim($tester->getDisplay());
+        $lines = array_values(array_filter(
+            preg_split('/\R/', $output) ?: [],
+            static fn($line) => trim((string) $line) !== '',
+        ));
+        $this->assertCount(1, $lines);
+        $this->assertSame(
+            ['name' => 'phimail', 'status' => 'error'],
+            json_decode($lines[0], true),
+        );
+    }
+
+    public function testRunJsonWithoutNameIsRejected(): void
+    {
+        // --json only makes sense for a single-service run. The
+        // run-all-due orchestrator never invokes this command without
+        // a name, so --json without --name is almost certainly a
+        // misuse. Fail fast instead of silently honoring it.
+        $command = new BackgroundServicesCommandStub(services: [], runnerResults: []);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'run', '--json' => true]);
+
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $this->assertStringContainsString('--json requires --name', $tester->getDisplay());
+    }
+
     public function testUnknownAction(): void
     {
         $command = new BackgroundServicesCommandStub([]);
