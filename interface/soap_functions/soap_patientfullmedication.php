@@ -29,13 +29,13 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../globals.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxGlobals.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/xmltoarray_parser_htmlfix.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/amc.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxSOAP.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRx_xml.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/xmltoarray_parser_htmlfix.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/amc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxSOAP.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRx_xml.php');
 
 set_time_limit(0);
 

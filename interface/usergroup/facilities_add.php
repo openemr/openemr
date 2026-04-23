@@ -30,7 +30,7 @@ $listService = new ListService();
 
 $alertmsg = '';
 $use_validate_js = 1;
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $rules = collectValidationPageRules("/interface/usergroup/facilities_add.php");

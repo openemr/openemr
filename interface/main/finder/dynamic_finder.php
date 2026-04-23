@@ -285,7 +285,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
             <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 
 
@@ -382,7 +382,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $event->setPrimaryMenuItem(new BaseMenuItem([
             'displayText' => xl('Add New Patient'),
             'linkClassList' => ['btn-add'],
-            'id' => OEGlobalsBag::getInstance()->get('webroot') . '/interface/new/new.php',
+            'id' => OEGlobalsBag::getInstance()->getWebRoot() . '/interface/new/new.php',
             'acl' => ['patients', 'demo', ['write', 'addonly']]
         ]));
     });

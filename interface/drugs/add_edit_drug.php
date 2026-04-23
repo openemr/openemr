@@ -109,7 +109,7 @@ echo ' ' . xlt('Drug'); ?></title>
 
 <script>
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.

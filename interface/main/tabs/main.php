@@ -21,7 +21,7 @@
 
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
@@ -112,7 +112,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         });
         <?php } ?>
 
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         // Since this should be the parent window, this is to prevent calls to the
         // window that opened this window. For example when a new window is opened
@@ -320,7 +320,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
-            return fetch(<?php echo js_escape(OEGlobalsBag::getInstance()->get('webroot')) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+            return fetch(<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
             }).then((response) => {

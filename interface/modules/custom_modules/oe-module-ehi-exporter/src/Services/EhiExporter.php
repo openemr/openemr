@@ -745,7 +745,7 @@ class EhiExporter
     private function addDocumentationReadme(\ZipArchive $zip)
     {
         $readmeContents = $this->twig->render(Bootstrap::MODULE_NAME . '/README.text.twig', [
-            'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('webroot')
+            'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getWebRoot()
             // TODO: @brady.miller do we have a latest certified release version stored anywhere?
             ,'certifiedReleaseVersion' => Bootstrap::CERTIFIED_RELEASE_VERSION
         ]);

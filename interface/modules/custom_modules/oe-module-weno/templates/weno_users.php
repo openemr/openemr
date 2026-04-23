@@ -55,7 +55,7 @@ if (($_POST['save'] ?? false) == 'true') {
     $posted = json_encode($_POST);
     $wenoLog->insertWenoLog("Module setup modified.", "Setup Users modified", $posted);
     unset($_POST['save']);
-    Header("Location: " . OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
+    Header("Location: " . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
 ?>
@@ -67,7 +67,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
     <?php Header::setupHeader(); ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');

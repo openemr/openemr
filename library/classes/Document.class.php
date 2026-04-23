@@ -66,6 +66,54 @@ class Document extends ORDataObject
     public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
 
     /**
+     * Calculate the storage path for a document.
+     *
+     * This encapsulates the (legacy) logic for determining where a document
+     * should be stored, including path sanitization and the random subdirectory
+     * behavior for non-patient documents.
+     *
+     * Note: The patientId is only mutated to 0 when there's no higher level path
+     * AND the patient ID is invalid. In other cases it's returned unchanged.
+     * This matches the legacy behavior where $patient_id was conditionally
+     * reassigned before being used in set_foreign_id().
+     *
+     * @param string $higherLevelPath Optional subdirectory path (will be sanitized)
+     * @param int|string $patientId Patient ID or identifier string
+     * @param int $pathDepth Current path depth
+     * @param int $randomSubdir Random subdirectory number (1-10000) for non-patient docs
+     * @return array{relativePath: string, depth: int, patientId: int|string}
+     */
+    public static function calculateStoragePath(
+        string $higherLevelPath,
+        int|string $patientId,
+        int $pathDepth,
+        int $randomSubdir,
+    ): array {
+        $higherLevelPath = preg_replace("/[^A-Za-z0-9\/]/", "_", $higherLevelPath);
+        $validPatientId = ValidationUtils::validateInt($patientId, min: 1);
+
+        if ($higherLevelPath !== '' && $validPatientId !== false) {
+            $relativePath = $higherLevelPath . '/';
+        } elseif ($higherLevelPath !== '') {
+            $relativePath = $higherLevelPath . '/' . $randomSubdir . '/';
+            ++$pathDepth;
+        } elseif ($validPatientId === false) {
+            $relativePath = $patientId . '/' . $randomSubdir . '/';
+            $pathDepth = 2;
+            $patientId = 0;
+        } else {
+            $relativePath = $patientId . '/';
+            $pathDepth = 1;
+        }
+
+        return [
+            'relativePath' => $relativePath,
+            'depth' => $pathDepth,
+            'patientId' => $patientId,
+        ];
+    }
+
+    /**
      * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
     public $uuid;
@@ -881,7 +929,7 @@ class Document extends ORDataObject
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
-   * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
+   * @param  int     $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
@@ -896,7 +944,7 @@ class Document extends ORDataObject
         $mimetype,
         &$data,
         $higher_level_path = '',
-        $path_depth = 1,
+        int $path_depth = 1,
         $owner = 0,
         $tmpfile = null,
         $date_expires = null,
@@ -1000,28 +1048,15 @@ class Document extends ORDataObject
 
             // Storing document files locally.
             $repository = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'];
-            $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
-            $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
-            if ((!empty($higher_level_path)) && $validPatientId !== false) {
-                // Allow higher level directory structure in documents directory and a patient is mapped.
-                $filepath = $repository . $higher_level_path . "/";
-            } elseif (!empty($higher_level_path)) {
-                // Allow higher level directory structure in documents directory and there is no patient mapping
-                // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
-                ++$path_depth;
-            } elseif ($validPatientId === false) {
-                // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
-                // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
-                $path_depth = 2;
-                $patient_id = 0;
-            } else {
-                // This is the default action where the patient is used as one level directory structure
-                // in documents directory.
-                $filepath = $repository . $patient_id . '/';
-                $path_depth = 1;
-            }
+            $storagePathResult = self::calculateStoragePath(
+                higherLevelPath: $higher_level_path,
+                patientId: $patient_id,
+                pathDepth: $path_depth,
+                randomSubdir: random_int(1, 10000),
+            );
+            $filepath = $repository . $storagePathResult['relativePath'];
+            $path_depth = $storagePathResult['depth'];
+            $patient_id = $storagePathResult['patientId'];
 
             if (!file_exists($filepath)) {
                 if (!mkdir($filepath, 0700, true)) {
@@ -1034,10 +1069,8 @@ class Document extends ORDataObject
             $filenameUuid = UuidRegistry::uuidToString($this->drive_uuid);
 
             $this->url = "file://" . $filepath . $filenameUuid;
-            if (is_numeric($path_depth)) {
-                // this is for when directory structure is more than one level
-                $this->path_depth = $path_depth;
-            }
+            // this is for when directory structure is more than one level
+            $this->path_depth = $path_depth;
 
             // Store the file.
             $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, keySource: KeySource::Database) : $data;

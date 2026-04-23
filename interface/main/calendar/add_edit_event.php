@@ -42,14 +42,14 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/forms.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/calendar.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/encounter_events.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient_tracker.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/group.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
@@ -125,7 +125,7 @@ $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php
 $use_validate_js = 1;
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
@@ -1049,7 +1049,7 @@ while ($crow = sqlFetchArray($cres)) {
 ?>
 <!-- Configuration object: pass PHP values to external JS (Issue #8057) -->
 <script>
-<?php require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
 var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
@@ -1058,7 +1058,7 @@ $addEditEventConfig = [
     'durations' => $durationsJson,
     'timeDisplayFormat' => OEGlobalsBag::getInstance()->getInt('time_display_format'),
     'dateDisplayFormat' => OEGlobalsBag::getInstance()->getInt('date_display_format'),
-    'webRoot' => OEGlobalsBag::getInstance()->getString('web_root'),
+    'webRoot' => OEGlobalsBag::getInstance()->getWebRoot(),
     'eid' => $eid,
     'userId' => $userid,
     'translations' => [
@@ -1080,7 +1080,7 @@ $addEditEventConfig = [
 ];
 ?>
 window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 </script>
 
 <!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
@@ -1645,7 +1645,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     // add wanted classes to api generated elements.

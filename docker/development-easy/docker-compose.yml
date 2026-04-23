@@ -132,7 +132,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:latest@sha256:84f72ebfc049c696b7649cf4e861efaa429f6bac479958e9369033df2fa6422d
+    image: phpmyadmin:latest@sha256:5267c9e848a5411f48254520e3b6ef03a7ce20bb7e829a0c8049942882626260
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -142,7 +142,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.1@sha256:61ab333a29552dc0f3ac33031ea1273b006c8b7b6684331195cb189a01d684a3
+    image: couchdb:3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"

@@ -596,7 +596,7 @@ function resetCounter(username) {
     request.append("function", "resetUsernameCounter");
     request.append("username", username);
     request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
-    fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+    fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
         method: 'POST',
         credentials: 'same-origin',
         body: request

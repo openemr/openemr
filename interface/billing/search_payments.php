@@ -223,8 +223,8 @@ if (isset($_POST["mode"])) {
 <title><?php echo xlt("Search Payment") ?></title>
 <?php Header::setupHeader(['datetime-picker']); ?>
 
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script>
     function refreshSearch() {
@@ -255,7 +255,7 @@ if (isset($_POST["mode"])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

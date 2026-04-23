@@ -54,9 +54,9 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/group.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/encounter_events.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");

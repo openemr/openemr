@@ -17,7 +17,7 @@ use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 class Documents extends AbstractPlugin
 {
