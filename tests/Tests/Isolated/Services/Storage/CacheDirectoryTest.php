@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Storage;
 
-use OpenEMR\Services\Storage\CacheDirectory;
-use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
+use OpenEMR\Services\Storage\CacheDirectory;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 final class CacheDirectoryTest extends TestCase

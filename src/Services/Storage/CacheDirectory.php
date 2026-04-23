@@ -43,10 +43,10 @@ use RuntimeException;
  * a tool doesn't support the abstraction (typical in libraries). New, first-
  * party code should not rely on this.
  */
-final class CacheDirectory
+final readonly class CacheDirectory
 {
     public function __construct(
-        private readonly string $baseDir = '',
+        private string $baseDir = '',
     ) {
     }
 
