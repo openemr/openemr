@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Controller Class.
+ *
+ * @package OpenEMR
+ * @link    https://www.open-emr.org
+ * @author Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ControllerInterface;
