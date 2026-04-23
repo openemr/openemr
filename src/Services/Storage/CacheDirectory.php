@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Storage;
 
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -62,6 +63,10 @@ final class CacheDirectory
      */
     public function for(string $scope): string
     {
+        if (preg_match('/^[a-zA-Z0-9_-]+$/', $scope) !== 1) {
+            throw new InvalidArgumentException('Scope must contain only alphanumeric characters, hyphens, and underscores');
+        }
+
         $baseDir = $this->baseDir !== '' ? $this->baseDir : sys_get_temp_dir();
         $path = $baseDir . '/' . $scope;
 

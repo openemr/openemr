@@ -14,6 +14,8 @@ namespace OpenEMR\Tests\Isolated\Services\Storage;
 
 use OpenEMR\Services\Storage\CacheDirectory;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 
 final class CacheDirectoryTest extends TestCase
@@ -126,6 +128,51 @@ final class CacheDirectoryTest extends TestCase
         $result = $cache->for('smarty');
 
         self::assertSame($path, $result);
+    }
+
+    public function testForUsesSystemTempDirWhenNoBaseDirProvided(): void
+    {
+        $scope = 'openemr-cache-test-' . bin2hex(random_bytes(8));
+        $cache = new CacheDirectory();
+        $tempDir = sys_get_temp_dir();
+
+        try {
+            $path = $cache->for($scope);
+
+            self::assertSame($tempDir . '/' . $scope, $path);
+            self::assertDirectoryExists($path);
+        } finally {
+            if (is_dir($tempDir . '/' . $scope)) {
+                rmdir($tempDir . '/' . $scope);
+            }
+        }
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidScopeProvider(): array
+    {
+        return [
+            'empty string' => [''],
+            'forward slash' => ['foo/bar'],
+            'backslash (windows)' => ['foo\\bar'],
+            'dot' => ['.'],
+            'double dot' => ['..'],
+            'path traversal' => ['../etc'],
+        ];
+    }
+
+    #[DataProvider('invalidScopeProvider')]
+    public function testForRejectsInvalidScope(string $scope): void
+    {
+        $cache = new CacheDirectory($this->testBaseDir);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $cache->for($scope);
     }
 
     private function recursiveDelete(string $path): void
