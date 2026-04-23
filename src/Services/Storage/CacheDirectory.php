@@ -36,6 +36,11 @@ use RuntimeException;
  * scope returns the same path and performs validation each time. This allows
  * callers to use it directly without caching the result or checking whether
  * the directory was already created.
+ *
+ * Note: when possible, prefer to use the Flysystem-based tooling instead of
+ * this, such as the ManagerInterface in this namespace. Only use this when
+ * a tool doesn't support the abstraction (typical in libraries). New, first-
+ * party code should not rely on this.
  */
 final class CacheDirectory
 {
