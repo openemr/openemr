@@ -120,8 +120,9 @@ if (!empty($session->get('pidList')) and $form_fill == 2) {
 // This file is optional. You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
-if (file_exists("../../custom/fee_sheet_codes.php")) {
-    include_once("../../custom/fee_sheet_codes.php");
+$customFeeSheetCodes = OEGlobalsBag::getInstance()->getProjectDir() . '/custom/fee_sheet_codes.php';
+if (file_exists($customFeeSheetCodes)) {
+    include_once($customFeeSheetCodes);
 }
 
 // TBD: Move these to globals.php, or make them user-specific.

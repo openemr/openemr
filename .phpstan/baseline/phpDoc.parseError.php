@@ -2992,18 +2992,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
-         Array an array of Phreezable objects, obtained for example, using DataSet\\-\\>ToObjectArray\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 382 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         string \\(optional\\) The title of the report\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 578 on line 15$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
          string default value to return if parameter is empty\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 291 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',

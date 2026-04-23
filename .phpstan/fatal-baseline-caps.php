@@ -35,16 +35,16 @@ declare(strict_types=1);
 
 return [
     'all' => [
-        'class.notFound.php' => 255,
+        'class.notFound.php' => 237,
         'classConstant.notFound.php' => 0,
         'constant.notFound.php' => 125,
         'function.notFound.php' => 13,
-        'include.fileNotFound.php' => 4,
-        'includeOnce.fileNotFound.php' => 1,
+        'include.fileNotFound.php' => 0,
+        'includeOnce.fileNotFound.php' => 0,
         'interface.notFound.php' => 0,
         'method.notFound.php' => 253,
         'require.fileNotFound.php' => 0,
-        'requireOnce.fileNotFound.php' => 4,
+        'requireOnce.fileNotFound.php' => 0,
         'return.missing.php' => 29,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
