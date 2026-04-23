@@ -36,13 +36,30 @@ final class RecurrenceSpecBuilder
      *
      * @param string $eventDate  Start date of the event (anything strtotime() accepts).
      * @param int    $repeatType Raw freq_type from the form (0..9).
-     * @param int    $repeatFreq Raw freq interval from the form.
+     * @param int    $repeatFreq Raw freq interval from the form; must be >= 1.
      */
     public static function fromRepeatForm(
         string $eventDate,
         int $repeatType,
         int $repeatFreq,
     ): RecurrenceSpec {
+        // Bounds-check the inputs. A $repeatFreq of 0 or negative makes
+        // __increment() fail to advance the date, wedging the calendar
+        // expansion loops in an infinite iteration (CWE-835). A $repeatType
+        // outside 0..9 has no handler anywhere downstream.
+        if ($repeatType < 0 || $repeatType > 9) {
+            throw new \InvalidArgumentException(sprintf(
+                'Repeat type must be in 0..9, got %d.',
+                $repeatType,
+            ));
+        }
+        if ($repeatFreq < 1) {
+            throw new \InvalidArgumentException(sprintf(
+                'Repeat frequency must be >= 1, got %d.',
+                $repeatFreq,
+            ));
+        }
+
         // Types 0..4 are REPEAT (every N days / weeks / months / years).
         if ($repeatType <= 4) {
             return new RecurrenceSpec(

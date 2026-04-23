@@ -165,4 +165,53 @@ final class RecurrenceSpecBuilderTest extends TestCase
         RecurrenceSpecBuilder::fromRepeatForm('not a date', 5, 2);
     }
 
+    #[DataProvider('invalidRepeatTypeProvider')]
+    public function testInvalidRepeatTypeThrows(int $repeatType): void
+    {
+        // A repeatType outside 0..9 has no handler in __increment().
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Repeat type must be in 0..9');
+
+        RecurrenceSpecBuilder::fromRepeatForm('2024-03-21', $repeatType, 1);
+    }
+
+    /**
+     * @return array<string, array{int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidRepeatTypeProvider(): array
+    {
+        return [
+            'negative' => [-1],
+            'ten'      => [10],
+            'huge'     => [999],
+        ];
+    }
+
+    #[DataProvider('invalidRepeatFreqProvider')]
+    public function testInvalidRepeatFreqThrows(int $repeatFreq): void
+    {
+        // A repeatFreq of 0 or negative makes __increment() fail to advance
+        // the date, wedging calendar expansion in an infinite loop (CWE-835).
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Repeat frequency must be >= 1');
+
+        RecurrenceSpecBuilder::fromRepeatForm('2024-03-21', 1, $repeatFreq);
+    }
+
+    /**
+     * @return array<string, array{int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidRepeatFreqProvider(): array
+    {
+        return [
+            'zero'     => [0],
+            'negative' => [-1],
+            'huge negative' => [-999],
+        ];
+    }
+
 }
