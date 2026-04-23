@@ -53,7 +53,11 @@ class pcSmarty extends Smarty_Legacy
         array_push($this->plugins_dir, "modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir, "modules/$pcDir/plugins");
         array_push($this->plugins_dir, "../../../../library/smarty/plugins");
-        $this->compile_dir      =   sys_get_temp_dir() . '/openemr-smarty';
+        $compileDir = sys_get_temp_dir() . '/openemr-smarty';
+        if (!is_dir($compileDir)) {
+            mkdir($compileDir, 0755, true);
+        }
+        $this->compile_dir      =   $compileDir;
         $this->caching      =   0;
         $this->left_delimiter   =   '[-';
         $this->right_delimiter  =   '-]';
