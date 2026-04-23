@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 538
+-- v_database: 539
 --
 
 --
@@ -15368,6 +15368,31 @@ CREATE TABLE `preference_value_sets` (
     -- General Preferences
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+
+-- OIDC external identity mapping: links local users.id to external (issuer, subject).
+DROP TABLE IF EXISTS `oidc_external_identity`;
+CREATE TABLE `oidc_external_identity` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL COMMENT 'FK to users.id',
+    `issuer` VARCHAR(512) NOT NULL COMMENT 'OIDC iss claim',
+    `external_id` VARCHAR(512) NOT NULL COMMENT 'OIDC sub claim',
+    `email` VARCHAR(255) DEFAULT NULL COMMENT 'email at time of linking',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_issuer_external_id` (`issuer`(255), `external_id`(255)),
+    UNIQUE KEY `uq_user_id` (`user_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- OIDC token revocation list: immediate-lockout entries for valid tokens.
+DROP TABLE IF EXISTS `oidc_token_revocation`;
+CREATE TABLE `oidc_token_revocation` (
+    `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
+    PRIMARY KEY (`jti`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);

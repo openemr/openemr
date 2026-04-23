@@ -47,3 +47,30 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+-- OIDC external identity mapping (core — links local users to external IdP identities)
+#IfNotTable oidc_external_identity
+CREATE TABLE `oidc_external_identity` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL COMMENT 'FK to users.id',
+    `issuer` VARCHAR(512) NOT NULL COMMENT 'OIDC iss claim',
+    `external_id` VARCHAR(512) NOT NULL COMMENT 'OIDC sub claim',
+    `email` VARCHAR(255) DEFAULT NULL COMMENT 'email at time of linking',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_issuer_external_id` (`issuer`(255), `external_id`(255)),
+    UNIQUE KEY `uq_user_id` (`user_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#EndIf
+
+-- OIDC token revocation list (immediate-lockout entries for valid tokens)
+#IfNotTable oidc_token_revocation
+CREATE TABLE `oidc_token_revocation` (
+    `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
+    PRIMARY KEY (`jti`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#EndIf

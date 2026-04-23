@@ -710,17 +710,11 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
     $ignoreAuth = true;
 }
 
-if (!$ignoreAuth) {
-    require_once("$srcdir/auth.inc.php");
-    $globalsBag->set('incoming_site_id', $GLOBALS['incoming_site_id'] ?? null);
-}
-
-// This is the background color to apply to form fields that are searchable.
-// Currently it is applicable only to the "Search or Add Patient" form.
-$globalsBag->set('layout_search_color', '#ff9919');
-
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table
+// NOTE: Modules must load BEFORE auth so that module event listeners
+// (e.g. OIDC login handlers) are registered before auth.inc.php
+// dispatches authentication events.
 $checkModulesTableExists = QueryUtils::existsTable('modules');
 
 if (!empty($checkModulesTableExists)) {
@@ -750,6 +744,15 @@ if (!empty($checkModulesTableExists)) {
         die();
     }
 }
+
+if (!$ignoreAuth) {
+    require_once("$srcdir/auth.inc.php");
+    $globalsBag->set('incoming_site_id', $GLOBALS['incoming_site_id'] ?? null);
+}
+
+// This is the background color to apply to form fields that are searchable.
+// Currently it is applicable only to the "Search or Add Patient" form.
+$globalsBag->set('layout_search_color', '#ff9919');
 
 // Don't change anything below this line. ////////////////////////////
 
