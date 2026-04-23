@@ -153,19 +153,16 @@ final class RecurrenceSpecBuilderTest extends TestCase
         ];
     }
 
-    public function testUnparsableDateFallsBackToRepeat(): void
+    public function testUnparsableDateWithRepeatOnTypeThrows(): void
     {
-        // Defence in depth: the caller validates dates, but if something
-        // unparsable slips through we fall back to REPEAT rather than
-        // persisting a REPEAT_ON row with an unknown weekday.
-        $spec = RecurrenceSpecBuilder::fromRepeatForm('not a date', 5, 2);
+        // Types 5..9 need a real date to compute weekday/nth occurrence.
+        // Silently falling back to REPEAT would persist a row with an
+        // unsupported freq type, sending __increment() into an infinite loop.
+        // Bail out loudly instead.
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("'not a date'");
 
-        $this->assertSame(1, $spec->recurrType);
-        $this->assertSame(5, $spec->repeatType);
-        $this->assertSame(2, $spec->repeatFreq);
-        $this->assertSame(0, $spec->repeatOnDay);
-        $this->assertSame(1, $spec->repeatOnNum);
-        $this->assertSame(0, $spec->repeatOnFreq);
+        RecurrenceSpecBuilder::fromRepeatForm('not a date', 5, 2);
     }
 
 }

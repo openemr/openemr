@@ -56,19 +56,15 @@ final class RecurrenceSpecBuilder
         }
 
         // Types 5..9 are REPEAT_ON (nth weekday of month, last weekday, etc.).
+        // The REPEAT_ON weekday/nth computation requires a real date; bail out
+        // explicitly rather than persist a REPEAT row with an unsupported
+        // freq type, which would make __increment() loop forever downstream.
         $timestamp = strtotime($eventDate);
         if ($timestamp === false) {
-            // Unparsable date: fall back to REPEAT to avoid persisting a
-            // half-populated REPEAT_ON row. The caller is responsible for
-            // validating dates before they reach us; this is defence in depth.
-            return new RecurrenceSpec(
-                recurrType: 1,
-                repeatType: $repeatType,
-                repeatFreq: $repeatFreq,
-                repeatOnDay: 0,
-                repeatOnNum: 1,
-                repeatOnFreq: 0,
-            );
+            throw new \InvalidArgumentException(sprintf(
+                'Cannot build REPEAT_ON recurrence spec: event date %s is unparsable.',
+                var_export($eventDate, true),
+            ));
         }
 
         $repeatOnDay = (int) date('w', $timestamp);
