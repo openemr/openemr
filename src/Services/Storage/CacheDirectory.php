@@ -45,9 +45,25 @@ use RuntimeException;
  */
 final readonly class CacheDirectory
 {
-    public function __construct(
-        private string $baseDir = '',
-    ) {
+    private string $baseDir;
+
+    /**
+     * @param string $baseDir For testing only. This parameter is guarded and
+     *                        will throw LogicException outside of PHPUnit.
+     *                        Production code must use the default.
+     */
+    public function __construct(?string $baseDir = null)
+    {
+        if ($baseDir === null) {
+            $baseDir = sys_get_temp_dir();
+        } else {
+            if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+                throw new \LogicException(
+                    'CacheDirectory $baseDir parameter is for testing only.'
+                );
+            }
+        }
+        $this->baseDir = $baseDir;
     }
 
     /**
@@ -67,8 +83,7 @@ final readonly class CacheDirectory
             throw new InvalidArgumentException('Scope must contain only alphanumeric characters, hyphens, and underscores');
         }
 
-        $baseDir = $this->baseDir !== '' ? $this->baseDir : sys_get_temp_dir();
-        $path = $baseDir . '/' . $scope;
+        $path = $this->baseDir . '/' . $scope;
 
         if (is_link($path)) {
             throw new RuntimeException(sprintf(
