@@ -230,16 +230,23 @@ class Controller extends Smarty implements ControllerInterface
             return is_string($result) ? $result : '';
         };
 
+        // Smarty 4's __call makes is_callable() always return true on Smarty-derived
+        // objects, so we must also check method_exists(). See PR #11163 regression.
+        $methodExists = function (string $method) use ($controllerObj): bool {
+            return method_exists($controllerObj, $method)
+                && is_callable([$controllerObj, $method]);
+        };
+
         $isProcessing = ($_POST['process'] ?? '') === 'true';
 
-        if ($isProcessing && is_callable([$controllerObj, $processMethod])) {
+        if ($isProcessing && $methodExists($processMethod)) {
             $output .= $callMethod($processMethod);
             if ($controllerObj->_state === false) {
                 return $output;
             }
         }
 
-        if ($isProcessing || is_callable([$controllerObj, $actionMethod])) {
+        if ($methodExists($actionMethod)) {
             $output .= $callMethod($actionMethod);
         } else {
             throw new NotFoundHttpException("Action '$action' does not exist on controller: $className");
