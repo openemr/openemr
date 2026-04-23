@@ -11,17 +11,22 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
-use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Server\CryptTrait;
 
 class JsonWebKeyParser
 {
     use CryptTrait;
 
-    public function __construct($oaEncryptionKey, private $publicKeyLocation)
+    /**
+     * @param non-empty-string $publicKeyLocation
+     */
+    public function __construct($oaEncryptionKey, private string $publicKeyLocation)
     {
         $this->setEncryptionKey($oaEncryptionKey);
     }
@@ -52,17 +57,13 @@ class JsonWebKeyParser
 
     public function parseAccessToken($rawToken)
     {
-        if (empty($rawToken)) {
+        if (!is_string($rawToken) || $rawToken === '') {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
 
-        // Create the jwtConfiguration object
-        //  Just using object for parsing, so keys not needed
-        //   (ie. not using forAsymmetricSigner and just using forUnsecuredSigner)
-        $configuration = Configuration::forUnsecuredSigner();
-
-        // Attempt to parse the JWT
-        $token = $configuration->parser()->parse($rawToken);
+        // Parse the JWT. No keys are needed for parsing; signature
+        // validation is performed separately below.
+        $token = (new Parser(new JoseEncoder()))->parse($rawToken);
         // defaults
         $result = [
             'active' => true,
@@ -76,7 +77,7 @@ class JsonWebKeyParser
         ];
 
         // Attempt to validate the JWT
-        $validator = $configuration->validator();
+        $validator = new Validator();
         try {
             if ($validator->validate($token, (new SignedWith(new Sha256(), InMemory::file($this->publicKeyLocation)))) === false) {
                 $result['active'] = false;

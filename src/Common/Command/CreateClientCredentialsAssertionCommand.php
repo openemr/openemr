@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Common\Command;
 
-use Lcobucci\JWT\Signer\Key\LocalFileReference;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
@@ -75,9 +75,14 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
 
         $oauthTokenUrl = $opts['a'];
         $clientId = $opts['i'];
+        if (!is_string($oauthTokenUrl) || $oauthTokenUrl === '' || !is_string($clientId) || $clientId === '') {
+            echo "Arguments -a and -i must be non-empty strings.\n";
+            $this->printUsage($context);
+            return;
+        }
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
-            LocalFileReference::file($keyLocation . "openemr-rsa384-private.key"),
-            LocalFileReference::file($keyLocation . "openemr-rsa384-public.pem"),
+            InMemory::file($keyLocation . "openemr-rsa384-private.key"),
+            InMemory::file($keyLocation . "openemr-rsa384-public.pem"),
             $oauthTokenUrl,
             $clientId
         );
