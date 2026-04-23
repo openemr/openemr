@@ -19,9 +19,9 @@ use RuntimeException;
 /**
  * Provides validated local cache directories for application components.
  *
- * This class manages cache directories used by libraries like Smarty (template
- * compilation) and mPDF (font caching). It ensures directories are safe to use
- * by guarding against CWE-377 (Insecure Temporary File) attacks:
+ * This class manages cache directories used by the application and libraries.
+ * It ensures directories are safe to use by guarding against CWE-377 (Insecure
+ * Temporary File) attacks:
  *
  * - Symlinks are rejected (prevents redirect attacks)
  * - Insecure permissions are rejected (prevents tampering by other users)
@@ -30,8 +30,7 @@ use RuntimeException;
  * Usage:
  *
  *     $cache = new CacheDirectory();
- *     $smarty->setCompileDir($cache->for('smarty'));
- *     $mpdfConfig['tempDir'] = $cache->for('mpdf');
+ *     $tool->setCacheDirectory($cache->for('toolName'));
  *
  * The for() method is idempotent: calling it multiple times with the same
  * scope returns the same path and performs validation each time. This allows
@@ -52,7 +51,7 @@ final class CacheDirectory
      * If it exists, it is validated for security (no symlinks, restrictive
      * permissions).
      *
-     * @param string $scope Identifier for the cache (e.g., 'smarty', 'mpdf')
+     * @param string $scope Identifier for the cache (e.g. the tool name)
      * @return string Absolute path to the cache directory
      * @throws RuntimeException If the directory fails security validation
      */
