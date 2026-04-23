@@ -82,10 +82,24 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
                         ;;
                     --name=stderr_with_control_chars)
                         # BEL, CR, and an overly long error body to
-                        # exercise the log-sanitization path.
-                        printf 'boom\a\rsecret\n' >&2
+                        # exercise the log-sanitization path. Includes a
+                        # trailing newline + tab in the middle so the
+                        # test can assert those are escaped (not stripped)
+                        # for line-oriented log backends.
+                        printf 'boom\a\rline1\nline2\tcol\n' >&2
                         printf '%.0sA' $(seq 1 3000) >&2
                         exit 3
+                        ;;
+                    --name=floods_stdout)
+                        # Writes well past the spawner's per-stream
+                        # buffer cap (64KiB). Used to verify the spawner
+                        # enforces the cap, terminates the child, and
+                        # returns error.
+                        yes A | head -c 200000
+                        # Reach here only if yes is terminated by a
+                        # broken pipe before we can emit the status.
+                        echo '{"name":"floods_stdout","status":"executed"}'
+                        exit 0
                         ;;
                     --name=sleeps_forever)
                         # Used only for the timeout test; the test uses
@@ -201,10 +215,11 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
     public function testStderrIsSanitizedAndTruncatedBeforeLogging(): void
     {
         // Subprocess stderr can contain PHI, stack traces, and control
-        // characters. The spawner must strip control chars (except
-        // newline/tab) to prevent log forging and truncate long output
-        // so one misbehaving service can't flood central logs
-        // (CWE-532 mitigation from PR review).
+        // characters. The spawner must strip control chars, escape
+        // newlines/tabs to literal "\n"/"\t" (CWE-117: a single log
+        // record must not be split across multiple lines by child
+        // output), and truncate long output so one misbehaving service
+        // can't flood central logs (CWE-532 mitigation from PR review).
         $result = $this->makeSpawner()->spawn('stderr_with_control_chars', false, 60);
 
         $this->assertSame(['name' => 'stderr_with_control_chars', 'status' => 'error'], $result);
@@ -214,8 +229,61 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
         self::assertIsString($stderr);
         $this->assertStringNotContainsString("\x07", $stderr, 'BEL must be stripped');
         $this->assertStringNotContainsString("\r", $stderr, 'CR must be normalized to LF');
+        $this->assertStringNotContainsString("\n", $stderr, 'Real LF must be escaped, not left embedded');
+        $this->assertStringNotContainsString("\t", $stderr, 'Real TAB must be escaped, not left embedded');
+        $this->assertStringContainsString('\\n', $stderr, 'LF must be rendered as literal \\n');
+        $this->assertStringContainsString('\\t', $stderr, 'TAB must be rendered as literal \\t');
         $this->assertLessThanOrEqual(2100, strlen($stderr), 'Log snippet must be truncated');
         $this->assertStringContainsString('[truncated]', $stderr);
+    }
+
+    public function testServiceNameIsSanitizedInLogContext(): void
+    {
+        // Service names originate from the `background_services.name`
+        // DB column. A misconfigured or malicious row containing
+        // CR/LF/BEL must not forge multi-line log records
+        // (CWE-117 mitigation from PR review). The fake console
+        // doesn't recognize this name so it exits non-zero, which
+        // exercises the service-name sanitization in the log context.
+        $smuggled = "evil\r\nFAKE: forged line\x07";
+        $result = $this->makeSpawner()->spawn($smuggled, false, 60);
+
+        // The result's `name` field is the caller-provided name
+        // unchanged; only the *logged* service field is sanitized.
+        $this->assertSame($smuggled, $result['name']);
+        $this->assertSame('error', $result['status']);
+        $this->assertNotEmpty($this->logger->warnings);
+
+        $loggedService = $this->logger->warnings[0]['context']['service'] ?? '';
+        self::assertIsString($loggedService);
+        $this->assertStringNotContainsString("\r", $loggedService);
+        $this->assertStringNotContainsString("\n", $loggedService);
+        $this->assertStringNotContainsString("\x07", $loggedService);
+        $this->assertSame('evilFAKE: forged line', $loggedService);
+    }
+
+    public function testStdoutOverflowTerminatesChildAndReturnsError(): void
+    {
+        // A service that dumps unbounded output must be killed before
+        // the parent buffers gigabytes of it (CWE-400 mitigation from
+        // PR review). The fake console writes 200KB to stdout; the
+        // spawner's 64KiB per-stream cap must trigger a stop() and an
+        // error result with no JSON parsing attempted.
+        $start = microtime(true);
+        $result = $this->makeSpawner()->spawn('floods_stdout', false, 60);
+        $elapsed = microtime(true) - $start;
+
+        $this->assertSame(['name' => 'floods_stdout', 'status' => 'error'], $result);
+        $this->assertLessThan(15.0, $elapsed, 'Spawner must kill overflowing child quickly');
+        $this->assertNotEmpty($this->logger->warnings);
+        $this->assertSame(
+            'floods_stdout',
+            $this->logger->warnings[0]['context']['service'] ?? null,
+        );
+        $this->assertSame(
+            65536,
+            $this->logger->warnings[0]['context']['buffer_max_bytes'] ?? null,
+        );
     }
 
     public function testTimeoutReturnsErrorAndLogsService(): void
