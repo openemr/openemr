@@ -1,13 +1,8 @@
-name: Mago (PoC, advisory)
+name: Mago
 
 # Proof-of-concept workflow for Mago (https://mago.carthage.software/),
 # a Rust-based PHP toolchain that combines linting, static analysis, and
 # formatting in a single tool.
-#
-# This workflow is ADVISORY ONLY. Every step is wrapped in `continue-on-error`
-# so a Mago finding will never block a PR. The intent is to surface what Mago
-# would catch so the team can decide whether to adopt it, and (if so) on what
-# terms (subset of rules, baseline-gated, blocking, etc.).
 
 on:
   push:
@@ -28,7 +23,7 @@ concurrency:
 
 jobs:
   mago:
-    name: Mago PoC
+    name: Mago
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -53,29 +48,28 @@ jobs:
       with:
         version: '1.24.0'
 
+    # Every subsequent step uses `if: always()` so one failing tool does not
+    # short-circuit the rest — the job still fails, but we see all findings
+    # in a single run.
+
     - name: Mago format (check only)
-      id: format
-      continue-on-error: true
+      if: always()
       run: mago format --check
 
-    - name: Mago lint (GitHub annotations)
-      id: lint
-      continue-on-error: true
+    - name: Mago lint
+      if: always()
       run: mago lint --reporting-format=github
 
     - name: Mago lint (JSON for summary)
       if: always()
-      continue-on-error: true
       run: mago lint --reporting-format=json > mago-lint.json
 
-    - name: Mago analyze (GitHub annotations)
-      id: analyze
-      continue-on-error: true
+    - name: Mago analyze
+      if: always()
       run: mago analyze --reporting-format=github
 
     - name: Mago analyze (JSON for summary)
       if: always()
-      continue-on-error: true
       run: mago analyze --reporting-format=json > mago-analyze.json
 
     - name: Summarize findings
