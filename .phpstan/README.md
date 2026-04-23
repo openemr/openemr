@@ -276,6 +276,23 @@ To regenerate the baseline after fixing violations:
 composer phpstan-baseline
 ```
 
+### Fatal-category caps
+
+Certain baseline files hold errors for code that cannot run at load or call time:
+
+- `class.notFound`, `method.notFound`, `staticMethod.notFound`
+- `function.notFound`
+- `classConstant.notFound`, `constant.notFound`
+- `include.fileNotFound`, `includeOnce.fileNotFound`, `requireOnce.fileNotFound`
+- `return.missing`, `variable.undefined`
+
+These cannot be allowed to grow. `.phpstan/fatal-baseline-caps.php` records the current entry count for each file; `tests/Tests/Isolated/PHPStan/FatalBaselineCapsIsolatedTest.php` asserts that the actual count equals the cap. If you regenerate the baseline and a count changes:
+
+- **Count went down** — lower the cap in `fatal-baseline-caps.php` to match.
+- **Count went up** — fix the underlying code instead of raising the cap. Each entry resolves to one of four fixes: delete dead code, wrap optional code in `class_exists()` / `function_exists()` / `defined()`, add a PHPStan stub, or install the missing dependency.
+
+See openemr/openemr#11792 for the plan to drive every cap to zero.
+
 ## Running PHPStan
 
 ```bash
