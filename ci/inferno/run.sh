@@ -222,9 +222,9 @@ main() {
     initialize_openemr
 
     # Run the test suite and capture exit code
-    # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    local exit_code=0
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
