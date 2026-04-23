@@ -158,6 +158,32 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertSame(['svc1', 'svc2'], $spawner->spawnedNames);
     }
 
+    public function testRunAllPassesLeaseDerivedTimeoutToSpawner(): void
+    {
+        // The spawner must receive a wall-clock cap tied to the service's
+        // computed lease so a hung child cannot block the cron slot past
+        // its DB-side lease (CWE-400 mitigation from PR review).
+        // execute_interval=5 -> max(MIN_LEASE=60, 5*2=10) = 60 min
+        // -> (60 * 60) + LEASE_GRACE_SECONDS (60) = 3660s.
+        // execute_interval=120 -> max(60, 240) = 240 min
+        // -> (240 * 60) + 60 = 14460s.
+        $spawner = new RecordingSpawner([
+            'short_interval_svc' => 'executed',
+            'long_interval_svc' => 'executed',
+        ]);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [
+                self::makeService('short_interval_svc', executeInterval: 5),
+                self::makeService('long_interval_svc', executeInterval: 120),
+            ],
+            spawner: $spawner,
+        );
+
+        $runner->run();
+
+        $this->assertSame([3660, 14460], $spawner->timeoutArgs);
+    }
+
     public function testRunAllNeverPassesForceToSpawner(): void
     {
         // Even if the --force flag somehow reached run(null, true),
@@ -294,6 +320,9 @@ class RecordingSpawner implements BackgroundServiceProcessSpawner
     /** @var list<bool> */
     public array $forceArgs = [];
 
+    /** @var list<int> */
+    public array $timeoutArgs = [];
+
     /**
      * @param array<string, string> $statusByName
      */
@@ -301,10 +330,11 @@ class RecordingSpawner implements BackgroundServiceProcessSpawner
     {
     }
 
-    public function spawn(string $name, bool $force): array
+    public function spawn(string $name, bool $force, int $timeoutSeconds): array
     {
         $this->spawnedNames[] = $name;
         $this->forceArgs[] = $force;
+        $this->timeoutArgs[] = $timeoutSeconds;
         return ['name' => $name, 'status' => $this->statusByName[$name] ?? 'error'];
     }
 }

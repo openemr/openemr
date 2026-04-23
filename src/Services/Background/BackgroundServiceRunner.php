@@ -51,6 +51,14 @@ class BackgroundServiceRunner
      */
     private const MAX_LEASE_MINUTES = 1440;
 
+    /**
+     * Slack added to the lease when computing the subprocess wall-clock
+     * timeout. The child's lease expires at lease_minutes; the parent
+     * waits a little longer so a child that's legitimately finishing up
+     * (flushing logs, closing connections) isn't killed on the boundary.
+     */
+    private const LEASE_GRACE_SECONDS = 60;
+
     private ?string $currentServiceName = null;
 
     private bool $shutdownRegistered = false;
@@ -146,7 +154,8 @@ class BackgroundServiceRunner
             // service needs it. Installs with every service disabled
             // shouldn't have to resolve PHP_BINARY / project dir.
             $spawner ??= $this->resolveSpawner();
-            $results[] = $spawner->spawn($service['name'], false);
+            $timeoutSeconds = $this->computeLeaseMinutes($service) * 60 + self::LEASE_GRACE_SECONDS;
+            $results[] = $spawner->spawn($service['name'], false, $timeoutSeconds);
         }
         return $results;
     }
