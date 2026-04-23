@@ -96,9 +96,9 @@ final readonly class CacheDirectory
             ));
         }
 
-        if ($perms & 0022) {
+        if (($perms & 0777) !== 0700) {
             throw new RuntimeException(sprintf(
-                'Cache directory has insecure permissions (group or world writable): %s',
+                'Cache directory must have 0700 permissions: %s',
                 $path,
             ));
         }

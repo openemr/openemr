@@ -90,25 +90,31 @@ final class CacheDirectoryTest extends TestCase
         $cache->for('smarty');
     }
 
-    public function testForRejectsGroupWritableDirectory(): void
+    /**
+     * @return array<string, array{int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function insecurePermissionsProvider(): array
     {
-        $path = $this->testBaseDir . '/smarty';
-        mkdir($path);
-        chmod($path, 0770);
-
-        $cache = new CacheDirectory($this->testBaseDir);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('permissions');
-
-        $cache->for('smarty');
+        return [
+            'group writable (0770)' => [0770],
+            'world writable (0707)' => [0707],
+            'group readable (0740)' => [0740],
+            'world readable (0704)' => [0704],
+            'group executable (0710)' => [0710],
+            'world executable (0701)' => [0701],
+            'fully open (0777)' => [0777],
+            'common default (0755)' => [0755],
+        ];
     }
 
-    public function testForRejectsWorldWritableDirectory(): void
+    #[DataProvider('insecurePermissionsProvider')]
+    public function testForRejectsInsecurePermissions(int $mode): void
     {
         $path = $this->testBaseDir . '/smarty';
         mkdir($path);
-        chmod($path, 0707);
+        chmod($path, $mode);
 
         $cache = new CacheDirectory($this->testBaseDir);
 
