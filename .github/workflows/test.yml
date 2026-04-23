@@ -123,7 +123,7 @@ jobs:
     - name: Compute test suite list
       id: compute-suites
       run: |
-        base='["unit","api","fixtures","services","validators","controllers","common","email"'
+        base='["unit","api","fixtures","services","validators","controllers","common","integration","email"'
         if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
           base="${base},"'"e2e"'
         fi
