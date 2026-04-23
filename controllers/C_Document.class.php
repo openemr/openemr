@@ -359,9 +359,7 @@ class C_Document extends Controller
         }
 
         $this->assign("error", $error);
-        //$this->_state = false;
         $_POST['process'] = "";
-        //return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
     }
 
     public function note_action_process($patient_id)

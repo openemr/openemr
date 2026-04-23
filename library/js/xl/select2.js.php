@@ -6,7 +6,7 @@
  *
  * Example code in script:
  *    $translationsSelect2Override = array('searching'=>(xla('Search') . ':')) (optional php command)
- *    require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); (php command)
  *
  * Note there is a optional mechanism to override translations via the
  *  $translationsSelect2Override array.

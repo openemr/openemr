@@ -278,7 +278,6 @@ function getContent()
             // include ALL form's report.php files
             $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
             while ($result = sqlFetchArray($inclookupres)) {
-                // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
                 $formdir = $result['formdir'];
             }
 

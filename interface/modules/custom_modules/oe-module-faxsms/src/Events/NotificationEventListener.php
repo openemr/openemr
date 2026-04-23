@@ -205,7 +205,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *   'expiry_interval' => "P2D", // valid for 2 days.
      *   'text_message' => "Please make a payment for your appointment.",
      *   'html_message' => "",
-     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
+     *   'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
      *   'actions' => [
      *      'enforce_onetime_use' => true,
      *      'enforce_auth_pin' => true,
