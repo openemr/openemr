@@ -255,4 +255,3 @@ if ($_REQUEST['action'] == "process") {
     echo text(json_encode($pidList));
     exit;
 }
-exit;

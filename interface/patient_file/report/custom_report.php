@@ -824,7 +824,7 @@ function getContent()
                 $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
                 file_put_contents($tmp_file, $fax_pdf);
                 echo $tmp_file;
-                exit();
+                return;
             }
             if ($archive_name !== '' && count($staged_docs) > 0) {
                 $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
