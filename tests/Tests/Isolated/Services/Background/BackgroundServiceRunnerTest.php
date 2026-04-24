@@ -202,6 +202,49 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertSame([false], $spawner->forceArgs);
     }
 
+    public function testRunAllSkipsWhenOrchestratorLockHeld(): void
+    {
+        // CWE-400 mitigation from PR review: run-all-due is reachable
+        // from an authenticated HTTP endpoint; repeated invocations
+        // must not multiply subprocess spawns. A second concurrent
+        // orchestrator returns a single "already_running" no-op row
+        // rather than re-spawning each active service.
+        $spawner = new RecordingSpawner(['svc1' => 'executed']);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            spawner: $spawner,
+            orchestratorLockAcquirable: false,
+        );
+
+        $results = $runner->run();
+
+        $this->assertSame(
+            [['name' => 'orchestrator', 'status' => 'already_running']],
+            $results,
+        );
+        $this->assertSame([], $spawner->spawnedNames, 'No subprocesses must be spawned when the orchestrator lock is held');
+        $this->assertSame(0, $runner->orchestratorLockReleases, 'Must not release a lock we did not acquire');
+    }
+
+    public function testRunAllAcquiresAndReleasesOrchestratorLock(): void
+    {
+        // Paired with the previous test: the happy path acquires the
+        // orchestrator lock, spawns children, and releases on the way
+        // out regardless of per-service outcomes. The release is in a
+        // finally block so an exception in the inner loop still frees
+        // the lock for the next cron tick.
+        $spawner = new RecordingSpawner(['svc1' => 'executed']);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            spawner: $spawner,
+        );
+
+        $runner->run();
+
+        $this->assertSame(1, $runner->orchestratorLockAcquires);
+        $this->assertSame(1, $runner->orchestratorLockReleases);
+    }
+
     public function testRunSkipsManualModeServiceWithoutForce(): void
     {
         $runner = new BackgroundServiceRunnerStub(
@@ -262,16 +305,22 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
     /** @var list<string> */
     public array $releasedLocks = [];
 
+    public int $orchestratorLockAcquires = 0;
+
+    public int $orchestratorLockReleases = 0;
+
     /**
      * @param list<BackgroundServicesRow> $services
      * @param string|null $lockFailureReason Null means lock acquired; a string is the failure reason returned to run()
      * @param (\Closure(BackgroundServicesRow): void)|null $executeCallback
+     * @param bool $orchestratorLockAcquirable False simulates a second concurrent orchestrator attempt
      */
     public function __construct(
         private readonly array $services = [],
         private readonly ?string $lockFailureReason = null,
         private readonly ?\Closure $executeCallback = null,
         ?BackgroundServiceProcessSpawner $spawner = null,
+        private readonly bool $orchestratorLockAcquirable = true,
     ) {
         parent::__construct(new NullLogger(), $spawner);
     }
@@ -302,6 +351,17 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         if ($this->executeCallback !== null) {
             ($this->executeCallback)($service);
         }
+    }
+
+    protected function acquireOrchestratorLock(): bool
+    {
+        $this->orchestratorLockAcquires++;
+        return $this->orchestratorLockAcquirable;
+    }
+
+    protected function releaseOrchestratorLock(): void
+    {
+        $this->orchestratorLockReleases++;
     }
 }
 

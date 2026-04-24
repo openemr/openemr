@@ -50,7 +50,11 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
         file_put_contents($this->fakeConsoleScript, <<<'SH'
             #!/bin/sh
             # Fake console for SymfonyBackgroundServiceSpawnerTest.
-            # Selects behavior based on the --name= argument.
+            # Selects behavior based on the --name= argument. The spawner
+            # passes the per-invocation nonce via OPENEMR_BG_NONCE; each
+            # fixture that produces a legitimate status line echoes the
+            # same nonce so the parent accepts it.
+            n="${OPENEMR_BG_NONCE:-}"
             for arg in "$@"; do
                 case "$arg" in
                     --name=clean_exit_no_json)
@@ -61,23 +65,37 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
                         exit 137
                         ;;
                     --name=emits_executed)
-                        echo '{"name":"emits_executed","status":"executed"}'
+                        printf '{"name":"emits_executed","status":"executed","nonce":"%s"}\n' "$n"
                         exit 0
                         ;;
                     --name=prints_garbage_then_json)
                         echo "PHP Deprecated: something"
-                        echo '{"name":"prints_garbage_then_json","status":"not_due"}'
+                        printf '{"name":"prints_garbage_then_json","status":"not_due","nonce":"%s"}\n' "$n"
                         exit 0
                         ;;
                     --name=json_missing_status)
-                        echo '{"name":"json_missing_status"}'
+                        printf '{"name":"json_missing_status","nonce":"%s"}\n' "$n"
                         exit 0
                         ;;
                     --name=name_mismatch)
-                        # Simulates a misbehaving service that prints a
-                        # forged status line tagged with a different
-                        # service name, attempting to spoof a success.
-                        echo '{"name":"not_the_expected_one","status":"executed"}'
+                        # Service that prints a forged status line tagged
+                        # with the right nonce but the wrong service name.
+                        # Parser must still reject it on the name check.
+                        printf '{"name":"not_the_expected_one","status":"executed","nonce":"%s"}\n' "$n"
+                        exit 0
+                        ;;
+                    --name=shutdown_forges_status)
+                        # Simulates the CWE-345 spoofing vector: the
+                        # command emits its legitimate JSON (error), then
+                        # a register_shutdown_function in the service's
+                        # own code prints a forged "executed" line AFTER
+                        # the command's own line. The parser scans from
+                        # the end, so without the nonce check the forged
+                        # line would win. With the nonce check, the forged
+                        # line (no/wrong nonce) is rejected and the
+                        # legitimate line's "error" wins.
+                        printf '{"name":"shutdown_forges_status","status":"error","nonce":"%s"}\n' "$n"
+                        echo '{"name":"shutdown_forges_status","status":"executed","nonce":"forged-by-shutdown-handler"}'
                         exit 0
                         ;;
                     --name=stderr_with_control_chars)
@@ -98,7 +116,7 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
                         yes A | head -c 200000
                         # Reach here only if yes is terminated by a
                         # broken pipe before we can emit the status.
-                        echo '{"name":"floods_stdout","status":"executed"}'
+                        printf '{"name":"floods_stdout","status":"executed","nonce":"%s"}\n' "$n"
                         exit 0
                         ;;
                     --name=sleeps_forever)
@@ -210,6 +228,23 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
 
         $this->assertSame(['name' => 'name_mismatch', 'status' => 'error'], $result);
         $this->assertNotEmpty($this->logger->warnings);
+    }
+
+    public function testShutdownFunctionForgedStatusLineIsRejectedByNonceCheck(): void
+    {
+        // CWE-345: a service's own register_shutdown_function() fires
+        // AFTER the command's legitimate JSON is written. Without the
+        // nonce check, the reverse-scanning parser would find the
+        // forged "executed" line (written second, appears last) first
+        // and accept it. With the nonce check, the forged line has no
+        // valid nonce and is skipped, so the parser falls through to
+        // the command's own line — whose status is "error" in this
+        // fixture — and returns that. A passing test means the forged
+        // status was rejected without the forged line being accepted.
+        $result = $this->makeSpawner()->spawn('shutdown_forges_status', false, 60);
+
+        $this->assertSame(['name' => 'shutdown_forges_status', 'status' => 'error'], $result);
+        $this->assertSame([], $this->logger->warnings, 'Legitimate error status should not log a spawner warning');
     }
 
     public function testStderrIsSanitizedAndTruncatedBeforeLogging(): void

@@ -66,6 +66,18 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
      */
     private const SERVICE_NAME_LOG_MAX = 64;
 
+    /**
+     * Env var the parent passes to the child carrying a per-invocation
+     * nonce. The child command emits the nonce as part of its JSON
+     * result and the parent rejects any JSON line whose nonce doesn't
+     * match. This closes the spoofing window where a
+     * `register_shutdown_function()` in the service's code prints a
+     * forged `{name, status}` line AFTER the command's legitimate one;
+     * without the nonce check the reverse-scanning parser would find
+     * the forged line first (CWE-345).
+     */
+    private const NONCE_ENV_VAR = 'OPENEMR_BG_NONCE';
+
     private LoggerInterface $logger;
 
     /**
@@ -100,7 +112,17 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
             $args[] = '--force';
         }
 
-        $process = new Process($args);
+        // Fresh nonce per invocation. 128 bits of randomness is enough to
+        // make guessing infeasible; the child reads it from env and echoes
+        // it in the JSON result, and the parent accepts the result only if
+        // the nonce matches.
+        $nonce = bin2hex(random_bytes(16));
+
+        // Symfony Process merges the supplied env with the parent's env by
+        // default (unlike the raw `proc_open` contract). So passing just
+        // the nonce here is enough; PATH, HOME, database credentials, etc.
+        // all still propagate.
+        $process = new Process($args, env: [self::NONCE_ENV_VAR => $nonce]);
         // Wall-clock cap derived from the service's computed lease so a hung
         // child cannot block the cron slot past its DB-side lease. Idle
         // timeout mirrors the hard cap: a service that produces no output
@@ -188,7 +210,7 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
             return ['name' => $name, 'status' => 'error'];
         }
 
-        $status = $this->parseJsonStatus($stdout, $name);
+        $status = $this->parseJsonStatus($stdout, $name, $nonce);
         if ($status === null) {
             // exit(0) without emitting a valid JSON status for the
             // expected service name means either the child terminated
@@ -215,11 +237,13 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
      * Scans from the end so any pre-bootstrap notices written to stdout
      * (deprecation warnings, misconfigured session_start, etc.) before
      * the command printed its result line are ignored. Validates that
-     * the line is tagged with the expected service name and an allowlisted
-     * status value so a misbehaving service cannot spoof its own status
-     * by printing a crafted JSON line before the command's own.
+     * the line is tagged with the expected service name, an allowlisted
+     * status value, AND the per-invocation nonce the parent passed to the
+     * child via env. Without the nonce check a `register_shutdown_function`
+     * in the service's own code could print a forged status line AFTER
+     * the command's legitimate one and win the reverse scan (CWE-345).
      */
-    private function parseJsonStatus(string $stdout, string $expectedName): ?string
+    private function parseJsonStatus(string $stdout, string $expectedName, string $expectedNonce): ?string
     {
         $lines = preg_split('/\R/', trim($stdout));
         if ($lines === false) {
@@ -233,6 +257,14 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
             }
             $decoded = json_decode($line, true);
             if (!is_array($decoded)) {
+                continue;
+            }
+            // hash_equals is not strictly required here (the nonce is
+            // freshly generated, never persisted, and not a secret
+            // protecting anything else) but costs little and communicates
+            // intent: the comparison is for authentication, not lookup.
+            $decodedNonce = $decoded['nonce'] ?? null;
+            if (!is_string($decodedNonce) || !hash_equals($expectedNonce, $decodedNonce)) {
                 continue;
             }
             $decodedName = $decoded['name'] ?? null;

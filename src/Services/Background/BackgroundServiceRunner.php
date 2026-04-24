@@ -59,6 +59,21 @@ class BackgroundServiceRunner
      */
     private const LEASE_GRACE_SECONDS = 60;
 
+    /**
+     * Name of the MySQL session-level advisory lock used to ensure only
+     * one run-all-due orchestrator runs concurrently across the whole
+     * database. An authenticated caller that repeatedly hits the HTTP
+     * run-all-due endpoint would otherwise be able to spawn
+     * N-services-worth of subprocesses per request; this lock makes the
+     * second concurrent invocation a no-op instead.
+     *
+     * GET_LOCK is session-scoped, so when the orchestrator process dies
+     * (SIGKILL, container restart, fatal), the DB session closes and the
+     * lock auto-releases. The name is prefixed with `openemr.` so it
+     * doesn't collide with anything else using GET_LOCK in the same DB.
+     */
+    private const ORCHESTRATOR_LOCK_NAME = 'openemr.bg_orchestrator';
+
     private ?string $currentServiceName = null;
 
     private bool $shutdownRegistered = false;
@@ -140,6 +155,29 @@ class BackgroundServiceRunner
      */
     private function runAllDueIsolated(): array
     {
+        // A single authenticated caller can trigger run-all-due via the
+        // HTTP endpoint. Without a global guard, N repeated requests
+        // would spawn N × (active services) subprocesses concurrently;
+        // each child's DB-level per-service lock would quickly reject
+        // the duplicate work, but the parent would still pay the cost
+        // of spawning, bootstrapping, and killing each child. The
+        // orchestrator lock collapses that into a single no-op result.
+        if (!$this->acquireOrchestratorLock()) {
+            return [['name' => 'orchestrator', 'status' => 'already_running']];
+        }
+
+        try {
+            return $this->runAllDueIsolatedUnlocked();
+        } finally {
+            $this->releaseOrchestratorLock();
+        }
+    }
+
+    /**
+     * @return list<array{name: string, status: string}>
+     */
+    private function runAllDueIsolatedUnlocked(): array
+    {
         $services = $this->getServices(null, false);
         $results = [];
         $spawner = null;
@@ -158,6 +196,50 @@ class BackgroundServiceRunner
             $results[] = $spawner->spawn($service['name'], false, $timeoutSeconds);
         }
         return $results;
+    }
+
+    /**
+     * Try to acquire the DB-wide orchestrator lock. Returns true on
+     * success (caller must release), false if another orchestrator is
+     * already running. Uses a session-level advisory lock (GET_LOCK)
+     * with a zero-second wait so the second concurrent caller fails
+     * fast rather than queueing.
+     */
+    protected function acquireOrchestratorLock(): bool
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT GET_LOCK(?, 0) AS got',
+            [self::ORCHESTRATOR_LOCK_NAME],
+            false,
+        );
+        // GET_LOCK returns 1 on acquire, 0 on timeout, NULL on error.
+        // ADOdb may return either the native int or a numeric string
+        // depending on driver mode; accept both forms without casting
+        // through mixed (which PHPStan flags at level 9).
+        if (!is_array($row)) {
+            return false;
+        }
+        $got = $row['got'] ?? null;
+        return $got === 1 || $got === '1';
+    }
+
+    /**
+     * Release the orchestrator lock. Swallows errors because the lock
+     * auto-releases when the DB session closes; a failure here would
+     * at worst delay the next orchestrator tick by up to one cron
+     * interval (when FPM recycles the connection).
+     */
+    protected function releaseOrchestratorLock(): void
+    {
+        try {
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT RELEASE_LOCK(?) AS released',
+                [self::ORCHESTRATOR_LOCK_NAME],
+            );
+        } catch (SqlQueryException) {
+            // Best-effort: GET_LOCK is session-scoped and will auto-release
+            // when the PHP process (and therefore the DB connection) ends.
+        }
     }
 
     /**

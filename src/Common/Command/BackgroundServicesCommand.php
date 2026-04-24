@@ -176,11 +176,31 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
      * human-readable path so a child process's success/failure is
      * observable both in its JSON line and its exit code.
      *
+     * Reflects the per-invocation nonce the parent orchestrator passed
+     * via OPENEMR_BG_NONCE so the parent can authenticate this status
+     * line as its own and reject any forged line printed by the
+     * service's own code (e.g. from register_shutdown_function). The
+     * nonce is absent when the command is invoked directly (CLI, or
+     * via the REST single-service path, which doesn't use the JSON
+     * wire format); in that case we emit an empty string and the
+     * child-path consumer never checks it.
+     *
+     * Uses JSON_THROW_ON_ERROR so an encoding failure (e.g. a service
+     * name containing invalid UTF-8) surfaces as a non-zero exit with
+     * a visible JsonException rather than the parent silently coercing
+     * the result to 'error' because `(string) false` is an empty line.
+     *
      * @param array{name: string, status: string} $result
      */
     private function emitJsonResult(array $result, SymfonyStyle $io): int
     {
-        $io->writeln((string) json_encode($result));
+        $nonceEnv = getenv('OPENEMR_BG_NONCE');
+        $payload = [
+            'name' => $result['name'],
+            'status' => $result['status'],
+            'nonce' => is_string($nonceEnv) ? $nonceEnv : '',
+        ];
+        $io->writeln(json_encode($payload, JSON_THROW_ON_ERROR));
         return ($result['status'] === 'error' || $result['status'] === 'not_found')
             ? Command::FAILURE
             : Command::SUCCESS;

@@ -303,6 +303,10 @@ class BackgroundServicesCommandTest extends TestCase
      * line on stdout and suppresses human-readable output. This is the
      * contract consumed by SymfonyBackgroundServiceSpawner in the
      * run-all-due orchestrator.
+     *
+     * The JSON also reflects the per-invocation nonce from OPENEMR_BG_NONCE
+     * so the parent orchestrator can authenticate the status line against
+     * forged lines printed by the service's own shutdown handlers (CWE-345).
      */
     public function testRunEmitsJsonLineWhenJsonOptionGiven(): void
     {
@@ -312,7 +316,12 @@ class BackgroundServicesCommandTest extends TestCase
         );
         $tester = $this->createTester($command);
 
-        $tester->execute(['action' => 'run', '--name' => 'phimail', '--json' => true]);
+        putenv('OPENEMR_BG_NONCE=nonce-under-test');
+        try {
+            $tester->execute(['action' => 'run', '--name' => 'phimail', '--json' => true]);
+        } finally {
+            putenv('OPENEMR_BG_NONCE');
+        }
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
         $output = trim($tester->getDisplay());
@@ -324,7 +333,10 @@ class BackgroundServicesCommandTest extends TestCase
         ));
         $this->assertCount(1, $lines, "Expected exactly one output line in --json mode, got: {$output}");
         $decoded = json_decode($lines[0], true);
-        $this->assertSame(['name' => 'phimail', 'status' => 'executed'], $decoded);
+        $this->assertSame(
+            ['name' => 'phimail', 'status' => 'executed', 'nonce' => 'nonce-under-test'],
+            $decoded,
+        );
     }
 
     public function testRunJsonModePropagatesErrorExitCode(): void
@@ -335,6 +347,10 @@ class BackgroundServicesCommandTest extends TestCase
         );
         $tester = $this->createTester($command);
 
+        // No nonce set: the command emits an empty-string nonce, which
+        // the parent parser rejects. A direct CLI operator calling the
+        // command outside the orchestrator never parses the JSON, so
+        // the empty nonce is harmless in that path.
         $tester->execute(['action' => 'run', '--name' => 'phimail', '--json' => true]);
 
         $this->assertSame(Command::FAILURE, $tester->getStatusCode());
@@ -345,7 +361,7 @@ class BackgroundServicesCommandTest extends TestCase
         ));
         $this->assertCount(1, $lines);
         $this->assertSame(
-            ['name' => 'phimail', 'status' => 'error'],
+            ['name' => 'phimail', 'status' => 'error', 'nonce' => ''],
             json_decode($lines[0], true),
         );
     }
