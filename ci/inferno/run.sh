@@ -96,7 +96,8 @@ initialize_openemr() {
     install_configure
     "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-    # configure_api_globals  # disabled to test if snapshot has correct values
+    # Snapshot may not have API globals configured; ensure they're set
+    configure_api_globals
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
