@@ -46,10 +46,12 @@ jobs:
           echo 'has_codecov_token=false' >> "$GITHUB_OUTPUT"
         fi
 
-  # DEBUG: Simplified job to diagnose FHIR 500 errors
-  debug_fhir_endpoint:
+  inferno_bare_metal:
+    needs: check_secret
+    if: needs.check_secret.outputs.has_inferno_pat == 'true'
     runs-on: ubuntu-24.04
-    name: Debug FHIR Endpoint
+    name: Inferno Certification (Bare Metal)
+    timeout-minutes: 60
     env:
       ENVIRONMENT: ci
     services:
@@ -62,14 +64,33 @@ jobs:
           MYSQL_DATABASE: openemr
         ports:
           - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          token: ${{ secrets.INFERNO_PAT }}
 
       - name: Setup PHP
         uses: ./.github/actions/setup-php-composer
         with:
           php-version: '8.5'
+
+      - name: Build and start Inferno services
+        working-directory: ci/inferno
+        run: |
+          docker compose -f compose.bare-metal.yml build
+          docker compose -f compose.bare-metal.yml up --detach --wait
+
+      - name: Initialize Inferno
+        working-directory: ci/inferno
+        run: |
+          docker compose -f compose.bare-metal.yml exec -T inferno bundle exec inferno migrate
 
       - name: Run CLI installer
         run: ./cli install
@@ -85,19 +106,27 @@ jobs:
           --no-interaction
           -vvv
 
+      - name: Load test data snapshot
+        run: |
+          tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/openemr.sql
+
       - name: Configure globals for API
         run: |
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
-            INSERT INTO product_registration (opt_out) VALUES (1);
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
-            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
-            UPDATE globals SET gl_value = 'http://localhost:8080' WHERE gl_name = 'site_addr_oath';
+            INSERT INTO product_registration (opt_out) VALUES (1)
+              ON DUPLICATE KEY UPDATE opt_out = 1;
+            INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
+              ('rest_api', 0, '1'),
+              ('rest_fhir_api', 0, '1'),
+              ('rest_portal_api', 0, '1'),
+              ('oauth_password_grant', 0, '3'),
+              ('rest_system_scopes_api', 0, '1'),
+              ('site_addr_oath', 0, 'http://host.docker.internal:8080')
+            ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
           "
 
-      - name: Start server (bg)
+      - name: Start PHP server
         run: |
           php -S 0.0.0.0:8080 -t . public/index.php \
             > "${RUNNER_TEMP}/php-server.out.log" \
@@ -109,26 +138,35 @@ jobs:
                --fail --silent --show-error \
                -o /dev/null http://127.0.0.1:8080/
 
-      - name: Test FHIR metadata endpoint (smoke test)
-        run: |
-          echo "Testing /apis/default/fhir/metadata..."
-          curl -v http://127.0.0.1:8080/apis/default/fhir/metadata || true
+      - name: Test FHIR metadata endpoint
+        run: curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata | jq -r '.fhirVersion'
 
       - name: Run certification tests
         env:
-          OPENEMR_BASE_URL_API: http://localhost:8080
+          OPENEMR_BASE_URL_API: http://host.docker.internal:8080
+          INFERNO_BASE_URL: http://localhost:8000
         run: |
           vendor/bin/phpunit \
             --testsuite certification \
             --log-junit junit-certification.xml
 
-      - name: Show server stdout
+      - name: Show server logs
         if: ${{ !cancelled() }}
-        run: cat "${RUNNER_TEMP}/php-server.out.log"
+        run: |
+          echo '=== PHP Server stdout ==='
+          cat "${RUNNER_TEMP}/php-server.out.log" || true
+          echo '=== PHP Server stderr ==='
+          cat "${RUNNER_TEMP}/php-server.err.log" || true
 
-      - name: Show server stderr
+      - name: Show Inferno logs
         if: ${{ !cancelled() }}
-        run: cat "${RUNNER_TEMP}/php-server.err.log"
+        working-directory: ci/inferno
+        run: docker compose -f compose.bare-metal.yml logs
+
+      - name: Cleanup
+        if: always()
+        working-directory: ci/inferno
+        run: docker compose -f compose.bare-metal.yml down --volumes || true
 
   inferno_certification_test:
     needs: check_secret
