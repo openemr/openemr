@@ -31,6 +31,8 @@ services:
     ports:
       - "8000:80"
     command: [nginx, '-g', 'daemon off;']
+    depends_on:
+      - inferno
 
   redis:
     image: redis
