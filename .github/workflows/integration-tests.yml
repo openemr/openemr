@@ -16,14 +16,11 @@ permissions:
 
 jobs:
   test:
-    name: ${{ matrix.suite }} - ${{ matrix.php }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
         php:
           - '8.5'
-        suite:
-          - 'common'
 
 
     services:
@@ -73,19 +70,17 @@ jobs:
           --coverage-text
           --coverage-clover clover.xml
           --log-junit junit.xml
-          --testsuite ${{ matrix.suite }}
+          --testsuite common,controllers,fixtures,validators,unit
 
       - name: Upload coverage
         uses: codecov/codecov-action@v6
         if: ${{ !cancelled() }}
         with:
-          flags: ${{ matrix.suite }}
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results
         uses: codecov/codecov-action@v6
         if: ${{ !cancelled() }}
         with:
-          flags: ${{ matrix.suite }}
           report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
