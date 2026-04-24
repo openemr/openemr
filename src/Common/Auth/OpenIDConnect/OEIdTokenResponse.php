@@ -133,7 +133,10 @@ class OEIdTokenResponse extends BearerTokenResponse implements LoggerAwareInterf
         // to stay spec-compliant we echo them at the envelope level too.
         $extraParams['scope'] = $this->getScopeString($accessToken->getScopes());
 
-        $this->logger->debug('OEIdTokenResponse->getExtraParams() final params', ['params' => $extraParams]);
+        $this->logger->debug('OEIdTokenResponse->getExtraParams() built extra params', [
+            'keys' => array_keys($extraParams),
+            'has_id_token' => array_key_exists('id_token', $extraParams),
+        ]);
 
         return $extraParams;
     }
@@ -209,9 +212,8 @@ class OEIdTokenResponse extends BearerTokenResponse implements LoggerAwareInterf
             ->relatedTo($userId);
 
         if ($this->session->has('nonce')) {
-            $nonce = $this->session->get('nonce');
-            $this->logger->debug('OEIdTokenResponse->getBuilder() nonce found in session', ['nonce' => $nonce]);
-            $builder = $builder->withClaim('nonce', $nonce);
+            $this->logger->debug('OEIdTokenResponse->getBuilder() nonce found in session');
+            $builder = $builder->withClaim('nonce', $this->session->get('nonce'));
         } else {
             $this->logger->debug('OEIdTokenResponse->getBuilder() no nonce found in session');
         }

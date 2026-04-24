@@ -160,10 +160,7 @@ class OEIdTokenResponseTest extends TestCase
 
         $this->logger->expects($this->once())
             ->method('debug')
-            ->with(
-                'OEIdTokenResponse->getBuilder() nonce found in session',
-                ['nonce' => 'test-nonce']
-            );
+            ->with('OEIdTokenResponse->getBuilder() nonce found in session');
 
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->idTokenResponse);
