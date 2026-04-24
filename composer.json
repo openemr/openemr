@@ -292,6 +292,10 @@
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",
             "php -d memory_limit=1g vendor/bin/split-phpstan-baseline .phpstan/baseline/loader.php --no-error-count"
         ],
+        "phpstan-baseline-reset": [
+            "@php .phpstan/reset-baseline.php",
+            "@phpstan-baseline"
+        ],
         "phpunit-isolated": "phpunit -c phpunit-isolated.xml",
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
