@@ -3649,8 +3649,13 @@ class EncounterccdadispatchTable
                 $fields_str = implode(',', array_map(fn($v) => "'$v'", $field_ids));
 
                 $query = <<<SQL
-                    SELECT * FROM {$lbf}
-                    JOIN forms AS f ON f.pid = ? AND f.form_id = {$lbf}.form_id AND f.formdir = ? AND {$lbf}.field_id IN ({$fields_str})
+                    SELECT *
+                    FROM {$lbf}
+                    JOIN forms AS f
+                    ON f.pid = ?
+                    AND f.form_id = {$lbf}.form_id
+                    AND f.formdir = ?
+                    AND {$lbf}.field_id IN ({$fields_str})
                     WHERE deleted = 0
                     SQL;
                 $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
