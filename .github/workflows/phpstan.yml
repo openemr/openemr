@@ -118,10 +118,12 @@ jobs:
           echo 'Or run `composer phpstan-baseline` to regenerate the baseline locally.'
         } >> "$GITHUB_STEP_SUMMARY"
         exit 1
-    # Upload the resulting baseline as an artifact. This is intended mostly for
-    # debugging and isn't actively used by GH workflows.
+    # Upload the resulting baseline as an artifact. On PR events this runs on
+    # every outcome so the `phpstan-baseline-diff.yml` workflow can download
+    # the regenerated baseline and post a comparison vs master. On push events
+    # it only runs on failure, matching the prior debugging-oriented behavior.
     - name: Upload PHPStan Baseline
-      if: failure()
+      if: always() && (github.event_name == 'pull_request' || failure())
       uses: actions/upload-artifact@v7
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
