@@ -83,6 +83,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
+        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -120,6 +121,7 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
     try {
+        /** @var \Omnipay\Stripe\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -133,7 +135,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['transId'] = $response->getTransactionReference();
         $cc['cardNumber'] = "******** " . $r['last4'];
         $cc['cc_type'] = $r['brand'];
-        $cc['zip'] = $r->address_zip;
+        $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
         $invoice = $_POST['invValues'] ?? '';
     } catch (\Throwable $ex) {

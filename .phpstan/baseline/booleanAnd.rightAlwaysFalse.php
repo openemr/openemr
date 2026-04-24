@@ -9,6 +9,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Right side of && is always false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../setup.php',
 ];
 

@@ -38,7 +38,6 @@ return ['includes' => [
     __DIR__ . '/classConstant.unused.php',
     __DIR__ . '/clone.nonObject.php',
     __DIR__ . '/constant.deprecated.php',
-    __DIR__ . '/constant.notFound.php',
     __DIR__ . '/deadCode.unreachable.php',
     __DIR__ . '/doWhile.alwaysTrue.php',
     __DIR__ . '/echo.nonString.php',

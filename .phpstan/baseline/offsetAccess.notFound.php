@@ -332,6 +332,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'brand\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'fingerprint\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'last4\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, string, numeric\\-string\\}\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
@@ -740,6 +755,21 @@ $ignoreErrors[] = [
     'message' => '#^Offset 0 might not exist on array\\{\\}\\|array\\{non\\-empty\\-string\\}\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'brand\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/paylib.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'fingerprint\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/paylib.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'last4\' might not exist on array\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',

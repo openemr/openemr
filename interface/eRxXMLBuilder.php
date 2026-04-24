@@ -18,7 +18,9 @@ require_once(__DIR__ . "/../library/patient.inc.php");
 
 class eRxXMLBuilder
 {
+    /** @var ?eRxGlobals */
     private $globals;
+    /** @var ?eRxStore */
     private $store;
 
     private $document;
@@ -45,8 +47,8 @@ class eRxXMLBuilder
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  object  $globals The eRx Globals object to use for processing
-     * @return eRxPage          This object is returned for method chaining
+     * @param  eRxGlobals    $globals The eRx Globals object to use for processing
+     * @return eRxXMLBuilder          This object is returned for method chaining
      */
     public function setGlobals($globals)
     {
@@ -57,7 +59,7 @@ class eRxXMLBuilder
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return object The eRx Globals object to use for processing
+     * @return eRxGlobals The eRx Globals object to use for processing
      */
     public function getGlobals()
     {
@@ -66,8 +68,8 @@ class eRxXMLBuilder
 
     /**
      * Set Store to handle eRx cashed data
-     * @param  object  $store The eRx Store object to use for processing
-     * @return eRxPage        This object is returned for method chaining
+     * @param  eRxStore      $store The eRx Store object to use for processing
+     * @return eRxXMLBuilder        This object is returned for method chaining
      */
     public function setStore($store)
     {
@@ -78,7 +80,7 @@ class eRxXMLBuilder
 
     /**
      * Get Store for handling eRx cashed data
-     * @return object The eRx Store object to use for processing
+     * @return eRxStore The eRx Store object to use for processing
      */
     public function getStore()
     {
