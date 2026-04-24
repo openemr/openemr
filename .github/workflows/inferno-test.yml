@@ -46,12 +46,95 @@ jobs:
           echo 'has_codecov_token=false' >> "$GITHUB_OUTPUT"
         fi
 
+  # DEBUG: Simplified job to diagnose FHIR 500 errors
+  debug_fhir_endpoint:
+    runs-on: ubuntu-24.04
+    name: Debug FHIR Endpoint
+    services:
+      database:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: openemr
+          MYSQL_PASSWORD: openemr
+          MYSQL_DATABASE: openemr
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: '8.5'
+
+      - name: Run CLI installer
+        run: ./cli install
+          --db-root-user=root
+          --db-root-password=root
+          --db-host=127.0.0.1
+          --db-port=3306
+          --db-user=openemr
+          --db-password=openemr
+          --db-name=openemr
+          --oe-admin-username=admin
+          --oe-admin-password=pass
+          --no-interaction
+          -vvv
+
+      - name: Configure globals for API
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
+            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
+            UPDATE globals SET gl_value = 'http://localhost:8080' WHERE gl_name = 'site_addr_oath';
+          "
+
+      - name: Start server (bg)
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
+
+      - name: Wait for webserver
+        run: |
+          curl --retry-connrefused --retry 30 --retry-delay 1 \
+               --fail --silent --show-error \
+               -o /dev/null http://127.0.0.1:8080/
+
+      - name: Test FHIR metadata endpoint (smoke test)
+        run: |
+          echo "Testing /apis/default/fhir/metadata..."
+          curl -v http://127.0.0.1:8080/apis/default/fhir/metadata || true
+
+      - name: Run certification tests
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:8080
+        run: |
+          vendor/bin/phpunit \
+            --testsuite certification \
+            --log-junit junit-certification.xml
+
+      - name: Show server stdout
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.out.log"
+
+      - name: Show server stderr
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.err.log"
+
   inferno_certification_test:
     needs: check_secret
     runs-on: ubuntu-24.04
     name: Inferno Certification Test
     timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
-    if: needs.check_secret.outputs.has_inferno_pat == 'true'
+    # SHORT-CIRCUITED for debugging - restore when debug_fhir_endpoint issue is resolved
+    if: false && needs.check_secret.outputs.has_inferno_pat == 'true'
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
