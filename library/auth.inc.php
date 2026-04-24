@@ -62,16 +62,11 @@ if (
     $ip = collectIpAddresses();
     $ipRateLimiter->ensureTracked($ip['ip_string']);
 
-    /** @var array<string, string> $postData */
-    $postData = $_POST; // @phpstan-ignore openemr.forbiddenRequestGlobals
-    /** @var array<string, string> $getData */
-    $getData = $_GET; // @phpstan-ignore openemr.forbiddenRequestGlobals
-    $oidcLoginEvent = new OidcLoginRequestEvent($postData, $getData);
     $oidcIdToken = filter_input(INPUT_POST, 'oidc_id_token') ?? '';
     $isOidcAttempt = $oidcIdToken !== '';
 
-    // Check IP block status before OIDC dispatch
     if ($isOidcAttempt) {
+        // Check IP block status before OIDC dispatch
         $ipBlockStatus = $ipRateLimiter->checkBlocked($ip['ip_string']);
         if (!$ipBlockStatus->allowed) {
             $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
@@ -97,22 +92,33 @@ if (
             $session->set('loginfailure', 1);
             authLoginScreen();
         }
-    }
 
-    $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
-    /** @var OidcLoginRequestEvent $oidcLoginEvent */
-    $oidcLoginEvent = $dispatcher->dispatch($oidcLoginEvent, OidcLoginRequestEvent::EVENT_NAME);
+        // The dispatch is gated on $isOidcAttempt so a misregistered or buggy
+        // listener cannot authenticate a password/Google submission, which would
+        // bypass the IP block + CSRF checks above.
+        /** @var array<string, string> $postData */
+        $postData = $_POST; // @phpstan-ignore openemr.forbiddenRequestGlobals
+        /** @var array<string, string> $getData */
+        $getData = $_GET; // @phpstan-ignore openemr.forbiddenRequestGlobals
+        $oidcLoginEvent = new OidcLoginRequestEvent($postData, $getData);
 
-    if ($oidcLoginEvent->isHandled()) {
-        // OIDC module handled authentication
-        AuthUtils::setUserSessionVariables(
-            $oidcLoginEvent->getUsername(),
-            $oidcLoginEvent->getPasswordHash(),
-            $oidcLoginEvent->getUserInfo(),
-            $oidcLoginEvent->getAuthGroup(),
-        );
-        $ipRateLimiter->recordSuccessfulLogin($ip['ip_string']);
-        $login_success = true;
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        /** @var OidcLoginRequestEvent $oidcLoginEvent */
+        $oidcLoginEvent = $dispatcher->dispatch($oidcLoginEvent, OidcLoginRequestEvent::EVENT_NAME);
+
+        if ($oidcLoginEvent->isHandled()) {
+            AuthUtils::setUserSessionVariables(
+                $oidcLoginEvent->getUsername(),
+                $oidcLoginEvent->getPasswordHash(),
+                $oidcLoginEvent->getUserInfo(),
+                $oidcLoginEvent->getAuthGroup(),
+            );
+            $ipRateLimiter->recordSuccessfulLogin($ip['ip_string']);
+            $login_success = true;
+        }
+        // If $oidcIdToken was POSTed but no listener handled it, $login_success
+        // stays false and the failure handler below runs — we deliberately do
+        // NOT fall through to password auth for an OIDC submission.
     } elseif (
         OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
         !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
