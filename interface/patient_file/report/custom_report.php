@@ -818,34 +818,30 @@ function getContent()
             die(text($exception));
         }
 
-        try {
-            if ($PDF_FAX === 1) {
-                $fax_pdf = $pdf->Output($fn, 'S');
-                $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
-                file_put_contents($tmp_file, $fax_pdf);
-                echo $tmp_file;
-                return;
-            }
-            if ($archive_name !== '' && count($staged_docs) > 0) {
-                $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
-                header('Content-Description: File Transfer');
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header("Cache-control: private");
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header("Content-Type: application/zip; charset=utf-8");
-                header("Content-Length: " . filesize($archive_name));
-                header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+        if ($PDF_FAX === 1) {
+            $fax_pdf = $pdf->Output($fn, 'S');
+            $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
+            file_put_contents($tmp_file, $fax_pdf);
+            echo $tmp_file;
+            return;
+        }
+        if ($archive_name !== '' && count($staged_docs) > 0) {
+            $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+            header('Content-Description: File Transfer');
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header("Cache-control: private");
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header("Content-Type: application/zip; charset=utf-8");
+            header("Content-Length: " . filesize($archive_name));
+            header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
 
-                ob_end_clean();
-                @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+            ob_end_clean();
+            @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
 
-                unlink($archive_name);
-            } else {
-                $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
-            }
-        } catch (MpdfException $exception) {
-            throw new \RuntimeException('PDF generation failed', 0, $exception);
+            unlink($archive_name);
+        } else {
+            $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
         }
         foreach ($tmp_files_remove as $tmp_file) {
             // Remove the tmp files that were created
