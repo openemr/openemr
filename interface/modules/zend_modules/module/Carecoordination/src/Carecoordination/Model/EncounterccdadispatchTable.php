@@ -3646,18 +3646,13 @@ class EncounterccdadispatchTable
                 }
 
                 $field_ids = explode(',', (string)$formTables_details[3]);
-                $fields_str = '';
-                foreach ($field_ids as $value) {
-                    if ($fields_str != '') {
-                        $fields_str .= ",";
-                    }
+                $fields_str = implode(',', array_map(fn($v) => "'$v'", $field_ids));
 
-                    $fields_str .= "'$value'";
-                }
-
-                $query = "select * from " . $lbf . "
-                join forms as f on f.pid = ? AND f.form_id = " . $lbf . ".form_id AND f.formdir = ? AND " . $lbf . ".field_id IN (" . $fields_str . ")
-                where deleted = 0";
+                $query = <<<SQL
+                    select * from {$lbf}
+                    join forms as f on f.pid = ? AND f.form_id = {$lbf}.form_id AND f.formdir = ? AND {$lbf}.field_id IN ({$fields_str})
+                    where deleted = 0
+                    SQL;
                 $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
 
                 foreach ($result as $row) {
