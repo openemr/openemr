@@ -20,6 +20,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once("gacl_admin.inc.php");
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 //GET takes precedence.
 $object_type = !empty($_GET['object_type']) ? $_GET['object_type'] : $_POST['object_type'];
 
@@ -89,7 +93,7 @@ switch ($postAction) {
         break;
     default:
         //Grab section name
-        $query = "select name from $object_sections_table where value = ". $db->qstr($_GET['section_value']);
+        $query = "select name from $object_sections_table where value = ". $db->qStr($_GET['section_value']);
         $section_name = $db->GetOne($query);
 
         $query = "select
@@ -99,9 +103,9 @@ switch ($postAction) {
                                     order_value,
                                     name
                         from    $object_table
-                        where   section_value=". $db->qstr($_GET['section_value']) ."
+                        where   section_value=". $db->qStr($_GET['section_value']) ."
                         order by order_value";
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+        $rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
         foreach ($rows as $row) {
@@ -116,6 +120,7 @@ switch ($postAction) {
                                             ];
         }
 
+        $new_objects = [];
         for($i=0; $i < 5; $i++) {
                 $new_objects[] = [
                                                 'id' => $i,
