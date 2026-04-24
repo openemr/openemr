@@ -125,14 +125,14 @@ class BulkPatientExport311APITest extends TestCase
         //   jwks: (optional will use inferno default JWKS if not provided)
         //   encryption_algorithm (ES384[default] or RS384)
         $credentialsArray = [
-            'token_url' => self::$baseUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
+            'token_url' => self::$infernoOpenEmrUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
             , 'auth_type' => 'backend_services'
             , 'encryption_algorithm' => self::ENCRYPTION_ALGORITHM_RS384
             , 'requested_scopes' => BulkAPITestClient::SYSTEM_SCOPES
             , 'client_id' => $clientId
         ];
         return [
-            ['name' => 'bulk_server_url', 'value' => self::$baseUrl . '/apis/default/fhir'],
+            ['name' => 'bulk_server_url', 'value' => self::$infernoOpenEmrUrl . '/apis/default/fhir'],
             ['name' => 'bulk_timeout', 'value' => 180],
             ['name' => 'group_id', 'value' => self::DEFAULT_FHIR_GROUP_ID],
             ['name' => 'bulk_patient_ids_in_group', 'value' => self::PATIENT_IDS],

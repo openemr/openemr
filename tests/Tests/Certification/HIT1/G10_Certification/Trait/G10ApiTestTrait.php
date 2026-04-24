@@ -39,6 +39,8 @@ trait G10ApiTestTrait
 
     private static ApiTestClient $testClient;
     private static string $baseUrl;
+    /** @var string URL for Inferno to reach OpenEMR (may differ from $baseUrl in split host/docker setups) */
+    private static string $infernoOpenEmrUrl;
 
     private static Client $infernoClient;
 
@@ -57,6 +59,9 @@ trait G10ApiTestTrait
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         self::$testClient = new ApiTestClient($baseUrl, false);
         self::$baseUrl = $baseUrl;
+        // URL for Inferno (in Docker) to reach OpenEMR - defaults to $baseUrl but can be overridden
+        // for split host/docker setups where PHPUnit uses localhost but Inferno needs host.docker.internal
+        self::$infernoOpenEmrUrl = getenv("OPENEMR_BASE_URL_INFERNO", true) ?: $baseUrl;
         $infernoUrl = getenv("INFERNO_BASE_URL", true) ?: self::DEFAULT_INFERNO_BASE_URL;
         self::$infernoClient = new Client(['timeout' => self::MAX_POLLING_ATTEMPTS, 'base_uri' => $infernoUrl . '/api/']);
         $suiteResponse = self::$infernoClient->get('test_suites/' . self::TEST_SUITE);
