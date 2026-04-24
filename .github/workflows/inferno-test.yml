@@ -50,6 +50,8 @@ jobs:
   debug_fhir_endpoint:
     runs-on: ubuntu-24.04
     name: Debug FHIR Endpoint
+    env:
+      ENVIRONMENT: ci
     services:
       database:
         image: mysql:8
