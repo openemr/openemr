@@ -8,6 +8,9 @@ on:
       - master
       - rel-*
 
+concurrency:
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   ENVIRONMENT: ci
 
@@ -16,13 +19,17 @@ permissions:
 
 jobs:
   test:
+    name: Integration Tests (PHP ${{ matrix.php }}, ${{ matrix.database.name }})
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         database:
-          - image: mysql:9
+          - name: MySQL 9
+            image: mysql:9
             health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - image: mariadb:12
+          - name: MariaDB 12
+            image: mariadb:12
             health-cmd: "healthcheck.sh --connect --innodb_initialized"
         php:
           - '8.5'
@@ -37,7 +44,7 @@ jobs:
           MYSQL_PASSWORD: topsecret
           MYSQL_DATABASE: openemr_test
         options: >-
-          --health-cmd="${{ matrix.db.health-cmd }}"
+          --health-cmd="${{ matrix.database.health-cmd }}"
           --health-interval=3s
           --health-timeout=2s
           --health-retries=20
