@@ -16,8 +16,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/group.inc.php");
 require_once("functions.php");
 function group_attendance_report($pid, $encounter, $cols, $id): void
 {

@@ -15,11 +15,11 @@
  */
 
 require_once '../../globals.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -37,7 +37,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
+    <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
@@ -59,7 +59,7 @@ if (!empty($_POST['form_save'])) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ippf_issues.inc.php';
+        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ippf_issues.inc.php';
     }
 }
 
@@ -402,7 +402,7 @@ function getCodeText($code)
     ///////////
     ?>
 
-    <?php require OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"; ?>
+    <?php require OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"; ?>
 
     ///////////////////////////
     function onActiveCodeSelected() {
@@ -719,7 +719,7 @@ function getCodeText($code)
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+            <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
             ?>
         });

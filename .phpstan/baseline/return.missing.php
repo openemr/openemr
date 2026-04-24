@@ -117,16 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_auth\\(\\) should return mixed but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:_send_sock\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Savant3_Filter_trimwhitespace\\:\\:replace\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php',

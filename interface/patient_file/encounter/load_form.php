@@ -52,11 +52,11 @@ if ($telemetryService->isTelemetryEnabled()) {
     $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',
         'eventLabel' => $_GET['formname'] ?? 'Unknown',
-        'eventUrl' => str_replace(OEGlobalsBag::getInstance()->get('fileroot'), '', $file),
+        'eventUrl' => str_replace(OEGlobalsBag::getInstance()->getProjectDir(), '', $file),
         'eventTarget' => $pageName,
     ]);
 }
 
 if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled') && !($_GET['formname'] == 'fee_sheet')) { ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

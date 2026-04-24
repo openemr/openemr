@@ -2398,36 +2398,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(c mixed  Unicode character\\.\\)\\: Unexpected token "mixed", expected variable at offset 64 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(from mixed  The source/sender address\\)\\: Unexpected token "mixed", expected variable at offset 93 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  Input text of message\\.\\)\\: Unexpected token "mixed", expected variable at offset 79 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  The text content of the message\\)\\: Unexpected token "mixed", expected variable at offset 144 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(to mixed  The destination address\\.\\)\\: Unexpected token "mixed", expected variable at offset 43 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(token mixed  The 16 character voucher number\\.\\)\\: Unexpected token "mixed", expected variable at offset 60 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(type audit array params for portal audits
         \\$audit \\= Array\\(\\);
         \\$audit\\[\'patient_id\'\\]\\="";
@@ -3019,18 +2989,6 @@ $ignoreErrors[] = [
          string \\(optional\\) \\$action the user requested action \\(if not provided will use router\\-\\>GetRoute\\(\\)\\)\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 323 on line 9$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         Array an array of Phreezable objects, obtained for example, using DataSet\\-\\>ToObjectArray\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 382 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(
-         string \\(optional\\) The title of the report\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 578 on line 15$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
@@ -4444,26 +4402,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(\\<string, ISearchField\\> \\$openEMRSearchParameters OpenEMR search fields\\)\\: Unexpected token "\\<", expected type at offset 86 on line 3$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(The text of the office note\\.\\)\\: Unexpected token "text", expected variable at offset 63 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$body New id\\.\\)\\: Unexpected token "\\$body", expected type at offset 103 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 112 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 113 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(@isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary\\)\\: Unexpected token "@isUuid", expected type at offset 118 on line 4$#',

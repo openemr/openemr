@@ -17,7 +17,8 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
+use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
@@ -30,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServicesCommand extends Command implements IGlobalsAware
 {
@@ -40,12 +41,13 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
     {
         $this
             ->setName('background:services')
-            ->setDescription('List, run, or generate crontab entries for background services')
+            ->setDescription('List, run, unlock, or generate crontab entries for background services')
             ->setDefinition(
                 new InputDefinition([
-                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, or crontab'),
-                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "run")'),
-                    new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run")'),
+                    new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, unlock, or crontab'),
+                    new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "unlock"; for "run", if omitted, runs all services that are due)'),
+                    new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run"; ignored without --name)'),
+                    new InputOption('json', null, InputOption::VALUE_NONE, 'Emit a single JSON result line on stdout (for "run" with --name); suppresses human-readable output'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
                 ])
             );
@@ -64,6 +66,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return match ($action) {
             'list' => $this->handleList($io),
             'run' => $this->handleRun($input, $io),
+            'unlock' => $this->handleUnlock($input, $io),
             'crontab' => $this->handleCrontab($input, $io),
             default => $this->handleUnknownAction($action, $io),
         };
@@ -84,7 +87,10 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
                 $s['name'],
                 $s['title'],
                 (int) $s['active'] !== 0 ? 'yes' : 'no',
-                (int) $s['running'] === 1 ? 'yes' : 'no',
+                // Prefer the SQL-computed liveness flag over the legacy
+                // `running` column so stuck locks from crashed workers
+                // don't display as "yes" indefinitely.
+                (int) ($s['lease_is_live'] ?? $s['running']) === 1 ? 'yes' : 'no',
                 $this->formatInterval((int) $s['execute_interval']),
                 $s['next_run'],
             ], $services),
@@ -95,15 +101,47 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
 
     private function handleRun(InputInterface $input, SymfonyStyle $io): int
     {
-        $name = $input->getOption('name');
-        if (!is_string($name) || $name === '') {
-            $io->error('The --name option is required for the "run" action.');
+        $nameRaw = $input->getOption('name');
+        $name = is_string($nameRaw) && $nameRaw !== '' ? $nameRaw : null;
+        $forceRequested = (bool) $input->getOption('force');
+        $json = (bool) $input->getOption('json');
+
+        // --json is the wire format the run-all-due orchestrator uses to
+        // parse child subprocess results (see BackgroundServiceRunner and
+        // SymfonyBackgroundServiceSpawner). It is only meaningful when
+        // running a single named service. The run-all-due path doesn't
+        // go through this command's stdout.
+        if ($json && $name === null) {
+            $io->error('--json requires --name (it is only meaningful for a single-service run).');
             return Command::FAILURE;
         }
 
-        $force = (bool) $input->getOption('force');
-        $runner = new BackgroundServiceRunner();
-        $results = $runner->run($name, $force);
+        // --force is only meaningful when targeting a specific --name. Without
+        // a name, honoring --force would switch BackgroundServiceRunner into
+        // "all services including manual-mode, ignore intervals" mode, which
+        // contradicts the documented "runs all services that are due"
+        // semantics and the help text. Warn and drop the flag so the run-all
+        // path is always a pure cron-equivalent advance.
+        if ($name === null && $forceRequested) {
+            $io->warning('--force is ignored without --name; running only services that are due.');
+        }
+        $force = $name !== null && $forceRequested;
+
+        // Capture the name as a non-nullable local before the run so the
+        // JSON emit path below has a definite string fallback for the
+        // "service not found / empty results" case. The early return
+        // above guarantees name is non-null whenever $json is true.
+        if ($json && $name !== null) {
+            $result = $this->createRunner()->run($name, $force)[0] ?? ['name' => $name, 'status' => 'error'];
+            return $this->emitJsonResult($result, $io);
+        }
+
+        $results = $this->createRunner()->run($name, $force);
+
+        if ($results === []) {
+            $io->info('No background services were due to run.');
+            return Command::SUCCESS;
+        }
 
         foreach ($results as $result) {
             match ($result['status']) {
@@ -117,12 +155,60 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             };
         }
 
-        $status = $results[0]['status'] ?? 'not_found';
-        return match ($status) {
-            'executed' => Command::SUCCESS,
-            'skipped', 'already_running', 'not_due' => 2,
-            default => Command::FAILURE,
-        };
+        // Non-error outcomes are success at the process level. not_due,
+        // already_running, and skipped are expected states during any cron
+        // tick denser than the service interval (or when a prior run is
+        // still in progress), not failures. Only hard errors and not_found
+        // produce a non-zero exit code so Kubernetes CronJobs, systemd, and
+        // cron MAILTO don't treat routine no-ops as failures. See #11664,
+        // #11677, opencoreemr/chart-oce-openemr#114.
+        foreach ($results as $result) {
+            if ($result['status'] === 'error' || $result['status'] === 'not_found') {
+                return Command::FAILURE;
+            }
+        }
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Emit the single-service result as one JSON line for consumption by
+     * the run-all-due orchestrator. The exit code matches the
+     * human-readable path so a child process's success/failure is
+     * observable both in its JSON line and its exit code.
+     *
+     * Reflects the per-invocation nonce the parent orchestrator passed
+     * via OPENEMR_BG_NONCE so the parent can authenticate this status
+     * line as its own and reject any forged line printed by the
+     * service's own code (e.g. from register_shutdown_function). The
+     * nonce is absent when the command is invoked directly (CLI, or
+     * via the REST single-service path, which doesn't use the JSON
+     * wire format); in that case we emit an empty string and the
+     * child-path consumer never checks it.
+     *
+     * Uses JSON_THROW_ON_ERROR so an encoding failure (e.g. a service
+     * name containing invalid UTF-8) surfaces as a non-zero exit with
+     * a visible JsonException rather than the parent silently coercing
+     * the result to 'error' because `(string) false` is an empty line.
+     *
+     * @param array{name: string, status: string} $result
+     */
+    private function emitJsonResult(array $result, SymfonyStyle $io): int
+    {
+        $nonceEnv = getenv('OPENEMR_BG_NONCE');
+        $payload = [
+            'name' => $result['name'],
+            'status' => $result['status'],
+            'nonce' => is_string($nonceEnv) ? $nonceEnv : '',
+        ];
+        $io->writeln(json_encode($payload, JSON_THROW_ON_ERROR));
+        return ($result['status'] === 'error' || $result['status'] === 'not_found')
+            ? Command::FAILURE
+            : Command::SUCCESS;
+    }
+
+    protected function createRunner(): BackgroundServiceRunner
+    {
+        return new BackgroundServiceRunner();
     }
 
     private function handleCrontab(InputInterface $input, SymfonyStyle $io): int
@@ -170,32 +256,84 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         return Command::SUCCESS;
     }
 
+    /**
+     * Clear a service's lease unconditionally.
+     *
+     * Normally not needed — crashed workers' leases expire and are stolen
+     * automatically on the next tick. Use this when a service is genuinely
+     * hung mid-run and an operator has verified it is not making progress
+     * but doesn't want to wait out the lease (see GH #11661).
+     */
+    private function handleUnlock(InputInterface $input, SymfonyStyle $io): int
+    {
+        $name = $input->getOption('name');
+        if (!is_string($name) || $name === '') {
+            $io->error('The --name option is required for the "unlock" action.');
+            return Command::FAILURE;
+        }
+
+        if (!$this->clearLease($name)) {
+            $io->error("Service '{$name}' not found.");
+            return Command::FAILURE;
+        }
+
+        $io->success("Lease cleared for service '{$name}'.");
+        return Command::SUCCESS;
+    }
+
     private function handleUnknownAction(string $action, SymfonyStyle $io): int
     {
-        $io->error("Unknown action '{$action}'. Valid actions: list, run, crontab");
+        $io->error("Unknown action '{$action}'. Valid actions: list, run, unlock, crontab");
         return Command::FAILURE;
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * Clear the lease (and legacy running flag) for a service. The UPDATE
+     * is executed unconditionally; callers that need to distinguish "already
+     * clear" from "actively cleared" should check lock state beforehand.
+     *
+     * Returns true when the service exists (its lease is now clear either
+     * way), or false when no service with that name exists.
+     */
+    protected function clearLease(string $name): bool
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `background_services` SET `running` = 0, `lock_expires_at` = NULL WHERE `name` = ?',
+            [$name],
+            true,
+        );
+        // The UPDATE runs unconditionally; its affected-row count would
+        // report 0 for "already clear" and 1 for "actively cleared",
+        // which is a distinction the caller doesn't care about. A
+        // dedicated existence check lets us report "not found" vs
+        // "service exists (lease is clear either way)".
+        $exists = QueryUtils::fetchRecordsNoLog(
+            'SELECT 1 FROM `background_services` WHERE `name` = ? LIMIT 1',
+            [$name],
+        );
+        return $exists !== [];
+    }
+
+    /**
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' ORDER BY sort_order',
             [],
         );
     }
 
     /**
-     * @return list<BackgroundServicesRow>
+     * @return list<BackgroundServicesQueryRow>
      */
     protected function fetchActiveServices(): array
     {
-        /** @var list<BackgroundServicesRow> */
+        /** @var list<BackgroundServicesQueryRow> */
         return QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM background_services WHERE active = 1 AND execute_interval > 0 ORDER BY sort_order',
+            BackgroundServiceRegistry::SELECT_WITH_LEASE_LIVE . ' WHERE `active` = 1 AND `execute_interval` > 0 ORDER BY `sort_order`',
             [],
         );
     }

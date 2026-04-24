@@ -69,7 +69,7 @@ td {
 
 <script>
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
  // This is invoked when our Search button is clicked.
  function dosearch() {

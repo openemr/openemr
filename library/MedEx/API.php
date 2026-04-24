@@ -125,9 +125,14 @@ class Practice extends Base
     {
         $fields2 = [];
         $fields3 = [];
-        $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
-        $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
-        $fields2['callback_url'] = $callback;
+        // Build the callback URL from the globally-configured site address
+        // rather than inferring it from $_SERVER. $_SERVER is unavailable when
+        // this service runs via `bin/console background:services run`, which
+        // is the supported non-browser entry point. qualified_site_addr is
+        // composed from site_addr_oath + webroot in interface/globals.php and
+        // respects operator configuration in either environment.
+        $fields2['callback_url'] = OEGlobalsBag::getInstance()->getString('qualified_site_addr')
+            . '/library/MedEx/MedEx.php';
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlQuery($sqlQuery);
         $providers = explode('|', (string) $my_status['ME_providers']);
@@ -1050,7 +1055,7 @@ class Events extends Base
             // this event is forced to NOT REPEAT
             $args['form_repeat'] = "0";
             $args['recurrspec'] = $noRecurrspec;
-            $args['form_enddate'] = "0000-00-00";
+            $args['form_enddate'] = null;
             //$args['prefcatid'] = (int)$appt['prefcatid'];
 
             $sql = "INSERT INTO openemr_postcalendar_events ( " .
@@ -1257,7 +1262,7 @@ class Events extends Base
 
                         if ($excluded == false) {
                             $event['pc_eventDate'] = $occurrence;
-                            $event['pc_endDate'] = '0000-00-00';
+                            $event['pc_endDate'] = null;
                             $events2[] = $event;
                             $data[] = $event['pc_eventDate'];
                         }
@@ -1507,7 +1512,7 @@ class Display extends Base
         function toggle_menu() {
                 var x = document.getElementById('hide_nav');
                 if (x.style.display === 'none') {
-                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'show',
                         success: function (data) {
                             x.style.display = 'block';
@@ -1515,7 +1520,7 @@ class Display extends Base
                         });
 
                 } else {
-                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'hide',
                         success: function (data) {
                             x.style.display = 'none';
@@ -1527,7 +1532,7 @@ class Display extends Base
 
         function SMS_bot_list() {
             top.restoreSession();
-            var myWindow = window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
+            var myWindow = window.open('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
             myWindow.focus();
             return false;
         }
@@ -1559,7 +1564,7 @@ class Display extends Base
                                     } else {
                                         ?>
                                         <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                        <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                        <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
                                     <?php } ?>
                                  </ul>
                             </li>
@@ -1568,13 +1573,13 @@ class Display extends Base
                         <li class="nav-item dropdown">
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
                                 <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                             </ul>
                         </li>
@@ -2055,7 +2060,7 @@ class Display extends Base
     <script>
         function toggleRcbSelectors() {
             if ($("#rcb_selectors").css('display') === 'none') {
-                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'block',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2063,7 +2068,7 @@ class Display extends Base
                     }
                 });
             } else {
-                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'none',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2077,7 +2082,7 @@ class Display extends Base
         function SMS_bot(pid) {
             top.restoreSession();
             pid = pid.replace('recall_','');
-            window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+            window.open('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }
         $(function () {
@@ -2087,7 +2092,7 @@ class Display extends Base
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -2813,7 +2818,7 @@ class Display extends Base
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
-                        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

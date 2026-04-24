@@ -26,6 +26,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
@@ -249,7 +250,7 @@ class EncounterccdadispatchController extends AbstractActionController
                         ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
-                    $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
+                    $xml = XmlUtils::loadString($content);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.

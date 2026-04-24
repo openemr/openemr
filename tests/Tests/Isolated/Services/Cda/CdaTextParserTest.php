@@ -46,6 +46,27 @@ class CdaTextParserTest extends TestCase
 </ClinicalDocument>
 XML;
 
+    private const XML_WITHOUT_NAMESPACE = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="18776-5" codeSystem="2.16.840.1.113883.6.1"/>
+          <list>
+            <item ID="goal1">
+              <caption>Goal A</caption>
+              Some text content
+            </item>
+          </list>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>
+XML;
+
     private const XML_NESTED_LISTS = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <ClinicalDocument xmlns="urn:hl7-org:v3">
@@ -100,6 +121,22 @@ XML;
         $this->assertStringContainsString('Top level text', $notes[0]['content']);
         $this->assertSame('child1', $notes[1]['id']);
         $this->assertStringContainsString('Nested text', $notes[1]['content']);
+    }
+
+    public function testParseSectionByCodeWithoutNamespaceExtractsItems(): void
+    {
+        // Regression: previously the list XPath unconditionally contained
+        // `ns:list`, so a document without a default namespace referenced an
+        // unregistered prefix and DOMXPath::query() returned false for the
+        // entire branch, dropping list items silently.
+        $parser = new CdaTextParser(self::XML_WITHOUT_NAMESPACE);
+        /** @var list<array{id: string, caption: string, content: string}> $notes */
+        $notes = $parser->parseSectionByCode(self::SECTION_CODE);
+
+        $this->assertCount(1, $notes);
+        $this->assertSame('goal1', $notes[0]['id']);
+        $this->assertSame('Goal A', $notes[0]['caption']);
+        $this->assertStringContainsString('Some text content', $notes[0]['content']);
     }
 
     public function testParseSectionByCodeWithUnknownCodeReturnsEmpty(): void

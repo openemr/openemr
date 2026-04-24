@@ -22,10 +22,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 require_once("$srcdir/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
@@ -278,7 +278,6 @@ function getContent()
             // include ALL form's report.php files
             $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
             while ($result = sqlFetchArray($inclookupres)) {
-                // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
                 $formdir = $result['formdir'];
             }
 
@@ -554,7 +553,7 @@ function getContent()
                                     $tmp_files_remove[] = $from_file_tmp_web_name;
                                     echo " /><br /><br />";
                                 } else {
-                                    echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') .
+                                    echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() .
                                         "/controller.php?document&retrieve&patient_id=&document_id=" .
                                         attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
                                 }
@@ -625,7 +624,7 @@ function getContent()
                                         if ($extension === '.pdf' || $extension === '.zip') {
                                             echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
                                         } else {
-                                            echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                            echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                                         }
                                     }
                                 }
@@ -819,59 +818,30 @@ function getContent()
             die(text($exception));
         }
 
-        if ($PDF_OUTPUT == 1) {
-            try {
-                if ($PDF_FAX === 1) {
-                    $fax_pdf = $pdf->Output($fn, 'S');
-                    $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
-                    file_put_contents($tmp_file, $fax_pdf);
-                    echo $tmp_file;
-                    exit();
-                } else {
-                    if (!empty($archive_name) && count($staged_docs) > 0) {
-                        $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
-                        header('Content-Description: File Transfer');
-                        header('Content-Transfer-Encoding: binary');
-                        header('Expires: 0');
-                        header("Cache-control: private");
-                        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                        header("Content-Type: application/zip; charset=utf-8");
-                        header("Content-Length: " . filesize($archive_name));
-                        header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+        if ($PDF_FAX === 1) {
+            $fax_pdf = $pdf->Output($fn, 'S');
+            $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
+            file_put_contents($tmp_file, $fax_pdf);
+            echo $tmp_file;
+            return;
+        }
+        if ($archive_name !== '' && count($staged_docs) > 0) {
+            $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+            header('Content-Description: File Transfer');
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header("Cache-control: private");
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header("Content-Type: application/zip; charset=utf-8");
+            header("Content-Length: " . filesize($archive_name));
+            header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
 
-                        ob_end_clean();
-                        @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+            ob_end_clean();
+            @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
 
-                        unlink($archive_name);
-                    } else {
-                        $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
-                    }
-                }
-            } catch (MpdfException $exception) {
-                die(text($exception));
-            }
+            unlink($archive_name);
         } else {
-            // This is the case of writing the PDF as a message to the CMS portal.
-            $ptdata = getPatientData($pid, 'cmsportal_login');
-            $contents = $pdf->Output('', true);
-            echo "<html><head>\n";
-            Header::setupHeader();
-            echo "</head><body>\n";
-            $result = cms_portal_call([
-                'action' => 'putmessage',
-                'user' => $ptdata['cmsportal_login'],
-                'title' => xl('Your Clinical Report'),
-                'message' => xl('Please see the attached PDF.'),
-                'filename' => 'report.pdf',
-                'mimetype' => 'application/pdf',
-                'contents' => base64_encode((string) $contents)
-            ]);
-            if ($result['errmsg']) {
-                die(text($result['errmsg']));
-            }
-
-            echo "<p class='mt-3'>" . xlt('Report has been sent to the patient.') . "</p>\n";
-            echo "</body></html>\n";
+            $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
         }
         foreach ($tmp_files_remove as $tmp_file) {
             // Remove the tmp files that were created
@@ -880,7 +850,7 @@ function getContent()
     } else {
         ?>
         <?php if (!$printable) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
         <script>
             const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
             document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;

@@ -13,12 +13,18 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use InvalidArgumentException;
+use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Log\{
     LoggerInterface,
     NullLogger,
 };
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\Location;
+use OpenEMR\Services\Storage\Manager;
+use OpenEMR\Services\Storage\ManagerInterface;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Clock\ClockInterface;
@@ -109,6 +115,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ClockInterface::class,
+            // @phpstan-ignore openemr.deprecatedSqlFunction
             static fn() => SystemClock::fromSystemTimezone(),
         );
     }
@@ -163,6 +170,25 @@ class ServiceContainer
         return self::resolveOrCreate(
             StreamFactoryInterface::class,
             static fn() => new Psr17Factory(),
+        );
+    }
+
+    public static function getStorageManager(): ManagerInterface
+    {
+        return self::resolveOrCreate(
+            ManagerInterface::class,
+            static function () {
+                $manager = new Manager();
+                $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                foreach (Location::cases() as $location) {
+                    $path = $siteDir . '/' . $location->getDefaultPath();
+                    $manager->register(
+                        $location,
+                        new Filesystem(new LocalFilesystemAdapter($path)),
+                    );
+                }
+                return $manager;
+            },
         );
     }
 

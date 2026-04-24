@@ -2,6 +2,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
+use League\Csv\CannotInsertRecord;
 use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 use OpenEMR\BC\ServiceContainer;
@@ -71,7 +72,7 @@ class ControllerLog extends BaseController
                     $record['value'],
                     $record['new_value']
                 ]);
-            } catch (\Throwable $e) {
+            } catch (CannotInsertRecord $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
                 ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
             }

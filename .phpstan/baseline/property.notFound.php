@@ -457,16 +457,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property sms_clickatell\\:\\:\\$base\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property sms_clickatell\\:\\:\\$base_s\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property CacheMemCache\\:\\:\\$LastServerError\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',

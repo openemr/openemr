@@ -15,10 +15,27 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Background;
 
-use OpenEMR\Common\Database\TableTypes;
-
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * The `lease_is_live` field is computed at query time (e.g.
+ * `lock_expires_at > NOW() AS lease_is_live`) and is intentionally NOT part
+ * of the generated `BackgroundServicesRow` schema because it is not a table
+ * column. All callers of `fromDatabaseRow()` MUST include it so liveness is
+ * always derived from the DB clock — never from PHP's `time()`, which can
+ * drift from the MySQL session timezone.
+ *
+ * @phpstan-type BackgroundServicesQueryRow array{
+ *   name: string,
+ *   title: string,
+ *   active: numeric-string,
+ *   running: numeric-string,
+ *   next_run: string,
+ *   execute_interval: numeric-string,
+ *   function: string,
+ *   require_once: ?string,
+ *   sort_order: numeric-string,
+ *   lock_expires_at: ?string,
+ *   lease_is_live: ?numeric-string
+ * }
  */
 final readonly class BackgroundServiceDefinition
 {
@@ -32,11 +49,12 @@ final readonly class BackgroundServiceDefinition
         public readonly bool $active = false,
         public readonly bool $running = false,
         public readonly ?string $nextRun = null,
+        public readonly ?string $lockExpiresAt = null,
     ) {
     }
 
     /**
-     * @param BackgroundServicesRow $row
+     * @param BackgroundServicesQueryRow $row
      */
     public static function fromDatabaseRow(array $row): self
     {
@@ -48,13 +66,19 @@ final readonly class BackgroundServiceDefinition
             executeInterval: (int) $row['execute_interval'],
             sortOrder: (int) $row['sort_order'],
             active: (int) $row['active'] !== 0,
-            running: (int) $row['running'] > 0,
+            // `running` reflects the live lease — not the legacy `running`
+            // column, which can be stale (e.g. set to 1 by a worker that
+            // crashed before release). `lease_is_live` is computed in SQL
+            // using the DB's own clock, so reporting matches what
+            // acquireLock() will enforce.
+            running: (int) ($row['lease_is_live'] ?? 0) === 1,
             nextRun: $row['next_run'],
+            lockExpiresAt: $row['lock_expires_at'],
         );
     }
 
     /**
-     * @return BackgroundServicesRow
+     * @return BackgroundServicesQueryRow
      */
     public function toArray(): array
     {
@@ -68,6 +92,10 @@ final readonly class BackgroundServiceDefinition
             'function' => $this->function,
             'require_once' => $this->requireOnce,
             'sort_order' => (string) $this->sortOrder,
+            'lock_expires_at' => $this->lockExpiresAt,
+            // Emit the SQL-computed flag so a round-tripped row reports the
+            // same liveness after fromDatabaseRow() re-constructs it.
+            'lease_is_live' => $this->running ? '1' : '0',
         ];
     }
 }

@@ -62,7 +62,7 @@ if (php_sapi_name() === 'cli') {
 // so service can set some settings if needed on init.
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/appointments.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
@@ -328,8 +328,9 @@ function rc_sms_notification_cron_update_entry(NotificationChannel $channel, int
  * WHERE clause runs, causing duplicate email reminders. See issue #11477.
  *
  * Renamed from `cron_GetAlertPatientData()` to a module-prefixed name to avoid
- * a PHP case-insensitive collision with the legacy `cron_getAlertpatientData()`
- * in `modules/sms_email_reminder/cron_functions.php`.
+ * a PHP case-insensitive collision with a legacy `cron_getAlertpatientData()`
+ * that historically lived in the (now-removed) `modules/sms_email_reminder`
+ * module.
  *
  * @return list<array<mixed>>
  */

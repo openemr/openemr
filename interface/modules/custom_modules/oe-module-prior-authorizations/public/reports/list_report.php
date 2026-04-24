@@ -32,7 +32,7 @@ $patients = $data->listPatientAuths();
         // opens the demographic and encounter screens in a new window
         function openNewTopWindow(newpid) {
             top.restoreSession();
-            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
         }
     </script>
 </head>

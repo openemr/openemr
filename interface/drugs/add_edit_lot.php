@@ -327,7 +327,7 @@ if (!$drug_id) {
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
-                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -783,7 +783,7 @@ if (!$drug_id) {
     <script>
         <?php
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
             echo " window.close();\n";
         }
         ?>

@@ -7,6 +7,7 @@ use Laminas\Code\Generator\DocBlock\Tag\PropertyTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
+use OpenEMR\Common\Utils\XmlUtils;
 
 class Generator
 {
@@ -51,7 +52,11 @@ class Generator
         $hqmfOid_to_datatype_map = [];
         $oids_file = __DIR__ . '/oids_qdm_5.6.json';
         $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.6.xml';
-        $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file), 'SimpleXMLElement', LIBXML_NONET);
+        $modelinfoContents = file_get_contents($modelinfo_file);
+        if ($modelinfoContents === false) {
+            throw new \RuntimeException(sprintf('Failed to read model info file: %s', $modelinfo_file));
+        }
+        $modelinfo = XmlUtils::loadString($modelinfoContents);
         $oids = json_decode(file_get_contents($oids_file), true);
 
         // Grab QDM version as defined in the modelinfo file

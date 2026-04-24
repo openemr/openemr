@@ -54,9 +54,9 @@ function phimail_connect(&$phimail_error)
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
     if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
-        $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/phimail_server.pem';
+        $phimail_cafile = OEGlobalsBag::getInstance()->getProjectDir() . '/public/certs/phimail/phimail_server.pem';
     } else {
-        $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/EMRDirectTestCA.pem';
+        $phimail_cafile = OEGlobalsBag::getInstance()->getProjectDir() . '/public/certs/phimail/EMRDirectTestCA.pem';
         ServiceContainer::getLogger()->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')]);
     }
     if (!file_exists($phimail_cafile)) {

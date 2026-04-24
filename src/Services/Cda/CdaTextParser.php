@@ -55,7 +55,12 @@ class CdaTextParser
             if (!$section instanceof DOMElement) {
                 continue;
             }
-            $listResult = $xpath->query(".//ns:list | .//list", $section);
+            // Match the section query's pattern: only reference the 'ns'
+            // prefix when it has actually been registered, otherwise the
+            // namespaced branch of the query fails silently and list
+            // elements are dropped.
+            $listQuery = $namespaces !== null ? ".//ns:list" : ".//list";
+            $listResult = $xpath->query($listQuery, $section);
             $list = $listResult !== false ? $listResult->item(0) : null;
             if ($list instanceof DOMElement) {
                 foreach ($list->getElementsByTagName("item") as $item) {

@@ -11,10 +11,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\>\\=" between int\\<0, 255\\> and 0 is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

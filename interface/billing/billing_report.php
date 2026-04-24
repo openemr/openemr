@@ -368,7 +368,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         function popMBO(pid, enc, mboid) {
@@ -382,7 +382,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 isBilling: '1',
                 pid: pid
             });
-            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/patient_file/encounter/view_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -397,7 +397,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 enc: enc,
                 pid: pid
             });
-            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/billing/ub04_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -529,7 +529,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <?php require_once "$srcdir/../interface/reports/report.script.php"; ?>
     <!-- Criteria Section common javascript page-->
     <!-- =============Included for Insurance ajax criteria==== -->
-    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"; ?>
     <style>
         #ajax_div_insurance {
             position: absolute;
@@ -1451,7 +1451,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             // jquery-ui tooltip converted to bootstrap tooltip

@@ -702,4 +702,16 @@ return [
         }
         return (new BackgroundServiceRestController())->runService($name, $data);
     },
+    // No request_authorization_check on "/api/background_service/$run":
+    // this endpoint advances only services that are due, cannot force-run,
+    // and cannot bypass intervals. Any authenticated user calling it has
+    // no more effect than the cron scheduler. ACL-gating it would prevent
+    // the main-tab poll from working for non-admin users (see #11664).
+    //
+    // The `$run` operation suffix keeps HttpRestParsedRoute's resource
+    // parsing on `background_service` instead of the trailing path
+    // segment, so OAuth2 scope checks resolve to `<scope>/background_service.c`
+    // rather than `<scope>/run.c`.
+    'POST /api/background_service/$run'
+        => fn(HttpRestRequest $request) => (new BackgroundServiceRestController())->runAllDue(),
 ];

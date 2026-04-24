@@ -34,7 +34,7 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(OEGlobalsBag::getInstance()->getString('srcdir') . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");
@@ -209,7 +209,7 @@ if ($isModule || $isDashboard || $isPortal) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();

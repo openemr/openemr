@@ -32,6 +32,7 @@
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
         "ext-phar": "*",
+        "ext-redis": "*",
         "ext-session": "*",
         "ext-simplexml": "*",
         "ext-soap": "*",
@@ -51,6 +52,7 @@
         "digitickets/lalit": "^3.4.0",
         "doctrine/dbal": "^4.4",
         "doctrine/migrations": "^3.9",
+        "doctrine/orm": "^3.6",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
         "firehed/container": "^1.0",
@@ -78,6 +80,8 @@
         "lcobucci/clock": "^2.3 || ^3.0",
         "lcobucci/jwt": "^4.3.0",
         "league/csv": "^9.28.0",
+        "league/flysystem": "^3.33",
+        "league/flysystem-local": "^3.31",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "^3.2.1",
         "moneyphp/money": "^4.8",
@@ -96,7 +100,6 @@
         "phpmailer/phpmailer": "^6.12.0",
         "phpoffice/phpspreadsheet": "^5.3.0",
         "phpseclib/phpseclib": "^3.0.48",
-        "predis/predis": "^3.3.0",
         "psr/clock": "^1.0",
         "psr/container": "^1.1",
         "psr/http-client": "^1.0",
@@ -110,6 +113,7 @@
         "smarty/smarty": "^4.5.6",
         "steverhoades/oauth2-openid-connect-server": "^3.0.1",
         "stripe/stripe-php": "^16.6.0",
+        "symfony/cache": "^7.3",
         "symfony/config": "^7.3",
         "symfony/console": "^7.3",
         "symfony/dependency-injection": "^7.3",
@@ -132,6 +136,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
         "iamcal/sql-parser": "^0.7.0",
+        "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
@@ -183,9 +188,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\PHPStan\\Rules\\": "tests/PHPStan/Rules",
-            "OpenEMR\\Rector\\Rules\\": "tests/Rector/Rules",
-            "OpenEMR\\Tests\\": "tests/Tests"
+            "OpenEMR\\": "tests"
         }
     },
     "config": {
@@ -288,6 +291,10 @@
         "phpstan-baseline": [
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",
             "php -d memory_limit=1g vendor/bin/split-phpstan-baseline .phpstan/baseline/loader.php --no-error-count"
+        ],
+        "phpstan-baseline-reset": [
+            "@php .phpstan/reset-baseline.php",
+            "@phpstan-baseline"
         ],
         "phpunit-isolated": "phpunit -c phpunit-isolated.xml",
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",

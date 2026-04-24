@@ -120,13 +120,31 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     if (!is_string($tmp_name)) {
         $alertmsg .= xl("Invalid file upload") . " ";
     } else {
-        // Handle .zip extension if present.  Probably won't work on Windows.
+        $shouldParseEra = true;
+        // Handle .zip extension if present.
         if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-            rename($tmp_name, "$tmp_name.zip");
-            exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
-            unlink("$tmp_name.zip");
+            $zip = new ZipArchive();
+            if ($zip->open($tmp_name) === true) {
+                $contents = $zip->getFromIndex(0);
+                $zip->close();
+                if ($contents === false) {
+                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                    $shouldParseEra = false;
+                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                    $shouldParseEra = false;
+                }
+            } else {
+                $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                $shouldParseEra = false;
+            }
         }
-        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_payments_callback');
+        if ($shouldParseEra) {
+            $parseResult = ParseERA::parseERA($tmp_name, 'era_payments_callback');
+            if (is_string($parseResult)) {
+                $alertmsg .= $parseResult;
+            }
+        }
 
         // Ensure the ERA directory exists
         $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
@@ -160,7 +178,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
-    <?php require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
     function Validate()
     {
@@ -227,7 +245,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
        });
     });

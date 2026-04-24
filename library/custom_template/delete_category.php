@@ -39,7 +39,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <head>
         <title><!-- Insert your title here --></title>
         <?php Header::setupHeader('opener'); ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajax_functions_writer.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js"></script>
 
         <script>
         function delete_full_category(id){
@@ -53,7 +53,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                      source: "delete_full_category"
                 },
                 success: function(thedata){
-                            alert("<?php echo addslashes(xl('Deleted Successfully.'));?>");
+                            alert(<?php echo js_escape(xl('Deleted Successfully.'));?>);
                             document.location.reload();
                             },
                 error:function(){
@@ -63,7 +63,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         }
         function delete_category(id){
             top.restoreSession();
-            if(confirm("<?php echo addslashes(xl('Do you want to delete?'));?>")){
+            if(confirm(<?php echo js_escape(xl('Do you want to delete?'));?>)){
                 $.ajax({
                 type: "POST",
                 url: "ajax_code.php",
@@ -74,7 +74,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                 },
                 success: function(thedata){
                             if(thedata){
-                                alert("<?php echo addslashes('There are currently other users of the category you are trying to delete. Please contact them and ask them to delete it. Categories may not be deleted while in use. This Categories are currently used by \n');?>"+thedata);
+                                alert(<?php echo js_escape('There are currently other users of the category you are trying to delete. Please contact them and ask them to delete it. Categories may not be deleted while in use. This Categories are currently used by \n');?> + thedata);
                             }
                             else{
                                 delete_full_category(id);

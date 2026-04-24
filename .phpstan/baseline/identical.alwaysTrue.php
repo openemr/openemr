@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between \'\' and \'\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between 0 and 0 will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php',
@@ -40,6 +35,11 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between false and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between false and false will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'us_core_v311\' and \'us_core_v311\' will always evaluate to true\\.$#',

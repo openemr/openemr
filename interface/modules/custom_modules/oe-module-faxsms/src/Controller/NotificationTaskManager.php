@@ -5,11 +5,16 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
+ * @author         Michael A. Smith <michael@opencoreemr.com>
  * @copyright      Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
+
+use OpenEMR\Services\Background\BackgroundServiceDefinition;
+use OpenEMR\Services\Background\BackgroundServiceRegistry;
 
 /**
  * Manages background task operations for Notifications.
@@ -53,7 +58,17 @@ class NotificationTaskManager
     }
 
     /**
-     * Creates or updates the background Notification task
+     * Creates or updates the background Notification task.
+     *
+     * $hours is the execution interval in whole hours. When $hours is 0
+     * (the default), the existing DB interval is read via getTaskHours()
+     * and used instead. The value stored in `background_services.execute_interval`
+     * is always in minutes, so both branches convert hours -> minutes.
+     *
+     * Returns true when a new service row was created, false when an
+     * existing row was updated (or when $type is invalid). Uses
+     * BackgroundServiceRegistry so the admin's enable/disable toggle is
+     * preserved on re-registration.
      */
     public function manageService($type, $hours = 0): bool
     {
@@ -67,22 +82,26 @@ class NotificationTaskManager
             return false;
         }
 
-        $total_minutes = empty($hours) ? $this->getTaskHours($type) : $hours * 60;
+        // Callers treat $hours as an integer number of hours, but legacy
+        // code paths pass strings from $_POST. Normalize to int and fall
+        // back to the stored DB interval when no explicit value is given.
+        $hoursInt = is_numeric($hours) ? (int) $hours : 0;
+        $intervalHours = $hoursInt > 0 ? $hoursInt : $this->getTaskHours($type);
+        $total_minutes = $intervalHours * 60;
 
-        $sql = "SELECT COUNT(*) as count FROM `background_services` WHERE `name` = ?";
-        $result = sqlQueryNoLog($sql, [$name]);
-        if ($result['count'] > 0) {
-            $sql = "UPDATE `background_services` SET `execute_interval` = ? WHERE `name` = ?";
-            sqlStatementNoLog($sql, [$total_minutes, $name]);
-            return false;
-        }
+        $registry = new BackgroundServiceRegistry();
+        $isNew = !$registry->exists($name);
+        $registry->register(new BackgroundServiceDefinition(
+            name: $name,
+            title: 'Scheduled Automated Notifications',
+            function: $fn,
+            requireOnce: '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php',
+            executeInterval: $total_minutes,
+            sortOrder: 100,
+            active: false,
+        ));
 
-        $sql = "INSERT INTO `background_services`
-                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`)
-                VALUES (?, 'Scheduled Automated Notifications', '0', '0', current_timestamp(), ?, ?, '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php', '100')";
-        sqlStatementNoLog($sql, [$name, $total_minutes, $fn]);
-
-        return true;
+        return $isNew;
     }
 
     /**

@@ -533,6 +533,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
     protected function getCachedListOption($list_id, $option_id): ?array
     {
+        if ($option_id === null) {
+            return null;
+        }
         if (!isset($this->cachedListOptions[$list_id])) {
             $this->cachedListOptions[$list_id] = [];
         }

@@ -29,7 +29,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once __DIR__ . '/base_controller.php';
 require_once __DIR__ . '/therapy_groups_controller.php';
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/pid.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 class ParticipantsController extends BaseController
 {

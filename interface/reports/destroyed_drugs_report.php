@@ -64,7 +64,7 @@ function destroyed_mapToTable($row): void
         echo "<td>" . text($row["ndc_number"]) . " </td>\n";
         echo "<td>";
         foreach ($row['inventory_id'] as $key => $value) {
-            echo "<div onclick='doclick(" . attr(addslashes((string) $row['drug_id'])) . "," . attr(addslashes((string) $row['inventory_id'][$key])) . ")'>" .
+            echo "<div onclick='doclick(" . attr(js_escape((string) $row['drug_id'])) . "," . attr(js_escape((string) $row['inventory_id'][$key])) . ")'>" .
             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
         }
         echo "</td>\n<td>";
@@ -151,14 +151,14 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
     });
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

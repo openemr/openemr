@@ -392,7 +392,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/eye_mag/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/eye_mag/report.php");
         ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";

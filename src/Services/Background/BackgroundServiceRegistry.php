@@ -19,19 +19,40 @@ declare(strict_types=1);
 namespace OpenEMR\Services\Background;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\TableTypes;
 
 /**
- * @phpstan-import-type BackgroundServicesRow from TableTypes
+ * @phpstan-import-type BackgroundServicesQueryRow from BackgroundServiceDefinition
  */
 class BackgroundServiceRegistry
 {
     /**
      * Register or update a background service (idempotent upsert).
      *
-     * The ON DUPLICATE KEY UPDATE intentionally does NOT update `active`.
-     * This preserves the admin's enable/disable decision. Use setActive()
-     * to change a service's enabled state.
+     * ## Policy for the `active` flag: first install wins
+     *
+     * The `active` value from `$definition` is respected on initial INSERT
+     * and is never overwritten on subsequent upserts:
+     *
+     * - **Fresh row (no existing service with this name):** the
+     *   `$definition->active` value is written to the database. A module
+     *   can ship its default enabled state this way.
+     * - **Existing row:** title, function, require_once, execute_interval,
+     *   and sort_order are all updated, but `active` is left untouched.
+     *   This preserves any explicit enable/disable decision an admin has
+     *   made through the UI or via a prior migration.
+     *
+     * Consequence: two installs of the same module version can end up with
+     * different `active` values depending on whether the service existed
+     * before. This is intentional — runtime state belongs to the operator,
+     * not to the module package, and a module upgrade must not silently
+     * re-enable a service an admin has turned off.
+     *
+     * Modules that need to flip a service's active state on upgrade (for
+     * example, a security-driven kill switch) should call `setActive()`
+     * explicitly from a migration step, so the decision is reviewable at
+     * the call site rather than buried in package defaults.
+     *
+     * @see BackgroundServiceRegistry::setActive()
      */
     public function register(BackgroundServiceDefinition $definition): void
     {
@@ -71,13 +92,26 @@ class BackgroundServiceRegistry
     }
 
     /**
+     * Projection that derives lease liveness in SQL so the "running"
+     * signal uses the same clock (and time_zone) as acquireLock(), rather
+     * than PHP's clock via `time()` + `strtotime()`. Public so callers
+     * outside the registry (e.g. the CLI command) can reuse the same
+     * projection without duplicating the expression.
+     */
+    public const SELECT_WITH_LEASE_LIVE = <<<'SQL'
+        SELECT `background_services`.*,
+               (`lock_expires_at` IS NOT NULL AND `lock_expires_at` > NOW()) AS `lease_is_live`
+          FROM `background_services`
+        SQL;
+
+    /**
      * Get a single service by name, or null if not found.
      */
     public function get(string $name): ?BackgroundServiceDefinition
     {
-        /** @var list<BackgroundServicesRow> $rows */
+        /** @var list<BackgroundServicesQueryRow> $rows */
         $rows = QueryUtils::fetchRecordsNoLog(
-            'SELECT * FROM `background_services` WHERE `name` = ?',
+            self::SELECT_WITH_LEASE_LIVE . ' WHERE `name` = ?',
             [$name],
         );
 
@@ -95,7 +129,7 @@ class BackgroundServiceRegistry
      */
     public function list(?bool $activeFilter = null): array
     {
-        $sql = 'SELECT * FROM `background_services`';
+        $sql = self::SELECT_WITH_LEASE_LIVE;
         $binds = [];
 
         if ($activeFilter !== null) {
@@ -105,7 +139,7 @@ class BackgroundServiceRegistry
 
         $sql .= ' ORDER BY `sort_order`';
 
-        /** @var list<BackgroundServicesRow> $rows */
+        /** @var list<BackgroundServicesQueryRow> $rows */
         $rows = QueryUtils::fetchRecordsNoLog($sql, $binds);
 
         return array_map(

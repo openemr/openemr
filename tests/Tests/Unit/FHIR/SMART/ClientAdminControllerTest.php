@@ -18,6 +18,7 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -350,9 +351,7 @@ class ClientAdminControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider actionDataProvider
-     */
+    #[DataProvider('actionDataProvider')]
     public function testDispatchWithVariousActions(string $action, int $expectedStatusCode): void
     {
         // Arrange

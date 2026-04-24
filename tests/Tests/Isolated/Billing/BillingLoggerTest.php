@@ -2,18 +2,53 @@
 
 namespace OpenEMR\Tests\Isolated\Billing;
 
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use OpenEMR\Billing\BillingProcessor\BillingLogger;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Services\Storage\Location;
+use OpenEMR\Services\Storage\ManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Isolated tests for BillingLogger class
- * Uses a stub to avoid file system and GLOBALS dependencies
  */
 class BillingLoggerTest extends TestCase
 {
+    private Filesystem $filesystem;
+
+    protected function setUp(): void
+    {
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $GLOBALS['billing_log_option'] = 2;
+        $GLOBALS['drive_encryption'] = false;
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['billing_log_option'], $GLOBALS['drive_encryption']);
+    }
+
+    private function createStorageManager(): ManagerInterface
+    {
+        $storageManager = $this->createMock(ManagerInterface::class);
+        $storageManager->method('getStorage')
+            ->with(Location::Documents)
+            ->willReturn($this->filesystem);
+        return $storageManager;
+    }
+
+    private function createLogger(): BillingLogger
+    {
+        return new BillingLogger(
+            $this->createStorageManager(),
+            $this->createStub(CryptoInterface::class),
+        );
+    }
+
     public function testPrintToScreenAddsMessage(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $logger->printToScreen('Test message 1');
         $logger->printToScreen('Test message 2');
@@ -28,7 +63,7 @@ class BillingLoggerTest extends TestCase
 
     public function testBillInfoReturnsArray(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $billInfo = $logger->bill_info();
         $this->assertIsArray($billInfo);
@@ -37,7 +72,7 @@ class BillingLoggerTest extends TestCase
 
     public function testAppendToLogPrependsMessage(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         // Append messages - they should be prepended to keep most recent on top
         $logger->appendToLog('First message');
@@ -52,7 +87,7 @@ class BillingLoggerTest extends TestCase
 
     public function testHlogReturnsString(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $hlog = $logger->hlog();
         $this->assertIsString($hlog);
@@ -60,7 +95,7 @@ class BillingLoggerTest extends TestCase
 
     public function testSetLogCompleteCallback(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
         $callbackExecuted = false;
 
         $callback = function () use (&$callbackExecuted) {
@@ -77,7 +112,7 @@ class BillingLoggerTest extends TestCase
 
     public function testOnLogCompleteReturnsFalseWithoutCallback(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $result = $logger->onLogComplete();
         $this->assertFalse($result);
@@ -85,7 +120,7 @@ class BillingLoggerTest extends TestCase
 
     public function testMultipleMessagesToScreen(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $messages = ['Message 1', 'Message 2', 'Message 3', 'Message 4', 'Message 5'];
         foreach ($messages as $message) {
@@ -99,7 +134,7 @@ class BillingLoggerTest extends TestCase
 
     public function testAppendToLogWithMultipleLines(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         $logger->appendToLog("Line 1\n");
         $logger->appendToLog("Line 2\n");
@@ -113,7 +148,7 @@ class BillingLoggerTest extends TestCase
 
     public function testMixedLoggingOperations(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         // Mix screen and log operations
         $logger->printToScreen('Screen message 1');
@@ -135,7 +170,7 @@ class BillingLoggerTest extends TestCase
 
     public function testCallbackReceivesNoArguments(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
         $callbackArgs = null;
 
         $callback = function (...$args) use (&$callbackArgs) {
@@ -152,34 +187,34 @@ class BillingLoggerTest extends TestCase
 
     public function testEmptyLogOperations(): void
     {
-        $logger = new BillingLoggerStub();
+        $logger = $this->createLogger();
 
         // Don't add anything, just verify empty states
         $this->assertEmpty($logger->bill_info());
         $this->assertIsString($logger->hlog());
     }
-}
 
-/**
- * Stub class to avoid file system and GLOBALS dependencies
- */
-class BillingLoggerStub extends BillingLogger
-{
-    public function __construct()
+    public function testOnLogCompleteWritesToFilesystem(): void
     {
-        // Skip parent constructor to avoid file system and GLOBALS dependencies
-        $this->bill_info = [];
-        $this->hlog = '';
-        $this->cryptoGen = null;
+        $logger = $this->createLogger();
+
+        $logger->appendToLog('Test log content');
+        $logger->onLogComplete();
+
+        $this->assertTrue($this->filesystem->fileExists('edi/process_bills.log'));
+        $this->assertEquals('Test log content', $this->filesystem->read('edi/process_bills.log'));
     }
 
-    public function onLogComplete()
+    public function testConstructorReadsExistingLogWhenOptionIsOne(): void
     {
-        // Skip file writing, just call the callback if set
-        if (isset($this->onLogCompleteCallback)) {
-            return ($this->onLogCompleteCallback)();
-        }
+        $GLOBALS['billing_log_option'] = 1;
+        $this->filesystem->write('edi/process_bills.log', 'Existing log content');
 
-        return false;
+        $crypto = $this->createStub(CryptoInterface::class);
+        $crypto->method('cryptCheckStandard')->willReturn(false);
+
+        $logger = new BillingLogger($this->createStorageManager(), $crypto);
+
+        self::assertEquals('Existing log content', $logger->hlog());
     }
 }

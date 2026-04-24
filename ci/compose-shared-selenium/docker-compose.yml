@@ -1,6 +1,6 @@
 services:
   selenium:
-    image: selenium/standalone-chromium:147.0.7727.55@sha256:a97cafaef9b7c398ef6692cf3e460f36b761ba5ac20d4cc943e138b2322e3f0e
+    image: selenium/standalone-chromium:147.0.7727.55@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
     # Services with profiles don't start by default.
     profiles:
     - selenium

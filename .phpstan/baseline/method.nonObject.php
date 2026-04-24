@@ -717,11 +717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get_url\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/zutil.cli.doc_import.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method ServerInfo\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/about.php',
@@ -1187,37 +1182,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxPage.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getDebugSetting\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getOpenEMRSiteDirectory\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method saveXML\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method updateAllergyUploadedByPatientIdAllergyId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method updateErxUploadedByListId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method updatePatientImportStatusByPatientId\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method updatePrescriptionsUploadActiveByPatientIdPrescriptionId\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxPage.php',
 ];
@@ -1694,6 +1659,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getDbRecordId\\(\\) on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEventCategories\\(\\) on Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\CalendarEventCategoryRepository\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEventCategoryForId\\(\\) on Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\CalendarEventCategoryRepository\\|null\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
 ];
 $ignoreErrors[] = [
@@ -2962,7 +2937,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method getImagesRelative\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getKernel\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
 ];
@@ -3000,31 +2980,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method decryptStandard\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMessage\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getParsedData\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getSource\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTransactionReference\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isSuccessful\\(\\) on bool\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method isSuccessful\\(\\) on mixed\\.$#',
@@ -3285,21 +3240,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method hydrateItemizedDataFromRecord\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAuthUserId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/soap_functions/soap_accountStatusDetails.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAuthUserId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/soap_functions/soap_allergy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAuthUserId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/soap_functions/soap_patientfullmedication.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
@@ -4537,11 +4477,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getBoolean\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/home.php',
@@ -4590,31 +4525,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMessage\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getParsedData\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getSource\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTransactionReference\\(\\) on bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isSuccessful\\(\\) on bool\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method isSuccessful\\(\\) on mixed\\.$#',
@@ -4797,56 +4707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method IsNumeric\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getFont\\(\\) on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStyle\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method save\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setBold\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setCellValue\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setCreator\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setName\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setSize\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setTitle\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Observe\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Observable.php',
@@ -4922,22 +4782,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method Get\\(\\) on array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method IsLoaded\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Refresh\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Set\\(\\) on array\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
@@ -5340,11 +5190,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getPartner\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method encryptStandard\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingLogger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAction\\(\\) on mixed\\.$#',
@@ -6127,11 +5972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method xpath\\(\\) on SimpleXMLElement\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Cqm/Generator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method generateCategoryIIIXml\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
@@ -6270,11 +6110,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method clean\\(\\) on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPayload\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Health/Check/CacheCheck.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getMenu\\(\\) on mixed\\.$#',
@@ -8502,17 +8337,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getCurrentOffsetId\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getField\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getLimit\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
 ];
@@ -8760,16 +8585,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method setAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method toString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Common/Uuid/UuidRegistryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method uuid4\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Common/Uuid/UuidRegistryTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
@@ -9172,6 +8987,136 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method toString\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Uuid/UuidRegistryTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method uuid4\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Uuid/UuidRegistryTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getHeader\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method patientSelectConfirm\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method setClientRepository\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method setPatientContextSearchController\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getAbatementDateTime\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\|string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getCoding\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getDataAbsentReason\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEffectiveDateTime\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getEncounter\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getField\\(\\) on OpenEMR\\\\Services\\\\Search\\\\ServiceField\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getHasMember\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getMeta\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getNote\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getPerformer\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getReference\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getStatus\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSystem\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getText\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getValueCodeableConcept\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getValueQuantity\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getValueString\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getName\\(\\) on ReflectionType\\|null\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/GeoTelemetryTest.php',
@@ -9392,31 +9337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/PractitionerRestControllerTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getHeader\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method patientSelectConfirm\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setClientRepository\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setPatientContextSearchController\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method qual_id_to_description\\(\\) on mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -9430,11 +9350,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAbatementDateTime\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
@@ -10170,96 +10085,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationPatientServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getCoding\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getDataAbsentReason\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEffectiveDateTime\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEncounter\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getField\\(\\) on OpenEMR\\\\Services\\\\Search\\\\ServiceField\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getHasMember\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMeta\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getNote\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPerformer\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getReference\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatus\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getSystem\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getText\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValueCodeableConcept\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValueQuantity\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValueString\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAnswer\\(\\) on mixed\\.$#',
