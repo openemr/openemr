@@ -102,6 +102,9 @@ jobs:
           --no-interaction
           -vvv
 
+      - name: Add host.docker.internal to hosts file
+        run: echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
+
       - name: Load test data snapshot
         run: |
           tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
@@ -118,7 +121,7 @@ jobs:
               ('rest_portal_api', 0, '1'),
               ('oauth_password_grant', 0, '3'),
               ('rest_system_scopes_api', 0, '1'),
-              ('site_addr_oath', 0, 'http://localhost:8080')
+              ('site_addr_oath', 0, 'http://host.docker.internal:8080')
             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
           "
 
@@ -139,7 +142,7 @@ jobs:
 
       - name: Run certification tests
         env:
-          OPENEMR_BASE_URL_API: http://localhost:8080
+          OPENEMR_BASE_URL_API: http://host.docker.internal:8080
           INFERNO_BASE_URL: http://localhost:8000
         run: |
           vendor/bin/phpunit \
