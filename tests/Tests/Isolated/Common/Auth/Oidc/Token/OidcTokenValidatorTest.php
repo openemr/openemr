@@ -142,6 +142,7 @@ final class OidcTokenValidatorTest extends TestCase
         ?string $name = 'Test User',
         ?string $jti = null,
         bool $includeNbf = true,
+        bool $includeIat = true,
     ): string {
         $now = $this->clock->now();
         $iat = $issuedAt ?? $now;
@@ -154,9 +155,12 @@ final class OidcTokenValidatorTest extends TestCase
         );
 
         $builder = $config->builder()
-            ->issuedAt($iat)
             ->expiresAt($exp)
             ->withHeader('kid', $kid);
+
+        if ($includeIat) {
+            $builder = $builder->issuedAt($iat);
+        }
 
         if ($includeNbf) {
             $builder = $builder->canOnlyBeUsedAfter($iat);
@@ -400,8 +404,11 @@ final class OidcTokenValidatorTest extends TestCase
     {
         $jwt = $this->buildToken(subject: null, email: 'user@example.com');
 
+        // The replay-key step now rejects sub-less tokens before reaching the
+        // claim mapper, since the synthetic key needs (iss, sub, iat) when no
+        // jti is present.
         $this->expectException(OidcTokenValidationException::class);
-        $this->expectExceptionMessage('does not support this token');
+        $this->expectExceptionMessage('missing iss or sub');
 
         $this->validator->validate($jwt, self::JWKS_URI, $this->params);
     }
@@ -569,6 +576,19 @@ final class OidcTokenValidatorTest extends TestCase
 
         $this->expectException(OidcTokenValidationException::class);
         $this->expectExceptionMessage('replay detected');
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    public function testTokenWithoutJtiAndIatIsRejected(): void
+    {
+        // Without jti AND without iat the synthetic key would collide for every
+        // token issued to the same (iss, sub), letting one presented token lock
+        // the user out of subsequent logins. Refuse to validate instead.
+        $jwt = $this->buildToken(includeNbf: false, includeIat: false);
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('cannot compute replay key');
+
         $this->validator->validate($jwt, self::JWKS_URI, $this->params);
     }
 

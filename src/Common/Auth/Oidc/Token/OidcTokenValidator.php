@@ -215,6 +215,12 @@ readonly class OidcTokenValidator
      * back to a synthetic SHA-256 digest of (iss, sub, iat) when the provider
      * omits "jti" — this is stable per token issuance so a second presentation
      * of the same token still collides with the stored record.
+     *
+     * @throws OidcTokenValidationException When the token has neither jti nor
+     *         the iss/sub/iat trio needed to compute a per-issuance synthetic
+     *         key. Falling back to a constant placeholder would collide all
+     *         tokens for the same (iss, sub) and let a single presented token
+     *         lock the user out of subsequent logins.
      */
     private function computeReplayKey(Plain $token): string
     {
@@ -223,19 +229,27 @@ readonly class OidcTokenValidator
             return $jti;
         }
 
-        $iss = $token->claims()->get('iss');
-        $sub = $token->claims()->get('sub');
         $iat = $token->claims()->get('iat');
-
-        $issPart = is_string($iss) ? $iss : '';
-        $subPart = is_string($sub) ? $sub : '';
         $iatPart = match (true) {
             $iat instanceof \DateTimeInterface => (string) $iat->getTimestamp(),
             is_int($iat) => (string) $iat,
-            default => '0',
+            default => null,
         };
+        if ($iatPart === null) {
+            throw new OidcTokenValidationException(
+                'Token has neither jti nor iat; cannot compute replay key safely',
+            );
+        }
 
-        return 'oidc-synthetic:' . hash('sha256', $issPart . '|' . $subPart . '|' . $iatPart);
+        $iss = $token->claims()->get('iss');
+        $sub = $token->claims()->get('sub');
+        if (!is_string($iss) || $iss === '' || !is_string($sub) || $sub === '') {
+            throw new OidcTokenValidationException(
+                'Token has no jti and missing iss or sub; cannot compute synthetic replay key',
+            );
+        }
+
+        return 'oidc-synthetic:' . hash('sha256', $iss . '|' . $sub . '|' . $iatPart);
     }
 
     private function signerForAlgorithm(string $alg): Signer
