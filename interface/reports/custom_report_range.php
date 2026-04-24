@@ -296,13 +296,6 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
     }
 
     foreach ($newpatient as $patient) {
-        /*
-        $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
-        while($result = sqlFetchArray($inclookupres)) {
-        include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
-        }
-        */
-
         print "<div id='superbill_patientdata'>";
         print "<h1>" . xlt('Patient Data') . ":</h1>";
         printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);

@@ -90,11 +90,6 @@ abstract class DbRow_Signable implements SignableIF
         return $this->_tableId;
     }
 
-    public function renderForm()
-    {
-        include 'views/esign_signature_log.php';
-    }
-
     public function isLocked()
     {
         $statement = "SELECT E.is_lock FROM esign_signatures E ";

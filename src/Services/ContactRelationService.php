@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\BaseService;
@@ -199,7 +200,7 @@ class ContactRelationService extends BaseService
                 'deleted' => true,
                 'contact_relation_id' => $relationId
             ]);
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -652,7 +653,7 @@ class ContactRelationService extends BaseService
                 'source_contact_id' => $sourceContactId,
                 'destination_contact_id' => $destinationContactId
             ]);
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error transferring relationships", [
                 'error' => $e->getMessage()
             ]);

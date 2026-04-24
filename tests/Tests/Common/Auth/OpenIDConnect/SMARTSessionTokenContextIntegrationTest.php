@@ -610,7 +610,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             ->method('error')
             ->with(
                 $this->stringContains('Failed to decode launch context parameter'),
-                $this->arrayHasKey('error')
+                $this->arrayHasKey('exception')
             );
 
         $this->expectException(OAuthServerException::class);
