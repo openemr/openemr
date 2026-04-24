@@ -109,6 +109,8 @@ jobs:
         run: |
           tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/backup.sql
+          rm -rf sites/default
+          cp -r 2025-06-25-inferno-baseline/sites/default sites/
 
       - name: Configure globals for API
         run: |
