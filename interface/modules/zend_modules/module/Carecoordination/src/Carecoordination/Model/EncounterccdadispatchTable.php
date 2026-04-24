@@ -3623,15 +3623,11 @@ class EncounterccdadispatchTable
                     }
                 }
             } elseif ($formTables_details[0] == 2 && $formTables_details[1] && $formTables_details[3]) {
-                // Fetching specific fields from an LBF form. The "fetch complete LBF"
-                // (!$formTables_details[1]) and "fetch complete group" (!$formTables_details[3])
-                // branches that used to live here were WIP stubs — they called
-                // helpers that were never written and did nothing on every code
-                // path, so they have been removed.
-                // Collect every form_id / encounter value across all rows into
-                // a single flat list, then implode with commas for the IN (...)
-                // clause below. The is_int/is_string guard narrows the mixed
-                // fetchRecords values to the scalar types implode accepts.
+                // Fetching specific fields from an LBF form. Collect every
+                // form_id / encounter value across all rows into a single flat
+                // list, then implode with commas for the IN (...) clause below.
+                // The is_int/is_string guard narrows the mixed fetchRecords
+                // values to the scalar types implode accepts.
                 $flat_ids = [];
                 foreach ($form_ids as $row) {
                     foreach ($row as $value) {
