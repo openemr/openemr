@@ -120,12 +120,12 @@ function smarty_function_html_radios($params, &$smarty)
 
     }
 
-    if(!empty($params['assign'])) {
+    if (!empty($params['assign'])) {
         $smarty->assign($params['assign'], $_html_result);
-    } else {
-        return implode("\n",$_html_result);
+        return '';
     }
 
+    return implode("\n", $_html_result);
 }
 
 function smarty_function_html_radios_output($name, $value, $output, $selected, $extra, $separator, $labels, $label_ids) {
