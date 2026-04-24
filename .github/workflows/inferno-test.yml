@@ -109,7 +109,7 @@ jobs:
       - name: Load test data snapshot
         run: |
           tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/openemr.sql
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/backup.sql
 
       - name: Configure globals for API
         run: |
