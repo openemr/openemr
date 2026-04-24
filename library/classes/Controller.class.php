@@ -4,6 +4,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\CacheDirectory;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -51,7 +52,7 @@ class Controller extends Smarty implements ControllerInterface
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
-         $this->setCompileDir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main');
+         $this->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
          $this->setCompileCheck(true);
          $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->getKernel()->getVendorDir() . "/smarty/smarty/libs/plugins"]);
          $this->assign("PROCESS", "true");

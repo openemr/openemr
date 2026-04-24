@@ -348,26 +348,6 @@ $globalsBag->set('login_screen', $globalsBag->getString('rootdir') . "/login_scr
 // Variable set for Eligibility Verification [EDI-271] path
 $globalsBag->set('edi_271_file_path', $globalsBag->getString('OE_SITE_DIR') . "/documents/edi/");
 
-//  Check necessary writable paths (add them if do not exist)
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
-//  Set and check that necessary writeable path exist for mPDF tool
-$GLOBALS['MPDF_WRITE_DIR'] = $globalsBag->getString('OE_SITE_DIR') . '/documents/mpdf/pdf_tmp';
-if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
-    if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
 //    - DEBUG/INFO are great for development

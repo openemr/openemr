@@ -1002,11 +1002,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents/smarty…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/gacl_admin.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'aro_groups\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/group_admin.php',
@@ -3245,11 +3240,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents/smarty…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<input type\\="submit…\' and mixed results in an error\\.$#',
@@ -6250,11 +6240,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/cmsportal/portal…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/orders/single…\' results in an error\\.$#',
@@ -9417,11 +9402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents/smarty…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
@@ -9543,11 +9523,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\-\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
 ];
@@ -12070,31 +12045,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'TRN\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'/\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/\' results in an error\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and string results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between 7 and mixed results in an error\\.$#',

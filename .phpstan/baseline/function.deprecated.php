@@ -20,11 +20,6 @@ use EmployerService\\-\\>getMostRecentEmployerData\\(\\)$#',
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function get_magic_quotes_runtime\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collectAndOrganizeExpandSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:collectAndOrganizeExpandSetting$#',
     'count' => 1,

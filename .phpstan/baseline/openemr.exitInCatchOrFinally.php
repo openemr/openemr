@@ -88,7 +88,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [

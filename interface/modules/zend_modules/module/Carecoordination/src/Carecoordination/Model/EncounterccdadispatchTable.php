@@ -3622,70 +3622,51 @@ class EncounterccdadispatchTable
                         }
                     }
                 }
-            } elseif ($formTables_details[0] == 2) {//Fetching the values from an LBF form
-                if (!$formTables_details[1]) {//Fetching the complete LBF
-                    foreach ($form_ids as $row) {
-                        foreach ($row as $value) {
-                            //This section will be used to fetch complete LBF. This has to be completed. We are working on this.
+            } elseif ($formTables_details[0] == 2 && $formTables_details[1] && $formTables_details[3]) {
+                // Fetching specific fields from an LBF form. Collect every
+                // form_id / encounter value across all rows into a single flat
+                // list, then implode with commas for the IN (...) clause below.
+                // The is_int/is_string guard narrows the mixed fetchRecords
+                // values to the scalar types implode accepts.
+                $flat_ids = [];
+                foreach ($form_ids as $row) {
+                    foreach ($row as $value) {
+                        if (is_int($value) || is_string($value)) {
+                            $flat_ids[] = $value;
                         }
                     }
-                } elseif (!$formTables_details[3]) {//Fetching the complete group from an LBF
-                    foreach ($form_ids as $row) {//Fetching the values of each encounters
-                        foreach ($row as $value) {
-                            ob_start();
-                            ?>
-                            <table>
-                                <?php
-                                display_layout_rows_group_new($formDir, '', '', $pid, $value, [$formTables_details[1]], '');
-                                ?>
-                            </table>
-                            <?php
-                            $res[0][$value] = ob_get_clean();
-                        }
-                    }
-                } else {
-                    $formid_list = "";
-                    foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $value) {
-                            if ($formid_list) {
-                                $formid_list .= ',';
-                            }
+                }
 
-                            $formid_list .= $value;
-                        }
-                    }
+                $formid_list = implode(',', $flat_ids) ?: "''";
+                $lbf = "lbf_data";
+                $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
+                $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
+                if ($filename !== false) {
+                    include_once($filename);
+                }
 
-                    $formid_list = $formid_list ?: "''";
-                    $lbf = "lbf_data";
-                    $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
-                    $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
-                    if ($filename !== false) {
-                        include_once($filename);
+                $field_ids = explode(',', (string)$formTables_details[3]);
+                $fields_str = implode(',', array_map(fn($v) => "'$v'", $field_ids));
+
+                $query = <<<SQL
+                    SELECT *
+                    FROM {$lbf}
+                    JOIN forms AS f
+                    ON f.pid = ?
+                    AND f.form_id = {$lbf}.form_id
+                    AND f.formdir = ?
+                    AND {$lbf}.field_id IN ({$fields_str})
+                    WHERE deleted = 0
+                    SQL;
+                $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
+
+                foreach ($result as $row) {
+                    preg_match('/\.$/', trim((string)$row['field_value']), $matches);
+                    if (count($matches) == 0) {
+                        $row['field_value'] .= ". ";
                     }
 
-                    $field_ids = explode(',', (string)$formTables_details[3]);
-                    $fields_str = '';
-                    foreach ($field_ids as $value) {
-                        if ($fields_str != '') {
-                            $fields_str .= ",";
-                        }
-
-                        $fields_str .= "'$value'";
-                    }
-
-                    $query = "select * from " . $lbf . "
-                    join forms as f on f.pid = ? AND f.form_id = " . $lbf . ".form_id AND f.formdir = ? AND " . $lbf . ".field_id IN (" . $fields_str . ")
-                    where deleted = 0";
-                                        $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
-
-                    foreach ($result as $row) {
-                        preg_match('/\.$/', trim((string)$row['field_value']), $matches);
-                        if (count($matches) == 0) {
-                            $row['field_value'] .= ". ";
-                        }
-
-                        $res[0][$row['field_id']] .= $row['field_value'];
-                    }
+                    $res[0][$row['field_id']] .= $row['field_value'];
                 }
             } elseif ($formTables_details[0] == 3) {//Fetching documents from mapped folders
                 $query = "SELECT c.id, c.name, d.id AS document_id, d.type, d.mimetype, d.url, d.docdate

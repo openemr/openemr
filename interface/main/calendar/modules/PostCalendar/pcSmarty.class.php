@@ -27,6 +27,7 @@
  */
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 require_once(__DIR__ . '/../../../../../library/smarty_legacy/smarty/Smarty_Legacy.class.php');
 
@@ -53,7 +54,7 @@ class pcSmarty extends Smarty_Legacy
         array_push($this->plugins_dir, "modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir, "modules/$pcDir/plugins");
         array_push($this->plugins_dir, "../../../../library/smarty/plugins");
-        $this->compile_dir      =   OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main';
+        $this->compile_dir      =   (new CacheDirectory())->for('openemr-smarty');
         $this->caching      =   0;
         $this->left_delimiter   =   '[-';
         $this->right_delimiter  =   '-]';

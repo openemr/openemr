@@ -58,7 +58,6 @@ return ['includes' => [
     __DIR__ . '/function.deprecated.php',
     __DIR__ . '/function.impossibleType.php',
     __DIR__ . '/function.nameCase.php',
-    __DIR__ . '/function.notFound.php',
     __DIR__ . '/function.resultUnused.php',
     __DIR__ . '/greater.alwaysFalse.php',
     __DIR__ . '/greater.alwaysTrue.php',

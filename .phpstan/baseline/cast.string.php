@@ -1253,7 +1253,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
 ];
 $ignoreErrors[] = [
@@ -1418,7 +1418,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 11,
+    'count' => 10,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -2280,11 +2280,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 22,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

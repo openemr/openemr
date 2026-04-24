@@ -4847,21 +4847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/backup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$mode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$use_include_path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function obliterate_dir\\(\\) has parameter \\$dir with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/backup.php',
@@ -24470,16 +24455,6 @@ $ignoreErrors[] = [
     'message' => '#^Function edih_835_accounting\\(\\) has parameter \\$segments with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_openemr_globals\\(\\) has parameter \\$libdir with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sftp_status\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function fetchCategoryIdByEncounter\\(\\) has parameter \\$encounter with no type specified\\.$#',

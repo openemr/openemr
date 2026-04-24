@@ -12492,11 +12492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$help_icon might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types.php',
@@ -13243,7 +13238,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 23,
+    'count' => 22,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -15900,56 +15895,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$segid might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$f_ct$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$uplkey$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$dir_to might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$fdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$host might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$p_ct might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pass might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$port might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sftp_hosts might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$current_state might not be defined\\.$#',

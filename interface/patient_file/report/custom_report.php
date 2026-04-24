@@ -818,59 +818,30 @@ function getContent()
             die(text($exception));
         }
 
-        if ($PDF_OUTPUT == 1) {
-            try {
-                if ($PDF_FAX === 1) {
-                    $fax_pdf = $pdf->Output($fn, 'S');
-                    $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
-                    file_put_contents($tmp_file, $fax_pdf);
-                    echo $tmp_file;
-                    exit();
-                } else {
-                    if (!empty($archive_name) && count($staged_docs) > 0) {
-                        $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
-                        header('Content-Description: File Transfer');
-                        header('Content-Transfer-Encoding: binary');
-                        header('Expires: 0');
-                        header("Cache-control: private");
-                        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                        header("Content-Type: application/zip; charset=utf-8");
-                        header("Content-Length: " . filesize($archive_name));
-                        header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+        if ($PDF_FAX === 1) {
+            $fax_pdf = $pdf->Output($fn, 'S');
+            $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
+            file_put_contents($tmp_file, $fax_pdf);
+            echo $tmp_file;
+            return;
+        }
+        if ($archive_name !== '' && count($staged_docs) > 0) {
+            $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+            header('Content-Description: File Transfer');
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header("Cache-control: private");
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header("Content-Type: application/zip; charset=utf-8");
+            header("Content-Length: " . filesize($archive_name));
+            header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
 
-                        ob_end_clean();
-                        @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+            ob_end_clean();
+            @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
 
-                        unlink($archive_name);
-                    } else {
-                        $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
-                    }
-                }
-            } catch (MpdfException $exception) {
-                die(text($exception));
-            }
+            unlink($archive_name);
         } else {
-            // This is the case of writing the PDF as a message to the CMS portal.
-            $ptdata = getPatientData($pid, 'cmsportal_login');
-            $contents = $pdf->Output('', true);
-            echo "<html><head>\n";
-            Header::setupHeader();
-            echo "</head><body>\n";
-            $result = cms_portal_call([
-                'action' => 'putmessage',
-                'user' => $ptdata['cmsportal_login'],
-                'title' => xl('Your Clinical Report'),
-                'message' => xl('Please see the attached PDF.'),
-                'filename' => 'report.pdf',
-                'mimetype' => 'application/pdf',
-                'contents' => base64_encode((string) $contents)
-            ]);
-            if ($result['errmsg']) {
-                die(text($result['errmsg']));
-            }
-
-            echo "<p class='mt-3'>" . xlt('Report has been sent to the patient.') . "</p>\n";
-            echo "</body></html>\n";
+            $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
         }
         foreach ($tmp_files_remove as $tmp_file) {
             // Remove the tmp files that were created

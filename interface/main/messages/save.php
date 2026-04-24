@@ -255,11 +255,3 @@ if ($_REQUEST['action'] == "process") {
     echo text(json_encode($pidList));
     exit;
 }
-if ($_REQUEST['go'] == "Messages") {
-    if ($_REQUEST['msg_id']) {
-        $result = updateMessage($_REQUEST['msg_id']);
-        echo json_encode($result);
-        exit;
-    }
-}
-exit;

@@ -338,7 +338,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 28,
+    'count' => 27,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -720,11 +720,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

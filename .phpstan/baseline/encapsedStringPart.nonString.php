@@ -2527,11 +2527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$webserver_root \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
@@ -4070,26 +4065,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$ftype \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$actn \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$dir_to \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$f_ct \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$libdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$today \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

@@ -122,11 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$site in isset\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pdrow in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',

@@ -1747,6 +1747,9 @@ if ($patient_id && !empty($_GET['enc'])) {
             $checkout_times = craGetTimestamps($patient_id, $_GET['enc']);
             $billtime = empty($checkout_times) ? '' : $checkout_times[count($checkout_times) - 1];
         }
+        if (!function_exists('generateCheckoutReceipt')) {
+            throw new \RuntimeException('The custom receipt include does not define generateCheckoutReceipt().');
+        }
         generateCheckoutReceipt($patient_id, $_GET['enc'], $billtime);
     }
     exit();
