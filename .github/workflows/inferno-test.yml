@@ -139,8 +139,8 @@ jobs:
 
       - name: Run certification tests
         env:
-          OPENEMR_BASE_URL_API: http://host.docker.internal:8080
-          INFERNO_BASE_URL: http://localhost:8080
+          OPENEMR_BASE_URL_API: http://localhost:8080
+          INFERNO_BASE_URL: http://localhost:8000
         run: |
           vendor/bin/phpunit \
             --testsuite certification \
