@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:d17b9ebdf717b8ce43f81da3cf45919b60499cf7cf2ecc8d8d20278d46f58fa6
+    image: openemr/openemr:flex-edge@sha256:5df57770fcb00ba5d043dc3b58eb6ddd73c9ac8b0f42e6d011fe2873b067d875
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:d17b9ebdf717b8ce43f81da3cf45919b60499cf7cf2ecc8d8d20278d46f58fa6
+    image: openemr/openemr:flex-edge@sha256:5df57770fcb00ba5d043dc3b58eb6ddd73c9ac8b0f42e6d011fe2873b067d875
     ports:
     - 8098:80
     - 9098:443
