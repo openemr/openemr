@@ -641,8 +641,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     echo text($appt_enc);
                                     $signable = new Encounter_Signable($appt_enc);
                                     if ($signable->isLocked()) {
-                                        echo "<span class='text-success' title='" . attr(xlt('Signed'))
-                                            . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
+                                        echo "<span class='text-success ml-1' title='" . attr(xlt('Signed')) . "'>"
+                                            . "<i class='fa fa-lock' aria-hidden='true'></i>"
+                                            . "</span>";
                                     }
                                 }
                                 ?>
