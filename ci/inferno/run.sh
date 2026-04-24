@@ -67,7 +67,7 @@ initialize_inferno() {
 }
 
 configure_api_globals() {
-    docker compose exec -T openemr mysql -u openemr --password=openemr openemr <<'SQL'
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr <<'SQL'
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
             ('rest_api', 0, '1'),
             ('rest_fhir_api', 0, '1'),
