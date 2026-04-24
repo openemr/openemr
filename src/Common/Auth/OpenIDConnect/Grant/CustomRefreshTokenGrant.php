@@ -94,8 +94,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
                         $responseType->setContextForNewTokens($decodedContext);
                     }
                 } catch (\JsonException $exception) {
-                    $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
-                        , 'tokenId' => $oldRefreshToken['access_token_id']]);
+                    $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception, 'tokenId' => $oldRefreshToken['access_token_id']]);
                 }
             }
         }

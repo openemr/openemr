@@ -417,7 +417,7 @@ class ContactAddressService extends BaseService
 
             return true;
         } catch (SqlQueryException $e) {
-            $this->getLogger()->error("Error setting primary address", ['error' => $e->getMessage()]);
+            $this->getLogger()->error("Error setting primary address", ['exception' => $e]);
             return false;
         }
     }
