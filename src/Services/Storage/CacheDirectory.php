@@ -58,9 +58,11 @@ final readonly class CacheDirectory
             $baseDir = sys_get_temp_dir();
         } else {
             if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+                // @codeCoverageIgnoreStart
                 throw new \LogicException(
                     'CacheDirectory $baseDir parameter is for testing only.'
                 );
+                // @codeCoverageIgnoreEnd
             }
         }
         $this->baseDir = $baseDir;
@@ -105,10 +107,12 @@ final readonly class CacheDirectory
     {
         $perms = fileperms($path);
         if ($perms === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException(sprintf(
                 'Cannot read permissions for cache directory: %s',
                 $path,
             ));
+            // @codeCoverageIgnoreEnd
         }
 
         if (($perms & 0777) !== 0700) {
