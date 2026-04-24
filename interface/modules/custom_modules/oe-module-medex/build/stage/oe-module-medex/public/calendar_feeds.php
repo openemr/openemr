@@ -578,6 +578,10 @@ while ($row = sqlFetchArray($feedResult)) {
 }
 
 $csrfToken = CsrfUtils::collectCsrfToken();
+$providerCount = count($providers);
+$facilityCount = count($facilities);
+$providerCountLabel = $providerCount . ' ' . ($providerCount === 1 ? xlt('provider') : xlt('providers'));
+$facilityCountLabel = $facilityCount . ' ' . ($facilityCount === 1 ? xlt('facility') : xlt('facilities'));
 ?>
 <!DOCTYPE html>
 <html>
@@ -663,6 +667,10 @@ $csrfToken = CsrfUtils::collectCsrfToken();
                 <div class="section-title">
                     <i class="fa fa-plus-circle"></i>
                     <?php echo xlt('Create New Calendar Feed'); ?>
+                </div>
+                <div class="setup-summary" style="display:flex; flex-direction:column; gap:4px; margin:-4px 0 16px 34px;">
+                    <div style="white-space:nowrap;"><?php echo text($providerCountLabel); ?></div>
+                    <div style="white-space:nowrap;"><?php echo text($facilityCountLabel); ?></div>
                 </div>
 
                 <div class="create-form">
