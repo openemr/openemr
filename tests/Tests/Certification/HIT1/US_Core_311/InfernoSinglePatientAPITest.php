@@ -28,6 +28,8 @@ class InfernoSinglePatientAPITest extends TestCase
     const DEFAULT_TEST_GROUP_ID = 'us_core_v311-us_core_v311_fhir_api';
     private static ApiTestClient $testClient;
     private static string $baseUrl;
+    /** @var string URL for Inferno to reach OpenEMR (may differ from $baseUrl in split host/docker setups) */
+    private static string $infernoOpenEmrUrl;
 
     private static Client $infernoClient;
 
@@ -41,6 +43,7 @@ class InfernoSinglePatientAPITest extends TestCase
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         self::$testClient = new ApiTestClient($baseUrl, false);
         self::$baseUrl = $baseUrl;
+        self::$infernoOpenEmrUrl = getenv("OPENEMR_BASE_URL_INFERNO", true) ?: $baseUrl;
         // for now this uses the admin user to authenticate
         // TODO: @adunsulag need to implement this using a test practitioner user so we can test the inferno single patient API from a regular provider
         self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
@@ -315,7 +318,7 @@ class InfernoSinglePatientAPITest extends TestCase
     {
         if (self::TEST_SUITE == self::TEST_SUITE_G10_CERTIFICATION) {
             return [
-                ['name' => 'url', 'value' => self::$baseUrl . '/apis/default/fhir'],
+                ['name' => 'url', 'value' => self::$infernoOpenEmrUrl . '/apis/default/fhir'],
                 ['name' => 'patient_id', 'value' => self::PATIENT_ID_PRIMARY],
                 ['name' => 'patient_ids', 'value' => self::PATIENT_IDS],
                 ['name' => 'additional_patient_ids', 'value' => self::ADDITIONAL_PATIENT_IDS],
@@ -323,7 +326,7 @@ class InfernoSinglePatientAPITest extends TestCase
             ];
         } else {
             return [
-                ['name' => 'url', 'value' => self::$baseUrl . '/apis/default/fhir'],
+                ['name' => 'url', 'value' => self::$infernoOpenEmrUrl . '/apis/default/fhir'],
                 ['name' => 'patient_ids', 'value' => self::PATIENT_IDS],
                 ['name' => $credentialsKeyName, 'value' => ['access_token' => $accessToken]]
             ];
