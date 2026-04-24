@@ -99,6 +99,12 @@ if ($sessionAudience === null || $sessionAudience === '') {
     exit;
 }
 
+if ($sessionSubject === null || $sessionSubject === '') {
+    http_response_code(400);
+    echo json_encode(['error' => 'not_oidc_session']);
+    exit;
+}
+
 // 7. Build the handler and delegate
 $globals = OEGlobalsBag::getInstance();
 $tempDir = $globals->getString('temporary_files_dir');

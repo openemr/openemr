@@ -31,7 +31,7 @@ final class OidcSessionHelperTest extends TestCase
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
 
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'jti-abc', 'sub-123', 'client-456');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-123', 'jti-abc', 'client-456');
 
         self::assertTrue(OidcSessionHelper::isOidcSession());
         self::assertSame($expiry->getTimestamp(), OidcSessionHelper::getTokenExpiry());
@@ -41,16 +41,37 @@ final class OidcSessionHelperTest extends TestCase
         self::assertSame('client-456', OidcSessionHelper::getAudience());
     }
 
-    public function testSetTokenMetadataWithNullOptionals(): void
+    public function testSetTokenMetadataWithNullJtiAndAudience(): void
     {
+        // jti and audience are still optional; subject is required and is the
+        // identity binding for refresh checks.
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
 
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com');
+        OidcSessionHelper::setTokenMetadata(
+            $expiry,
+            'https://issuer.example.com',
+            'sub-only-required-field',
+        );
 
         self::assertTrue(OidcSessionHelper::isOidcSession());
         self::assertNull(OidcSessionHelper::getJti());
-        self::assertNull(OidcSessionHelper::getSubject());
+        self::assertSame('sub-only-required-field', OidcSessionHelper::getSubject());
         self::assertNull(OidcSessionHelper::getAudience());
+    }
+
+    public function testSetTokenMetadataRejectsEmptySubject(): void
+    {
+        $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('OIDC subject is required');
+
+        OidcSessionHelper::setTokenMetadata(
+            $expiry,
+            'https://issuer.example.com',
+            '', // empty subject — must be rejected so a session can't exist without identity binding
+            'jti-x',
+        );
     }
 
     public function testIsOidcSessionReturnsFalseWhenNotSet(): void
@@ -81,7 +102,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testUpdateTokenExpiry(): void
     {
         $original = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($original, 'https://issuer.example.com', 'jti-old', 'sub-123', 'client-456');
+        OidcSessionHelper::setTokenMetadata($original, 'https://issuer.example.com', 'sub-123', 'jti-old', 'client-456');
 
         $newExpiry = new \DateTimeImmutable('2026-04-05 13:00:00');
         OidcSessionHelper::updateTokenExpiry($newExpiry, 'jti-new');
@@ -97,7 +118,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testUpdateTokenExpiryWithNullJtiPreservesExisting(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'jti-original');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-test', 'jti-original');
 
         $newExpiry = new \DateTimeImmutable('2026-04-05 13:00:00');
         OidcSessionHelper::updateTokenExpiry($newExpiry);
@@ -109,7 +130,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testIsTokenExpiredReturnsFalseBeforeExpiry(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-test');
 
         $now = $expiry->getTimestamp() - 60;
         self::assertFalse(OidcSessionHelper::isTokenExpired($now));
@@ -118,7 +139,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testIsTokenExpiredReturnsTrueAfterExpiry(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-test');
 
         $now = $expiry->getTimestamp() + 1;
         self::assertTrue(OidcSessionHelper::isTokenExpired($now));
@@ -127,7 +148,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testIsTokenExpiredRespectsGracePeriod(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-test');
 
         // 30 seconds after expiry, but within 60-second grace
         $now = $expiry->getTimestamp() + 30;
@@ -202,7 +223,7 @@ final class OidcSessionHelperTest extends TestCase
     public function testClearTokenMetadata(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');
-        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'jti-abc', 'sub-123', 'client-456');
+        OidcSessionHelper::setTokenMetadata($expiry, 'https://issuer.example.com', 'sub-123', 'jti-abc', 'client-456');
 
         OidcSessionHelper::clearTokenMetadata();
 

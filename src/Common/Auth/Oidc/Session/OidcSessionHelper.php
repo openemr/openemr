@@ -32,14 +32,25 @@ final class OidcSessionHelper
 
     /**
      * Store OIDC token metadata in the session after successful authentication.
+     *
+     * The subject is the identity binding for the session — every refresh check
+     * pins the new token's "sub" against it. Allowing it to be omitted lets a
+     * session pass refresh with any token from the same issuer/audience, which
+     * defeats the binding. Callers must therefore pass a non-empty subject.
+     *
+     * @throws \InvalidArgumentException when $subject is empty.
      */
     public static function setTokenMetadata(
         \DateTimeImmutable $tokenExpiry,
         string $issuer,
+        string $subject,
         ?string $jti = null,
-        ?string $subject = null,
         ?string $audience = null,
     ): void {
+        if ($subject === '') {
+            throw new \InvalidArgumentException('OIDC subject is required to bind the session to an external identity');
+        }
+
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $session->set(self::KEY_TOKEN_EXPIRY, $tokenExpiry->getTimestamp());
         $session->set(self::KEY_ISSUER, $issuer);

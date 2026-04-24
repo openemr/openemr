@@ -38,19 +38,27 @@ readonly class OidcSessionRefreshHandler
     }
 
     /**
-     * @param non-empty-string $idToken        The fresh ID token from the client.
-     * @param non-empty-string $sessionIssuer  The issuer stored in the session at login.
+     * @param non-empty-string $idToken         The fresh ID token from the client.
+     * @param non-empty-string $sessionIssuer   The issuer stored in the session at login.
      * @param non-empty-string $sessionAudience The audience stored in the session at login.
-     * @param string|null      $sessionSubject The subject (external ID) stored in the session at login.
-     * @param string           $username       The local OpenEMR username for audit logging.
+     * @param string           $sessionSubject  The subject (external ID) stored in the session at login. Must be non-empty; an empty value is rejected by the runtime check below as defense-in-depth against a caller that forgets to pre-validate.
+     * @param string           $username        The local OpenEMR username for audit logging.
      */
     public function handle(
         string $idToken,
         string $sessionIssuer,
         string $sessionAudience,
-        ?string $sessionSubject,
+        string $sessionSubject,
         string $username,
     ): OidcSessionRefreshResult {
+        // Subject pins the session to an external identity. Refusing refresh
+        // when it's missing prevents a session in an inconsistent state from
+        // being kept alive by any token from the same issuer/audience.
+        if ($sessionSubject === '') {
+            $this->auditLogger->subjectMismatch($username);
+            return OidcSessionRefreshResult::error(401, 'subject_missing');
+        }
+
         // 1. Discover provider metadata
         try {
             $metadata = $this->discoveryClient->getMetadata($sessionIssuer);
@@ -79,8 +87,8 @@ readonly class OidcSessionRefreshHandler
             return OidcSessionRefreshResult::error(401, 'issuer_mismatch');
         }
 
-        // 4. Subject pinning — must match session (if stored)
-        if ($sessionSubject !== null && $validatedToken->identity->externalId !== $sessionSubject) {
+        // 4. Subject pinning — must match session
+        if ($validatedToken->identity->externalId !== $sessionSubject) {
             $this->auditLogger->subjectMismatch($username);
             return OidcSessionRefreshResult::error(401, 'subject_mismatch');
         }

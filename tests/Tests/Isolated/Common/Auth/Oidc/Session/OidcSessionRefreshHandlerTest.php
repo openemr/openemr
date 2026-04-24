@@ -126,16 +126,21 @@ final class OidcSessionRefreshHandlerTest extends TestCase
         self::assertSame('subject_mismatch', $result->body['error']);
     }
 
-    public function testSubjectPinningSkippedWhenSessionSubjectIsNull(): void
+    public function testEmptySessionSubjectIsRejected(): void
     {
-        $this->stubDiscovery();
-        $this->stubTokenValidation(self::ISSUER, 'any-subject');
+        // An OIDC session that somehow lost its sub binding must not be
+        // refreshable — otherwise any token from the same issuer/audience
+        // could keep it alive (token substitution).
+        $this->auditLogger->expects(self::once())->method('subjectMismatch')->with(self::USERNAME);
+        // Discovery and token validation must NOT be touched.
+        $this->discoveryClient->expects(self::never())->method('getMetadata');
+        $this->tokenValidator->expects(self::never())->method('validate');
 
-        $this->auditLogger->expects(self::once())->method('refreshSucceeded');
+        $result = $this->handler->handle(self::ID_TOKEN, self::ISSUER, self::AUDIENCE, '', self::USERNAME);
 
-        $result = $this->handler->handle(self::ID_TOKEN, self::ISSUER, self::AUDIENCE, null, self::USERNAME);
-
-        self::assertTrue($result->success);
+        self::assertFalse($result->success);
+        self::assertSame(401, $result->httpStatus);
+        self::assertSame('subject_missing', $result->body['error']);
     }
 
     // ---------------------------------------------------------------
