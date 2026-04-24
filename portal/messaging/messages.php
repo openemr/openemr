@@ -580,9 +580,6 @@ function getAuthPortalUsers()
                             <li class="nav-item">
                                 <a class="nav-link" href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
                             </li>
-                            <!--<li class="nav-item">
-                                <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php /*echo $GLOBALS['web_root'] */ ?>/portal/home.php")' ng-show="isPortal"><?php /*echo xlt('Exit'); */ ?></a>
-                            </li>-->
                         </ul>
                     </div>
                 </div>

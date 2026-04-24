@@ -18,18 +18,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/*
- * Do not declare a namespace
- * If you want Lamina's manager to set namespace set it in getModuleNamespace
- * otherwise uncomment below and set path.
- *
- * */
-
-/*
-    $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
-    $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\DashboardContext\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
-*/
-
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Core\OEGlobalsBag;

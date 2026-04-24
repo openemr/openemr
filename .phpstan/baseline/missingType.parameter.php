@@ -30127,21 +30127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$creator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$fileName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$reportTitle with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method GenericRouter\\:\\:GetRoute\\(\\) has parameter \\$uri with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',

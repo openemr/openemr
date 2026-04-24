@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:d17b9ebdf717b8ce43f81da3cf45919b60499cf7cf2ecc8d8d20278d46f58fa6
+    image: openemr/openemr:flex-edge@sha256:5df57770fcb00ba5d043dc3b58eb6ddd73c9ac8b0f42e6d011fe2873b067d875
     ports:
     - 8088:80
     - 9088:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:d17b9ebdf717b8ce43f81da3cf45919b60499cf7cf2ecc8d8d20278d46f58fa6
+    image: openemr/openemr:flex-edge@sha256:5df57770fcb00ba5d043dc3b58eb6ddd73c9ac8b0f42e6d011fe2873b067d875
     ports:
     - 8098:80
     - 9098:443
@@ -789,7 +789,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
-    image: redis:latest@sha256:d372cf7cd5ab47fb6ad1a73c45ea1104d6f3fa11cc833ff0b3ac997890b4ccec
+    image: redis:latest@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7

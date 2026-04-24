@@ -3347,11 +3347,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$objects with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method FieldMap\\:\\:GetEnumValues\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php',
@@ -3508,11 +3503,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PortalController\\:\\:Redirect\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderRSS\\(\\) has parameter \\$feedItems with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];

@@ -356,8 +356,13 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
 
         // Set up working variables related to repeated events.
         $my_recurrtype = 0;
-        $my_repeat_freq = 0 + ($_POST['form_repeat_freq'] ?? null);
-        $my_repeat_type = 0 + ($_POST['form_repeat_type'] ?? null);
+        // Parse as int at the HTTP boundary: the builder has strict int
+        // parameters, and "0 + $_POST[...]" would yield a float for crafted
+        // decimal input, triggering TypeError before the builder can reject
+        // it. FILTER_VALIDATE_INT returns int or false/null, and the builder
+        // validates the 0 -> out-of-bounds case itself.
+        $my_repeat_freq = filter_input(INPUT_POST, 'form_repeat_freq', FILTER_VALIDATE_INT) ?: 0;
+        $my_repeat_type = filter_input(INPUT_POST, 'form_repeat_type', FILTER_VALIDATE_INT) ?: 0;
         $my_repeat_on_num  = 1;
         $my_repeat_on_day  = 0;
         $my_repeat_on_freq = 0;
@@ -381,22 +386,17 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $my_repeat_type = 6; // Keep this as 6. It signifies days of the week recurrence.
         $event_date = setEventDate($_POST['form_date'], $my_repeat_freq);
     } elseif (!empty($_POST['form_repeat'])) {
-        $my_recurrtype = 1;
-        if ($my_repeat_type > 4) { // Types 5+ use REPEAT_ON: 5=nth weekday, 6=last weekday, 7-9=nth occurrences
-            $my_recurrtype = 2;
-            $time = strtotime((string) $event_date);
-            $my_repeat_on_day = 0 + date('w', $time);
-            $my_repeat_on_freq = $my_repeat_freq;
-            if (in_array($my_repeat_type, [5, 7, 8, 9])) { //Added conditions for 7th, 8th, 9th.
-                $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
-            } else {
-                // Last occurrence of this weekday on the month
-                $my_repeat_on_num = 5; // Might need adjustment for new options.
-            }
-            // Maybe not needed, but for consistency with postcalendar:
-            $my_repeat_freq = 0;
-            $my_repeat_type = 0;
-        }
+        $spec = \OpenEMR\Common\Calendar\RecurrenceSpecBuilder::fromRepeatForm(
+            (string) $event_date,
+            $my_repeat_type,
+            $my_repeat_freq,
+        );
+        $my_recurrtype     = $spec->recurrType;
+        $my_repeat_type    = $spec->repeatType;
+        $my_repeat_freq    = $spec->repeatFreq;
+        $my_repeat_on_day  = $spec->repeatOnDay;
+        $my_repeat_on_num  = $spec->repeatOnNum;
+        $my_repeat_on_freq = $spec->repeatOnFreq;
     }
 
 

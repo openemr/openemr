@@ -323,7 +323,6 @@ class pnHTML
     function StartPage()
     {
         ob_start();
-        include 'header.php';
         print '<table class="w-100 border-0" cellpadding="0" cellspacing="0"><tr><td class="text-left align-top">';
 
         $output = ob_get_contents();
@@ -351,7 +350,6 @@ class pnHTML
 
         ob_start();
         print '</td></tr></table>';
-        include 'footer.php';
         $output = ob_get_contents();
         @ob_end_clean();
 

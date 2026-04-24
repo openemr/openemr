@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -188,7 +189,7 @@ class PersonService extends BaseService
 
             $this->getLogger()->info("Person deleted", ['id' => $personId]);
             $processingResult->addData(['deleted' => true, 'id' => $personId]);
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting person", [
                 'id' => $personId,
                 'error' => $e->getMessage()
@@ -290,7 +291,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error searching persons", ['error' => $e->getMessage()]);
             $processingResult->addInternalError($e->getMessage());
         }
@@ -345,7 +346,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error finding related persons", [
                 'patient_id' => $patientId,
                 'error' => $e->getMessage()
@@ -397,7 +398,7 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error finding related persons", [
                 'foreign_table' => $targetTable,
                 'foreign_id' => $targetID,

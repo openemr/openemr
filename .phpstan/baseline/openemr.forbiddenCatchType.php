@@ -499,11 +499,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
@@ -579,16 +574,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerLog.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
 ];
 $ignoreErrors[] = [
@@ -620,11 +605,6 @@ $ignoreErrors[] = [
     'message' => '#^catch \\(ValueError\\) would suppress Error, which is forbidden\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(ValueError\\) would suppress Error, which is forbidden\\.$#',
@@ -718,7 +698,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 10,
+    'count' => 9,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
@@ -753,7 +733,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Background/BackgroundServiceRunner.php',
 ];
 $ignoreErrors[] = [
@@ -763,22 +743,22 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Services/ContactAddressService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 7,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/ContactService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/ContactTelecomService.php',
 ];
 $ignoreErrors[] = [
@@ -853,7 +833,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 9,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/PersonService.php',
 ];
 $ignoreErrors[] = [

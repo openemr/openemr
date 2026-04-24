@@ -21,17 +21,6 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-/*
- * Do not declare a namespace
- * If you want Laminas manager to set namespace set it in getModuleNamespace
- * otherwise uncomment below and set path.
- *
- * */
-
-/*
-    $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
-    $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\FaxSMS\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
-*/
 
 class ModuleManagerListener extends AbstractModuleActionListener
 {

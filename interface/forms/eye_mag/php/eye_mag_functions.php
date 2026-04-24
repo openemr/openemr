@@ -3195,7 +3195,7 @@ function canvas_select($zone, $encounter, $pid)
  *
  *  If there is already a drawing for this zone in this encounter, it is pulled from
  *  from its stored location:
- *  $GLOBALS['web_root']."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
+ *  OEGlobalsBag::getInstance()->getWebRoot()."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
  *
  *  Otherwise a "BASE" image is pulled from the images directory of the form...  Customizable.
  *
@@ -5185,8 +5185,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     $count = 0;
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
-                            //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-
                             $current_VF = '<tr><td class="GFS_td_1 blue">
                                 <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
                                 <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
