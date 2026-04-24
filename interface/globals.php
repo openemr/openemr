@@ -710,12 +710,46 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
     $ignoreAuth = true;
 }
 
-// module configurations
+// Module bootstrap.
+//
+// Modules must be registered BEFORE auth.inc.php runs, because module
+// event listeners (notably the OIDC login-request handler from a custom
+// module) need to be wired to the EventDispatcher before auth.inc.php
+// dispatches OidcLoginRequestEvent. Otherwise the OIDC login flow can't
+// be intercepted by the module.
+//
+// But bootstrap is expensive — Laminas ModuleManager + a SELECT over
+// the `modules` table + per-module `is_readable` probes (up to 3 retries
+// with sleeps on failure) + `include` of every enabled module's
+// bootstrap.php. Running that on every unauthenticated request is an
+// unauthenticated resource-exhaustion vector (CWE-400): an attacker can
+// hit any protected URL in a loop and force the whole pipeline before
+// auth.inc.php redirects to the login screen.
+//
+// We gate bootstrap to the three cases that actually need modules:
+//   1. $ignoreAuth — explicitly public pages (login screen, portal, API
+//      entrypoints) that may call into module-registered hooks.
+//   2. An authenticated session already exists — the request will run
+//      to completion and likely hit module code.
+//   3. A login/logout submission — we need the OIDC login listener
+//      registered so auth.inc.php can dispatch to it.
+//
+// Any other request (no session, no login action, not a public page)
+// is guaranteed to short-circuit at auth.inc.php via authLoginScreen(),
+// which redirects before touching module code. Skipping bootstrap here
+// means the attacker hits a cheap session check + redirect instead of
+// the full module pipeline.
+//
 // upgrade fails for versions prior to 4.2.0 since no modules table
-// NOTE: Modules must load BEFORE auth so that module event listeners
-// (e.g. OIDC login handlers) are registered before auth.inc.php
-// dispatches authentication events.
-$checkModulesTableExists = QueryUtils::existsTable('modules');
+$authAction = $_GET['auth'] ?? null; // @phpstan-ignore openemr.forbiddenRequestGlobals
+$sessionAuthUser = $session->get('authUser');
+$hasAuthenticatedSession = is_string($sessionAuthUser) && $sessionAuthUser !== '';
+$needsPreAuthModules = $ignoreAuth
+    || $hasAuthenticatedSession
+    || $authAction === 'login'
+    || $authAction === 'logout';
+
+$checkModulesTableExists = $needsPreAuthModules && QueryUtils::existsTable('modules');
 
 if (!empty($checkModulesTableExists)) {
     $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
