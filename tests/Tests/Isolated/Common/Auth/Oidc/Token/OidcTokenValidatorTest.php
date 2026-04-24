@@ -17,6 +17,7 @@ use OpenEMR\Common\Auth\Oidc\Identity\StandardClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
+use OpenEMR\Common\Auth\Oidc\Token\TokenRevocationCheckerInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
 use phpseclib3\Crypt\RSA;
@@ -38,6 +39,7 @@ final class OidcTokenValidatorTest extends TestCase
     private OidcValidationParameters $params;
     private FakeClock $clock;
     private InMemoryJwtRepository $jwtRepository;
+    private InMemoryTokenRevocationChecker $revocationChecker;
 
     /** @var InMemory */
     private InMemory $privateKey;
@@ -79,12 +81,14 @@ final class OidcTokenValidatorTest extends TestCase
 
         $this->clock = new FakeClock(new \DateTimeImmutable('2026-01-15T12:00:00Z'));
         $this->jwtRepository = new InMemoryJwtRepository();
+        $this->revocationChecker = new InMemoryTokenRevocationChecker();
 
         $this->validator = new OidcTokenValidator(
             $this->httpClient,
             new StandardClaimMapper(),
             $this->clock,
             $this->jwtRepository,
+            $this->revocationChecker,
             $this->cache,
         );
 
@@ -593,6 +597,71 @@ final class OidcTokenValidatorTest extends TestCase
         self::assertSame(self::ISSUER, $records[0]['client_id']);
         self::assertIsInt($records[0]['jti_exp']);
         self::assertGreaterThan($this->clock->now()->getTimestamp(), $records[0]['jti_exp']);
+    }
+
+    public function testRevokedJtiIsRejected(): void
+    {
+        $jwt = $this->buildToken(jti: 'revoked-jti-1');
+        $this->revocationChecker->revoke('revoked-jti-1');
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('Token has been revoked');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    public function testRevokedTokenDoesNotPolluteReplayHistory(): void
+    {
+        // A revoked token must fail before we record it as "seen", otherwise a
+        // legitimate-but-later revoked token could not be re-issued under the
+        // same jti by the IdP (defense in depth — replay records aren't the
+        // primary concern, but we shouldn't leak state on a rejected request).
+        $jwt = $this->buildToken(jti: 'revoked-jti-2');
+        $this->revocationChecker->revoke('revoked-jti-2');
+
+        try {
+            $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+            self::fail('Expected revoked token to be rejected');
+        } catch (OidcTokenValidationException) {
+            // expected
+        }
+
+        self::assertSame([], $this->jwtRepository->recordsFor('revoked-jti-2'));
+    }
+
+    public function testTokenWithoutJtiIsNotAffectedByRevocationCheck(): void
+    {
+        // No jti claim → revocation check is skipped (documented behavior).
+        // Validation proceeds; replay protection still kicks in via the
+        // synthetic key.
+        $jwt = $this->buildToken();
+
+        $result = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        self::assertNull($result->jti);
+        self::assertSame('user-123', $result->identity->externalId);
+    }
+}
+
+/**
+ * Minimal in-memory TokenRevocationCheckerInterface — keeps isolated tests
+ * off the database.
+ *
+ * @internal
+ */
+final class InMemoryTokenRevocationChecker implements TokenRevocationCheckerInterface
+{
+    /** @var array<string, true> */
+    private array $revoked = [];
+
+    public function revoke(string $jti): void
+    {
+        $this->revoked[$jti] = true;
+    }
+
+    public function isRevoked(string $jti): bool
+    {
+        return isset($this->revoked[$jti]);
     }
 }
 

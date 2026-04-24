@@ -15,8 +15,9 @@
  *  6. Verify aud contains expected client ID
  *  7. Verify exp > current time (with clock skew tolerance)
  *  8. Verify iat is not unreasonably far in the past
- *  9. Map claims to NormalizedIdentity via ClaimMapperInterface
- * 10. Return ValidatedToken
+ *  9. Reject if jti is in the revocation list (immediate-lockout)
+ * 10. Map claims to NormalizedIdentity via ClaimMapperInterface
+ * 11. Return ValidatedToken
  *
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
@@ -57,6 +58,7 @@ readonly class OidcTokenValidator
         private ClaimMapperInterface $claimMapper,
         private ClockInterface $clock,
         private JWTRepository $jwtRepository,
+        private TokenRevocationCheckerInterface $revocationChecker,
         private ?CacheInterface $cache = null,
         private ?LoggerInterface $logger = null,
         private ?OidcUrlValidator $urlValidator = null,
@@ -150,6 +152,14 @@ readonly class OidcTokenValidator
             }
         }
 
+        // Step 9: Reject revoked jtis. Tokens without a jti claim cannot be
+        // revoked through this mechanism — operators wanting immediate lockout
+        // for those should rely on session invalidation instead.
+        $jti = $token->claims()->get('jti');
+        if (is_string($jti) && $jti !== '' && $this->revocationChecker->isRevoked($jti)) {
+            throw new OidcTokenValidationException('Token has been revoked');
+        }
+
         // JTI replay protection.
         //
         // Every ID-token validation records a replay key so a second presentation
@@ -172,7 +182,7 @@ readonly class OidcTokenValidator
         $storedExpiration = $exp instanceof \DateTimeInterface ? $exp->getTimestamp() : null;
         $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $storedExpiration);
 
-        // Step 9: Map claims to NormalizedIdentity
+        // Step 10: Map claims to NormalizedIdentity
         $claims = $this->extractClaims($token);
 
         if (!$this->claimMapper->supports($claims)) {
@@ -185,12 +195,10 @@ readonly class OidcTokenValidator
             throw new OidcTokenValidationException('Failed to map token claims to identity', 0, $e);
         }
 
-        // Step 10: Build result
+        // Step 11: Build result
         $expiresAt = $exp instanceof \DateTimeImmutable
             ? $exp
             : new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp());
-
-        $jti = $token->claims()->get('jti');
 
         return new ValidatedToken(
             identity: $identity,

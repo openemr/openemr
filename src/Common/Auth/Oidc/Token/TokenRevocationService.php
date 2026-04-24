@@ -20,7 +20,7 @@ namespace OpenEMR\Common\Auth\Oidc\Token;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
-final class TokenRevocationService
+final class TokenRevocationService implements TokenRevocationCheckerInterface
 {
     public const TABLE_NAME = 'oidc_token_revocation';
 

@@ -24,6 +24,7 @@ use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionRefreshHandler;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
+use OpenEMR\Common\Auth\Oidc\Token\TokenRevocationService;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -124,6 +125,7 @@ $handler = new OidcSessionRefreshHandler(
         new MinimalClaimMapper(),
         $clock,
         new JWTRepository(),
+        new TokenRevocationService(),
         $cache,
         urlValidator: $urlValidator,
     ),
