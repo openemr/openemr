@@ -90,7 +90,7 @@ jobs:
       - name: Initialize Inferno
         working-directory: ci/inferno
         run: |
-          docker compose -f compose.bare-metal.yml exec -T inferno bundle exec inferno migrate
+          docker compose -f compose.bare-metal.yml run --rm inferno bundle exec inferno migrate
 
       - name: Run CLI installer
         run: ./cli install
