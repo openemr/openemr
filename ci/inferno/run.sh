@@ -66,6 +66,19 @@ initialize_inferno() {
     echo 'Inferno lit'
 }
 
+configure_api_globals() {
+    docker compose exec -T openemr mysql -u openemr --password=openemr openemr <<'SQL'
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
+            ('rest_api', 0, '1'),
+            ('rest_fhir_api', 0, '1'),
+            ('rest_portal_api', 0, '1'),
+            ('oauth_password_grant', 0, '3'),
+            ('rest_system_scopes_api', 0, '1'),
+            ('ccda_alt_service_enable', 0, '3')
+        ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
+SQL
+}
+
 initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
@@ -83,6 +96,8 @@ initialize_openemr() {
     install_configure
     "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+    # Re-apply API globals after snapshot restore (snapshot may have different values)
+    configure_api_globals
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
