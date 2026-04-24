@@ -171,13 +171,13 @@ function medexHasEnabledService(array $enabledServices, array $candidates): bool
 function medexCalendarFeedsAclReq(array $state): array
 {
     $default = ['patients', 'appt'];
-    if (empty($state['module_enabled']) || empty($state['has_credentials']) || empty($state['has_live_session_token'])) {
+    if (empty($state['module_enabled']) || empty($state['has_credentials'])) {
         return $default;
     }
 
     $cacheKey = 'medex_calendar_feeds_acl_cache';
     $cached = $_SESSION[$cacheKey] ?? null;
-    if (is_array($cached) && !empty($cached['ts']) && ((int)$cached['ts'] + 300) > time() && !empty($cached['data']) && is_array($cached['data'])) {
+    if (is_array($cached) && !empty($cached['ts']) && ((int)($cached['ts'] ?? 0) + 300) > time() && !empty($cached['data']) && is_array($cached['data'])) {
         return [
             (string)($cached['data'][0] ?? $default[0]),
             (string)($cached['data'][1] ?? $default[1]),
@@ -265,7 +265,7 @@ if (!function_exists('oe_module_medex_add_menu_item')) {
         $medexTopMenu->menu_id = 'medimg';
         $medexTopMenu->label = xlt('MedEx');
         $medexTopMenu->children = [];
-        $medexTopMenu->acl_req = [];
+        $medexTopMenu->acl_req = ['admin', 'super'];
 
         $isAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
         if ($isAdmin) {
@@ -293,9 +293,9 @@ if (!function_exists('oe_module_medex_add_menu_item')) {
         $calendarBundleEnabled = !empty($state['module_enabled'])
             && !empty($state['has_credentials'])
             && medexHasEnabledService(
-            (array)$state['enabled_services'],
-            ['calendar_ai', 'calendar_services', 'calendar_export']
-        );
+                (array)$state['enabled_services'],
+                ['calendar_ai', 'calendar_services', 'calendar_export']
+            );
 
         if ($calendarBundleEnabled) {
             $calendarFeedsAclReq = medexCalendarFeedsAclReq($state);
