@@ -19,18 +19,29 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
+        database:
+          - image: mysql:9
+            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+          - image: mariadb:12
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
         php:
           - '8.5'
 
 
     services:
       mysql:
-        image: mysql:8
+        image: ${{ matrix.database.image }}
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_USER: ci
           MYSQL_PASSWORD: topsecret
           MYSQL_DATABASE: openemr_test
+        options: >-
+          --health-cmd="${{ matrix.db.health-cmd }}"
+          --health-interval=3s
+          --health-timeout=2s
+          --health-retries=20
+
         ports:
           - 3306:3306
 
