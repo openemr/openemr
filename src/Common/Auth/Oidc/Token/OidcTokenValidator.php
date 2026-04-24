@@ -40,6 +40,7 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
@@ -58,6 +59,7 @@ readonly class OidcTokenValidator
         private JWTRepository $jwtRepository,
         private ?CacheInterface $cache = null,
         private ?LoggerInterface $logger = null,
+        private ?OidcUrlValidator $urlValidator = null,
     ) {
     }
 
@@ -113,6 +115,7 @@ readonly class OidcTokenValidator
                 null,
                 $this->logger,
                 $this->cache,
+                urlValidator: $this->urlValidator,
             );
             $publicKey = $jwks->getSigningKeyAsPem($kid, $alg);
         } catch (JWKValidatorException $e) {

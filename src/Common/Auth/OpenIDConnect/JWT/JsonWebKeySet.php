@@ -23,6 +23,8 @@ use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidationException;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Utils\HttpUtils;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Math\BigInteger;
@@ -70,6 +72,7 @@ class JsonWebKeySet implements Key
         ?LoggerInterface $logger = null,
         private readonly ?CacheInterface $cache = null,
         private readonly int $cacheTtlSeconds = self::DEFAULT_CACHE_TTL_SECONDS,
+        private readonly ?OidcUrlValidator $urlValidator = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->setHttpClient($httpClient);
@@ -271,6 +274,15 @@ class JsonWebKeySet implements Key
 
     protected function getJWKFromUri($jwk_uri): string
     {
+        if ($this->urlValidator !== null) {
+            $uriToValidate = is_string($jwk_uri) ? $jwk_uri : '';
+            try {
+                $this->urlValidator->validateJwksUri($uriToValidate);
+            } catch (OidcUrlValidationException $exception) {
+                throw new JWKValidatorException('Refusing to fetch from unsafe jwks_uri', 0, $exception);
+            }
+        }
+
         try {
             $request = new Request('GET', $jwk_uri);
             $body = $this->httpClient->sendRequest($request)->getBody();

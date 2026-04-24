@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\OpenIDConnect\JWT;
 
 use GuzzleHttp\Psr7\Response;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
 use phpseclib3\Crypt\RSA;
@@ -216,6 +217,25 @@ final class JsonWebKeySetSigningKeyTest extends TestCase
         // getSigningKeyAsPem should still work against the inline JWKS.
         $pem = $set->getSigningKeyAsPem(self::KID, 'RS256');
         self::assertStringContainsString('-----BEGIN PUBLIC KEY-----', $pem->contents());
+    }
+
+    public function testValidatorRejectsUnsafeJwksUri(): void
+    {
+        // Strict policy must reject http:// jwks_uri before the HTTP client is touched.
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('unsafe jwks_uri');
+
+        try {
+            new JsonWebKeySet(
+                $this->httpClient,
+                'http://accounts.example.com/jwks',
+                null,
+                new NullLogger(),
+                urlValidator: new OidcUrlValidator(),
+            );
+        } finally {
+            self::assertSame(0, $this->httpClient->getRequestCount(), 'No HTTP request should be made for an unsafe URL');
+        }
     }
 }
 

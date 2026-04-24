@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcRefreshAuditLogger;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionRefreshHandler;
@@ -109,9 +110,24 @@ $httpClient = new GuzzleHttp\Client(['timeout' => 10]);
 $cache = new Psr16Cache(new FilesystemAdapter('', 0, $cacheDir));
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 
+// Strict SSRF policy in production, relaxed in dev so the docker oidc-mock
+// service (plain HTTP on the docker bridge network) keeps working.
+$strictUrlPolicy = !$globals->getKernel()->isDev();
+$urlValidator = new OidcUrlValidator(
+    requireHttps: $strictUrlPolicy,
+    blockPrivateIps: $strictUrlPolicy,
+);
+
 $handler = new OidcSessionRefreshHandler(
-    new OidcTokenValidator($httpClient, new MinimalClaimMapper(), $clock, new JWTRepository(), $cache),
-    new OidcDiscoveryClient($httpClient, $cache),
+    new OidcTokenValidator(
+        $httpClient,
+        new MinimalClaimMapper(),
+        $clock,
+        new JWTRepository(),
+        $cache,
+        urlValidator: $urlValidator,
+    ),
+    new OidcDiscoveryClient($httpClient, $cache, urlValidator: $urlValidator),
     new DatabaseOidcRefreshAuditLogger(),
     $globals->getInt('oidc_clock_skew_seconds'),
 );

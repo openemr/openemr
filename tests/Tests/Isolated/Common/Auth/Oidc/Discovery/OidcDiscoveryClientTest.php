@@ -12,6 +12,7 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery;
 
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
@@ -276,5 +277,63 @@ final class OidcDiscoveryClientTest extends TestCase
         // Verify it was cached (second call doesn't fetch)
         $shortTtlClient->getMetadata(self::ISSUER);
         self::assertSame(1, $this->httpClient->getRequestCount());
+    }
+
+    public function testValidatorRejectsHttpIssuerWithStrictPolicy(): void
+    {
+        $client = new OidcDiscoveryClient(
+            $this->httpClient,
+            $this->cache,
+            urlValidator: new OidcUrlValidator(),
+        );
+
+        $this->expectException(OidcDiscoveryException::class);
+        $this->expectExceptionMessage('unsafe discovery URL');
+
+        $client->getMetadata('http://accounts.example.com');
+    }
+
+    public function testValidatorRejectsJwksUriOnDifferentHost(): void
+    {
+        // Permissive on https/private-IP so the docs-reserved hostname passes,
+        // but host-pin still applies and must catch the cross-host jwks_uri.
+        $client = new OidcDiscoveryClient(
+            $this->httpClient,
+            $this->cache,
+            urlValidator: new OidcUrlValidator(
+                requireHttps: true,
+                blockPrivateIps: false,
+            ),
+        );
+
+        $this->httpClient->setNextResponse(200, json_encode([
+            'issuer' => self::ISSUER,
+            'authorization_endpoint' => self::ISSUER . '/auth',
+            // jwks_uri on a different host than the issuer.
+            'jwks_uri' => 'https://attacker.example.net/jwks',
+        ], JSON_THROW_ON_ERROR));
+
+        $this->expectException(OidcDiscoveryException::class);
+        $this->expectExceptionMessage('unsafe jwks_uri');
+
+        $client->getMetadata(self::ISSUER);
+    }
+
+    public function testValidatorAcceptsJwksUriOnIssuerHost(): void
+    {
+        $client = new OidcDiscoveryClient(
+            $this->httpClient,
+            $this->cache,
+            urlValidator: new OidcUrlValidator(
+                requireHttps: true,
+                blockPrivateIps: false,
+            ),
+        );
+
+        $this->setValidDiscoveryResponse();
+
+        $metadata = $client->getMetadata(self::ISSUER);
+
+        self::assertSame(self::ISSUER . '/jwks', $metadata->jwksUri);
     }
 }

@@ -32,6 +32,7 @@ readonly class OidcDiscoveryClient
         private ClientInterface $httpClient,
         private CacheInterface $cache,
         private int $ttlSeconds = self::DEFAULT_TTL_SECONDS,
+        private ?OidcUrlValidator $urlValidator = null,
     ) {
     }
 
@@ -72,14 +73,43 @@ readonly class OidcDiscoveryClient
     private function fetchAndCache(string $issuerUrl, string $cacheKey): OidcProviderMetadata
     {
         $discoveryUrl = $this->buildDiscoveryUrl($issuerUrl);
+        $this->assertSafeDiscoveryUrl($discoveryUrl);
+
         $document = $this->fetchDiscoveryDocument($discoveryUrl);
         $metadata = OidcProviderMetadata::fromDiscoveryDocument($document);
 
         $this->validateIssuerMatch($issuerUrl, $metadata->issuer);
+        $this->assertSafeJwksUri($metadata->jwksUri, $issuerUrl);
 
         $this->cache->set($cacheKey, $document, $this->ttlSeconds);
 
         return $metadata;
+    }
+
+    private function assertSafeDiscoveryUrl(string $discoveryUrl): void
+    {
+        if ($this->urlValidator === null) {
+            return;
+        }
+
+        try {
+            $this->urlValidator->validateDiscoveryUrl($discoveryUrl);
+        } catch (OidcUrlValidationException $e) {
+            throw new OidcDiscoveryException('Refusing to fetch from unsafe discovery URL', 0, $e);
+        }
+    }
+
+    private function assertSafeJwksUri(string $jwksUri, string $issuerUrl): void
+    {
+        if ($this->urlValidator === null) {
+            return;
+        }
+
+        try {
+            $this->urlValidator->validateJwksUri($jwksUri, $issuerUrl);
+        } catch (OidcUrlValidationException $e) {
+            throw new OidcDiscoveryException('Refusing to use unsafe jwks_uri from discovery document', 0, $e);
+        }
     }
 
     /**
