@@ -14,6 +14,7 @@ require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\Storage\CacheDirectory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
@@ -77,7 +78,7 @@ if ($action === 'print_labels') {
     }
 
     $pdf = new mPDF([
-        'tempDir' => sys_get_temp_dir() . '/openemr-mpdf',
+        'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',

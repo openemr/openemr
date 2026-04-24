@@ -34,6 +34,7 @@
 require_once(__DIR__.'/../../vendor/autoload.php');
 
 use OpenEMR\Gacl\GaclAdminApi;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -61,7 +62,7 @@ $db = &$gacl->db;
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
 $smarty->setTemplateDir($gacl_options['smarty_template_dir'] ?? '');
-$smarty->setCompileDir(sys_get_temp_dir() . '/openemr-smarty');
+$smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
 
 /*
  * Email address used in setup.php, please do not change.
