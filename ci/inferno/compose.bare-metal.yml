@@ -1,0 +1,46 @@
+services:
+  inferno:
+    build:
+      context: onc-certification-g10-test-kit
+    volumes:
+      - ./onc-certification-g10-test-kit/data:/opt/inferno/data
+    environment:
+      INFERNO_DISABLE_TLS_TEST: 'true'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - hl7_validator_service
+
+  worker:
+    build:
+      context: onc-certification-g10-test-kit
+    volumes:
+      - ./onc-certification-g10-test-kit/data:/opt/inferno/data
+    command: bundle exec sidekiq -r ./worker.rb
+    environment:
+      INFERNO_DISABLE_TLS_TEST: 'true'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - redis
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./onc-certification-g10-test-kit/config/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:80"
+    command: [nginx, '-g', 'daemon off;']
+
+  redis:
+    image: redis
+    volumes:
+      - ./onc-certification-g10-test-kit/data/redis:/data
+    command: redis-server --appendonly yes
+
+  hl7_validator_service:
+    image: infernocommunity/inferno-resource-validator:1.0.65
+    environment:
+      SESSION_CACHE_DURATION: -1
+    volumes:
+      - ./onc-certification-g10-test-kit/lib/onc_certification_g10_test_kit/igs:/home/igs
