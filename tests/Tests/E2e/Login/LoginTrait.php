@@ -57,24 +57,6 @@ trait LoginTrait
             // case, retry with a fresh session rather than waiting the
             // full 30s timeout.
             if (!$this->waitForAppReady(5)) {
-                try {
-                    $diag = $this->client->executeScript(<<<'JS'
-                        return JSON.stringify({
-                            url: location.href,
-                            title: document.title,
-                            readyState: document.readyState,
-                            koAvailable: typeof ko !== 'undefined',
-                            mainMenuExists: document.getElementById('mainMenu') !== null,
-                            mainMenuChildren: document.getElementById('mainMenu')?.children.length ?? 0,
-                            topUrl: top?.location?.href,
-                            frameCount: top?.frames?.length ?? 0,
-                            bodyLength: document.body?.innerHTML?.length ?? 0
-                        });
-                    JS);
-                    fwrite(STDERR, "[E2E] waitForAppReady failed, state: {$diag}\n");
-                } catch (\Throwable $e) {
-                    fwrite(STDERR, "[E2E] diagnostics failed: {$e->getMessage()}\n");
-                }
                 // JS failed to initialize - retry with fresh session
                 fwrite(STDERR, "[E2E] JS failed to initialize after login, retrying with fresh session...\n");
                 $this->client->quit();
