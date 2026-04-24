@@ -12,9 +12,11 @@
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ray Magauran <magauran@medexbank.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,8 +27,9 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
-use ESign\Encounter_Signable;
+use ESign\SignatureIF;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -340,10 +343,38 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
+    // Show the lock icon only when the encounter column is visible AND the
+    // esign-lock feature is enabled.
+    $collectLockedEncounters = OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')
+        && OEGlobalsBag::getInstance()->getBoolean('lock_esign_all');
     $chk_prov = [];  // list of providers with appointments
+    $encounterIds = [];
     // Scan appointments for additional info
     foreach ($appointments as $apt) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+        if ($collectLockedEncounters && is_array($apt)) {
+            $encValue = $apt['encounter'] ?? null;
+            if (is_numeric($encValue) && (int)$encValue !== 0) {
+                $encounterIds[(int)$encValue] = true;
+            }
+        }
+    }
+
+    // Batch-load locked encounter ids so the per-row lock-icon check doesn't
+    // issue a query per appointment.
+    $lockedEncounters = [];
+    if ($collectLockedEncounters && count($encounterIds) > 0) {
+        $ids = array_keys($encounterIds);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $lockQuery = "SELECT DISTINCT tid FROM esign_signatures "
+            . "WHERE `table` = 'form_encounter' AND is_lock = ? AND tid IN ($placeholders)";
+        $lockParams = array_merge([SignatureIF::ESIGN_LOCK], $ids);
+        foreach (QueryUtils::fetchRecords($lockQuery, $lockParams) as $lockRow) {
+            $tid = $lockRow['tid'] ?? null;
+            if (is_numeric($tid)) {
+                $lockedEncounters[(int)$tid] = true;
+            }
+        }
     }
     ?>
                 <div class="col-sm-12 text-center m-1">
@@ -639,9 +670,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <?php
                                 if ($appt_enc != 0) {
                                     echo text($appt_enc);
-                                    $signable = new Encounter_Signable($appt_enc);
-                                    if ($signable->isLocked()) {
-                                        echo "<span class='text-success ml-1' title='" . attr(xlt('Signed')) . "'>"
+                                    if (is_numeric($appt_enc) && isset($lockedEncounters[(int)$appt_enc])) {
+                                        echo "<span class='text-success ml-1' title='" . xla('Signed') . "'>"
                                             . "<i class='fa fa-lock' aria-hidden='true'></i>"
                                             . "</span>";
                                     }
