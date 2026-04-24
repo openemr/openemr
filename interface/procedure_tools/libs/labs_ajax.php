@@ -14,9 +14,9 @@ require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\Storage\CacheDirectory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
