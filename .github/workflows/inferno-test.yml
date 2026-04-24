@@ -85,12 +85,8 @@ jobs:
         working-directory: ci/inferno
         run: |
           docker compose -f compose.bare-metal.yml build
-          docker compose -f compose.bare-metal.yml up --detach --wait
-
-      - name: Initialize Inferno
-        working-directory: ci/inferno
-        run: |
           docker compose -f compose.bare-metal.yml run --rm inferno bundle exec inferno migrate
+          docker compose -f compose.bare-metal.yml up --detach --wait
 
       - name: Run CLI installer
         run: ./cli install
@@ -144,7 +140,7 @@ jobs:
       - name: Run certification tests
         env:
           OPENEMR_BASE_URL_API: http://host.docker.internal:8080
-          INFERNO_BASE_URL: http://localhost:8000
+          INFERNO_BASE_URL: http://localhost:8080
         run: |
           vendor/bin/phpunit \
             --testsuite certification \
