@@ -1362,11 +1362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$close \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$jumpday \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
@@ -1428,7 +1423,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$template_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
 ];
 $ignoreErrors[] = [
@@ -1460,166 +1455,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$t\\[\'text\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$background \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$bgbackground \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$bgcolor \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$border \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$caparray \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$capcolor \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$capicon \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$captionfont \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$captionsize \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$closecolor \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$closefont \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$closesize \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$delay \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$fgbackground \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$fgcolor \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$fixx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$fixy \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$frame \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$function \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$height \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$inarray \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$offsetx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$offsety \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$padx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$pady \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$snapx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$snapy \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$textcolor \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$textfont \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$textsize \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$timeout \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$width \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$eid \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1733,11 +1568,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$table \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$template_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];

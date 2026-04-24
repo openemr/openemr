@@ -11322,16 +11322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$sticky might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$text might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_popup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$function might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_sort_events.php',

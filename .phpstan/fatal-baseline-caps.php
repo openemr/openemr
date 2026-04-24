@@ -37,7 +37,7 @@ return [
     'all' => [
         'class.notFound.php' => 237,
         'classConstant.notFound.php' => 0,
-        'constant.notFound.php' => 123,
+        'constant.notFound.php' => 0,
         'function.notFound.php' => 0,
         'include.fileNotFound.php' => 0,
         'includeOnce.fileNotFound.php' => 0,
@@ -48,7 +48,7 @@ return [
         'return.missing.php' => 29,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
-        'variable.undefined.php' => 3446,
+        'variable.undefined.php' => 3444,
     ],
     'confidentNonObject' => [
         'classConstant.nonObject.php' => 1,
