@@ -276,6 +276,14 @@ To regenerate the baseline after fixing violations:
 composer phpstan-baseline
 ```
 
+To wipe and rebuild the baseline from scratch (ignoring whatever is currently on disk):
+
+```bash
+composer phpstan-baseline-reset
+```
+
+This deletes every file under `.phpstan/baseline/`, writes a minimal empty `loader.php`, and then runs `composer phpstan-baseline` to rebuild the per-identifier files from the current codebase. Use this instead of `composer phpstan-baseline` when you want a clean regeneration — for example, when the baseline has drifted, or when the existing files are in a state PHPStan can't even load (leftover merge conflict markers, a truncated file, etc.).
+
 ### Fatal-category caps
 
 Certain baseline files hold errors for code that cannot run at load or call time. `.phpstan/fatal-baseline-caps.php` records the current count per file and `tests/Tests/Isolated/PHPStan/FatalBaselineCapsIsolatedTest.php` asserts the actual count equals the cap. Two modes:
