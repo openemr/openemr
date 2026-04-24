@@ -42,7 +42,7 @@ return [
         'include.fileNotFound.php' => 0,
         'includeOnce.fileNotFound.php' => 0,
         'interface.notFound.php' => 0,
-        'method.notFound.php' => 253,
+        'method.notFound.php' => 189,
         'require.fileNotFound.php' => 0,
         'requireOnce.fileNotFound.php' => 0,
         'return.missing.php' => 29,
