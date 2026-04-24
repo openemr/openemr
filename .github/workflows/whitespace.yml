@@ -1,0 +1,49 @@
+name: Whitespace
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+
+  whitespace:
+    runs-on: ubuntu-24.04
+    name: Check whitespace
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+    - name: Install pre-commit
+      run: pip install pre-commit
+    - name: Get changed files (PR only)
+      if: github.event_name == 'pull_request'
+      id: changed-files
+      uses: tj-actions/changed-files@v47
+    - name: Run whitespace hooks (PR - changed files only)
+      if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        pre-commit run trailing-whitespace --files ${{ steps.changed-files.outputs.all_changed_files }}
+        pre-commit run end-of-file-fixer --files ${{ steps.changed-files.outputs.all_changed_files }}
+        pre-commit run mixed-line-ending --files ${{ steps.changed-files.outputs.all_changed_files }}
+    - name: Run whitespace hooks (push - all files)
+      if: github.event_name == 'push'
+      run: |
+        pre-commit run --all-files trailing-whitespace
+        pre-commit run --all-files end-of-file-fixer
+        pre-commit run --all-files mixed-line-ending

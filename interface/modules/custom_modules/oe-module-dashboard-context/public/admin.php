@@ -4,7 +4,7 @@
  * Dashboard Context Manager - Administration Page
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -23,8 +24,9 @@ if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('admin', 
     exit;
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken();
-$moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/custom_modules/oe-module-dashboard-context';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$moduleUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/modules/custom_modules/oe-module-dashboard-context';
 ?>
 <!DOCTYPE html>
 <html>

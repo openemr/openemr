@@ -7,7 +7,7 @@ var xpath = require('xpath');
 function parseSchematron(doc) {
     // Extract data from schematron
     var schematronData = extract(doc);
-    
+
     return schematronData;
 }
 
@@ -16,18 +16,18 @@ function extract(doc) {
     var patternLevelMap = {};
     var patternRuleMap = {};
     var ruleAssertionMap = {};
-    
+
     //// Namespace mapping
     var namespaces = xpath.select('//*[local-name()="ns"]', doc);
     for (var i = 0; i < namespaces.length; i++) {
         namespaceMap[namespaces[i].getAttribute('prefix')] = namespaces[i].getAttribute('uri');
     }
-    
+
     //// Pattern to level mapping
-    
+
     // Find errors phases
     var errorPhase = xpath.select('//*[local-name()="phase" and @id="errors"]', doc);
-    
+
     // Store error patterns
     if (errorPhase.length) {
         for (var i = 0; i < errorPhase[0].childNodes.length; i++) {
@@ -36,10 +36,10 @@ function extract(doc) {
             }
         }
     }
-        
+
     // Find errors phases
     var warningPhase = xpath.select('//*[local-name()="phase" and @id="warnings"]', doc);
-    
+
     // Store warning patterns
     if (warningPhase.length) {
         for (var i = 0; i < warningPhase[0].childNodes.length; i++) {
@@ -48,12 +48,12 @@ function extract(doc) {
             }
         }
     }
-    
+
     //// Pattern to rule and rule to assertion mapping
-    
+
     // Find patterns
     var patterns = xpath.select('//*[local-name()="pattern"]', doc);
-    
+
     // Map patterns to rules
     for (var i = 0; i < patterns.length; i++) {
         var patternId = patterns[i].getAttribute('id');
@@ -67,9 +67,9 @@ function extract(doc) {
                 context: parseContext(rules[j].getAttribute('context')),
                 assertionsAndExtensions: getAssertionsAndExtensions(rules[j], defaultLevel)
             };
-        }        
+        }
     }
-    
+
     return {
         namespaceMap: namespaceMap,
         patternRuleMap: patternRuleMap,
@@ -79,7 +79,7 @@ function extract(doc) {
 
 function getAssertionsAndExtensions(rule, defaultLevel) {
     var assertionsAndExtensions = [];
-    
+
     // Find and store assertions
     var assertions = xpath.select('./*[local-name()="assert"]', rule);
     for (var i = 0; i < assertions.length; i++) {
@@ -97,7 +97,7 @@ function getAssertionsAndExtensions(rule, defaultLevel) {
             description: description
         });
     }
-    
+
     // Find and store extensions
     var extensions = xpath.select('./*[local-name()="extends"]', rule);
     for (var i = 0; i < extensions.length; i++) {
@@ -106,7 +106,7 @@ function getAssertionsAndExtensions(rule, defaultLevel) {
             rule: extensions[i].getAttribute('rule'),
         });
     }
-    
+
     return assertionsAndExtensions;
 }
 

@@ -1,8 +1,9 @@
 <?php
+
 /*
  * FhirDocumentReferenceTrait.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -193,7 +194,7 @@ trait FhirDocumentReferenceTrait {
         }
     }
 
-    public function populateStatus(FhirDocumentReference $docReference, array $dataRecord): void
+    public function populateStatus(FHIRDocumentReference $docReference, array $dataRecord): void
     {
         if (!empty($dataRecord['deleted'])) {
             if ($dataRecord['deleted'] != 1) {

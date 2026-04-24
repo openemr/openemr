@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,10 +15,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use MyMailer;
-use OpenEMR\Tests\E2e\Email\EmailTestingTrait;
 use OpenEMR\Tests\E2e\Email\EmailTestData;
-use PHPUnit\Framework\Attributes\Test;
+use OpenEMR\Tests\E2e\Email\EmailTestingTrait;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class EmailSendTest extends TestCase

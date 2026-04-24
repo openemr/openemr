@@ -4,7 +4,7 @@
  * Report to view the Direct Message log.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,20 +12,20 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Direct Message Log")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Direct Message Log", xl("Direct Message Log"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 ?>
 
@@ -74,7 +74,7 @@ $logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lo
 <span class='title'><?php echo xlt('Direct Message Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='lognext' id='lognext' value=''>
 
 <div id="report_parameters">
@@ -164,7 +164,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'>&nbsp;</td>
     <?php } ?>
 
-    <td align='center'><?php echo text(oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
+    <td align='center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row['create_ts'], "global", true)); ?></td>
     <td align='center'><?php echo text($row['sender']); ?></td>
     <td align='center'><?php echo text($row['recipient']); ?></td>
 
@@ -197,4 +197,3 @@ while ($row = sqlFetchArray($res)) {
 
 </body>
 </html>
-

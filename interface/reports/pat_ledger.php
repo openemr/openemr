@@ -5,7 +5,7 @@
  * applied.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    WMT
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -17,22 +17,23 @@
  */
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -49,8 +50,7 @@ $pat_pid = $_GET['patient_id'] ?? null;
 $type_form = $_GET['form'];
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Ledger by Date")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Patient Ledger by Date", xl("Patient Ledger by Date"));
 }
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
@@ -81,22 +81,6 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     }
 
     return($all);
-}
-
-function User_Id_Look($thisField)
-{
-    if (!$thisField) {
-        return '';
-    }
-
-    $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
-    $rrow = sqlFetchArray($rlist);
-    if ($rrow) {
-        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
-    }
-
-    return $ret;
 }
 
 function List_Look($thisData, $thisList)
@@ -147,20 +131,7 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr): void
-{
-    global $bgcolor, $orow;
-    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr class='bg-white'>";
-    if (strlen((string) $rsn) > 50) {
-        $rsn = substr((string) $rsn, 0, 50) . '...';
-    }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
-    echo "</tr>\n";
-    $orow++;
-}
 function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
@@ -182,7 +153,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $uap_flag = false;
         if ($unassigned) {
             if (($pmt['pay_total'] - $pmt['applied']) == 0) {
-                if (!$GLOBALS['show_payment_history']) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('show_payment_history')) {
                     continue;
                 }
                 $uap_flag = true;
@@ -340,14 +311,14 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'Y')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'M')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'D')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -450,7 +421,7 @@ if ($_REQUEST['form_csvexport']) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -516,7 +487,7 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row hideaway" >
             <div class="col-sm-12">
                 <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div id="report_parameters">
                         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                         <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -903,7 +874,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
     <tr><td>&nbsp;</td></tr><br /><br />
         <?php
-        if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+        if (OEGlobalsBag::getInstance()->getBoolean('print_next_appointment_on_ledger')) {
             $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);

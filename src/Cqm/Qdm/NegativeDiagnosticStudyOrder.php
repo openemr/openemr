@@ -26,4 +26,3 @@ class NegativeDiagnosticStudyOrder extends DiagnosticStudyOrder
 
     public $_type = 'QDM::NegativeDiagnosticStudyOrder';
 }
-

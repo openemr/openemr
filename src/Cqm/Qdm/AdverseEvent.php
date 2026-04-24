@@ -71,4 +71,3 @@ class AdverseEvent extends QDMBaseType
 
     public $_type = 'QDM::AdverseEvent';
 }
-

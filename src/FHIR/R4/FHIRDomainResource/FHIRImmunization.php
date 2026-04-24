@@ -225,7 +225,7 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
     public $programEligibility = [];
 
     /**
-     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publically purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
+     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publicly purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $fundingSource = null;
@@ -764,7 +764,7 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publically purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
+     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publicly purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getFundingSource()
@@ -773,7 +773,7 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publically purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
+     * Indicates the source of the vaccine actually administered. This may be different than the patient eligibility (e.g. the patient may be eligible for a publicly purchased vaccine but due to inventory issues, vaccine purchased with private funds was actually administered).
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fundingSource
      * @return $this
      */

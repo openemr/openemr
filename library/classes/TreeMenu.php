@@ -41,7 +41,7 @@
 *
 * A simple couple of PHP classes and some not so simple
 * Jabbascript which produces a tree menu. In IE this menu
-* is dynamic, with branches being collapsable. In IE5+ the
+* is dynamic, with branches being collapsible. In IE5+ the
 * status of the collapsed/open branches persists across page
 * refreshes.In any other browser the tree is static. Code is
 * based on work of Harald Radi.
@@ -196,7 +196,7 @@ class HTML_TreeMenu
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['structure']   = &$params['structure'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;
@@ -223,7 +223,7 @@ class HTML_TreeMenu
                         $recurseParams['structure']   = $node;
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;
@@ -685,7 +685,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     * Constructor
     *
     * @param object $structure The menu structure
-    * @param array  $options   Options whic affect the display of the listbox.
+    * @param array  $options   Options which affect the display of the listbox.
     *                          These can consist of:
     *                           o promoText  The text that appears at the the top of the listbox
     *                                        Defaults to "Select..."

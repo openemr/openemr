@@ -16,17 +16,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("./../verify_session.php");
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
-
+$globalsBag = OEGlobalsBag::getInstance();
+$srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/appointments.inc.php");
 
-use OpenEMR\Core\Header;
 
 $enc_units = $total_units = 0;
 $enc_chg = $total_chg = 0;
@@ -36,7 +39,12 @@ $enc_bal = $total_bal = 0;
 $bgcolor = "#FFFFDD";
 $orow = 0;
 
-function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
+/**
+ * @param string $pat
+ * @param string $from_dt
+ * @param string $to_dt
+ */
+function portal_GetAllUnapplied($pat = '', $from_dt = '', $to_dt = ''): array
 {
     $all = [];
     if (!$pat) {
@@ -63,23 +71,11 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     return ($all);
 }
 
-function User_Id_Look($thisField)
-{
-    if (!$thisField) {
-        return '';
-    }
-
-    $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
-    $rrow = sqlFetchArray($rlist);
-    if ($rrow) {
-        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
-    }
-
-    return $ret;
-}
-
-function List_Look($thisData, $thisList)
+/**
+ * @param string $thisData
+ * @param string $thisList
+ */
+function portal_List_Look($thisData, $thisList): string
 {
     if ($thisList == 'occurrence') {
         if (!$thisData || $thisData == '') {
@@ -106,7 +102,11 @@ function List_Look($thisData, $thisList)
     return $dispValue;
 }
 
-function GetAllCredits($enc = '', $pat = '')
+/**
+ * @param string $enc
+ * @param string $pat
+ */
+function portal_GetAllCredits($enc = '', $pat = ''): array
 {
     $all = [];
     if (!$enc || !$pat) {
@@ -128,22 +128,7 @@ function GetAllCredits($enc = '', $pat = '')
     return ($all);
 }
 
-function PrintEncHeader($dt, $rsn, $dr): void
-{
-    global $bgcolor, $orow;
-    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr class='bg-white'>";
-    if (strlen((string) $rsn) > 50) {
-        $rsn = substr((string) $rsn, 0, 50) . '...';
-    }
-
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
-    echo "</tr>\n";
-    $orow++;
-}
-
-function PrintEncFooter(): void
+function portal_PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr bgcolor='#DDFFFF'>";
@@ -157,7 +142,10 @@ function PrintEncFooter(): void
     echo "</tr>\n";
 }
 
-function PrintCreditDetail($detail, $pat, $unassigned = false): void
+/**
+ * @param string $pat
+ */
+function portal_PrintCreditDetail(array $detail, $pat, bool $unassigned = false): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;
@@ -171,10 +159,10 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
         $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
         $print .= "<td class='detail'></td>";
-        $method = List_Look($pmt['payment_method'], 'payment_method');
+        $method = portal_List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
+        $memo = $unassigned ? portal_List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -208,7 +196,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
 
         $print .= "<td class='detail'>" .
             text($pmt_date) . "/" . text($payer) . "</td>";
-        $type = List_Look($pmt['payment_type'], 'payment_type');
+        $type = portal_List_Look($pmt['payment_type'], 'payment_type');
         $print .= "<td class='detail'>" . text($type) . "</td>";
         if ($unassigned) {
             $pmt_amt = $pmt['pay_total'] - $pmt['applied'];
@@ -280,14 +268,15 @@ if (!isset($_REQUEST['form_refresh'])) {
     $_REQUEST['form_refresh'] = '';
 }
 
-if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+$ledger_begin_date = $globalsBag->getString('ledger_begin_date');
+if (str_starts_with($ledger_begin_date, 'Y')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with($ledger_begin_date, 'M')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with($ledger_begin_date, 'D')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -302,7 +291,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
 <html>
 <head>
     <?php Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']); ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $globalsBag->getString('webroot') ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         function checkSubmit() {
             document.forms[0].elements['form_refresh'].value = true;
@@ -361,7 +350,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -488,7 +477,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                     $csv = '';
                     if ($erow['encounter'] != $prev_encounter_id) {
                         if ($prev_encounter_id != -1) {
-                            $credits = GetAllCredits($prev_encounter_id, $pid);
+                            $credits = portal_GetAllCredits($prev_encounter_id, $pid);
                             if (count($credits) > 0) {
                                 if (!$hdr_printed) {
                                     PrintEncHeader(
@@ -498,11 +487,11 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                                     );
                                 }
 
-                                PrintCreditDetail($credits, $pid);
+                                portal_PrintCreditDetail($credits, $pid);
                             }
 
                             if ($hdr_printed) {
-                                PrintEncFooter();
+                                portal_PrintEncFooter();
                             }
 
                             $hdr_printed = false;
@@ -559,7 +548,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 }
 
                 if ($prev_encounter_id != -1) {
-                    $credits = GetAllCredits($prev_encounter_id, $pid);
+                    $credits = portal_GetAllCredits($prev_encounter_id, $pid);
                     if (count($credits) > 0) {
                         if (!$hdr_printed) {
                             PrintEncHeader(
@@ -569,23 +558,23 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                             );
                         }
 
-                        PrintCreditDetail($credits, $pid);
+                        portal_PrintCreditDetail($credits, $pid);
                     }
 
                     if ($hdr_printed) {
-                        PrintEncFooter();
+                        portal_PrintEncFooter();
                     }
                 }
 
                 // This is the end of the encounter/charge loop -
-                $uac = GetAllUnapplied($pid, $from_date, $to_date);
+                $uac = portal_GetAllUnapplied($pid, $from_date, $to_date);
                 if (count($uac) > 0) {
                     if ($orow) {
                         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
                         echo "<tr class='bg-white'><td colspan='9'></td></tr>\n";
                     }
 
-                    PrintCreditDetail($uac, $pid, true);
+                    portal_PrintCreditDetail($uac, $pid, true);
                 }
 
                 if ($orow) {
@@ -604,7 +593,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 <td></td>
             </tr>
             <br /><br />
-                    <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+                    <?php if ($globalsBag->getBoolean('print_next_appointment_on_ledger')) {
                         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
 # add one day to date so it will not get todays appointment
                         $current_date2 = date('Y-m-d', $next_day);

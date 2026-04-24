@@ -4,7 +4,7 @@
  * Portal OneTime for API
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c)2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -13,17 +13,20 @@
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\PatientPortalService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'contact-form')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], $session, 'contact-form')) {
     CsrfUtils::csrfNotVerified();
 }
 
 if (isset($_REQUEST['sendOneTime'])) {
     try {
         doOnetimeDocumentRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -31,7 +34,7 @@ if (isset($_REQUEST['sendOneTime'])) {
 if (isset($_REQUEST['sendInvoiceOneTime'])) {
     try {
         doOnetimeInvoiceRequest();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -57,12 +60,13 @@ function doOnetimeInvoiceRequest(): void
     }
     $message = "Dear " . $patient['fname'] . ' ' . $patient['lname'] . ",\n";
     $message .= xlt("Please review your current invoice by clinking the link to automatically redirect to your billing account portal. Use this PIN to complete authorization");
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $data = [
         'pid' => $ot_pid,
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
+        'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $session->get('site_id')) . "&landOn=MakePayment",
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [
@@ -72,9 +76,9 @@ function doOnetimeInvoiceRequest(): void
         ]
     ];
     try {
-        $rtn = $GLOBALS["kernel"]->getEventDispatcher()
+        $rtn = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
             ->dispatch(new SendNotificationEvent($data['pid'], $data, 'email'), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
 }
@@ -114,7 +118,7 @@ function doOnetimeDocumentRequest(): void
     ];
     try {
         $rtn = $service->dispatchPortalOneTimeDocumentRequest($ot_pid, $data, $content);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         die($e->getMessage());
     }
     echo js_escape($rtn);

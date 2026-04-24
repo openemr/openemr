@@ -4,7 +4,7 @@
  * Http Rest and OAuth 2 Clients
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
@@ -23,6 +23,23 @@ use GuzzleHttp\Client;
  * extends oeOAuth
  *
  * @package OpenEMR\Common\Http
+ *
+ * Static methods forwarded via __callStatic to oeHttpRequest:
+ * @method static oeHttpRequest usingHeaders(array $headers)
+ * @method static oeHttpRequest setOptions(array $options)
+ * @method static oeHttpRequest setDebug(string $port = '')
+ * @method static oeHttpRequest asJson()
+ * @method static oeHttpRequest asFormParams()
+ * @method static oeHttpRequest contentType(string $contentType)
+ * @method static oeHttpRequest accept(string $header)
+ * @method static oeHttpRequest setParams(array $params)
+ * @method static oeHttpRequest usingBaseUri(string $baseUri)
+ * @method static oeHttpResponse get(string $url, array $queryParams = [])
+ * @method static oeHttpResponse getCurlOptions(string $url, array $queryParams = [], array $curlOptions = [])
+ * @method static oeHttpResponse post(string $url, array $params = [])
+ * @method static oeHttpResponse patch(string $url, array $params = [])
+ * @method static oeHttpResponse put(string $url, array $params = [])
+ * @method static oeHttpResponse delete(string $url, array $params = [])
  */
 class oeHttp extends oeOAuth
 {

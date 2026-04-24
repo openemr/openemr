@@ -4,9 +4,9 @@
  * NetworkUtils utility class for network-related functions.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,7 +29,7 @@ class NetworkUtils
     public function isLoopbackAddress(string $url_or_host): bool
     {
         // Extract hostname from URL if needed
-        if (filter_var($url_or_host, FILTER_VALIDATE_URL)) {
+        if (ValidationUtils::isValidUrl($url_or_host)) {
             $parsed = parse_url($url_or_host);
             $host = $parsed['host'] ?? '';
         } else {

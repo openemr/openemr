@@ -8,7 +8,7 @@
  * such as Primary Care, Outpatient, Inpatient, Emergency, Specialty, etc.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -288,7 +288,7 @@ class DashboardContextService
 
     /**
      * Get widget visibility configuration for a specific context
-     * 
+     *
      * Order of precedence:
      * 1. User's custom config for this specific context (user_dashboard_context_config)
      * 2. Custom context definition (dashboard_context_definitions)

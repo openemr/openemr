@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /** import supporting libraries */
 require_once("AppBasePortalController.php");
 require_once("Model/OnsitePortalActivity.php");
@@ -52,7 +54,8 @@ class OnsitePortalActivityController extends AppBasePortalController
             $criteria = new OnsitePortalActivityCriteria();
 
             // only allow patient to see their own activity
-            $pid = !empty($GLOBALS['bootstrap_pid']) ? $GLOBALS['bootstrap_pid'] : RequestUtil::Get('patientId');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            $pid = !empty($bootstrapPid) ? $bootstrapPid : RequestUtil::Get('patientId');
 
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
@@ -94,7 +97,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -108,14 +111,13 @@ class OnsitePortalActivityController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
             // only allow patient to update onsiteportalactivity about themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ($GLOBALS['bootstrap_pid'] != $onsiteportalactivity->PatientId) {
-                    $error = 'Unauthorized';
-                    throw new Exception($error);
-                }
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            if (!empty($bootstrapPid) && $bootstrapPid != $onsiteportalactivity->PatientId) {
+                $error = 'Unauthorized';
+                throw new Exception($error);
             }
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -142,11 +144,8 @@ class OnsitePortalActivityController extends AppBasePortalController
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date')));
 
             // only allow patient to create onsiteportalactivity about themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                $onsiteportalactivity->PatientId = $GLOBALS['bootstrap_pid'];
-            } else {
-                $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId');
-            }
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            $onsiteportalactivity->PatientId = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'patientId');
 
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit');
@@ -169,7 +168,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -190,8 +189,9 @@ class OnsitePortalActivityController extends AppBasePortalController
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
 
             // only allow patient to update onsiteportalactivity about themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ($GLOBALS['bootstrap_pid'] != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            if (!empty($bootstrapPid)) {
+                if ($bootstrapPid != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
                     throw new Exception('Bad PID');
                 }
             }
@@ -224,7 +224,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -235,7 +235,7 @@ class OnsitePortalActivityController extends AppBasePortalController
     public function Delete()
     {
         try {
-            // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
+            // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
@@ -245,7 +245,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

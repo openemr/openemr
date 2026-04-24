@@ -4,7 +4,7 @@
  * This report lists  patient immunizations for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
@@ -18,36 +18,25 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PhoneNumberService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (
-        new TwigContainer(
-            null,
-            $GLOBALS['kernel']
-        ))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Immunization Registry")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
-
-function tr($a)
-{
-    return (str_replace(' ', '^', $a));
-}
 
 function format_cvx_code($cvx_code)
 {
@@ -57,17 +46,6 @@ function format_cvx_code($cvx_code)
     }
 
     return $cvx_code;
-}
-
-function format_phone($phone)
-{
-
-    $phone = preg_replace("/[^0-9]/", "", (string) $phone);
-    return match (strlen((string) $phone)) {
-        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
-        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
-        default => tr("000 0000000"),
-    };
 }
 
 function format_ethnicity($ethnicity)
@@ -204,24 +182,24 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             $r['patientid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
             "|" . // 4. (B) Alternate PID
             $r['patientname'] . "|" . // 5.R. Name
-            "|" . // 6. Mather Maiden Name
+            "|" . // 6. Mother's Maiden Name
             $r['DOB'] . "|" . // 7. Date, time of birth
             $r['sex'] . "|" . // 8. Sex
             "|" . // 9.B Patient Alias
             "2106-3^" . $r['race'] . "^HL70005" . "|" . // 10. Race // Ram change
             $r['address'] . "^^M" . "|" . // 11. Address. Default to address type  Mailing Address(M)
             "|" . // 12. county code
-            "^PRN^^^^" . format_phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
-            "^WPN^^^^" . format_phone($r['phone_biz']) . "|" . // 14. Phone Work.
+            "^PRN^^^^" . PhoneNumberService::toHL7Phone($r['phone_home']) . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+            "^WPN^^^^" . PhoneNumberService::toHL7Phone($r['phone_biz']) . "|" . // 14. Phone Work.
             "|" . // 15. Primary language
             $r['status'] . "|" . // 16. Marital status
             "|" . // 17. Religion
             "|" . // 18. patient Account Number
             "|" . // 19.B SSN Number
             "|" . // 20.B Driver license number
-            "|" . // 21. Mathers Identifier
+            "|" . // 21. Mother's Identifier
             format_ethnicity($r['ethnicity']) . "|" . // 22. Ethnic Group
-            "|" . // 23. Birth Plase
+            "|" . // 23. Birthplace
             "|" . // 24. Multiple birth indicator
             "|" . // 25. Birth order
             "|" . // 26. Citizenship
@@ -284,7 +262,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
     <script>
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
         function confirmHl7() {
             let msg = <?php echo js_escape(xlt('This step will generate a file which you have to save for future use.') .
                 '<br />' . xlt('The file cannot be generated again. Do you want to proceed?')); ?>;
@@ -306,7 +284,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -354,7 +332,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     </div>
 
     <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <div id="report_parameters">
             <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             <input type='hidden' name='form_get_hl7' id='form_get_hl7' value='' />
@@ -511,7 +489,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
-            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const params = new URLSearchParams({
                 data: data,
                 csrf_token_form: csrf_token

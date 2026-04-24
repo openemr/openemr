@@ -203,7 +203,7 @@ function edih_archive_date($period)
             return false;
         }
     } else {
-        csv_edihist_log("edih_archive_date: invalid argment $period");
+        csv_edihist_log("edih_archive_date: invalid argument $period");
         return false;
     }
 

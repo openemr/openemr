@@ -33,10 +33,11 @@
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Return listing of report results.
@@ -230,7 +231,7 @@ function getStatusReportDatabase($report_id)
   // Collect the pertinent rows of data
     $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", [$report_id]);
 
-  // If empty, then just return Pending, since stil haven't likely created the entries yet
+  // If empty, then just return Pending, since still haven't likely created the entries yet
     if (sqlNumRows($res) < 1) {
         return "PENDING";
     }
@@ -471,6 +472,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
         $row['total_patients'] ??= 0;
@@ -516,7 +518,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
         }
 
         if (isset($row['itemized_test_id'])) {
-            $csrf_token = CsrfUtils::collectCsrfToken();
+            $csrf_token = CsrfUtils::collectCsrfToken(session: $session);
 
             $base_link = sprintf(
                 "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
@@ -524,7 +526,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
                 urlencode((string) $report_id),
                 urlencode((string) $row['itemized_test_id']),
                 urlencode($row['numerator_label'] ?? ''),
-                urlencode((string) $csrf_token)
+                urlencode($csrf_token)
             );
 
             // we need the provider & group id here...

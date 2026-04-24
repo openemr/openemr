@@ -4,7 +4,7 @@
  * gad-7 form using forms api     new.php    create a new form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -14,7 +14,11 @@
 require_once("gad7.inc.php"); //common strings, require_once(globals.php), other includes  etc
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -37,7 +41,7 @@ var changes_made = false;
 // stuff that uses embedded php must go here, not in the include javascript file -
 // it must be executed on server side before page is sent to client. included
 // javascript is only executed on the client
-function create_q8(question, menue){
+function create_q8(question, menu){
  // create the 8th question - the second part is italicised. Only displayed if score > 0
     var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8); ?>));
     question.appendChild(text);
@@ -48,16 +52,16 @@ function create_q8(question, menue){
     question.name = "eighth";
     question.appendChild(new_line);
     question.appendChild(ital);
-// populate the   the menue
-     menue.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
-     menue.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
-     menue.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
-     menue.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
-     menue.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
+// populate the   the menu
+     menu.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+     menu.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
+     menu.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
+     menu.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
+     menu.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
 }
 </script>
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all(true));" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br></br>
 <span><font size=4><?php echo text($str_form_name); ?></font></span>
 <br></br>
@@ -198,7 +202,7 @@ var conf = true;
         conf = confirm (<?php echo js_escape($str_nosave_confirm) ; ?>);
     }
     if (conf) {
-        window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
+        window.location.href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
     }
     return ( conf );
 }

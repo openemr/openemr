@@ -31,4 +31,3 @@ class Entity extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::Entity';
 }
-

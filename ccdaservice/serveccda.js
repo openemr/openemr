@@ -1,6 +1,6 @@
 /**
  * @package   OpenEMR CCDAServer
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>

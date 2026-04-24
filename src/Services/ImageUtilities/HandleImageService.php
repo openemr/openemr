@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -36,7 +36,7 @@ class HandleImageService
             // Handle Imagick-related exceptions
             error_log('Imagick error: ' . text($e->getMessage()));
             return false;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Handle other exceptions
             error_log('Error: ' . text($e->getMessage()));
             return false;
@@ -239,7 +239,7 @@ class HandleImageService
                 $content = false; // Placeholder for actual GD implementation
                 error_log('GD based conversion not implemented.');
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error converting image to PDF using ' . ($usingImagick ? 'Imagick' : 'GD') . ': ' . text($e->getMessage()));
             return false;
         }

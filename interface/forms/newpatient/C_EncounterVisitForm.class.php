@@ -8,7 +8,7 @@
  * TODO: investigate moving this into the src/ folder.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -22,25 +22,29 @@
 
 namespace OpenEMR\Forms\NewPatient;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\MiscBillingOptions;
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\CareTeamService;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use sqlStatement;
-use sqlFetchArray;
+use OpenEMR\Services\UserService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\TwigFunction;
+
+use function sqlFetchArray;
+use function sqlStatement;
 
 class C_EncounterVisitForm
 {
@@ -67,7 +71,7 @@ class C_EncounterVisitForm
         private readonly string $pageName = 'newpatient/common.php'
     ) {
         // Initialize Twig
-        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
+        $twig = new TwigContainer($templatePath . '/templates/', OEGlobalsBag::getInstance()->getKernel());
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
@@ -89,7 +93,7 @@ class C_EncounterVisitForm
     function displayOption($field)
     {
         $displayMode = $this->viewmode && $this->mode !== "followup" ? "edit" : "new";
-        echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
+        echo RenderFormFieldHelper::shouldDisplayFormField(OEGlobalsBag::getInstance()->get($field), $displayMode) ? '' : 'd-none';
     }
 
     function getCareTeamFacilityForPatient($pid)
@@ -112,6 +116,8 @@ class C_EncounterVisitForm
         $users = $userService->getActiveUsers();
         $provider_id = (int)$encounter['provider_id'];
         $providers = [];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
         foreach ($users as $user) {
             $p_id = (int)$user['id'];
             $flag_it = "";
@@ -123,7 +129,7 @@ class C_EncounterVisitForm
                 }
             } else {
                 // user is authorized (aka is a provider) then if the provider hasn't been set default to user
-                $provider_id = !empty($provider_id) ? $provider_id : $_SESSION['authUserID'];
+                $provider_id = !empty($provider_id) ? $provider_id : $authUserID;
             }
 
             $name = $user['fname'] . ' ' . ($user['mname'] ? $user['mname'] . ' ' : '') .
@@ -166,7 +172,8 @@ class C_EncounterVisitForm
         // Determine default billing facility
         if (empty($default_bill_fac)) {
             // Use the currently logged in user's billing facility if set
-            $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_facility = $facilityService->getFacilityForUser($session->get('authUserID'));
             if (!empty($user_facility) && $user_facility['billing_location'] == '1') {
                 $default_bill_fac = $user_facility['id'];
             } else {
@@ -208,7 +215,7 @@ class C_EncounterVisitForm
         while ($row = sqlFetchArray($result)) {
             // Skip therapy group categories if not enabled
             // TODO: @adunsulag magic number 3 needs to be replaced as to wha        // TODO: t this value is...
-            if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+            if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
                 continue;
             }
 
@@ -335,16 +342,16 @@ class C_EncounterVisitForm
     function getInCollectionOptionsForTemplate($encounter = null)
     {
         $options = [
+            ['value' => '0', 'title' => xl('No')],
             ['value' => '1', 'title' => xl('Yes')],
-            ['value' => '0', 'title' => xl('No')]
         ];
-
-        // Mark selected option for existing encounters
+        // For new encounters default to No, for existing use stored value
+        $current = ($encounter && isset($encounter['in_collection']))
+            ? $encounter['in_collection']
+            : '0';
         foreach ($options as &$option) {
-            $option['selected'] = ($encounter && isset($encounter['in_collection'])
-                && $encounter['in_collection'] == $option['value']);
+            $option['selected'] = ($option['value'] === $current);
         }
-
         return $options;
     }
 
@@ -399,7 +406,7 @@ class C_EncounterVisitForm
             'isVisible' => false
         ];
 
-        if (!$GLOBALS['enable_group_therapy']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
             return $groupData;
         }
 
@@ -468,6 +475,7 @@ class C_EncounterVisitForm
     public function render($pid)
     {
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // GENERATED BY claude.ai January 30th 2025 -- FOOTER
 
@@ -520,9 +528,12 @@ class C_EncounterVisitForm
                 $parentEncounterId = $encounter['id'];
             }
 
-            if ($encounter['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $encounter['sensitivity'])) {
-                $this->twig->render("newpatient/unauthorized.html.twig");
-                exit();
+            $sensitivity = $encounter['sensitivity'];
+            if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+                AccessDeniedHelper::denyWithTemplate(
+                    "ACL check failed for sensitivities/$sensitivity: Patient Encounter",
+                    xl("Patient Encounter")
+                );
             }
         }
 
@@ -530,7 +541,7 @@ class C_EncounterVisitForm
         $posCode = '';
 
 // Prepare data for template
-        $issuesEnabled = $GLOBALS['enc_enable_issues'] !== RenderFormFieldHelper::HIDE_ALL;
+        $issuesEnabled = OEGlobalsBag::getInstance()->get('enc_enable_issues') !== RenderFormFieldHelper::HIDE_ALL;
         $issuesAuth = true;
         foreach ($this->issueTypes as $type => $dummy) {
             if (!AclMain::aclCheckIssue($type, '', 'write')) {
@@ -566,7 +577,7 @@ class C_EncounterVisitForm
             $validationConstraints = json_decode((string) $validationConstraints["new_encounter"]["rules"], true);
             if ($validationConstraints === false) {
                 $validationConstraints = [];
-                (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Error decoding validation constraints for encounter form");
+                (new \OpenEMR\Common\Logging\SystemLogger())->error("C_EncounterVisitForm: Error decoding validation constraints for encounter form");
             }
         }
 
@@ -574,7 +585,7 @@ class C_EncounterVisitForm
          * @global $userauthorized
          * @global $pid
          */
-        $provider_id = ($userauthorized ?? '') ? $_SESSION['authUserID'] : null;
+        $provider_id = ($userauthorized ?? '') ? $session->get('authUserID') : null;
         $facilityService = new FacilityService();
         $default_fac_override = $encounter['facility_id'] ?? $this->getDefaultFacilityForNewEncounters($pid, $facilityService);
         if (!$viewmode) {
@@ -660,7 +671,7 @@ class C_EncounterVisitForm
         $posOptions = $this->getPosOptionsForTemplate($facilityPosCode);
 // END AI GENERATED CODE
 
-        if (empty($encounter['onset_date']) || $encounter['onset_date'] == '0000-00-00 00:00:00') {
+        if (Utilities::isDateEmpty($encounter['onset_date'])) {
             $encounter['onset_date'] = null;
         }
 
@@ -679,7 +690,7 @@ class C_EncounterVisitForm
             'pageTitle' => xl('Patient Encounter'),
             'facilities' => $facilities,
             'providers' => $this->getProvidersForTemplate(new UserService(), $encounter),
-            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, $GLOBALS['default_visit_category']),
+            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, OEGlobalsBag::getInstance()->getString('default_visit_category')),
             'sensitivities' => $this->getSensitivitiesForTemplate($encounter),
             'issuesEnabled' => $issuesEnabled,
             'issuesAuth' => $issuesAuth,
@@ -687,11 +698,11 @@ class C_EncounterVisitForm
             'canAddIssues' => AclMain::aclCheckCore('patients', 'med', '', 'write'),
             'issues' => $issuesEnabled && $issuesAuth ? $this->getIssuesForTemplate($pid, $viewmode, $encounter['encounter'] ?? null, $_REQUEST['issue'] ?? null) : [],
             // END AI GENERATED CODE
-            'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(),
+            'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session),
             'bodyClass' => $body_javascript ?? '',
             'oemrUiSettings' => $arrOeUiSettings,
             'formAction' => '/interface/forms/newpatient/save.php',
-            'language_direction' => $_SESSION['language_direction'] ?? 'ltr',
+            'language_direction' => $session->get('language_direction') ?? 'ltr',
             'validationConstraints' => $validationConstraints ?? [],
             'selectedFacilityId' => $default_fac_override,
             'defaultClassCodeValue' => $viewmode ?  $encounter['class_code'] : '',
@@ -703,15 +714,15 @@ class C_EncounterVisitForm
             'defaultReferralSource' => $viewmode ? $encounter['referral_source'] : '',
             'parentEncounterId' => $parentEncounterId ?? '',
             // START AI GENERATED CODE
-            'showInCollection' => ($GLOBALS['hide_billing_widget'] != 1),
+            'showInCollection' => (!OEGlobalsBag::getInstance()->getBoolean('hide_billing_widget')),
             'inCollectionOptions' => $inCollectionOptions,
             'dischargeDispositions' => $dischargeDispositions,
             'groupData' => $groupData,
             'therapyGroupCategories' => $therapyGroupCategories,
-            'enableGroupTherapy' => $GLOBALS['enable_group_therapy'],
-            'isPosEnabled' => !empty($GLOBALS['set_pos_code_encounter']),
+            'enableGroupTherapy' => OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'),
+            'isPosEnabled' => OEGlobalsBag::getInstance()->getBoolean('set_pos_code_encounter'),
             'posOptions' => $posOptions,
-            'textTemplatesEnabled' => $GLOBALS['text_templates_enabled'] === '1',
+            'textTemplatesEnabled' => OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled'),
             'duplicate' => $this->getDuplicateEncounterRecords($viewmode, $pid),
         ];
         // END AI GENERATED CODE
@@ -730,11 +741,12 @@ class C_EncounterVisitForm
     function getDefaultFacilityForNewEncounters($pid, FacilityService $facilityService)
     {
         $default_fac_override = null;
-        if (!empty($GLOBALS['set_service_facility_encounter'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('set_service_facility_encounter')) {
             $default_fac_override = $this->getCareTeamFacilityForPatient($pid);
         }
         if (empty($default_fac_override)) {
-            $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_facility = $facilityService->getFacilityForUser($session->get('authUserID'));
             $default_fac_override = $user_facility['id'] ?? null;
         }
         return $default_fac_override;

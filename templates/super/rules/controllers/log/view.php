@@ -16,7 +16,10 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (empty($viewBean)) {
     // should never get here...
@@ -26,7 +29,9 @@ if (empty($viewBean)) {
 $form_begin_date = $viewBean->form_begin_date;
 $form_end_date = $viewBean->form_end_date;
 $search = $viewBean->search;
-$records = $viewBean->records ?>
+$records = $viewBean->records;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+?>
 
 <html>
 
@@ -41,7 +46,7 @@ $records = $viewBean->records ?>
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -54,7 +59,7 @@ $records = $viewBean->records ?>
                 let action = $("#theform").attr("action");
                 let uri = new URL(action, window.location.href);
                 uri.searchParams.set("action", "log!download");
-                uri.searchParams.set("csrf_token_form", "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>");
+                uri.searchParams.set("csrf_token_form", "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>");
                 uri.searchParams.set("form_begin_date", $("#form_begin_date").val());
                 uri.searchParams.set("form_end_date", $("#form_end_date").val());
                 window.location.href = uri.href;
@@ -98,7 +103,7 @@ $records = $viewBean->records ?>
 <span class='title'><?php echo xlt('Alerts Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='cdr_log.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <input type="hidden" id="cdr_action" name="action" value="log!view" />
 
     <div id="report_parameters">
@@ -115,7 +120,7 @@ $records = $viewBean->records ?>
                                     <?php echo xlt('Begin Date'); ?>:
                                 </td>
                                 <td>
-                                    <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, "global", true)); ?>'
+                                    <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_begin_date, "global", true)); ?>'
                                            class='datepicker form-control'>
                                 </td>
                             </tr>
@@ -125,7 +130,7 @@ $records = $viewBean->records ?>
                                     <?php echo xlt('End Date'); ?>:
                                 </td>
                                 <td>
-                                    <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, "global", true)); ?>'
+                                    <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_end_date, "global", true)); ?>'
                                            class='datepicker form-control'>
                                 </td>
                             </tr>
@@ -196,7 +201,7 @@ $records = $viewBean->records ?>
                 <tbody>  <!-- added for better print-ability -->
                 <?php foreach ($records as $row) : ?>
                     <tr>
-                        <td><?php echo text(oeFormatDateTime($row['date'], "global", true)); ?></td>
+                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['date'], "global", true)); ?></td>
                         <td><?php echo text($row['pid']); ?></td>
                         <td><?php echo text($row['uid']); ?></td>
                         <td><?php echo text($row['facility_id']); ?></td>

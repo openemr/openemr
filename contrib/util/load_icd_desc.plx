@@ -145,4 +145,3 @@ if ($DBNAME) {
   print "\nInserted $countnew rows, updated $countup codes.\n";
   $dbh->disconnect;
 }
-

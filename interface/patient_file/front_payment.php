@@ -4,13 +4,16 @@
  * Front payment gui.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
+ * @author    Meghana Chowdary Ainampudi <33152427+ameghana@users.noreply.github.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,131 +26,59 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$globalsBag = OEGlobalsBag::getInstance();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/rep_a or patients/rx: Receipt for Payment", xl("Receipt for Payment"));
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill/write: " . $pageTitle, $pageTitle);
     }
 }
 
-$pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
+$hiddenPatientCode = $_REQUEST['hidden_patient_code'] ?? null;
+$pid = (is_numeric($hiddenPatientCode) && $hiddenPatientCode > 0) ? (int) $hiddenPatientCode : $pid;
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <?php Header::setupHeader(['opener']);?>
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+    <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
         <script src="https://js.stripe.com/v3/"></script>
     <?php } ?>
-    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+    <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') {
         // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
-        if ($GLOBALS['gateway_mode_production']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production')) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src=<?php echo $script; ?> charset="utf-8"></script>
     <?php } ?>
 <?php
-
-// Display a row of data for an encounter.
-//
-$var_index = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
-{
-    global $var_index;
-    $var_index++;
-    $balance = $charges - $ptpaid - $inspaid;
-    $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
-    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
-    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
-    echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
-    echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
-        " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
-        "onkeyup='calctotal()'/></td>\n";
-    echo " </tr>\n";
-}
-
-// We use this to put dashes, colons, etc. back into a timestamp.
-//
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
-}
-
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " .
-                "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1", [$value]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-        // echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
-}
 
 $now = time();
 $today = date('Y-m-d', $now);
@@ -166,23 +97,29 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $form_pid = $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
-    $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
-    sqlStatement(
-        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-        [$invoice_refno, $encounter, $form_pid]
-    );
+    // Server-side validation: require check/reference number for check and bank draft payments
+    if (($form_method === 'check_payment' || $form_method === 'bank_draft') && $form_source === '') {
+        $alertmsg = xl('Check or Reference Number is required for this payment method.');
+    }
 
-    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+    if ($alertmsg === '') {
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
+        $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+
+        //Update the invoice_refno
+        sqlStatement(
+            "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
+            [$invoice_refno, $encounter, $form_pid]
+        );
+    }
+
+    if ($alertmsg === '' && $_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
                 "insert into ar_session set " .
                 "payer_id = ?" .
@@ -197,13 +134,13 @@ if (!empty($_POST['form_save'])) {
                 ", adjustment_code = 'pre_payment'" .
                 ", post_to_date = now() " .
                 ", payment_method = ?",
-                [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
             );
 
          frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
     }
 
-    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+    if ($alertmsg === '' && $_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
             $payment = floatval($payment);
             if ($amount = $payment) {
@@ -228,7 +165,7 @@ if (!empty($_POST['form_save'])) {
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                 } else {
                     $Codetype = '';
                     $Code = '';
@@ -241,17 +178,22 @@ if (!empty($_POST['form_save'])) {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method]
+                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                    $insrt_id = sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                        " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount]
-                    );
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
@@ -283,7 +225,7 @@ if (!empty($_POST['form_save'])) {
                               ", adjustment_code = ?" .
                               ", post_to_date = now() " .
                               ", payment_method = ?",
-                              [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                              [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
                           );
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -311,7 +253,7 @@ if (!empty($_POST['form_save'])) {
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
+                        $Modifier = $RowSearch['modifier'] ?? '';
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(
@@ -342,49 +284,35 @@ if (!empty($_POST['form_save'])) {
                                 $amount = 0;
                             }
 
-                              sqlBeginTrans();
-                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                              sqlStatement(
-                                  "insert into ar_activity set " .
-                                  "pid = ?" .
-                                  ", encounter = ?" .
-                                  ", sequence_no = ?" .
-                                  ", code_type = ?" .
-                                  ", code = ?" .
-                                  ", modifier = ?" .
-                                  ", payer_type = ?" .
-                                  ", post_time = now() " .
-                                  ", post_user = ?" .
-                                  ", session_id = ?" .
-                                  ", pay_amount = ?" .
-                                  ", adj_amount = ?" .
-                                  ", account_code = 'PP'",
-                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0]
-                              );
-                              sqlCommitTrans();
+                            $recorder->recordActivity([
+                                'patientId' => $form_pid,
+                                'encounterId' => $enc,
+                                'codeType' => $Codetype,
+                                'code' => $Code,
+                                'modifier' => $Modifier,
+                                'payerType' => '0',
+                                'postUser' => $session->get('authUserID'),
+                                'sessionId' => $payment_id,
+                                'payAmount' => $insert_value,
+                                'adjustmentAmount' => '0.0',
+                                'accountCode' => 'PP',
+                            ]);
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
-                              sqlBeginTrans();
-                                $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                                sqlStatement(
-                                    "insert into ar_activity set " .
-                                    "pid = ?" .
-                                    ", encounter = ?" .
-                                    ", sequence_no = ?" .
-                                    ", code_type = ?" .
-                                    ", code = ?" .
-                                    ", modifier = ?" .
-                                    ", payer_type = ?" .
-                                    ", post_time = now() " .
-                                    ", post_user = ?" .
-                                    ", session_id = ?" .
-                                    ", pay_amount = ?" .
-                                    ", adj_amount = ?" .
-                                    ", account_code = 'PP'",
-                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0]
-                                );
-                                sqlCommitTrans();
+                        $recorder->recordActivity([
+                            'patientId' => $form_pid,
+                            'encounterId' => $enc,
+                            'codeType' => $Codetype,
+                            'code' => $Code,
+                            'modifier' => $Modifier,
+                            'payerType' => '0',
+                            'postUser' => $session->get('authUserID'),
+                            'sessionId' => $payment_id,
+                            'payAmount' => $amount,
+                            'adjustmentAmount' => '0.0',
+                            'accountCode' => 'PP',
+                        ]);
                     }
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -394,17 +322,15 @@ if (!empty($_POST['form_save'])) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
+if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receipt']))) {
     if (!empty($_REQUEST['receipt'])) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     }
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
-
-    // Get the patient's name and chart number.
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
 
     // Re-fetch payment info.
     $payrow = sqlQuery("SELECT " .
@@ -439,7 +365,7 @@ if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
     <?php Header::setupHeader(); ?>
 <script>
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 $(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -471,7 +397,7 @@ function printlog_before_print() {
 function deleteme() {
     const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
@@ -534,7 +460,8 @@ function toencounter(enc, datestr, topframe) {
         width: 100%;
     }
     table.mini_table>tbody>tr>th {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         text-align: center;
     }
     body>table.mini_table>tbody>tr>td {
@@ -544,16 +471,18 @@ function toencounter(enc, datestr, topframe) {
         border: 1px solid #fff;
     }
     body>table.mini_table>tbody>tr>th {
-        border: 1px solid var(--secondary);
+        border: 1px solid var(--light);
     }
     .bg-color {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         padding: 2px;
         font-weight: 600;
         -webkit-print-color-adjust: exact;
     }
     .bg-color-w {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         font-weight: 600;
         -webkit-print-color-adjust: exact!important; }
     @media print {
@@ -562,11 +491,13 @@ function toencounter(enc, datestr, topframe) {
         }
 
         tr.bg-color-w{
-            background-color: var(--secondary)!important;
+            background-color: var(--light)!important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
         tr.bg-color{
-            background-color: var(--secondary) !important;
+            background-color: var(--light) !important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
     }
@@ -617,8 +548,8 @@ function toencounter(enc, datestr, topframe) {
 
                     </div>
                     <div class="section-1">
-                        <?php if (file_exists($GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png")) { ?>
-                            <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
+                        <?php if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT') . "/images/logo_1.png")) { ?>
+                            <img src=<?php echo OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT') . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
                         <?php } ?>
 
                         <table class="mini_table text-center">
@@ -750,19 +681,18 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var mypcc = '1';
 </script>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
 <script>
     document.onclick=HideTheAjaxDivs;
 </script>
 
     <?php Header::setupAssets('topdialog'); ?>
 
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
-    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
-    var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
+    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_public_key'))); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
@@ -780,7 +710,7 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
         dlgclose();
@@ -1127,6 +1057,13 @@ function make_insurance() {
     ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
+    <?php if ($alertmsg !== '') { ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        alert(<?php echo js_escape($alertmsg); ?>);
+    });
+    </script>
+    <?php } ?>
 </head>
 <body>
     <div class="container mt-3"><!--begin container div for form-->
@@ -1138,7 +1075,7 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1254,6 +1191,8 @@ function make_insurance() {
                                         'encounter' => $brow['encounter'],
                                         'date' => $brow['encdate'],
                                         'last_level_closed' => $brow['last_level_closed'],
+                                        'code' => $brow['code'],
+                                        'code_type' => $brow['code_type'],
                                         'charges' => 0,
                                         'payments' => 0];
                                     }
@@ -1316,7 +1255,7 @@ function make_insurance() {
                                 //Bringing on top the Today always
                                 foreach ($encs as $value) {
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $gottoday = true;
                                         break;
                                     }
@@ -1325,15 +1264,41 @@ function make_insurance() {
                                 // If no billing was entered yet for today, then generate a line for
                                 // entering today's co-pay.
                                 //
-                                if (!$gottoday) {
-                                    echoLine("form_upay[0]", date("Y-m-d"), 0, 0, 0, 0 /*$duept*/);//No encounter yet defined.
-                                }
+                                if (!$gottoday) { ?>
+<tr id="tr_1">
+    <td><?=date("Y-m-d")?></td>
+    <td class="text-center" id="<?=date("Y-m-d")?>"></td>
+    <td class="text-center" id="td_charges_1"></td>
+    <td class="text-center" id="td_inspaid_1"></td>
+    <td class="text-center" id="td_ptpaid_1"></td>
+    <td class="text-center" id="td_patient_copay_1"></td>
+    <td class="text-center" id="td_copay_1"></td>
+    <td class="text-center" id="balance_1"></td>
+    <td class="text-center" id="duept_1"></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id=""
+            data-code=""
+            data-code-type=""
+            name="form_upay[0]"
+            id="paying_1"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                                <?php }
 
                                 $gottoday = false;
+                                $idx = 1; // Starts at 1 to reduce testing scope w/ previous impl; should *not* matter in practice
                                 foreach ($encs as $value) {
+                                    $idx++;
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
-                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
+                                    if ($dispdate === $today && !$gottoday) {
                                         $dispdate = date("Y-m-d");
                                         $gottoday = true;
                                     }
@@ -1381,18 +1346,39 @@ function make_insurance() {
                                         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                                     }
 
-                                    echoLine(
-                                        "form_upay[$enc]",
-                                        $dispdate,
-                                        $value['charges'],
-                                        $dpayment_pat,
-                                        ($dpayment + $dadjustment),
-                                        $duept,
-                                        $enc,
-                                        $inscopay,
-                                        $patcopay
-                                    );
-                                }
+                                    $balance = 0;
+                                    if ($duept == 0) {
+                                        $balance = $value['charges'] - (float)$dpayment_pat - $dpayment - $dadjustment;
+                                    }
+
+                                    ?>
+<tr id="tr_<?=$idx?>">
+    <td><?=text(oeFormatShortDate($dispdate))?></td>
+    <td class="text-center" id="<?=attr($dispdate)?>"><?=text($enc)?></td>
+    <td class="text-center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="text-center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="text-center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="text-center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="text-center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="text-center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="text-center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="text-right">
+        <input
+            class="form-control amount_field"
+            data-encounter-id="<?=attr($enc)?>"
+            data-code="<?=attr($value['code'])?>"
+            data-code-type="<?=attr($value['code_type'])?>"
+            name="form_upay[<?=attr($enc)?>]"
+            id="paying_<?=$idx?>"
+            value=""
+            onchange="coloring();calctotal()"
+            autocomplete="off"
+            onkeyup="calctotal()"
+        />
+    </td>
+</tr>
+                                    <?php
+                                } // end foreach($encs)
                                 // Continue with display of the data entry form.
                                 ?>
 
@@ -1407,7 +1393,7 @@ function make_insurance() {
                                     <td class="font-weight-bold" id='td_total_8'></td>
                                     <td class="font-weight-bold text-right"><?php echo xlt('Total');?></td>
                                     <td class="font-weight-bold text-right">
-                                        <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
+                                        <input type='text' class='form-control text-success' id="form_paytotal" name='form_paytotal' value='' readonly />
                                     </td>
                                 </tr>
                             </table>
@@ -1417,12 +1403,12 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
-                                    if ($GLOBALS['payment_gateway'] == 'Sphere') {
+                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments') && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
+                                    if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
-                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                        if (!empty($GLOBALS['cc_stripe_terminal'])) {
+                                        echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
                                     }
@@ -1448,7 +1434,7 @@ function make_insurance() {
                         <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
                                     <div class="form-group">
@@ -1458,7 +1444,8 @@ function make_insurance() {
                                             <input name="cardHolderName" id="cardHolderName" type="text" class="form-control"
                                                 pattern="\w+ \w+.*"
                                                 title="<?php echo xla('Fill your first and last name'); ?>"
-                                                value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                                <?php /** @phpstan-ignore-next-line */ ?>
+                                                value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -1484,33 +1471,13 @@ function make_insurance() {
                                             <div class="col-md-4">
                                                 <select name="month" id="expMonth" class="form-control">
                                                     <option value=""><?php echo xlt('Select Month'); ?></option>
-                                                    <option value="01"><?php echo xlt('January'); ?></option>
-                                                    <option value="02"><?php echo xlt('February'); ?></option>
-                                                    <option value="03"><?php echo xlt('March'); ?></option>
-                                                    <option value="04"><?php echo xlt('April'); ?></option>
-                                                    <option value="05"><?php echo xlt('May'); ?></option>
-                                                    <option value="06"><?php echo xlt('June'); ?></option>
-                                                    <option value="07"><?php echo xlt('July'); ?></option>
-                                                    <option value="08"><?php echo xlt('August'); ?></option>
-                                                    <option value="09"><?php echo xlt('September'); ?></option>
-                                                    <option value="10"><?php echo xlt('October'); ?></option>
-                                                    <option value="11"><?php echo xlt('November'); ?></option>
-                                                    <option value="12"><?php echo xlt('December'); ?></option>
+                                                    <?=$twig->render('forms/month_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
                                                 <select name="year" id="expYear" class="form-control">
                                                     <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                    <option value="2021">2021</option>
-                                                    <option value="2022">2022</option>
-                                                    <option value="2023">2023</option>
-                                                    <option value="2024">2024</option>
-                                                    <option value="2025">2025</option>
-                                                    <option value="2026">2026</option>
-                                                    <option value="2027">2027</option>
-                                                    <option value="2028">2028</option>
-                                                    <option value="2028">2029</option>
-                                                    <option value="2028">2030</option>
+                                                    <?=$twig->render('forms/exp_year_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
@@ -1518,6 +1485,7 @@ function make_insurance() {
                                                     pattern="\d"
                                                     title="<?php echo xla('Enter Your Zip'); ?>"
                                                     placeholder="<?php echo xla('Card Holder Zip'); ?>"
+                                                    <?php /** @phpstan-ignore-next-line */ ?>
                                                     value="<?php echo attr($patdata['postal_code']) ?>" />
                                             </div>
                                         </div>
@@ -1540,6 +1508,7 @@ function make_insurance() {
                                             </div>
                                         </div>
                                     </div>
+                                    <?php /** @phpstan-ignore-next-line */ ?>
                                     <input type='hidden' name='pid' id='pid' value='<?php echo attr($pid) ?>' />
                                     <input type='hidden' name='mode' id='mode' value='' />
                                     <input type='hidden' name='cc_type' id='cc_type' value='' />
@@ -1549,8 +1518,10 @@ function make_insurance() {
                                     <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                                 </fieldset>
                             </form>
+                        <?php } elseif ($globalsBag->getString('payment_gateway') === 'Rainforest') { ?>
+                            <div id="payment-form"><!-- will be filled in by rainforest.js --></div>
                         <?php }
-                        if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                        if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
                                     <div class="form-group">
@@ -1559,7 +1530,8 @@ function make_insurance() {
                                             class="form-control"
                                             pattern="\w+ \w+.*"
                                             title="<?php echo xla('Fill your first and last name'); ?>"
-                                            value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                            <?php /** @phpstan-ignore-next-line */ ?>
+                                            value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                     </div>
                                     <div class="form-group">
                                         <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
@@ -1583,11 +1555,11 @@ function make_insurance() {
                         <div class="button-group">
                             <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                             <?php
-                            if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                            if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                                 <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                             <?php }
-                            if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                            if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                                 <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
                             <?php } ?>
                         </div>
@@ -1596,13 +1568,16 @@ function make_insurance() {
             </div>
         </div>
 
-        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') {
             // Include Authorize.Net dependency to tokenize card.
             // Will return a token to use for payment request keeping
             // credit info off the server.
+            //
+            // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
             ?>
             <script>
                 var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+                var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->getString('gateway_api_key'))); ?>;
 
                     // In House CC number Validation
                     $('#cardNumber').validateCreditCard(function (result) {
@@ -1641,7 +1616,7 @@ function make_insurance() {
                     e.preventDefault();
                     const authData = {};
                     authData.clientKey = publicKey;
-                    authData.apiLoginID = apiKey;
+                    authData.apiLoginID = apiLoginID;
 
                     const cardData = {};
                     cardData.cardNumber = document.getElementById("cardNumber").value;
@@ -1709,7 +1684,7 @@ function make_insurance() {
             </script>
         <?php }  // end authorize.net ?>
 
-        <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { // Begin Include Stripe ?>
+        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { // Begin Include Stripe ?>
             <script>
                 // await validation function.
                 const waitValidate = async (state = false) => {
@@ -1817,7 +1792,7 @@ function make_insurance() {
                     });
                 }
                 // terminal
-                <?php if (!empty($GLOBALS['cc_stripe_terminal'])) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) { ?>
                 // Dialog function for Stripe terminal payment.
                 // Will post on successful credit payment.
                 function posDialog() {
@@ -1864,8 +1839,23 @@ function make_insurance() {
         <?php } ?>
 
         <?php
-        if ($GLOBALS['payment_gateway'] == 'Sphere') {
-            echo (new SpherePayment('clinic', $pid))->renderSphereJs();
+        if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
+            /** @var int $sanitizedPid */
+            $sanitizedPid = is_numeric($pid) ? (int) $pid : 0;
+            echo (new SpherePayment('clinic', $sanitizedPid))->renderSphereJs();
+        }
+        if ($globalsBag->get('payment_gateway') === 'Rainforest') {
+            if ($globalsBag->getBoolean('gateway_mode_production')) {
+                echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+            } else {
+                echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+            }
+            echo '<script type="text/javascript">';
+            echo $twig->render('payments/rainforest.js', [
+                'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
+                'endpoint' => 'front_payment.rainforest.php',
+            ]);
+            echo '</script>';
         }
         ?>
 
@@ -1875,5 +1865,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT); ?>
 </html>

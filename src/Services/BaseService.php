@@ -4,7 +4,7 @@
  * Standard Services Base class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,17 +14,16 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -35,10 +34,7 @@ class BaseService implements BaseServiceInterface
     private $fields;
     private $autoIncrements;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     private const PREFIXES = [
         'eq' => "=",
@@ -67,12 +63,13 @@ class BaseService implements BaseServiceInterface
      * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
     public function __construct(
-        private $table
+        private $table,
+        ?LoggerInterface $logger = null,
     ) {
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
-        $this->setLogger(new SystemLogger());
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     public function setSession(SessionInterface $session): void
@@ -142,6 +139,9 @@ class BaseService implements BaseServiceInterface
         return $normalizedFields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return [];
@@ -180,7 +180,7 @@ class BaseService implements BaseServiceInterface
         return $this->selectHelper($sql, $map);
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -380,7 +380,7 @@ class BaseService implements BaseServiceInterface
      * Fetch ID by UUID of Resource
      *
      * @param string $uuid              - UUID of Resource
-     * @param string $table             - Table reffering to the ID field
+     * @param string $table             - Table referring to the ID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return ID
      */
@@ -395,7 +395,7 @@ class BaseService implements BaseServiceInterface
      * Fetch UUID by ID of Resource
      *
      * @param string $id                - ID of Resource
-     * @param string $table             - Table reffering to the UUID field
+     * @param string $table             - Table referring to the UUID field
      * @param string $field             - Identifier field
      * @return string|false if nothing found return false, otherwise return UUID string
      */
@@ -479,12 +479,12 @@ class BaseService implements BaseServiceInterface
      * More complicated searches with various sub unions / intersections can be accomplished
      * through a CompositeSearchField that allows you to combine multiple search clauses on a single search field.
      *
-     * @param ISearchField[] $search Hashmap of string => ISearchField
-     *                                   where the key is the field name of the search field
+     * @param array<string, ISearchField> $search Hashmap of string => ISearchField
+     *                                             where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
      * @return ProcessingResult The results of the search.
      */
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $processingResult = new ProcessingResult();
         try {
@@ -522,7 +522,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     * @param array<string, mixed> $row The record returned from the database
+     * @return array<string, mixed>
      */
     protected function createResultRecordFromDatabaseResult($row)
     {
@@ -574,7 +575,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $fields                    - All IDs separated with | sign
      * @param string $table                     - Name of the table of targeted ID
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs

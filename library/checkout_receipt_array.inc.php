@@ -24,10 +24,14 @@
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Get a list item's title, translated if appropriate.
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 function getAdjustTitle($option)
 {
     $row = sqlQuery(
@@ -77,7 +81,7 @@ function receiptArrayDetailLine(
         $charge = 0;
     } else {
         // Otherwise pull out any adjustments matching this line item.
-        if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
             // Total and clear matching adjustments in $aReceipt['_adjusts'].
             for ($i = 0; $i < count($aReceipt['_adjusts']); ++$i) {
                 if (
@@ -191,12 +195,14 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 
     $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     // Get text for the logged-in user's name (first middle last).
-    $username = "UID: " . $_SESSION["authUserID"];
+    $username = "UID: " . $authUserID;
     $userrow = sqlQuery(
         "SELECT id, username, fname, mname, lname FROM users " .
         "WHERE id = ?",
-        [$_SESSION["authUserID"]]
+        [$authUserID]
     );
     if ($userrow['id']) {
         if (!empty($userrow['fname'])) {

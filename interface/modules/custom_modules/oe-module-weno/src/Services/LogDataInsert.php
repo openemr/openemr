@@ -2,7 +2,7 @@
 
 /**
  *  @package OpenEMR
- *  @link    http://www.open-emr.org
+ *  @link    https://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @author  Kofi Appiah <kkappiah@medsov.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -11,8 +11,6 @@
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
-
-use Exception;
 
 class LogDataInsert
 {
@@ -51,7 +49,7 @@ class LogDataInsert
                 $insertdata['provider_id'],
                 $insertdata['prescriptionguid']
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -88,7 +86,7 @@ class LogDataInsert
                 $updatedata['provider_id'],
                 $updatedata['prescriptionguid']
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }

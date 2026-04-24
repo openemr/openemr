@@ -16,6 +16,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\LogoFilterEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -47,7 +48,7 @@ class LogoService
 
         // cleanest way to refactor for now, is to fallback to global dispatcher
         // don't like it though
-        $this->dispatcher = $dispatcher ?? $GLOBALS['kernel']->getEventDispatcher();
+        $this->dispatcher = $dispatcher ?? OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     private function resetFinder()
@@ -73,8 +74,8 @@ class LogoService
      */
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
-        $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
+        $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -87,7 +88,7 @@ class LogoService
 
         try {
             $logo = $this->findLogo($paths, $filename);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log($e->getMessage());
             $logo = "";
         }
@@ -115,9 +116,10 @@ class LogoService
      */
     private function convertToWebPath(string $path): string
     {
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         $paths = [
-            $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
-            $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
+            OEGlobalsBag::getInstance()->get('OE_SITE_DIR') => OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT'),
+            $kernel->getImagesAbsolute() => $kernel->getImagesRelative(),
         ];
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $path = str_replace('\\', '/', $path);

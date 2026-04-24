@@ -4,7 +4,7 @@
  * Functions to globally validate and prepare data for sql database insertion.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MMF Systems, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,19 +20,21 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once("$srcdir/calendar.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //  File location (URL or server path)
-$target = $GLOBALS['edi_271_file_path'];
+$target = OEGlobalsBag::getInstance()->get('edi_271_file_path');
 $batch_log = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
@@ -48,16 +50,16 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
-        if ($GLOBALS['drive_encryption']) {
-            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');
+        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, keySource: KeySource::Database);
         }
         if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
             $Response271 = file_get_contents($target);
             if ($cryptoGen->cryptCheckStandard($Response271)) {
-                $Response271 = $cryptoGen->decryptStandard($Response271, null, 'database');
+                $Response271 = $cryptoGen->decryptStandard($Response271, keySource: KeySource::Database);
             }
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
@@ -71,7 +73,7 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br /><br />";
     }
 }
-if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
+if ($batch_log && !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_log')) {
     $fn = sprintf(
         'elig-batch_log_%s.txt',
         date("Y-m-d:H:i:s")
@@ -145,7 +147,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
 <div>
 <span class='title'><?php echo xlt('EDI-271 File Upload'); ?></span>
 <form enctype="multipart/form-data" name="theform" id="theform" action="edi_271.php" method="POST" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <div id="report_parameters">
     <table>
         <tr>

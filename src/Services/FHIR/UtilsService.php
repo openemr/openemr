@@ -4,7 +4,7 @@
  * UtilsService holds helper methods for dealing with fhir objects in the services  layer.
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
@@ -24,8 +24,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -36,7 +34,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -65,9 +62,9 @@ class UtilsService
             $fhirUrl .= "/";
         }
         $url = $fhirUrl . $resourceType . '/' . $uuid;
-        $cannonical = new FHIRCanonical();
-        $cannonical->setValue($url);
-        return $cannonical;
+        $canonical = new FHIRCanonical();
+        $canonical->setValue($url);
+        return $canonical;
     }
 
     public static function parseCanonicalUrl(?string $url)
@@ -213,8 +210,8 @@ class UtilsService
             $format = str_contains((string) $dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
             $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
-                (new SystemLogger())->errorLogCaller(
-                    "Failed to format date record with date format ",
+                ServiceContainer::getLogger()->error(
+                    "Failed to format period_start date {start} for contact_address_id {contact_address_id}",
                     ['start' => $dataRecord['period_start'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
                 );
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
@@ -231,8 +228,8 @@ class UtilsService
         if (!empty($dataRecord['period_end'])) {
             $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end'], true);
             if ($date === false) {
-                (new SystemLogger())->errorLogCaller(
-                    "Failed to format date record with date format ",
+                ServiceContainer::getLogger()->error(
+                    "Failed to format period_end date {date} for contact_address_id {contact_address_id}",
                     ['date' => $dataRecord['period_end'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
                 );
                 $date = new \DateTime();

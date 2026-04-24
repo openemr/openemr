@@ -5,6 +5,8 @@
 /**
  * import supporting libraries
  */
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Static utility class for processing form post/request data
@@ -335,7 +337,7 @@ class RequestUtil
 
     /**
      * Returns a form upload as a FileUpload object.
-     * This function throws an exeption on fail
+     * This function throws an exception on fail
      * with details, so it is recommended to use try/catch when calling this function
      *
      * @param string $fieldname
@@ -536,15 +538,16 @@ class RequestUtil
      */
     public static function GetPersisted($fieldname, $default = "", $escape = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (isset($_REQUEST [$fieldname])) {
-            $_SESSION ["_PERSISTED_" . $fieldname] = self::Get($fieldname, $default, $escape);
+            SessionUtil::setSession("_PERSISTED_" . $fieldname, self::Get($fieldname, $default, $escape));
         }
 
-        if (! isset($_SESSION ["_PERSISTED_" . $fieldname])) {
-            $_SESSION ["_PERSISTED_" . $fieldname] = $default;
+        if (! $session->has("_PERSISTED_" . $fieldname)) {
+            SessionUtil::setSession("_PERSISTED_" . $fieldname, $default);
         }
 
-        return $_SESSION ["_PERSISTED_" . $fieldname];
+        return $session->get("_PERSISTED_" . $fieldname);
     }
 
     /**

@@ -14,6 +14,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 /*
@@ -29,11 +32,11 @@ function GetServiceOtherCounts(): array
 {
     $counts['faxCnt'] = $counts['smsCnt'] = 0;
     // unless main.php is reloaded Globals is most accurate.
-    if (!empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+    if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
         $client = AppDispatch::getApiService('fax');
         $counts['faxCnt'] = (int)$client->fetchReminderCount();
     }
-    if (!empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+    if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
         $client = AppDispatch::getApiService('sms');
         $counts['smsCnt'] = (int)$client->fetchReminderCount();
     }
@@ -50,7 +53,8 @@ function GetServiceOtherCounts(): array
 function GetPortalAlertCounts(): array
 {
     $counts = [];
-    $s_user = '%' . $_SESSION['authUser'] . '%';
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $s_user = '%' . $session->get('authUser') . '%';
 
     $query = "SELECT Count(`m`.message_status) AS count_mail FROM onsite_mail `m` " .
         "WHERE `m`.owner LIKE ? AND `m`.recipient_id LIKE ? AND `m`.message_status LIKE ?  AND `m`.deleted = 0";
@@ -85,7 +89,8 @@ function GetPortalAlertCounts(): array
 function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     global $hasAlerts;
@@ -103,7 +108,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for reminders not linked to a patient
+// --------- need to run patient query separately to allow for reminders not linked to a patient
         $pRow = [];
         if ($drRow['pid'] > 0) {
             $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
@@ -150,7 +155,8 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -184,7 +190,8 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 function GetAllReminderCount($userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
 // ----- sql statement for getting uncompleted reminders
@@ -242,15 +249,15 @@ function getRemindersHTML($today, $reminders = []): string
         }
 
         // end check if reminder is due or overdue
-        // apend to html string
+        // append to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(js_escape((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . attr(js_escape((string) $r['messageID'])) . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '
-            <span onclick="goPid(' . attr(addslashes((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(js_escape((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']
@@ -278,18 +285,19 @@ function getRemindersHTML($today, $reminders = []): string
 function setReminderAsProcessed($rID, $userID = false): void
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     if (is_numeric($rID) and $rID > 0) {
         // --- check if this user can remove this message
-        // --- need a better way of checking the current user, I don't like using $_SESSION for checks
+        // --- need a better way of checking the current user, I don't like using the session for checks
         $rdrSQL = sqlStatement("SELECT count(dr.dr_id) c FROM `dated_reminders` dr JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", [$userID, $rID]);
         $rdrRow = sqlFetchArray($rdrSQL);
 
         // --- if this user can delete this message (ie if it was sent to this user)
         if ($rdrRow['c'] == 1) {
-            // ----- update the data, set the message to proccesses
+            // ----- update the data, set the message to processes
             sqlStatement("UPDATE `dated_reminders` SET  `message_processed` = 1, `processed_date` = NOW(), `dr_processed_by` = ? WHERE `dr_id` = ? ", [intval($userID), intval($rID)]);
         }
     }
@@ -312,7 +320,8 @@ function setReminderAsProcessed($rID, $userID = false): void
 function getReminderById($mID, $userID = false): bool|array
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr
@@ -449,7 +458,7 @@ function logRemindersArray(): array
     }
 
 //------------------------------------------
-// ----- HANDLE PROCCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
+// ----- HANDLE PROCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
     if (isset($_GET['processed']) and !isset($_GET['pending'])) {
         $where = ($where == '' ? 'dr.message_processed = 1' : $where . ' AND dr.message_processed = 1');
     } elseif (!isset($_GET['processed']) and isset($_GET['pending'])) {
@@ -492,7 +501,7 @@ function logRemindersArray(): array
     );
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for messages not linked to a patient
+// --------- need to run patient query separately to allow for messages not linked to a patient
         $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
         $pRow = sqlFetchArray($pSQL);
 
@@ -503,7 +512,7 @@ function logRemindersArray(): array
         $reminders[$i]['messageID'] = $drRow['dr_id'];
         $reminders[$i]['PatientID'] = $drRow['pid'];
 
-        $reminders[$i]['pDate'] = ($drRow['processedDate'] == '0000-00-00 00:00:00' ? 'N/A' : $drRow['processedDate']);
+        $reminders[$i]['pDate'] = (Utilities::isDateEmpty($drRow['processedDate']) ? 'N/A' : $drRow['processedDate']);
         $reminders[$i]['sDate'] = $drRow['sDate'];
         $reminders[$i]['dDate'] = $drRow['dDate'];
 

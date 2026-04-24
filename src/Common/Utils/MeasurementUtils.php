@@ -3,7 +3,7 @@
 /**
  * MeasurementUtils.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,28 +15,28 @@ class MeasurementUtils
 {
     const MEASUREMENT_PRECISION = 6;
 
-    public static function kgToLb($val)
+    public static function kgToLb(float|int $val): string
     {
         return number_format($val * 2.20462262185, self::MEASUREMENT_PRECISION);
     }
-    public static function lbToKg($val)
+    public static function lbToKg(float|int $val): string
     {
         return number_format($val *  0.45359237, self::MEASUREMENT_PRECISION);
     }
-    public static function cmToInches($val)
+    public static function cmToInches(float|int $val): string
     {
         return number_format(round($val / 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
-    public static function inchesToCm($val)
+    public static function inchesToCm(float|int $val): string
     {
         return number_format(round($val * 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
-    public static function fhToCelsius($val)
+    public static function fhToCelsius(float|int $val): string
     {
         return number_format(round(($val - 32) * (5 / 9), self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
 
-    public static function celsiusToFh($val)
+    public static function celsiusToFh(float|int $val): string
     {
         return number_format(round(((9 / 5) * $val) + 32, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }

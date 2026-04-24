@@ -73,7 +73,7 @@ ALTER TABLE `version` ADD COLUMN `v_acl` int(11) NOT NULL DEFAULT 0;
 #EndIf
 
 #IfMissingColumn documents_legal_detail dld_moved
-ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_moved` tinyint(4) NOT NULL DEFAULT '0'; 
+ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_moved` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn documents_legal_detail dld_patient_comments
@@ -283,7 +283,7 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 DROP TABLE `temp_table_one`;
 #EndIf
 
-#IfNotTable background_services 
+#IfNotTable background_services
 CREATE TABLE IF NOT EXISTS `background_services` (
   `name` varchar(31) NOT NULL,
   `title` varchar(127) NOT NULL COMMENT 'name for reports',
@@ -304,12 +304,12 @@ INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `functio
 #EndIf
 
 #IfNotRow users username phimail-service
-INSERT INTO `users` (username,password,lname,authorized,active) 
+INSERT INTO `users` (username,password,lname,authorized,active)
   VALUES ('phimail-service','NoLogin','phiMail Gateway',0,0);
 #EndIf
 
 #IfNotRow users username portal-user
-INSERT INTO `users` (username,password,lname,authorized,active) 
+INSERT INTO `users` (username,password,lname,authorized,active)
   VALUES ('portal-user','NoLogin','Patient Portal User',0,0);
 #EndIf
 
@@ -457,7 +457,7 @@ CREATE TABLE `users_secure` (
   `salt_history2` varchar(255),
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
-) ENGINE=InnoDb; 
+) ENGINE=InnoDb;
 #EndIf
 
 #IfMissingColumn patient_access_onsite portal_salt
@@ -493,5 +493,3 @@ CREATE TABLE `misc_address_book` (
 #IfMissingColumn documents imported
 ALTER TABLE `documents` ADD COLUMN `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing';
 #EndIf
-
-

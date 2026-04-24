@@ -45,7 +45,7 @@ class DataAdapter implements IObservable
     static $RETRY_ON_COMMUNICATION_ERROR = false;
 
     /**
-     * Contructor initializes the object
+     * Constructor initializes the object
      *
      * @access public
      * @param ConnectionSetting $csetting
@@ -92,32 +92,16 @@ class DataAdapter implements IObservable
     public function LoadDriver()
     {
         if ($this->_driver == null) {
-            require_once("verysimple/IO/Includer.php");
-
             // the driver was not explicitly provided so we will try to create one from
             // the connection setting based on the database types that we do know about
             switch ($this->ConnectionSetting->Type) {
-                case "mysql":
-                    include_once("verysimple/DB/DataDriver/MySQL.php");
-                    $this->_driver = new DataDriverMySQL();
-                    break;
                 case "mysqli":
+                case "MySQLi":
                     include_once("verysimple/DB/DataDriver/MySQLi.php");
                     $this->_driver = new DataDriverMySQLi();
                     break;
-                case "sqlite":
-                    include_once("verysimple/DB/DataDriver/SQLite.php");
-                    $this->_driver = new DataDriverSQLite();
-                    break;
                 default:
-                    try {
-                        Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
-                        $classname = "DataDriver" . $this->ConnectionSetting->Type;
-                        $this->_driver = new $classname();
-                    } catch (IncludeException) {
-                        throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
-                    }
-                    break;
+                    throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
             }
 
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
@@ -155,7 +139,7 @@ class DataAdapter implements IObservable
                 $this->_dbconn = $this->_driver->Open($this->ConnectionSetting->ConnectionString, $this->ConnectionSetting->DBName, $this->ConnectionSetting->Username, $this->ConnectionSetting->Password, $this->ConnectionSetting->Charset, $this->ConnectionSetting->BootstrapSQL);
 
                 $this->_num_retries = 0;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries++;
@@ -230,7 +214,7 @@ class DataAdapter implements IObservable
         try {
             $rs = $this->_driver->Query($this->_dbconn, $sql);
             $this->_num_retries = 0;
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             // retry one time a communication error occurs
             if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                 $this->_num_retries++;
@@ -286,7 +270,7 @@ class DataAdapter implements IObservable
             try {
                 $result = $this->_driver->Execute($this->_dbconn, $sql);
                 $this->_num_retries = 0;
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries++;
@@ -316,7 +300,7 @@ class DataAdapter implements IObservable
     }
 
     /**
-     * Start a DB transaction, disabling auto-commit if necessar)
+     * Start a DB transaction, disabling auto-commit if necessary)
      *
      * @access public
      */
@@ -387,7 +371,7 @@ class DataAdapter implements IObservable
      * Returns an array of all table names in the current database
      *
      * @param
-     *          bool true to ommit tables that are empty (default = false)
+     *          bool true to omit tables that are empty (default = false)
      * @return array
      */
     public function GetTableNames($ommitEmptyTables = false)
@@ -439,7 +423,7 @@ class DataAdapter implements IObservable
     }
 
     /**
-     * Moves the database curser forward and returns the current row as an associative array
+     * Moves the database cursor forward and returns the current row as an associative array
      * the resultset passed in must have been created by the same database driver that
      * was connected when Select was called
      *

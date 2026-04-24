@@ -3,7 +3,7 @@
  * (though a form of prototype/object delegation)
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -36,7 +36,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
             })
             .then(apptReadyData => {
                 if (patientConferenceRoom.__shutdown || !checkProviderReadyForPatientInterval) {
-                    return; // don't do anything else here as we have shutdown inbetween the callback.
+                    return; // don't do anything else here as we have shutdown in between the callback.
                 }
                 if (apptReadyData.session)
                 {

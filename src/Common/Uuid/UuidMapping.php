@@ -8,7 +8,7 @@
  *        is a uuid representing the data within the sql row).
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Common\Uuid;
 
-use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
@@ -111,19 +110,14 @@ class UuidMapping
     //   when presented with that use case (this is why the uuid column in uuid_mapping is not unique btw).
     public static function createMissingResourceUuids($resource, $table, $resourcePath = null)
     {
-        try {
-            sqlBeginTrans();
+        return QueryUtils::inTransaction(function () use ($resource, $table, $resourcePath) {
             $counter = 0;
             do {
                 $count = self::createMissingResourceUuidsStep($resource, $table, $resourcePath);
                 $counter += $count;
             } while ($count > 0);
-            sqlCommitTrans();
             return $counter;
-        } catch (Exception $exception) {
-            sqlRollbackTrans();
-            throw $exception;
-        }
+        });
     }
 
     private static function createMissingResourceUuidsStep($resource, $table, $resourcePath = null)

@@ -2,7 +2,7 @@
  * tabs_view_model.js
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
@@ -97,7 +97,7 @@ function tabRefresh(data,evt)
         data.window.location = data.window.location;
         activateTab(data);
     } catch(e) {
-        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
+        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie Ensora)
     }
 }
 

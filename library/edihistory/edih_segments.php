@@ -4,7 +4,7 @@
  * edih_segments.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
@@ -649,7 +649,7 @@ function edih_277_text($segments, $delimiter, $stpos = '')
     $str_html = '';
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         //debug
-        csv_edihist_log('edih_277_text: invlid segments');
+        csv_edihist_log('edih_277_text: invalid segments');
         $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }

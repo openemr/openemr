@@ -2,7 +2,7 @@
 
 /**
  * interface/soap_functions/soap_accountStatusDetails.php Display current
- * patients NewCrop account status.
+ * patients Ensora eRx account status.
  *
  * Copyright (C) 2011 ZMG LLC <sam@zhservices.com>
  *
@@ -17,35 +17,38 @@
  * If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package    OpenEMR
- * @subpackage NewCrop
+ * @subpackage Ensora
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>
  * @author     Sam Likins <sam.likins@wsi-services.com>
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  */
 
 require_once(__DIR__ . '/../globals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxGlobals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxStore.php');
-require_once($GLOBALS['srcdir'] . '/xmltoarray_parser_htmlfix.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc.php');
-require_once($GLOBALS['srcdir'] . '/amc.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxSOAP.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/xmltoarray_parser_htmlfix.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/amc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxSOAP.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRx_xml.php');
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 $GLOBALS_REF = $GLOBALS;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eRxSOAP = new eRxSOAP();
 $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
-    ->setAuthUserId($_SESSION['authUserID']);
+    ->setAuthUserId($session->get('authUserID'));
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
-} elseif (array_key_exists('pid', $GLOBALS)) {
-    $eRxSOAP->setPatientId($GLOBALS['pid']);
+} elseif (OEGlobalsBag::getInstance()->has('pid')) {
+    $eRxSOAP->setPatientId(OEGlobalsBag::getInstance()->get('pid'));
 }
 
 $accountStatus = $eRxSOAP->getAccountStatus()

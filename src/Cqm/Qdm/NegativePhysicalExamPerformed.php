@@ -26,4 +26,3 @@ class NegativePhysicalExamPerformed extends PhysicalExamPerformed
 
     public $_type = 'QDM::NegativePhysicalExamPerformed';
 }
-

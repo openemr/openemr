@@ -46,4 +46,3 @@ class Participation extends QDMBaseType
 
     public $_type = 'QDM::Participation';
 }
-

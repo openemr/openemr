@@ -7,7 +7,7 @@
  * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,18 +15,16 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\FHIR\UtilsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use Exception;
 
 class SMARTSessionTokenContextBuilder
 {
@@ -71,8 +69,8 @@ class SMARTSessionTokenContextBuilder
                 $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
-        } catch (Exception $ex) {
-            $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
+        } catch (\JsonException | \InvalidArgumentException $ex) {
+            $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getEHRLaunchContext() Failed to decode launch context parameter", ['exception' => $ex]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
@@ -88,7 +86,7 @@ class SMARTSessionTokenContextBuilder
                 'need_patient_banner' => true
                 ,'smart_style_url' => $this->getSmartStyleURL()
             ];
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $returnContext = [
                 'need_patient_banner' => false
                 ,'smart_style_url' => $this->getSmartStyleURL()
@@ -111,13 +109,13 @@ class SMARTSessionTokenContextBuilder
      * @return array
      * @throws OAuthServerException
      */
-    public function getContextForScopes($scopes): array
+    public function getContextForScopes(array $scopes): array
     {
         $context = [];
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
-        } else if ($this->isEHRLaunchRequest($scopes)) {
+        } elseif ($this->isEHRLaunchRequest($scopes)) {
             $context = $this->getEHRLaunchContext();
         }
         return $context;

@@ -4,7 +4,7 @@
  * Care plan form report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,13 +15,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
-    $encounter = !empty($encounter) ? $encounter : $_SESSION["encounter"] ?? 0;
-    $pid = !empty($pid) ? $pid : $_SESSION["pid"] ?? 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $encounter = !empty($encounter) ? $encounter : $session->get('encounter') ?? 0;
+    $pid = !empty($pid) ? $pid : $session->get('pid') ?? 0;
 
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, [$id, $pid, $encounter]);

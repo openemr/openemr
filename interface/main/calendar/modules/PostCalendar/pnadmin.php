@@ -27,9 +27,11 @@
  *
  */
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 
@@ -255,7 +257,6 @@ function postcalendar_admin_categoriesUpdate()
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
-    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat_array, $event_recurrspec_array, $dels, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_recurrspec, $new_event_recurrfreq, $new_duration, $new_dailylimitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
@@ -373,12 +374,13 @@ function postcalendar_admin_categoriesUpdate()
     }
 
 
-    $delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($dels)";
     $e =  $msg = '';
     if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'updateCategories', ['updates' => $updates])) {
         $e .= 'UPDATE FAILED';
     }
     if (isset($dels)) {
+        $safeDels = implode(',', array_map(intval(...), explode(',', (string)$dels)));
+        $delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($safeDels)";
         if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'deleteCategories', ['delete' => $delete])) {
             $e .= 'DELETE FAILED';
         }
@@ -466,8 +468,9 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     //  PARSE MAIN
     //=================================================================
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // create translations if applicable
-    if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1)) {
+    if ((OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories')) && ($session->get('language_choice') > 1)) {
         $sizeAllCat = count($all_categories);
         for ($m = 0; $m < $sizeAllCat; $m++) {
             $tempCategory = $all_categories[$m]["name"];
@@ -478,11 +481,11 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     }
     $scriptFilterEvent = new ScriptFilterEvent('pnadmin.php');
     $scriptFilterEvent->setContextArgument('viewtype', 'admin');
-    $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+    $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
     $styleFilterEvent = new StyleFilterEvent('pnadmin.php');
     $styleFilterEvent->setContextArgument('viewtype', 'admin');
-    $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+    $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
     $tpl->assign('globals', $GLOBALS);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
@@ -496,8 +499,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $tpl->assign('pcDir', $modir);
     $tpl->assign('action', pnModURL(__POSTCALENDAR__, 'admin', 'categoriesConfirm'));
     $tpl->assign('adminmenu', postcalendar_adminmenu("category"));
-    $tpl->assign('BGCOLOR2', $GLOBALS['style']['BGCOLOR2']);
-    $tpl->assign('css_header', $GLOBALS['css_header']);
+    $tpl->assign('BGCOLOR2', OEGlobalsBag::getInstance()->get('style')['BGCOLOR2']);
+    $tpl->assign('css_header', OEGlobalsBag::getInstance()->getString('css_header'));
     $tpl->assign('_PC_REP_CAT_TITLE_S', _PC_REP_CAT_TITLE_S);
     $tpl->assign('_PC_NEW_CAT_TITLE_S', _PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME', _PC_CAT_NAME);

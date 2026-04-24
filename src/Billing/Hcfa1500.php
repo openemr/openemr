@@ -17,6 +17,7 @@ namespace OpenEMR\Billing;
 
 use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\HCFAInfo;
+use OpenEMR\Core\OEGlobalsBag;
 
 class Hcfa1500
 {
@@ -24,13 +25,6 @@ class Hcfa1500
     protected $hcfa_curr_col;
     protected $hcfa_data;
     protected $hcfa_proc_index;
-    /**
-     * Hcfa1500 constructor.
-     * @param int $hcfa_curr_line
-     * @param int $hcfa_curr_col
-     * @param type $hcfa_data
-     * @param int $hcfa_proc_index
-     */
     public function __construct()
     {
         $this->hcfa_curr_line = 1;
@@ -42,14 +36,11 @@ class Hcfa1500
     /**
      * take the data element and place it at the correct coordinates on the page
      *
-     * @global int $hcfa_curr_line
-     * @global int $hcfa_curr_col
-     * @global type $hcfa_data
-     * @param type $line
-     * @param type $col
-     * @param type $maxlen
-     * @param type $data
-     * @param type $strip   regular expression for what to strip from the data. period and has are the defaults
+     * @param int $line
+     * @param int $col
+     * @param int $maxlen
+     * @param string $data
+     * @param string $strip regular expression for what to strip from the data. period and hash are the defaults.
      *                      02/12 version needs to include periods in the diagnoses hence the need to override
      */
     private function putHcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
@@ -82,7 +73,7 @@ class Hcfa1500
     /**
      * Process the diagnoses for a given claim. log any errors
      *
-     * @param type $claim
+     * @param Claim $claim
      * @param string $log
      */
     private function processDiagnoses0212($claim, &$log)
@@ -126,9 +117,9 @@ class Hcfa1500
     /**
      * calculate where on the form a given diagnosis belongs and add it to the entries
      *
-     * @param array $hcfa_entries
-     * @param type $number
-     * @param type $diag
+     * @param HCFAInfo[] $hcfa_entries
+     * @param int $number
+     * @param string $diag
      */
     private function addDiagnosis(&$hcfa_entries, $number, $diag)
     {
@@ -179,6 +170,9 @@ class Hcfa1500
         return $this->hcfa_data;
     }
 
+    /**
+     * @param Claim $claim
+     */
     private function genHcfa1500Page($pid, $encounter, &$log, $claim)
     {
 
@@ -456,7 +450,7 @@ class Hcfa1500
         // There is still confusion over this.
         if (
             $claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')
+            (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || $claim->claimType() != 'MB')
         ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an
@@ -705,9 +699,9 @@ class Hcfa1500
 
         // 31. Signature of Physician or Supplier
 
-        if ($GLOBALS['cms_1500_box_31_format'] == 0) {
+        if (OEGlobalsBag::getInstance()->get('cms_1500_box_31_format') == 0) {
             $this->putHcfa(60, 1, 20, 'Signature on File');
-        } elseif ($GLOBALS['cms_1500_box_31_format'] == 1) {
+        } elseif (OEGlobalsBag::getInstance()->get('cms_1500_box_31_format') == 1) {
             $this->putHcfa(60, 1, 22, $claim->providerFirstName() . " " . $claim->providerLastName());
         }
 
@@ -722,13 +716,13 @@ class Hcfa1500
             $claim->billingFacilityZip());
 
         // 31. Signature of Physician or Supplier: Date
-        if ($GLOBALS['cms_1500_box_31_date'] > 0) {
-            if ($GLOBALS['cms_1500_box_31_date'] == 1) {
+        if (OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') > 0) {
+            if (OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') == 1) {
                 $date_of_service = $claim->serviceDate();
                 $MDY = substr((string) $date_of_service, 4, 2) .
                     " " . substr((string) $date_of_service, 6, 2) .
                     " " . substr((string) $date_of_service, 2, 2);
-            } elseif ($GLOBALS['cms_1500_box_31_date'] == 2) {
+            } elseif (OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') == 2) {
                 $MDY = date("m/d/y");
             }
 

@@ -76,4 +76,3 @@ class ImmunizationAdministered extends QDMBaseType
 
     public $_type = 'QDM::ImmunizationAdministered';
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -21,7 +22,7 @@
  *                * none : no encoding (default)
  *                * javascript : encode with javascript
  *                * javascript_charcode : encode with javascript charcode
- *                * hex : encode with hexidecimal (no javascript)
+ *                * hex : encode with hexadecimal (no javascript)
  *         - cc = (optional) address(es) to carbon copy
  *         - bcc = (optional) address(es) to blind carbon copy
  *         - subject = (optional) e-mail subject

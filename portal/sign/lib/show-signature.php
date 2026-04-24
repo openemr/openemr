@@ -4,7 +4,7 @@
  * Patient Portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
@@ -21,37 +21,41 @@ $isPortal = $data['is_portal'];
 $signer = '';
 $ignoreAuth = false;
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
     // Will start the (patient) portal OpenEMR session/cookie.
     // Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
     require_once(__DIR__ . "/../../../vendor/autoload.php");
-    SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // authorized by patient portal
-        $req_pid = $_SESSION['pid'];
+        $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
+
+        // Portal users can only sign for themselves - override any user value from POST
+        // This must match save-signature.php which also sets $user = $req_pid
+        $user = $req_pid;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         echo js_escape("error");
         exit();
     }
 }
 require_once("../../../interface/globals.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!$isPortal) {
-    $userManipulatedFlag = false;
-    if ($user != $_SESSION['authUserID']) {
-        $userManipulatedFlag = true;
+if ($isPortal) {
+    // Portal users can only view patient signatures, not admin signatures
+    if ($type === 'admin-signature') {
+        AccessDeniedHelper::deny('Portal user attempted to view admin signature');
     }
-
-    if ($userManipulatedFlag) {
-        echo js_escape("error");
-        exit();
+} else {
+    if ($user != $session->get('authUserID')) {
+        AccessDeniedHelper::deny('User ID mismatch in show-signature');
     }
 }
 

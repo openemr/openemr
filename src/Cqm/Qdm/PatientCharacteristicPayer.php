@@ -46,4 +46,3 @@ class PatientCharacteristicPayer extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicPayer';
 }
-

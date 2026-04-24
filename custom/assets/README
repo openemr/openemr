@@ -17,7 +17,3 @@ for example - `<?php Header::setupHeader('custom-key-name'); ?>`
 Important!
 If you plan to upgrade your project with future versions of OpenEMR do not inject major changes
 to the screens.
-
-
-
-

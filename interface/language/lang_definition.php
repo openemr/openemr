@@ -4,7 +4,7 @@
  * lang_definition.php
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  bradymiller <bradymiller>
  * @author  sunsetsystems <sunsetsystems>
  * @author  andres_paglayan <andres_paglayan>
@@ -20,6 +20,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -35,12 +36,14 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 ?>
 
 <form name='filterform' id='filterform' method='post'
-      action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
+      action='?m=definition&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'
       onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Filter for Constants -->
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
@@ -65,7 +68,8 @@ if (!$thisauth) {
         <select class="form-control" name='language_select' id="selectLanguage">
             <?php
           // sorting order of language titles depends on language translation options.
-            $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+            $language_choice = $session->get('language_choice');
+            $mainLangID = empty($language_choice) ? '1' : $language_choice;
             // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
@@ -99,25 +103,13 @@ if (!$thisauth) {
 <?php
 
 // set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries
-if (!$disable_utf8_flag) {
-    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-        $case_sensitive_collation = "COLLATE utf8mb4_bin";
-        $case_insensitive_collation = "COLLATE utf8mb4_general_ci";
-    } else {
-        $case_sensitive_collation = "COLLATE utf8_bin";
-        $case_insensitive_collation = "COLLATE utf8_general_ci";
-    }
-} else {
-    $case_sensitive_collation = "COLLATE latin1_bin";
-    $case_insensitive_collation = "COLLATE latin1_swedish_ci";
-}
+$case_sensitive_collation = "COLLATE utf8mb4_bin";
+$case_insensitive_collation = "COLLATE utf8mb4_general_ci";
 
 if (!empty($_POST['load'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-  // query for entering new definitions it picks the cons_id because is existant.
+  // query for entering new definitions; uses cons_id because the constant already exists.
     if (!empty($_POST['cons_id'])) {
         foreach ($_POST['cons_id'] as $key => $value) {
             $value = trim((string) $value);
@@ -131,7 +123,7 @@ if (!empty($_POST['load'])) {
             $sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES (?,?,?)";
             sqlStatement($sql, [$key, $_POST['lang_id'], $value]);
 
-            // insert each entry into the log table - to allow persistant customizations
+            // insert each entry into the log table - to allow persistent customizations
             $sql = "SELECT lang_description, lang_code FROM lang_languages WHERE lang_id=? LIMIT 1";
             $res = sqlStatement($sql, [$_POST['lang_id']]);
             $row_l = sqlFetchArray($res);
@@ -158,7 +150,7 @@ if (!empty($_POST['load'])) {
                 $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
                 sqlStatement($sql, [$value, $key]);
 
-                // insert each entry into the log table - to allow persistant customizations
+                // insert each entry into the log table - to allow persistent customizations
                 $sql = "SELECT ll.lang_description, ll.lang_code, lc.constant_name ";
                 $sql .= "FROM lang_definitions AS ld, lang_languages AS ll, lang_constants AS lc ";
                 $sql .= "WHERE ld.def_id=? ";
@@ -178,9 +170,7 @@ if (!empty($_POST['load'])) {
 }
 
 if (!empty($_POST['edit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['language_select'] == '') {
          exit(xlt("Please select a language"));
@@ -217,8 +207,8 @@ if (!empty($_POST['edit'])) {
 
         $isResults = false; //flag to record whether there are any results
     echo ('<table><form method="post" action="?m=definition&csrf_token_form='
-        . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
-    echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
+        . CsrfUtils::collectCsrfToken(session: $session) . '" onsubmit="return top.restoreSession()">');
+    echo ('<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken(session: $session) . '" />');
     // only english definitions
     if ($lang_id == 1) {
         while ($row = sqlFetchArray($res)) {

@@ -4,7 +4,7 @@
  * class X12Partner
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -57,12 +57,12 @@ class X12Partner extends ORDataObject
      * Constructor sets all Insurance attributes to their default value
      */
 
-    function __construct(public $id = "", $prefix = "")
+    function __construct(public $id = "")
     {
         parent::__construct();
         $this->_table = "x12_partners";
         $this->processing_format_array = $this->_load_enum("processing_format", false);
-        $this->processing_format = $this->processing_format_array[0] ?? null;
+        $this->processing_format = array_key_first($this->processing_format_array);
         //most recent x12 version mandated by HIPAA and CMS
         // $this->x12_version = "004010X098A1";
         $this->x12_version = "005010X222A1";

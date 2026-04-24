@@ -48,6 +48,48 @@ class CommonTest extends TestCase
     }
 
     /**
+     * postString() should return the scalar string when POST is a string.
+     */
+    public function testPostStringReturnsScalarString(): void
+    {
+        $_POST['testVar'] = 'scalar';
+        $this->assertSame('scalar', Common::postString('testVar'));
+    }
+
+    /**
+     * postString() should return the default when POST is an array — this is
+     * the whole reason the helper exists (protect typed string properties
+     * from array POST values).
+     */
+    public function testPostStringReturnsDefaultWhenPostIsArray(): void
+    {
+        $_POST['testVar'] = ['not', 'a', 'scalar'];
+        $this->assertSame('', Common::postString('testVar'));
+        $this->assertSame('fallback', Common::postString('testVar', 'fallback'));
+    }
+
+    /**
+     * postString() should fall back to the default for missing keys, the same
+     * way post() does.
+     */
+    public function testPostStringReturnsDefaultWhenKeyMissing(): void
+    {
+        unset($_POST['nonExistentVar']);
+        $this->assertSame('', Common::postString('nonExistentVar'));
+        $this->assertSame('fallback', Common::postString('nonExistentVar', 'fallback'));
+    }
+
+    /**
+     * post() treats an empty string the same as a missing key (returns the
+     * default). postString() must preserve that behavior.
+     */
+    public function testPostStringReturnsDefaultForEmptyString(): void
+    {
+        $_POST['testVar'] = '';
+        $this->assertSame('fallback', Common::postString('testVar', 'fallback'));
+    }
+
+    /**
      * Test for base_url method
      */
     public function testBaseUrl(): void

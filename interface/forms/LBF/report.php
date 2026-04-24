@@ -4,7 +4,7 @@
  * LBF form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
@@ -13,9 +13,11 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 
 // This function is invoked from printPatientForms in report.inc.php
 // when viewing a "comprehensive patient report".  Also from
@@ -24,7 +26,7 @@ use OpenEMR\Common\Acl\AclMain;
 function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): void
 {
     global $CPR;
-    require_once($GLOBALS["srcdir"] . "/options.inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
     $grparr = [];
     getLayoutProperties($formname, $grparr, '*');
@@ -34,7 +36,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
-            die(xlt('Access denied'));
+            AccessDeniedHelper::deny('Unauthorized access to LBF report');
         }
     }
 

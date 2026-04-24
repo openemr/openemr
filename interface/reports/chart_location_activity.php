@@ -4,7 +4,7 @@
  * This reports checkins and checkouts for a specified patient's chart.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2015 Rod Roark <rod@sunsetsystems.com>
@@ -17,13 +17,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_patient_id = trim($_POST['form_patient_id'] ?? '');
@@ -103,7 +104,7 @@ if (!empty($ptrow)) {
 </div>
 
 <form name='theform' id='theform' method='post' action='chart_location_activity.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -171,7 +172,7 @@ if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
             ?>
    <tr>
     <td>
-            <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
+            <?php echo text(DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
   <td>
             <?php

@@ -4,7 +4,7 @@
  * EncounterSessionUtil refactored from encounter.inc.php handles setting the encounter in the session
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    <Unknown> Authorship was not listed in encounter.inc.php
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FormService;
 
 class EncounterSessionUtil
@@ -26,7 +27,9 @@ class EncounterSessionUtil
 
         $formsService = new FormService();
 
-        $attendant_id = $attendant_type === 'pid' ? $pid : $_SESSION['therapy_group'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+        $attendant_id = $attendant_type === 'pid' ? $pid : $session->get('therapy_group');
 
         // Forcing enc through an integer to protect from sql injection
         $enc = (string) intval($enc);

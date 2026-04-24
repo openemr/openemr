@@ -4,7 +4,7 @@
  * This reports checkins and checkouts for a specified patient's chart.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
 <html>
@@ -105,7 +106,7 @@ while ($row = sqlFetchArray($res)) {
     <?php echo text($row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']); ?>
   </td>
   <td>
-    <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
+    <?php echo text(DateFormatterUtils::oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
  </tr>
     <?php

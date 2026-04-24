@@ -29,7 +29,7 @@ class edih_271_codes
 //public $code271 = array();
     private $code271 = [];
 // the key_match array is a concept of matching code lists to
-// segment elements when diferent segments are looking for the same
+// segment elements when different segments are looking for the same
 // code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
@@ -85,7 +85,7 @@ class edih_271_codes
         '57' => 'Invalid/Missing dates of service',
         '58' => 'Invalid/Missing date of birth',
         '60' => 'Date of birth follows date of service',
-        '61' => 'Date of death preceeds dates of service',
+        '61' => 'Date of death precedes dates of service',
         '62' => 'Date of service not within allowable inquiry period',
         '63' => 'Date of service in future',
         '64' => 'Invalid/Missing patient ID',
@@ -388,7 +388,7 @@ class edih_271_codes
         "AD" => "BCBS Assoc Plan Code",
         "24" => "Employer ID Number (EIN)",
         "34" => "Social Security No",
-        "46" => "Electronic Transmiter ID (ETIN)",
+        "46" => "Electronic Transmitter ID (ETIN)",
         "BD" => "Blue Cross Provider No",
         "BS" => "Blue Shield Provider No",
         "C" => "Insured's Changed Unique ID",
@@ -537,7 +537,7 @@ class edih_271_codes
         'W1' => 'Warrant Officer'
         ];
 
-        // eligibility or benifit information code
+        // eligibility or benefit information code
         $this->code271['EB01'] = [
         '1' => 'Active Coverage',
         '2' => 'Active-Full Risk Capitation',
@@ -759,7 +759,7 @@ class edih_271_codes
         "E18" => "Dental Prophylaxis",
         "E19" => "Panoramic Images",
         "E20" => "Sealants",
-        "E21" => "Flouride Treatments",
+        "E21" => "Fluoride Treatments",
         "E22" => "Dental Implants",
         "E23" => "Temporomandibular Joint Dysfunction",
         "E24" => "Retail Pharmacy Prescription Drug",

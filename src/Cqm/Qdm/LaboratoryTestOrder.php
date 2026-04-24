@@ -61,4 +61,3 @@ class LaboratoryTestOrder extends QDMBaseType
 
     public $_type = 'QDM::LaboratoryTestOrder';
 }
-

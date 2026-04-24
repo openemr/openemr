@@ -5,7 +5,7 @@
  * Modified from main codebase for the patient portal.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -25,25 +25,26 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-SessionUtil::portalSessionStart();
-//
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
-//
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    $site_id = $session->get('site_id');
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode((string) $site_id);
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -53,16 +54,22 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
-use OpenEMR\Core\Header;
-use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
-// Record an event into the slots array for a specified day.
-function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
+/**
+ * Record an event into the slots array for a specified day.
+ *
+ * @param int|string $catid
+ * @param int $udate
+ * @param string $starttime
+ * @param int|string $duration
+ * @param int|string $prefcatid
+ */
+function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
     $udate = strtotime((string) $starttime, $udate);
@@ -110,7 +117,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = $globalsBag->get('calendar_interval') * 60;
 
 $catslots = 1;
 if ($input_catid) {
@@ -173,7 +180,7 @@ if ($_REQUEST['providerid']) {
         "FROM openemr_postcalendar_events " .
         "WHERE pc_aid = ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
     $sqlBindArray = [];
     array_push($sqlBindArray, $providerid, $sdate, $edate, $sdate, $edate);
@@ -181,7 +188,7 @@ if ($_REQUEST['providerid']) {
     $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
     foreach ($events2 as $row) {
         $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-        doOneDay(
+        portal_doOneDay(
             $row['pc_catid'],
             $thistime,
             $row['pc_startTime'],
@@ -410,7 +417,7 @@ if ($_REQUEST['providerid']) {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

@@ -4,7 +4,7 @@
  * add or edit a medical problem.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Thomas Pantelis <tompantelis@gmail.com>
@@ -15,31 +15,34 @@
  */
 
 require_once '../../globals.php';
-require_once $GLOBALS['srcdir'] . '/lists.inc.php';
-require_once $GLOBALS['srcdir'] . '/patient.inc.php';
-require_once $GLOBALS['srcdir'] . '/options.inc.php';
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
-require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require $GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
+    <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Following hidden field received in the form will be used to ensure integrity of form values
     // 'issue', 'thispid', 'thisenc'
@@ -56,7 +59,7 @@ if (!empty($_POST['form_save'])) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
+        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ippf_issues.inc.php';
     }
 }
 
@@ -66,44 +69,12 @@ $info_msg = "";
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
 if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'addonly'])) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Not authorized to add issue of this type');
 }
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt("Not authorized for this squad!"));
-}
-
-function QuotedOrNull($fld)
-{
-    return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
-}
-
-function rbinput($name, $value, $desc, $colname)
-{
-    global $irow;
-    $_p = [
-        attr($name),
-        attr($value),
-        ($irow[$colname] == $value) ? " checked" : "",
-        text($desc)
-    ];
-    $str = '<input type="radio" name="%s" value="%s" %s>%s';
-    return vsprintf($str, $_p);
-}
-
-// Given an issue type as a string, compute its index.
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-        ++$i;
-    }
-    return $i;
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
@@ -225,9 +196,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $i = 0;
     $text_type = "unknown";
@@ -292,8 +261,8 @@ if (!empty($_POST['form_save'])) {
     } else {
         $issueRecord["date"] = date("Y-m-d H:m:s");
         $issueRecord['activity'] = 1;
-        $issueRecord['user'] = $_SESSION['authUser'];
-        $issueRecord['groupname'] = $_SESSION['authProvider'];
+        $issueRecord['user'] = $session->get('authUser');
+        $issueRecord['groupname'] = $session->get('authProvider');
         $savedRecord = $patientIssuesService->createIssue($issueRecord);
         $issue = $savedRecord['id'] ?? "";
     }
@@ -312,7 +281,7 @@ if (!empty($_POST['form_save'])) {
     // If requested, link the issue to a specified encounter.
     if ($thisenc) {
         $patientIssuesService = new PatientIssuesService();
-        $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $_SESSION['authUserID']);
+        $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $session->get('authUserID'));
     }
 
     $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " . substr((string) $_POST['form_title'], 0, 40);
@@ -433,7 +402,7 @@ function getCodeText($code)
     ///////////
     ?>
 
-    <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+    <?php require OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"; ?>
 
     ///////////////////////////
     function onActiveCodeSelected() {
@@ -537,7 +506,7 @@ function getCodeText($code)
 
     // Called when the Active checkbox is clicked.  For consistency we
     // use the existence of an end date to indicate inactivity, even
-    // though the simple verion of the form does not show an end date.
+    // though the simple version of the form does not show an end date.
     function activeClicked(cb) {
         var f = document.forms[0];
         if (cb.checked) {
@@ -680,7 +649,7 @@ function getCodeText($code)
         param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Processing'); ?>);
 
         top.restoreSession();
-        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi')); ?>;
+        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session, 'udi')); ?>;
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -750,7 +719,7 @@ function getCodeText($code)
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+            <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
             ?>
         });
@@ -795,7 +764,7 @@ function getCodeText($code)
                     <div class="container-fluid">
                         <div class="row">
                             <div class='col-sm-6'>
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.
@@ -940,7 +909,7 @@ function getCodeText($code)
                                     generate_form_field(['data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'], ($irow['occurrence'] ?? null));
                                     ?>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
                                     echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
@@ -983,7 +952,7 @@ function getCodeText($code)
                                     <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                                     <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby'] ?? '') ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : ''; ?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : ''; ?>">
                                     <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                                     <?php if (true) { ?>
                                         <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination'] ?? '') ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />

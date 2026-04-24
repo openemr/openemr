@@ -4,7 +4,7 @@
  * Fax SMS Authentication Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -18,6 +18,9 @@ use RingCentral\SDK\SDK;
 
 trait AuthenticateTrait
 {
+    private static int $authAttemptCount = 0;
+    private static int $lastAuthAttempt = 0;
+
     public function authenticate($acl = []): bool|int|string
     {
         if (empty($this->credentials['appKey'])) {
@@ -71,7 +74,7 @@ trait AuthenticateTrait
             } else {
                 return $this->loginWithJWT();
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text($e->getMessage());
         }
     }
@@ -84,7 +87,7 @@ trait AuthenticateTrait
     {
         if (file_exists($authBack)) {
             $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth), true);
+            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth !== false ? $cachedAuth : null), true);
 
             // Don't delete cache immediately - validate first
             if ($this->isValidCachedAuth($cachedAuth)) {
@@ -130,7 +133,7 @@ trait AuthenticateTrait
                     continue;
                 }
                 return js_escape(['error' => "API Error: " . text($e->getMessage()) . " - " . text($e->getCode())]);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape(['error' => "Error: " . text($e->getMessage())]);
             }
         }
@@ -145,7 +148,8 @@ trait AuthenticateTrait
     private function cacheAuthData($platform): void
     {
         $data = $platform->auth()->data();
-        $encryptedData = $this->crypto->encryptStandard(json_encode($data));
+        $jsonData = json_encode($data);
+        $encryptedData = $this->crypto->encryptStandard($jsonData !== false ? $jsonData : null);
         file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
     }
 

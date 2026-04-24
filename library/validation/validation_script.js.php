@@ -21,18 +21,20 @@
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Sharon Cohen <sharonco@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
-require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/LBF_Validation.php");
 
 /*LBF form take the valude from the global $GLOBALS['new_validate'];*/
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
     ?>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
-    <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
-    <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() ?>/moment/moment.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_modified.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_extend.js"></script>
 
     <style type="text/css">
     .error-message {
@@ -59,7 +61,7 @@ if ($use_validate_js) {
     /*e: event*/
     /*form id: used to get the validation rules*/?>
 
-    var g_date_format='<?php echo $GLOBALS["date_display_format"];?>';
+    var g_date_format='<?php echo OEGlobalsBag::getInstance()->get("date_display_format");?>';
 
 function submitme(new_validate,e,form_id, constraints) {
 
@@ -107,7 +109,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
-            //get the input value after romoving hide fields
+            //get the input value after removing hide fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
@@ -133,7 +135,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 }
             }
 
-            //error conatins an list of the elements and their errors
+            //error contains an list of the elements and their errors
             //set false full message because the name of the input not can be translated
             var errors = validate(elements, constraints, {fullMessages: false});
             if (typeof  errors !== 'undefined') {

@@ -5,7 +5,7 @@
  * uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -22,8 +22,12 @@ require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $facilityService = new FacilityService();
 
@@ -103,10 +107,10 @@ $pid_list = [];
 $apptdate_list = [];
 
 
-if (!empty($_SESSION['pidList']) and $form_fill == 2) {
-    $pid_list = $_SESSION['pidList'];
+if (!empty($session->get('pidList')) and $form_fill == 2) {
+    $pid_list = $session->get('pidList');
     // If PID list is in Session, then Appt. Date list is expected to be a parallel array
-    $apptdate_list = $_SESSION['apptdateList'];
+    $apptdate_list = $session->get('apptdateList');
 } elseif ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
@@ -116,8 +120,9 @@ if (!empty($_SESSION['pidList']) and $form_fill == 2) {
 // This file is optional. You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
-if (file_exists("../../custom/fee_sheet_codes.php")) {
-    include_once("../../custom/fee_sheet_codes.php");
+$customFeeSheetCodes = OEGlobalsBag::getInstance()->getProjectDir() . '/custom/fee_sheet_codes.php';
+if (file_exists($customFeeSheetCodes)) {
+    include_once($customFeeSheetCodes);
 }
 
 // TBD: Move these to globals.php, or make them user-specific.
@@ -169,7 +174,7 @@ if (empty($SBCODES)) {
     }
 
     // Create one more group, for Products.
-    if ($GLOBALS['sell_non_drug_products']) {
+    if (OEGlobalsBag::getInstance()->get('sell_non_drug_products')) {
         $SBCODES[] = '*G|' . xl('Products');
         $tres = sqlStatement("SELECT " .
                 "dt.drug_id, dt.selector, d.name, d.ndc_number " .
@@ -350,7 +355,7 @@ if (empty($frow)) {
 }
 
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 $logo = is_file("$webserver_root/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
@@ -466,7 +471,7 @@ foreach ($pid_list as $pid) {
 <tr>
 <td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
 
-            if (empty($GLOBALS['ippf_specific'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
                     foreach (['primary', 'secondary', 'tertiary'] as $instype) {

@@ -813,5 +813,3 @@ exports.sexObservation = {
         );
     }
 };
-
-

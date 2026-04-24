@@ -4,30 +4,22 @@
  * Abstract implementation of SignableIF which represents a signable row
  * in the database.
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
- **/
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
+ * @copyright Copyright (c) 2013 OEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Signature.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Signature.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
@@ -98,11 +90,6 @@ abstract class DbRow_Signable implements SignableIF
         return $this->_tableId;
     }
 
-    public function renderForm()
-    {
-        include 'views/esign_signature_log.php';
-    }
-
     public function isLocked()
     {
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
@@ -145,7 +132,7 @@ abstract class DbRow_Signable implements SignableIF
         $id = sqlInsert($statement, $signature);
 
         if ($id === false) {
-            throw new \Exception("Error occured while attempting to insert a signature into the database.");
+            throw new \Exception("Error occurred while attempting to insert a signature into the database.");
         }
 
         return $id;

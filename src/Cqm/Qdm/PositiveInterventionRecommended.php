@@ -26,4 +26,3 @@ class PositiveInterventionRecommended extends InterventionRecommended
 
     public $_type = 'QDM::PositiveInterventionRecommended';
 }
-

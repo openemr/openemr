@@ -4,7 +4,7 @@
  * SearchQueryFragment represents the a fragment of a SQL where clause that contains both the SQL statement and the
  * parameterized bound values that will be used in the SQL statement.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

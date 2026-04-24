@@ -125,7 +125,7 @@ function edih_upload_match_file($param_ar, $fidx)
             return false;
         }
     } else {
-        // failed valdity test: unwanted characters or unmatched mime-type
+        // failed validity test: unwanted characters or unmatched mime-type
         csv_edihist_log('edih_upload_match_file: invalid x12_file ' . strip_tags($x12obj->edih_message()));
         return false;
     }

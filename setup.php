@@ -12,7 +12,7 @@
  *        2 - Step 2: Enter in database and openemr user information
  *        3 - Step 3: Create database
  *        4 - Step 4: Instructions on configuring PHP
- *        5 - Step 5: Instructions on configuring Apache
+ *        5 - Step 5: Instructions on configuring the web server
  *        6 - Step 6: Select a theme
  *        7 - Final step: Several miscellaneous instruction, login credentials, and link to OpenEMR
  *
@@ -22,10 +22,12 @@
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -57,8 +59,10 @@ $allow_cloning_setup = false;
 // Include standard libraries/classes
 require_once __DIR__ . "/vendor/autoload.php";
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
@@ -71,10 +75,10 @@ function recursive_writable_directory_test($dir)
 {
     // first, collect the directory and subdirectories
     $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-    $dirNames = array();
+    $dirNames = [];
     foreach ($ri as $file) {
         if ($file->isDir()) {
-            if (!preg_match("/\.\.$/", $file->getPathname())) {
+            if (!preg_match("/\.\.$/", (string) $file->getPathname())) {
                 $dirName = realpath($file->getPathname());
                 if (!in_array($dirName, $dirNames)) {
                     $dirNames[] = $dirName;
@@ -84,7 +88,7 @@ function recursive_writable_directory_test($dir)
     }
 
     // second, flag the directories that are not writable
-    $resultsNegative = array();
+    $resultsNegative = [];
     foreach ($dirNames as $value) {
         if (!is_writable($value)) {
             $resultsNegative[] = $value;
@@ -95,9 +99,9 @@ function recursive_writable_directory_test($dir)
     if (!empty($resultsNegative)) {
         echo "<p>";
         $mainDirTest = "";
-        $outputs = array();
+        $outputs = [];
         foreach ($resultsNegative as $failedDir) {
-            if (basename($failedDir) ==  basename($dir)) {
+            if (basename($failedDir) ==  basename((string) $dir)) {
                 // need to reorder output so the main directory is at the top of the list
                 $mainDirTest = "<span class='text-danger'>UNABLE</span> to open directory '" . text(realpath($failedDir)) . "' for writing by web server.<br />\r\n";
             } else {
@@ -119,8 +123,8 @@ function recursive_writable_directory_test($dir)
     }
 }
 
-$state = isset($_POST["state"]) ? ($_POST["state"]) : '';
-$installer = new Installer($_REQUEST);
+$state = $_POST["state"] ?? '';
+$installer = new Installer($_REQUEST, ServiceContainer::getLogger());
 // Make this true for IPPF.
 $ippf_specific = false;
 
@@ -230,7 +234,7 @@ SITEID;
 // Support "?site=siteid" in the URL, otherwise assume "default".
 $site_id = 'default';
 if (!empty($_REQUEST['site'])) {
-    $site_id = trim($_REQUEST['site']);
+    $site_id = trim((string) $_REQUEST['site']);
 }
 
 // Die if site ID is empty or has invalid characters.
@@ -257,11 +261,11 @@ $docsDirectory = "$OE_SITE_DIR/documents";
 //These are files and dir checked before install for
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
-    $writableFileList = array($installer->conffile);
-    $writableDirList = array($docsDirectory);
+    $writableFileList = [$installer->conffile];
+    $writableDirList = [$docsDirectory];
 } else {
-    $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE);
+    $writableFileList = [];
+    $writableDirList = [$OE_SITES_BASE];
 }
 
 // Include the sqlconf file if it exists yet.
@@ -299,16 +303,18 @@ if (empty($state)) {
     }
     // set up new blank session and csrf mechanism
     SessionUtil::setupScriptSessionStart();
-    session_regenerate_id(true);
-    $_SESSION = [];
-    CsrfUtils::setupCsrfKey();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $session->migrate(true);
+    $session->clear();
+    CsrfUtils::setupCsrfKey($session);
 } else {
     // start up session and check csrf
     SessionUtil::setupScriptSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $state = (int)$state;
     $verifyCsrf = false;
     if (($state > 0) && ($state < 8)) {
-        $verifyCsrf = CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "state" . $state);
+        $verifyCsrf = CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, "state" . $state);
     } else {
         SessionUtil::setupScriptSessionCookieDestroy();
         die("Not authorized (invalid state)");
@@ -319,7 +325,7 @@ if (empty($state)) {
     }
 
     // ensure correct state is going (ie. do not allow users to muck around with this)
-    if ($_SESSION['bootstrapStateInSetup'] != $state) {
+    if ($session->get('bootstrapStateInSetup') != $state) {
         SessionUtil::setupScriptSessionCookieDestroy();
         die("Not authorized (incorrect state)");
     }
@@ -551,14 +557,14 @@ ENDDIV;
 
             <?php
 
-            $inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
+            $inst = $_POST["inst"] ?? '';
 
             switch ($state) {
                 case 1:
-                    $_SESSION['bootstrapStateInSetup'] = 2;
+                    $session->set('bootstrapStateInSetup', 2);
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
-                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state2'));
+                    $csrf_id = CsrfUtils::collectCsrfToken($session, 'state2');
                     $step1 = <<<STP1
                     <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
                     <div class="jumbotron p-5">
@@ -569,7 +575,7 @@ ENDDIV;
                         <form method='post'>
                             <input name='state' type='hidden' value='2' />
                             <input name='site' type='hidden' value='$site_id_esc' />
-                            <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                            <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                             <div class="form-check">
                                 <input checked class='form-check-input' id='inst1' name='inst' type='radio' value='1' />
                                 <label class="form-check-label" for="inst1">
@@ -598,11 +604,11 @@ STP1;
                     break;
 
                 case 2:
-                    $_SESSION['bootstrapStateInSetup'] = 3;
+                    $session->set('bootstrapStateInSetup', 3);
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
                     $inst_esc = attr($inst);
-                    $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state3'));
+                    $csrf_id = CsrfUtils::collectCsrfToken($session, 'state3');
                     $step2top = <<<STP2TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
                     <div class="jumbotron p-5">
@@ -614,7 +620,7 @@ STP1;
                             <input name='state' type='hidden' value='3' />
                             <input name='site' type='hidden' value='$site_id_esc' />
                             <input name='inst' type='hidden' value='$inst_esc' />
-                            <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                            <input name='csrf_token_form' type='hidden' value='$csrf_id' />
 STP2TOP;
                     echo $step2top . "\r\n";
 
@@ -764,7 +770,7 @@ STP2TBLTOP1;
                                     <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
-                                    <select name='collate' id=='collate' class='form-control'>
+                                    <select name='collate' id='collate' class='form-control'>
                                         <option selected value='utf8mb4_general_ci'>
                                             General (Recommended)
                                         </option>
@@ -861,9 +867,9 @@ STP2TBLTOP2;
                         die("Cannot read directory '" . text($OE_SITES_BASE) . "'.");
                     }
 
-                    $siteslist = array();
+                    $siteslist = [];
                     while (false !== ($sfname = readdir($dh))) {
-                        if (substr($sfname, 0, 1) == '.') {
+                        if (str_starts_with($sfname, '.')) {
                             continue;
                         }
 
@@ -1126,6 +1132,8 @@ STP2TBLBOT;
                         $error_step2_message .= "$error - A database name is required <br />\n";
                     }
 
+                    // Default collate value when using pre-created database (collate field not in form)
+                    $_REQUEST['collate'] ??= 'utf8mb4_general_ci';
                     if (! $installer->collateNameIsValid($_REQUEST['collate'])) {
                         $pass_step2_validation = false;
                         $error_step2_message .= "$error - A collation name is required <br />\n";
@@ -1169,14 +1177,14 @@ STP2TBLBOT;
                     }
 
                     if (!$pass_step2_validation) {
-                        $_SESSION['bootstrapStateInSetup'] = 2;
+                        $session->set('bootstrapStateInSetup', 2);
                         echo $error_step2_message . '<br />';
                         echo "
                         <form method='post' id='validate-error'>
                             <input name='state' type='hidden' value='2' />
                             <input name='site' type='hidden' value='" . attr($site_id) . "' />
                             <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state2') . "' />
                             <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                         </form>";
                         break;
@@ -1190,7 +1198,7 @@ STP2TBLBOT;
                         echo "Connecting to MySQL Server...\n";
                         flush();
                         if (! $installer->root_database_connection()) {
-                            $_SESSION['bootstrapStateInSetup'] = 2;
+                            $session->set('bootstrapStateInSetup', 2);
                             echo "$error.  Check your login credentials.\n";
                             echo text($installer->error_message);
                             echo "<br /><br />";
@@ -1199,7 +1207,7 @@ STP2TBLBOT;
                                 <input name='state' type='hidden' value='2' />
                                 <input name='site' type='hidden' value='" . attr($site_id) . "' />
                                 <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                                <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state2')) . "' />
+                                <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state2') . "' />
                                 <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                             </form>";
                             break;
@@ -1290,7 +1298,8 @@ STP2TBLBOT;
                     $dump_results = $installer->load_dumpfiles();
                     if (! $dump_results) {
                         echo "$error.\n";
-                        echo text($installer->error_message);
+                        $errorMsg = $installer->error_message;
+                        echo text($errorMsg);
                         break;
                     } else {
                         echo $dump_results;
@@ -1426,10 +1435,10 @@ TOTP;
                         $next_state = 4;
                     }
 
-                    $_SESSION['bootstrapStateInSetup'] = $next_state;
+                    $session->set('bootstrapStateInSetup', $next_state);
                     echo "<form method='post'>
                           <input name='state' type='hidden' value='" . attr($next_state) . "' />
-                          <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state' . $next_state)) . "' />
+                          <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state' . $next_state) . "' />
                           <input name='site' type='hidden' value='" . attr($site_id) . "' />
                           <input name='iuser' type='hidden' value='" . attr($installer->iuser) . "' />
                           <input name='iuserpass' type='hidden' value='" . attr($installer->iuserpass) . "' />
@@ -1462,7 +1471,7 @@ FRMBOT;
                     break;
 
                 case 4:
-                    $_SESSION['bootstrapStateInSetup'] = 5;
+                    $session->set('bootstrapStateInSetup', 5);
                     $state_esc = text($state);
                     $step4_top = <<<STP4TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Configure PHP</h3>
@@ -1588,7 +1597,7 @@ STP4TOP;
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='5' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state5')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state5') . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1610,31 +1619,107 @@ STP4TOP;
                     break;
 
                 case 5:
-                    $_SESSION['bootstrapStateInSetup'] = 6;
-                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Apache Web Server</h3>";
+                    $session->set('bootstrapStateInSetup', 6);
+                    $isFpm = in_array(PHP_SAPI, ['fpm-fcgi', 'cgi-fcgi'], true);
+                    $isCliServer = PHP_SAPI === 'cli-server';
+                    $defaultWs = $isFpm ? 'fpm' : ($isCliServer ? 'cli' : 'apache');
+                    $docsDirectoryGlob = text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory)));
+                    $openemrDirectory = text(realpath(__DIR__));
+                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Web Server</h3>";
                     echo "<div class='jumbotron p-5'>";
-                    echo "<p>Configuration of Apache web server...</p><br />\n";
-                    echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
-                    it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(__DIR__)) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
-                    &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(__DIR__)) . "/sites\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
-                    &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />";
+                    echo "<p>Select your web server configuration to see the required setup instructions.</p>";
+
+                    echo "
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_apache' value='apache'" . ($defaultWs === 'apache' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_apache'>Apache (mod_php)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_fpm' value='fpm'" . ($defaultWs === 'fpm' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_fpm'>PHP-FPM (nginx, etc.)</label>
+                    </div>
+                    <div class='form-check form-check-inline mb-3'>
+                        <input class='form-check-input' type='radio' name='webserver' id='ws_cli' value='cli'" . ($defaultWs === 'cli' ? " checked" : '') . " />
+                        <label class='form-check-label' for='ws_cli'>PHP built-in server</label>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_apache'" . ($defaultWs === 'apache' ? '' : " style='display:none'") . ">
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contain patient information, and
+                        it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:</p>
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $openemrDirectory . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
+                        &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;&lt;Directory \"" . $openemrDirectory . "/sites\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $docsDirectoryGlob . "\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $openemrDirectory . "/bin\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />
+                        <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_fpm'" . ($defaultWs === 'fpm' ? '' : " style='display:none'") . ">
+                        <h5>1. Deny access to sensitive directories</h5>
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information and the <code>bin/</code> directory contains CLI tools. Block all direct web access to them:</p>
+                        <pre><code>"
+                            . text("location ~* ^/sites/*/documents {") . "\n"
+                            . text("    deny all;") . "\n"
+                            . text("}") . "\n\n"
+                            . text("location ^~ /bin/ {") . "\n"
+                            . text("    deny all;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>2. URL rewriting</h5>
+                        <p>These rewrite rules are required for Zend modules, the patient portal, the REST API/FHIR, OAuth2, and health check probes:</p>
+                        <pre><code>"
+                            . text("if (!\$request_filename) {") . "\n"
+                            . text("    rewrite ^(.*/zend_modules/public)(.*) \$1/index.php?\$is_args\$args last;") . "\n"
+                            . text("    rewrite ^(.*/portal/patient)(.*) \$1/index.php?_REWRITE_COMMAND=\$1\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/apis/)(.*) \$1/dispatch.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/oauth2/)(.*) \$1/authorize.php?_REWRITE_COMMAND=\$2 last;") . "\n"
+                            . text("    rewrite ^(.*/meta/health/)(.*) \$1/index.php last;") . "\n"
+                            . text("}")
+                        . "</code></pre>
+
+                        <h5>3. Pass the Authorization header to PHP-FPM</h5>
+                        <p>Required for the REST API and FHIR to authenticate requests:</p>
+                        <pre><code>"
+                            . text("fastcgi_param HTTP_AUTHORIZATION \$http_authorization;")
+                        . "</code></pre>
+                        <p class='mt-3'><strong>Note:</strong> These examples use nginx syntax. If you use a different web server (Apache with php-fpm, LiteSpeed, Caddy, etc.), consult your web server's documentation for equivalent directives.</p>
+                    </div>";
+
+                    echo "
+                    <div id='instructions_cli'" . ($defaultWs === 'cli' ? '' : " style='display:none'") . ">
+                        <p>The PHP built-in server (<code>php -S</code>) is intended for development and testing only. It does not require web server configuration.</p>
+                        <p><strong>Do not use the built-in server in production.</strong> For production deployments, select one of the other options above to see the required configuration.</p>
+                    </div>";
+
+                    echo "
+                    <script>
+                        document.querySelectorAll('input[name=\"webserver\"]').forEach(function(radio) {
+                            radio.addEventListener('change', function() {
+                                document.getElementById('instructions_apache').style.display = this.value === 'apache' ? '' : 'none';
+                                document.getElementById('instructions_fpm').style.display = this.value === 'fpm' ? '' : 'none';
+                                document.getElementById('instructions_cli').style.display = this.value === 'cli' ? '' : 'none';
+                            });
+                        });
+                    </script>";
 
                     $btn_text = 'Proceed to Select a Theme';
-                    echo "<p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
-                    <p>We recommend you print these instructions for future reference.</p>
+                    echo "<p>We recommend you print these instructions for future reference.</p>
                     <p class='mark'>Click <strong>'" . text($btn_text) . "'</strong> to select a theme.</p>
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='6' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state6')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state6') . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1656,7 +1741,7 @@ STP4TOP;
                     break;
 
                 case 6:
-                    $_SESSION['bootstrapStateInSetup'] = 7;
+                    $session->set('bootstrapStateInSetup', 7);
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Select a Theme</h3>";
                     echo "<div class='jumbotron p-5'>";
                     echo "<p>Select a theme for OpenEMR...</p>\n";
@@ -1666,7 +1751,7 @@ STP4TOP;
                     <div class='col-12'>
                         <form method='post'>
                             <input type='hidden' name='state' value='7' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr(CsrfUtils::collectCsrfToken('state7')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state7') . "' />
                             <input type='hidden' name='site' value='" . attr($site_id) . "' />
                             <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                             <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1776,9 +1861,9 @@ CHKDIR;
                         }
 
                         //RP_CHECK_LOGIC
-                        $_SESSION['bootstrapStateInSetup'] = 1;
+                        $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
+                        $csrf_id = CsrfUtils::collectCsrfToken($session, 'state1');
                         $form = <<<FRM
                                     <p>All required files and directories have been verified.</p>
                                     <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
@@ -1787,7 +1872,7 @@ CHKDIR;
                                     <form method='post'>
                                         <input name='state' type='hidden' value='1' />
                                         <input name='site' type='hidden' value='$site_id_esc' />
-                                        <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                                        <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                                         <div class="form-group">
                                             <div class="col">
                                                 <button type='submit' class='btn btn-primary' value='Continue'>
@@ -1799,19 +1884,19 @@ CHKDIR;
 FRM;
                         echo $form . "\r\n";
                     } else {
-                        $_SESSION['bootstrapStateInSetup'] = 1;
+                        $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
+                        $csrf_id = CsrfUtils::collectCsrfToken($session, 'state1');
                         $form = <<<FRM
                                     <br />
-                                    <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
+                                    <p class='p-1 bg-warning'>$caution: Permissions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
                                     <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                     <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
                                     <br />
                                     <form method='post'>
                                         <input name='state' type='hidden' value='1'>
                                         <input name='site' type='hidden' value='$site_id_esc'>
-                                        <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                                        <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                                         <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                     </form>
 FRM;

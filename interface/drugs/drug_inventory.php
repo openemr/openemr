@@ -11,9 +11,10 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorizations.
 $auth_admin = AclMain::aclCheckCore('admin', 'drugs');
@@ -28,8 +29,7 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for inventory: Drug Inventory", xl("Drug Inventory"));
 }
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
@@ -113,7 +113,7 @@ function generateEmptyTd($n): void
     }
     echo $temp;
 }
-function processData($data)
+function inventory_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -123,7 +123,7 @@ function processData($data)
     $data['expiration'] = [$data['expiration']];
     return $data;
 }
-function mergeData($d1, $d2)
+function inventory_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
@@ -133,7 +133,7 @@ function mergeData($d1, $d2)
     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
     return $d1;
 }
-function mapToTable($row): void
+function inventory_mapToTable($row): void
 {
     global $auth_admin, $auth_lots;
     $today = date('Y-m-d');
@@ -141,7 +141,7 @@ function mapToTable($row): void
         echo " <tr class='detail'>\n";
         $lastid = $row['drug_id'];
         if ($auth_admin) {
-            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes((string) $lastid)) . ")'>" .
+            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(js_escape((string) $lastid)) . ")'>" .
             "<a href='' onclick='return false'>" .
             text($row['name']) . "</a></td>\n";
         } else {
@@ -290,7 +290,7 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 });
 </script>
@@ -411,19 +411,19 @@ while ($row = sqlFetchArray($res)) {
     if (!empty($row['inventory_id']) && $is_user_restricted && !isWarehouseAllowed($row['facid'], $row['warehouse_id'])) {
         continue;
     }
-    $row = processData($row);
+    $row = inventory_processData($row);
     if ($prevRow == '') {
         $prevRow = $row;
         continue;
     }
     if ($prevRow['drug_id'] == $row['drug_id']) {
-        $row = mergeData($prevRow, $row);
+        $row = inventory_mergeData($prevRow, $row);
     } else {
-        mapToTable($prevRow);
+        inventory_mapToTable($prevRow);
     }
     $prevRow = $row;
 } // end while
-mapToTable($prevRow);
+inventory_mapToTable($prevRow);
 ?>
  </tbody>
 </table>

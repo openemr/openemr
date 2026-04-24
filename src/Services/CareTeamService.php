@@ -4,7 +4,7 @@
  * CareTeamService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
@@ -16,6 +16,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -55,7 +56,7 @@ class CareTeamService extends BaseService
         return ['uuid', 'puuid'];
     }
 
-    public function search($search, $isAndCondition = true): \OpenEMR\Validators\ProcessingResult
+    public function search(array $search, $isAndCondition = true): \OpenEMR\Validators\ProcessingResult
     {
         $processingResult = new ProcessingResult();
         // Build the base query for care teams
@@ -122,12 +123,12 @@ class CareTeamService extends BaseService
     /**
      * Returns a list of careTeams matching optional search criteria.
      *
-     * @param  $search         search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param  $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             $isValidPatient = BaseValidator::validateId(
@@ -144,7 +145,7 @@ class CareTeamService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -445,7 +446,8 @@ class CareTeamService extends BaseService
      */
     private function createOrUpdateCareTeam($pid, ?int $teamId, string $teamName, string $status = 'active')
     {
-        $createdBy = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $createdBy = $session->get('authUserID');
 
         // Check if care team already exists for this patient
         $existingTeamId = null;
@@ -480,8 +482,9 @@ class CareTeamService extends BaseService
      */
     private function insertCareTeamMember($careTeamId, array $memberData): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // AI-generated method modification - Start
-        $createdBy = $_SESSION['authUserID'] ?? null;
+        $createdBy = $session->get('authUserID');
         $userId = intval($memberData['user_id'] ?? 0) ?: null;
         $contactId = intval($memberData['contact_id'] ?? 0) ?: null;
         $role = trim($memberData['role'] ?? '');
@@ -504,8 +507,9 @@ class CareTeamService extends BaseService
      */
     private function updateCareTeamMember($memberId, array $memberData): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // AI-generated method modification - Start
-        $updatedBy = $_SESSION['authUserID'] ?? null;
+        $updatedBy = $session->get('authUserID');
         $userId = intval($memberData['user_id'] ?? 0) ?: null;
         $contactId = intval($memberData['contact_id'] ?? 0) ?: null;
         $role = trim($memberData['role'] ?? '');
@@ -529,7 +533,8 @@ class CareTeamService extends BaseService
      */
     private function markMemberAsInactive($memberId): void
     {
-        $updatedBy = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $updatedBy = $session->get('authUserID');
 
         QueryUtils::sqlStatementThrowException(
             "UPDATE " . self::CARE_TEAM_MEMBER_TABLE . "
@@ -567,7 +572,7 @@ class CareTeamService extends BaseService
             WHERE foreign_table_name = 'person'
          ) person_contact ON ctm.contact_id = person_contact.contact_record_id
          LEFT JOIN person p ON person_contact.person_record_id = p.id
-         LEFT JOIN contact_relation cr ON cr.target_id = p.id AND target_table='person' AND cr.active = 1
+         LEFT JOIN contact_relation cr ON cr.target_id = p.id AND cr.target_table='person' AND cr.active = 1
          LEFT JOIN contact patient_contact ON cr.contact_id = patient_contact.id AND patient_contact.foreign_table_name = 'patient_data' AND patient_contact.foreign_id = ct.pid
          LEFT JOIN facility f ON ctm.facility_id = f.id
          LEFT JOIN list_options lo1 ON lo1.option_id = ctm.role AND lo1.list_id = 'care_team_roles'
