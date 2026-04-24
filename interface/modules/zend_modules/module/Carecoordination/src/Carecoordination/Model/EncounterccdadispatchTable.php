@@ -3628,18 +3628,20 @@ class EncounterccdadispatchTable
                 // branches that used to live here were WIP stubs — they called
                 // helpers that were never written and did nothing on every code
                 // path, so they have been removed.
-                $formid_list = "";
-                foreach ($form_ids as $row) {//Fetching the values of each forms
+                // Collect every form_id / encounter value across all rows into
+                // a single flat list, then implode with commas for the IN (...)
+                // clause below. The is_int/is_string guard narrows the mixed
+                // fetchRecords values to the scalar types implode accepts.
+                $flat_ids = [];
+                foreach ($form_ids as $row) {
                     foreach ($row as $value) {
-                        if ($formid_list) {
-                            $formid_list .= ',';
+                        if (is_int($value) || is_string($value)) {
+                            $flat_ids[] = $value;
                         }
-
-                        $formid_list .= $value;
                     }
                 }
 
-                $formid_list = $formid_list ?: "''";
+                $formid_list = implode(',', $flat_ids) ?: "''";
                 $lbf = "lbf_data";
                 $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
                 $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
