@@ -55,6 +55,14 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
             # fixture that produces a legitimate status line echoes the
             # same nonce so the parent accepts it.
             n="${OPENEMR_BG_NONCE:-}"
+            # Check for --force flag once, used by fixtures that want to
+            # branch on it. Looped separately from the per-name dispatch.
+            force=0
+            for arg in "$@"; do
+                if [ "$arg" = "--force" ]; then
+                    force=1
+                fi
+            done
             for arg in "$@"; do
                 case "$arg" in
                     --name=clean_exit_no_json)
@@ -117,6 +125,45 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
                         # Reach here only if yes is terminated by a
                         # broken pipe before we can emit the status.
                         printf '{"name":"floods_stdout","status":"executed","nonce":"%s"}\n' "$n"
+                        exit 0
+                        ;;
+                    --name=reports_force)
+                        # Emits "executed" only when --force was passed,
+                        # "skipped" otherwise. Lets the test confirm the
+                        # spawner actually forwards --force to the child.
+                        if [ "$force" = "1" ]; then
+                            printf '{"name":"reports_force","status":"executed","nonce":"%s"}\n' "$n"
+                        else
+                            printf '{"name":"reports_force","status":"skipped","nonce":"%s"}\n' "$n"
+                        fi
+                        exit 0
+                        ;;
+                    --name=floods_stderr)
+                        # Writes well past the spawner's per-stream buffer
+                        # cap (64KiB) to stderr. Used to verify the cap is
+                        # enforced on the stderr side too, not just stdout.
+                        yes A | head -c 200000 >&2
+                        # Reach here only if yes is terminated by a
+                        # broken pipe before we can emit the status.
+                        printf '{"name":"floods_stderr","status":"executed","nonce":"%s"}\n' "$n"
+                        exit 0
+                        ;;
+                    --name=emits_non_array_json)
+                        # A line starting with `{` that does NOT decode to
+                        # a JSON object (malformed) exercises the
+                        # !is_array($decoded) branch in parseJsonStatus.
+                        # The parser must skip past it without erroring.
+                        echo '{not valid json at all'
+                        printf '{"name":"emits_non_array_json","status":"executed","nonce":"%s"}\n' "$n"
+                        exit 0
+                        ;;
+                    --name=only_non_array_json)
+                        # Same as above but WITHOUT a valid trailing line,
+                        # so parseJsonStatus falls through to null and the
+                        # spawner returns status=error. This covers the
+                        # !is_array continue-path without relying on a
+                        # subsequent valid line.
+                        echo '{ trailing but malformed'
                         exit 0
                         ;;
                     --name=sleeps_forever)
@@ -319,6 +366,95 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
             65536,
             $this->logger->warnings[0]['context']['buffer_max_bytes'] ?? null,
         );
+    }
+
+    public function testForceFlagIsForwardedToChildProcess(): void
+    {
+        // The spawner's `spawn($name, true, ...)` call must translate
+        // to a --force argument in argv so the child command bypasses
+        // the interval check. Without this, --force was set on the
+        // parent's run() but silently dropped before exec.
+        $withForce = $this->makeSpawner()->spawn('reports_force', true, 60);
+        $withoutForce = $this->makeSpawner()->spawn('reports_force', false, 60);
+
+        $this->assertSame(
+            ['name' => 'reports_force', 'status' => 'executed'],
+            $withForce,
+            '--force must reach the child when the caller requests it',
+        );
+        $this->assertSame(
+            ['name' => 'reports_force', 'status' => 'skipped'],
+            $withoutForce,
+            '--force must NOT reach the child when the caller does not request it',
+        );
+    }
+
+    public function testStderrOverflowTerminatesChildAndReturnsError(): void
+    {
+        // Symmetric to the stdout overflow case: a service that dumps
+        // unbounded output to stderr (e.g. a warn/notice storm) must
+        // still be killed once the per-stream cap is hit, so stderr
+        // alone can't exhaust parent memory (CWE-400).
+        $start = microtime(true);
+        $result = $this->makeSpawner()->spawn('floods_stderr', false, 60);
+        $elapsed = microtime(true) - $start;
+
+        $this->assertSame(['name' => 'floods_stderr', 'status' => 'error'], $result);
+        $this->assertLessThan(15.0, $elapsed, 'Spawner must kill overflowing child quickly');
+        $this->assertNotEmpty($this->logger->warnings);
+        $this->assertSame(
+            'floods_stderr',
+            $this->logger->warnings[0]['context']['service'] ?? null,
+        );
+        $this->assertSame(
+            65536,
+            $this->logger->warnings[0]['context']['buffer_max_bytes'] ?? null,
+        );
+    }
+
+    public function testNonArrayJsonLineIsSkippedAndLaterValidLineIsAccepted(): void
+    {
+        // parseJsonStatus must tolerate a line that starts with `{` but
+        // doesn't decode to a JSON object (malformed JSON). The parser
+        // skips it (continue) and keeps scanning; a subsequent valid
+        // status line must still win.
+        $result = $this->makeSpawner()->spawn('emits_non_array_json', false, 60);
+
+        $this->assertSame(['name' => 'emits_non_array_json', 'status' => 'executed'], $result);
+        $this->assertSame([], $this->logger->warnings);
+    }
+
+    public function testOnlyNonArrayJsonReturnsError(): void
+    {
+        // When the only `{`-prefixed line is malformed, parseJsonStatus
+        // scans every line, skips each one at the !is_array($decoded)
+        // branch, and returns null — the spawner then surfaces error.
+        $result = $this->makeSpawner()->spawn('only_non_array_json', false, 60);
+
+        $this->assertSame(['name' => 'only_non_array_json', 'status' => 'error'], $result);
+        $this->assertNotEmpty($this->logger->warnings);
+    }
+
+    public function testLongServiceNameIsTruncatedInLogContext(): void
+    {
+        // Service names come from the DB so in theory operator-
+        // controlled, but pathological rows or tests inserting long
+        // strings should not produce unbounded log records. The
+        // SERVICE_NAME_LOG_MAX cap trims to 64 chars + a truncation
+        // marker before logging (CWE-532 hygiene).
+        $longName = str_repeat('a', 100);
+        $result = $this->makeSpawner()->spawn($longName, false, 60);
+
+        // The returned `name` is the caller's input unchanged; only
+        // the *logged* service context is truncated.
+        $this->assertSame($longName, $result['name']);
+        $this->assertSame('error', $result['status']);
+        $this->assertNotEmpty($this->logger->warnings);
+
+        $loggedService = $this->logger->warnings[0]['context']['service'] ?? '';
+        self::assertIsString($loggedService);
+        $this->assertStringEndsWith('…[truncated]', $loggedService);
+        $this->assertStringStartsWith(str_repeat('a', 64), $loggedService);
     }
 
     public function testTimeoutReturnsErrorAndLogsService(): void

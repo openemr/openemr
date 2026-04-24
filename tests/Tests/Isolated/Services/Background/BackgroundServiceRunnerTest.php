@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Background;
 
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Services\Background\BackgroundServiceProcessSpawner;
 use OpenEMR\Services\Background\BackgroundServiceRunner;
+use OpenEMR\Services\Background\SymfonyBackgroundServiceSpawner;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -270,6 +272,92 @@ class BackgroundServiceRunnerTest extends TestCase
         $this->assertTrue($executed);
     }
 
+    public function testRunTreatsEmptyStringServiceNameAsRunAllDue(): void
+    {
+        // The HTTP layer (and some CLI callers) can't always distinguish
+        // "no service name given" from "service name given as empty
+        // string". Both must funnel into the run-all-due path; any other
+        // handling would either spawn no subprocesses or try to look up
+        // a zero-length service name.
+        $spawner = new RecordingSpawner(['svc1' => 'executed']);
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            spawner: $spawner,
+        );
+
+        $results = $runner->run('');
+
+        // Run-all-due path was taken (single active service spawned)
+        // rather than the single-named path (which would have returned
+        // 'not_found' for the empty-string lookup).
+        $this->assertSame([['name' => 'svc1', 'status' => 'executed']], $results);
+        $this->assertSame(['svc1'], $spawner->spawnedNames);
+    }
+
+    public function testRunOneReturnsErrorWhenAcquireLockThrowsSqlQueryException(): void
+    {
+        // acquireLock raises SqlQueryException on transient DB failure
+        // (deadlock, dropped connection, lock-wait timeout). The runOne
+        // catch must surface that as status=error rather than
+        // propagating out of the orchestrator and aborting the
+        // remaining services in the same tick.
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            acquireLockThrows: new SqlQueryException(
+                sqlStatement: 'UPDATE background_services …',
+                message: 'db died',
+            ),
+        );
+
+        $results = $runner->run('svc1');
+
+        $this->assertSame([['name' => 'svc1', 'status' => 'error']], $results);
+        // The lock was never acquired, so releaseLock must not be called.
+        // A release against an un-acquired lease would be wrong: it could
+        // free another worker's in-flight lease if two stubs shared state.
+        $this->assertSame([], $runner->releasedLocks);
+    }
+
+    public function testResolveSpawnerLazilyConstructsDefaultSymfonySpawner(): void
+    {
+        // When no spawner is injected, the runner must defer constructing
+        // the default SymfonyBackgroundServiceSpawner until at least one
+        // active service needs it. This avoids resolving PHP_BINARY /
+        // project dir on an all-disabled install. Verified by invoking
+        // the private resolveSpawner() via reflection and asserting the
+        // returned instance is memoized across calls.
+        $priorFileroot = $GLOBALS['fileroot'] ?? null;
+        $GLOBALS['fileroot'] = sys_get_temp_dir();
+        try {
+            $runner = new BackgroundServiceRunner(new NullLogger());
+            $method = new \ReflectionMethod($runner, 'resolveSpawner');
+            $first = $method->invoke($runner);
+            $second = $method->invoke($runner);
+
+            $this->assertInstanceOf(SymfonyBackgroundServiceSpawner::class, $first);
+            $this->assertSame($first, $second, 'resolveSpawner must memoize so PHP_BINARY/project dir are resolved at most once');
+        } finally {
+            if ($priorFileroot === null) {
+                unset($GLOBALS['fileroot']);
+            } else {
+                $GLOBALS['fileroot'] = $priorFileroot;
+            }
+        }
+    }
+
+    public function testResolveSpawnerReturnsInjectedSpawnerWithoutConstructingDefault(): void
+    {
+        // When a spawner is injected via the constructor, resolveSpawner
+        // must return it unchanged — never fall through to the default
+        // construction path (which would resolve PHP_BINARY and project
+        // dir, needlessly).
+        $injected = new RecordingSpawner([]);
+        $runner = new BackgroundServiceRunner(new NullLogger(), $injected);
+        $method = new \ReflectionMethod($runner, 'resolveSpawner');
+
+        $this->assertSame($injected, $method->invoke($runner));
+    }
+
     /**
      * @return BackgroundServicesRow
      */
@@ -314,6 +402,9 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
      * @param string|null $lockFailureReason Null means lock acquired; a string is the failure reason returned to run()
      * @param (\Closure(BackgroundServicesRow): void)|null $executeCallback
      * @param bool $orchestratorLockAcquirable False simulates a second concurrent orchestrator attempt
+     * @param \Throwable|null $acquireLockThrows Exception to throw from acquireLock()
+     *        (simulates DB errors during lease acquire). When non-null, takes
+     *        precedence over $lockFailureReason.
      */
     public function __construct(
         private readonly array $services = [],
@@ -321,6 +412,7 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         private readonly ?\Closure $executeCallback = null,
         ?BackgroundServiceProcessSpawner $spawner = null,
         private readonly bool $orchestratorLockAcquirable = true,
+        private readonly ?\Throwable $acquireLockThrows = null,
     ) {
         parent::__construct(new NullLogger(), $spawner);
     }
@@ -338,6 +430,9 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
 
     protected function acquireLock(array $service, bool $force): ?string
     {
+        if ($this->acquireLockThrows !== null) {
+            throw $this->acquireLockThrows;
+        }
         return $this->lockFailureReason;
     }
 
