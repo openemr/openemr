@@ -15370,28 +15370,43 @@ CREATE TABLE `preference_value_sets` (
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
 
 -- OIDC external identity mapping: links local users.id to external (issuer, subject).
+-- Uniqueness is enforced on SHA-256 hashes of the full issuer/external_id values
+-- because MySQL/MariaDB index-length limits make a prefix-based unique key on the
+-- raw VARCHARs unsafe (two pairs sharing the first 255 chars would collide and
+-- the upsert would rewrite the wrong row).
 DROP TABLE IF EXISTS `oidc_external_identity`;
 CREATE TABLE `oidc_external_identity` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id` BIGINT NOT NULL COMMENT 'FK to users.id',
     `issuer` VARCHAR(512) NOT NULL COMMENT 'OIDC iss claim',
     `external_id` VARCHAR(512) NOT NULL COMMENT 'OIDC sub claim',
+    `issuer_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`issuer`, 256))) STORED,
+    `external_id_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`external_id`, 256))) STORED,
     `email` VARCHAR(255) DEFAULT NULL COMMENT 'email at time of linking',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_issuer_external_id` (`issuer`(255), `external_id`(255)),
+    UNIQUE KEY `uq_issuer_external_id_hash` (`issuer_sha256`, `external_id_sha256`),
     UNIQUE KEY `uq_user_id` (`user_id`),
+    KEY `idx_issuer_external_id` (`issuer`(255), `external_id`(255)),
     KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- OIDC token revocation list: immediate-lockout entries for valid tokens.
+-- Uniqueness uses a SHA-256 hash of the full jti (see note on
+-- oidc_external_identity above). The hash lives on a UNIQUE KEY rather than
+-- the PRIMARY KEY because MariaDB does not allow generated columns in primary
+-- keys (MDEV-12862); a surrogate `id` provides the primary key.
 DROP TABLE IF EXISTS `oidc_token_revocation`;
 CREATE TABLE `oidc_token_revocation` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `jti_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`jti`, 256))) STORED,
     `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
-    PRIMARY KEY (`jti`(255))
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_jti_hash` (`jti_sha256`),
+    KEY `idx_jti` (`jti`(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
