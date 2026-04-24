@@ -772,7 +772,7 @@ class InstallerController extends AbstractActionController
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $modDir = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
-        if (file_exists($modDir . "/acl/acl_setup.php") && empty($modDir->acl_version)) {
+        if (file_exists($modDir . "/acl/acl_setup.php") && (!isset($Module->acl_version) || $Module->acl_version === '')) {
             // Pass a variable, so below scripts can not be run on their own
             $aclSetupFlag = true;
             ob_start();

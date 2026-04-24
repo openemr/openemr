@@ -51,10 +51,10 @@ return [
         'variable.undefined.php' => 3446,
     ],
     'confidentNonObject' => [
-        'classConstant.nonObject.php' => 1,
+        'classConstant.nonObject.php' => 0,
         'clone.nonObject.php' => 0,
-        'method.nonObject.php' => 12,
-        'property.nonObject.php' => 8,
+        'method.nonObject.php' => 0,
+        'property.nonObject.php' => 0,
         'staticMethod.nonObject.php' => 0,
     ],
 ];
