@@ -59,13 +59,6 @@ if (!extension_loaded('zlib')) {
       die('Abort ' . basename(__FILE__) . ' : Missing zlib extensions');
 }
 
-if (!function_exists('gzopen') && function_exists('gzopen64')) {
-    function gzopen($filename, $mode, $use_include_path = 0)
-    {
-        return gzopen64($filename, $mode, $use_include_path);
-    }
-}
-
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }

@@ -373,11 +373,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method Mpdf\\\\Mpdf\\:\\:WriteHTML\\(\\) with incorrect case\\: writeHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method Mpdf\\\\Mpdf\\:\\:WriteHTML\\(\\) with incorrect case\\: writeHTML$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];

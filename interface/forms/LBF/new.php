@@ -115,7 +115,6 @@ $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
 $formname = $_GET['formname'] ?? '';
 $formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
 // know LBF origin
 $form_origin = isset($_GET['formOrigin']) ? (int)$_GET['formOrigin'] : null;
 $is_portal_module = $form_origin === 2;
@@ -363,14 +362,6 @@ if (
                 'occupation' => $newPatientData['occupation']
                 ,'industry' => $newPatientData['industry']
             ]);
-        }
-    }
-
-    if ($portalid) {
-        // Delete the request from the portal.
-        $result = cms_portal_call(['action' => 'delpost', 'postid' => $portalid]);
-        if ($result['errmsg']) {
-            die(text($result['errmsg']));
         }
     }
 
@@ -937,7 +928,7 @@ if (
         // small devices. In particular we prefer horizontal arrangement of multiple
         // items in the same row and column.
         echo "<form method='post' class='form-inline' " .
-            "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
+            "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
             "onsubmit='return validate(this)'>\n";
         ?>
         <!-- row width will size to col content width -->
@@ -945,9 +936,6 @@ if (
         <div class="row w-100 overflow-auto">
             <div class="col-12">
                 <?php
-                $cmsportal_login = '';
-                $portalres = false;
-
                 if (!$from_trend_form) {
                     $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, p.cmsportal_login, " .
                         "fe.date FROM " .
@@ -1010,7 +998,7 @@ if (
                             ?>
                         </div>
                     </div>
-                    <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
+                    <?php
                 } // end not from trend form
                 ?>
 
@@ -1080,14 +1068,7 @@ if (
                             $currvalue = $shrow[$field_id];
                         }
                     } else {
-                        if (!$formid && $portalres) {
-                            // Copying CMS Portal form data into this field if appropriate.
-                            $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
-                        }
-
-                        if ($currvalue === '') {
-                            $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
-                        }
+                        $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
 
                         if ($currvalue === false) {
                             continue; // column does not exist, should not happen

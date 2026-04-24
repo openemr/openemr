@@ -3630,17 +3630,9 @@ class EncounterccdadispatchTable
                         }
                     }
                 } elseif (!$formTables_details[3]) {//Fetching the complete group from an LBF
-                    foreach ($form_ids as $row) {//Fetching the values of each encounters
+                    foreach ($form_ids as $row) {
                         foreach ($row as $value) {
-                            ob_start();
-                            ?>
-                            <table>
-                                <?php
-                                display_layout_rows_group_new($formDir, '', '', $pid, $value, [$formTables_details[1]], '');
-                                ?>
-                            </table>
-                            <?php
-                            $res[0][$value] = ob_get_clean();
+                            //This section will be used to fetch an LBF group. This has to be completed. We are working on this.
                         }
                     }
                 } else {
