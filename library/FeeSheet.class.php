@@ -250,7 +250,7 @@ class FeeSheet
                 [$pid, $encounter]
             );
             if (empty($tmprow['invoice_refno'])) { // not empty means there was a previous checkout
-                $refno = updateInvoiceRefNumber();
+                $refno = BillingUtilities::updateInvoiceRefNumber();
                 if ($refno) { // means user has an invoice refno pool
                     sqlStatement(
                         "UPDATE form_encounter SET invoice_refno = ? WHERE pid = ? AND encounter = ?",
@@ -1613,6 +1613,6 @@ class FeeSheet
     //
     public function pricesAuthorized()
     {
-        return AclMain::aclCheckCore('acct', 'disc') || acl_check('acct', 'bill');
+        return AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('acct', 'bill');
     }
 }

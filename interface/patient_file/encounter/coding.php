@@ -46,9 +46,9 @@ use OpenEMR\Core\OEGlobalsBag;
 
 <?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')) { ?>
 <dt><span href="coding.php" class="title"><?php echo xlt('Prescriptions'); ?></span></dt>
-<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('List Prescriptions'); ?></a></dd>
-<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('Add Prescription'); ?></a></dd>
 <?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>

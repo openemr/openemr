@@ -26,6 +26,7 @@ namespace OpenEMR\Services\Background;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Core\OEGlobalsBag;
@@ -50,19 +51,59 @@ class BackgroundServiceRunner
      */
     private const MAX_LEASE_MINUTES = 1440;
 
+    /**
+     * Slack added to the lease when computing the subprocess wall-clock
+     * timeout. The child's lease expires at lease_minutes; the parent
+     * waits a little longer so a child that's legitimately finishing up
+     * (flushing logs, closing connections) isn't killed on the boundary.
+     */
+    private const LEASE_GRACE_SECONDS = 60;
+
+    /**
+     * Name of the MySQL session-level advisory lock used to ensure only
+     * one run-all-due orchestrator runs concurrently across the whole
+     * database. An authenticated caller that repeatedly hits the HTTP
+     * run-all-due endpoint would otherwise be able to spawn
+     * N-services-worth of subprocesses per request; this lock makes the
+     * second concurrent invocation a no-op instead.
+     *
+     * GET_LOCK is session-scoped, so when the orchestrator process dies
+     * (SIGKILL, container restart, fatal), the DB session closes and the
+     * lock auto-releases. The name is prefixed with `openemr.` so it
+     * doesn't collide with anything else using GET_LOCK in the same DB.
+     */
+    private const ORCHESTRATOR_LOCK_NAME = 'openemr.bg_orchestrator';
+
     private ?string $currentServiceName = null;
 
     private bool $shutdownRegistered = false;
 
     private readonly LoggerInterface $logger;
 
-    public function __construct(?LoggerInterface $logger = null)
-    {
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        private ?BackgroundServiceProcessSpawner $spawner = null,
+    ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
      * Run one or all background services.
+     *
+     * ## Isolation model
+     *
+     * - **Single service (`$serviceName !== null`):** executed inline in
+     *   the current process. `acquireLock`/`executeService` failures are
+     *   caught as normal exceptions, but `exit()`/`die()`/fatals in the
+     *   service function will terminate this process just like any other
+     *   PHP script. Callers (REST, AJAX, CLI with --name) that invoke a
+     *   single named service accept that blast radius.
+     * - **Run-all-due (`$serviceName === null`):** each active, due
+     *   service is executed in its own subprocess via
+     *   `BackgroundServiceProcessSpawner`. This is the only safe way to
+     *   survive `exit()`/`die()`/fatal errors from one service. No
+     *   catch block in PHP can recover from them, so process boundaries
+     *   are the isolation mechanism. See GH #11794.
      *
      * @param string|null $serviceName Specific service name, or null for all
      * @param bool $force Bypass interval check
@@ -72,67 +113,201 @@ class BackgroundServiceRunner
      *   - 'skipped'         — inactive, or manual-mode without --force
      *   - 'already_running' — another process holds an unexpired lease
      *   - 'not_due'         — interval has not elapsed yet (NOW() <= next_run)
-     *   - 'error'           — exception during lock acquisition or execution
+     *   - 'error'           — exception during lock acquisition or execution,
+     *                         or subprocess terminated abnormally (run-all-due)
      *   - 'not_found'       — requested service name does not exist
      */
     public function run(?string $serviceName = null, bool $force = false): array
     {
-        $this->registerShutdownHandler();
-
         if ($serviceName === '') {
             $serviceName = null;
         }
 
-        $results = [];
+        if ($serviceName === null) {
+            return $this->runAllDueIsolated();
+        }
+
+        $this->registerShutdownHandler();
+
         $services = $this->getServices($serviceName, $force);
 
-        if ($serviceName !== null && $services === []) {
+        if ($services === []) {
             return [['name' => $serviceName, 'status' => 'not_found']];
         }
 
+        // Single named service: always exactly one row.
+        return [$this->runOne($services[0], $force)];
+    }
+
+    /**
+     * Orchestrate the run-all-due path with per-service subprocess
+     * isolation. Each active service scheduled on an interval is
+     * delegated to the process spawner; inactive services are reported
+     * as 'skipped' without spawning (skip-vs-run is trivially decidable
+     * from the row, no need to pay bootstrap cost to confirm).
+     *
+     * The spawner is responsible for turning any abnormal subprocess
+     * termination into `status => 'error'` with a log entry. This loop
+     * therefore advances through every service regardless of what the
+     * previous one did.
+     *
+     * @return list<array{name: string, status: string}>
+     */
+    private function runAllDueIsolated(): array
+    {
+        // A single authenticated caller can trigger run-all-due via the
+        // HTTP endpoint. Without a global guard, N repeated requests
+        // would spawn N × (active services) subprocesses concurrently;
+        // each child's DB-level per-service lock would quickly reject
+        // the duplicate work, but the parent would still pay the cost
+        // of spawning, bootstrapping, and killing each child. The
+        // orchestrator lock collapses that into a single no-op result.
+        if (!$this->acquireOrchestratorLock()) {
+            return [['name' => 'orchestrator', 'status' => 'already_running']];
+        }
+
+        try {
+            return $this->runAllDueIsolatedUnlocked();
+        } finally {
+            $this->releaseOrchestratorLock();
+        }
+    }
+
+    /**
+     * @return list<array{name: string, status: string}>
+     */
+    private function runAllDueIsolatedUnlocked(): array
+    {
+        $services = $this->getServices(null, false);
+        $results = [];
+        $spawner = null;
+
         foreach ($services as $service) {
-            $name = $service['name'];
-
             // ADOdb returns string values; use loose comparison for DB row checks.
-            // Note: the `running` column is not consulted here — acquireLock()
-            // is authoritative and can steal a lease left by a crashed worker.
             if ($service['active'] == 0) {
-                $results[] = ['name' => $name, 'status' => 'skipped'];
+                $results[] = ['name' => $service['name'], 'status' => 'skipped'];
                 continue;
             }
-
-            // Manual-mode services (execute_interval = 0) require --force
-            if ($service['execute_interval'] == 0 && !$force) {
-                $results[] = ['name' => $name, 'status' => 'skipped'];
-                continue;
-            }
-
-            try {
-                $lockFailureReason = $this->acquireLock($service, $force);
-            } catch (\Throwable) {
-                $results[] = ['name' => $name, 'status' => 'error'];
-                continue;
-            }
-
-            if ($lockFailureReason !== null) {
-                $results[] = ['name' => $name, 'status' => $lockFailureReason];
-                continue;
-            }
-
-            // Only track for shutdown cleanup after lock is acquired
-            $this->currentServiceName = $name;
-
-            try {
-                $this->executeService($service);
-                $results[] = ['name' => $name, 'status' => 'executed'];
-            } catch (\Throwable) {
-                $results[] = ['name' => $name, 'status' => 'error'];
-            } finally {
-                $this->safeReleaseLock($name);
-                $this->currentServiceName = null;
-            }
+            // Lazy-construct the spawner only when at least one active
+            // service needs it. Installs with every service disabled
+            // shouldn't have to resolve PHP_BINARY / project dir.
+            $spawner ??= $this->resolveSpawner();
+            $timeoutSeconds = $this->computeLeaseMinutes($service) * 60 + self::LEASE_GRACE_SECONDS;
+            $results[] = $spawner->spawn($service['name'], false, $timeoutSeconds);
         }
         return $results;
+    }
+
+    /**
+     * Try to acquire the DB-wide orchestrator lock. Returns true on
+     * success (caller must release), false if another orchestrator is
+     * already running. Uses a session-level advisory lock (GET_LOCK)
+     * with a zero-second wait so the second concurrent caller fails
+     * fast rather than queueing.
+     */
+    protected function acquireOrchestratorLock(): bool
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT GET_LOCK(?, 0) AS got',
+            [self::ORCHESTRATOR_LOCK_NAME],
+            false,
+        );
+        // GET_LOCK returns 1 on acquire, 0 on timeout, NULL on error.
+        // ADOdb may return either the native int or a numeric string
+        // depending on driver mode; accept both forms without casting
+        // through mixed (which PHPStan flags at level 9).
+        if (!is_array($row)) {
+            return false;
+        }
+        $got = $row['got'] ?? null;
+        return $got === 1 || $got === '1';
+    }
+
+    /**
+     * Release the orchestrator lock. Swallows errors because the lock
+     * auto-releases when the DB session closes; a failure here would
+     * at worst delay the next orchestrator tick by up to one cron
+     * interval (when FPM recycles the connection).
+     */
+    protected function releaseOrchestratorLock(): void
+    {
+        try {
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT RELEASE_LOCK(?) AS released',
+                [self::ORCHESTRATOR_LOCK_NAME],
+            );
+        } catch (SqlQueryException) {
+            // Best-effort: GET_LOCK is session-scoped and will auto-release
+            // when the PHP process (and therefore the DB connection) ends.
+        }
+    }
+
+    /**
+     * Execute one already-fetched service row inline in the current process.
+     *
+     * Extracted from run() so that the run-all-due orchestrator can
+     * isolate each service via subprocess spawning while the single-
+     * named-service path continues to run inline. Called by the child
+     * side of a spawned subprocess (via run() with --name), not directly
+     * by the parent orchestrator.
+     *
+     * @param BackgroundServicesRow $service
+     * @return array{name: string, status: string}
+     */
+    private function runOne(array $service, bool $force): array
+    {
+        $name = $service['name'];
+
+        // ADOdb returns string values; use loose comparison for DB row checks.
+        // Note: the `running` column is not consulted here. acquireLock()
+        // is authoritative and can steal a lease left by a crashed worker.
+        if ($service['active'] == 0) {
+            return ['name' => $name, 'status' => 'skipped'];
+        }
+
+        // Manual-mode services (execute_interval = 0) require --force
+        if ($service['execute_interval'] == 0 && !$force) {
+            return ['name' => $name, 'status' => 'skipped'];
+        }
+
+        try {
+            $lockFailureReason = $this->acquireLock($service, $force);
+        } catch (SqlQueryException) {
+            return ['name' => $name, 'status' => 'error'];
+        }
+
+        if ($lockFailureReason !== null) {
+            return ['name' => $name, 'status' => $lockFailureReason];
+        }
+
+        // Only track for shutdown cleanup after lock is acquired
+        $this->currentServiceName = $name;
+
+        try {
+            $this->executeService($service);
+            return ['name' => $name, 'status' => 'executed'];
+        } catch (\Throwable) {
+            return ['name' => $name, 'status' => 'error'];
+        } finally {
+            $this->safeReleaseLock($name);
+            $this->currentServiceName = null;
+        }
+    }
+
+    /**
+     * Return the configured spawner, constructing the default
+     * SymfonyBackgroundServiceSpawner lazily if one was not injected.
+     *
+     * Kept separate so tests can inject a fake spawner via the
+     * constructor and avoid any PHP_BINARY / project-dir resolution.
+     */
+    private function resolveSpawner(): BackgroundServiceProcessSpawner
+    {
+        if ($this->spawner === null) {
+            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
+            $this->spawner = new SymfonyBackgroundServiceSpawner($projectDir, $this->logger);
+        }
+        return $this->spawner;
     }
 
     /**

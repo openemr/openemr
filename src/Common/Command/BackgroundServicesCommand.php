@@ -47,6 +47,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
                     new InputArgument('action', InputArgument::REQUIRED, 'Action to perform: list, run, unlock, or crontab'),
                     new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Service name (required for "unlock"; for "run", if omitted, runs all services that are due)'),
                     new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run"; ignored without --name)'),
+                    new InputOption('json', null, InputOption::VALUE_NONE, 'Emit a single JSON result line on stdout (for "run" with --name); suppresses human-readable output'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
                 ])
             );
@@ -103,6 +104,17 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         $nameRaw = $input->getOption('name');
         $name = is_string($nameRaw) && $nameRaw !== '' ? $nameRaw : null;
         $forceRequested = (bool) $input->getOption('force');
+        $json = (bool) $input->getOption('json');
+
+        // --json is the wire format the run-all-due orchestrator uses to
+        // parse child subprocess results (see BackgroundServiceRunner and
+        // SymfonyBackgroundServiceSpawner). It is only meaningful when
+        // running a single named service. The run-all-due path doesn't
+        // go through this command's stdout.
+        if ($json && $name === null) {
+            $io->error('--json requires --name (it is only meaningful for a single-service run).');
+            return Command::FAILURE;
+        }
 
         // --force is only meaningful when targeting a specific --name. Without
         // a name, honoring --force would switch BackgroundServiceRunner into
@@ -114,6 +126,15 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             $io->warning('--force is ignored without --name; running only services that are due.');
         }
         $force = $name !== null && $forceRequested;
+
+        // Capture the name as a non-nullable local before the run so the
+        // JSON emit path below has a definite string fallback for the
+        // "service not found / empty results" case. The early return
+        // above guarantees name is non-null whenever $json is true.
+        if ($json && $name !== null) {
+            $result = $this->createRunner()->run($name, $force)[0] ?? ['name' => $name, 'status' => 'error'];
+            return $this->emitJsonResult($result, $io);
+        }
 
         $results = $this->createRunner()->run($name, $force);
 
@@ -147,6 +168,42 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             }
         }
         return Command::SUCCESS;
+    }
+
+    /**
+     * Emit the single-service result as one JSON line for consumption by
+     * the run-all-due orchestrator. The exit code matches the
+     * human-readable path so a child process's success/failure is
+     * observable both in its JSON line and its exit code.
+     *
+     * Reflects the per-invocation nonce the parent orchestrator passed
+     * via OPENEMR_BG_NONCE so the parent can authenticate this status
+     * line as its own and reject any forged line printed by the
+     * service's own code (e.g. from register_shutdown_function). The
+     * nonce is absent when the command is invoked directly (CLI, or
+     * via the REST single-service path, which doesn't use the JSON
+     * wire format); in that case we emit an empty string and the
+     * child-path consumer never checks it.
+     *
+     * Uses JSON_THROW_ON_ERROR so an encoding failure (e.g. a service
+     * name containing invalid UTF-8) surfaces as a non-zero exit with
+     * a visible JsonException rather than the parent silently coercing
+     * the result to 'error' because `(string) false` is an empty line.
+     *
+     * @param array{name: string, status: string} $result
+     */
+    private function emitJsonResult(array $result, SymfonyStyle $io): int
+    {
+        $nonceEnv = getenv('OPENEMR_BG_NONCE');
+        $payload = [
+            'name' => $result['name'],
+            'status' => $result['status'],
+            'nonce' => is_string($nonceEnv) ? $nonceEnv : '',
+        ];
+        $io->writeln(json_encode($payload, JSON_THROW_ON_ERROR));
+        return ($result['status'] === 'error' || $result['status'] === 'not_found')
+            ? Command::FAILURE
+            : Command::SUCCESS;
     }
 
     protected function createRunner(): BackgroundServiceRunner

@@ -22,7 +22,7 @@
  * Do not declare a namespace in class extending this abstract class.
  * If you want Laminas manager to set namespace, set it in getModuleNamespace
  * otherwise use below at top of class to register namespace.
- * $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
+ * $classLoader = new \OpenEMR\Core\ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
  * $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\PortalPlugins\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
  * */
 

@@ -17,7 +17,7 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/VerifiableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/VerifiableIF.php';
 
 interface SignableIF extends VerifiableIF
 {

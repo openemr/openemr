@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LocalApiAuthorizationControllerTest extends TestCase
@@ -106,5 +107,95 @@ class LocalApiAuthorizationControllerTest extends TestCase
 
         $this->expectException(UnauthorizedHttpException::class);
         $controller->authorizeRequest($request);
+    }
+
+    public function testAuthorizeRequestBootstrapsMissingUserUuid(): void
+    {
+        $userId = 1;
+        $uuid = '123e4567-e89b-12d3-a456-426614174000';
+        $userWithoutUuid = ['id' => $userId, 'username' => 'testuser', 'uuid' => null];
+        $userWithUuid = ['id' => $userId, 'username' => 'testuser', 'uuid' => $uuid];
+
+        $mockUserService = $this->createMock(UserService::class);
+        // First call returns user with no UUID, second (after bootstrap) returns populated.
+        $mockUserService->expects($this->exactly(2))
+            ->method('getUser')
+            ->willReturnOnConsecutiveCalls($userWithoutUuid, $userWithUuid);
+
+        $bootstrapCalls = 0;
+        $bootstrapUserIds = [];
+        $controller = new class (
+            $this->createMock(LoggerInterface::class),
+            new OEGlobalsBag(),
+            $bootstrapCalls,
+            $bootstrapUserIds,
+        ) extends LocalApiAuthorizationController {
+            /**
+             * @param list<int|string> $bootstrapUserIds
+             */
+            public function __construct(
+                LoggerInterface $logger,
+                OEGlobalsBag $globalsBag,
+                public int &$bootstrapCalls,
+                public array &$bootstrapUserIds,
+            ) {
+                parent::__construct($logger, $globalsBag);
+            }
+            protected function bootstrapMissingUserUuid(int|string $userId): void
+            {
+                $this->bootstrapCalls++;
+                $this->bootstrapUserIds[] = $userId;
+            }
+        };
+        $controller->setUserService($mockUserService);
+
+        $request = $this->buildAuthenticatedRequest($userId);
+        $this->assertTrue(
+            $controller->authorizeRequest($request),
+            "Expected authorizeRequest to succeed after bootstrapping missing UUID",
+        );
+        $this->assertSame(1, $bootstrapCalls, "Expected bootstrap to be invoked exactly once");
+        $this->assertSame([$userId], $bootstrapUserIds, "Expected bootstrap to be scoped to the authenticated user");
+        $this->assertSame($uuid, $request->attributes->get('userId'));
+    }
+
+    public function testAuthorizeRequestFailsWhenBootstrapCannotProduceUuid(): void
+    {
+        $userId = 1;
+        $userWithoutUuid = ['id' => $userId, 'username' => 'testuser', 'uuid' => null];
+
+        $mockUserService = $this->createMock(UserService::class);
+        $mockUserService->expects($this->exactly(2))
+            ->method('getUser')
+            ->willReturn($userWithoutUuid);
+
+        $controller = new class (
+            $this->createMock(LoggerInterface::class),
+            new OEGlobalsBag(),
+        ) extends LocalApiAuthorizationController {
+            protected function bootstrapMissingUserUuid(int|string $userId): void
+            {
+                // Simulate bootstrap running but failing to produce a UUID (e.g. DB issue).
+            }
+        };
+        $controller->setUserService($mockUserService);
+
+        $request = $this->buildAuthenticatedRequest($userId);
+        $this->expectException(HttpException::class);
+        $controller->authorizeRequest($request);
+    }
+
+    private function buildAuthenticatedRequest(int $userId): HttpRestRequest
+    {
+        $request = new HttpRestRequest();
+        $sessionFactory = new MockFileSessionStorageFactory();
+        $sessionStorage = $sessionFactory->createStorage($request);
+        $session = new Session($sessionStorage);
+        $session->start();
+        CsrfUtils::setupCsrfKey($session);
+        $session->set('authUserID', $userId);
+        $request->setSession($session);
+        $request->headers->set('APICSRFTOKEN', CsrfUtils::collectCsrfToken($session, 'api') ?: '');
+        return $request;
     }
 }

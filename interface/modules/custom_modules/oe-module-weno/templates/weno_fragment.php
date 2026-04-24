@@ -107,7 +107,7 @@ while ($row = sqlFetchArray($list)) {
 $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", [$pid]);
 
 ?>
-<script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 <style>
   .dialog-alert {
     font-size: 14px;
@@ -127,7 +127,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
             return;
         }
         // Redirect to the new location
-        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
     }
 </script>
 

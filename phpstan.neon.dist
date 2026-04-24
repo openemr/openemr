@@ -41,5 +41,10 @@ parameters:
   scanFiles:
   - library/sql.inc.php
   - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php
+  # Stubs for legacy constants that are defined at runtime but whose define()
+  # calls PHPStan can't follow (dynamic require paths / external PEAR libs).
+  # See each stub file's header for what it covers.
+  - .phpstan/stubs/postcalendar_constants.php
+  - .phpstan/stubs/sasl_constants.php
   # For reasons I can't sort out, using scanDirectories or stubFiles doesn't work here.
   - .phpstan/stubs/pdo_mysql.stub

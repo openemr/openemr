@@ -23,7 +23,7 @@ namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
 use Mpdf\Mpdf;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 /**
  * Class PdfTemplatesController
@@ -53,7 +53,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $htmlView = $this->renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new Mpdf(['tempDir' => OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR')]);
+        $mpdf = new Mpdf(['tempDir' => (new CacheDirectory())->for('openemr-mpdf')]);
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($htmlView);
         $mpdf->Output();

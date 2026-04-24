@@ -470,7 +470,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
                                 $tmp_files_remove[] = $from_file_tmp_web_name;
                             } else {
-                                $filetoshow = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                             }
                         }
@@ -827,7 +827,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
                     } else {
                         if ($PDF_OUTPUT) {
-                            $background = "url(" . OEGlobalsBag::getInstance()->get("fileroot") . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
+                            $background = "url(" . OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
                         } else {
                             $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
                         }
@@ -2423,7 +2423,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 } else {
                     $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
                     if (file_exists($signature)) {
-                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->get('web_root') . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
+                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
                     } else {
                         echo "<br /><br />";
                     }
@@ -2496,14 +2496,14 @@ function display_draw_image($zone, $encounter, $pid): void
             echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
             $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
             echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
         }
     } else {
         //else show base_image
         $filetoshow = "../../forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         if ($PDF_OUTPUT) {
-            $filetoshow = OEGlobalsBag::getInstance()->get("webroot") . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         }
 
       // uncomment to show base image, no touch up by user.

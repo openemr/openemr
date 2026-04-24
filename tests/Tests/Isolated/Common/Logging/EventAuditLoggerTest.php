@@ -21,6 +21,7 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Encryption\CipherSuiteInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -65,7 +66,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink1, $sink2],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -100,7 +101,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -137,7 +138,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -167,7 +168,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -188,7 +189,7 @@ class EventAuditLoggerTest extends TestCase
     {
         $logger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -222,7 +223,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$failingSink, $successSink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -259,7 +260,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -298,7 +299,7 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            cryptoGen: $this->crypto,
+            crypto: $this->crypto,
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -314,6 +315,42 @@ class EventAuditLoggerTest extends TestCase
             group: 'testgroup',
             comments: 'Test comments',
             patientId: 'NULL',
+        );
+    }
+
+    public function testRecordLogItemEncryptsCommentsViaCipherSuite(): void
+    {
+        $cipherSuite = $this->createMock(CipherSuiteInterface::class);
+        $cipherSuite->expects($this->once())
+            ->method('encrypt')
+            ->with('Sensitive data')
+            ->willReturn('ciphersuite-encrypted:Sensitive data');
+
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->with(self::callback(function (Event $event): bool {
+                self::assertSame('ciphersuite-encrypted:Sensitive data', $event->comments);
+                return true;
+            }))
+            ->willReturn(true);
+
+        $logger = new EventAuditLogger(
+            sinks: [$sink],
+            crypto: $cipherSuite,
+            shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->recordLogItem(
+            success: 1,
+            event: 'login',
+            user: 'testuser',
+            group: 'testgroup',
+            comments: 'Sensitive data',
         );
     }
 }

@@ -136,7 +136,7 @@ final class EventAuditLoggerTest extends TestCase
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: ServiceContainer::getCrypto(),
+            crypto: ServiceContainer::getCrypto(),
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -518,7 +518,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: $this->createMock(CryptoGen::class),
+            crypto: $this->createMock(CryptoGen::class),
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
@@ -567,7 +567,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: $cryptoMock,
+            crypto: $cryptoMock,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
@@ -673,7 +673,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
-            cryptoGen: $cryptoMock,
+            crypto: $cryptoMock,
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,

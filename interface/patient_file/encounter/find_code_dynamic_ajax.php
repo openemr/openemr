@@ -21,7 +21,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 // Paging parameters.  -1 means not applicable.
 //

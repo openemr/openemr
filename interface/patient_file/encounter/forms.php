@@ -30,7 +30,7 @@ require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/amc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
@@ -75,7 +75,7 @@ $formLocator = new FormLocator();
 <head>
 
 <title class="title"></title>
-<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common', 'esign', 'dygraphs', 'utility']); ?>
 
@@ -88,8 +88,8 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/report.js"></script>
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/report.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/style.css">
 <?php } ?>
 
 <?php
@@ -123,7 +123,7 @@ if (!empty($_GET['attachid'])) {
 // If google sign-in enable then add scripts.
 if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) { ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/gSignIn.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/gSignIn.js"></script>
 <?php } ?>
 
 <script>
@@ -861,7 +861,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                     ?>
                     <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
-                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/info.png" /></a>
+                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative(); ?>/info.png" /></a>
                     <?php } ?>
                 <?php } ?>
             </div>

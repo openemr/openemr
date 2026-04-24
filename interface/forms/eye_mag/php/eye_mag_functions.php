@@ -3078,7 +3078,7 @@ function display_QP($zone, $provider_id)
     } //end QP section items
     ?>
       <a href="JavaScript:void(0);"
-         onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
+         onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
          title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
          name="provider_todo"
          class="bold black"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
@@ -3195,7 +3195,7 @@ function canvas_select($zone, $encounter, $pid)
  *
  *  If there is already a drawing for this zone in this encounter, it is pulled from
  *  from its stored location:
- *  $GLOBALS['web_root']."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
+ *  OEGlobalsBag::getInstance()->getWebRoot()."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
  *
  *  Otherwise a "BASE" image is pulled from the images directory of the form...  Customizable.
  *
@@ -3248,9 +3248,9 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
                 $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
-                $base_filetoshow = OEGlobalsBag::getInstance()->get('web_root') . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+                $base_filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
                 if ((($doc['id'] ?? null) > '0')) {
-                    $filetoshow = OEGlobalsBag::getInstance()->get('web_root') . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
+                    $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
                 } else {
                     //base image.
                     $filetoshow = $base_filetoshow;
@@ -3839,7 +3839,7 @@ function document_engine($pid)
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
         $row2['cat_name'] = preg_replace('/ - Eye/', '', (string) $row2['cat_name']);
-        $row2['display_url'] = preg_replace("|file:///.*/sites/|", OEGlobalsBag::getInstance()->get('webroot') . "/sites/", (string) $row2['url']);
+        $row2['display_url'] = preg_replace("|file:///.*/sites/|", OEGlobalsBag::getInstance()->getWebRoot() . "/sites/", (string) $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
             $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date'] ?? ''));
@@ -3919,7 +3919,7 @@ function display($pid, $encounter, $category_value)
         $episode .= "<tr>
         <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
-            <a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
+            <a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
@@ -3931,7 +3931,7 @@ function display($pid, $encounter, $category_value)
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->get('webroot') . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') . ': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') . ': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3982,7 +3982,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-brand" style="color:black;">
                 &nbsp;
-                <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/sites/default/images/login_logo.gif" class="little_image">
+                <img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
             <div class="navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
@@ -3990,7 +3990,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
+                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
                             <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?></a></li>
@@ -4002,7 +4002,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                             <li id="menu_Defaults" name="menu_Defaults" class="">
                                 <a class="nav-link black"
                                    id="BUTTON_Defaults_menu"
-                                   onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_defaults_<?php echo attr($provider_id); ?>', '<?php echo xla('Default Exam Values'); ?>');"
+                                   onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_defaults_<?php echo attr($provider_id); ?>', '<?php echo xla('Default Exam Values'); ?>');"
                                    name="provider_todo"
                                    href="JavaScript:void(0);">
                                 <?php echo xlt("Default Values"); ?> &nbsp;
@@ -4027,7 +4027,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
                                         <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
                                         <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js(OEGlobalsBag::getInstance()->get('webroot')); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
+                                           onclick="openNewForm(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
                                            href="JavaScript:void(0);"
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>
@@ -4071,7 +4071,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                                 <span class="menu_icon"><i title="<?php echo xla('Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                             <li>
-                                <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/help.php">
+                                <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/help.php">
                                     <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?>
                                     <span class="menu_icon">
                                         <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
@@ -4080,7 +4080,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right my-2 my-lg-0">
-                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
                         </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
@@ -4170,14 +4170,14 @@ function menu_overhaul_left($pid, $encounter): void
             if (!empty($documents['docs_in_name']['Patient Photograph'][0])) {
                 ?>
                 <object><embed
-                            src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
+                            src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
 
-                            Xsrc="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
+                            Xsrc="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
                      type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="100"></embed></object>
                 <?php
             } else {
                 ?>
-            <object><embed src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/forms/<?php echo $form_folder; ?>/images/anon.gif" frameborder="0"
+            <object><embed src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/images/anon.gif" frameborder="0"
                  type="image/gif" height="50"></embed></object>
                 <?php
             }
@@ -4302,7 +4302,7 @@ function report_header($pid, $direction = 'shell')
             <td style='width:150px;text-align:top;'>
                 <?php
                 if ($direction == "web") {
-                    $practice_logo = OEGlobalsBag::getInstance()->get('webroot') . "/sites/default/images/practice_logo.gif";
+                    $practice_logo = OEGlobalsBag::getInstance()->getWebRoot() . "/sites/default/images/practice_logo.gif";
                     if (file_exists($OE_SITE_DIR . "/images/practice_logo.gif")) {
                         echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px 10px;'><br />\n";
                     }
@@ -5185,17 +5185,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     $count = 0;
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
-                            //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-
                             $current_VF = '<tr><td class="GFS_td_1 blue">
-                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->get('webroot') . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
                                 <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                 </td>
                                 <td class="GFS_td_1">' . $VF['docdate'] . '</td>
                                 </tr>';
                         } else {
                             $old_VFs .= '<tr><td class="GFS_td_1 hideme_VFs nodisplay"">
-                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->get('webroot') . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
                                 <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td>
                                 <td class="hideme_VFs nodisplay GFS_td_1">' . $VF['docdate'] . '</td></tr>';
                         }
@@ -5233,14 +5231,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                 if ($count < 1) {
                                     $current_OCT = '<tr>
                                             <td class="GFS_td_1">
-                                            <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->get('webroot') . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                            <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                             </td>
                                             <td class="GFS_td_1">' . $OCT['docdate'] . '</td>
                                         </tr>
                                         ';
                                 } else {
                                     $old_OCTs .= '<tr><td class="hideme_OCTs nodisplay GFS_td_1">
-                                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->get('webroot') . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                                 </td><td class="hideme_OCTs nodisplay GFS_td_1">' . $OCT['docdate'] . '</td></tr>';
                                 }
                                 $count++;
@@ -6310,12 +6308,12 @@ function generate_specRx($W)
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('PD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Near'); ?>"><?php echo xlt('PD-N{{abbreviation for Binocular Pupillary Diameter - Near}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
                                   name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
                                   name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
                             <br />

@@ -80,7 +80,7 @@ if (
     <?php
     //validation library
     $use_validate_js = 1;
-    require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
     ?>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -95,7 +95,7 @@ if (
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -539,7 +539,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
-                                                echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/orders/single_order_results.php?orderid=";
+                                                echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/orders/single_order_results.php?orderid=";
                                                 echo attr_url($gprow['id1']);
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
@@ -833,13 +833,13 @@ if (!empty($_REQUEST['go'])) { ?>
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
-            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root')); ?>;
+            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
 
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
 

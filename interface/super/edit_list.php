@@ -890,7 +890,7 @@ function writeITLine($it_array): void
         $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {

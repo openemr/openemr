@@ -137,7 +137,7 @@ form {
 
 <script>
 <?php if ($popup) {
-    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
 } ?>
 </script>
 

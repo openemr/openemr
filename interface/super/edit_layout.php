@@ -1950,7 +1950,7 @@ $(function () {
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
             allowClear: false,
-            <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/select2.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects

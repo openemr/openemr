@@ -44,7 +44,7 @@ td { font-size:10pt; }
 
 <script>
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';

@@ -143,16 +143,20 @@ updates:
   # Docker CI images (database + PHP + shared services)
   # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
   # openemr/dev-php-fpm:8.5), so major/minor bumps are blocked for those.
-  # Tooling images (mailpit, dev-nginx, couchdb) are unconstrained.
+  # Tooling images (mailpit, dev-nginx, couchdb, redis) are unconstrained.
 - package-ecosystem: docker-compose
   directories:
   - ci/apache_82_118/
+  - ci/apache_82_118_redis_sentinel_mtls/
   - ci/apache_83_118/
   - ci/apache_84_118/
   - ci/apache_85_1011/
   - ci/apache_85_106/
   - ci/apache_85_114/
   - ci/apache_85_118/
+  - ci/apache_85_118_redis_sentinel/
+  - ci/apache_85_118_redis_sentinel_tls/
+  - ci/apache_85_118_redis_sentinel_mtls/
   - ci/apache_85_122/
   - ci/apache_85_57/
   - ci/apache_85_80/
@@ -160,6 +164,7 @@ updates:
   - ci/apache_85_93/
   - ci/compose-shared-mailpit/
   - ci/compose-shared-nginx/
+  - ci/compose-shared-redis-sentinel/
   - ci/inferno/
   - ci/nginx_82/
   - ci/nginx_83/
@@ -195,6 +200,9 @@ updates:
     mailpit:
       patterns:
       - axllent/mailpit
+    redis:
+      patterns:
+      - redis
   labels:
   - dependencies
   - docker

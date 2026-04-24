@@ -172,7 +172,7 @@ $(function () {
         // make the AJAX call to save the new value to the specified list
         // upon returning successfully, refresh the list box and select
         // the new list item
-        $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/addlistitem.php",
+        $.getJSON("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/addlistitem.php",
                     {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     listid: listid,
              newitem: newitem,

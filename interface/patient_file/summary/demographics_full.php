@@ -79,7 +79,7 @@ $CPR = 4; // cells per row
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 
-    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
     <script>
 
@@ -95,7 +95,7 @@ $CPR = 4; // cells per row
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             }).on("select2:unselecting", function (e) {
                 $(this).data('state', 'unselected');
                 var data = e.params.args.data;
@@ -142,7 +142,7 @@ $CPR = 4; // cells per row
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -156,7 +156,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -165,7 +165,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -174,7 +174,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -183,7 +183,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -192,7 +192,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -201,7 +201,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -510,7 +510,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     </script>
 
     <!-- include support for the list-add selectbox feature -->
-    <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
+    <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
 
     <?php /*Include the validation script and rules for this form*/
     $form_id = "DEM";
@@ -534,7 +534,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
         // Use hook to open the controller and get the new patient validation .
         // when no params are sent this window will be closed from the zend controller.
-        var url = '<?php echo OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/zend_modules/public/patientvalidation";?>';
+        var url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/zend_modules/public/patientvalidation";?>';
         $("#submit_btn").attr("name", "btnSubmit");
         $("#submit_btn").attr("id", "btnSubmit");
         $("#btnSubmit").click(function (event) {
@@ -609,7 +609,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             <?php if (OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')) { ?>
             $("#value_id_text_postal_code").append(

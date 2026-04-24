@@ -83,7 +83,7 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  //print "Provider: " . $provider  . "<br />";
 
- $formsBaseDir = OEGlobalsBag::getInstance()->getString('incdir') . "/forms";
+ $formsBaseDir = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms";
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
     $formDir = $result["formdir"];

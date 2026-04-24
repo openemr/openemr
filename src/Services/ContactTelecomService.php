@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -263,7 +264,7 @@ class ContactTelecomService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error setting primary telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -310,7 +311,7 @@ class ContactTelecomService extends BaseService
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
             return false;
         }

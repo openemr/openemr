@@ -57,10 +57,10 @@ echo "<title>" . xlt('Amendment List') . "</title>";
         });
     }
     var AddAmendment = function () {
-        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/interface/patient_file/summary/add_edit_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/summary/add_edit_amendments.php"
     };
     var ListAmendments = function () {
-        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/interface/patient_file/summary/list_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/summary/list_amendments.php"
     };
 </script>
 </head>

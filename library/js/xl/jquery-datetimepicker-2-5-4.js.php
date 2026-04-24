@@ -11,7 +11,7 @@
  *    $datetimepicker_showseconds = false; (php variable)
  *    $datetimepicker_formatInput = false; (php variable)
  *    $datetimepicker_maxDate = '+1970/01/01' (php variable) `+1970/01/01` means today for tomorrow use `+1970/01/02`
- *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
  *    can add any additional settings to datetimepicker here; need to prepend first setting with a comma
  *  });
  *  $('.datepicker').datetimepicker({
@@ -19,7 +19,7 @@
  *    $datetimepicker_showseconds = false; (php variable)
  *    $datetimepicker_formatInput = false; (php variable)
  *    $datetimepicker_minDate = '-1970/01/01'; (php variable)
- *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
  *    can add any additional settings to datetimepicker here; need to prepend first setting with a comma
  *  });
  *

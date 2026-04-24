@@ -762,31 +762,26 @@ class AuthorizationController
      */
     private function serializeUserSession($authRequest, SessionInterface $session): void
     {
-        // keeping somewhat granular
-        try {
-            $scopes = $authRequest->getScopes();
-            $scoped = [];
-            foreach ($scopes as $scope) {
-                $scoped[] = $scope->getIdentifier();
-            }
-            $client['name'] = $authRequest->getClient()->getName();
-            $client['redirectUri'] = $authRequest->getClient()->getRedirectUri();
-            $client['identifier'] = $authRequest->getClient()->getIdentifier();
-            $client['isConfidential'] = $authRequest->getClient()->isConfidential();
-            $outer = [
-                'grantTypeId' => $authRequest->getGrantTypeId(),
-                'authorizationApproved' => false,
-                'redirectUri' => $authRequest->getRedirectUri(),
-                'state' => $authRequest->getState(),
-                'codeChallenge' => $authRequest->getCodeChallenge(),
-                'codeChallengeMethod' => $authRequest->getCodeChallengeMethod(),
-            ];
-            $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
-            $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
-            $session->set('authRequestSerial', $this->authRequestSerial);
-        } catch (\Throwable $e) {
-            echo $e;
+        $scopes = $authRequest->getScopes();
+        $scoped = [];
+        foreach ($scopes as $scope) {
+            $scoped[] = $scope->getIdentifier();
         }
+        $client['name'] = $authRequest->getClient()->getName();
+        $client['redirectUri'] = $authRequest->getClient()->getRedirectUri();
+        $client['identifier'] = $authRequest->getClient()->getIdentifier();
+        $client['isConfidential'] = $authRequest->getClient()->isConfidential();
+        $outer = [
+            'grantTypeId' => $authRequest->getGrantTypeId(),
+            'authorizationApproved' => false,
+            'redirectUri' => $authRequest->getRedirectUri(),
+            'state' => $authRequest->getState(),
+            'codeChallenge' => $authRequest->getCodeChallenge(),
+            'codeChallengeMethod' => $authRequest->getCodeChallengeMethod(),
+        ];
+        $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
+        $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
+        $session->set('authRequestSerial', $this->authRequestSerial);
     }
 
     /**
@@ -1151,13 +1146,16 @@ class AuthorizationController
 
     protected function getUserUuid($userId, $userRole): string
     {
+        if (!is_int($userId) && !is_string($userId)) {
+            return '';
+        }
         switch ($userRole) {
             case 'users':
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                UuidRegistry::createMissingUuidForRow('users', 'id', $userId);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                UuidRegistry::createMissingUuidsForTables(['patient_data']);
+                UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $userId);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:

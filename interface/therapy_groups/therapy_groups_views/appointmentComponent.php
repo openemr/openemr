@@ -66,14 +66,14 @@ use OpenEMR\Core\OEGlobalsBag;
                 ?>
                 <div class="event_details">
                         <?php if ($edit) { ?>
-                            <a onclick="goToEvent(<?php echo attr_js(OEGlobalsBag::getInstance()->get('rootdir') . "/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode((string) $groupId) . "&date=" . urlencode((string) $date_for_url) . "&eid=" . urlencode((string) $event['pc_eid'])); ?>)">
+                            <a onclick="goToEvent(<?php echo attr_js(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode((string) $groupId) . "&date=" . urlencode((string) $date_for_url) . "&eid=" . urlencode((string) $event['pc_eid'])); ?>)">
                         <?php } ?>
                         <span class="font-weight-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
                         <br />
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
                             if ($event['pc_recurrtype'] > 0) {
-                                echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
+                                echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
                             }
 
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
@@ -92,7 +92,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
     $('#addEvent').on('click', function(){
         top.restoreSession();
-        var url = <?php echo js_escape(OEGlobalsBag::getInstance()->get('rootdir')); ?> + '/main/calendar/add_edit_event.php?group=true&groupid=' + <?php echo js_url($groupId); ?>;
+        var url = <?php echo js_escape(OEGlobalsBag::getInstance()->getKernel()->getRootDir()); ?> + '/main/calendar/add_edit_event.php?group=true&groupid=' + <?php echo js_url($groupId); ?>;
         dlgopen(url, '_blank', 775, 500);
     });
 

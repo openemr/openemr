@@ -158,7 +158,7 @@ if (empty($form_patient)) {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
@@ -296,13 +296,6 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
     }
 
     foreach ($newpatient as $patient) {
-        /*
-        $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
-        while($result = sqlFetchArray($inclookupres)) {
-        include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
-        }
-        */
-
         print "<div id='superbill_patientdata'>";
         print "<h1>" . xlt('Patient Data') . ":</h1>";
         printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);
