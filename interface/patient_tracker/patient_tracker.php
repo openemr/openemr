@@ -12,10 +12,12 @@
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ray Magauran <magauran@medexbank.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2025 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
