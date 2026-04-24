@@ -118,7 +118,7 @@ jobs:
               ('rest_portal_api', 0, '1'),
               ('oauth_password_grant', 0, '3'),
               ('rest_system_scopes_api', 0, '1'),
-              ('site_addr_oath', 0, 'http://host.docker.internal:8080')
+              ('site_addr_oath', 0, 'http://localhost:8080')
             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
           "
 
