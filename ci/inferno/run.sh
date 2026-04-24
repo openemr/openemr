@@ -132,11 +132,13 @@ run_testsuite() {
     # Run PHPUnit tests with coverage if enabled
     local exit_code=0
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
         phpunit --testsuite certification \
                 --coverage-clover coverage.inferno-phpunit.clover.xml \
                 --log-junit junit-inferno.xml \
                 -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     else
+        # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
         phpunit --testsuite certification \
                 --log-junit junit-inferno.xml \
                 -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
@@ -230,6 +232,7 @@ main() {
 
     # Run the test suite and capture exit code
     local exit_code=0
+    # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
     run_testsuite || exit_code=$?
     if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
