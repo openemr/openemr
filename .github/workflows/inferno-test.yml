@@ -585,6 +585,7 @@ jobs:
               ('rest_system_scopes_api', 0, '1'),
               ('site_addr_oath', 0, 'http://localhost:8080')
             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
+            UPDATE users_secure SET last_update_password = NOW();
           "
 
       - name: Start PHP server
