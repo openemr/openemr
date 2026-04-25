@@ -788,7 +788,7 @@ const csrfToken = <?php echo json_encode($csrfToken); ?>;
 const currentUsername = <?php echo json_encode($currentUsername); ?>;
 
 // Toast notification system
-function showToast(message, type = 'info', duration = 4000) {
+function showToast(message, type = 'info', duration = null) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast ' + type;
@@ -807,11 +807,15 @@ function showToast(message, type = 'info', duration = 4000) {
     `;
     
     container.appendChild(toast);
+
+    if (duration === null) {
+        duration = (type === 'success' || type === 'warning') ? 6500 : 8000;
+    }
     
     if (duration > 0) {
         setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => toast.remove(), 300);
+            toast.style.animation = 'slideOut 0.45s ease forwards';
+            setTimeout(() => toast.remove(), 450);
         }, duration);
     }
 }

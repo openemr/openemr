@@ -369,18 +369,22 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            width: min(92vw, 540px);
         }
         .toast {
-            min-width: 300px;
-            max-width: 450px;
-            padding: 14px 20px;
-            border-radius: 16px;
+            width: 100%;
+            min-width: 0;
+            max-width: 540px;
+            padding: 12px 16px;
+            border-radius: 14px;
             box-shadow: 0 14px 34px rgba(15,23,42,0.16);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
+            display: grid;
+            grid-template-columns: 20px minmax(0, 1fr) 20px;
+            align-items: start;
+            gap: 10px;
+            animation: slideIn 0.35s ease;
             font-size: 14px;
+            line-height: 1.4;
         }
         .toast.success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -400,15 +404,22 @@
         }
         .toast i {
             font-size: 18px;
+            line-height: 1.1;
+            margin-top: 1px;
+        }
+        .toast span {
+            min-width: 0;
         }
         .toast-close {
-            margin-left: auto;
             background: none;
             border: none;
             color: inherit;
             cursor: pointer;
             opacity: 0.7;
             font-size: 16px;
+            padding: 0;
+            line-height: 1;
+            align-self: start;
         }
         .toast-close:hover {
             opacity: 1;
@@ -420,6 +431,17 @@
         @keyframes slideOut {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
+        }
+        @media (max-width: 640px) {
+            .toast-container {
+                top: 12px;
+                right: 12px;
+                left: 12px;
+                width: auto;
+            }
+            .toast {
+                max-width: none;
+            }
         }
         
         /* Modal dialogs */
