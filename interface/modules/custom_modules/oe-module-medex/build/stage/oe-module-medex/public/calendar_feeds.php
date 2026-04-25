@@ -809,7 +809,7 @@ function showToast(message, type = 'info', duration = null) {
     container.appendChild(toast);
 
     if (duration === null) {
-        duration = (type === 'success' || type === 'warning') ? 0 : 10000;
+        duration = (type === 'success') ? 7000 : ((type === 'warning') ? 8500 : 10000);
     }
     
     if (duration > 0) {
