@@ -809,7 +809,7 @@ function showToast(message, type = 'info', duration = null) {
     container.appendChild(toast);
 
     if (duration === null) {
-        duration = (type === 'success' || type === 'warning') ? 6500 : 8000;
+        duration = (type === 'success' || type === 'warning') ? 0 : 10000;
     }
     
     if (duration > 0) {
@@ -858,7 +858,7 @@ function selectNone(type) {
 
 function copyUrl(url) {
     navigator.clipboard.writeText(url).then(() => {
-        showToast('<?php echo xla('URL copied to clipboard!'); ?>', 'success');
+        showToast('<?php echo xla('URL copied.'); ?>', 'success');
     }).catch(() => {
         // Fallback: select the URL text in the feed-url div
         const urlDiv = event.target.closest('.feed-item').querySelector('.feed-url');
@@ -867,7 +867,7 @@ function copyUrl(url) {
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
-        showToast('<?php echo xla('Please copy the selected URL manually (Cmd+C)'); ?>', 'info', 5000);
+        showToast('<?php echo xla('Copy the selected URL manually (Cmd+C).'); ?>', 'info');
     });
 }
 
@@ -884,7 +884,7 @@ function createFeed() {
     if (!name) {
         nameInput.classList.add('is-invalid');
         nameInput.focus();
-        showToast('<?php echo xla('Please enter a name for this calendar feed'); ?>', 'warning');
+        showToast('<?php echo xla('Enter a feed name.'); ?>', 'warning');
         return;
     }
     
@@ -893,7 +893,7 @@ function createFeed() {
     
     if (providers.length === 0 && facilities.length === 0) {
         document.querySelectorAll('.checkbox-grid').forEach(el => el.classList.add('is-invalid'));
-        showToast('<?php echo xla('Please select at least one provider or facility'); ?>', 'warning');
+        showToast('<?php echo xla('Select at least one provider or facility.'); ?>', 'warning');
         return;
     }
     
@@ -918,19 +918,19 @@ function createFeed() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showToast('<?php echo xla('Calendar feed created! Copy the URL to add it to your calendar app.'); ?>', 'success', 5000);
+            showToast('<?php echo xla('Feed created. Copy the URL below.'); ?>', 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
-            showToast(data.error || '<?php echo xla('Failed to create feed'); ?>', 'error');
+            showToast(data.error || '<?php echo xla('Feed creation failed.'); ?>', 'error');
         }
     })
     .catch(err => {
         console.error(err);
         btn.disabled = false;
         btn.innerHTML = originalHtml;
-        showToast('<?php echo xla('Error creating feed. Please try again.'); ?>', 'error');
+        showToast('<?php echo xla('Could not create the feed. Try again.'); ?>', 'error');
     });
 }
 
@@ -960,7 +960,7 @@ function deleteFeed(feedId) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('<?php echo xla('Calendar feed deleted'); ?>', 'success');
+                    showToast('<?php echo xla('Feed deleted.'); ?>', 'success');
                     if (feedItem) {
                         feedItem.style.transition = 'all 0.3s ease';
                         feedItem.style.transform = 'translateX(100%)';
@@ -972,7 +972,7 @@ function deleteFeed(feedId) {
                         feedItem.style.opacity = '1';
                         feedItem.style.pointerEvents = 'auto';
                     }
-                    showToast(data.error || '<?php echo xla('Failed to delete feed'); ?>', 'error');
+                    showToast(data.error || '<?php echo xla('Feed deletion failed.'); ?>', 'error');
                 }
             })
             .catch(err => {
@@ -981,7 +981,7 @@ function deleteFeed(feedId) {
                     feedItem.style.opacity = '1';
                     feedItem.style.pointerEvents = 'auto';
                 }
-                showToast('<?php echo xla('Error deleting feed. Please try again.'); ?>', 'error');
+                showToast('<?php echo xla('Could not delete the feed. Try again.'); ?>', 'error');
             });
         }
     );

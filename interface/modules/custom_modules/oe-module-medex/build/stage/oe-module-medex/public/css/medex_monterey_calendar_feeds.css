@@ -375,16 +375,16 @@
             width: 100%;
             min-width: 0;
             max-width: 540px;
-            padding: 12px 16px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
             box-shadow: 0 14px 34px rgba(15,23,42,0.16);
             display: grid;
-            grid-template-columns: 20px minmax(0, 1fr) 20px;
+            grid-template-columns: 16px minmax(0, 1fr) 16px;
             align-items: start;
-            gap: 10px;
+            gap: 8px;
             animation: slideIn 0.35s ease;
-            font-size: 14px;
-            line-height: 1.4;
+            font-size: 13px;
+            line-height: 1.25;
         }
         .toast.success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -403,7 +403,7 @@
             color: #212529;
         }
         .toast i {
-            font-size: 18px;
+            font-size: 15px;
             line-height: 1.1;
             margin-top: 1px;
         }
@@ -416,7 +416,7 @@
             color: inherit;
             cursor: pointer;
             opacity: 0.7;
-            font-size: 16px;
+            font-size: 14px;
             padding: 0;
             line-height: 1;
             align-self: start;
