@@ -645,14 +645,19 @@ jobs:
           echo "::add-mask::$ACCESS_TOKEN"
           echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
-      - name: Build Inferno
-        working-directory: ci/inferno/onc-certification-g10-test-kit
-        run: docker build -t inferno-g10 .
+      - name: Prepare Inferno
+        working-directory: ci/inferno
+        run: |
+          # Copy pre-built data from private submodule (matches run.sh behavior)
+          cp -r inferno-files/files/* onc-certification-g10-test-kit/
+          # Build image
+          docker build -t inferno-g10 onc-certification-g10-test-kit
 
       - name: Run Inferno tests
         run: |
           docker run --rm --network host \
             -e INFERNO_DISABLE_TLS_TEST=true \
+            -v "${{ github.workspace }}/ci/inferno/onc-certification-g10-test-kit/data:/opt/inferno/data" \
             inferno-g10 bundle exec inferno execute \
               --suite us_core_v311 \
               --inputs "url:http://localhost:8080/apis/default/fhir" \
