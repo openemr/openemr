@@ -781,7 +781,7 @@ $facilityCountLabel = $facilityCount . ' ' . ($facilityCount === 1 ? xlt('facili
 </div>
 
 <!-- Toast Container -->
-<div id="toast-container" class="toast-container"></div>
+<div id="medex-feed-toast-container" class="medex-feed-toast-container"></div>
 
 <script>
 const csrfToken = <?php echo json_encode($csrfToken); ?>;
@@ -878,9 +878,9 @@ function buildFeedItem(feed) {
 
 // Toast notification system
 function showToast(message, type = 'info', duration = null) {
-    const container = document.getElementById('toast-container');
+    const container = document.getElementById('medex-feed-toast-container');
     const toast = document.createElement('div');
-    toast.className = 'toast ' + type;
+    toast.className = 'medex-feed-toast medex-feed-toast--' + type;
     
     const icons = {
         success: 'fa-check-circle',
@@ -892,7 +892,7 @@ function showToast(message, type = 'info', duration = null) {
     toast.innerHTML = `
         <i class="fa ${icons[type] || icons.info}"></i>
         <span>${message}</span>
-        <button class="toast-close" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+        <button class="medex-feed-toast-close" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
     `;
     
     container.appendChild(toast);
@@ -903,7 +903,7 @@ function showToast(message, type = 'info', duration = null) {
     
     if (duration > 0) {
         setTimeout(() => {
-            toast.style.animation = 'slideOut 0.45s ease forwards';
+            toast.style.animation = 'medexFeedToastOut 0.45s ease forwards';
             setTimeout(() => toast.remove(), 450);
         }, duration);
     }
