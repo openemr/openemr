@@ -597,6 +597,14 @@ jobs:
       - name: Verify FHIR endpoint
         run: curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata | jq -r '.fhirVersion'
 
+      - name: Debug OAuth endpoints
+        run: |
+          echo "=== well-known ==="
+          curl -sf http://127.0.0.1:8080/apis/default/fhir/.well-known/smart-configuration
+          echo ""
+          echo "=== metadata ==="
+          curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata
+
       - name: Register OAuth client and get token
         id: oauth
         run: |
