@@ -286,6 +286,12 @@ function medexCountFeedScope($raw): int
     return count($parts);
 }
 
+function medexFormatFeedScopeLabel(int $count, string $singular, string $plural): string
+{
+    $count = max(0, $count);
+    return $count . ' ' . ($count === 1 ? $singular : $plural);
+}
+
 function medexSimplifyCalendarClient($userAgent): string
 {
     $ua = strtolower(trim((string)$userAgent));
@@ -311,6 +317,148 @@ function medexSimplifyCalendarClient($userAgent): string
     return $label !== '' ? substr($label, 0, 40) : 'Unknown';
 }
 
+function medexSystemUsernames(): array
+{
+    return ['admin', 'oe-system', 'phimail-service', 'portal-user'];
+}
+
+function medexSystemNames(): array
+{
+    return ['admin', 'administrator', 'system operation user', 'patient portal user'];
+}
+
+function medexNormalizeDisplayName($fname, $lname): string
+{
+    $displayName = trim(trim((string)$fname) . ' ' . trim((string)$lname));
+    $displayName = preg_replace('/\s+/', ' ', $displayName ?? $displayName);
+    return strtolower(trim((string)$displayName));
+}
+
+function medexBuildPracticeSetupAnalysis(): array
+{
+    $providers = [];
+    $providerSeen = [];
+    $duplicateProviders = [];
+    $adminCandidates = [];
+    $authorizedProviderCount = 0;
+    $calendarProviderCount = 0;
+
+    $providerStmt = sqlStatement("
+        SELECT id, username, fname, lname, authorized, active, calendar, facility_id
+        FROM users
+        WHERE active = 1
+        ORDER BY username, id ASC
+    ");
+    while ($row = sqlFetchArray($providerStmt)) {
+        $id = (string)($row['id'] ?? '');
+        $username = strtolower(trim((string)($row['username'] ?? '')));
+        $fname = trim((string)($row['fname'] ?? ''));
+        $lname = trim((string)($row['lname'] ?? ''));
+        $displayName = trim($fname . ' ' . $lname);
+        $normalizedName = medexNormalizeDisplayName($fname, $lname);
+        $authorized = ((int)($row['authorized'] ?? 0) === 1);
+        $calendar = ((int)($row['calendar'] ?? 0) === 1);
+
+        if ($authorized) {
+            $authorizedProviderCount++;
+        }
+        if ($authorized && $calendar) {
+            $calendarProviderCount++;
+        }
+
+        $isSystemUsername = in_array($username, medexSystemUsernames(), true);
+        $isSystemName = in_array($normalizedName, medexSystemNames(), true);
+        if (($isSystemUsername || $isSystemName) && ($authorized || $calendar)) {
+            $adminCandidates[] = [
+                'id' => $id,
+                'username' => $username,
+                'name' => $displayName !== '' ? $displayName : ($username !== '' ? $username : ('User ' . $id)),
+                'authorized' => $authorized,
+                'calendar' => $calendar,
+            ];
+        }
+
+        if (
+            $id === ''
+            || !$authorized
+            || !$calendar
+            || $username === ''
+            || $normalizedName === ''
+            || $isSystemUsername
+            || $isSystemName
+        ) {
+            continue;
+        }
+
+        if (isset($providerSeen[$username])) {
+            $duplicateProviders[] = [
+                'username' => $username,
+                'ids' => [$providerSeen[$username], $id],
+                'name' => $displayName !== '' ? $displayName : ('Provider ' . $id),
+            ];
+            continue;
+        }
+
+        $providerSeen[$username] = $id;
+        $providers[] = [
+            'id' => $id,
+            'username' => $username,
+            'name' => $displayName !== '' ? $displayName : ('Provider ' . $id),
+            'facility_id' => (string)($row['facility_id'] ?? ''),
+        ];
+    }
+
+    usort($providers, static function (array $a, array $b): int {
+        return strcasecmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+    });
+
+    $facilities = [];
+    $serviceLocationCount = 0;
+    $primaryBusinessCount = 0;
+    $namedFacilityCount = 0;
+    $facilityStmt = sqlStatement("
+        SELECT id, name, service_location, billing_location, primary_business_entity, street, city, state, postal_code
+        FROM facility
+        ORDER BY id ASC
+    ");
+    while ($frow = sqlFetchArray($facilityStmt)) {
+        $name = trim((string)($frow['name'] ?? ''));
+        if ($name !== '') {
+            $namedFacilityCount++;
+        }
+        if ((int)($frow['service_location'] ?? 0) === 1) {
+            $serviceLocationCount++;
+        }
+        if ((int)($frow['primary_business_entity'] ?? 0) === 1) {
+            $primaryBusinessCount++;
+        }
+        $facilities[] = [
+            'id' => (string)($frow['id'] ?? ''),
+            'name' => $name !== '' ? $name : ('Facility ' . (string)($frow['id'] ?? '')),
+            'service_location' => ((int)($frow['service_location'] ?? 0) === 1),
+            'billing_location' => ((int)($frow['billing_location'] ?? 0) === 1),
+            'primary_business_entity' => ((int)($frow['primary_business_entity'] ?? 0) === 1),
+        ];
+    }
+
+    return [
+        'provider_count' => count($providers),
+        'authorized_provider_count' => $authorizedProviderCount,
+        'calendar_provider_count' => $calendarProviderCount,
+        'duplicate_provider_count' => count($duplicateProviders),
+        'duplicate_providers' => $duplicateProviders,
+        'admin_provider_count' => count($adminCandidates),
+        'admin_provider_candidates' => $adminCandidates,
+        'providers' => array_slice($providers, 0, 12),
+        'facility_count' => count($facilities),
+        'service_location_count' => $serviceLocationCount,
+        'primary_business_entity_count' => $primaryBusinessCount,
+        'named_facility_count' => $namedFacilityCount,
+        'facilities' => array_slice($facilities, 0, 12),
+        'practice_ready' => (count($providers) > 0 && $serviceLocationCount > 0),
+    ];
+}
+
 // Validate token first
 if (!validateCallbackAuth($rawBody, $requestId)) {
     http_response_code(401);
@@ -328,7 +476,7 @@ $action = $data['action'] ?? 'unknown';
 error_log('[MedEx Callback][' . $requestId . '] Action: ' . $action);
 
 // Allow token-auth ping/status/toggle actions even before module is fully enabled/configured.
-if (!in_array($action, ['ping', 'get_module_status', 'set_module_enabled'], true) && ($GLOBALS['medex_enable'] ?? '0') != '1') {
+if (!in_array($action, ['ping', 'get_module_status', 'set_module_enabled', 'analyze_practice_setup'], true) && ($GLOBALS['medex_enable'] ?? '0') != '1') {
     http_response_code(503);
     echo json_encode([
         'success' => false,
@@ -630,6 +778,14 @@ switch ($action) {
         ]);
         break;
 
+    case 'analyze_practice_setup':
+        echo json_encode([
+            'success' => true,
+            'practice_setup' => medexBuildPracticeSetupAnalysis(),
+            'timestamp' => date('c')
+        ]);
+        break;
+
     case 'get_calendar_template_context':
         $providerFilter = $data['provider_ids'] ?? [];
         if (!is_array($providerFilter)) {
@@ -813,13 +969,17 @@ switch ($action) {
             }
             $providerNames = medexDecodeFeedNames((string)($row['provider_names'] ?? ''));
             $facilityNames = medexDecodeFeedNames((string)($row['facility_names'] ?? ''));
+            $providerCount = medexCountFeedScope((string)($row['providers'] ?? ''));
+            $facilityCount = medexCountFeedScope((string)($row['facilities'] ?? ''));
             $feeds[$token] = [
                 'feed_id' => (int)($row['id'] ?? 0),
                 'token' => $token,
                 'name' => trim((string)($row['name'] ?? '')),
                 'owner_username' => trim((string)($row['openemr_username'] ?? '')),
-                'provider_count' => medexCountFeedScope((string)($row['providers'] ?? '')),
-                'facility_count' => medexCountFeedScope((string)($row['facilities'] ?? '')),
+                'provider_count' => $providerCount,
+                'facility_count' => $facilityCount,
+                'provider_scope_label' => medexFormatFeedScopeLabel($providerCount, 'provider', 'providers'),
+                'facility_scope_label' => medexFormatFeedScopeLabel($facilityCount, 'facility', 'facilities'),
                 'provider_names' => $providerNames,
                 'facility_names' => $facilityNames,
                 'created_at' => (string)($row['created_at'] ?? ''),
