@@ -628,6 +628,10 @@ jobs:
           CLIENT_ID=$(echo "$CLIENT_RESPONSE" | jq -r '.client_id')
           echo "client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
 
+          # Enable the client (newly registered clients are disabled by default)
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr \
+            -e "UPDATE oauth_clients SET is_enabled = 1 WHERE client_id = '$CLIENT_ID'"
+
           # Get access token via password grant
           TOKEN_RESPONSE=$(curl -sf http://127.0.0.1:8080/oauth2/default/token \
             -d "grant_type=password" \
