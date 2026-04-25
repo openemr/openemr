@@ -136,6 +136,11 @@ class FhirMetaDataRestController
         $tokenExtension->setValueUri(new FHIRUri($this->config->getTokenUrl()));
         $oauthUrisExtension->addExtension($tokenExtension);
 
+        $introspectExtension = new FHIRExtension();
+        $introspectExtension->setUrl("introspect");
+        $introspectExtension->setValueUri(new FHIRUri($this->config->getIntrospectionUrl()));
+        $oauthUrisExtension->addExtension($introspectExtension);
+
         $statement->addExtension($oauthUrisExtension);
 
         // now add our SMART capabilities
