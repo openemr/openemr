@@ -208,8 +208,14 @@ class ControllerRoutingTest extends TestCase
 
         // Document the trap: is_callable() alone returns true for any method
         // name on a Smarty descendant because Smarty's __call catches all calls.
+        // PHPStan can't model __call, so it concludes statically that
+        // is_callable() must be false — which is exactly the runtime trap
+        // this test documents and methodExists() guards against.
+        /** @phpstan-ignore-next-line function.impossibleType */
+        $isCallable = is_callable([$smartyDescendant, 'nonexistent_phantom_method']);
+        /** @phpstan-ignore-next-line method.impossibleType */
         $this->assertTrue(
-            is_callable([$smartyDescendant, 'nonexistent_phantom_method']),
+            $isCallable,
             'Expected is_callable() to return true due to Smarty __call ' .
             '(this assertion documents the trap that methodExists() guards against).'
         );
