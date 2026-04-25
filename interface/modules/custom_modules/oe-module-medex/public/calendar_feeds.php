@@ -605,7 +605,7 @@ $facilityCountLabel = $facilityCount . ' ' . ($facilityCount === 1 ? xlt('facili
                 </div>
                 <div class="hero-chip">
                     <span class="hero-chip-label"><?php echo xlt('Existing Feeds'); ?></span>
-                    <span class="hero-chip-value"><?php echo (int)count($existingFeeds); ?></span>
+                    <span class="hero-chip-value" id="existing-feed-count"><?php echo (int)count($existingFeeds); ?></span>
                 </div>
             </div>
         </div>
@@ -787,6 +787,95 @@ $facilityCountLabel = $facilityCount . ' ' . ($facilityCount === 1 ? xlt('facili
 const csrfToken = <?php echo json_encode($csrfToken); ?>;
 const currentUsername = <?php echo json_encode($currentUsername); ?>;
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function buildFeedFilterText(feed) {
+    const filters = [];
+    if (Array.isArray(feed.provider_names) && feed.provider_names.length) {
+        filters.push(feed.provider_names.join(', '));
+    }
+    if (Array.isArray(feed.facility_names) && feed.facility_names.length) {
+        filters.push(feed.facility_names.join(', '));
+    }
+    return filters.length ? filters.join(' | ') : '<?php echo xla('All providers & facilities'); ?>';
+}
+
+function buildEmptyFeedState() {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = `
+        <i class="fa fa-calendar-plus"></i>
+        <p><?php echo xla('No calendar feeds yet. Create one below to subscribe to your OpenEMR calendar.'); ?></p>
+    `;
+    return empty;
+}
+
+function updateFeedListState() {
+    const list = document.getElementById('feeds-list');
+    const countEl = document.getElementById('existing-feed-count');
+    if (!list) {
+        return;
+    }
+    const itemCount = list.querySelectorAll('.feed-item').length;
+    if (countEl) {
+        countEl.textContent = String(itemCount);
+    }
+    const empty = list.querySelector('.empty-state');
+    if (itemCount === 0) {
+        if (!empty) {
+            list.appendChild(buildEmptyFeedState());
+        }
+    } else if (empty) {
+        empty.remove();
+    }
+}
+
+function buildFeedItem(feed) {
+    const row = document.createElement('div');
+    row.className = 'feed-item';
+    row.dataset.feedId = String(feed.id || '');
+    row.innerHTML = `
+        <div class="feed-header">
+            <div>
+                <div class="feed-name">${escapeHtml(feed.name || '')}</div>
+                <div class="feed-filters">${escapeHtml(buildFeedFilterText(feed))}</div>
+            </div>
+            <button class="btn btn-sm btn-danger" title="<?php echo xla('Delete'); ?>">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+        <div class="feed-url">${escapeHtml(feed.url || '')}</div>
+        <div class="feed-actions">
+            <button class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-copy"></i> <?php echo xlt('Copy URL'); ?>
+            </button>
+            <span style="font-size: 12px; color: #666;">
+                <i class="fa fa-user"></i> <?php echo xlt('Username'); ?>: <strong>${escapeHtml(currentUsername)}</strong>
+            </span>
+        </div>
+    `;
+    const deleteBtn = row.querySelector('.btn-danger');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function() {
+            deleteFeed(feed.id);
+        });
+    }
+    const copyBtn = row.querySelector('.btn-outline-primary');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            copyUrl(feed.url || '');
+        });
+    }
+    return row;
+}
+
 // Toast notification system
 function showToast(message, type = 'info', duration = null) {
     const container = document.getElementById('toast-container');
@@ -918,8 +1007,18 @@ function createFeed() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            const feedsList = document.getElementById('feeds-list');
+            if (feedsList && data.feed) {
+                const existingEmpty = feedsList.querySelector('.empty-state');
+                if (existingEmpty) {
+                    existingEmpty.remove();
+                }
+                feedsList.prepend(buildFeedItem(data.feed));
+                updateFeedListState();
+            }
             showToast('<?php echo xla('Feed created. Copy the URL below.'); ?>', 'success');
-            setTimeout(() => location.reload(), 1500);
         } else {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
@@ -965,7 +1064,12 @@ function deleteFeed(feedId) {
                         feedItem.style.transition = 'all 0.3s ease';
                         feedItem.style.transform = 'translateX(100%)';
                         feedItem.style.opacity = '0';
-                        setTimeout(() => feedItem.remove(), 300);
+                        setTimeout(() => {
+                            feedItem.remove();
+                            updateFeedListState();
+                        }, 300);
+                    } else {
+                        updateFeedListState();
                     }
                 } else {
                     if (feedItem) {
