@@ -26,16 +26,32 @@ jobs:
       fail-fast: false
       matrix:
         database:
+          - name: MySQL 5.7
+            image: mysql:5.7
+            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+          - name: MySQL 8
+            image: mysql:8
+            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
           - name: MySQL 9
             image: mysql:9
             health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+          - name: MariaDB 10
+            image: mariadb:10
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
+          - name: MariaDB 11
+            image: mariadb:11
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
           - name: MariaDB 12
             image: mariadb:12
             health-cmd: "healthcheck.sh --connect --innodb_initialized"
         php:
+          - '8.2'
+          - '8.3'
+          - '8.4'
           - '8.5'
-
-
+    env:
+      # Only collect coverage on one matrix arm to save time
+      COLLECT_COVERAGE: ${{ matrix.php == '8.5' && matrix.database.name == 'MariaDB 12' }}
     services:
       mysql:
         image: ${{ matrix.database.image }}
@@ -60,7 +76,7 @@ jobs:
       - name: Setup PHP and Composer
         uses: ./.github/actions/setup-php-composer
         with:
-          coverage: true
+          coverage: ${{ env.COLLECT_COVERAGE }}
           php-version: ${{ matrix.php }}
 
       - name: Run CLI installer
@@ -83,23 +99,21 @@ jobs:
             -e "SELECT COUNT(*) as user_count FROM users WHERE username='admin';" \
             | grep -q "1"
 
-      # TODO: actually run the test suite. For now, just verifying installer.
       - name: Run PHPUnit
         run: vendor/bin/phpunit
-          --coverage-text
-          --coverage-clover clover.xml
+          ${{ env.COLLECT_COVERAGE == 'true' && '--coverage-text --coverage-clover clover.xml' || '' }}
           --log-junit junit.xml
           --testsuite common,controllers,fixtures,validators,unit
 
       - name: Upload coverage
+        if: ${{ !cancelled() && env.COLLECT_COVERAGE == 'true' }}
         uses: codecov/codecov-action@v6
-        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results
-        uses: codecov/codecov-action@v6
         if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v6
         with:
           report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
