@@ -286,6 +286,12 @@ function medexCountFeedScope($raw): int
     return count($parts);
 }
 
+function medexFormatFeedScopeLabel(int $count, string $singular, string $plural): string
+{
+    $count = max(0, $count);
+    return $count . ' ' . ($count === 1 ? $singular : $plural);
+}
+
 function medexSimplifyCalendarClient($userAgent): string
 {
     $ua = strtolower(trim((string)$userAgent));
@@ -963,13 +969,17 @@ switch ($action) {
             }
             $providerNames = medexDecodeFeedNames((string)($row['provider_names'] ?? ''));
             $facilityNames = medexDecodeFeedNames((string)($row['facility_names'] ?? ''));
+            $providerCount = medexCountFeedScope((string)($row['providers'] ?? ''));
+            $facilityCount = medexCountFeedScope((string)($row['facilities'] ?? ''));
             $feeds[$token] = [
                 'feed_id' => (int)($row['id'] ?? 0),
                 'token' => $token,
                 'name' => trim((string)($row['name'] ?? '')),
                 'owner_username' => trim((string)($row['openemr_username'] ?? '')),
-                'provider_count' => medexCountFeedScope((string)($row['providers'] ?? '')),
-                'facility_count' => medexCountFeedScope((string)($row['facilities'] ?? '')),
+                'provider_count' => $providerCount,
+                'facility_count' => $facilityCount,
+                'provider_scope_label' => medexFormatFeedScopeLabel($providerCount, 'provider', 'providers'),
+                'facility_scope_label' => medexFormatFeedScopeLabel($facilityCount, 'facility', 'facilities'),
                 'provider_names' => $providerNames,
                 'facility_names' => $facilityNames,
                 'created_at' => (string)($row['created_at'] ?? ''),
