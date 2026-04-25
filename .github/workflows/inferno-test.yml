@@ -569,8 +569,11 @@ jobs:
         run: |
           tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/backup.sql
+          # Preserve sqlconf.php (has correct DB host), copy rest from snapshot
+          cp sites/default/sqlconf.php /tmp/sqlconf.php
           rm -rf sites/default
           cp -r 2025-06-25-inferno-baseline/sites/default sites/
+          cp /tmp/sqlconf.php sites/default/sqlconf.php
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
             INSERT INTO product_registration (opt_out) VALUES (1)
               ON DUPLICATE KEY UPDATE opt_out = 1;
