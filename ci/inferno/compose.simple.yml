@@ -10,7 +10,7 @@ services:
     network_mode: host
 
   hl7_validator_service:
-    image: infernocommunity/inferno-resource-validator:1.0.65
+    image: infernocommunity/inferno-resource-validator:1.0.73
     network_mode: host
     environment:
       SESSION_CACHE_DURATION: -1
