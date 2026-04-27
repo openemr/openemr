@@ -20,6 +20,8 @@ require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\DaySheet\DaySheetAggregator;
+use OpenEMR\Billing\DaySheet\DaySheetTotals;
+use OpenEMR\Billing\DaySheet\SlotTotals;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -108,6 +110,7 @@ if (!isset($_GET["mode"])) {
             $anypats = 0;
             $the_first_time = 1;
             $itero = [];
+            $daySheetTotals = new DaySheetTotals([], [], new SlotTotals(''));
 
             if ($ret = getBillsBetweendayReport($code_type)) {
             // checking to see if there is any information in the array if not display a message (located after this if statement)

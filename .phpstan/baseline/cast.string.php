@@ -3018,11 +3018,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/DaySheet/BillRow.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 20,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];

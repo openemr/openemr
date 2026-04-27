@@ -747,11 +747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$daySheetTotals might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gtotal_fee might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',

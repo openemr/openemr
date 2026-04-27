@@ -55,18 +55,18 @@ final readonly class BillRow
 
     private static function asString(mixed $value): string
     {
-        if ($value === null || is_array($value) || is_object($value)) {
-            return '';
+        if (is_string($value)) {
+            return $value;
         }
-        return (string) $value;
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+        return '';
     }
 
     private static function asFloat(mixed $value): float
     {
-        if (is_int($value) || is_float($value)) {
-            return (float) $value;
-        }
-        if (is_string($value) && is_numeric($value)) {
+        if (is_numeric($value)) {
             return (float) $value;
         }
         return 0.0;

@@ -157,56 +157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/about.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fee on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insAdj on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insPay on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insRef on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$key on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patAdj on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patPay on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patRef on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$providerTotals on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$userTotals on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
