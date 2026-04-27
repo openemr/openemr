@@ -669,6 +669,7 @@ jobs:
             inferno-g10 bundle exec inferno execute \
               --suite us_core_v311 \
               --groups 2 \
+              --verbose \
               --inputs "url:http://localhost:8080/apis/default/fhir" \
                        "patient_ids:96506861-511f-4f6d-bc97-b65a78cf1995,96891ab2-01ad-49f9-9958-cdad71bd33c1,968944d0-180a-48ac-8049-636ae8ac6127" \
                        'smart_auth_info:{"access_token":"${{ steps.oauth.outputs.access_token }}"}'
