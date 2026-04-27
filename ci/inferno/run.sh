@@ -238,6 +238,7 @@ main() {
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310 # Intentionally ignore coverage failure
             collect_inferno_coverage || echo "Warning: Coverage collection failed"
         fi
         exit "${exit_code}"
