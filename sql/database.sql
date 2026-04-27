@@ -7394,8 +7394,8 @@ VALUES ('lists','administrative_sex','Administrative Sex',0,0,0,'Codeset from va
 
 -- note USCDI V3 has a ton more options here, but USCDI V4 reverts to M/F/nonbinary/asked-decline with expansion allowed so adding in unknown to map values from patient_data.sex column
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248152002', ''),
-       ('administrative_sex', 'Female', 'Female', 20, 'SNOMED-CT:248153007', ''),
+VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248153007', ''),
+       ('administrative_sex', 'Female', 'Female', 20, 'SNOMED-CT:248152002', ''),
        ('administrative_sex', 'nonbinary', 'Identifies as nonbinary gender (finding)', 20, 'SNOMED-CT:33791000087105', ''),
        ('administrative_sex', 'asked-declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined', ''),
        ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
