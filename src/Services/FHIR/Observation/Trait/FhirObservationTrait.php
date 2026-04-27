@@ -50,6 +50,17 @@ trait FhirObservationTrait
 
     const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI = 'http://terminology.hl7.org/CodeSystem/observation-category';
     const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'exam', 'therapy', 'activity'];
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_DISPLAY = [
+        'social-history' => 'Social History',
+        'vital-signs' => 'Vital Signs',
+        'imaging' => 'Imaging',
+        'laboratory' => 'Laboratory',
+        'procedure' => 'Procedure',
+        'survey' => 'Survey',
+        'exam' => 'Exam',
+        'therapy' => 'Therapy',
+        'activity' => 'Activity',
+    ];
     const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
     const US_CORE_CODESYSTEM_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
 
@@ -285,7 +296,7 @@ trait FhirObservationTrait
         $observation->addCategory(UtilsService::createCodeableConcept([
             $catCode => [
                 'code' => $catCode,
-                'description' => $obType ?? 'Survey',
+                'description' => self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_DISPLAY[$catCode] ?? ucwords(str_replace('-', ' ', $catCode)),
                 'system' => FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION
             ]
         ]));
