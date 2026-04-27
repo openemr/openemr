@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Rx;
 
+use OpenEMR\Common\Utils\XmlUtils;
+
 class CredentialValidator
 {
     private const REQUIRED_FIELDS = [
@@ -53,12 +55,8 @@ class CredentialValidator
             return false;
         }
 
-        $previousUseErrors = libxml_use_internal_errors(true);
-        $document = simplexml_load_string($xml);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previousUseErrors);
-
-        if ($document === false) {
+        $document = XmlUtils::tryLoadString($xml);
+        if ($document === null) {
             return false;
         }
 
