@@ -53,6 +53,11 @@ trait UserAddTrait
         $this->client->quit();
     }
 
+    /**
+     * @codeCoverageIgnore Structurally not exercised in CI coverage: testUserAdd
+     * skips early when the user already exists, so the body rarely runs on the
+     * one matrix slice that uploads coverage.
+     */
     private function userAddIfNotExist(string $username, bool $isRetry = false): void
     {
         // if user already exists, then skip this
