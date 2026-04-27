@@ -74,7 +74,7 @@ class PatientValidator extends BaseValidator
                 ->string()
                 ->callback(function (string $value) {
                     if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Trusted Email " . $value . " is not a valid email", "email_direct");
+                        throw new InvalidValueException("Trusted Email is not a valid email", "email_direct");
                     }
                     return true;
                 });
