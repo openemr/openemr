@@ -22,51 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:EndPage\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormEnd\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormHidden\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormStart\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSubmit\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:Linebreak\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:StartPage\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:Text\\(\\) should return string but return statement is missing\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function DateFormatRead\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formatting.inc.php',

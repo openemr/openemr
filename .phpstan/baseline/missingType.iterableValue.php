@@ -437,7 +437,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property pnHTML\\:\\:\\$header type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];

@@ -4907,12 +4907,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$disable with no type specified\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$disable with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$readonly with no type specified\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$readonly with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];

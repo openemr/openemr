@@ -45,7 +45,7 @@ return [
         'method.notFound.php' => 189,
         'require.fileNotFound.php' => 0,
         'requireOnce.fileNotFound.php' => 0,
-        'return.missing.php' => 29,
+        'return.missing.php' => 20,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
         'variable.undefined.php' => 3444,
