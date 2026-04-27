@@ -324,6 +324,8 @@ trait UserAddTrait
      * @param string $username The username being created
      * @param string $step Identifies which recovery step is being captured
      * @return array{dir: string, prefix: string, console: ?string, screenshot: ?string, html: ?string}
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
      */
     private function captureForceRefreshDiagnostics(string $username, string $step): array
     {
@@ -386,6 +388,8 @@ trait UserAddTrait
     /**
      * Dump diagnostics and rethrow with a step-identifying message so the
      * CI failure log pinpoints which waitFor() actually timed out.
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
      */
     private function dumpForceRefreshFailure(string $username, string $step, TimeoutException $e): never
     {
@@ -401,6 +405,8 @@ trait UserAddTrait
      * Resolve a writable directory for diagnostic artifacts. Prefer the
      * selenium-videos directory at the repo root (uploaded by CI), then
      * fall back to the system temp dir.
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
      */
     private function resolveDiagnosticsDir(): string
     {
