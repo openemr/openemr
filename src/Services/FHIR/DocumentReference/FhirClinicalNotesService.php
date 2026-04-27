@@ -183,9 +183,15 @@ class FhirClinicalNotesService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['code'])) {
-            $code = $dataRecord['code'];
-            $display = self::LOINC_DISPLAY[$code] ?? $dataRecord['codetext'];
-            $type = UtilsService::createCodeableConcept($code, FhirCodeSystemConstants::LOINC, $display);
+            $codes = $dataRecord['code'];
+            // Override display with official LOINC display if available
+            foreach ($codes as $codeValue => &$codeData) {
+                if (array_key_exists($codeValue, self::LOINC_DISPLAY)) {
+                    $codeData['description'] = self::LOINC_DISPLAY[$codeValue];
+                }
+            }
+            unset($codeData);
+            $type = UtilsService::createCodeableConcept($codes, FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
             $docReference->setType($type);
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
