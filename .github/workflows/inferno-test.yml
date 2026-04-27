@@ -608,14 +608,8 @@ jobs:
       - name: Register OAuth client and get token
         id: oauth
         run: |
-          # Explicit scopes required - OpenEMR doesn't support wildcards like patient/*.read
-          SCOPES="openid offline_access launch/patient api:fhir"
-          SCOPES="$SCOPES patient/AllergyIntolerance.read patient/CarePlan.read patient/CareTeam.read"
-          SCOPES="$SCOPES patient/Condition.read patient/Device.read patient/DiagnosticReport.read"
-          SCOPES="$SCOPES patient/DocumentReference.read patient/Encounter.read patient/Goal.read"
-          SCOPES="$SCOPES patient/Immunization.read patient/Location.read patient/Medication.read"
-          SCOPES="$SCOPES patient/MedicationRequest.read patient/Observation.read patient/Organization.read"
-          SCOPES="$SCOPES patient/Patient.read patient/Practitioner.read patient/Procedure.read patient/Provenance.read"
+          # Use user/* scopes for password grant (patient/* requires patient context from SMART launch)
+          SCOPES="openid offline_access api:fhir"
           SCOPES="$SCOPES user/AllergyIntolerance.read user/CarePlan.read user/CareTeam.read"
           SCOPES="$SCOPES user/Condition.read user/Device.read user/DiagnosticReport.read"
           SCOPES="$SCOPES user/DocumentReference.read user/Encounter.read user/Goal.read"
