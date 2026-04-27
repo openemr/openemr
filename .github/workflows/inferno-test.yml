@@ -129,6 +129,9 @@ jobs:
             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
           "
 
+      - name: Run database upgrade
+        run: php sql_upgrade.php --from=7.0.4
+
       - name: Start PHP server
         run: |
           php -S 0.0.0.0:8080 -t . public/index.php \
@@ -587,6 +590,9 @@ jobs:
             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
             UPDATE users_secure SET last_update_password = NOW();
           "
+
+      - name: Run database upgrade
+        run: php sql_upgrade.php --from=7.0.4
 
       - name: Start PHP server
         run: php -S 0.0.0.0:8080 -t . public/index.php > /tmp/php.log 2>&1 &
