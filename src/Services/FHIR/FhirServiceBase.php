@@ -287,7 +287,7 @@ abstract class FhirServiceBase implements
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = $this->getSystemLogger();
-            $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->info(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
