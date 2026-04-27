@@ -49,132 +49,6 @@ jobs:
           echo 'has_codecov_token=false' >> "$GITHUB_OUTPUT"
         fi
 
-  inferno_bare_metal:
-    needs: check_secret
-    # SHORT-CIRCUITED - being replaced by inferno_simple
-    if: false && needs.check_secret.outputs.has_inferno_pat == 'true'
-    runs-on: ubuntu-24.04
-    name: Inferno Certification (Bare Metal)
-    timeout-minutes: 60
-    services:
-      database:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_USER: openemr
-          MYSQL_PASSWORD: openemr
-          MYSQL_DATABASE: openemr
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-          token: ${{ secrets.INFERNO_PAT }}
-
-      - name: Setup PHP
-        uses: ./.github/actions/setup-php-composer
-        with:
-          php-version: '8.5'
-
-      - name: Build and start Inferno services
-        working-directory: ci/inferno
-        run: |
-          docker compose -f compose.bare-metal.yml build
-          docker compose -f compose.bare-metal.yml run --rm inferno bundle exec inferno migrate
-          docker compose -f compose.bare-metal.yml up --detach --wait
-
-      - name: Run CLI installer
-        run: ./cli install
-          --db-root-user=root
-          --db-root-password=root
-          --db-host=127.0.0.1
-          --db-port=3306
-          --db-user=openemr
-          --db-password=openemr
-          --db-name=openemr
-          --oe-admin-username=admin
-          --oe-admin-password=pass
-          --no-interaction
-          -vvv
-
-      - name: Add host.docker.internal to hosts file
-        run: echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
-
-      - name: Load test data snapshot
-        run: |
-          tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/backup.sql
-          rm -rf sites/default
-          cp -r 2025-06-25-inferno-baseline/sites/default sites/
-
-      - name: Configure globals for API
-        run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
-            INSERT INTO product_registration (opt_out) VALUES (1)
-              ON DUPLICATE KEY UPDATE opt_out = 1;
-            INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
-              ('rest_api', 0, '1'),
-              ('rest_fhir_api', 0, '1'),
-              ('rest_portal_api', 0, '1'),
-              ('oauth_password_grant', 0, '3'),
-              ('rest_system_scopes_api', 0, '1'),
-              ('site_addr_oath', 0, 'http://host.docker.internal:8080')
-            ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
-          "
-
-      - name: Run database upgrade
-        run: php sql_upgrade.php --from=7.0.3
-
-      - name: Start PHP server
-        run: |
-          php -S 0.0.0.0:8080 -t . public/index.php \
-            > "${RUNNER_TEMP}/php-server.out.log" \
-            2> "${RUNNER_TEMP}/php-server.err.log" &
-
-      - name: Wait for webserver
-        run: |
-          curl --retry-connrefused --retry 30 --retry-delay 1 \
-               --fail --silent --show-error \
-               -o /dev/null http://127.0.0.1:8080/
-
-      - name: Test FHIR metadata endpoint
-        run: curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata | jq -r '.fhirVersion'
-
-      - name: Run certification tests
-        env:
-          OPENEMR_BASE_URL_API: http://localhost:8080
-          OPENEMR_BASE_URL_INFERNO: http://host.docker.internal:8080
-          INFERNO_BASE_URL: http://localhost:8000
-        run: |
-          vendor/bin/phpunit \
-            --testsuite certification \
-            --log-junit junit-certification.xml
-
-      - name: Show server logs
-        if: ${{ !cancelled() }}
-        run: |
-          echo '=== PHP Server stdout ==='
-          cat "${RUNNER_TEMP}/php-server.out.log" || true
-          echo '=== PHP Server stderr ==='
-          cat "${RUNNER_TEMP}/php-server.err.log" || true
-
-      - name: Show Inferno logs
-        if: ${{ !cancelled() }}
-        working-directory: ci/inferno
-        run: docker compose -f compose.bare-metal.yml logs
-
-      - name: Cleanup
-        if: always()
-        working-directory: ci/inferno
-        run: docker compose -f compose.bare-metal.yml down --volumes || true
-
   inferno_certification_test:
     needs: check_secret
     runs-on: ubuntu-24.04
@@ -656,22 +530,30 @@ jobs:
         run: |
           # Copy pre-built data from private submodule (matches run.sh behavior)
           cp -r inferno-files/files/* onc-certification-g10-test-kit/
-          # Build image
-          docker build -t inferno-g10 onc-certification-g10-test-kit
+          # Build and start services
+          docker compose -f compose.simple.yml up --build --detach --wait
 
       - name: Run Inferno tests
+        working-directory: ci/inferno
         run: |
-          docker run --rm --network host \
-            -e INFERNO_DISABLE_TLS_TEST=true \
-            -v "${{ github.workspace }}/ci/inferno/onc-certification-g10-test-kit/data:/opt/inferno/data" \
-            inferno-g10 bundle exec inferno execute \
-              --suite us_core_v311 \
-              --groups 2 \
-              --verbose \
-              --inputs "url:http://localhost:8080/apis/default/fhir" \
-                       "patient_ids:96506861-511f-4f6d-bc97-b65a78cf1995,96891ab2-01ad-49f9-9958-cdad71bd33c1,968944d0-180a-48ac-8049-636ae8ac6127" \
-                       'smart_auth_info:{"access_token":"${{ steps.oauth.outputs.access_token }}"}'
+          docker compose -f compose.simple.yml exec inferno bundle exec inferno execute \
+            --suite us_core_v311 \
+            --groups 2 \
+            --verbose \
+            --inputs "url:http://localhost:8080/apis/default/fhir" \
+                     "patient_ids:96506861-511f-4f6d-bc97-b65a78cf1995,96891ab2-01ad-49f9-9958-cdad71bd33c1,968944d0-180a-48ac-8049-636ae8ac6127" \
+                     'smart_auth_info:{"access_token":"${{ steps.oauth.outputs.access_token }}"}'
 
       - name: Show PHP server logs
         if: ${{ !cancelled() }}
         run: cat /tmp/php.log || true
+
+      - name: Show Inferno logs
+        if: ${{ !cancelled() }}
+        working-directory: ci/inferno
+        run: docker compose -f compose.simple.yml logs
+
+      - name: Cleanup
+        if: always()
+        working-directory: ci/inferno
+        run: docker compose -f compose.simple.yml down --volumes || true
