@@ -122,14 +122,15 @@ class InstallCommand extends Command
         bool $enableCcda,
         string $siteAddress,
     ): array {
+        // Magic values: '3' means "enable for both contexts". See #11863 for enum refactor.
         $flags = array_filter([
             GlobalConnectorsEnum::REST_API->value => $enableRestApi ? '1' : null,
             GlobalConnectorsEnum::REST_FHIR_API->value => $enableFhirApi ? '1' : null,
             GlobalConnectorsEnum::REST_PORTAL_API->value => $enablePortalApi ? '1' : null,
-            GlobalConnectorsEnum::OAUTH_PASSWORD_GRANT->value => $enablePasswordGrant ? '3' : null,
+            GlobalConnectorsEnum::OAUTH_PASSWORD_GRANT->value => $enablePasswordGrant ? '3' : null, // Users + Patients
             GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => $enableSystemScopes ? '1' : null,
             GlobalConnectorsEnum::SITE_ADDRESS_OAUTH->value => $siteAddress !== '' ? $siteAddress : null,
-            GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE => $enableCcda ? '3' : null,
+            GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE => $enableCcda ? '3' : null, // Care Coordination + Portal
         ]);
 
         return array_map(fn($v) => ['value' => $v], $flags);
