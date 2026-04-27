@@ -65,7 +65,7 @@ class PatientValidator extends BaseValidator
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.
                     if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Email " . $value . " is not a valid email", "email");
+                        throw new InvalidValueException("Email is not a valid email", "email");
                     }
                     return true;
                 });
