@@ -1,0 +1,1 @@
+FROM openemr/openemr:latest
