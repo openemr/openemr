@@ -27,6 +27,9 @@ if (php_sapi_name() === 'cli') {
     // need this for output to be readable when running as command line
     $GLOBALS['force_simple_sql_upgrade'] = true;
 
+    // Set HTTP_HOST for CLI mode so globals.php can determine the site
+    $_SERVER['HTTP_HOST'] = 'default';
+
     // Parse --from=VERSION argument for CLI upgrades
     foreach ($argv as $arg) {
         if (str_starts_with($arg, '--from=')) {

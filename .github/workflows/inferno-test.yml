@@ -566,6 +566,12 @@ jobs:
           --db-name=openemr
           --oe-admin-username=admin
           --oe-admin-password=pass
+          --enable-rest-api
+          --enable-fhir-api
+          --enable-portal-api
+          --enable-password-grant
+          --enable-system-scopes
+          --site-address=http://localhost:8080
           --no-interaction
 
       - name: Load test data and configure API
@@ -580,14 +586,6 @@ jobs:
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
             INSERT INTO product_registration (opt_out) VALUES (1)
               ON DUPLICATE KEY UPDATE opt_out = 1;
-            INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
-              ('rest_api', 0, '1'),
-              ('rest_fhir_api', 0, '1'),
-              ('rest_portal_api', 0, '1'),
-              ('oauth_password_grant', 0, '3'),
-              ('rest_system_scopes_api', 0, '1'),
-              ('site_addr_oath', 0, 'http://localhost:8080')
-            ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
             UPDATE users_secure SET last_update_password = NOW();
           "
 
