@@ -124,7 +124,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         // US Core 8.0: category is Must Support
         $category = new FHIRCodeableConcept();
         $categoryCoding = new FHIRCoding();
-        $categoryCoding->setSystem('http://hl7.org/fhir/goal-category');
+        $categoryCoding->setSystem('http://terminology.hl7.org/CodeSystem/goal-category');
 
         // Check if this is an SDOH goal based on code or description
         if ($this->isSDOHGoal($dataRecord)) {
