@@ -81,6 +81,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
+        $content = '';
         $request = $this->getRequest();
         $this->patient_id = $request->getQuery('pid');
         $this->encounter_id = $request->getQuery('encounter');
@@ -310,25 +311,11 @@ class EncounterccdadispatchController extends AbstractActionController
             die();
         }
 
-        try {
-            ob_clean();
-            if (!empty($_POST['sent_by_app'] ?? '')) {
-                echo $content;
-                exit;
-            }
-            if (empty($downloadccda)) {
-                $practice_filename = "CCDA_{$this->patient_id}.xml";
-                header("Cache-Control: public");
-                header("Content-Description: File Transfer");
-                header("Content-Disposition: attachment; filename=" . $practice_filename);
-                header("Content-Type: application/download");
-                header("Content-Transfer-Encoding: binary");
-                echo $content;
-            }
-            exit;
-        } catch (\Throwable $e) {
-            die($e->getMessage());
+        ob_clean();
+        if (!empty($_POST['sent_by_app'] ?? '')) {
+            echo $content;
         }
+        exit;
     }
 
     /**

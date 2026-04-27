@@ -137,11 +137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/WenoValidate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$downloadccda in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$patientRecord in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceRequestModelGenerator.php',

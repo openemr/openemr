@@ -10292,11 +10292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$content might not be defined\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$result might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',

@@ -176,9 +176,8 @@ class CcdaServiceDocumentRequestorTest extends TestCase
 
             $currentNodeId = $path->query(".//hl7:id", $currentNode)->item(0);
             $expectedNodeId = $expectedXpath->query(".//hl7:id", $expectedNode)->item(0);
-            if (!$currentNodeId instanceof \DOMElement || !$expectedNodeId instanceof \DOMElement) {
-                throw new \RuntimeException('Expected DOMElement for hl7:id node');
-            }
+            static::assertInstanceOf(\DOMElement::class, $currentNodeId);
+            static::assertInstanceOf(\DOMElement::class, $expectedNodeId);
 
             $expectedRootId = $expectedNodeId->getAttribute('root');
             $currentNodeId->setAttribute('root', $expectedRootId);
