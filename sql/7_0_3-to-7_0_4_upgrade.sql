@@ -1313,10 +1313,10 @@ ALTER TABLE `procedure_order`
 #IfNotIndex procedure_order idx_scheduled_date
 ALTER TABLE `procedure_order` ADD INDEX `idx_scheduled_date` (`scheduled_date`);
 #EndIf
-#IfNotIndex procedure_order idx_scheduled_date
+#IfNotIndex procedure_order idx_order_intent
 ALTER TABLE `procedure_order` ADD INDEX `idx_order_intent` (`order_intent`),
 #EndIf
-#IfNotIndex procedure_order idx_scheduled_date
+#IfNotIndex procedure_order idx_location_id
 ALTER TABLE `procedure_order` ADD INDEX `idx_location_id` (`location_id`);
 #EndIf
 
