@@ -1314,7 +1314,7 @@ ALTER TABLE `procedure_order`
 ALTER TABLE `procedure_order` ADD INDEX `idx_scheduled_date` (`scheduled_date`);
 #EndIf
 #IfNotIndex procedure_order idx_order_intent
-ALTER TABLE `procedure_order` ADD INDEX `idx_order_intent` (`order_intent`),
+ALTER TABLE `procedure_order` ADD INDEX `idx_order_intent` (`order_intent`);
 #EndIf
 #IfNotIndex procedure_order idx_location_id
 ALTER TABLE `procedure_order` ADD INDEX `idx_location_id` (`location_id`);
