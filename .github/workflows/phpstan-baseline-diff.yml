@@ -64,7 +64,7 @@ jobs:
 
     - name: Download PR baseline
       if: steps.pr.outputs.number
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: phpstan-baseline-php8.5
         path: pr-baseline
