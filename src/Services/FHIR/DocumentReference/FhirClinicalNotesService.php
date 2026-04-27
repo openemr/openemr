@@ -44,6 +44,15 @@ class FhirClinicalNotesService extends FhirServiceBase
     use FhirDocumentReferenceTrait;
 
     /**
+     * LOINC display values for clinical note types. These must match the official
+     * LOINC display names, not the user-facing titles in list_options.
+     */
+    private const LOINC_DISPLAY = [
+        '18842-5' => 'Discharge summary',
+        '11488-4' => 'Consult note',
+    ];
+
+    /**
      * @var ClinicalNotesService
      */
     private $service;
@@ -174,7 +183,9 @@ class FhirClinicalNotesService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['code'])) {
-            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
+            $code = $dataRecord['code'];
+            $display = self::LOINC_DISPLAY[$code] ?? $dataRecord['codetext'];
+            $type = UtilsService::createCodeableConcept($code, FhirCodeSystemConstants::LOINC, $display);
             $docReference->setType($type);
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
