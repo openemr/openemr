@@ -4,7 +4,7 @@
  * ResourceServiceSearchTrait handles the creating of openemr search parameters for a resource.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,12 +12,12 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use InvalidArgumentException;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
-use InvalidArgumentException;
 
 trait ResourceServiceSearchTrait
 {

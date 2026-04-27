@@ -3,7 +3,7 @@
 /**
  * ScopeRepositoryTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,18 +11,14 @@
 
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
-use Google\Service\AppHub\Scope;
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class ScopeRepositoryTest extends TestCase
 {
@@ -33,8 +29,6 @@ class ScopeRepositoryTest extends TestCase
 
     public function setUp(): void
     {
-        $mock = new MockRestConfig();
-        $mock::$systemScopesEnabled = true;
         $mock = $this->createMock(ServerConfig::class);
         $mock->method('areSystemScopesEnabled')
             ->willReturn(true);
@@ -94,8 +88,7 @@ class ScopeRepositoryTest extends TestCase
                 ,'user/medical_problem.cruds'
             ]);
         $scopeRepository = $this->scopeRepository;
-        // skip over expected error logs
-        $scopeRepository->setSystemLogger(new SystemLogger(Level::Critical));
+        $scopeRepository->setSystemLogger($this->createMock(LoggerInterface::class));
         $scopeRepository->setServerScopeList($serverScopeListEntity);
 
         $validSubSets = [

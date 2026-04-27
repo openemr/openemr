@@ -5,10 +5,12 @@
  * For backwards compatibility it extends ORDataObject (which implements the a form of the Active record data pattern),
  * but the preferred mechanism is to use this as a POPO (Plain old PHP object) and save / retrieve data using
  * the VitalsService class.
- * @package openemr
- * @link      http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,11 +21,11 @@ namespace OpenEMR\Common\Forms;
  *
  */
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
+use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\ORDataObject\ORDataObject;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Utils\MeasurementUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 
 class FormVitals extends ORDataObject
 {
@@ -61,7 +63,7 @@ class FormVitals extends ORDataObject
     public $respiration;
     public $note;
     public $BMI;
-    public $BMI_status;
+    public ?string $BMI_status = null;
     public $waist_circ;
     public $head_circ;
     public $oxygen_saturation;
@@ -87,7 +89,7 @@ class FormVitals extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    public function __construct($id = "", $_prefix = "")
+    public function __construct($id = "")
     {
         parent::__construct();
         if ($id > 0) {
@@ -99,7 +101,7 @@ class FormVitals extends ORDataObject
 
         $this->_table = self::TABLE_NAME;
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         if (!empty($id)) {
             $this->populate();
         }
@@ -228,7 +230,7 @@ class FormVitals extends ORDataObject
     public function display_weight($pounds)
     {
         if ($pounds != 0) {
-            if ($GLOBALS['us_weight_format'] == 2) {
+            if (OEGlobalsBag::getInstance()->get('us_weight_format') == 2) {
                 $pounds_int = floor($pounds);
                 return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
             }
@@ -319,11 +321,17 @@ class FormVitals extends ORDataObject
             $this->BMI = $bmi;
         }
     }
-    public function get_BMI_status()
+    public function get_BMI_status(bool $translate = false): ?string
     {
+        if ($this->BMI_status === null || $this->BMI_status === '') {
+            return null;
+        }
+        if ($translate) {
+            return BmiCategory::tryFrom($this->BMI_status)?->label() ?? $this->BMI_status;
+        }
         return $this->BMI_status;
     }
-    public function set_BMI_status($status)
+    public function set_BMI_status(?string $status): void
     {
         $this->BMI_status = $status;
     }
@@ -483,7 +491,7 @@ class FormVitals extends ORDataObject
                     // if we have a number 0 we want to let it through.  Originally this failed due to the empty check.
                     if (is_numeric($field) || !empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func([&$this,$func], $field);
+                        $this->$func($field);
                     }
                 }
             }

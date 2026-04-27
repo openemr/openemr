@@ -10,24 +10,28 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\VersionService;
+use OpenEMR\Telemetry\TelemetryRepository;
+use OpenEMR\Telemetry\TelemetryService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$sessionAllowWrite = true;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . '/../../interface/globals.php');
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . '/../../interface/globals.php');
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = 'index.php';
         header('Location: ' . $landingpage);
         exit;
@@ -35,32 +39,27 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\VersionService;
-use OpenEMR\Telemetry\TelemetryRepository;
-use OpenEMR\Telemetry\TelemetryService;
-
 header("Content-Type: application/json");
 
 /**
  * Main request handler that reads input, verifies the CSRF token, and delegates
  * to the appropriate telemetry service method.
  */
-function handleRequest(): void
+function portal_handleRequest(): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Read JSON payload.
     $input_json = file_get_contents('php://input');
     $data = json_decode($input_json, true);
 
     // Verify CSRF token.
-    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';
@@ -75,4 +74,4 @@ function handleRequest(): void
     }
 }
 
-handleRequest();
+portal_handleRequest();

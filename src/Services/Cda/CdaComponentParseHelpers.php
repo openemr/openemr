@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Cda;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use OpenEMR\Services\PhoneNumberService;
 
 class CdaComponentParseHelpers
 {
@@ -172,7 +173,8 @@ class CdaComponentParseHelpers
         $firstName = $patientData['names'][0]['given'][0];
         $lastName = $patientData['names'][0]['family'];
         $dob = date("Y-m-d", strtotime((string) $patientData['dob']));
-        $phone = preg_replace('/\D/', '', (string) $patientData['phones'][0]);
+        $rawPhone = (string) ($patientData['phones'][0] ?? '');
+        $phone = PhoneNumberService::toNationalDigits($rawPhone) ?? preg_replace('/\D/', '', $rawPhone);
         $address = trim($patientData['address']['street'][0] ?? '');
 
         $sql = "SELECT pid, fname, lname, DOB, phone_home, phone_cell, phone_biz, street, city, state, postal_code

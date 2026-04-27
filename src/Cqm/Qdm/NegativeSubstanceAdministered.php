@@ -26,4 +26,3 @@ class NegativeSubstanceAdministered extends SubstanceAdministered
 
     public $_type = 'QDM::NegativeSubstanceAdministered';
 }
-

@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;
@@ -79,7 +78,7 @@ class Cat3 extends \Mustache_Engine
             $this->measure_result_hash[$key]['aggregate_count'] = $this->agg_results($key, $hash['measure_data'], $hash['population_sets']);
         }
 
-        $this->provider = $options['provider'];
+        $this->provider = $options['provider'] ?? null;
         // Start and end time properties are in Date helper
         $this->_performance_period_start = $options['start_time'];
         $this->_performance_period_end = $options['end_time'];

@@ -7,7 +7,7 @@
  *  Pass these variables $webserver_root & $_GLOBALS[backup_log_dir] as parameters for CRON.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    ViCarePlus, Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) ViCarePlus, Visolve <vicareplus_engg@visolve.com>
@@ -18,6 +18,10 @@
 // Ensure running from command line only
 if (php_sapi_name() !== 'cli') {
     exit;
+}
+
+if (!isset($argv[1])) {
+    throw new RuntimeException("At least one argument is required");
 }
 
 require_once("$argv[1]/library/sqlconf.php");

@@ -4,7 +4,7 @@
  * Common script for the encounter form (new and view) scripts for therapy groups.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
@@ -18,13 +18,17 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($viewmode) {
     $id = $_REQUEST['id'] ?? '';
@@ -61,9 +65,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <?php
 //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
 $use_validate_js = 1;
-require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 
-<?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/facility_ajax_jav.inc.php"); ?>
 <script>
 
 /*
@@ -100,7 +104,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 
@@ -132,7 +136,7 @@ function cancelClickedOld() {
 @media only screen and (max-width: 1024px) {
     #visit-details [class*="col-"], #visit-issues [class*="col-"] {
       width: 100%;
-      text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !important;
+      text-align: <?php echo ($session->get('language_direction') === 'rtl') ? 'right ' : 'left '?> !important;
     }
 }
 </style>
@@ -165,7 +169,7 @@ $help_icon = '';
                     <input type='hidden' name='mode' value='new' />
                 <?php } ?>
                 <fieldset>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id="visit-details">
                       <div class="row p-3">
@@ -202,7 +206,7 @@ $help_icon = '';
                             <?php
                             $sensitivities = AclExtended::aclGetSensitivities();
                             if ($sensitivities && count($sensitivities)) {
-                                usort($sensitivities, "sensitivity_compare");
+                                usort($sensitivities, sensitivity_compare(...));
                                 ?>
                             <label for="pc_catid" class="col-form-label col-sm-2"><?php echo xlt('Sensitivity'); ?>:</label>
                             <div class="col-sm-3">
@@ -246,21 +250,21 @@ $help_icon = '';
                                        title='<?php echo xla('Date of service'); ?>'/>
                             </div>
 
-                            <?php if ($GLOBALS['ippf_specific']) {
+                            <?php if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
                                 echo "<div class='invisible'>"; } ?>
                                 <label for='form_onset_date' class="col-form-label col-sm-2"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date'
-                                           value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr((string) $result['onset_date'], 0, 10))) : ''; ?>'
+                                           value='<?php echo $viewmode && !Utilities::isDateEmpty($result['onset_date']) ? attr(oeFormatShortDate(substr((string) $result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
-                            <?php if ($GLOBALS['ippf_specific']) {
+                            <?php if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
                                 echo "</div>"; } ?>
                             <div class="clearfix"></div>
                         </div>
                         <div class="col-md-6 form-group row"
                             <?php
-                            if (!$GLOBALS['gbl_visit_referral_source']) {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_visit_referral_source')) {
                                 echo "style='display:none'";
                             } ?>>">
                             <label  class="col-form-label col-sm-2"><?php echo xlt('Referral Source'); ?>:</label>
@@ -269,7 +273,7 @@ $help_icon = '';
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <?php if ($GLOBALS['enable_group_therapy']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) { ?>
                             <div class="col-md-6 form-group row" id="therapy_group_name" style="display: none">
                                 <label for="form_group" class="col-form-label col-sm-2"><?php echo xlt('Group name'); ?>:</label>
                                 <div class="col-sm-3">
@@ -279,7 +283,7 @@ $help_icon = '';
                                 <div class="clearfix"></div>
                             </div>
                         <?php }?>
-                        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('set_pos_code_encounter')) { ?>
                             <div class="col-md-6 form-group row">
                                 <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('POS Code'); ?>:</label>
                                 <div class="col-sm-8">
@@ -308,7 +312,7 @@ $help_icon = '';
                                     if ($viewmode) {
                                         $def_facility = $result['facility_id'];
                                     } else {
-                                        $dres = sqlStatement("select facility_id from users where username = ?", [$_SESSION['authUser']]);
+                                        $dres = sqlStatement("select facility_id from users where username = ?", [$session->get('authUser')]);
                                         $drow = sqlFetchArray($dres);
                                         $def_facility = $drow['facility_id'];
                                     }
@@ -338,7 +342,7 @@ $help_icon = '';
                 <fieldset>
                     <div class="col-md-12 form-group">
                       <legend><?php echo xlt('Reason for Visit')?></legend>
-                      <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
+                      <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text(OEGlobalsBag::getInstance()->getString('default_chief_complaint')); ?></textarea>
                     </div>
                 </fieldset>
                 <div class="col-md-12 form-group clearfix">

@@ -12,13 +12,15 @@
  * the claim separators and the trailing indicators.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing\BillingProcessor;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class BillingClaimBatch
 {
@@ -60,7 +62,7 @@ class BillingClaimBatch
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
-        $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
+        $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
 
@@ -145,7 +147,7 @@ class BillingClaimBatch
      * of the x-12 partners that were found during billing process.
      * This will usually only ever have one element, but just in case
      * There are more than one x-12 partner configured and input through
-     * billing manger, we handle the array case.
+     * billing manager, we handle the array case.
      *
      */
     public function write_batch_file()
@@ -167,7 +169,7 @@ class BillingClaimBatch
         // write the 'official' batch file
         if (
             true === $success &&
-            $GLOBALS['auto_sftp_claims_to_x12_partner']
+            OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {

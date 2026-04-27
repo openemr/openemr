@@ -65,7 +65,7 @@ class parseCSV
      * $csv->save();
      * ----------------
      * # add row/entry to end of CSV file
-     * # - only recommended when you know the extact sctructure of the file
+     * # - only recommended when you know the exact structure of the file
      * $csv = new parseCSV();
      * $csv->save('data.csv', array('1986', 'Home', 'Nowhere', ''), true);
      * ----------------
@@ -163,15 +163,13 @@ class parseCSV
     // array of field values in data parsed
     public $titles =  [];
 
-    // two dimentional array of CSV data
+    // two dimensional array of CSV data
     public $data =  [];
 
     /**
      * Constructor
      *
-     * @param
-     *          input CSV file or string
-     * @return nothing
+     * @param string|null $input CSV file or string
      */
     function __construct($input = null, $offset = null, $limit = null, $conditions = null)
     {
@@ -199,9 +197,8 @@ class parseCSV
     /**
      * Parse CSV file or string
      *
-     * @param
-     *          input CSV file or string
-     * @return nothing
+     * @param string|null $input CSV file or string
+     * @return bool
      */
     function parse($input = null, $offset = null, $limit = null, $conditions = null)
     {
@@ -297,13 +294,10 @@ class parseCSV
     /**
      * Convert character encoding
      *
-     * @param
-     *          input input character encoding, uses default if left blank
-     * @param
-     *          output output character encoding, uses default if left blank
-     * @return nothing
+     * @param string|null $input input character encoding, uses default if left blank
+     * @param string|null $output output character encoding, uses default if left blank
      */
-    function encoding($input = null, $output = null)
+    function encoding($input = null, $output = null): void
     {
         $this->convert_encoding = true;
         if ($input !== null) {
@@ -365,7 +359,7 @@ class parseCSV
         $n = 1;
         $to_end = true;
 
-        // walk specific depth finding posssible delimiter characters
+        // walk specific depth finding possible delimiter characters
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
             $nch = $data [$i + 1] ?? false;
@@ -886,7 +880,7 @@ class parseCSV
      * Check if passed info might be delimiter
      * - only used by find_delimiter()
      *
-     * @return special string used for delimiter selection, or false
+     * @return string|false|null string used for delimiter selection, or false
      */
     function _check_count($char, $array, $depth, $preferred)
     {
@@ -912,10 +906,12 @@ class parseCSV
                 $pref = strpos((string) $preferred, (string) $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
                 return $pref . $match . '.' . (99999 - str_pad((string) $first, 5, '0', STR_PAD_LEFT));
-            } else {
-                return false;
             }
+
+            return false;
         }
+
+        return null;
     }
 
     /**

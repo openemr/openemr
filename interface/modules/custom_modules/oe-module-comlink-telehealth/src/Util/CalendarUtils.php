@@ -4,7 +4,7 @@
  * Contains Helper methods for working with the calendar
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Comlink
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,8 +12,8 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Util;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class CalendarUtils
 {
@@ -39,7 +39,7 @@ class CalendarUtils
     public static function isUserLastSeenTimeInActiveRange(\DateTime $dateTime)
     {
         $currentDateTime = new \DateTime();
-        (new SystemLogger())->debug("checking time ", ['user_last_update_time' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
+        ServiceContainer::getLogger()->debug("checking time ", ['user_last_update_time' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
         return $currentDateTime < $dateTime->add(new \DateInterval("PT15S"));
     }
 

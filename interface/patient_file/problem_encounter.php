@@ -4,7 +4,7 @@
  * This script add and delete Issues and Encounters relationships.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -18,11 +18,15 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/lists.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
@@ -39,8 +43,7 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 }
 
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes or patients/med: Issues and Encounters", xl("Issues and Encounters"));
 }
 
 $alertmsg = ""; // anything here pops up in an alert box
@@ -48,9 +51,7 @@ $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $form_pid = $_POST['form_pid'];
     $form_pelist = $_POST['form_pelist'];
@@ -69,7 +70,7 @@ if (!empty($_POST['form_save'])) {
         }
         $encountersByListId[$list_id][] = $encounter;
     }
-    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $_SESSION['authUserID']);
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $session->get('authUserID'));
 
 
     echo "<html><body>"
@@ -122,7 +123,7 @@ var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
@@ -265,7 +266,7 @@ function doclick(pfx, id) {
 <body>
     <div class="container">
         <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <?php
             echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
             // pelist looks like /problem,encounter/problem,encounter/[...].

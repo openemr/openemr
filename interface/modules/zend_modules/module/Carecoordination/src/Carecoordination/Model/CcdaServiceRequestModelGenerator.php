@@ -5,7 +5,7 @@
  * service.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -18,6 +18,7 @@
 
 namespace Carecoordination\Model;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Validators\ProcessingResult;
@@ -125,8 +126,8 @@ class CcdaServiceRequestModelGenerator
         $components_list = explode('|', (string) $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
-        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
-        $this->data .= "<document_location>" . $GLOBALS['OE_SITE_DIR'] . "</document_location>";
+        $this->data .= "<serverRoot>" . OEGlobalsBag::getInstance()->getWebRoot() . "</serverRoot>";
+        $this->data .= "<document_location>" . OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "</document_location>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
@@ -212,7 +213,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if ($this->exportwithDocuments) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid);
         }
 
         /***************CCDA Body Information***************/

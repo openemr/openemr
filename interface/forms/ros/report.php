@@ -5,14 +5,16 @@
  * Forms generated from formsWiz
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 function ros_report($pid, $encounter, $cols, $id): void
 {
@@ -110,7 +112,9 @@ function ros_report($pid, $encounter, $cols, $id): void
                 $value = "yes";
             }
 
-            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xlt($key), xlt($value));
+            $valueStr = is_string($value) ? $value : '';
+            // @phpstan-ignore argument.type, argument.type (legacy on-the-fly translation of dynamic values; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), xlt($valueStr));
             $count++;
 
             if ($count == $cols) {

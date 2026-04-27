@@ -5,7 +5,7 @@
  * AI Generated Note: Refactored to use new database schema from table.sql and support Design 1 implementation
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -19,17 +19,16 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Services\Search\TokenSearchField;
-use RuntimeException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
-use Exception;
+use RuntimeException;
 
 class ObservationService extends BaseService
 {

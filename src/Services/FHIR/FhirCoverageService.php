@@ -2,20 +2,20 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMoney;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageClass;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageCostToBeneficiary;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -35,7 +35,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Coverage Service - US Core 8.0 / USCDI v5 Compliant
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @author             Jerry Padgett <sjpadgett@gmail.com>
  * @copyright          Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
@@ -277,7 +277,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // CostToBeneficiary - copay information
-        if (!empty($dataRecord['copay']) && is_numeric($dataRecord['copay']) && $dataRecord['copay'] > 0) {
+        $copay = ValidationUtils::validateFloat($dataRecord['copay'] ?? null, min: 0.01);
+        if ($copay !== false) {
             $costToBeneficiary = new FHIRCoverageCostToBeneficiary();
 
             $costType = new FHIRCodeableConcept();
@@ -289,7 +290,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $costToBeneficiary->setType($costType);
 
             $valueMoney = new FHIRMoney();
-            $valueMoney->setValue($dataRecord['copay']);
+            $valueMoney->setValue($copay);
             $valueMoney->setCurrency('USD');
 
             $costToBeneficiary->setValueMoney($valueMoney);

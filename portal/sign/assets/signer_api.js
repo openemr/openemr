@@ -1,8 +1,10 @@
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -231,11 +233,11 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-        const backdrop = document.querySelector('.modal-backdrop');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
         $("#openSignModal").modal('hide');
-        if (backdrop) {
+        backdrops.forEach(function (backdrop) {
             backdrop.remove();
-        }
+        });
     }).catch(error => signerAlertMsg(error));
 
     return true;
@@ -254,7 +256,10 @@ var bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
+    const params = new URLSearchParams({
+        isPortal: isPortal
+    });
+    url += "/portal/sign/assets/signer_modal.php?" + params;
     fetch(url, {
         credentials: 'include'
     }).then(jsonTemplate => jsonTemplate.json()).then(jsonTemplate => {
@@ -273,7 +278,10 @@ function initSignerApi() {
         let signerName = e.data.signerName || '';
 
         $('#openSignModal #name').val(signerName);
-        $('#openSignModal #labelName').html("&nbsp;" + msgSignator + ":&nbsp;<b>" + signerName + "</b>");
+        // Use safe DOM methods to prevent XSS - signerName may contain untrusted user input
+        $('#openSignModal #labelName').empty()
+            .append(document.createTextNode("\u00a0" + msgSignator + ":\u00a0"))
+            .append($("<b>").text(signerName));
         $('#openSignModal #pid').val(cpid);
         $('#openSignModal #user').val(cuser);
         $('#openSignModal #signatureModal').data('type', type);

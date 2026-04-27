@@ -4,7 +4,7 @@
  * This controller class handles the hooks and connections for the patient administrative pages in the OpenEMR system.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,16 +12,16 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PatientService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
+use OpenEMR\Services\PatientService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TeleHealthPatientAdminController
 {
@@ -35,7 +35,7 @@ class TeleHealthPatientAdminController
         $this->registrationCodeService = new TelehealthRegistrationCodeService($this->globalConfig, $this->userRepository);
     }
 
-    public function subscribeToEvents(EventDispatcher $dispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $dispatcher)
     {
         $dispatcher->addListener(PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, $this->setupRegistrationCodeField(...));
 
@@ -69,7 +69,7 @@ class TeleHealthPatientAdminController
 
     public function setupRegistrationCodeField($event)
     {
-        // we need to inject in the display of the registation code if the twig template is the display template
+        // we need to inject in the display of the registration code if the twig template is the display template
         $data = $event->getData() ?? [];
         $data['comlink_app_title'] = $this->globalConfig->getAppTitle();
 

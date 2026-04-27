@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 function getTransById($id, $cols = "*")
 {
     $row = sqlQuery("SELECT " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " FROM transactions WHERE id = ?", [$id]);
@@ -42,12 +44,13 @@ function newTransaction(
     $assigned_to = "*"
 ) {
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $body = add_escape_custom($body);
     $id = sqlInsert("insert into transactions ( " .
     "date, title, pid, user, groupname, authorized " .
     ") values ( " .
-    "NOW(), '$title', '$pid', '" . $_SESSION['authUser'] .
-    "', '" . $_SESSION['authProvider'] . "', '$authorized' " .
+    "NOW(), '$title', '$pid', '" . $session->get('authUser') .
+    "', '" . $session->get('authProvider') . "', '$authorized' " .
     ")");
     sqlStatement(
         "INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, ?, ?)",

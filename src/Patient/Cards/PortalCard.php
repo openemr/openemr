@@ -6,7 +6,7 @@
  * A class representing the Patient Portal card displayed on the MRD.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,10 +14,11 @@
 
 namespace OpenEMR\Patient\Cards;
 
-use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use OpenEMR\Events\Patient\Card\Card;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PortalCard extends CardModel
 {
@@ -27,15 +28,11 @@ class PortalCard extends CardModel
 
     private $opts = [];
 
-    /**
-     * @var EventDispatcher
-     */
-    private $ed;
+    private readonly EventDispatcherInterface $ed;
 
     public function __construct()
     {
-        global $GLOBALS;
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
         $this->setOpts();
         parent::__construct($this->opts);
@@ -67,7 +64,6 @@ class PortalCard extends CardModel
     // used in twigs
     private function setOpts()
     {
-        global $GLOBALS;
         global $pid;
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
@@ -89,11 +85,11 @@ class PortalCard extends CardModel
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
-                'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
+                'portalLoginHref' => OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),
-                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal($pid)
+                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal()
             ],
         ];
     }
@@ -110,7 +106,7 @@ class PortalCard extends CardModel
 
     public function addPatientCardToSection(SectionEvent $e)
     {
-        if ($e->getSection('secondary')) {
+        if ($e->getSection()) {
             $card = new CardModel($this->getOpts());
             $e->addCard($card);
         }

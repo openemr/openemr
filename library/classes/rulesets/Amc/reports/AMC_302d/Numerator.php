@@ -21,7 +21,7 @@ class AMC_302d_Numerator implements AmcFilterIF
         // Have at least one entry or an indication that no medications are known for the
         // patient recorded as structured data.
         //  (true if an entry in lists_touch(medication token) or an active entry in lists)
-        //  (In the lists_touch, theres is also a special case entry to support the NewCropRx module
+        //  (In the lists_touch, there is also a special case entry to support the NewCropRx module
         //   since that module also manages medications. These special case entries use the prescription_erx
         //   token.)
         $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND (`type`=? OR type=?)", [$patient->id,'medication','prescription_erx']);

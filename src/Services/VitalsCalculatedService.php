@@ -3,7 +3,7 @@
 /*
  * VitalsCalculatedService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,6 +13,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -41,7 +42,8 @@ class VitalsCalculatedService extends BaseService
     public function getCurrentUserId()
     {
         if (!isset($this->authUserId)) {
-            $this->authUserId = $_SESSION['authUserID'];
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $this->authUserId = $session->get('authUserID');
         }
         return $this->authUserId;
     }

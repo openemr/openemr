@@ -20,7 +20,7 @@
  *   billing.pid_encounter
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
@@ -33,22 +33,22 @@ require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments and Encounters")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Appointments and Encounters", xl("Appointments and Encounters"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -221,7 +221,7 @@ if (!empty($_POST['form_refresh'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -237,7 +237,7 @@ if (!empty($_POST['form_refresh'])) {
 </div>
 
 <form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -379,7 +379,7 @@ if (!empty($_POST['form_refresh'])) {
                     $billed = "";
                 }
 
-                if (!$GLOBALS['simplified_demographics'] && !$brow['authorized']) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') && !$brow['authorized']) {
                     postError(xl('Needs Auth'));
                 }
 
@@ -391,7 +391,7 @@ if (!empty($_POST['form_refresh'])) {
 
                 if ($code_types[$code_type]['fee']) {
                     $charges += $brow['fee'];
-                    if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) {
+                    if ($brow['fee'] == 0 && !OEGlobalsBag::getInstance()->get('ippf_specific')) {
                         postError(xl('Missing Fee'));
                     }
                 } else {
@@ -401,7 +401,7 @@ if (!empty($_POST['form_refresh'])) {
                 }
 
                 // Custom logic for IPPF to determine if a GCAC issue applies.
-                if ($GLOBALS['ippf_specific']) {
+                if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
                     if (!empty($code_types[$code_type]['fee'])) {
                         $sqlBindArray = [];
                         $query = "SELECT related_code FROM codes WHERE code_type = ? AND code = ? AND ";
@@ -472,7 +472,7 @@ if (!empty($_POST['form_refresh'])) {
            /*****************************************************************/
 
             if (!$billed) {
-                postError($GLOBALS['simplified_demographics'] ?
+                postError(OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') ?
                 xl('Not checked out') : xl('Not billed'));
             }
 

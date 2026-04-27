@@ -4,7 +4,7 @@
  * clinic_note view.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Daniel Ehrlich <daniel.ehrlich1@gmail.com>
@@ -19,6 +19,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $row = [];
@@ -27,64 +28,14 @@ if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
 
-function rbvalue($rbname)
-{
-    $tmp = $_POST[$rbname];
-    if (! $tmp) {
-        $tmp = '0';
-    }
-
-    return "$tmp";
-}
-
-function cbvalue($cbname)
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function rbinput($name, $value, $desc, $colname)
-{
-    global $row;
-    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
-}
-
-function rbcell($name, $value, $desc, $colname)
-{
-    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname)
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
-}
-
 $formid = $_GET['id'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // If Save was clicked, save the info.
 //
 if (!empty($_POST['bn_save'])) {
     $fu_timing = $_POST['fu_timing'];
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
  // If updating an existing form...
  //
@@ -127,7 +78,7 @@ if ($formid) {
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/clinic_note/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

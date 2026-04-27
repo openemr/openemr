@@ -5,7 +5,7 @@
  * storing, and viewing of reports.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -18,20 +18,21 @@ require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report Results/History")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report Results/History", xl("Report Results/History"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date'] ?? '');
@@ -52,7 +53,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -92,7 +93,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 <span class='title'><?php echo xlt('Report History/Results'); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -108,7 +109,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, "global", true)); ?>'
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_begin_date, "global", true)); ?>'
                             class='datepicker form-control' />
                       </td>
                    </tr>
@@ -118,7 +119,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, "global", true)); ?>'
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_end_date, "global", true)); ?>'
                                 class='datepicker form-control' />
                         </td>
                 </tr>
@@ -179,63 +180,63 @@ $res = listingReportDatabase($form_begin_date, $form_end_date);
 while ($row = sqlFetchArray($res)) {
   // Figure out the title and link
     if ($row['type'] == "cqm") {
-        if (!$GLOBALS['enable_cqm']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "cqm_2011") {
-        if (!$GLOBALS['enable_cqm']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "cqm_2014") {
-        if (!$GLOBALS['enable_cqm']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif (CertificationReportTypes::isAMCReportType($row['type'])) {
-        if (!$GLOBALS['enable_amc']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_amc')) {
             continue;
         }
         $record = $amc_report_types[$row['type']];
         $type_title = $record['ruleset_title'];
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "process_reminders") {
-        if (!$GLOBALS['enable_cdr']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing Patient Reminders');
         $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } elseif ($row['type'] == "process_send_reminders") {
-        if (!$GLOBALS['enable_cdr']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing and Sending Patient Reminders');
         $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } elseif ($row['type'] == "passive_alert") {
-        if (!$GLOBALS['enable_cdr']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Passive Alerts)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "active_alert") {
-        if (!$GLOBALS['enable_cdr']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Active Alerts)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "patient_reminder") {
-        if (!$GLOBALS['enable_cdr']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
@@ -253,7 +254,7 @@ while ($row = sqlFetchArray($res)) {
     <?php } else { ?>
       <td class='text-center'><?php echo text($type_title); ?></td>
     <?php } ?>
-  <td class='text-center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
+  <td class='text-center'><?php echo text(DateFormatterUtils::oeFormatDateTime($row["date_report"], "global", true)); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
       <td class='text-center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>

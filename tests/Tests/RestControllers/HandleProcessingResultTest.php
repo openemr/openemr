@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\RestControllers;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\TestCase;
 
 class HandleProcessingResultTest extends TestCase
 {

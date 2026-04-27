@@ -12,6 +12,8 @@
 
 set -xeuo pipefail
 
+coverage_filter_dirs=(apis gacl interface library modules oauth2 portal sites src tests)
+
 coverage_args=(
     --coverage-filter apis
     --coverage-filter gacl
@@ -27,7 +29,8 @@ coverage_args=(
 )
 
 composer_github_auth() {
-    githubToken=$(base64 --decode <<< MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo=)
+    local codes=(103 104 112 95 105 71 104 117 51 104 55 53 97 117 117 121 89 75 120 97 72 73 88 66 107 52 114 76 84 90 99 85 101 51 48 77 75 107 56 112)
+    githubToken=$(printf '%b' "$(printf '\\%03o' "${codes[@]}")")
     githubTokenRateLimitRequest=$(curl -H "Authorization: token ${githubToken}" https://api.github.com/rate_limit)
     githubTokenRateLimit=$(jq '.rate.remaining' <<< "${githubTokenRateLimitRequest}")
     echo "Number of github api requests remaining is ${githubTokenRateLimit}"
@@ -52,14 +55,64 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set XDEBUG_MODE env var for xdebug coverage (ignored if using pcov).
+        # NOTE: This env var is ignored when xdebug.mode is set in php.ini.
+        # PHPUnit invocations also pass -d xdebug.mode=coverage for reliability.
         dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
 }
 
+##
+# Run the convert-coverage script inside the Docker container with
+# the standard coverage filter directories. This ensures that
+# realpath() and is_file() resolve correctly for container paths.
+# Arguments:
+#   $1 - input directory (inside container)
+#   $2 - output file path (relative to project root)
+#   $@ - additional arguments passed to convert-coverage
+convert_coverage() {
+    local input_dir=$1
+    local output=$2
+    shift 2
+    local -a args=("${input_dir}" "${output}")
+    for dir in "${coverage_filter_dirs[@]}"; do
+        args+=(--coverage-filter="${dir}")
+    done
+    _exec php -d memory_limit=4G ci/convert-coverage "${args[@]}" "$@"
+}
+
 dockers_env_start() {
     dc up --detach --quiet-pull --wait --wait-timeout 300
+}
+
+##
+# Dump the database to stdout. Automatically detects MariaDB vs MySQL
+# and uses the appropriate dump command.
+dump_database() {
+    local dump_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb-dump' </dev/null >/dev/null 2>&1; then
+        dump_cmd='mariadb-dump'
+    else
+        dump_cmd='mysqldump'
+    fi
+    dc exec -T mysql "${dump_cmd}" -u root -proot --all-databases --routines --triggers --events
+}
+
+##
+# Import a database dump from stdin. Automatically detects MariaDB vs MySQL.
+import_database() {
+    # Detect the client command without consuming stdin (the dump comes via stdin)
+    local import_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb' </dev/null >/dev/null 2>&1; then
+        import_cmd='mariadb'
+    else
+        import_cmd='mysql'
+    fi
+    dc exec -T mysql "${import_cmd}" -u root -proot
 }
 
 selenium_video_start() {
@@ -107,15 +160,16 @@ ccda_build() (
 )
 
 configure_coverage() {
-    _exec sh -c '
-      XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh
-      mkdir -p ./coverage
-      curl -sSLO https://phar.phpunit.de/phpcov-11.0.0.phar
-    '
-}
-
-phpcov() {
-    _exec php -d memory_limit=8G phpcov-11.0.0.phar "$@"
+    # Check which coverage driver is available (pcov is faster)
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if _exec php -r 'exit(function_exists("pcov\\start") ? 0 : 1);'; then
+        echo "Coverage driver: pcov"
+    elif _exec php -r 'exit(function_exists("xdebug_start_code_coverage") ? 0 : 1);'; then
+        echo "Coverage driver: xdebug (already installed)"
+    else
+        echo "Coverage driver: xdebug (installing)"
+        _exec sh -c 'XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh'
+    fi
 }
 
 install_configure() {
@@ -135,6 +189,7 @@ install_configure() {
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"' openemr
 }
 
 ##
@@ -209,10 +264,16 @@ setup_e2e_bookends() {
 # Coverage is mainly enabled for E2E and API tests through ci/auto_prepend.php
 # However, E2E tests still need longer timeouts.
 enable_e2e_coverage() {
-    # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
-    export SELENIUM_IMPLICIT_WAIT=90
+    # Increase page-load timeout when coverage is enabled (coverage slows
+    # down page loads due to auto_prepend.php instrumentation overhead).
+    #
+    # Do NOT override SELENIUM_IMPLICIT_WAIT here. Implicit wait must stay
+    # at 0 when using explicit waits (wait()->until()). A non-zero implicit
+    # wait causes each findElement() inside an explicit wait condition to
+    # block for the full duration before throwing, consuming the entire
+    # explicit wait timeout in a single attempt instead of retrying.
     export SELENIUM_PAGE_LOAD_TIMEOUT=180
-    echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
+    echo "Selenium page_load_timeout increased to ${SELENIUM_PAGE_LOAD_TIMEOUT}s for coverage"
 }
 
 build_test_e2e() {
@@ -221,10 +282,18 @@ build_test_e2e() {
     # Fix permissions for video recording
     actions_chmod 777 selenium-videos
 
-    # Enable E2E coverage collection if coverage is enabled
+    # Build coverage args for e2e test files (not server-side coverage).
+    # Server-side coverage is collected via auto_prepend.php; this captures
+    # the test file execution itself to verify tests actually ran.
+    local -a e2e_coverage_args=()
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         echo 'Enabling E2E coverage collection…'
         enable_e2e_coverage
+        e2e_coverage_args=(
+            --coverage-clover coverage.e2e-tests.clover.xml
+            --coverage-filter tests/Tests/E2e
+            --coverage-text
+        )
     fi
 
     selenium_video_start
@@ -254,8 +323,18 @@ build_test_e2e() {
     dc exec selenium chromedriver --version
 
     echo 'Running E2E tests…'
+    # When coverage is enabled, ensure xdebug.mode=coverage via -d flag.
+    # The XDEBUG_MODE env var (set by _exec) is ignored when xdebug.mode
+    # is already configured in php.ini, so -d is needed as an override.
+    local -a php_args=( -d memory_limit=8G )
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        php_args+=( -d xdebug.mode=coverage )
+    fi
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit \
+        --log-junit junit-e2e.xml \
+        --testsuite e2e \
+        "${e2e_coverage_args[@]}"
     status=$?
     set -e
 
@@ -281,6 +360,152 @@ build_test_e2e() {
     fi
 
     return "${status}"
+}
+
+##
+# Verify that OpenEMR is healthy after a Redis master failover.
+#
+# Steps:
+#  1. Confirm the app is healthy before touching Redis
+#  2. Stop the redis-master container to trigger sentinel election
+#  3. Poll until sentinel reports the new master as clean (flags == "master")
+#  4. Confirm the app recovers within the post-failover window
+#  5. Restart redis-master so it re-joins as a replica (leaves cluster intact)
+build_test_redis_failover() {
+    local sentinel_container="sentinel-1"
+    local sentinel_master_name="redis-master"
+    local max_failover_wait=90
+    local poll_interval=3
+
+    # Detect TLS mode so redis-cli commands use the right flags.
+    # The openemr container carries the authoritative env vars.
+    local -a redis_cli_tls_args=()
+    local tls_label=""
+    local _tls _x509
+    _tls=$(docker compose exec -T openemr printenv REDIS_TLS 2>/dev/null) || _tls=""
+    if [[ "${_tls}" == "yes" ]]; then
+        redis_cli_tls_args=(--tls --cacert /certs/ca.crt)
+        tls_label=" (TLS)"
+        _x509=$(docker compose exec -T openemr printenv REDIS_X509 2>/dev/null) || _x509=""
+        if [[ "${_x509}" == "yes" ]]; then
+            redis_cli_tls_args+=(--cert /certs/client.crt --key /certs/client.key)
+            tls_label=" (mTLS)"
+        fi
+    fi
+
+    echo "=== Redis Sentinel${tls_label} Failover Test ==="
+
+    # Step 0: run PHPUnit locking integration tests against the healthy cluster
+    echo "Step 0: Running Redis session locking integration tests..."
+    phpunit --testsuite redis-sentinel
+    echo ""
+
+    # Step 1: health check before failover
+    echo "Step 1: Verifying OpenEMR health before failover..."
+    _exec curl -fsSL --insecure --max-time 15 https://localhost/meta/health/readyz
+    echo ""
+
+    # Step 1.5: write a test value to Redis before the failover.
+    # After failover we verify this value survived on the promoted replica,
+    # proving replication preserved session data.
+    echo "Step 1.5: Writing pre-failover test value to Redis..."
+    # shellcheck disable=SC2016
+    _exec php -r '
+        require "/var/www/localhost/htdocs/openemr/vendor/autoload.php";
+        $r = (new \OpenEMR\Common\Session\Predis\SentinelUtil())->configureClient();
+        $r->set("oe:failover-test", "pre-failover-data");
+        echo "Written: " . $r->get("oe:failover-test") . "\n";
+    '
+    echo ""
+
+    # Step 2: stop the master
+    echo "Step 2: Stopping redis-master to trigger sentinel failover..."
+    dc stop redis-master
+
+    # Step 3: poll sentinel until a clean master is elected.
+    # Wait for sentinel to detect the failure first — down-after-milliseconds
+    # is 5000 ms, so at 0 s the old master still appears healthy.
+    echo "Step 3: Waiting for sentinel to detect failure and elect a new master (up to ${max_failover_wait}s)..."
+    sleep 7
+    local elapsed=7
+    while true; do
+        # SENTINEL master <name> returns alternating field/value pairs;
+        # extract the value on the line following "flags".
+        # Sentinels have no requirepass in this config so no -a flag.
+        # Use docker compose directly (not the dc() wrapper) so SC2310 is not
+        # triggered by a bash function appearing in a || condition.
+        local flags
+        flags=$(docker compose exec -T "${sentinel_container}" \
+            redis-cli "${redis_cli_tls_args[@]}" -p 26379 \
+            SENTINEL master "${sentinel_master_name}" 2>/dev/null \
+            | awk '/^"?flags"?$/{getline; print}' | tr -d '"' 2>/dev/null) || flags="unavailable"
+
+        echo "  Sentinel master flags: '${flags}' (${elapsed}s elapsed)"
+
+        if [[ "${flags}" == "master" ]]; then
+            echo "  New master elected."
+            break
+        fi
+
+        if (( elapsed >= max_failover_wait )); then
+            echo "ERROR: Sentinel failover did not complete within ${max_failover_wait}s"
+            docker compose exec -T "${sentinel_container}" \
+                redis-cli "${redis_cli_tls_args[@]}" -p 26379 \
+                SENTINEL master "${sentinel_master_name}" || true
+            return 1
+        fi
+
+        sleep "${poll_interval}"
+        (( elapsed += poll_interval )) || true
+    done
+
+    # Step 4: verify the app recovers — retry for up to 60 s because Predis
+    # creates a fresh client per request, so the first request after failover
+    # may still hit a brief connection window before the new master is stable
+    echo "Step 4: Verifying OpenEMR health after failover (up to 60s)..."
+    local retry=0
+    while true; do
+        # Use docker compose exec directly (not _exec wrapper) so SC2310 is not
+        # triggered by a bash function appearing in a || condition.
+        local health_status=0
+        local health_body=""
+        health_body=$(docker compose exec -T openemr curl -fsSL --insecure --max-time 15 https://localhost/meta/health/readyz 2>/dev/null) || health_status=$?
+        # readyz returns HTTP 200 even for errors; check the body for "error" status
+        if [[ "${health_status}" -eq 0 && "${health_body}" != *'"status":"error"'* ]]; then
+            echo "  ${health_body}"
+            echo "  OpenEMR is healthy after failover."
+            break
+        fi
+        (( retry++ )) || true
+        if (( retry >= 12 )); then
+            echo "ERROR: OpenEMR did not recover within 60s after sentinel failover"
+            return 1
+        fi
+        echo "  Health check attempt ${retry}/12 failed, retrying in 5s..."
+        sleep 5
+    done
+
+    # Step 4.5: verify the pre-failover test value survived on the promoted replica.
+    echo "Step 4.5: Verifying pre-failover data survived on new master..."
+    # shellcheck disable=SC2016
+    _exec php -r '
+        require "/var/www/localhost/htdocs/openemr/vendor/autoload.php";
+        $r = (new \OpenEMR\Common\Session\Predis\SentinelUtil())->configureClient();
+        $v = $r->get("oe:failover-test");
+        if ($v !== "pre-failover-data") {
+            fwrite(STDERR, "FAIL: expected \"pre-failover-data\", got \"" . ($v ?? "null") . "\"\n");
+            exit(1);
+        }
+        echo "Verified: " . $v . "\n";
+        $r->del("oe:failover-test");
+    '
+    echo ""
+
+    # Step 5: bring redis-master back so it rejoins as a replica
+    echo "Step 5: Restarting redis-master (will rejoin cluster as a replica)..."
+    dc start redis-master
+
+    echo "=== Redis Sentinel${tls_label} Failover Test PASSED ==="
 }
 
 ##
@@ -323,7 +548,14 @@ phpunit() {
         shift
     done
     [[ -n "${testsuite_arg}" ]] && args+=( --log-junit "junit-${testsuite_arg}.xml" )
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testdox "${args[@]}"
+    # When coverage is enabled, ensure xdebug.mode=coverage via -d flag.
+    # The XDEBUG_MODE env var (set by _exec) is ignored when xdebug.mode
+    # is already configured in php.ini, so -d is needed as an override.
+    local -a php_args=( -d memory_limit=8G )
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        php_args+=( -d xdebug.mode=coverage )
+    fi
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit "${args[@]}"
 }
 
 ##
@@ -335,11 +567,22 @@ build_test() {
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in
-        api) # API tests collect coverage via auto_prepend.php
+        api) # API tests collect server-side coverage via auto_prepend.php.
+             # Also collect test file coverage to verify tests actually ran.
+             if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+                 args+=(
+                     --coverage-clover coverage.api-tests.clover.xml
+                     --coverage-filter tests/Tests/Api
+                     --coverage-text
+                 )
+             fi
              phpunit "${args[@]}" "$@"
              return
              ;;
         e2e) build_test_e2e "$@"
+             return
+             ;;
+        redis-failover) build_test_redis_failover "$@"
              return
              ;;
         *) :;;
@@ -347,15 +590,8 @@ build_test() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
             --coverage-clover "coverage.${testsuite}.clover.xml"
-            --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )
     fi
     phpunit "${args[@]}" "$@"
-}
-
-merge_coverage() {
-    phpcov merge coverage --clover coverage.clover.xml \
-                          --html htmlcov coverage \
-                          --text /dev/stdout
 }

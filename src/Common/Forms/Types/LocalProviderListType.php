@@ -4,7 +4,7 @@
  * Provider List Type represents a user selector widget for displaying local users that can be used in the LBF forms or independently in the system.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
@@ -135,7 +135,7 @@ class LocalProviderListType implements IOptionFormType
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         if (!empty($this->providerList)) {
             $urest = $this->providerList;
         } else {

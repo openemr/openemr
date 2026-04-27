@@ -19,10 +19,11 @@
 
 namespace OpenEMR\Common\Acl;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\GaclApi;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
-use OpenEMR\Common\Acl\AclMain;
 
 class AclExtended
 {
@@ -46,7 +47,7 @@ class AclExtended
     public static function aclGetSquads()
     {
         $squads = self::aclGetSectionAcos('squads');
-        uasort($squads, "self::aclSquadCompare");
+        uasort($squads, self::aclSquadCompare(...));
         return $squads;
     }
 
@@ -526,13 +527,15 @@ class AclExtended
         $acoArray = self::genAcoArray();
         $s = '';
         foreach ($acoArray as $section => $acos_array) {
-            $s .= "<optgroup label='" . xla($section) . "'>\n";
+            $sectionLabel = is_string($section) ? $section : '';
+            $s .= "<optgroup label='" . xla($sectionLabel) . "'>\n";
             foreach ($acos_array as $aco_array) {
                 $s .= "<option value='" . attr($aco_array['value']) . "'";
                 if ($aco_array['value'] == $default) {
                     $s .= ' selected';
                 }
-                $s .= ">" . xlt($aco_array['name']) . "</option>";
+                $acoName = is_string($aco_array['name'] ?? null) ? $aco_array['name'] : '';
+                $s .= ">" . xlt($acoName) . "</option>";
             }
             $s .= "</optgroup>";
         }
@@ -594,19 +597,21 @@ class AclExtended
                 // Modified 6-2009 by BM - Translate gacl group name if applicable
                 //                         Translate return value
                 //                         Translate description
+                $retLabel = is_string($ret) ? $ret : '';
+                $noteLabel = is_string($note) ? $note : '';
                 $message .= "\t<acl>\n" .
-                    "\t\t<value>" . $value . "</value>\n" .
-                    "\t\t<title>" . xl_gacl_group($value) . "</title>\n" .
-                    "\t\t<returnid>" . $ret  . "</returnid>\n" .
-                    "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n" .
-                    "\t\t<note>" . xl($note)  . "</note>\n" .
+                    "\t\t<value>" . xmlEscape($value) . "</value>\n" .
+                    "\t\t<title>" . xmlEscape(xl_gacl_group($value)) . "</title>\n" .
+                    "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n" .
+                    "\t\t<returntitle>" . xlx($retLabel)  . "</returntitle>\n" .
+                    "\t\t<note>" . xlx($noteLabel)  . "</note>\n" .
                     "\t</acl>\n";
             }
         }
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -646,22 +651,28 @@ class AclExtended
                     if ($counter == 0) {
                         $counter += 1;
                         $aco_section_data = $gacl->get_section_data($key, 'ACO');
-                        $aco_section_title = $aco_section_data[3];
+                        $aco_section_title = '';
+                        if (is_array($aco_section_data) && isset($aco_section_data[3]) && is_string($aco_section_data[3])) {
+                            $aco_section_title = $aco_section_data[3];
+                        }
 
                         // Modified 6-2009 by BM - Translate gacl aco section name
                         $message .= "\t\t<section>\n" .
-                            "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                            "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
                     }
 
                     $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                     $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-                    $aco_title = $aco_data[0][3];
+                    $aco_title = '';
+                    if (is_array($aco_data) && isset($aco_data[0]) && is_array($aco_data[0]) && isset($aco_data[0][3]) && is_string($aco_data[0][3])) {
+                        $aco_title = $aco_data[0][3];
+                    }
                     $message .= "\t\t\t<aco>\n";
 
                     // Modified 6-2009 by BM - Translate gacl aco name
-                    $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                    $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                    $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                    $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                     $message .= "\t\t\t</aco>\n";
                 }
             }
@@ -675,22 +686,28 @@ class AclExtended
             "\t<active>\n";
         foreach ($active_aco_objects as $key => $value) {
             $aco_section_data = $gacl->get_section_data($key, 'ACO');
-            $aco_section_title = $aco_section_data[3];
+            $aco_section_title = '';
+            if (is_array($aco_section_data) && isset($aco_section_data[3]) && is_string($aco_section_data[3])) {
+                $aco_section_title = $aco_section_data[3];
+            }
 
             // Modified 6-2009 by BM - Translate gacl aco section name
             $message .= "\t\t<section>\n" .
-                "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
 
             foreach ($active_aco_objects[$key] as $value2) {
                 $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                 $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-                $aco_title = $aco_data[0][3];
+                $aco_title = '';
+                if (is_array($aco_data) && isset($aco_data[0]) && is_array($aco_data[0]) && isset($aco_data[0][3]) && is_string($aco_data[0][3])) {
+                    $aco_title = $aco_data[0][3];
+                }
                 $message .= "\t\t\t<aco>\n";
 
                 // Modified 6-2009 by BM - Translate gacl aco name
-                $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                 $message .= "\t\t\t</aco>\n";
             }
 
@@ -700,7 +717,7 @@ class AclExtended
         $message .= "\t</active>\n";
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -726,9 +743,10 @@ class AclExtended
                 $ret = $acl["return_value"];
                 if (!in_array($ret, $returns)) {
                     // Modified 6-2009 by BM - Translate return value
+                    $retLabel = is_string($ret) ? $ret : '';
                     $message .= "\t<return>\n";
-                    $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
-                    $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n";
+                    $message .= "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n";
+                    $message .= "\t\t<returntitle>" . xlx($retLabel)  . "</returntitle>\n";
                     $message .= "\t</return>\n";
 
                     array_push($returns, $ret);
@@ -738,7 +756,7 @@ class AclExtended
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -1084,7 +1102,8 @@ class AclExtended
     public static function getUserPermissions($username = '')
     {
         if (!$username) {
-            $username = $_SESSION['authUser'];
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $username = $session->get('authUser');
         }
         $gacl = self::collectGaclApiObject();
         $perms = [];

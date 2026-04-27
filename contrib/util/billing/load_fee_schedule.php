@@ -21,16 +21,21 @@ if (php_sapi_name() !== 'cli') {
     die;
 }
 
+if (!isset($argv[4])) {
+    throw new RuntimeException("This script requires at least 4 arguments");
+}
+
 $_GET['site'] = $argv[1];
 $ignoreAuth = true;
 require_once __DIR__ . "/../../../interface/globals.php";
 
 use League\Csv\Reader;
+use OpenEMR\Core\OEGlobalsBag;
 
-// setup a csv file with a header consiting of type, code and modifier
+// setup a csv file with a header consisting of type, code and modifier
 // at the specified location
 $filename = DIRECTORY_SEPARATOR . $argv[2];
-$filepath = $GLOBALS['temporary_files_dir'];
+$filepath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
 $reader = Reader::createFromPath($filepath . $filename);
 $reader->setDelimiter("\t");
 

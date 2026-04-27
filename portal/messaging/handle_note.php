@@ -12,81 +12,80 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['pid'])) {
-        if ($_POST['pid'] != $_SESSION['pid']) {
+        if ($_POST['pid'] != $session->get('pid')) {
             echo "illegal Action";
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (empty($_SESSION['portal_username'])) {
+    if (empty($session->get('portal_username'))) {
         echo xlt("illegal Action");
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
     // owner is the patient portal_username
-    $owner = $_SESSION['portal_username'];
+    $owner = $session->get('portal_username');
 
     // ensure the owner is bootstrapped to the $_POST['sender_id'] and
     //   $_POST['sender_name'], if applicable
     if (empty($_POST['sender_id']) && !empty($_POST['sender_name'])) {
         echo xlt("illegal Action");
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
     if (!empty($_POST['sender_id'])) {
         if ($_POST['sender_id'] != $owner) {
             echo xlt("illegal Action");
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
     if (!empty($_POST['sender_name'])) {
-        $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$_SESSION['pid']]);
+        $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$session->get('pid')]);
         if (empty($nameCheck) || ($_POST['sender_name'] != ($nameCheck['fname'] . " " . $nameCheck['lname']))) {
             echo xlt("illegal Action");
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID']) || empty($_SESSION['authUser'])) {
+    if (!$session->has('authUserID') || empty($session->get('authUser'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
     }
     //owner is the user authUser
-    $owner = $_SESSION['authUser'];
+    $owner = $session->get('authUser');
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
-require_once("$srcdir/pnotes.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/pnotes.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'messages-portal')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'messages-portal', dieOnFail: true);
 
 if (empty($owner)) {
     echo xlt('Critical error, so exiting');
@@ -112,7 +111,7 @@ $header = '';
 switch ($task) {
     case "forward":
         $pid = $_POST['pid'] ?? 0;
-        addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
+        addPnote($pid, $note, 1, 1, $title, $sn, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';
@@ -195,8 +194,6 @@ switch ($task) {
         break;
 }
 
-if (!empty($_POST["submit"])) {
-    $url = $_POST["submit"];
-    header("Location: " . $url);
-    exit();
+if (isset($_POST['submit'])) {
+    header('Location: messages.php');
 }

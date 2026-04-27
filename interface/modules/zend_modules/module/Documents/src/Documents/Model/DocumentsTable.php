@@ -12,21 +12,19 @@
 
 namespace Documents\Model;
 
-use Application\Model\ApplicationTable;
-use Laminas\Db\TableGateway\AbstractTableGateway;
+use OpenEMR\Common\Database\QueryUtils;
 
-class DocumentsTable extends AbstractTableGateway
+class DocumentsTable
 {
     /*
     * Save the category - document mapping
     * @param    $category_id    integer   Category ID
     * @param    $document_id    integer   Document ID
     */
-    public function insertDocumentCategory($category_id, $document_id)
+    public function insertDocumentCategory($category_id, $document_id): void
     {
-        $obj = new ApplicationTable();
         $sql = "INSERT INTO categories_to_documents (category_id, document_id) VALUES (?, ?)";
-        $result = $obj->zQuery($sql, [$category_id, $document_id]);
+        QueryUtils::sqlStatementThrowException($sql, [$category_id, $document_id]);
     }
 
     /*
@@ -36,22 +34,20 @@ class DocumentsTable extends AbstractTableGateway
     */
     public function updateDocumentCategory($category_id, $document_id): void
     {
-        $obj = new ApplicationTable();
         $sql = "UPDATE categories_to_documents SET category_id = ? WHERE document_id = ?";
-        $result = $obj->zQuery($sql, [$category_id, $document_id]);
+        QueryUtils::sqlStatementThrowException($sql, [$category_id, $document_id]);
     }
 
     /**
      * getCategories - Get Document Categories
      *
      * @param Integer $categoryParentId
-     * @return array
+     * @return array<int, array{category_id: mixed, category_name: mixed}>
      */
     public function getCategories($categoryParentId)
     {
-        $obj = new ApplicationTable();
         $sql = "SELECT * FROM `categories` WHERE `parent` = ? ORDER BY `order`";
-        $result = $obj->zQuery($sql, [$categoryParentId]);
+        $result = QueryUtils::fetchRecords($sql, [$categoryParentId]);
         $category = [];
         foreach ($result as $row) {
             $category[$row['cat_id']] = [
@@ -67,27 +63,24 @@ class DocumentsTable extends AbstractTableGateway
      * getDocument - get Document Data by Id
      *
      * @param Integer $documentId Document Id
-     * @return array
+     * @return array<string, mixed>|false
      */
     public function getDocument($documentId)
     {
-        $obj = new ApplicationTable();
         $sql = "SELECT * FROM documents AS doc
               JOIN categories_to_documents AS cat_doc ON cat_doc.document_id = doc.id
               WHERE doc.id = ?";
-        $result = $obj->zQuery($sql, [$documentId]);
-        return $result->current();
+        return QueryUtils::querySingleRow($sql, [$documentId]);
     }
 
     /**
      * getCategoryIDs - get Category Ids By Name
      *
      * @param array $categories - Category Lists
-     * @return
+     * @return array<string, mixed>
      */
     public function getCategoryIDs($categories = []): array
     {
-        $obj = new ApplicationTable();
         $categories_count = count($categories);
         $cat_name = [];
         for ($i = 0; $i < $categories_count; $i++) {
@@ -96,7 +89,7 @@ class DocumentsTable extends AbstractTableGateway
 
         $sql = "SELECT `id`,`name` FROM `categories` " .
             "WHERE `name` IN (" . implode(",", $cat_name) . ")";
-        $result = $obj->zQuery($sql, $categories);
+        $result = QueryUtils::fetchRecords($sql, $categories);
         $category = [];
         foreach ($result as $row) {
             $category[$row['name']] = $row['id'];
@@ -112,7 +105,6 @@ class DocumentsTable extends AbstractTableGateway
      */
     public function saveDocumentdetails($current_document): void
     {
-        $obj = new ApplicationTable();
         foreach ($current_document as $values) {
             $sql = "UPDATE
              `documents`
@@ -123,7 +115,7 @@ class DocumentsTable extends AbstractTableGateway
               `issues` = ?,
               `name`  = ?
                WHERE `id` = ?";
-            $result = $obj->zQuery($sql, [$values['doc_docdate'], $values['patientname'], $values['notes'], $values['issue'], $values['docname'], $values['doc_id']]);
+            QueryUtils::sqlStatementThrowException($sql, [$values['doc_docdate'], $values['patientname'], $values['notes'], $values['issue'], $values['docname'], $values['doc_id']]);
             $this->updateDocumentCategory($values['category'], $values['doc_id']);
         }
     }
@@ -131,19 +123,12 @@ class DocumentsTable extends AbstractTableGateway
     /**
      * getCategory - get document categories
      *
-     * @return array
+     * @return list<array<string, mixed>>
      */
     public function getCategory(): array
     {
-        $category = [];
-        $obj = new ApplicationTable();
         $sql = "SELECT * FROM `categories`";
-        $result = $obj->zQuery($sql);
-        foreach ($result as $values) {
-            $category[] = $values;
-        }
-
-        return $category;
+        return QueryUtils::fetchRecords($sql);
     }
 
     /**
@@ -153,13 +138,12 @@ class DocumentsTable extends AbstractTableGateway
      */
     public function deleteDocument($docid): void
     {
-        $obj = new ApplicationTable();
         $sql = "UPDATE
            `documents`
            SET
           `activity` = ?
           WHERE `id` = ?";
-        $obj->zQuery($sql, [0, $docid]);
+        QueryUtils::sqlStatementThrowException($sql, [0, $docid]);
     }
 
     /**
@@ -170,11 +154,10 @@ class DocumentsTable extends AbstractTableGateway
      */
     public function updateDocumentCategoryUsingCatname($category_name, $document_id): void
     {
-        $obj = new ApplicationTable();
         $sql = "UPDATE categories_to_documents
             JOIN categories ON `name` = ?
             SET category_id=id
             WHERE document_id = ?";
-        $result = $obj->zQuery($sql, [$category_name, $document_id]);
+        QueryUtils::sqlStatementThrowException($sql, [$category_name, $document_id]);
     }
 }

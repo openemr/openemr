@@ -6,7 +6,7 @@
  * The class hides the implementation details of the underlying data allowing the event to change implementations
  * as needed.
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>

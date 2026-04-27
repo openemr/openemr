@@ -2,7 +2,7 @@
 
 /**
  *  @package OpenEMR
- *  @link    http://www.open-emr.org
+ *  @link    https://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use DateTime;
 use DateTimeZone;
+use OpenEMR\Core\OEGlobalsBag;
 
 class LogImportBuild
 {
@@ -25,7 +26,7 @@ class LogImportBuild
     public function __construct()
     {
         $this->insertdata = new LogDataInsert();
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
+        $this->rxsynclog = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/logsync.csv";
     }
 
     public function getUserIdByWenoId($external_provider_id)
@@ -102,9 +103,16 @@ class LogImportBuild
                     $windate = $this->convertToUTC($windate);
                     $ida = $this->convertToUTC($line[0] ?? '');
                     $p = $line[1] ?? '';
-                    $pid_and_encounter = explode(":", $p);
-                    $pid = intval($pid_and_encounter[0]);
-                    $uid = intval($pid_and_encounter[1]);
+                    $pid_and_userId = explode(":", $p);
+                    // weno added the ID: to patientID in report thus the check.
+                    if ($pid_and_userId[0] == 'ID') {
+                        $pid = intval($pid_and_userId[1]);
+                        $uid = intval($pid_and_userId[2]);
+                    } else {
+                        $pid = intval($pid_and_userId[0]);
+                        $uid = intval($pid_and_userId[1]);
+                    }
+
                     $locId = ($provider[1] ?? '');
                     $r = $line[22] ?? '';
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);

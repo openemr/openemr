@@ -24,18 +24,20 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "../drugs/drugs.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-        ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") ]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
 }
 
-if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -367,7 +369,7 @@ if ($csv) {
                     $datetimepicker_timepicker = true;
                     $datetimepicker_showseconds = true;
                     $datetimepicker_formatInput = true;
-                    include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                    include OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
                     // Add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
@@ -442,8 +444,8 @@ if ($csv) {
 
         <div id="report_parameters_daterange">
             <p>
-            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true))
-                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
+            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true))
+                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "comms") && ($_POST['communication'] != "")) {
                 if (isset($comarr[$_POST['communication']])) {
@@ -463,7 +465,7 @@ if ($csv) {
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
             <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
             <div id="report_parameters">
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -474,9 +476,9 @@ if ($csv) {
                                 <table class='text'>
                                     <tr>
                                         <td class='col-form-label'><?php echo xlt('From'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('To{{range}}'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                         <td>
                                             <select class="form-control" name="srch_option" id="srch_option"
@@ -819,10 +821,13 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    if (!AclMain::aclCheckCore($search_options[$srch_option]["acl"][0], $search_options[$srch_option]["acl"][1])) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
-        exit;
+    $optionAcl = $search_options[$srch_option]["acl"];
+    $optionTitle = $search_options[$srch_option]["title"];
+    if (!AclMain::aclCheckCore($optionAcl[0], $optionAcl[1])) {
+        AccessDeniedHelper::denyWithTemplate(
+            "ACL check failed for $optionAcl[0]/$optionAcl[1]: Patient List Creation",
+            xl("Patient List Creation") . " ($optionTitle)",
+        );
     }
 
     // Sorting By filter fields
@@ -847,17 +852,17 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     for ($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
     }
 
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
                 case "asc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
                     break;
             }
             break;
@@ -924,8 +929,8 @@ if (!empty($_POST['form_refresh'])) {
 
         if (!$csv) { // Draw table if displaying in HTML ?>
             <br />
-            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
-            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" />
+            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr(is_string($sortby) ? $sortby : ''); ?>" />
+            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr(is_string($sortorder) ? $sortorder : ''); ?>" />
             <div id="report_results">
                 <table>
                     <tr>
@@ -957,11 +962,13 @@ if (!empty($_POST['form_refresh'])) {
                             ($search_options[$srch_option]["sort_cols"] > 0 && $report_col_key < $search_options[$srch_option]["sort_cols"])
                             || ($search_options[$srch_option]["sort_cols"] < 0 && $report_col_key < $search_options[$srch_option]["sort_cols"] + count($search_options[$srch_option]["cols"]))
                         ) {
-                            echo $sortlink[$report_col_key];
+                            // $sortlink is pre-built HTML with values sanitized via attr_js() and xla()
+                            echo $sortlink[$report_col_key]; // nosemgrep: echoed-request
                         }
                     }
                 } else {
-                    echo $sortlink[$report_col_key];
+                    // $sortlink is pre-built HTML with values sanitized via attr_js() and xla()
+                    echo $sortlink[$report_col_key]; // nosemgrep: echoed-request
                 }
                 echo '</td>';
             } else { // Print column as CSV
@@ -987,7 +994,7 @@ if (!empty($_POST['form_refresh'])) {
                 switch ($report_col) { // Convert column data into readable format if necessary
                     case "patient_date":
                     case "other_date":
-                        $report_value_print = ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                        $report_value_print = ($report_value != '') ? text(DateFormatterUtils::oeFormatDateTime($report_value, "global", true)) : '';
                         break;
                     case "patient_race":
                         $report_value_print = generate_display_field(['data_type' => '36', 'list_id' => 'race'], $report_value);
@@ -1015,7 +1022,7 @@ if (!empty($_POST['form_refresh'])) {
                     case "prc_diagnoses":
                         if (!$csv && $report_value != '') {
                             $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                            foreach (explode(';', (string) $report_value) as $code) {
+                            foreach (explode(';', is_string($report_value) ? $report_value : '') as $code) {
                                 $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
                             $report_value_print .= '</ul>';

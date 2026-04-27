@@ -1,10 +1,10 @@
 <?php
 
 /**
- * interface/eRxSOAP.php Functions for interacting with NewCrop SOAP calls.
+ * interface/eRxSOAP.php Functions for interacting with Ensora eRx SOAP calls.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -21,7 +21,9 @@ class eRxSOAP
     const FLAG_ALLERGY_PRESS        = '3';
     const FLAG_ALLERGY_IMPORT       = '4';
 
+    /** @var ?eRxGlobals */
     private $globals;
+    /** @var ?eRxStore */
     private $store;
 
     private $authUserId;
@@ -67,8 +69,8 @@ class eRxSOAP
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  object  $globals The eRx Globals object to use for processing
-     * @return eRxPage          This object is returned for method chaining
+     * @param  eRxGlobals $globals The eRx Globals object to use for processing
+     * @return eRxSOAP             This object is returned for method chaining
      */
     public function setGlobals($globals)
     {
@@ -79,7 +81,7 @@ class eRxSOAP
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return object The eRx Globals object to use for processing
+     * @return eRxGlobals The eRx Globals object to use for processing
      */
     public function getGlobals()
     {
@@ -88,8 +90,8 @@ class eRxSOAP
 
     /**
      * Set Store to handle eRx cashed data
-     * @param  object  $store The eRx Store object to use for processing
-     * @return eRxSOAP        This object is returned for method chaining
+     * @param  eRxStore $store The eRx Store object to use for processing
+     * @return eRxSOAP          This object is returned for method chaining
      */
     public function setStore($store)
     {
@@ -100,7 +102,7 @@ class eRxSOAP
 
     /**
      * Get Store for handling eRx cashed data
-     * @return object The eRx Store object to use for processing
+     * @return eRxStore The eRx Store object to use for processing
      */
     public function getStore()
     {
@@ -108,8 +110,8 @@ class eRxSOAP
     }
 
     /**
-     * Get Account Id set for SOAP communications with NewCrop
-     * @return string The Account Id sent with SOAP requests to NewCrop
+     * Get Account Id set for SOAP communications with Ensora
+     * @return string The Account Id sent with SOAP requests to Ensora
      */
     public function getAccountId()
     {
@@ -117,8 +119,8 @@ class eRxSOAP
     }
 
     /**
-     * Set SiteId for SOAP communications with NewCrop
-     * @param  string  $id The Site Id to send with SOAP requests to NewCrop
+     * Set SiteId for SOAP communications with Ensora
+     * @param  string  $id The Site Id to send with SOAP requests to Ensora
      * @return eRxSOAP     This object is returned for method chaining
      */
     public function setSiteId($id)
@@ -129,8 +131,8 @@ class eRxSOAP
     }
 
     /**
-     * Get Site Id set for SOAP communications with NewCrop
-     * @return string The Site Id sent with SOAP requests to NewCrop
+     * Get Site Id set for SOAP communications with Ensora
+     * @return string The Site Id sent with SOAP requests to Ensora
      */
     public function getSiteId()
     {
@@ -200,7 +202,7 @@ class eRxSOAP
 
     /**
      * Generate and set a new SOAP client with provided Path Id
-     * @param  integer    $pathId Id for NewCrop eRx SOAP path: index [0 = Update, 1 = Patient]
+     * @param  integer    $pathId Id for Ensora eRx SOAP path: index [0 = Update, 1 = Patient]
      * @return SoapClient         Soap Client
      */
     public function initializeSoapClient($pathId)
@@ -211,8 +213,8 @@ class eRxSOAP
     }
 
     /**
-     * Set SOAP client for communication with NewCrop
-     * @param  SoapClient $client SOAP client for communication with NewCrop
+     * Set SOAP client for communication with Ensora
+     * @param  SoapClient $client SOAP client for communication with Ensora
      * @return eRxSOAP            This object is returned for method chaining
      */
     public function setSoapClient(SoapClient $client)
@@ -223,8 +225,8 @@ class eRxSOAP
     }
 
     /**
-     * Get SOAP client for communication with NewCrop
-     * @return SoapClient SOAP client for communication with NewCrop
+     * Get SOAP client for communication with Ensora
+     * @return SoapClient SOAP client for communication with Ensora
      */
     public function getSoapClient()
     {
@@ -232,8 +234,8 @@ class eRxSOAP
     }
 
     /**
-     * Set SOAP call settings for calls to NewCrop
-     * @param  array   $settings [optional] Setting to send with SOAP call to NewCrop
+     * Set SOAP call settings for calls to Ensora
+     * @param  array   $settings [optional] Setting to send with SOAP call to Ensora
      * @return eRxSOAP           This object is returned for method chaining
      */
     public function setSoapSettings($settings = [])
@@ -244,8 +246,8 @@ class eRxSOAP
     }
 
     /**
-     * Get SOAP call settings for calls to NewCrop
-     * @return array Settings to send with SOAP call to NewCrop
+     * Get SOAP call settings for calls to Ensora
+     * @return array Settings to send with SOAP call to Ensora
      */
     public function &getSoapSettings()
     {

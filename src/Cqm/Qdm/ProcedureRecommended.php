@@ -71,4 +71,3 @@ class ProcedureRecommended extends QDMBaseType
 
     public $_type = 'QDM::ProcedureRecommended';
 }
-

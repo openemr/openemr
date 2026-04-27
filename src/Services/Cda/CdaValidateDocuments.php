@@ -15,25 +15,28 @@ namespace OpenEMR\Services\Cda;
 use CURLFile;
 use DOMDocument;
 use Exception;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CdaValidateDocuments
 {
+    use SystemLoggerAwareTrait;
+
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
 
     public function __construct()
     {
-        $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
-        if (empty($GLOBALS['mdht_conformance_server'])) {
+        $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
+        if (empty(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'))) {
             $this->externalValidatorEnabled = false;
         }
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim((string) ($GLOBALS['mdht_conformance_server'] ?? null)) ?: '';
+            $this->externalValidatorUrl = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server') ?? null) ?: '';
             if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }
@@ -71,8 +74,8 @@ class CdaValidateDocuments
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
-        } catch (Exception $e) {
-            (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
+        } catch (\Throwable $e) {
+            $this->getSystemLogger()->error($e->getMessage(), ['exception' => $e]);
             return [];
         }
         // translate result to our common render array
@@ -110,10 +113,10 @@ class CdaValidateDocuments
         $serverActive = @socket_connect($socket, "localhost", $port);
 
         if ($serverActive === false) {
-            $path = $GLOBALS['fileroot'] . "/ccdaservice/node_modules/oe-schematron-service";
+            $path = OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/ccdaservice/node_modules/oe-schematron-service";
             if (IS_WINDOWS) {
                 $redirect_errors = " > ";
-                $redirect_errors .= $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/schematron_server.log") . " 2>&1";
+                $redirect_errors .= $system->escapeshellcmd(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/schematron_server.log") . " 2>&1";
                 $cmd = $system->escapeshellcmd("node " . $path . "/app.js") . $redirect_errors;
                 $pipeHandle = popen("start /B " . $cmd, "r");
                 if ($pipeHandle === false) {
@@ -172,8 +175,6 @@ class CdaValidateDocuments
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
         $response = curl_exec($ch);
-        curl_close($ch);
-
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         if ($status == '200') {
             $reply = json_decode($response, true);
@@ -199,7 +200,7 @@ class CdaValidateDocuments
         ];
         $post_url = $this->externalValidatorUrl;
         // I know there's a better way to do this but, not seeing it just now.
-        $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
+        $post_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/ccda.xml';
         file_put_contents($post_file, $xml);
         $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
 
@@ -211,11 +212,12 @@ class CdaValidateDocuments
             'curesUpdate' => true,
             'ccdaFile' => $file
         ];
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -233,7 +235,6 @@ class CdaValidateDocuments
                     xlt('Request Status') . ':' . $status
             ];
         }
-        curl_close($ch);
         if ($status == '200') {
             $reply = json_decode($response, true);
         }
@@ -259,9 +260,9 @@ class CdaValidateDocuments
             foreach ($errors as $error) {
                 $detail = $this->formatXsdError($error);
                 $xsd_log['xsd'][] = $detail;
-                error_log($detail);
             }
             libxml_clear_errors();
+            $this->getSystemLogger()->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;
@@ -283,7 +284,7 @@ class CdaValidateDocuments
         ];
         try {
             $result = $this->schematronValidateDocument($xml, $type);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $e = $e->getMessage();
             error_log($e);
             $result = [];
@@ -327,7 +328,7 @@ class CdaValidateDocuments
         $errors = $this->fetchValidationLog($amid);
 
         if (count($errors ?? [])) {
-            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
             $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
             $html = xlt("No Errors or Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");

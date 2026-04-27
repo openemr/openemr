@@ -4,7 +4,7 @@
  * FhirCareTeamService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
@@ -32,6 +32,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
+    , IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -216,7 +217,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 $codes = [
                     'code' => $roleMapping[$role],
                     'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                    'description' => $dataRecordProvider['role_title'] ?? xlt($dataRecordProvider['role'])
+                    'description' => $dataRecordProvider['role_title'] ?? '',
                 ];
                 return UtilsService::createCodeableConcept([$codes['code'] => $codes]);
             }
@@ -415,7 +416,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                         $codes = [
                             'code' => $roleMapping[$role],
                             'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                            'description' => $person['role_title'] ?? xlt($person['role'])
+                            'description' => $person['role_title'] ?? '',
                         ];
                         $participant->addRole(UtilsService::createCodeableConcept([$codes['code'] => $codes]));
                     }
@@ -445,11 +446,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         // Set managing organization if primary facility is set
         if (!empty($dataRecord['primary_facility_uuid'])) {
-            $careTeamResource->addManagingOrganization(
-                [
-                UtilsService::createRelativeReference("Organization", $dataRecord['primary_facility_uuid'])
-                ]
-            );
+            $careTeamResource->addManagingOrganization(UtilsService::createRelativeReference("Organization", $dataRecord['primary_facility_uuid']));
         }
     }
 

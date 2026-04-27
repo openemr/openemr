@@ -4,7 +4,7 @@
  * FhirCarePlanService.php
  *
  * @package    openemr
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Stephen Nielson <stephen@nielson.org>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -550,7 +550,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
         if (!empty($descriptions)) {
             // Properly escape HTML entities for each description
-            $escapedDescriptions = array_map('text', $descriptions);
+            $escapedDescriptions = array_map(text(...), $descriptions);
             // Build compact XHTML with each description in a paragraph
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $escapedDescriptions) . "</p>";
         }

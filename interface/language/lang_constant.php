@@ -4,7 +4,7 @@
  * lang_constant.php script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@ require_once("language.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -29,10 +30,9 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['add'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validate
     if ($_POST['constant_name'] == "") {
@@ -54,7 +54,7 @@ if (!empty($_POST['add'])) {
         $sql = "INSERT INTO lang_constants SET constant_name=?";
         sqlStatement($sql, [$_POST['constant_name']]);
 
-                //insert into the log table - to allow persistant customizations
+                //insert into the log table - to allow persistent customizations
             insert_language_log('', '', $_POST['constant_name'], '');
 
         echo xlt('Constant') . ' ' . text($_POST['constant_name']) . ' ' . xlt('added') . '<br />';
@@ -67,8 +67,8 @@ if (!empty($_POST['add'])) {
 
 ?>
 
-<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Constant Name -->
     <div class="form-group">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>

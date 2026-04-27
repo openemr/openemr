@@ -12,11 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-use OpenEMR\Services\UserService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
     @define('__POSTCALENDAR__', 'PostCalendar');
@@ -52,9 +54,9 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/group.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/encounter_events.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
@@ -74,8 +76,8 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
-    $schedule_start = $GLOBALS['schedule_start'];
-    $schedule_end = $GLOBALS['schedule_end'];
+    $schedule_start = OEGlobalsBag::getInstance()->getInt('schedule_start');
+    $schedule_end = OEGlobalsBag::getInstance()->getInt('schedule_end');
 
     // $times is an array of associative arrays, where each sub-array
     // has keys 'hour', 'minute' and 'mer'.
@@ -90,7 +92,7 @@ function postcalendar_userapi_buildView($args)
         // $minute is an array of time slot strings within this hour.
         $minute = ['00'];
 
-        for ($minutes = $GLOBALS['calendar_interval']; $minutes <= 60; $minutes += $GLOBALS['calendar_interval']) {
+        for ($minutes = OEGlobalsBag::getInstance()->get('calendar_interval'); $minutes <= 60; $minutes += OEGlobalsBag::getInstance()->get('calendar_interval')) {
             if ($minutes <= '9') {
                 $under_ten = "0" . $minutes;
                 array_push($minute, "$under_ten");
@@ -117,7 +119,8 @@ function postcalendar_userapi_buildView($args)
     //  grab the for post variable
     //=================================================================
     // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     $category = pnVarCleanFromInput('pc_category');
     $topic    = pnVarCleanFromInput('pc_topic');
 
@@ -174,7 +177,7 @@ function postcalendar_userapi_buildView($args)
     $tpl = new pcSmarty();
 
     //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //diable caching completely
+    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -319,10 +322,11 @@ function postcalendar_userapi_buildView($args)
                 //==================================
                 //FACILITY FILTERING (CHEMED)
         $userService = new UserService();
-        if ($_SESSION['pc_facility']) {
-            $provinfo = $userService->getUsersForCalendar($_SESSION['pc_facility']);
+        $pc_facility = $session->get('pc_facility');
+        if ($pc_facility) {
+            $provinfo = $userService->getUsersForCalendar($pc_facility);
             if (!$provinfo) {
-                $provinfo = $userService->getUserForCalendar($_SESSION['authUserID']);
+                $provinfo = $userService->getUserForCalendar($session->get('authUserID'));
             }
         } else {
             $provinfo = $userService->getUsersForCalendar();
@@ -524,7 +528,7 @@ function postcalendar_userapi_buildView($args)
             $tpl->assign("last_blocks", $last_blocks);
         }
 
-        $tpl->assign('STYLE', $GLOBALS['style']);
+        $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
         $tpl->assign('show_days', $show_days);
 
         //$provinfo[count($provinfo) +1] = array("id" => "","lname" => "Other");
@@ -537,15 +541,15 @@ function postcalendar_userapi_buildView($args)
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
         $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
         $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
         $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
         $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-        $tpl->assign('interval', $GLOBALS['calendar_interval']);
+        $tpl->assign('interval', OEGlobalsBag::getInstance()->get('calendar_interval'));
         $tpl->assign_by_ref('VIEW_TYPE', $viewtype);
         $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
         $tpl->assign_by_ref('A_LONG_DAY_NAMES', $pc_long_day_names);
@@ -620,7 +624,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -644,7 +648,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid " .
     "WHERE a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
-    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate = '0000-00-00') " .
+    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate IS NULL) " .
     "AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "' " .
     "AND (a.pc_aid = '" . pnVarPrepForStore($provider_id) . "' OR a.pc_aid = '')";
 
@@ -688,25 +692,21 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //  END SEARCH FUNCTIONALITY
   //======================================================================
   //echo "<Br />sql: $sql<br />";
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // get the results from the query
         //RM include address
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
+        $tmp = [];
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -762,7 +762,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
         $events[$i]['aid']         = $tmp['aid'];
-        $events[$i]['intervals']   = ceil(($tmp['duration'] / 60) / $GLOBALS['calendar_interval']);
+        $events[$i]['intervals']   = ceil(($tmp['duration'] / 60) / OEGlobalsBag::getInstance()->get('calendar_interval'));
         if ($events[$i]['intervals'] == 0) {
             $events[$i]['intervals'] = 1;
         }
@@ -817,8 +817,6 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -843,7 +841,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
   // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     if (empty($pc_username) || is_array($pc_username)) {
         $pc_username = "__PC_ALL__";
     }
@@ -876,7 +875,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -903,19 +902,20 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
-    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
+    "(a.pc_endDate IS NULL AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
+    $calFilterEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
-    if ($_SESSION['pc_facility']) {
-            $pc_facility = $_SESSION['pc_facility'];
+    $sessionPcFacility = $session->get('pc_facility');
+    if ($sessionPcFacility) {
+            $pc_facility = $sessionPcFacility;
             $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility "; */
@@ -931,7 +931,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
 
   // The above 3 lines replaced these:
-  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate IS NULL)
   //   AND a.pc_eventDate <= '$end' ";
 
     if (!empty($providerID)) {
@@ -963,7 +963,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     } else {
         // get all events for logged in user plus global events
-        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($_SESSION['authUserID']) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
+        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($session->get('authUserID')) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
     }
 
   //======================================================================
@@ -1005,25 +1005,21 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
 
         // get the results from the query
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
+        $tmp = [];
         [
             $tmp['eid'],
             $tmp['uname'],
@@ -1066,7 +1062,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_name'],
             $tmp['group_type'],
             $tmp['group_status'],
-        ] = $result->fields;
+        ] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1117,7 +1113,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
         $events[$i]['aid']         = $tmp['aid'];
         $events[$i]['topictext']   = $topicname;
-        $events[$i]['intervals']   = ceil(($tmp['duration'] / 60) / $GLOBALS['calendar_interval']);
+        $events[$i]['intervals']   = ceil(($tmp['duration'] / 60) / OEGlobalsBag::getInstance()->get('calendar_interval'));
         if ($events[$i]['intervals'] == 0) {
             $events[$i]['intervals'] = 1;
         }
@@ -1179,8 +1175,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -1205,8 +1199,8 @@ function getBlockTime($time)
 }
 
 /*==========================
- * Gather up all the Events matching the arguements
- * Arguements can be:
+ * Gather up all the Events matching the arguments
+ * Arguments can be:
  *  start = starting date in m/d/Y format
  *  end = ending date in m/d/Y format
  *  viewtype = day|week|month|year
@@ -1293,11 +1287,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setEndDate($end_date);
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
-    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    if ($result instanceof CalendarUserGetEventsFilter) {
-        $days = $result->getEventsByDays();
-    }
-    return $days;
+    $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    return $result->getEventsByDays();
 }
 
 //===========================
@@ -1407,7 +1398,7 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
                                 if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
@@ -1470,7 +1461,7 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
-                // below a problem with overfow will occur so it is set to 1 to prevent this.
+                // below a problem with overflow will occur so it is set to 1 to prevent this.
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
@@ -1492,9 +1483,9 @@ function calculateEvents($days, $events, $viewtype)
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
-                                // occurrance format == yyyy-mm-dd
+                                // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }

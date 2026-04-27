@@ -15,7 +15,7 @@ Whenever there are new versions or updates, be sure to navigate into the ccdaser
 - `npm i --omit=dev`
 - `npm ci --omit=dev`
 
-To ensure the lastest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) will ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
+To ensure the latest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) will ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
 
 
 ## Ubuntu Setup
@@ -42,7 +42,7 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 * This service will automatically start on demand when required by OpenEMR.
 ### Developing
 * Note that these scripts run in strict mode so javascript will hold you very much accountable with how objects and variables are handled.
-* For now, node modules are run local to service directory so all support dependecies are installed there.
+* For now, node modules are run local to service directory so all support dependencies are installed there.
 ### Tools
 * The nodejs ccda service now starts on demand.
 #### License

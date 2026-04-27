@@ -14,6 +14,9 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class BillingUtilities
 {
     public const CLAIM_STATUS_CODES_CLP02 = [
@@ -1447,6 +1450,7 @@ class BillingUtilities
         $revenue_code = "",
         $payer_id = ""
     ) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!$authorized) {
             $authorized = "0";
         }
@@ -1466,7 +1470,7 @@ class BillingUtilities
             "NOW(), ?, ?, ?, ?, ?, ?, ?, ?,  1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         return sqlInsert($sql, [$encounter_id, $code_type, $code, $code_text, $pid, $authorized,
-            $_SESSION['authUserID'], $_SESSION['authProvider'], $billed, $provider, $modifier, $units, $fee,
+            $session->get('authUserID'), $session->get('authProvider'), $billed, $provider, $modifier, $units, $fee,
             $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code, $payer_id]);
     }
 
@@ -1641,8 +1645,9 @@ class BillingUtilities
             $billset = substr($billset, 2);
             $sqlBindArray = $sqlBindBillset;
             array_push($sqlBindArray, $encounter_id, $patient_id);
-            sqlStatement("UPDATE billing SET $billset WHERE " .
-                "encounter = ? AND pid= ? AND activity = 1", $sqlBindArray);
+            $sql = "UPDATE billing SET " . $billset . " WHERE " .
+                "encounter = ? AND pid= ? AND activity = 1";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         $claimset .= ", submitted_claim = ?";
@@ -1669,38 +1674,46 @@ class BillingUtilities
              * "target = '$target', " .
              * "x12_partner_id = '$partner_id'";
              ****/
-            sqlBeginTrans();
-            $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", [$patient_id, $encounter_id]);
+            QueryUtils::inTransaction(function () use ($patient_id, $encounter_id, $crossover, $claimset, $sqlBindClaimset, $status): void {
+                $version = sqlQuery(
+                    'SELECT IFNULL(MAX(version), 0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?',
+                    [$patient_id, $encounter_id]
+                );
 
-            $sqlBindArray = [];
-            array_push($sqlBindArray, $patient_id, $encounter_id);
-            if ($crossover <> 1) {
-                $sql = "INSERT INTO claims SET " .
-                    "patient_id = ?, " .
-                    "encounter_id = ?, " .
-                    "bill_time = NOW() $claimset ," .
-                    "version = ?";
-                $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
-                array_push($sqlBindArray, $version['increment']);
-            } else {//Claim automatic forward case.startTra
-                $sql = "INSERT INTO claims SET " .
-                    "patient_id = ?, " .
-                    "encounter_id = ?, " .
-                    "bill_time = NOW(), status=? ," .
-                    "version = ?";
-                array_push($sqlBindArray, $status, $version['increment']);
-            }
+                $sqlBindArray = [];
+                array_push($sqlBindArray, $patient_id, $encounter_id);
+                if ($crossover <> 1) {
+                    // heredoc (not nowdoc) because $claimset is a dynamic SQL fragment
+                    $sql = <<<SQL
+                    INSERT INTO claims SET
+                        patient_id = ?,
+                        encounter_id = ?,
+                        bill_time = NOW() $claimset ,
+                        version = ?
+                    SQL;
+                    $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
+                    array_push($sqlBindArray, $version['increment']);
+                } else {//Claim automatic forward case.startTra
+                    $sql = <<<'SQL'
+                    INSERT INTO claims SET
+                        patient_id = ?,
+                        encounter_id = ?,
+                        bill_time = NOW(), status = ? ,
+                        version = ?
+                    SQL;
+                    array_push($sqlBindArray, $status, $version['increment']);
+                }
 
-            sqlStatement($sql, $sqlBindArray);
-            sqlCommitTrans();
+                sqlStatement($sql, $sqlBindArray);
+            });
         } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
-            sqlStatement("UPDATE claims SET $claimset WHERE " .
+            $sql = "UPDATE claims SET " . $claimset . " WHERE " .
                 "patient_id = ? AND encounter_id = ? AND " .
-                // "payer_id = '" . $row['payer_id'] . "' AND " .
-                "version = ?", $sqlBindArray);
+                "version = ?";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         // Whenever a claim is marked billed, update A/R accordingly.
@@ -1783,12 +1796,13 @@ class BillingUtilities
     //
     public static function getInvoiceRefNumber()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $trow = sqlQuery(
             "SELECT lo.notes " .
             "FROM users AS u, list_options AS lo " .
             "WHERE u.username = ? AND " .
             "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
-            [$_SESSION['authUser']]
+            [$session->get('authUser')]
         );
         return empty($trow['notes']) ? '' : $trow['notes'];
     }
@@ -1799,6 +1813,7 @@ class BillingUtilities
     //
     public static function updateInvoiceRefNumber()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
@@ -1809,7 +1824,7 @@ class BillingUtilities
                 "SET lo.notes = ? WHERE " .
                 "u.username = ? AND " .
                 "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
-                [$newnumber, $_SESSION['authUser']]
+                [$newnumber, $session->get('authUser')]
             );
         }
 
@@ -1821,6 +1836,7 @@ class BillingUtilities
     //
     public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
         $adjustments = 0;
@@ -1891,7 +1907,7 @@ class BillingUtilities
                 $patient_id,
                 $encounter_id,
                 $what_voided,
-                $_SESSION['authUserID'],
+                $session->get('authUserID'),
                 $adjustments,
                 $payments,
                 $old_invoice_refno,

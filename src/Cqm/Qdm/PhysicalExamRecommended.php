@@ -66,4 +66,3 @@ class PhysicalExamRecommended extends QDMBaseType
 
     public $_type = 'QDM::PhysicalExamRecommended';
 }
-

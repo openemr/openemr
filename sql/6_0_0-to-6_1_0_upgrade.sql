@@ -1501,4 +1501,3 @@ PRIMARY KEY (`id`),
 UNIQUE KEY (`email`)
 ) ENGINE=InnoDB;
 #EndIf
-

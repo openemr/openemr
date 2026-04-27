@@ -26,4 +26,3 @@ class PositiveSubstanceRecommended extends SubstanceRecommended
 
     public $_type = 'QDM::PositiveSubstanceRecommended';
 }
-

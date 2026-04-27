@@ -4,7 +4,7 @@
  * UserSettingService manage user global settings. Originally refactored from user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>
@@ -14,24 +14,28 @@
 
 namespace OpenEMR\Services\Globals;
 
-use function sqlStatement;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 use function sqlQuery;
+use function sqlStatement;
 
 class UserSettingsService
 {
 // Set effective user - If no user id is provided, then use the currently logged in user
     public static function effectiveUser($user)
     {
-        return (is_null($user) ? $_SESSION['authUserID'] : $user);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return ($user ?? $session->get('authUserID'));
     }
 
     /**
      * Return user setting(s) from the 'users' table
      *
      * @param string $label - Setting key
-     * @param int $user - user id number from users table
+     * @param ?int $user - user id number from users table
      * @param int $defaultUser - user id to check as alternative/default
-     * @return Effective user setting for $label (NULL if does not exist)
+     * @return ?string Effective user setting for $label (NULL if it does not exist)
      */
     public static function getUserSetting($label, $user = null, $defaultUser = 0)
     {
@@ -156,14 +160,14 @@ class UserSettingsService
     public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
-        $global_value = $GLOBALS['expand_form'];
+        $global_value = OEGlobalsBag::getInstance()->getBoolean('expand_form');
 
         if (self::getUserSetting($current_filename) > -1) {
             $current_state = self::getUserSetting($current_filename);
         } elseif ($global_value) {
-            $current_state = $global_value;
+            $current_state = '1';
         } else {
-            $current_state = 0;
+            $current_state = '0';
         }
 
         if (count($filenames)) {

@@ -4,7 +4,7 @@
  * Clinical instructions form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
@@ -18,11 +18,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : [];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
     <head>
@@ -36,7 +39,7 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : [];
                 <div class="col-12">
                     <h2><?php echo xlt('Clinical Instructions'); ?></h2>
                     <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <fieldset>
                             <legend><?php echo xlt('Instructions'); ?></legend>
                             <div class="container">

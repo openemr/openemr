@@ -57,9 +57,9 @@ ALTER TABLE openemr_postcalendar_events
 ALTER TABLE lists
   ADD diagnosis varchar(255) NOT NULL DEFAULT '';
 
-## 
+##
 ## Table structure for table `batchcom`
-## 
+##
 
 CREATE TABLE IF NOT EXISTS `batchcom` (
   `id` bigint(20) NOT NULL auto_increment,

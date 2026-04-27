@@ -4,15 +4,18 @@
  * Fee Sheet report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 function fee_sheet_report($pid, $encounter, $cols, $id): void
 {
@@ -21,7 +24,7 @@ function fee_sheet_report($pid, $encounter, $cols, $id): void
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value)) {
                 continue;
             }
 

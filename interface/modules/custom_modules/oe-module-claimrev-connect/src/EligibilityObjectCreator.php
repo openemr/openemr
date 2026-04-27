@@ -3,21 +3,22 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
-use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
-use OpenEMR\Modules\ClaimRevConnector\InformationReceiver;
-use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
-use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
+use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 
 class EligibilityObjectCreator
 {
@@ -29,8 +30,8 @@ class EligibilityObjectCreator
         $providerNpi = "";
         $providerPinCode = "";
 
-        $useFacility = $GLOBALS['oe_claimrev_config_use_facility_for_eligibility'];
-        $serviceTypeCodes = $GLOBALS['oe_claimrev_config_service_type_codes'];
+        $useFacility = OEGlobalsBag::getInstance()->get('oe_claimrev_config_use_facility_for_eligibility');
+        $serviceTypeCodes = OEGlobalsBag::getInstance()->get('oe_claimrev_config_service_type_codes');
         $accountNumber = "";
         $productsToRun = [1];
 
@@ -114,14 +115,14 @@ class EligibilityObjectCreator
             $payer->subscriberNumber = $subscriberRow['policy_number'];
             $revenueTools->subscriberFirstName = $subscriberRow['subscriber_fname'];
             $revenueTools->subscriberLastName = $subscriberRow['subscriber_lname'];
-            if ($subscriberRow['subscriber_dob'] != "0000-00-00") {
+            if (!Utilities::isDateEmpty($subscriberRow['subscriber_dob'])) {
                 $revenueTools->subscriberDob = $subscriberRow['subscriber_dob'];
             }
 
             array_push($payers, $payer);
             $revenueTools->payers = $payers;
+            array_push($results, $revenueTools);
         }
-        array_push($results, $revenueTools);
 
         return $results;
     }
@@ -129,7 +130,7 @@ class EligibilityObjectCreator
     public static function saveSingleToDatabase($req, $pid)
     {
 
-        $stale_age = $GLOBALS['oe_claimrev_eligibility_results_age'];
+        $stale_age = OEGlobalsBag::getInstance()->get('oe_claimrev_eligibility_results_age');
         //status of re-check if results are still waiting on claimrev site
 
         //if it's greater than aged date then lets remove completely from the tables, the new one will handle it. We don't care about statuses

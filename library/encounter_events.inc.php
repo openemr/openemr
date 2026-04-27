@@ -15,6 +15,10 @@
 require_once(__DIR__ . '/calendar.inc.php');
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 //===============================================================================
 //This section handles the events of payment screen.
 //===============================================================================
@@ -37,7 +41,7 @@ function calendar_arrived($form_pid)
     $appts = fetchAppointments($today, $today, $form_pid);
     $appt_count = count($appts); //
     if ($appt_count == 0) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
         $enc = todaysEncounterCheck($form_pid);
@@ -47,7 +51,7 @@ function calendar_arrived($form_pid)
             update_event($appts[0]['pc_eid']);
         }
     } elseif ($appt_count > 1) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     }
     return $enc;
@@ -60,7 +64,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 {
     global $today;
     $encounter = todaysEncounterIf($patient_id);
-    if ($encounter && (int)$GLOBALS['auto_create_new_encounters'] !== 2) {
+    if ($encounter && (int)OEGlobalsBag::getInstance()->get('auto_create_new_encounters') !== 2) {
         if ($return_existing) {
             return $encounter;
         } else {
@@ -78,18 +82,18 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 
     $dos = $enc_date ?: $today;
     $visit_reason = $reason ?: xl('Please indicate visit reason');
-    if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+    if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
         $visit_reason = 'Please indicate visit reason';
     }
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$session->get('authUserID')]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -140,16 +144,16 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
         $visit_provider = $counselors = null;
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $dos = $enc_date ?: $today;
     $visit_reason = $reason ?: xl('Please indicate visit reason');
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$session->get('authUserID')]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
@@ -222,14 +226,15 @@ function todaysEncounter($patient_id, $reason = '')
   if ($encounter) return $encounter;
   *******************************************************************/
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users " .
-    "WHERE id = ?", [$_SESSION["authUserID"]]);
+    "WHERE id = ?", [$authUserID]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $tmprow['facility_id'];
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
-    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+    $encounter = QueryUtils::generateId();
+    $provider_id = $userauthorized ? $authUserID : 0;
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -290,7 +295,7 @@ function update_event($eid): void
     // this event is forced to NOT REPEAT
         $args['form_repeat'] = "0";
         $args['recurrspec'] = $noRecurrspec;
-        $args['form_enddate'] = "0000-00-00";
+        $args['form_enddate'] = null;
         $args['starttime'] = $starttime;
         $args['endtime'] = $endtime;
         $args['locationspec'] = $locationspec;
@@ -356,6 +361,7 @@ function InsertEvent($args, $from = 'general')
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
     ;
     if ($from == 'general') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $pc_eid = sqlInsert(
             "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
@@ -364,18 +370,18 @@ function InsertEvent($args, $from = 'general')
             "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
             [$args['form_category'],($args['new_multiple_value'] ?? ''),$args['form_provider'],$form_pid,$form_gid,
-            $args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
-            fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
+            $args['form_title'],$args['form_comments'],$session->get('authUserID'),$args['event_date'],
+            fixDate(is_string($args['form_enddate']) ? $args['form_enddate'] : null, null),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
             $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
             $args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room]
         );
 
             //Manage tracker status.
         if (!empty($form_pid)) {
-            manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $_SESSION['authUser'], $args['form_apptstatus'], $args['form_room']);
+            manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $session->get('authUser'), $args['form_apptstatus'], $args['form_room']);
         }
 
-            $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in
+            OEGlobalsBag::getInstance()->set('temporary-eid-for-manage-tracker', $pc_eid); //used by manage tracker module to set correct encounter in tracker when check in
 
             return $pc_eid;
     } elseif ($from == 'payment') {
@@ -387,7 +393,7 @@ function InsertEvent($args, $from = 'general')
             "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
             ") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             [$args['form_category'],$args['new_multiple_value'],$args['form_provider'],$form_pid,$args['form_title'],
-                $args['event_date'],$args['form_enddate'],$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
+                $args['event_date'],fixDate(is_string($args['form_enddate']) ? $args['form_enddate'] : null, null),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
                 $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'], $args['locationspec'],
             1,
             1,
@@ -433,13 +439,13 @@ function &__increment($d, $m, $y, $f, $t)
         // and finally make sure we haven't landed on a end week days
         // adjust as necessary
         $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
-        if (count($GLOBALS['weekend_days']) === 2) {
-            if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+        if (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 2) {
+            if ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                 $f += 2;
-            } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
+            } elseif ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[1]) {
                 $f++;
             }
-        } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+        } elseif (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 1 && $nextWorkDOW === OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
             $f++;
         }
 

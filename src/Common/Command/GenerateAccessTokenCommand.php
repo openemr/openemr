@@ -4,7 +4,7 @@
  * GenerateAccessTokenTestCommand is a command that generates an access token for a test client
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Common\Command;
 
+use DateInterval;
+use DateTimeImmutable;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -28,18 +30,17 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,10 +50,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
-use Exception;
-use DateTimeImmutable;
-use DateInterval;
-use RuntimeException;
 
 class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 {
@@ -140,7 +137,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             }
 
             $scopes = $this->getScopesFromInput($input, $client);
-            $hasOfflineScope = !empty(array_filter($scopes, fn($scope) => $scope->getIdentifier() === 'offline_access'));
+            $hasOfflineScope = !empty(array_filter($scopes, static fn($scope): bool => $scope->getIdentifier() === 'offline_access'));
 //            $scopes = array_map(function($scope): ScopeEntity { $entity = new ScopeEntity(); $entity->setIdentifier($scope); return $entity; }
 //            , $scopeIdentifiers);
             $session = new Session(new MockFileSessionStorage());
@@ -214,7 +211,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             $symfonyStyler->info("Bearer Token Response");
             $symfonyStyler->text($jsonResponse);
             return Command::SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $symfonyStyler->error("Error creating access token : " . $e->getMessage());
             $symfonyStyler->error($e->getTraceAsString());
             return Command::FAILURE;
@@ -271,18 +268,18 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
         $scopeIdentifiers = $client->getScopes();
         // if we have been given specific resources then we will limit the scopes to those resources
         if (!empty($input->getOption('scopes'))) {
-            $requestedScopes = array_map('trim', explode(',', (string) $input->getOption('scopes')));
+            $requestedScopes = array_map(trim(...), explode(',', (string) $input->getOption('scopes')));
             $scopeIdentifiers = array_unique($requestedScopes);
         } else if (!empty($input->getOption('resources'))) {
             if (!empty($input->getOption('contexts'))) {
-                $requestedContexts = array_map('trim', explode(',', (string) $input->getOption('contexts')));
+                $requestedContexts = array_map(trim(...), explode(',', (string) $input->getOption('contexts')));
             }
             if (empty($requestedContexts)) {
                 $requestedContexts = ['user'];
             }
             // if we have been given specific resources then we will limit the scopes to those resources
             if (!empty($input->getOption('resources'))) {
-                $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
+                $requestedResources = array_map(trim(...), explode(',', (string) $input->getOption('resources')));
                 foreach ($requestedContexts as $context) {
                     $fhirScopes = array_map(fn($resource): string => "{$context}/{$resource}.rs", $requestedResources);
                 }
@@ -293,7 +290,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 
             // add any operations requested
             if (!empty($input->getOption('operations'))) {
-                $requestedOperations = array_map('trim', explode(',', (string) $input->getOption('operations')));
+                $requestedOperations = array_map(trim(...), explode(',', (string) $input->getOption('operations')));
                 $scopeIdentifiers = array_unique(array_merge($scopeIdentifiers, $requestedOperations));
             }
         }
@@ -306,11 +303,11 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             }
         }
 
-        $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
+        $scopes = array_map(ScopeEntity::createFromString(...), $scopeIdentifiers);
         return $scopes;
     }
 
-    private function saveTrustedUser(Session $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
+    private function saveTrustedUser(SessionInterface $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
     {
         // we will save our trusted user
         $trustedUserService = new TrustedUserService();

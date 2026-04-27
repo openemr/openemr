@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -34,8 +35,8 @@ function smarty_core_read_cache_file(&$params, &$smarty)
 
     if (!empty($smarty->cache_handler_func)) {
         // use cache_handler function
-        call_user_func_array($smarty->cache_handler_func,
-                             ['read', &$smarty, &$params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], null]);
+        ($smarty->cache_handler_func)(
+                             'read', $smarty, $params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], null);
     } else {
         // use local cache file
         $_auto_id = $smarty->_get_auto_id($params['cache_id'], $params['compile_id']);
@@ -51,7 +52,7 @@ function smarty_core_read_cache_file(&$params, &$smarty)
     $_contents = $params['results'];
     $_info_start = strpos((string) $_contents, "\n") + 1;
     $_info_len = (int)substr((string) $_contents, 0, $_info_start - 1);
-    $_cache_info = unserialize(substr((string) $_contents, $_info_start, $_info_len));
+    $_cache_info = unserialize(substr((string) $_contents, $_info_start, $_info_len), ['allowed_classes' => false]);
     $params['results'] = substr((string) $_contents, $_info_start + $_info_len);
 
     if ($smarty->caching == 2 && isset ($_cache_info['expires'])){

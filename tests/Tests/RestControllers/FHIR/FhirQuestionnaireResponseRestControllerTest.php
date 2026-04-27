@@ -3,7 +3,7 @@
 /*
  * FhirQuestionnaireResponseRestControllerTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,17 +12,13 @@
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
-use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
-use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Validators\ProcessingResult;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class FhirQuestionnaireResponseRestControllerTest extends TestCase
@@ -60,7 +56,7 @@ class FhirQuestionnaireResponseRestControllerTest extends TestCase
             ->method('getAll')
             ->willReturn($processingResult);
         $controller = new FhirQuestionnaireResponseRestController($fhirService);
-        $response = $controller->list($restRequest, $fhirResponse->getId()->getValue());
+        $response = $controller->list($restRequest);
 
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());

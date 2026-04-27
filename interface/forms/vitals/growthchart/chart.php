@@ -32,24 +32,24 @@
  *  page2.css
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../../../interface/globals.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VitalsService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
-
-$chartpath = $GLOBALS['fileroot'] . "/interface/forms/vitals/growthchart/";
+$chartpath = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/vitals/growthchart/";
 $name = "";
 $pid = $_GET['pid'];
 
@@ -61,7 +61,7 @@ if ($pid == "") {
 
 $vitalsService = new VitalsService();
 
-$isMetric = ((($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) ? true : false);
+$isMetric = (((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) || (OEGlobalsBag::getInstance()->get('units_of_measurement') == 4)) ? true : false);
 
 $patient_data = "";
 if (isset($pid) && is_numeric($pid)) {
@@ -106,26 +106,18 @@ rsort($datapoints);
 function unitsWt($wt)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return (number_format(($wt * 0.45359237), 2, '.', '') . xl('kg', '', ' '));
-    } else {
-    //keep US
-        return number_format($wt, 2) . xl('lb', '', ' ');
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'))
+        : sprintf('%s %s', number_format($wt, 2), xl('lb'));
 }
 
 // convert to applicable length units from Config Locale
 function unitsDist($dist)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return (number_format(($dist * 2.54), 2, '.', '') . xl('cm', '', ' '));
-    } else {
-        //keep US
-        return number_format($dist, 2)  . xl('in', '', ' ');
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'))
+        : sprintf('%s %s', number_format($dist, 2), xl('in'));
 }
 
 // convert vitals service data to US values for graphing
@@ -187,7 +179,7 @@ if ($charttype == 'birth') {
     }
 
     $ageOffset = 0;
-    $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
+    $heightOffset = 15; // Subtract 15 because the graph starts at 15 inches
     $weightOffset = 3;  // graph starts at 3 lbs
     $WToffset = 0; //for wt and ht table at bottom half of HC graph
     $HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
@@ -646,7 +638,7 @@ foreach ($datapoints as $data) {
 
         // Draw Weight bullseye
         $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
-        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outter ring
+        imageellipse($im, (int) $x, (int) $y2, 12, 12, $color); // outer ring
         imagefilledellipse($im, (int) $x, (int) $y2, 5, 5, $color); //center dot
 
         if ($charttype == "birth") {

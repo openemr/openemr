@@ -7,6 +7,10 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
+
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
+
 if (!extension_loaded("curl")) {
     die("Curl extension is required");
 }
@@ -42,9 +46,10 @@ class MaviqClient
         }
 
         // initialize a new curl object
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         switch (strtoupper((string) $method)) {
             case "GET":
@@ -124,7 +129,7 @@ class RestResponse
         $this->Url = $matches[1];
         $this->QueryString = $matches[2];
         if ($this->HttpStatus != 204) {
-            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText);
+            $this->ResponseXml = XmlUtils::tryLoadString((string) $this->ResponseText);
         }
 
         if ($this->IsError = ($this->HttpStatus >= 400)) {

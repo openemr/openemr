@@ -19,11 +19,10 @@ namespace OpenEMR\Billing;
 class HCFAInfo
 {
     /**
-     *
-     * @param type $row    Which row to put this data on
-     * @param type $column Which column to put this data in
-     * @param type $width  How many characters max to print on
-     * @param type $info   The text to print on the form at the specified location
+     * @param int $row Which row to put this data on
+     * @param int $column Which column to put this data in
+     * @param int $width How many characters max to print on
+     * @param string $info The text to print on the form at the specified location
      */
     public function __construct(protected $row, protected $column, protected $width, protected $info)
     {
@@ -56,7 +55,7 @@ class HCFAInfo
     /**
      * Determine relative position of an element
      *
-     * @return type integer
+     * @return int
      */
     private function getPosition()
     {
@@ -66,8 +65,8 @@ class HCFAInfo
     /**
      * comparator function for hfca_info class to allow proper sorting
      *
-     * @param type $first
-     * @param type $second
+     * @param HCFAInfo $first
+     * @param HCFAInfo $second
      * @return int
      */
     public static function cmpHcfaInfo($first, $second)

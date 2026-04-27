@@ -1,4 +1,5 @@
 <?php
+
 /*
 if (!empty($_GET['debug'])) {
     $debug = $_GET['debug'];
@@ -7,13 +8,12 @@ if (!empty($_GET['debug'])) {
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 @set_time_limit(600);
@@ -22,6 +22,11 @@ require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl */
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 $query = '
 	SELECT		a.value AS a_value, a.name AS a_name,
@@ -35,7 +40,7 @@ $query = '
 	ORDER BY	a.value, b.value, c.value, d.value';
 
 //$rs = $db->Execute($query);
-$rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+$rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 $rows = $rs->GetRows();
 
 /*
@@ -47,6 +52,9 @@ echo("</pre>");
 $total_rows = count($rows);
 
 $total_acl_check_time = 0;
+$acls = [];
+$tmp_aco_section_name = '';
+$tmp_aco_name = '';
 
 foreach ($rows as $row) {
     [$aco_section_value, $aco_section_name, $aco_value, $aco_name, $aro_section_value, $aro_section_name, $aro_value, $aro_name] = $row;
@@ -96,6 +104,7 @@ $smarty->assign("acls", $acls);
 $smarty->assign("total_acl_checks", $total_rows);
 $smarty->assign("total_acl_check_time", $total_acl_check_time);
 
+$avg_acl_check_time = 0;
 if ($total_rows > 0) {
     $avg_acl_check_time = $total_acl_check_time / $total_rows;
 }

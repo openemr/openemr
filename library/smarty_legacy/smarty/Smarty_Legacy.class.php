@@ -29,6 +29,8 @@
  * @package Smarty
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /* $Id$ */
 
 require_once(__DIR__ . "/Config_File_Legacy.class.php");
@@ -579,7 +581,7 @@ class Smarty_Legacy
      */
     public function __construct()
     {
-        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
+        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS')['SCRIPT_NAME']);
     }
 
     /**
@@ -955,8 +957,7 @@ class Smarty_Legacy
         $_auto_id = $this->_get_auto_id($cache_id, $compile_id);
 
         if (!empty($this->cache_handler_func)) {
-            return call_user_func_array($this->cache_handler_func,
-                                  ['clear', &$this, &$dummy, $tpl_file, $cache_id, $compile_id, $exp_time]);
+            return ($this->cache_handler_func)('clear', $this, $dummy, $tpl_file, $cache_id, $compile_id, $exp_time);
         } else {
             $_params = ['auto_base' => $this->cache_dir,
                             'auto_source' => $tpl_file,
@@ -1066,7 +1067,7 @@ class Smarty_Legacy
         } elseif(isset($this->_tpl_vars[$name])) {
             return $this->_tpl_vars[$name];
         } else {
-            // var non-existant, return valid reference
+            // var non-existent, return valid reference
             $_tmp = null;
             return $_tmp;
         }
@@ -1086,7 +1087,7 @@ class Smarty_Legacy
         } else if(isset($this->_config[0]['vars'][$name])) {
             return $this->_config[0]['vars'][$name];
         } else {
-            // var non-existant, return valid reference
+            // var non-existent, return valid reference
             $_tmp = null;
             return $_tmp;
         }
@@ -1132,7 +1133,7 @@ class Smarty_Legacy
         $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting($this->error_reporting ?? error_reporting() & ~E_NOTICE);
 
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
-            $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : $GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'];
+            $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS')['QUERY_STRING'];
             if (@strstr((string) $_query_string, $this->_smarty_debug_id)) {
                 if (@strstr((string) $_query_string, $this->_smarty_debug_id . '=on')) {
                     // enable debugging for this browser session
@@ -1147,7 +1148,7 @@ class Smarty_Legacy
                     $this->debugging = true;
                 }
             } else {
-                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_DEBUG'] : @$GLOBALS['HTTP_COOKIE_VARS']['SMARTY_DEBUG']);
+                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_DEBUG'] : @OEGlobalsBag::getInstance()->get('HTTP_COOKIE_VARS')['SMARTY_DEBUG']);
             }
         }
 
@@ -1208,7 +1209,7 @@ class Smarty_Legacy
                         $_smarty_results .= smarty_core_display_debug_console($_params, $this);
                     }
                     if ($this->cache_modified_check) {
-                        $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
+                        $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS');
                         $_last_modified_date = @substr((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
                         $_gmt_mtime = gmdate('D, d M Y H:i:s', $this->_cache_info['timestamp']).' GMT';
                         if (empty($this->_cache_info['insert_tags'])
@@ -1276,7 +1277,7 @@ class Smarty_Legacy
             ob_end_clean();
 
             foreach ((array)$this->_plugins['outputfilter'] as $_output_filter) {
-                $_smarty_results = call_user_func_array($_output_filter[0], [$_smarty_results, &$this]);
+                $_smarty_results = ($_output_filter[0])($_smarty_results, $this);
             }
         }
 
@@ -1566,15 +1567,13 @@ class Smarty_Legacy
                     // call resource functions to fetch the template source and timestamp
                     if ($params['get_source']) {
                         $_source_return = isset($this->_plugins['resource'][$_resource_type]) &&
-                            call_user_func_array($this->_plugins['resource'][$_resource_type][0][0],
-                                                 [$_resource_name, &$params['source_content'], &$this]);
+                            ($this->_plugins['resource'][$_resource_type][0][0])($_resource_name, $params['source_content'], $this);
                     } else {
                         $_source_return = true;
                     }
 
                     $_timestamp_return = isset($this->_plugins['resource'][$_resource_type]) &&
-                        call_user_func_array($this->_plugins['resource'][$_resource_type][0][1],
-                                             [$_resource_name, &$params['resource_timestamp'], &$this]);
+                        ($this->_plugins['resource'][$_resource_type][0][1])($_resource_name, $params['resource_timestamp'], $this);
 
                     $_return = $_source_return && $_timestamp_return;
                     break;
@@ -1587,9 +1586,8 @@ class Smarty_Legacy
                 if (!is_callable($this->default_template_handler_func)) {
                     $this->trigger_error("default template handler function \"$this->default_template_handler_func\" doesn't exist.");
                 } else {
-                    $_return = call_user_func_array(
-                        $this->default_template_handler_func,
-                        [$_params['resource_type'], $_params['resource_name'], &$params['source_content'], &$params['resource_timestamp'], &$this]);
+                    $_return = ($this->default_template_handler_func)(
+                        $_params['resource_type'], $_params['resource_name'], $params['source_content'], $params['resource_timestamp'], $this);
                 }
             }
         }
@@ -1692,7 +1690,7 @@ class Smarty_Legacy
         $_var = $_args[0];
         foreach ($_var as $_key => $_val) {
             $_args[0] = $_val;
-            $_var[$_key] = call_user_func_array($_func_name, $_args);
+            $_var[$_key] = $_func_name(...$_args);
         }
         return $_var;
     }

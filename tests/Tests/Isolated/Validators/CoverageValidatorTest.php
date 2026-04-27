@@ -8,7 +8,7 @@
  * complex business logic for subscriber relationships and policy conflicts.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\CoverageValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\CoverageValidator;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
@@ -339,7 +339,7 @@ class CoverageValidatorStub extends CoverageValidator
     /**
      * Override configureValidator to avoid complex database-dependent callbacks
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Configure only the basic contexts without calling parent which has database calls
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);

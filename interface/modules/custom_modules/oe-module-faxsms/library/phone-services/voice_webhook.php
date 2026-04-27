@@ -4,11 +4,13 @@
  * Web Hook for RingCentral Voice Events
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 local_log("RingCentral webhook accessed at " . date('Y-m-d H:i:s'));
 
@@ -27,7 +29,8 @@ if (!empty($validationToken)) {
 $ignoreAuth = true; // Ignore OpenEMR authentication for this webhook
 require_once(__DIR__ . '/../../../../../globals.php');
 
-$expectedToken = $_SESSION['ringcentral_voice_token'] ?? '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$expectedToken = $session->get('ringcentral_voice_token') ?? '';
 $providedToken = $_GET['token'] ?? '';
 if (empty($expectedToken) || $providedToken !== $expectedToken) {
     local_log("RingCentral webhook: Invalid or missing token");
@@ -51,7 +54,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 // Process the event
 try {
     processRingCentralEvent($data);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     local_log("RingCentral webhook processing error: " . $e->getMessage());
     // Still return 200 to prevent RingCentral from retrying
 }
@@ -263,7 +266,7 @@ function storeCallEvent($callData): void
                 $callData['raw_data']
             ]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         local_log("Failed to store call event: " . $e->getMessage());
     }
 }
@@ -349,7 +352,7 @@ function handleNewVoicemail($messageId, $fromNumber, $messageData): void
             "INSERT INTO ringcentral_voicemails (message_id, from_number, received_date, raw_data) VALUES (?, ?, NOW(), ?)",
             [$messageId, $fromNumber, json_encode($messageData)]
         );
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         local_log("Failed to store voicemail: " . $e->getMessage());
     }
 }

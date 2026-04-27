@@ -7,7 +7,7 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
@@ -22,14 +22,14 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Manager")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
 //global variables:
@@ -111,7 +111,7 @@ $the_first_time = 1;
 $itero = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
-// checking to see if there is any information in the array if not display a message (located after this if statment)
+// checking to see if there is any information in the array if not display a message (located after this if statement)
     $anypats = count($ret);
 
 
@@ -126,12 +126,12 @@ if ($ret = getBillsBetweendayReport($code_type)) {
           $catch_user[] = $iter['user'];
     }
 
-//This statment uniques the array removing duplicates
+//This statement uniques the array removing duplicates
     $user_list = array_unique($catch_user);
 // reorder the list starting with array element zero
     $final_list = array_values($user_list);
 
-// sort array in assending order
+// sort array in ascending order
     sort($final_list);
 
     $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
@@ -140,7 +140,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
     }
 
     foreach ($all4 as $iter) {
-        // Case statment to tally information by user
+        // Case statement to tally information by user
         switch ($iter['user']) {
             case $final_list[0]:
                 $us0_user = $iter['user'];
@@ -446,7 +446,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                     if (date("Y-m-d", strtotime((string) $iter['bill_date'])) == "1969-12-31") {
                         print "<td class='w-100'><span class='text'><center>" . text($iter['units']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
-                        if ($GLOBALS['language_default'] === 'English (Standard)') {
+                        if (OEGlobalsBag::getInstance()->getString('language_default') === 'English (Standard)') {
                             print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                         } else {
                             print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
@@ -462,7 +462,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             $line_total += $iter['fee'];
                             print "<td class='w-100'><span class='text'><center>" . text($iter["units"]) . "</center>";
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
-                            if ($GLOBALS['language_default'] === 'English (Standard)') {
+                            if (OEGlobalsBag::getInstance()->getString('language_default') === 'English (Standard)') {
                                  print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                             } else {
                                  print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
@@ -503,7 +503,7 @@ if ($anypats == 0) {
     ?><span><?php echo xlt('No Data to Process')?></span><?php
 }
 
-// TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
+// TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
 
 if ($us0_fee != 0 || $us0_inspay != 0 || $us0_insadj != 0 || $us0_patadj != 0 || $us0_patpay != 0) {
     $user_info['user'][$k] = $us0_user;

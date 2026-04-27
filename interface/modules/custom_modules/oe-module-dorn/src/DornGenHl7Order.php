@@ -3,16 +3,17 @@
 /**
  *
  * @package   OpenEMR
- * @link      http: // www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
- * @license   https: // github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\Dorn;
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class DornGenHl7Order extends GenHl7OrderBase
 {
@@ -762,8 +763,9 @@ class DornGenHl7Order extends GenHl7OrderBase
             $responseMessage = !$response->isSuccess ? $response->responseMessage : $response;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Falling through to here indicates success.
-        EventAuditLogger::instance()->newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "ID: $msgid Protocol: $protocol Host: DORN");
+        EventAuditLogger::getInstance()->newEvent("proc_order_xmit", $session->get('authUser'), $session->get('authProvider'), 1, "ID: $msgid Protocol: $protocol Host: DORN");
         return $responseMessage;
     }
 }

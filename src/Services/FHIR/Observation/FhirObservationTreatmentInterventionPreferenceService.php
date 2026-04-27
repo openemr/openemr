@@ -10,10 +10,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -154,7 +151,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
             " ORDER BY p.effective_datetime DESC, p.id DESC";
 
         $rows = QueryUtils::fetchRecords($sql, $sqlBindArray) ?? [];
-        $result->setData(array_map([$this, 'transformRow'], $rows));
+        $result->setData(array_map($this->transformRow(...), $rows));
         return $result;
     }
 

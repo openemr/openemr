@@ -16,25 +16,22 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
-use Carecoordination\Model\CcdaDocumentTemplateOids;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use Carecoordination\Model\EncountermanagerTable;
 use DOMDocument;
-use Laminas\Filter\Compress\Zip;
 use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -64,9 +61,9 @@ class EncountermanagerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $fromDate = $request->getPost('form_date_from', null);
-        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format'));
         $toDate = $request->getPost('form_date_to', null);
-        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format'));
         // encounter_date
         // patient_date_created
 
@@ -78,8 +75,8 @@ class EncountermanagerController extends AbstractActionController
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime("-3 months", $fromDate));
-            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime("-3 months", $fromDate));
+            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
         }
 
         $results = $request->getPost('form_results', 500);
@@ -238,7 +235,7 @@ class EncountermanagerController extends AbstractActionController
 
         $document = new \Document($docId);
         try {
-            $twig = new TwigContainer(null, $GLOBALS['kernel']);
+            $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
             // can_access will check session if no params are passed.
             if (!$document->can_access()) {
                 echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
@@ -277,11 +274,11 @@ class EncountermanagerController extends AbstractActionController
             $proc->importStylesheet($ss);
             $updatedContent = $proc->transformToXml($xmlDom);
             echo $updatedContent;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
-            (new SystemLogger())->errorLogCaller(
+            ServiceContainer::getLogger()->error(
                 "Failed to generate preview for ccda document",
-                ['docId' => $docId, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'docId' => $docId]
             );
         }
         $view = new ViewModel();
@@ -304,6 +301,12 @@ class EncountermanagerController extends AbstractActionController
     public function downloadAction()
     {
         $id = $this->getRequest()->getQuery('id');
+        // Validate that id is numeric to prevent path traversal
+        if (!is_numeric($id)) {
+            throw new \InvalidArgumentException('Invalid document ID');
+        }
+        $id = (int)$id;
+
         $dir = sys_get_temp_dir() . "/CCDA_$id/";
         $filename = "CCDA_$id.xml";
         $filename_html = "CCDA_$id.html";
@@ -331,21 +334,20 @@ class EncountermanagerController extends AbstractActionController
 
         copy(__DIR__ . "/../../../../../public/xsl/cda.xsl", $dir . "CDA.xsl");
 
-        $zip = new Zip();
-        $zip->setArchive($zip_dir . $zip_name);
-        $zip->compress($dir);
+        $this->zipDirectory($dir, $zip_dir . $zip_name);
 
         ob_clean();
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=$zip_name");
+        // Sanitize filename for Content-Disposition header
+        header("Content-Disposition: attachment; filename=\"" . $this->sanitizeFilename($zip_name) . "\"");
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($zip_dir . $zip_name);
 
-        // we need to unlink both the directory and the zip file once are done... as its a security hazard
-        // to have these files just hanging around in a tmp folder
+        // Clean up temp files - both the zip and source directory
         unlink($zip_dir . $zip_name);
+        $this->deleteDirectory($dir);
 
         $view = new ViewModel();
         $view->setTerminal(true);
@@ -360,7 +362,6 @@ class EncountermanagerController extends AbstractActionController
         $pids = $this->params('pids');
         $document_type = $this->params('document_type') ?? '';
         if ($pids != '') {
-            $zip = new Zip();
             $parent_dir = sys_get_temp_dir() . "/CCDA_Patient_Documents_" . time();
             if (!is_dir($parent_dir)) {
                 if (!mkdir($parent_dir, true) && !is_dir($parent_dir)) {
@@ -370,7 +371,7 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $dir = $parent_dir . "/";
-            $arr = explode('|', (string) $pids);
+            $arr = explode('|', (string)$pids);
             foreach ($arr as $row) {
                 $pid = $row;
                 $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);
@@ -388,7 +389,10 @@ class EncountermanagerController extends AbstractActionController
                     }
                     /* let's not have a dir per patient for now! though we'll keep for awhile.
                      * $dir = $parent_dir . "/CCDA_{$row_inner['lname']}_{$row_inner['fname']}/";*/
-                    $filename = "CCDA_{$row_inner['lname']}_{$row_inner['fname']}";
+                    // Sanitize patient names for safe filesystem use
+                    $safeLname = $this->sanitizeFilename($row_inner['lname'] ?? '');
+                    $safeFname = $this->sanitizeFilename($row_inner['fname'] ?? '');
+                    $filename = "CCDA_{$safeLname}_{$safeFname}";
                     if (!empty($doc_type) && in_array($doc_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
                         $filename .= "_" . $doc_type;
                     }
@@ -423,20 +427,20 @@ class EncountermanagerController extends AbstractActionController
                 $zip_name .= "_All";
             }
             $zip_name .= "_" . date("Y_m_d_His") . ".zip";
-            $zip->setArchive($zip_dir . $zip_name);
-            $zip->compress($parent_dir);
+            $this->zipDirectory($parent_dir, $zip_dir . $zip_name);
 
             ob_clean();
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=$zip_name");
+            // Sanitize filename for Content-Disposition header
+            header("Content-Disposition: attachment; filename=\"" . $this->sanitizeFilename($zip_name) . "\"");
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             readfile($zip_dir . $zip_name);
 
-            // we need to unlink both the directory and the zip file once are done... as its a security hazard
-            // to have these files just hanging around in a tmp folder
+            // Clean up temp files - both the zip and source directory
             unlink($zip_dir . $zip_name);
+            $this->deleteDirectory($parent_dir);
 
             $view = new ViewModel();
             $view->setTerminal(true);
@@ -473,5 +477,96 @@ class EncountermanagerController extends AbstractActionController
     public function getEncountermanagerTable()
     {
         return $this->encountermanagerTable;
+    }
+
+    /**
+     * Sanitize a string for safe use in filenames and HTTP Content-Disposition headers.
+     * Preserves patient name readability while removing dangerous characters.
+     *
+     * @param string $name The string to sanitize
+     * @return string Sanitized string safe for filesystem and header use
+     */
+    private function sanitizeFilename(string $name): string
+    {
+        // Remove null bytes and path traversal sequences
+        $name = str_replace(["\0", '..'], '', $name);
+        // Remove directory separators
+        $name = str_replace(['/', '\\'], '', $name);
+        // Remove characters that break Content-Disposition headers (newlines, quotes)
+        $name = preg_replace('/[\r\n"\']/', '', $name);
+        // Replace any remaining non-safe characters with underscore
+        // Allow: alphanumeric, space, underscore, hyphen, period, and common intl chars
+        $name = preg_replace('/[^\p{L}\p{N} _.\-]/u', '_', (string) $name);
+        // Collapse multiple underscores/spaces
+        $name = preg_replace('/[_ ]+/', '_', (string) $name);
+        // Trim underscores from ends
+        return trim((string) $name, '_');
+    }
+
+    /**
+     * Recursively delete a directory and all its contents.
+     *
+     * @param string $dir Directory path to delete
+     * @return void
+     */
+    private function deleteDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($iterator as $file) {
+            /** @var \SplFileInfo $file */
+            if ($file->isDir()) {
+                rmdir($file->getPathname());
+            } else {
+                unlink($file->getPathname());
+            }
+        }
+        rmdir($dir);
+    }
+
+    /**
+     * Replacement for Laminas\Filter\Compress\Zip::compress() using PHP's ZipArchive.
+     *
+     * @param string $sourceDir   Directory to zip (contents included recursively)
+     * @param string $zipFilePath Full path to resulting .zip file
+     * @return void
+     */
+    private function zipDirectory(string $sourceDir, string $zipFilePath): void
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            throw new \RuntimeException(sprintf('Unable to create ZIP archive "%s"', $zipFilePath));
+        }
+
+        $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                $sourceDir,
+                \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS
+            ),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $fileInfo) {
+            /** @var \SplFileInfo $fileInfo */
+            $filePath = $fileInfo->getPathname();
+            $localName = substr($filePath, strlen($sourceDir));
+
+            if ($fileInfo->isDir()) {
+                if ($localName !== '') {
+                    $zip->addEmptyDir($localName);
+                }
+            } else {
+                $zip->addFile($filePath, $localName);
+            }
+        }
+
+        $zip->close();
     }
 }

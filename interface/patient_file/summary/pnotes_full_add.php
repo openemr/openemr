@@ -4,7 +4,7 @@
  * pnotes_full_add.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,10 +16,15 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
@@ -43,12 +48,12 @@ if ($docid) {
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen
@@ -83,18 +88,16 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
             if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
-                    reappearPnote($id);
+                    reappearPnote($id, $patient_id);
                 } else {
-                    disappearPnote($id);
+                    disappearPnote($id, $patient_id);
                 }
 
                 if ($docid) {
@@ -109,7 +112,7 @@ if (isset($mode)) {
     } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
-            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', '', $patient_id);
             $noteid = '';
         } else {
             $noteid = addPnote(
@@ -133,8 +136,8 @@ if (isset($mode)) {
         $noteid = '';
     } elseif ($mode == "delete") {
         if ($noteid) {
-            deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id " . $noteid);
+            deletePnote($noteid, $patient_id);
+            EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -142,7 +145,7 @@ if (isset($mode)) {
 }
 
 $title = '';
-$assigned_to = $_SESSION['authUser'];
+$assigned_to = $session->get('authUser');
 if ($noteid) {
     $prow = getPnoteById($noteid, 'title,assigned_to,body,date');
     $title = $prow['title'];
@@ -203,7 +206,7 @@ function submitform(attr) {
             ?>
 
             <form class='border-0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="row">
                     <div class="col-12">
                         <h2 class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></h2>
@@ -271,7 +274,7 @@ function submitform(attr) {
                     </select>
                 </div>
 
-                <?php if ($GLOBALS['messages_due_date']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) { ?>
                     <div class="form-group mt-3">
                         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
@@ -308,7 +311,7 @@ function submitform(attr) {
 
             <form class='border-0' method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">
@@ -456,7 +459,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         ,minDate : 0 //only future
     });
 

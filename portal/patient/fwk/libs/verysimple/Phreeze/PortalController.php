@@ -16,7 +16,7 @@ require_once("verysimple/Authentication/IAuthenticatable.php");
 /**
  * Controller is a base controller object used for an MVC pattern
  * This controller uses Phreeze ORM and RenderEngine Template Engine
- * This controller could be extended to use a differente ORM and
+ * This controller could be extended to use a different ORM and
  * Rendering engine as long as they implement compatible functions.
  *
  * @package verysimple::Phreeze
@@ -34,7 +34,7 @@ abstract class PortalController
      *
      * @var string ModelName is used by the base Controller class for certain functions in which
      *      require knowledge of what Model is being used. For example, when validating user input.
-     *      This may be defined in Init() if any of thes base Controller features will be used.
+     *      This may be defined in Init() if any of these base Controller features will be used.
      */
     protected $ModelName;
     protected $Context;
@@ -46,6 +46,7 @@ abstract class PortalController
     protected $Smarty;
     private $_router;
     private $_cu;
+    /** @var string */
     public $GUID;
     public $DebugOutput = "";
     public $UnitTestMode = false;
@@ -60,7 +61,7 @@ abstract class PortalController
     /**
      * search string to look for to determine if this is an API request or not
      */
-    static $ApiIdentifier = "api/";
+    public static string $ApiIdentifier = "api/";
 
     /**
      * the default mode used when calling 'Redirect'
@@ -157,7 +158,7 @@ abstract class PortalController
 
     /**
      * Init is called by the base constructor immediately after construction.
-     * This method must be implemented and provided an oportunity to
+     * This method must be implemented and provided an opportunity to
      * set any class-wide variables such as ModelName, implement
      * authentication for this Controller or any other class-wide initialization
      */
@@ -359,7 +360,7 @@ abstract class PortalController
     }
 
     /**
-     * Use as an alterative to print in order to capture debug output
+     * Use as an alternative to print in order to capture debug output
      *
      * @param
      *          string text to print
@@ -480,8 +481,8 @@ abstract class PortalController
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
-            } catch (exception $ex) {
-                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage());
+            } catch (\Throwable $ex) {
+                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to suppress this error: " . $ex->getMessage());
             }
         }
 
@@ -490,7 +491,7 @@ abstract class PortalController
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
-                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
+                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN; // @phpstan-ignore offsetAccess.nonOffsetAccessible
 
                     if ($fm == FM_TYPE_DATETIME) {
                         $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
@@ -504,9 +505,9 @@ abstract class PortalController
                         $val = serialize($val);
                     }
 
-                    $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
+                    $val = VerySimpleStringUtil::EncodeSpecialCharacters((string) $val, true, true);
 
-                    $xml .= "<" . htmlspecialchars($var) . ">" . $val . "</" . htmlspecialchars($var) . ">\r\n";
+                    $xml .= "<" . htmlspecialchars((string) $var) . ">" . $val . "</" . htmlspecialchars((string) $var) . ">\r\n";
                 }
             }
 
@@ -534,51 +535,6 @@ abstract class PortalController
             header('Content-type: text/xml');
             print $xml;
         }
-    }
-
-    /**
-     * Render an array of IRSSFeedItem objects as an RSS feed
-     *
-     * @param array $feedItems
-     *          array of IRSSFeedItem objects
-     * @param string $feedTitle
-     * @param string $feedDescription
-     */
-    protected function RenderRSS(array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
-    {
-        require_once('verysimple/RSS/Writer.php');
-        require_once('verysimple/RSS/IRSSFeedItem.php');
-
-        $baseUrl = RequestUtil::GetBaseURL();
-        $rssWriter = new RSS_Writer($feedTitle, $baseUrl, $feedDescription);
-        $rssWriter->setLanguage('us-en');
-        $rssWriter->addCategory("Items");
-
-        if (count($feedItems)) {
-            $count = 0;
-            foreach ($feedItems as $item) {
-                $count++;
-
-                if ($item instanceof IRSSFeedItem) {
-                    $rssWriter->addItem(
-                        $item->GetRSSTitle(), // title
-                        $item->GetRSSLink($baseUrl), // link
-                        $item->GetRSSDescription(), // description
-                        $item->GetRSSAuthor(), // author
-                        date(DATE_RSS, $item->GetRSSPublishDate()), // date
-                        null, // source
-                        $item->GetRSSGUID()
-                    ) // guid
-                    ;
-                } else {
-                    $rssWriter->addItem("Item $count doesn't implment IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
-                }
-            }
-        } else {
-            $rssWriter->addItem("No Items", "about:blank", '', 'No Author', date(DATE_RSS));
-        }
-
-        $rssWriter->writeOut();
     }
 
     /**
@@ -627,7 +583,7 @@ abstract class PortalController
         } else {
             $vr->Success = false;
             $vr->Errors = $obj->GetValidationErrors();
-            $vr->Message = "Validation Errors Occured";
+            $vr->Message = "Validation Errors Occurred";
         }
 
         // if the user requested to save inline, their Save method will take over from here
@@ -764,7 +720,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (str_contains($url, (string) self::$ApiIdentifier));
+        return (str_contains($url, self::$ApiIdentifier));
     }
 
     /**
@@ -862,7 +818,7 @@ abstract class PortalController
      * @param
      *          bool if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
      * @param
-     *          array (only relvant if useSimpleObject is true) options array passed through to Phreezable->ToString()
+     *          array (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
      * @param
      *          bool set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
      */
@@ -895,7 +851,7 @@ abstract class PortalController
 
         try {
             $output = json_encode($obj);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
@@ -947,7 +903,7 @@ abstract class PortalController
      * @param string $action
      *          in the format Controller.Method
      * @param mixed $feedback
-     *          string which will be assigne to the template as "feedback" or an array of values to assign
+     *          string which will be assigned to the template as "feedback" or an array of values to assign
      * @param array $params
      * @param string $mode
      *          (client | header) default = Controller::$DefaultRedirectMode

@@ -4,7 +4,7 @@
  * Advance directives gui.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,9 +14,13 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 
@@ -28,18 +32,16 @@ use OpenEMR\Services\UserService;
 
     <?php
     if (!isset($pid)) {
-        $pid = $_SESSION['pid'];
+        $pid = $session->get('pid');
     }
     if ($_POST['form_yesno']) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $form_yesno = filter_input(INPUT_POST, 'form_yesno');
         $form_adreviewed = DateTimeToYYYYMMDDHHMMSS(filter_input(INPUT_POST, 'form_adreviewed'));
         QueryUtils::sqlStatementThrowException("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ?"
         . " ,advance_directive_user_authenticator = ? where pid = ?"
-            , [$form_yesno,$form_adreviewed, $_SESSION['authUserID'], $pid]);
+            , [$form_yesno,$form_adreviewed, $session->get('authUserID'), $pid]);
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -50,7 +52,7 @@ use OpenEMR\Services\UserService;
 
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $userService = new UserService();
-    $userRecord = $userService->getUser($_SESSION['authUserID']);
+    $userRecord = $userService->getUser($session->get('authUserID'));
     $myrow = sqlQuery($sql, [$pid]);
     if ($myrow) {
         $form_completedad = $myrow['completed_ad'];
@@ -75,7 +77,7 @@ use OpenEMR\Services\UserService;
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -92,7 +94,7 @@ use OpenEMR\Services\UserService;
         <div class="row">
             <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
                         <?php generate_form_field(['data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'], $form_completedad); ?>

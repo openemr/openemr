@@ -4,28 +4,32 @@
  * C_Prescription class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/amc.php");
-require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/amc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Rx\RxList;
-use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\RxList;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;
 
 class C_Prescription extends Controller
@@ -52,11 +56,11 @@ class C_Prescription extends Controller
     function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
-        $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions'] === '1');
-        $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
+        $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "prescription" . "&");
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->assign("WEIGHT_LOSS_CLINIC", OEGlobalsBag::getInstance()->get('weight_loss_clinic'));
+        $this->assign("SIMPLIFIED_PRESCRIPTIONS", OEGlobalsBag::getInstance()->get('simplified_prescriptions') === '1');
+        $this->pconfig = OEGlobalsBag::getInstance()->get('oer_config')['prescriptions'];
         $this->RxList = new RxList();
         // test if rxnorm available for lookups.
         $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
@@ -64,15 +68,14 @@ class C_Prescription extends Controller
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
-        if ($GLOBALS['inhouse_pharmacy']) {
+        if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) {
             // Make an array of drug IDs and selectors for the template.
             $drug_array_values = [0];
             $drug_array_output = ["-- " . xl('or select from inventory') . " --"];
             $drug_attributes = '';
-
-            // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
 
             $res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
                 "d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
@@ -122,17 +125,17 @@ class C_Prescription extends Controller
         $prescription = $this->prescriptions[0];
         $this->assign("prescription", $prescription);
         $vars = $this->getTemplateVars();
-        $vars['enable_amc_prompting'] = $GLOBALS['enable_amc_prompting'] ?? false;
-        $vars['weno_rx_enable'] = $GLOBALS['weno_rx_enable'] ?? false;
+        $vars['enable_amc_prompting'] = OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting');
+        $vars['weno_rx_enable'] = OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false;
         $vars['topActionBarDisplay'] = FormActionBarSettings::shouldDisplayTopActionBar();
         $vars['bottomActionBarDisplay'] = FormActionBarSettings::shouldDisplayBottomActionBar();
 
-        if ($GLOBALS['enable_amc_prompting']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting')) {
             $vars['amcCollectReturnFlag'] = amcCollect('e_prescribe_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
@@ -146,30 +149,31 @@ class C_Prescription extends Controller
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
-        $url = $GLOBALS['webroot'] . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
+        $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
         $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
         $this->assign("addCodeUrl", $url);
 
-        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
+        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
 
         // If quantity to dispense is not already set from a POST, set its
         // default value.
         if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
-        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
+        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $session->get('encounter') ?? '';
         $this->assign("defaultEncounterId", $defaultEncounterId);
 
-        // if we are no a prescription with a drug id, disable the dispense button
-        if (empty($this->prescriptions[0]->get_drug_id())) {
-            $this->assign("dispenseEnabled", false);
-        }
+        // Track whether this is a new prescription (no ID yet) - affects dispense behavior
+        $isNewPrescription = empty($this->prescriptions[0]->id);
+        $this->assign("isNewPrescription", $isNewPrescription);
 
         $this->default_action();
     }
 
-    function list_action($id, $sort = "")
+    function list_action($id, $sort = "", $printPrescriptionId = null)
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -183,20 +187,22 @@ class C_Prescription extends Controller
         }
 
         // Collect interactions if the global is turned on
-        if ($GLOBALS['rx_show_drug_drug']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_show_drug_drug')) {
             $interaction = "";
             // Ensure RxNorm installed
             $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
-            if ($rxn == false) {
+            if ($rxn === false) {
                 $interaction = xlt("Could not find RxNorm Table! Please install.");
-            } elseif ($rxn == true) {
+            } else {
                 //   Grab medication list from prescriptions list and load into array
-                $pid = $GLOBALS['pid'];
+                $pid = OEGlobalsBag::getInstance()->get('pid');
                 $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
+                // escape_table_name() on a literal handles case-insensitive table name matching.
+                $tbl_rxnconso = escape_table_name('RXNCONSO');
                 $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
                     $drug = explode(" ", (string) $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM " . $tbl_rxnconso . " WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
@@ -227,27 +233,29 @@ class C_Prescription extends Controller
             $this->assign("INTERACTION", $interaction);
         }
 
-        // flag to indicate the CAMOS form is regsitered and active
+        // flag to indicate the CAMOS form is registered and active
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
         $vars = $this->getTemplateVars();
         $vars['pid'] = $id;
-        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
-        $vars['rx_show_drug_drug'] = $GLOBALS['rx_show_drug_drug'] ?? false;
-        $vars['rx_zend_pdf_template'] = $GLOBALS['rx_zend_pdf_template'] ?? false;
-        $vars['baseModDir'] = $GLOBALS['baseModDir'] ?? '';
-        $vars['zendModDir'] = $GLOBALS['zendModDir'] ?? '';
+        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->getBoolean('rx_send_email');
+        $vars['rx_show_drug_drug'] = OEGlobalsBag::getInstance()->getBoolean('rx_show_drug_drug');
+        $vars['rx_zend_pdf_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_zend_pdf_template');
+        $vars['baseModDir'] = OEGlobalsBag::getInstance()->get('baseModDir') ?? '';
+        $vars['zendModDir'] = OEGlobalsBag::getInstance()->get('zendModDir') ?? '';
         $vars['printm'] = null; // TODO: figure out where printm is used or defined
-        $vars['rx_zend_pdf_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
-        $vars['rx_zend_html_template'] = $GLOBALS['rx_zend_html_template'] ?? '';
-        $vars['rx_zend_html_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
-        $vars['rx_use_fax_template'] = $GLOBALS['rx_use_fax_template'] ?? '';
-        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
+        $vars['rx_zend_pdf_action'] = OEGlobalsBag::getInstance()->getString('rx_zend_pdf_action') ?? '';
+        $vars['rx_zend_html_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_zend_html_template');
+        $vars['rx_zend_html_action'] = OEGlobalsBag::getInstance()->getString('rx_zend_pdf_action') ?? '';
+        $vars['rx_use_fax_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_use_fax_template');
+        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->getBoolean('rx_send_email');
         $vars['faxSignatureMissing'] = false;
         if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
             $vars['faxSignatureMissing'] = true;
         }
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
+        $vars['printPrescriptionId'] = $printPrescriptionId;
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 
@@ -264,8 +272,7 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-        //print_r(Prescription::prescriptions_factory($id));
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_block.html");
+        $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "prescription/" . $this->template_mod . "_block.html");
     }
 
     /**
@@ -289,15 +296,14 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-        //print_r(Prescription::prescriptions_factory($id));
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_fragment.html");
+        $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "prescription/" . $this->template_mod . "_fragment.html");
     }
 
     function lookup_action()
     {
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->do_lookup();
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_lookup.html");
+        $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "prescription/" . $this->template_mod . "_lookup.html");
     }
 
     function edit_action_process()
@@ -323,7 +329,7 @@ class C_Prescription extends Controller
         $this->prescriptions[0]->persist();
         $_POST['process'] = "";
 
-        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
+        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
 
     // Set the AMC reporting flag (to record percentage of prescriptions that
     // are set as e-prescriptions)
@@ -353,7 +359,86 @@ class C_Prescription extends Controller
               processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
+        // Handle dispense after save if requested (Save and Dispense workflow)
+        if (!empty($_POST['dispense_after_save']) && $_POST['dispense_after_save'] === '1') {
+            $this->dispenseAfterSave();
+            return;
+        }
+
+        // Handle print after save if requested (Save and Print workflow)
+        if (!empty($_POST['print_after_save']) && $_POST['print_after_save'] === '1') {
+            $this->printAfterSave();
+            return;
+        }
+
         $this->list_action($this->prescriptions[0]->get_patient_id());
+        exit;
+    }
+
+    /**
+     * Dispense drug immediately after saving a new prescription.
+     * Uses DrugSalesService for proper inventory management.
+     */
+    private function dispenseAfterSave(): void
+    {
+        $prescription = $this->prescriptions[0];
+        $drugId = (int)($_POST['dispense_drug_id'] ?? $_POST['drug_id'] ?? 0);
+        $quantity = (float)($_POST['disp_quantity'] ?? 0);
+        $fee = (float)($_POST['disp_fee'] ?? 0);
+        $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
+        $patientId = $prescription->get_patient_id();
+        $prescriptionId = $prescription->id;
+
+        $dispenseError = null;
+
+        if ($drugId <= 0) {
+            $dispenseError = xl('No in-house drug selected for dispensing');
+        } elseif ($quantity <= 0) {
+            $dispenseError = xl('Invalid dispense quantity');
+        } elseif ($encounterId <= 0) {
+            $dispenseError = xl('No encounter selected for dispensing');
+        } else {
+            try {
+                $drugSalesService = new DrugSalesService();
+                $saleId = $drugSalesService->sellDrug(
+                    $drugId,
+                    $quantity,
+                    $fee,
+                    $patientId,
+                    $encounterId,
+                    $prescriptionId
+                );
+
+                if (!$saleId) {
+                    $dispenseError = xl('Inventory is not available for this order');
+                }
+            } catch (\Throwable $e) {
+                $dispenseError = $e->getMessage();
+            }
+        }
+
+        if ($dispenseError) {
+            // Show error and return to prescription list
+            echo "<script>alert(" . js_escape($dispenseError) . "); ";
+            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            exit;
+        }
+
+        // Success - redirect to prescription list
+        $this->list_action($patientId);
+        exit;
+    }
+
+    /**
+     * Print/download PDF immediately after saving a prescription.
+     * Redirects to the prescription list with a flag to trigger the print dialog on load.
+     * This keeps the dialog open (unlike directly streaming the PDF which would replace the page).
+     */
+    private function printAfterSave(): void
+    {
+        $prescriptionId = $this->prescriptions[0]->id;
+        $patientId = $this->prescriptions[0]->get_patient_id();
+        $this->list_action($patientId, "", $prescriptionId);
         exit;
     }
 
@@ -366,11 +451,26 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         //print header
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], null, '50', '', 'center', '');
+        $pdf->ezImage(OEGlobalsBag::getInstance()->get('oer_config')['prescriptions']['logo'], null, '50', '', 'center', '');
         $pdf->ezColumnsStart(['num' => 2, 'gap' => 10]);
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
-            add_escape_custom($p->provider->id) . "'");
-        $pdf->ezText($res['addr'] ?? '', 12);
+        $res = sqlQuery(
+            "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.phone, f.fax"
+            . " FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$p->provider->id]
+        );
+        $addr = '';
+        if ($res) {
+            $name = (string) ($res['name'] ?? '');
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $phone = (string) ($res['phone'] ?? '');
+            $fax = (string) ($res['fax'] ?? '');
+            $addr = "<b>{$name}</b>\n{$street}\n{$city}, {$state} {$zip}\nTel:{$phone}"
+                . ($fax !== '' ? "\nFax: {$fax}" : '');
+        }
+        $pdf->ezText($addr, 12);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
@@ -378,26 +478,26 @@ class C_Prescription extends Controller
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    // Now it is configureable. Change value in
+    // Now it is configurable. Change value in
     //     Administration->Globals->Rx
-        if ($GLOBALS['rx_enable_DEA']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
             } else {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
             }
         }
 
-        if ($GLOBALS['rx_enable_NPI']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                     $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
             } else {
                 $pdf->ezText('<b>' . xl('NPI') . ':</b> _________________________', 12);
             }
         }
 
-        if ($GLOBALS['rx_enable_SLN']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 $pdf->ezText('<b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number, 12);
             } else {
                 $pdf->ezText('<b>' . xl('State Lic. #') . ':</b> ___________________', 12);
@@ -415,8 +515,21 @@ class C_Prescription extends Controller
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>', 6);
         $pdf->ezText($p->patient->get_name_display(), 10);
-        $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
-        $pdf->ezText($res['addr']);
+        $res = sqlQuery(
+            "SELECT street, city, state, postal_code, phone_home, phone_cell, phone_biz"
+            . " FROM patient_data WHERE pid = ?",
+            [$p->patient->id]
+        );
+        $patientAddr = '';
+        if ($res) {
+            $phone = (string) ($res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: '')));
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $patientAddr = "{$street}\n{$city}, {$state} {$zip}\n{$phone}";
+        }
+        $pdf->ezText($patientAddr);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
@@ -445,41 +558,55 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td></td>\n");
         echo ("<td>\n");
-        echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'] . "' />");
+        echo ("<img WIDTH='68pt' src='./interface/pic/" . OEGlobalsBag::getInstance()->get('oer_config')['prescriptions']['logo_pic'] . "' />");
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td>\n");
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
-        if (!empty($res)) {
-            $patterns =  ['/\n/','/Tel:/','/Fax:/'];
-            $replace =  ['<br />', xl('Tel') . ':', xl('Fax') . ':'];
-            $res = preg_replace($patterns, $replace, $res);
+        $res = sqlQuery(
+            "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.phone, f.fax"
+            . " FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$p->provider->id]
+        );
+        $facilityAddr = '';
+        if ($res) {
+            $name = (string) ($res['name'] ?? '');
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $phone = (string) ($res['phone'] ?? '');
+            $fax = (string) ($res['fax'] ?? '');
+            $facilityAddr = '<b>' . text($name) . "</b><br />"
+                . text($street) . "<br />"
+                . text($city) . ', ' . text($state) . ' ' . text($zip) . "<br />"
+                . xl('Tel') . ':' . text($phone)
+                . ($fax !== '' ? '<br />' . xl('Fax') . ': ' . text($fax) : '');
         }
 
-        echo ('<span class="large">' . ($res['addr'] ?? '') . '</span>');
+        echo ('<span class="large">' . $facilityAddr . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
         echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
 
-        if ($GLOBALS['rx_enable_DEA']) {
-            if ($GLOBALS['rx_show_DEA']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
         }
 
-        if ($GLOBALS['rx_enable_NPI']) {
-            if ($GLOBALS['rx_show_NPI']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                 echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
         }
 
-        if ($GLOBALS['rx_enable_SLN']) {
-            if ($GLOBALS['rx_show_SLN']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
@@ -491,15 +618,22 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td rowspan='2' class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>' . '<br />');
-        echo ($p->patient->get_name_display() . '<br />');
-        $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
-        if (!empty($res)) {
-            $patterns =  ['/\n/'];
-            $replace =  ['<br />'];
-            $res = preg_replace($patterns, $replace, $res);
+        echo (text($p->patient->get_name_display()) . '<br />');
+        $res = sqlQuery(
+            "SELECT street, city, state, postal_code, phone_home, phone_cell, phone_biz"
+            . " FROM patient_data WHERE pid = ?",
+            [$p->patient->id]
+        );
+        if ($res) {
+            $phone = (string) ($res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: '')));
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            echo text($street) . '<br />'
+                . text($city) . ', ' . text($state) . ' ' . text($zip) . '<br />'
+                . text($phone);
         }
-
-        echo ($res['addr']);
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');
@@ -568,7 +702,7 @@ class C_Prescription extends Controller
         echo ("}\n");
         echo ("</style>\n");
 
-        echo ("<title>" . xl('Prescription') . "</title>\n");
+        echo ("<title>" . xlt('Prescription') . "</title>\n");
         echo ("</head>\n");
         echo ("<body>\n");
     }
@@ -581,7 +715,8 @@ class C_Prescription extends Controller
     function current_user_has_signature()
     {
         if (!empty($this->pconfig['signature'])) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get("authUser"), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 return true;
             }
@@ -596,7 +731,8 @@ class C_Prescription extends Controller
             && $this->current_user_has_signature()
             && ( $this->is_faxing || $this->is_print_to_fax )
         ) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get('authUser'), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
                 $width = 0; // set to 0 so it uses the image width
@@ -610,7 +746,7 @@ class C_Prescription extends Controller
                 if (file_exists($addenumFile)) {
                     $pdf->ezText('');
                     $f = fopen($addenumFile, "r");
-                    while ($line = fgets($f, 1000)) {
+                    while (($line = fgets($f)) !== false) {
                         $pdf->ezText(rtrim($line));
                     }
                 }
@@ -625,8 +761,8 @@ class C_Prescription extends Controller
     function multiprintcss_footer()
     {
         echo ("<div class='signdiv'>\n");
-        echo (xl('Signature') . ":________________________________<br />");
-        echo (xl('Date') . ": " . date('Y-m-d'));
+        echo (xlt('Signature') . ":________________________________<br />");
+        echo (xlt('Date') . ": " . text(date('Y-m-d')));
         echo ("</div>\n");
         echo ("</div>\n");
     }
@@ -701,10 +837,12 @@ class C_Prescription extends Controller
 
         $pdf->ezSetY($my_y);
         $pdf->ezText($d, 10);
-        $pdf->ez['leftMargin'] = $GLOBALS['rx_left_margin'];
-        $pdf->ez['rightMargin'] = $GLOBALS['rx_right_margin'];
+        $pdf->ez['leftMargin'] = OEGlobalsBag::getInstance()->getInt('rx_left_margin');
+        $pdf->ez['rightMargin'] = OEGlobalsBag::getInstance()->getInt('rx_right_margin');
         $pdf->ezText('');
-        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
+        /** @var int $pageWidth */
+        $pageWidth = $pdf->ez['pageWidth'];
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pageWidth - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('');
     }
 
@@ -773,24 +911,24 @@ class C_Prescription extends Controller
         echo ("\n");
         echo ($p->provider->get_name_display()) . "\n";
 
-        if ($GLOBALS['rx_enable_DEA']) {
-            if ($GLOBALS['rx_show_DEA']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 echo (xl('DEA') . ':' . $p->provider->federal_drug_id . "\n");
             } else {
                 echo (xl('DEA') . ": ________________________\n" );
             }
         }
 
-        if ($GLOBALS['rx_enable_NPI']) {
-            if ($GLOBALS['rx_show_NPI']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                 echo (xl('NPI') . ':' . $p->provider->npi . '') . "\n";
             } else {
                 echo ('' . xl('NPI') . ": ________________________\n");
             }
         }
 
-        if ($GLOBALS['rx_enable_SLN']) {
-            if ($GLOBALS['rx_show_SLN']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 echo (xl('State Lic. #') . ':' . $p->provider->state_license_number . "\n");
             } else {
                 echo (xl('State Lic. #') . ": ________________________\n");
@@ -845,7 +983,7 @@ class C_Prescription extends Controller
      */
     function getDefaultMailClientText_action()
     {
-        $idsGet = $_GET['ids'];
+        $idsGet = filter_input(INPUT_GET, 'ids');
 
         if (empty($idsGet)) {
             $this->function_argument_error();
@@ -875,7 +1013,7 @@ class C_Prescription extends Controller
         $this->multiprintplain_footer();
         $data = ob_get_clean();
         $result = [
-            'subject' => $GLOBALS['openemr_name'] . " " . xl(" Prescription ")
+            'subject' => OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl(" Prescription ")
             ,'message' => $data
         ];
         http_response_code(200);
@@ -936,8 +1074,8 @@ class C_Prescription extends Controller
 
     function print_prescription($p, &$toFile)
     {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+        $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
 
         $pdf->selectFont('Helvetica');
 
@@ -981,17 +1119,17 @@ class C_Prescription extends Controller
         if ($sendAsPdf) {
             [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
             $pdfAsString = $pdf->output();
-            $mailBody = $GLOBALS['openemr_name'] . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
+            $mailBody = OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
         } else {
             [$mailBody, $patient] = $this->generateHtmlObjectForPrescriptionIds($id);
             $mail->isHTML(true);
         }
 
-        $mail->From = $GLOBALS['practice_return_email_path'];
+        $mail->From = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
 //        $mail->FromName = $p->provider->get_name_display();
 //        $text_body  = $p->get_prescription_display();
         $mail->Body = $mailBody;
-        $mail->Subject = $GLOBALS['openemr_name'] . " " . xl("Prescription");
+        $mail->Subject = OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl("Prescription");
         $mail->AddAddress($email);
         if ($sendAsPdf) {
             $mail->addStringAttachment($pdfAsString, 'Prescription-' . date("Y-m-d_H_i_s") . ".pdf");
@@ -1058,7 +1196,7 @@ class C_Prescription extends Controller
                     $err .= " print_prescription returned empty file";
                 }
 
-                $fileName = $GLOBALS['OE_SITE_DIR'] . "/documents/" . $p->get_id() .
+                $fileName = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . $p->get_id() .
                 $p->get_patient_id() . "_fax_.pdf";
                 //print "filename is $fileName";
                 touch($fileName); // php bug
@@ -1091,8 +1229,8 @@ class C_Prescription extends Controller
      */
     private function generatePdfObjectForPrescriptionIds(mixed $id): array
     {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+        $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
         $pdf->selectFont('Helvetica');
 
         // $print_header = true;

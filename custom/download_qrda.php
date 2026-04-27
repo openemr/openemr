@@ -4,7 +4,7 @@
  * QRDA Download
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ensoftek
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
@@ -18,11 +18,12 @@ require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id']) : "";
@@ -84,7 +85,7 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
                 provider_id: provider_id,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             context: document.body,
             success :
@@ -105,7 +106,11 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+                    const params = new URLSearchParams({
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        fileName: zipFiles
+                    });
+                    window.location = 'ajax_download.php?' + params;
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {
@@ -150,10 +155,10 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
         <th scope="col" class="multiDownload">
             <input type="checkbox" name="checkAll" id="checkAll"/>
             <div style="display:none" id=downloadAll>
-                <img class="downloadIcon" src="<?php echo $GLOBALS['images_static_relative'];?>/downbtn.gif" onclick=downloadAllXML(); />
+                <img class="downloadIcon" src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative');?>/downbtn.gif" onclick=downloadAllXML(); />
             </div>
             <div style="display:none" id=spinAll>;
-                <img src="<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif"/>
+                <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot');?>/interface/pic/ajax-loader.gif"/>
             </div>
         </th>
         <th scope="col">
@@ -205,15 +210,15 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 echo "</td>";
                 echo "<td align=center>";
                 echo "<div id=download" . attr($counter) . ">";
-                echo "<img class='downloadIcon' src='" . $GLOBALS['images_static_relative'] . "/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
+                echo "<img class='downloadIcon' src='" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
                 echo "</div>";
                 echo "<div style='display:none' id=spin" . attr($counter) . ">";
-                echo "<img src='" . $GLOBALS['webroot'] . "/interface/pic/ajax-loader.gif'/>";
+                echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/pic/ajax-loader.gif'/>";
                 echo "</div>";
                 echo "</td>";
                 echo "<td>";
                 echo "<div style='display:none' id=checkmark" . attr($counter) . ">";
-                echo "<img src='" . $GLOBALS['images_static_relative'] . "/checkmark.png' />";
+                echo "<img src='" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/checkmark.png' />";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

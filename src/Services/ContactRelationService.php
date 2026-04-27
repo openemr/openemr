@@ -5,21 +5,20 @@
  * Manages relationships between contacts and other entities
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
-use League\Csv\Exception;
-use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\ORDataObject\ContactRelation;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -91,7 +90,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error creating relationship", [
                 'contact_id' => $contactId,
                 'target_table' => $targetTable,
@@ -133,7 +132,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error updating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -171,7 +170,7 @@ class ContactRelationService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to deactivate relationship");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -201,7 +200,7 @@ class ContactRelationService extends BaseService
                 'deleted' => true,
                 'contact_relation_id' => $relationId
             ]);
-        } catch (\Exception $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -387,7 +386,7 @@ class ContactRelationService extends BaseService
             foreach ($indexedResults as $recordUuid) {
                 $processingResult->addData($personByUuids[$recordUuid]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error searching patient relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -415,6 +414,7 @@ class ContactRelationService extends BaseService
                 c.id as owner_contact_id,
                 c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id,
+                cr.notes AS relation_notes,
                 target_contact.id AS target_contact_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
@@ -455,6 +455,7 @@ class ContactRelationService extends BaseService
 
             // Merge relationship data with entity details
             if ($entityDetails) {
+                unset($entityDetails['active']);
                 $results[] = array_merge($relationship, $entityDetails);
             } else {
                 $results[] = $relationship; // Include without entity details if entity not found
@@ -652,7 +653,7 @@ class ContactRelationService extends BaseService
                 'source_contact_id' => $sourceContactId,
                 'destination_contact_id' => $destinationContactId
             ]);
-        } catch (\Exception $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error transferring relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -698,6 +699,7 @@ class ContactRelationService extends BaseService
     {
         $linkService = new PersonPatientLinkService();
         $personService = new PersonService();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // Check if patient already has a linked person
         $existingPerson = $linkService->getPersonForPatient($patientId);
@@ -724,7 +726,8 @@ class ContactRelationService extends BaseService
             'middle_name' => $patient['mname'] ?? '',
             'title' => $patient['title'] ?? '',
             'suffix' => $patient['suffix'] ?? '',
-            'birth_date' => $patient['DOB'] ?? '',
+            // birth date is expected to be in the format the frontend entered it so we have to convert it to an OpenEMR date
+            'birth_date' => DateFormatterUtils::oeFormatShortDate($patient['DOB'] ?? ''),
             'gender' => $patient['sex'] ?? '',
             'ssn' => $patient['ss'] ?? '',
             'email_direct' => $patient['email_direct'] ?? '',
@@ -750,7 +753,7 @@ class ContactRelationService extends BaseService
         $linkResult = $linkService->linkPersonToPatient(
             $personId,
             $patientId,
-            $_SESSION['authUserID'] ?? null,
+            $session->get('authUserID'),
             'auto_created_for_relationship',
             'Auto-created when adding relationship to existing patient'
         );
@@ -782,9 +785,7 @@ class ContactRelationService extends BaseService
         int $ownerId,
         array $relatedPersonData
     ): array {
-        $committed = false;
-        try {
-            QueryUtils::startTransaction();
+        return QueryUtils::inTransaction(function () use ($ownerTable, $ownerId, $relatedPersonData) {
             $this->getLogger()->debug("Batch saving relationships", [
                 'owner_table' => $ownerTable,
                 'owner_id' => $ownerId,
@@ -798,135 +799,151 @@ class ContactRelationService extends BaseService
             }
 
             // Iterate through array of RelatedPerson objects
-            foreach ($relatedPersonData as $index => $relatedPerson) {
-                $action = $relatedPerson['data_action'] ?? '';
+            try {
+                foreach ($relatedPersonData as $index => $relatedPerson) {
+                    $action = $relatedPerson['data_action'] ?? '';
 
-                if (empty($action)) {
-                    continue;
-                }
-
-                $owner_contact_relation_id = $relatedPerson['owner_contact_relation_id'] ?? null;
-
-                // Handle INACTIVATE/DELETE
-                if ($action == 'INACTIVATE' || $action == 'DELETE') {
-                    if (!empty($owner_contact_relation_id)) {
-                        $result = $this->deactivateRelationship($owner_contact_relation_id);
-                        if ($result->hasData()) {
-                            $savedRecords[] = $result->getData()[0];
-                        }
-                    }
-                    continue;
-                }
-
-                // Handle ADD and UPDATE
-                $ownerContactId = $relatedPerson['owner_contact_id'] ?? null;
-
-                if (empty($ownerContactId)) {
-                    $this->getLogger()->warning("Missing contact_id for relation", [
-                        'index' => $index
-                    ]);
-                    continue;
-                }
-
-                // Get target table and ID
-                $targetTable = $relatedPerson['target_table'] ?? 'person';
-                $targetId = $relatedPerson['target_id'] ?? null;
-
-                if (empty($targetId)) {
-                    $this->getLogger()->warning("Missing target ID for relation", [
-                        'index' => $index,
-                        'target_table' => $targetTable
-                    ]);
-                    continue;
-                }
-                $targetId = (int)$targetId;
-
-                // If target is a patient, get or create their person record
-                if ($targetTable === 'patient_data') {
-                    try {
-                        $targetPersonId = $this->getOrCreatePersonForPatient($targetId);
-                        $targetTable = 'person';
-                        $targetId = $targetPersonId;
-
-                        $this->getLogger()->debug("Resolved patient to person", [
-                            'patient_id' => $targetId,
-                            'person_id' => $targetPersonId
-                        ]);
-                    } catch (\Exception $e) {
-                        $this->getLogger()->error("Failed to get/create person for patient", [
-                            'patient_id' => $targetId,
-                            'error' => $e->getMessage()
-                        ]);
+                    if (empty($action)) {
                         continue;
                     }
-                } else {
-                    // Target is already a person
-                    $targetTable = 'person';
-                }
 
-                $metadata = [
-                    'relationship' => $relatedPerson['relationship'] ?? '',
-                    'role' => $relatedPerson['role'] ?? '',
-                    'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
-                    'is_primary_contact' => $relatedPerson['is_primary_contact'] ?? false,
-                    'is_emergency_contact' => $relatedPerson['is_emergency_contact'] ?? false,
-                    'can_make_medical_decisions' => $relatedPerson['can_make_medical_decisions'] ?? false,
-                    'can_receive_medical_info' => $relatedPerson['can_receive_medical_info'] ?? false,
-                    'start_date' => $relatedPerson['start_date'] ?? '',
-                    'end_date' => $relatedPerson['end_date'] ?? '',
-                    'notes' => $relatedPerson['notes'] ?? '',
-                    'active' => $relatedPerson['active'] ?? true
-                ];
+                    $owner_contact_relation_id = $relatedPerson['owner_contact_relation_id'] ?? null;
 
-                if ($action == 'ADD') {
-                    // For ADD, we need to create relationship to target person
-                    // createRelationship expects: contactId, targetTable, targetId
-                    $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $metadata);
-                } else { // UPDATE
-                    if (empty($owner_contact_relation_id)) {
-                        $this->getLogger()->warning("Missing relation_id for UPDATE", [
+                    // Handle INACTIVATE/DELETE
+                    if ($action == 'INACTIVATE' || $action == 'DELETE') {
+                        if (!empty($owner_contact_relation_id)) {
+                            $result = $this->deactivateRelationship($owner_contact_relation_id);
+                            if ($result->hasData()) {
+                                $savedRecords[] = $result->getData()[0];
+                            }
+                        }
+                        continue;
+                    }
+
+                    // Handle ADD and UPDATE
+                    $ownerContactId = $relatedPerson['owner_contact_id'] ?? null;
+
+                    if (empty($ownerContactId)) {
+                        $this->getLogger()->warning("Missing contact_id for relation", [
                             'index' => $index
                         ]);
                         continue;
                     }
-                    $result = $this->updateRelationship($owner_contact_relation_id, $metadata);
+
+                    // Get target table and ID
+                    $targetTable = $relatedPerson['target_table'] ?? 'person';
+                    $targetId = $relatedPerson['target_id'] ?? null;
+
+                    if (empty($targetId)) {
+                        $this->getLogger()->warning("Missing target ID for relation", [
+                            'index' => $index,
+                            'target_table' => $targetTable
+                        ]);
+                        continue;
+                    }
+                    $targetId = (int)$targetId;
+
+                    // If target is a patient, get or create their person record
+                    if ($targetTable === 'patient_data') {
+                        $originalPatientId = $targetId;
+                        try {
+                            $targetPersonId = $this->getOrCreatePersonForPatient($targetId);
+                            $targetTable = 'person';
+                            $targetId = $targetPersonId;
+
+                            $this->getLogger()->debug("Resolved patient to person", [
+                                'patient_id' => $originalPatientId,
+                                'person_id' => $targetPersonId
+                            ]);
+                        } catch (\Throwable $e) {
+                            $this->getLogger()->error("Failed to get/create person for patient", [
+                                'patient_id' => $originalPatientId,
+                                'error' => $e->getMessage()
+                            ]);
+                            continue;
+                        }
+                    } else {
+                        // Target is already a person
+                        $targetTable = 'person';
+                    }
+
+                    $person_metadata = [
+                        'first_name' => $relatedPerson['first_name'] ?? '',
+                        'middle_name' => $relatedPerson['middle_name'] ?? '',
+                        'last_name' => $relatedPerson['last_name'] ?? '',
+                        'gender' => $relatedPerson['gender'] ?? '',
+                        'birth_date' => $relatedPerson['birth_date'] ?? ''
+                    ];
+
+                    if ($action == 'UPDATE') {
+                        if (empty($targetId)) {
+                            $this->getLogger()->warning("Missing person_id for UPDATE", [
+                                'index' => $index
+                            ]);
+                            continue;
+                        } else {  // UPDATE
+                            $personService = new PersonService();
+                            $personService->update($targetId, $person_metadata);
+                        }
+                    }
+
+                    $contact_relation_metadata = [
+                        'relationship' => $relatedPerson['relationship'] ?? '',
+                        'role' => $relatedPerson['role'] ?? '',
+                        'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
+                        'is_primary_contact' => $relatedPerson['is_primary_contact'] ?? false,
+                        'is_emergency_contact' => $relatedPerson['is_emergency_contact'] ?? false,
+                        'can_make_medical_decisions' => $relatedPerson['can_make_medical_decisions'] ?? false,
+                        'can_receive_medical_info' => $relatedPerson['can_receive_medical_info'] ?? false,
+                        'start_date' => $relatedPerson['start_date'] ?? '',
+                        'end_date' => $relatedPerson['end_date'] ?? '',
+                        'notes' => $relatedPerson['notes'] ?? '',
+                        'active' => $relatedPerson['active'] ?? true
+                    ];
+
+                    if ($action == 'ADD') {
+                        // For ADD, we need to create relationship to target person
+                        // createRelationship expects: contactId, targetTable, targetId
+                        $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $contact_relation_metadata);
+                    } else { // UPDATE
+                        if (empty($owner_contact_relation_id)) {
+                            $this->getLogger()->warning("Missing relation_id for UPDATE", [
+                                'index' => $index
+                            ]);
+                            continue;
+                        }
+                        $result = $this->updateRelationship($owner_contact_relation_id, $contact_relation_metadata);
+                    }
+
+                    if ($result->hasData()) {
+                        $savedRecords[] = $result->getData()[0];
+                    }
+
+                    // now we need to go through and save the phone number and address information for the connected
+                    // relationship
+                    if (!empty($relatedPerson['telecoms'])) {
+                        $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
+                        $telecomService = new ContactTelecomService();
+                        $telecoms = $relatedPerson['telecoms'] ?? [];
+                        $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
+                    }
+
+                    if (!empty($relatedPerson['addresses'])) {
+                        $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
+                        $addressService = new ContactAddressService();
+                        $addresses = $relatedPerson['addresses'] ?? [];
+                        $addressService->saveAddressesForContact($contact->get_id(), $addresses);
+                    }
                 }
 
-                if ($result->hasData()) {
-                    $savedRecords[] = $result->getData()[0];
-                }
-
-                // now we need to go through and save the phone number and address information for the connected
-                // relationship
-                if (!empty($relatedPerson['telecoms'])) {
-                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
-                    $telecomService = new ContactTelecomService();
-                    $telecoms = $relatedPerson['telecoms'] ?? [];
-                    $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
-                }
-
-                if (!empty($relatedPerson['addresses'])) {
-                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
-                    $addressService = new ContactAddressService();
-                    $addresses = $relatedPerson['addresses'] ?? [];
-                    $addressService->saveAddressesForContact($contact->get_id(), $addresses);
-                }
+                return $savedRecords;
+            } catch (\Throwable $e) {
+                $this->getLogger()->error("Error batch saving relationships", [
+                    'error' => $e->getMessage()
+                ]);
+                throw $e;
             }
-
-            QueryUtils::commitTransaction();
-            $committed = true;
-        } catch (Exception $exception) {
-            $this->getLogger()->error("Error batch saving relationships", [
-                'error' => $exception->getMessage()
-            ]);
-            throw $exception;
-        } finally {
-            if (!$committed) {
-                QueryUtils::rollbackTransaction();
-            }
-        }
-
-        return $savedRecords;
+        });
     }
 
 
@@ -958,25 +975,38 @@ class ContactRelationService extends BaseService
         }
 
         // Convert start_date using DateFormatterUtils to handle different date formats
-        if (isset($data['start_date']) && !empty($data['start_date'])) {
-            $startDate = DateFormatterUtils::dateStringToDateTime($data['start_date']);
-            if ($startDate !== false) {
-                $relation->set_start_date($startDate);
+        // Handle empty strings by setting to null
+        if (isset($data['start_date'])) {
+            if (!empty($data['start_date'])) {
+                $startDate = DateFormatterUtils::dateStringToDateTime($data['start_date']);
+                if ($startDate !== false) {
+                    $relation->set_start_date($startDate);
+                } else {
+                    $this->getLogger()->warning("Invalid start_date format", [
+                        'start_date' => $data['start_date']
+                    ]);
+                }
             } else {
-                $this->getLogger()->warning("Invalid start_date format", [
-                    'start_date' => $data['start_date']
-                ]);
+                // Empty string means clear the date
+                $relation->set_start_date(null);
             }
         }
 
-        if (isset($data['end_date']) && !empty($data['end_date'])) {
-            $endDate = DateFormatterUtils::dateStringToDateTime($data['end_date']);
-            if ($endDate !== false) {
-                $relation->set_end_date($endDate);
+        // Convert end_date using DateFormatterUtils to handle different date formats
+        // Handle empty strings by setting to null
+        if (isset($data['end_date'])) {
+            if (!empty($data['end_date'])) {
+                $endDate = DateFormatterUtils::dateStringToDateTime($data['end_date']);
+                if ($endDate !== false) {
+                    $relation->set_end_date($endDate);
+                } else {
+                    $this->getLogger()->warning("Invalid end_date format", [
+                        'end_date' => $data['end_date']
+                    ]);
+                }
             } else {
-                $this->getLogger()->warning("Invalid end_date format", [
-                    'end_date' => $data['end_date']
-                ]);
+                // Empty string means clear the date
+                $relation->set_end_date(null);
             }
         }
 

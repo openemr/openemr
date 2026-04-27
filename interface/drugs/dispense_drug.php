@@ -11,17 +11,20 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Logging\SystemLogger;
 
 $facilityService = new FacilityService();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function send_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -46,12 +49,11 @@ $drug_id         = $_REQUEST['drug_id'];
 $prescription_id = $_REQUEST['prescription'];
 $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
-$user            = $_SESSION['authUser'];
-$encounter       = $_REQUEST['encounter'] ?? $_SESSION['encounter'] ?? 0;
+$user            = $session->get('authUser');
+$encounter       = $_REQUEST['encounter'] ?? $session->get('encounter') ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));
 }
 
 if (!$drug_id) {
@@ -139,10 +141,10 @@ try {
          * ")");
          *******************************************************************/
     } // end if not $sale_id
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
     // revisited.
-    (new SystemLogger())->errorLogCaller("Dispense drug error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    ServiceContainer::getLogger()->error("Dispense drug error: " . $e->getMessage(), ['exception' => $e]);
     die(text($e->getMessage()));
 }
 
@@ -168,7 +170,7 @@ $row = sqlQuery("SELECT " .
     "p.pid = s.pid AND " .
     "u.id = r.provider_id", [$sale_id]);
 
-$dconfig = $GLOBALS['oer_config']['druglabels'];
+$dconfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'];
 
 $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
 $frow['street'] . "\n" .
@@ -189,8 +191,7 @@ generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form
 generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']) .
 ' ' .
 generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) .
-"\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
-xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
+sprintf("\n%s %s %s %s\n%s %s %s", xl('Lot'), $row['lot_number'], xl('Exp'), $row['expiration'], xl('NDC'), $row['ndc_number'], $row['manufacturer']);
 
 // if ($row['refills']) {
 //  // Find out how many times this prescription has been filled/refilled.
@@ -200,28 +201,7 @@ xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
 //  $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
 // }
 
-// We originally went for PDF output on the theory that output formatting
-// would be more controlled.  However the clumisness of invoking a PDF
-// viewer from the browser becomes intolerable in a POS environment, and
-// printing HTML is much faster and easier if the browser's page setup is
-// configured properly.
-//
-if (false) { // if PDF output is desired
-    $pdf = new Cezpdf($dconfig['paper_size']);
-    $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
-    $pdf->selectFont('Helvetica');
-    $pdf->ezSetDy(20); // dunno why we have to do this...
-    $pdf->ezText($header_text, 7, ['justification' => 'center']);
-    if (!empty($dconfig['logo'])) {
-        $pdf->ezSetDy(-5); // add space (move down) before the image
-        $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-        $pdf->ezSetDy(8);  // reduce space (move up) after the image
-    }
-
-    $pdf->ezText($label_text, 9, ['justification' => 'center']);
-    $pdf->ezStream();
-} else { // HTML output
-    ?>
+?>
 <html>
     <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
@@ -268,6 +248,3 @@ body {
 </script>
 </body>
 </html>
-    <?php
-}
-?>

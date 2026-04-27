@@ -687,9 +687,9 @@ CREATE TABLE `rule_target` (
   `group_id` bigint(20) NOT NULL DEFAULT 1 COMMENT 'Contains group id to identify collection of targets in a rule',
   `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
   `required_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is required and 1 is optional',
-  `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_targets', 
+  `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_targets',
   `value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Data is dependent on the method',
-  `interval` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Only used in interval entries', 
+  `interval` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Only used in interval entries',
   KEY  (`id`)
 ) ENGINE=MyISAM ;
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure', 1, 1, 1, 'target_interval', 'year', 1);
@@ -1011,7 +1011,7 @@ CREATE TABLE `temp_table_one` (
 ) ENGINE=MyISAM ;
 INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
 INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag` ) VALUES ('CVX', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 0, ''    , 0, 0, 1, 0);
-INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`) 
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`)
 VALUES
 (NULL, "diphtheria, tetanus toxoids and pertussis vaccine", "DTP", 1, (SELECT MAX(`id`) from `temp_table_one`), '', 0, 0, '', '', '', '', 1),
 (NULL, "poliovirus vaccine, live, oral", "OPV", 2, (SELECT MAX(`id`) from `temp_table_one`), '', 0, 0, '', '', '', '', 1),
@@ -1636,7 +1636,7 @@ UPDATE globals SET gl_value = 'style_purple.css' WHERE gl_name = 'css_header' AN
 #EndIf
 
 #IfMissingColumn form_misc_billing_options date_initial_treatment
-ALTER TABLE `form_misc_billing_options` 
+ALTER TABLE `form_misc_billing_options`
   ADD date_initial_treatment date default NULL;
 #EndIf
 
@@ -1868,4 +1868,3 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('msp_remit_codes', 'W1', 'W1', 216, 0, 0, '', 'Workers'' compensation jurisdictional fee schedule adjustment. Note: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Class of Contract Code Identification Segment (Loop 2100 Other Claim Related Information ');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('msp_remit_codes', 'W2', 'W2', 217, 0, 0, '', 'Payment reduced or denied based on workers'' compensation jurisdictional regulations or payment policies, use only if no other code is applicable. Note: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Insur');
 #EndIf
-

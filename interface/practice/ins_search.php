@@ -13,7 +13,7 @@
  * function.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -28,7 +28,9 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\{
     AddressService,
     InsuranceCompanyService,
@@ -42,7 +44,7 @@ $info_msg = "";
 $insuranceCompany = new InsuranceCompanyService();
 $phoneNumber = new PhoneNumberService();
 $ins_type_code_array = $insuranceCompany->getInsuranceTypes();
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -67,24 +69,26 @@ td {
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
  // This is invoked when our Search button is clicked.
  function dosearch() {
 
     $("#form_entry").hide();
     var f = document.forms[0];
-    var search_list = 'ins_list.php' +
-   '?form_name='   + encodeURIComponent(f.form_name.value  ) +
-   '&form_attn='   + encodeURIComponent(f.form_attn.value  ) +
-   '&form_addr1='  + encodeURIComponent(f.form_addr1.value ) +
-   '&form_addr2='  + encodeURIComponent(f.form_addr2.value ) +
-   '&form_city='   + encodeURIComponent(f.form_city.value  ) +
-   '&form_state='  + encodeURIComponent(f.form_state.value ) +
-   '&form_zip='    + encodeURIComponent(f.form_zip.value   ) +
-   '&form_phone='  + encodeURIComponent(f.form_phone.value ) +
-   '&form_cms_id=' + encodeURIComponent(f.form_cms_id.value) +
-   '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    const params = new URLSearchParams({
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+        form_addr1: f.form_addr1.value,
+        form_addr2: f.form_addr2.value,
+        form_attn: f.form_attn.value,
+        form_city: f.form_city.value,
+        form_cms_id: f.form_cms_id.value,
+        form_name: f.form_name.value,
+        form_phone: f.form_phone.value,
+        form_state: f.form_state.value,
+        form_zip: f.form_zip.value
+    });
+    var search_list = 'ins_list.php?' + params;
 
     top.restoreSession();
     $("#form_list").load( search_list ).show();
@@ -180,9 +184,7 @@ if (
     ($_POST['form_save'] ?? '')
     || ($_POST['form_update'] ?? '')
 ) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];
@@ -262,7 +264,7 @@ if (
 <div id="form_entry">
 
 <form method='post' name='theform' action='ins_search.php' onsubmit='return validate(this)'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <p>
@@ -294,7 +296,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line'
-       value='<?php echo attr($ins_co_address['line1'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address?->line1 ?? ''); ?>' />
   </td>
  </tr>
 
@@ -302,7 +304,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any'
-       value='<?php echo attr($ins_co_address['line2'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address?->line2 ?? ''); ?>' />
   </td>
  </tr>
 
@@ -311,11 +313,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name'
-                 value='<?php echo attr($ins_co_address['city'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->city ?? ''); ?>' />
          </div>
          <div class="col">
              <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality'
-                 value='<?php echo attr($ins_co_address['state'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->state ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -325,11 +327,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code'
-                 value='<?php echo attr(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
+                 value='<?php echo attr(($ins_co_address?->zip ?? '') . ($ins_co_address?->plusFour ?? '')); ?>' />
          </div>
          <div class="col">
              <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name'
-                 value='<?php echo attr($ins_co_address['country'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address?->country ?? ''); ?>' />
          </div>
      </td>
  </tr>

@@ -4,7 +4,7 @@
  * Patient disclosures main screen.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
@@ -15,28 +15,28 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Control access
 if (!AclMain::aclCheckCore('patients', 'disclosure')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Disclosures")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/disclosure: Disclosures", xl("Disclosures"));
 }
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
 $authAddonly = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
 
 //retrieve the user name
-$res = sqlQuery("select username from users where username=?", [$_SESSION["authUser"]]);
+$res = sqlQuery("select username from users where username=?", [$session->get("authUser")]);
 $uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $dates = trim((string) $_POST['dates']);
     $event = trim((string) $_POST['form_disclosure_type']);
@@ -49,23 +49,21 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
             exit;
         }
         //update the recorded disclosure in the extended_log table.
-        EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        EventAuditLogger::getInstance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         if (!$authWrite && !$authAddonly) {
             echo xlt('Not Authorized');
             exit;
         }
         //insert the disclosure records in the extended_log table.
-        EventAuditLogger::instance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        EventAuditLogger::getInstance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
 }
 
 if (isset($_GET['deletelid'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if (!$authWrite) {
         echo xlt('Not Authorized');
@@ -74,7 +72,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid = $_GET['deletelid'];
     //function to delete the recorded disclosures
-    EventAuditLogger::instance()->deleteDisclosure($deletelid);
+    EventAuditLogger::getInstance()->deleteDisclosure($deletelid);
 }
 ?>
 <html>
@@ -217,7 +215,7 @@ $(function () {
     var DeleteNote = function (logevent) {
         if (confirm(<?php echo xlj('Are you sure you want to delete this disclosure?'); ?> + "\n " + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
-            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>);
         }
     }
 
@@ -241,5 +239,3 @@ function refreshme() {
 </script>
 </body>
 </html>
-
-

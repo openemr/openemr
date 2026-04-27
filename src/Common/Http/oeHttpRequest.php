@@ -4,7 +4,7 @@
  * Http Rest Requests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -13,6 +13,8 @@
  */
 
 namespace OpenEMR\Common\Http;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Class oeHttpRequest
@@ -30,10 +32,12 @@ class oeHttpRequest extends oeHttp
 
         self::$client = $client;
         $this->bodyFormat = "json";
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $this->options = [
             'base_uri' => '',
             'http_errors' => false,
-            'verify' => false];
+            'verify' => $httpVerifySsl,
+        ];
 
         /* set here in class as default
         *  otherwise has to be invoked via setDebug().

@@ -4,7 +4,7 @@
  * Encounter form to track any clinical parameter.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Joe Slam <trackanything@produnis.de>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
@@ -17,6 +17,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 formHeader("Form: Track anything");
 
@@ -45,7 +46,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -59,7 +60,7 @@ echo "<div id='track_anything'>";
 if (!$formid) {
     // this is a new Track
 
-    // check if procedure is selcted
+    // check if procedure is selected
     if ($_POST['bn_select'] ?? null) {
         // "save"-Button was clicked, saving Form into db
 
@@ -75,7 +76,7 @@ if (!$formid) {
             addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
         } else {
                 echo xlt('No track selected') . ".<br />";
-            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
         }
     } else {
     // procedure is not yet selected
@@ -100,7 +101,7 @@ if (!$formid) {
         echo "</select>";
         echo "</td></tr><tr><td align='center'>";
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
-        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
         echo "</form>";
         echo "<br />&nbsp;</td></tr>";
 
@@ -136,7 +137,7 @@ if ($formid) {
     }
 
     // if all of the input is NULL, we do nothing
-    // if at least one entrie is NOT NULL, we save all into db
+    // if at least one entry is NOT NULL, we save all into db
     if ($all_are_null > 0) {
         for ($i = 0; $i < $length; $i++) {
             $thisid = $mylist[$i];
@@ -211,7 +212,7 @@ if ($formid) {
     echo "</table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
 
 
     // show old entries of track
@@ -256,7 +257,7 @@ while ($myrow = sqlFetchArray($query)) {
         echo "<td>";
         echo "<input type='hidden' name='old_id[" . attr($main_counter) . "][" . attr($counter) . "]' value='" . attr($myrow2['result_id']) . "'>";
         echo "<input type='text' size='12' name='old_value[" . attr($main_counter) . "][" . attr($counter) . "]' value='" . attr($myrow2['result']) . "'></td>";
-        $counter++; // next cloumn
+        $counter++; // next column
     }
 
     echo "</tr>";
@@ -265,7 +266,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "</tr></table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
 
     echo "</form>";
 }//end if($formid)

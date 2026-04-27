@@ -1,0 +1,8 @@
+# Lines to exclude from codespell checking
+# These are intentional spellings in specific contexts
+
+# CHANGELOG: documenting a bug fix about misspelling
+- "Retrieve" is sometimes misspelled "retrive" ([#8595](https://github.com/openemr/openemr/issues/8595))
+
+# Company name in copyright notice (Wrapp was a Swedish mobile commerce company)
+ * (c) 2013-2016 Nicklas Ansman, 2013 Wrapp

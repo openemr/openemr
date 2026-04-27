@@ -4,7 +4,7 @@
  * lang_manage.php script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -27,10 +28,9 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // set up flag if only checking for changes (ie not performing synchronization)
     $checkOnly = 0;
@@ -39,15 +39,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     }
 
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $case_sensitive_collation = "COLLATE utf8mb4_bin";
-        } else {
-            $case_sensitive_collation = "COLLATE utf8_bin";
-        }
-    } else {
-        $case_sensitive_collation = "COLLATE latin1_bin";
-    }
+    $case_sensitive_collation = "COLLATE utf8mb4_bin";
 
     $difference = 0; //flag
 
@@ -196,8 +188,8 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
 }
 ?>
 
-<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-2">

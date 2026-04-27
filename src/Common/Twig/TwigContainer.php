@@ -41,14 +41,18 @@ class TwigContainer
      */
     public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
-        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
+        if (null !== $kernel) {
+            $this->kernel = $kernel;
+        }
+
+        $globalsBag = OEGlobalsBag::getInstance();
+        $templateRoot = $this->kernel !== null
+            ? $this->kernel->getProjectDir()
+            : $globalsBag->getProjectDir();
+        $this->paths[] = $templateRoot . '/templates';
 
         if (!empty($path)) {
             $this->addPath($path);
-        }
-
-        if (null !== $kernel) {
-            $this->kernel = $kernel;
         }
     }
 
@@ -83,7 +87,7 @@ class TwigContainer
                 $twigEnv->enableDebug();
             }
             $event = new TwigEnvironmentEvent($twigEnv);
-            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED, 10);
+            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED);
         }
 
         return $twigEnv;

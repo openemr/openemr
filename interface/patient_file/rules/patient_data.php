@@ -4,7 +4,7 @@
  * patient_data.php
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,7 +15,9 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <html>
@@ -66,7 +68,7 @@ $(function () {
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = true; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 
@@ -86,17 +88,16 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_complete'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Save that form as a row in rule_patient_data table
-    //  and then close the window/modul.
+    //  and then close the window/module.
 
     // Collect and trim variables
     if (isset($_POST['form_entryID'])) {
-        $form_entryID = trim($_POST['form_entryID']);
+        $form_entryID = trim((string) $_POST['form_entryID']);
     }
 
     $form_date = trim((string) $_POST['form_date']);
@@ -155,7 +156,7 @@ if (isset($entryID)) {
 
 <br />
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
   <table border=0 cellpadding=1 cellspacing=1>
     <?php

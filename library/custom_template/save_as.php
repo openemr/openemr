@@ -45,7 +45,7 @@ use OpenEMR\Core\Header;
                         <input type="text" name="saveas" id="saveas">
                     </td>
                     <td>
-                        <a href="#" class="btn btn-primary"><span><?php echo htmlspecialchars((string) xl('OK'), ENT_QUOTES);?></span></a>
+                        <a href="#" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('OK'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

@@ -1,0 +1,15 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "php-syntax",
+      "pattern": [
+        {
+          "regexp": "^(?:PHP )?Parse error:\\s*(.+) in (.+) on line (\\d+)",
+          "message": 1,
+          "file": 2,
+          "line": 3
+        }
+      ]
+    }
+  ]
+}

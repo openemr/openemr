@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -12,24 +12,22 @@
 
     require_once "../../../../globals.php";
 
+    use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
+    use OpenEMR\Common\Session\SessionWrapperFactory;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
     $tab = "setup";
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/manage_modules: ClaimRev Connect - Setup", xl("ClaimRev Connect - Setup"));
 }
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "ClaimRevModule")) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: "ClaimRevModule", dieOnFail: true);
 }
 
 $services = ClaimRevModuleSetup::getBackgroundServices();
@@ -90,7 +88,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                         <form method="post" action="setup.php">
                             <button type="submit" name="backgroundService" class="btn btn-primary"><?php echo xlt("Set Defaults"); ?></button>
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                         </form>
                     </li>
                     <li>
@@ -105,7 +103,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         } else {
@@ -114,7 +112,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         }

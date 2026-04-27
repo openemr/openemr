@@ -5,7 +5,7 @@
  * Unit tests for US Core 3.1.1 Condition Profile compliance
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for most of this file marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot
  *            Minor additions were made by Stephen Nielson
@@ -19,8 +19,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirConditionService;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for US Core 3.1.1 Condition Profile compliance

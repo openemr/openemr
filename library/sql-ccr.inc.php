@@ -18,8 +18,10 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if ($_POST['ccrAction'] == 'generate') {
     if (isset($_POST['show_date'])) {
@@ -308,7 +310,7 @@ function getProblemData()
 
   # Note we are hard-coding (only allowing) problems that have been coded to ICD9. Would
   #  be easy to upgrade this to other codesets in future (ICD10,SNOMED) by using already
-  #  existant flags in the code_types table.
+  #  existent flags in the code_types table.
   # Additionally, only using problems that have one diagnosis code set in diagnosis field.
   #  Note OpenEMR allows multiple codes set per problem, but will limit to showing only
   #  problems with one diagnostic code set in order to maintain previous behavior
@@ -492,7 +494,8 @@ function getActorData()
     $sql2 = "
 	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
 
-    $result[1] = sqlStatement($sql2, [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $result[1] = sqlStatement($sql2, [$session->get('authUserID')]);
 
     $sql3 = "
   SELECT

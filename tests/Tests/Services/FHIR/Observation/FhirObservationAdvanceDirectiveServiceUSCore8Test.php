@@ -7,7 +7,7 @@
  * http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -26,11 +26,10 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
 {
@@ -191,7 +190,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertNotEmpty($profiles, 'Observation must have at least one profile');
 
         // Verify US Core 8.0 ADI profile is present
-        $profileUris = array_map(fn($profile) => (string)$profile, $profiles);
+        $profileUris = array_map(static fn($profile): string => (string)$profile, $profiles);
 
         $expectedProfile = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation|8.0.0';
         $this->assertContains(
@@ -277,6 +276,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'LOINC display must match expected');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function allSupportedCodesProvider(): array
     {
         // This will be populated in setUp, but we need to return static data
@@ -502,6 +502,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
         $this->assertEquals($expectedDisplay, (string)$loincCoding->getDisplay(), 'Value display must match');
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function valueSetCodesProvider(): array
     {
         return [

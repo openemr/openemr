@@ -5,7 +5,7 @@
  * api.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use InvalidArgumentException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
-use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -25,8 +25,8 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use InvalidArgumentException;
 
 class FhirQuestionnaireResponseService extends FhirServiceBase implements
     IResourceReadableService,
@@ -44,7 +44,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse';
 
-    private EventDispatcher $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
 
     public function __construct(?string $fhirApiURL = null)
@@ -52,12 +52,12 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
         parent::__construct($fhirApiURL);
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher()
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->dispatcher)) {
             $this->dispatcher = new EventDispatcher();

@@ -4,7 +4,7 @@
  * ReasonStatusCodes represents the statii that an observation,procedure, and other ccda/cql reportable item's reason code
  * can be.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,7 +19,10 @@ class ReasonStatusCodes
     const PENDING = "pending";
     const NONE = "";
 
-    public static function getCodesWithDescriptions()
+    /**
+     * @return array<string, array{code: string, description: string}>
+     */
+    public static function getCodesWithDescriptions(): array
     {
         return [
             self::NONE => [

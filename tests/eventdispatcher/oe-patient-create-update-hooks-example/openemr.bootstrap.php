@@ -8,16 +8,15 @@
  * actions.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
-use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Get new or updated patient data and do something with it
@@ -63,6 +62,6 @@ function oe_module_custom_patient_update_action(PatientUpdatedEvent $patientUpda
 }
 
 // Listen for the patient update and create events
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, 'oe_module_custom_patient_created_action');
 $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, 'oe_module_custom_patient_update_action');

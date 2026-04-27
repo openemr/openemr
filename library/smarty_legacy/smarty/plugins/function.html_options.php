@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -55,7 +56,7 @@ function smarty_function_html_options($params, &$smarty)
                 break;
 
             case 'selected':
-                ${$_key} = array_map('strval', array_values((array)$_val));
+                ${$_key} = array_map(strval(...), array_values((array)$_val));
                 break;
 
             default:

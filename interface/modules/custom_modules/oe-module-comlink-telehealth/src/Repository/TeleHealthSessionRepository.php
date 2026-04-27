@@ -4,7 +4,7 @@
  * Retrieves, creates, and updates database telehealth session records that track a provider/patient session relationship
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,10 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\PatientService;
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientService;
 
 class TeleHealthSessionRepository
 {
@@ -24,7 +24,7 @@ class TeleHealthSessionRepository
     public function createSession($pc_eid, $user_id, $encounter, $pid): ?array
     {
         $sql = "INSERT INTO " . self::TABLE_NAME . " (pc_eid, user_id, encounter, pid) VALUES (?,?,?,?)";
-        (new SystemLogger())->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
+        ServiceContainer::getLogger()->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
         QueryUtils::sqlInsert($sql, [$pc_eid, $user_id, $encounter, $pid]);
         // now return the record.  Should be a 1:1 relationship with appointments.  Encounters can be a m:1 relationship
         return $this->getSessionByAppointmentId($pc_eid, $user_id);
@@ -97,7 +97,7 @@ class TeleHealthSessionRepository
             . " ,pid = ? WHERE pc_eid = ? AND pid = ? ";
             $oldPid = $session['pid'];
             $newPid = $appt['pc_pid'];
-            (new SystemLogger())->info(
+            ServiceContainer::getLogger()->info(
                 "TelehealthSessionRepository->updatePatientFromAppointment() "
                 . "changing session patient assignment for appointment",
                 ['pc_eid' => $appt['pc_eid'], 'pid' => $oldPid, 'pc_pid' => $newPid]

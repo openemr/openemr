@@ -4,7 +4,7 @@
  * Billing Code Type represents a Billing Code selector widget that can be used in the LBF forms or independently in the system.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
@@ -85,7 +85,7 @@ class BillingCodeType implements IOptionFormType
         $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
 
         // Support edit option T which assigns the (possibly very long) description as
         // the default value.

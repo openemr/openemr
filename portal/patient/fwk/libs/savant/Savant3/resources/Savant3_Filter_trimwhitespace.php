@@ -69,7 +69,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
         $buffer = preg_replace("!<textarea[^>]+>.*?</textarea>!is", '@@@SAVANT:TRIM:TEXTAREA@@@', (string) $buffer);
 
         // remove all leading spaces, tabs and carriage returns NOT
-        // preceeded by a php close tag.
+        // preceded by a php close tag.
         $buffer = trim((string) preg_replace('/((?<!\?>)\n)[\s]+/m', '\1', (string) $buffer));
 
         // replace script blocks
@@ -97,12 +97,12 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
      *          Replace with this text.
      *
      * @param
-     *          string &$buffer The source text.
+     *          string &$buffer The source text, rewritten in place.
      *
-     * @return string The text after search-and-replace.
+     * @return void All callers consume the result through the &$buffer reference.
      *
      */
-    protected static function replace($search, $replace, &$buffer)
+    protected static function replace($search, $replace, &$buffer): void
     {
         $len = strlen($search);
         $pos = 0;

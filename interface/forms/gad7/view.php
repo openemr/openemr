@@ -5,7 +5,7 @@
  * open a previously completed GAD-7 form for further editing
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -15,9 +15,12 @@
 require_once("gad7.inc.php");  // common strings, require_once(globals.php), other includes etc
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "gad7";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
  <head>
@@ -40,7 +43,7 @@ var gad7_score = 0;
 // stuff that uses embedded php must go here, not in the include javascript file - it must be executed on server side before page is sent to client. included javascript is only executed on the client
 var changes_made = false;
 
-function create_q8(question, menue){
+function create_q8(question, menu){
  // create the question - the second part is italicised
        var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8); ?>));
        question.appendChild(text);
@@ -52,13 +55,13 @@ function create_q8(question, menue){
        question.appendChild(new_line);
        question.appendChild(ital);
 
-// populate the   the menue
-         menue.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
-         menue.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
-         menue.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
-         menue.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
-         menue.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
-        /*  menue.options[5] = new Option ( <?php echo js_escape($str_default);  ?>, "4"); */
+// populate the   the menu
+         menu.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+         menu.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
+         menu.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
+         menu.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
+         menu.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
+        /*  menu.options[5] = new Option ( <?php echo js_escape($str_default);  ?>, "4"); */
 
 }
 // check user really wants to exit without saving new answers
@@ -70,14 +73,14 @@ if (changes_made) {
     conf = confirm ( <?php echo js_escape($str_nosave_confirm); ?> );
     }
 if (conf) {
-    window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
+    window.location.href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
     }
 return ( conf );
 }
 </script>
 
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br></br>
 <span   ><font size=4><?php echo text($str_form_name); ?></font></span>
 <br></br>
@@ -98,9 +101,9 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
     </select>
 <script>
-     // set the default to the previous value - so it is displayed in the menue box
-    document.my_form.nervous_score.options[<?php echo text($obj['nervous_score']); ?>].defaultSelected=true;
-    var i = <?php echo text($obj['nervous_score']); ?> ; //the value from last time
+     // set the default to the previous value - so it is displayed in the menu box
+    document.my_form.nervous_score.options[<?php echo js_escape($obj['nervous_score']); ?>].defaultSelected=true;
+    var i = <?php echo js_escape($obj['nervous_score']); ?> ; //the value from last time
     gad7_score += i;
     all_scores[0] = i;
 </script>
@@ -118,8 +121,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
  </select>
 <script>
-     // set the default to the previous value - so it is displayed in the menue box
-     var i = <?php echo text($obj['control_worry_score']); ?>; //the value from last time
+     // set the default to the previous value - so it is displayed in the menu box
+     var i = <?php echo js_escape($obj['control_worry_score']); ?>; //the value from last time
    document.my_form.control_worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[1] = i;
@@ -138,8 +141,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
     </select>
        <script>
-     // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj['worry_score']); ?> ; //the value from last time
+     // set the previous value to the default - so it is displayed in the menu box
+      var i = <?php echo js_escape($obj['worry_score']); ?> ; //the value from last time
     document.my_form.worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[2] = i;
@@ -157,8 +160,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
  </select>
 <script>
-     // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj['relax_score']); ?> ; //the value from last time
+     // set the previous value to the default - so it is displayed in the menu box
+      var i = <?php echo js_escape($obj['relax_score']); ?> ; //the value from last time
     document.my_form.relax_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[3] = i;
@@ -176,8 +179,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
     </select>
 <script>
-     // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj['restless_score']); ?> ; //the value from last time
+     // set the previous value to the default - so it is displayed in the menu box
+     var i = <?php echo js_escape($obj['restless_score']); ?> ; //the value from last time
     document.my_form.restless_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[4] = i;
@@ -195,8 +198,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
     </select>
 <script>
-     // set the previous value to the default - so it is displayed in the menue box
-       var i = <?php echo text($obj['irritable_score']); ?> ; //the value from last time
+     // set the previous value to the default - so it is displayed in the menu box
+       var i = <?php echo js_escape($obj['irritable_score']); ?> ; //the value from last time
     document.my_form.irritable_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[5] = i;
@@ -214,8 +217,8 @@ return ( conf );
     <option value="3"><?php echo text($str_nearly); ?></option>
     </select>
 <script>
-     // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj['fear_score']);?> ; //the value from last time
+     // set the previous value to the default - so it is displayed in the menu box
+     var i = <?php echo js_escape($obj['fear_score']);?> ; //the value from last time
     document.my_form.fear_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[6] = i;
@@ -244,7 +247,7 @@ return ( conf );
   <SCRIPT>
 // only display the final question if the score is > 0
 // pass the function the answer previously entered onto the form
-manage_question_8 ("<?php echo text($obj["difficulty"]); ?>"); //do we need q8
+manage_question_8 (<?php echo js_escape($obj["difficulty"]); ?>); //do we need q8
 update_score ("undef",gad7_score); //display total from last time
  </script>
  <br>

@@ -26,13 +26,13 @@
         {if !$reportMode}
             <div class="col-12">
                 <div class="btn-group">
-                    <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
-                    <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
-                    <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+                    <button class="btn btn-primary btn-save" id="btn_save">{xlt t="Save"}</button>
+                    <button class="btn btn-secondary btn-delete" id="btn_clear">{xlt t="Clear"}</button>
+                    <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xlt t="Cancel"}</button>
                 </div>
                 <p>
-                    {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
-                    {xl t="The 'Clear' button will remove all annotations."}
+                    {xlt t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
+                    {xlt t="The 'Clear' button will remove all annotations."}
                 </p>
             </div>
         {/if}

@@ -1,0 +1,310 @@
+--
+--  Comment Meta Language Constructs:
+--
+--  #IfNotTable
+--    argument: table_name
+--    behavior: if the table_name does not exist,  the block will be executed
+
+--  #IfTable
+--    argument: table_name
+--    behavior: if the table_name does exist, the block will be executed
+
+--  #IfColumn
+--    arguments: table_name colname
+--    behavior:  if the table and column exist,  the block will be executed
+
+--  #IfMissingColumn
+--    arguments: table_name colname
+--    behavior:  if the table exists but the column does not,  the block will be executed
+
+--  #IfNotColumnType
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
+
+--  #IfNotColumnTypeDefault
+--    arguments: table_name colname value value2
+--    behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+
+--  #IfNotRow
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
+
+--  #IfNotRow2D
+--    arguments: table_name colname value colname2 value2
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
+
+--  #IfNotRow3D
+--    arguments: table_name colname value colname2 value2 colname3 value3
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+
+--  #IfNotRow4D
+--    arguments: table_name colname value colname2 value2 colname3 value3 colname4 value4
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3 AND colname4 = value4, the block will be executed.
+
+--  #IfNotRow2Dx2
+--    desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
+--    arguments: table_name colname value colname2 value2 colname3 value3
+--    behavior:  The block will be executed if both statements below are true:
+--               1) The table table_name does not have a row where colname = value AND colname2 = value2.
+--               2) The table table_name does not have a row where colname = value AND colname3 = value3.
+
+--  #IfRow
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+
+--  #IfRow2D
+--    arguments: table_name colname value colname2 value2
+--    behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
+
+--  #IfRow3D
+--        arguments: table_name colname value colname2 value2 colname3 value3
+--        behavior:  If the table table_name does have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+
+--  #IfRowIsNull
+--    arguments: table_name colname
+--    behavior:  If the table table_name does have a row where colname is null, the block will be executed.
+
+--  #IfIndex
+--    desc:      This function is most often used for dropping of indexes/keys.
+--    arguments: table_name colname
+--    behavior:  If the table and index exist the relevant statements are executed, otherwise not.
+
+--  #IfNotIndex
+--    desc:      This function will allow adding of indexes/keys.
+--    arguments: table_name colname
+--    behavior:  If the index does not exist, it will be created
+
+--  #EndIf
+--    all blocks are terminated with a #EndIf statement.
+
+--  #IfNotListReaction
+--    Custom function for creating Reaction List
+
+--  #IfNotListOccupation
+--    Custom function for creating Occupation List
+
+--  #IfTextNullFixNeeded
+--    desc: convert all text fields without default null to have default null.
+--    arguments: none
+
+--  #IfTableEngine
+--    desc:      Execute SQL if the table has been created with given engine specified.
+--    arguments: table_name engine
+--    behavior:  Use when engine conversion requires more than one ALTER TABLE
+
+--  #IfInnoDBMigrationNeeded
+--    desc: find all MyISAM tables and convert them to InnoDB.
+--    arguments: none
+--    behavior: can take a long time.
+
+--  #IfDocumentNamingNeeded
+--    desc: populate name field with document names.
+--    arguments: none
+
+--  #IfUpdateEditOptionsNeeded
+--    desc: Change Layout edit options.
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
+
+--  #IfVitalsDatesNeeded
+--    desc: Change date from zeroes to date of vitals form creation.
+--    arguments: none
+
+--  #IfMBOEncounterNeeded
+--    desc: Add encounter to the form_misc_billing_options table
+--    arguments: none
+
+--
+-- Organization Type list (HL7 Value Set: OrganizationType)
+-- See: https://github.com/openemr/openemr/issues/6826
+--
+
+#IfNotRow2D list_options list_id lists option_id organization-type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'dept', 'Hospital Department', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'team', 'Organizational team', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'govt', 'Government', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'ins', 'Insurance Company', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'pay', 'Payer', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'edu', 'Educational Institute', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'reli', 'Religious Institution', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);
+#EndIf
+
+#IfMissingColumn facility organization_type
+ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType';
+#EndIf
+
+--
+-- Rename the misspelled list_options option_id from 'declne_to_specfy' to 'decline_to_specify',
+-- and update any patient_data.race records that reference the old value.
+-- See: https://github.com/openemr/openemr/issues/10385
+--
+
+#IfColumn patient_data race
+UPDATE `patient_data` SET `race` = 'decline_to_specify' WHERE `race` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id race option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'race' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id language option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'language' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id ethrace option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'ethrace' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+--
+-- Rename the misspelled 'interpretter' column to 'interpreter' in patient_data,
+-- and update the layout_options field_id to match.
+-- See: https://github.com/openemr/openemr/issues/10351
+--
+
+#IfColumn patient_data interpretter
+ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter';
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id interpretter
+UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
+#EndIf
+
+--
+-- Remove the unused Multipledb module infrastructure.
+-- The module has been removed and will be replaced by Doctrine's
+-- native multi-connection support if ever needed.
+--
+
+#IfTable multiple_db
+DROP TABLE `multiple_db`;
+#EndIf
+
+#IfRow globals gl_name allow_multiple_databases
+DELETE FROM `globals` WHERE `gl_name` = 'allow_multiple_databases';
+#EndIf
+
+#IfRow globals gl_name safe_key_database
+DELETE FROM `globals` WHERE `gl_name` = 'safe_key_database';
+#EndIf
+
+#IfRow3D layout_options form_id DEM field_id care_team_provider uor 1
+UPDATE `layout_options` SET `uor` = 0 WHERE `form_id` = 'DEM' AND `field_id` IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND `uor` = 1;
+#EndIf
+
+#IfRow globals gl_name gbl_nav_visit_forms
+DELETE FROM `globals` WHERE `gl_name` IN (
+    'enable_amc_tracking',
+    'gbl_ma_ippf_code_restriction',
+    'gbl_menu_acct_trans',
+    'gbl_menu_ive_clients',
+    'gbl_menu_projects',
+    'gbl_menu_service_and_client_volume',
+    'gbl_menu_shifts',
+    'gbl_menu_stats_cc',
+    'gbl_menu_stats_cyp',
+    'gbl_menu_stats_daily',
+    'gbl_menu_stats_gcac',
+    'gbl_menu_stats_ippf',
+    'gbl_menu_stats_ma',
+    'gbl_menu_stats_sinadi',
+    'gbl_menu_visits_by_item',
+    'gbl_nav_visit_forms',
+    'gbl_uruguay_asse_token',
+    'gbl_uruguay_asse_url',
+    'machine_name'
+);
+#EndIf
+
+--
+-- Drop the onsite_activity_view which was dynamically created at runtime.
+-- The view is no longer needed as the OnsiteActivityViewReporter now uses
+-- a direct JOIN query instead.
+-- See: https://github.com/openemr/openemr/issues/10975
+--
+
+DROP VIEW IF EXISTS `onsite_activity_view`;
+
+--
+-- Fix medex_recalls.r_created default for MySQL strict mode compatibility.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfNotColumnTypeDefault medex_recalls r_created timestamp CURRENT_TIMESTAMP
+ALTER TABLE `medex_recalls` MODIFY `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+--
+-- Fix onetime_auth index prefix length for MySQL strict mode compatibility.
+-- With utf8mb4 (4 bytes/char), a 255 character prefix exceeds InnoDB limits.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfIndex onetime_auth pid
+ALTER TABLE `onetime_auth` DROP INDEX `pid`, ADD INDEX `pid` (`pid`, `onetime_token`(32));
+#EndIf
+
+--
+-- Fix document_templates zero dates for MySQL strict mode compatibility.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfTable document_templates
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `document_templates` SET `send_date` = CURRENT_TIMESTAMP WHERE `send_date` = '0000-00-00 00:00:00';
+UPDATE `document_templates` SET `end_date` = NULL WHERE `end_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnType form_eye_antseg OSCONJ text
+ALTER TABLE `form_eye_antseg`
+  MODIFY COLUMN OSCONJ text;
+#EndIf
+
+#IfMissingColumn background_services lock_expires_at
+ALTER TABLE `background_services`
+  ADD COLUMN `lock_expires_at` datetime DEFAULT NULL COMMENT 'Lease expiration. Compared with NOW() on acquire, so the stored value uses whatever session timezone is in effect (OpenEMR syncs it to gbl_time_zone). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.';
+#EndIf
+
+#IfNotColumnType questionnaire_repository active tinyint(1)
+ALTER TABLE `questionnaire_repository` MODIFY `active` tinyint(1) NOT NULL DEFAULT 1;
+#EndIf
+
+--
+-- Fix openemr_postcalendar_events date defaults for MySQL strict mode.
+-- The zero date values are incompatible with NO_ZERO_DATE mode.
+-- pc_eventDate: NOT NULL, no default - every event must have a start date.
+--   Rows with 0000-00-00 are orphaned (invisible in queries) and deleted.
+-- pc_endDate: NULL allowed - non-recurring or open-ended events have no end.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+-- Delete orphaned events with invalid zero dates (these never appeared in
+-- calendar views since date range queries filtered them out)
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+DELETE FROM `openemr_postcalendar_events` WHERE `pc_eventDate` = '0000-00-00';
+UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+
+-- Remove the zero-date default from pc_eventDate (keep NOT NULL)
+-- This ALTER is idempotent - safe to run even if already applied
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date NOT NULL;
+
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
+#EndIf
+
+#IfNotTable migrations
+CREATE TABLE `migrations` (
+    `version` varchar(191) NOT NULL,
+    `executed_at` datetime DEFAULT NULL,
+    `execution_duration_ms` int DEFAULT NULL,
+    PRIMARY KEY (`version`)
+) ENGINE=InnoDB;
+#EndIf

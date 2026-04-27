@@ -4,7 +4,7 @@
  * Clinical Notes form save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -20,11 +20,12 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\ClinicalNotesService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -48,27 +49,29 @@ $note_relations = "";
 $clinicalNotesService = new ClinicalNotesService();
 
 if (!empty($form_id)) {
-    $existingIds  = $clinicalNotesService->getClinicalNoteIdsForPatientForm($form_id, $_SESSION['pid'], $_SESSION['encounter']);
+    $pid = $session->get('pid');
+    $encounter = $session->get('encounter');
+    $existingIds  = $clinicalNotesService->getClinicalNoteIdsForPatientForm($form_id, $pid, $encounter);
 
     // in order to find the ids that are unique we have to operate on the same type system, we'll convert everything into
     // an integer
     // the database BIGINT(20).  Its very, very unlikely we will run into overflow problems here.
-    $existingIdInts = array_map('intval', $existingIds);
-    $submittedIdInts = array_map('intval', array_filter($ids, 'is_numeric'));
+    $existingIdInts = array_map(intval(...), $existingIds);
+    $submittedIdInts = array_map(intval(...), array_filter($ids, is_numeric(...)));
 
     // now grab all of the ids that exist that were not submitted so we can mark them as inactive.  This does a
-    // mathmatical set substraction.  We don't really delete the records as we need an audit trail here.
+    // mathematical set subtraction.  We don't really delete the records as we need an audit trail here.
     $recordsIdsToDelete = array_diff($existingIdInts, $submittedIdInts);
     foreach ($recordsIdsToDelete as $recordId) {
         $clinicalNotesService->setActivityForClinicalRecord(
             $recordId,
-            $_SESSION['pid'],
-            $_SESSION['encounter'],
+            $pid,
+            $encounter,
             ClinicalNotesService::ACTIVITY_INACTIVE
         );
     }
 } else {
-    $form_id = $clinicalNotesService->createClinicalNotesParentForm($_SESSION['pid'], $_SESSION['encounter'], $userauthorized);
+    $form_id = $clinicalNotesService->createClinicalNotesParentForm($session->get('pid'), $session->get('encounter'), $userauthorized);
 }
 
 // create our records let the underlying service fix everything
@@ -76,6 +79,10 @@ $note_records = [];
 
 $count = array_filter($count);
 if (!empty($count)) {
+    $authUser = $session->get('authUser');
+    $pid = $session->get('pid');
+    $encounter = $session->get('encounter');
+    $authProvider = $session->get('authProvider');
     foreach ($count as $key => $codeval) {
         $record = [];
         $record['id'] = $ids[$key] ?? null; // new records we don't set an id
@@ -89,18 +96,18 @@ if (!empty($count)) {
             // we only populate this on an insert as we don't want someone tampering with the user that created this
             // record, this avoids issues where the record can be impersonated by someone else (IE falsifying who entered
             // the note).
-            $record['user'] = $_SESSION["authUser"];
+            $record['user'] = $authUser;
         }
         // this is for related issues to the note
         $record['note_related_to'] = parse_note($record['description']);
         //$record['note_related_to'] = $record['description'];
         // note this is the form_id from the forms table and is NOT a unique record id
 
-        $record['pid'] = $_SESSION['pid'];
-        $record['encounter'] = $_SESSION['encounter'];
+        $record['pid'] = $pid;
+        $record['encounter'] = $encounter;
         $record['authorized'] = $userauthorized;
-        $record['date'] = $code_date[$key];
-        $record['groupname'] = $_SESSION["authProvider"];
+        $record['date'] = DateToYYYYMMDD($code_date[$key]);
+        $record['groupname'] = $authProvider;
         $record['activity'] = ClinicalNotesService::ACTIVITY_ACTIVE;
 
         // Save the clinical note record
@@ -112,7 +119,7 @@ if (!empty($count)) {
         if (isset($linked_documents[$key]) && !empty($linked_documents[$key])) {
             $documentsData = json_decode((string) $linked_documents[$key], true);
             if (is_array($documentsData)) {
-                $clinicalNotesService->saveLinkedDocuments($clinicalNoteId, $documentsData, $_SESSION["authUser"]);
+                $clinicalNotesService->saveLinkedDocuments($clinicalNoteId, $documentsData, $authUser);
             }
         } else {
             // Clear existing linked documents if none provided
@@ -123,7 +130,7 @@ if (!empty($count)) {
         if (isset($linked_results[$key]) && !empty($linked_results[$key])) {
             $resultsData = json_decode((string) $linked_results[$key], true);
             if (is_array($resultsData)) {
-                $clinicalNotesService->saveLinkedResults($clinicalNoteId, $resultsData, $_SESSION["authUser"]);
+                $clinicalNotesService->saveLinkedResults($clinicalNoteId, $resultsData, $authUser);
             }
         } else {
             // Clear existing linked results if none provided
@@ -136,8 +143,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}

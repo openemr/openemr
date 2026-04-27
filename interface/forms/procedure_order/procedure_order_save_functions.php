@@ -4,12 +4,14 @@
  * Template for rendering specimen rows within a procedure order form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
@@ -24,8 +26,8 @@ function saveProcedureOrderCodes($formid, $postData): array
     // Track existing order codes by sequence
     $existingCodes = [];
     $existingQuery = sqlStatement(
-        "SELECT procedure_order_seq 
-         FROM procedure_order_code 
+        "SELECT procedure_order_seq
+         FROM procedure_order_code
          WHERE procedure_order_id = ?
          ORDER BY procedure_order_seq",
         [$formid]
@@ -101,8 +103,8 @@ function saveProcedureOrderCodes($formid, $postData): array
         } else {
             // INSERT new record - get next sequence
             $order_seq_result = sqlQuery(
-                "SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS seq 
-                 FROM procedure_order_code 
+                "SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS seq
+                 FROM procedure_order_code
                  WHERE procedure_order_id = ?",
                 [$formid]
             );
@@ -175,9 +177,9 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
     // Get existing ACTIVE specimens for this order line
     $existingSpecimens = [];
     $existingQuery = sqlStatement(
-        "SELECT procedure_specimen_id, uuid 
-         FROM procedure_specimen 
-         WHERE procedure_order_id = ? 
+        "SELECT procedure_specimen_id, uuid
+         FROM procedure_specimen
+         WHERE procedure_order_id = ?
            AND procedure_order_seq = ?
 
          ORDER BY procedure_specimen_id",
@@ -284,26 +286,28 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
  */
 function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     if (empty($processedIds)) {
         // Mark all as deleted
         sqlStatement(
-            "UPDATE procedure_specimen 
+            "UPDATE procedure_specimen
              SET deleted = 1, updated_by = ?
-             WHERE procedure_order_id = ? 
+             WHERE procedure_order_id = ?
                AND procedure_order_seq = ?
                AND deleted = 0",
-            [($_SESSION['authUserID'] ?? null), $formid, $order_seq]
+            [$authUserID, $formid, $order_seq]
         );
         return;
     }
 
     $placeholders = implode(',', array_fill(0, count($processedIds), '?'));
-    $params = array_merge([($_SESSION['authUserID'] ?? null), $formid, $order_seq], $processedIds);
+    $params = array_merge([$authUserID, $formid, $order_seq], $processedIds);
 
     sqlStatement(
-        "UPDATE procedure_specimen 
+        "UPDATE procedure_specimen
          SET deleted = 1, updated_by = ?
-         WHERE procedure_order_id = ? 
+         WHERE procedure_order_id = ?
            AND procedure_order_seq = ?
            AND deleted = 0
            AND procedure_specimen_id NOT IN ($placeholders)",
@@ -330,7 +334,7 @@ function getOrCreateProcedureType($postData, $index): ?int
     $ptid = (int)($result_types['procedure_type_id'] ?? 0);
 
     if ($ptid === 0) {
-        $query_insert = 'INSERT INTO procedure_type(name, lab_id, procedure_code, procedure_type, activity, procedure_type_name) 
+        $query_insert = 'INSERT INTO procedure_type(name, lab_id, procedure_code, procedure_type, activity, procedure_type_name)
                          VALUES (?, ?, ?, ?, ?, ?)';
         $ptid = sqlInsert(
             $query_insert,
@@ -375,7 +379,7 @@ function updateProcedureOrderCode($formid, $seq, $data, $ptid): void
            reason_date_low = ?,
            reason_date_high = ?,
            reason_status = ?
-         WHERE procedure_order_id = ? 
+         WHERE procedure_order_id = ?
            AND procedure_order_seq = ?",
         [
             $data['diagnoses'],
@@ -417,8 +421,8 @@ function deleteRemovedOrderCodes($formid, $processedSequences): void
     $params = array_merge([$formid], $processedSequences);
 
     sqlStatement(
-        "DELETE FROM procedure_order_code 
-         WHERE procedure_order_id = ? 
+        "DELETE FROM procedure_order_code
+         WHERE procedure_order_id = ?
            AND procedure_order_seq NOT IN ($placeholders)",
         $params
     );
@@ -437,6 +441,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
 
     $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     return sqlInsert(
         "INSERT INTO procedure_specimen SET
          uuid = ?,
@@ -480,8 +486,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
-            ($_SESSION['authUserID'] ?? null)
+            $authUserID,
+            $authUserID
         ]
     );
 }
@@ -495,6 +501,7 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
  */
 function updateProcedureSpecimen($specimenId, $data): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     sqlStatement(
         "UPDATE procedure_specimen SET
          specimen_identifier = ?,
@@ -532,7 +539,7 @@ function updateProcedureSpecimen($specimenId, $data): void
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
+            $session->get('authUserID'),
             $specimenId
         ]
     );
@@ -551,8 +558,8 @@ function deleteRemovedSpecimens($formid, $order_seq, $processedIds): void
     if (empty($processedIds)) {
         // If no specimens processed, delete all for this line
         sqlStatement(
-            "DELETE FROM procedure_specimen 
-             WHERE procedure_order_id = ? 
+            "DELETE FROM procedure_specimen
+             WHERE procedure_order_id = ?
                AND procedure_order_seq = ?",
             [$formid, $order_seq]
         );
@@ -563,8 +570,8 @@ function deleteRemovedSpecimens($formid, $order_seq, $processedIds): void
     $params = array_merge([$formid, $order_seq], $processedIds);
 
     sqlStatement(
-        "DELETE FROM procedure_specimen 
-         WHERE procedure_order_id = ? 
+        "DELETE FROM procedure_specimen
+         WHERE procedure_order_id = ?
            AND procedure_order_seq = ?
            AND procedure_specimen_id NOT IN ($placeholders)",
         $params
@@ -586,21 +593,21 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
     $prefix = "ans$index" . "_";
 
     $qres = sqlStatement(
-        "SELECT 
+        "SELECT
             q.procedure_code,
             q.question_code,
             q.options,
             q.fldtype
-        FROM 
+        FROM
             procedure_type AS t
-        JOIN 
-            procedure_questions AS q 
+        JOIN
+            procedure_questions AS q
             ON q.lab_id = t.lab_id
             AND q.procedure_code = t.procedure_code
             AND q.activity = 1
-        WHERE 
+        WHERE
             t.procedure_type_id = ?
-        ORDER BY 
+        ORDER BY
             q.seq, q.question_text",
         [$ptid]
     );
@@ -628,27 +635,32 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
         }
 
         foreach ($data as $datum) {
-            sqlBeginTrans();
-            $answer_seq = sqlQuery(
-                "SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment 
-                 FROM procedure_answers 
-                 WHERE procedure_order_id = ? 
-                   AND procedure_order_seq = ? 
-                   AND question_code = ?",
-                [$formid, $poseq, $qcode]
-            );
+            QueryUtils::inTransaction(function () use ($formid, $poseq, $qcode, $datum, $pcode): void {
+                $answerSeq = QueryUtils::fetchSingleValue(
+                    <<<'SQL'
+                    SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment
+                    FROM procedure_answers
+                    WHERE procedure_order_id = ?
+                      AND procedure_order_seq = ?
+                      AND question_code = ?
+                    SQL,
+                    'increment',
+                    [$formid, $poseq, $qcode]
+                );
 
-            sqlStatement(
-                "INSERT INTO procedure_answers SET 
-                 procedure_order_id = ?,
-                 procedure_order_seq = ?,
-                 question_code = ?,
-                 answer_seq = ?,
-                 answer = ?,
-                 procedure_code = ?",
-                [$formid, $poseq, $qcode, $answer_seq['increment'], trim((string) $datum), $pcode]
-            );
-            sqlCommitTrans();
+                QueryUtils::sqlStatementThrowException(
+                    <<<'SQL'
+                    INSERT INTO procedure_answers SET
+                        procedure_order_id = ?,
+                        procedure_order_seq = ?,
+                        question_code = ?,
+                        answer_seq = ?,
+                        answer = ?,
+                        procedure_code = ?
+                    SQL,
+                    [$formid, $poseq, $qcode, $answerSeq, trim((string) $datum), $pcode]
+                );
+            });
         }
     }
 }

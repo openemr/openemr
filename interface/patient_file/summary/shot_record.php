@@ -4,7 +4,7 @@
  * shot_record.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,12 +14,16 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $facilityService = new FacilityService();
 
 //collect facility data
-$res = $facilityService->getFacilityForUserFormatted($_SESSION['authUserID']);
+$res = $facilityService->getFacilityForUserFormatted($session->get('authUserID'));
 
 //collect patient data
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name " .
@@ -50,7 +54,7 @@ function convertToDataArray($data_array)
 
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
             $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {
@@ -204,7 +208,7 @@ function printHTML($res, $res2, $data): void
       width: 100%;
     }
   </style>
-  <title><?php xl('Shot Record', 'e'); ?></title>
+  <title><?php echo xl('Shot Record'); ?></title>
   </head>
   <body>
 

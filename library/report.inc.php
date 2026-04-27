@@ -4,16 +4,19 @@
  * report.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Core\OEGlobalsBag;
 
 $patient_data_array = [
 'title' => xl('Title') . ": ",
@@ -312,9 +315,20 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
+    $formsBaseDir = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms";
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
-        include_once($GLOBALS['incdir'] . "/forms/" . $result["formdir"] . "/report.php");
+        $formDir = $result["formdir"];
+        if (!is_string($formDir) || !SafeIncludeResolver::isSafePathComponent($formDir)) {
+            continue;
+        }
+
+        $reportPath = SafeIncludeResolver::resolve($formsBaseDir, $formDir . "/report.php");
+        if ($reportPath === false) {
+            continue;
+        }
+
+        include_once($reportPath);
     }
 
     $res = sqlStatement("select * from forms where pid=? AND deleted=0 order by date", [$pid]);
@@ -362,7 +376,12 @@ function printPatientForms($pid, $cols): void
             }
         }
 
-        call_user_func($result["formdir"] . "_report", $pid, $result["encounter"], $cols, $result["form_id"]);
+        if (is_string($result["formdir"])) {
+            $reportFn = $result["formdir"] . "_report";
+            if (function_exists($reportFn)) {
+                $reportFn($pid, $result["encounter"], $cols, $result["form_id"]);
+            }
+        }
 
         echo "</div>";
     }
@@ -513,7 +532,7 @@ function printData($retar, $key, $sep, $date_format): void
     if (@array_key_exists($key, $retar)) {
         $length = count($retar[$key]);
         for ($iter = $length; $iter >= 1; $iter--) {
-            if ($retar[$key][$iter]["value"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($retar[$key][$iter]["value"])) {
                 print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime((string) $retar[$key][$iter]["date"]))) . ")$sep";
             }
         }
@@ -533,7 +552,7 @@ function printRecDataOne($data_array, $recres, $N): void
     print "<table><tr>\n";
     $count = 0;
     foreach ($data_array as $akey => $aval) {
-        if (!empty($recres[$akey]) && count($recres[$akey]) > 0 && ($recres[$akey][1]["value"] != "0000-00-00 00:00:00")) {
+        if (!empty($recres[$akey]) && count($recres[$akey]) > 0 && !Utilities::isDateEmpty($recres[$akey][1]["value"])) {
             if ($count == $N) {
                 print "</tr><tr>\n";
                 $count = 0;
@@ -554,7 +573,7 @@ function printDataOne($retar, $key, $sep, $date_format): void
     //this function supports the printRecDataOne function above
     if (@array_key_exists($key, $retar)) {
         $length = count($retar[$key]);
-        if ($retar[$key][$length]["value"] != "0000-00-00 00:00:00") {
+        if (!Utilities::isDateEmpty($retar[$key][$length]["value"])) {
             $tmp = $retar[$key][$length]["value"];
             if (strstr((string) $key, 'DOB')) {
                 $tmp = oeFormatShortDate($tmp);

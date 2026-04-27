@@ -4,7 +4,7 @@
  * Encounter form for entering procedure orders
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -15,7 +15,7 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,8 +29,10 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +43,7 @@ if (!$encounter) { // comes from globals.php
 /**
  * @var EventDispatcher
  */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 // Defaults for new orders.
 $provider_id = getProviderIdOfEncounter($encounter);
@@ -55,6 +57,8 @@ if ($_POST['bn_save_ereq'] ?? null) { //labcorp
 }
 
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", [$pid]);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
@@ -116,49 +120,6 @@ function get_lab_name($id): string
     return $gbl_lab;
 }
 
-if (!function_exists('ucname')) {
-    function ucname($string): string
-    {
-        $string = ucwords(strtolower((string) $string));
-        foreach (['-', '\''] as $delimiter) {
-            if (str_contains($string, $delimiter)) {
-                $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
-            }
-        }
-        return $string;
-    }
-}
-
-function cbvalue($cbname): string
-{
-    return $_POST[$cbname] ? '1' : '0';
-}
-
-function cbinput($name, $colname)
-{
-    global $row;
-    $ret = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-    $ret .= " />";
-    return $ret;
-}
-
-function cbcell($name, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
-}
-
-function QuotedOrNull($fld)
-{
-    if (empty($fld)) {
-        return null;
-    }
-
-    return $fld;
-}
-
 function getListOptions($list_id, $fieldnames = ['option_id', 'title', 'seq']): array
 {
     $output = [];
@@ -188,14 +149,12 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
@@ -236,12 +195,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "performer_type = ?, " .
         "location_id = ?";
 
-    // REPLACE THE $set_array variable with this updated version:
     $set_array = [
-        QuotedOrNull($_POST['form_date_ordered']),
+        empty($_POST['form_date_ordered']) ? null : $_POST['form_date_ordered'],
         (int)$_POST['form_provider_id'],
         $ppid,
-        QuotedOrNull($_POST['form_date_collected']),
+        empty($_POST['form_date_collected']) ? null : $_POST['form_date_collected'],
         $_POST['form_order_priority'],
         $_POST['form_order_status'],
         $_POST['form_billing_type'],
@@ -258,11 +216,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         (int)$_POST['form_account_facility'],
         (int)$_POST['form_collector_id'],
         trim((string) $_POST['procedure_type_names']),
-        // NEW US Core 8.0 fields
+        // US Core 8.0 fields
         trim($_POST['form_order_intent'] ?? 'order'),
-        QuotedOrNull($_POST['form_scheduled_date']),
-        QuotedOrNull($_POST['form_scheduled_start']),
-        QuotedOrNull($_POST['form_scheduled_end']),
+        empty($_POST['form_scheduled_date']) ? null : $_POST['form_scheduled_date'],
+        empty($_POST['form_scheduled_start']) ? null : $_POST['form_scheduled_start'],
+        empty($_POST['form_scheduled_end']) ? null : $_POST['form_scheduled_end'],
         trim($_POST['form_performer_type'] ?? ''),
         (int)($_POST['form_location_id'] ?? 0),
     ];
@@ -294,7 +252,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     }
 
     $lab_name = normalizeDirectoryName(get_lab_name($ppid ?? 0));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -385,8 +343,13 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 }
 
                 try {
-                    // Generate the HL7 order
-                    $result = gen_hl7_order($formid);
+                    // Generate the HL7 order using lab-specific function
+                    $result = match ($gbl_lab) {
+                        'labcorp' => labcorp_gen_hl7_order($formid),
+                        'quest' => quest_gen_hl7_order($formid),
+                        'ammon', 'clarity' => universal_gen_hl7_order($formid),
+                        default => default_gen_hl7_order($formid),
+                    };
                     $hl7 = $result->hl7;
                     $reqStr = $result->requisitionData;
                 } catch (Hl7OrderGenerationException $e) {
@@ -422,7 +385,12 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                             }
                         }
                     } else {
-                        $alertmsg = send_hl7_order($ppid, $hl7);
+                        $alertmsg = match ($gbl_lab) {
+                            'labcorp' => labcorp_send_hl7_order($ppid, $hl7),
+                            'quest' => quest_send_hl7_order($ppid, $hl7),
+                            'ammon', 'clarity' => universal_send_hl7_order($ppid, $hl7),
+                            default => default_send_hl7_order($ppid, $hl7),
+                        };
                     }
                 }
             } else {
@@ -441,15 +409,15 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     }
                     if ($gbl_lab === 'quest' && $isDorn === false) {
                         $order_log .= xlt("Transmitting order to Quest");
-                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT, 10);
-                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD, 10);
+                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT);
+                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD);
                     }
 
                     if ($_POST['form_order_psc']) {
                         if ($gbl_lab === 'labcorp' && $isDorn === false) {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
                                 xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
-                            ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
                         }
                     }
                 } else {
@@ -458,7 +426,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
                             xlt("Generating requisition based on order HL7 content") . "...\n" . $hl7 . "\n";
-                        ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        if ($gbl_lab === 'labcorp') {
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        } else {
+                            universal_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        }
                     }
                 }
             } else {
@@ -512,7 +484,7 @@ $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $isDorn = isDornLab($row['lab_id']) ?? false;
     $lab_name = normalizeDirectoryName(get_lab_name($row['lab_id']));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
@@ -544,7 +516,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
@@ -622,7 +594,7 @@ if (!empty($row['lab_id'])) {
                         action: 'delete_procedure',
                         order_id: formId,
                         order_seq: orderSeq,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -677,7 +649,7 @@ if (!empty($row['lab_id'])) {
                     data: {
                         action: 'delete_specimen',
                         specimen_id: specimenId,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -728,13 +700,13 @@ if (!empty($row['lab_id'])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             let datetimepicker = {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             $('.datepicker').datetimepicker(datepicker);
             $('.datetimepicker').datetimepicker(datetimepicker);
@@ -749,11 +721,13 @@ if (!empty($row['lab_id'])) {
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
             // This replaces the previous search for an easier/faster order picker tool.
-            dlgopen('../../orders/find_order_popup.php' +
-                '?labid=' + encodeURIComponent(f.form_lab_id.value) +
-                '&order=' + encodeURIComponent(f[ptvarname].value) +
-                '&formid=' + <?php echo js_url($formid); ?> +
-                    '&formseq=' + encodeURIComponent(formseq),
+            const params = new URLSearchParams({
+                formid: <?php echo js_escape($formid); ?>,
+                formseq: formseq,
+                labid: f.form_lab_id.value,
+                order: f[ptvarname].value
+            });
+            dlgopen('../../orders/find_order_popup.php?' + params,
                 '_blank', 850, 500, '', title);
         }
 
@@ -870,7 +844,7 @@ if (!empty($row['lab_id'])) {
             let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
-            // wierdly all of our mapped ids use array indexes as part of the id.
+            // weirdly all of our mapped ids use array indexes as part of the id.
             let remapIds = function (node) {
                 node.id = remapArrayIndex(node.id);
             };
@@ -910,13 +884,13 @@ if (!empty($row['lab_id'])) {
             nullableFunction('.itemTransport', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 getDetails(event, boundLineCount);
             });
             nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 selectProcedureCode(boundLineCount);
             });
             nullableFunction('.search-current-diagnoses', 'click', function (event) {
@@ -932,7 +906,7 @@ if (!empty($row['lab_id'])) {
             });
 
             nullableFunction('.sel-proc-type', 'click', function (event) {
-                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are weird
                 sel_proc_type(boundLineCount);
             });
             nullableFunction('.sel-proc-type', 'focus', function (event) {
@@ -1124,8 +1098,12 @@ if (!empty($row['lab_id'])) {
             let codetitle = 'form_proc_type_desc[' + id + ']';
             let code = f[codeattr].value;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-            url += "?action=code_detail)&code=" + encodeURIComponent(code) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                action: 'code_detail)',
+                code: code,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+            });
+            url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
             dlgopen(url, 'details', 'modal-md', 200, '', title, {
                 buttons: [
@@ -1183,10 +1161,18 @@ if (!empty($row['lab_id'])) {
             let pid = <?php echo js_escape($patient['pid']);  ?>;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
             // this escapes above
-            let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
-                "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
-                "&dob=" + encodeURIComponent(dob) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                acctid: acctid,
+                action: 'print_labels',
+                count: count,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                dob: dob,
+                order: order,
+                patient: patient,
+                pid: pid,
+                specimen: tarray
+            });
+            const uri = "?" + params;
 
             // retrieve the labels
             dlgopen(url + uri, 'pdf', 'modal-md', 750, '');
@@ -1315,7 +1301,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="container-xl clearfix">
                     <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
@@ -1792,7 +1778,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
+                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead class="thead-dark">
                                     <tr>
@@ -1908,7 +1894,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

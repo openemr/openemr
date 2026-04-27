@@ -253,7 +253,7 @@ class Cache_Lite
             if ($this->_memoryCaching) {
                 if (isset($this->_memoryCachingArray[$this->_file])) {
                     if ($this->_automaticSerialization) {
-                        return unserialize($this->_memoryCachingArray[$this->_file]);
+                        return unserialize($this->_memoryCachingArray[$this->_file], ['allowed_classes' => false]);
                     } else {
                         return $this->_memoryCachingArray[$this->_file];
                     }
@@ -276,7 +276,7 @@ class Cache_Lite
                 $this->_memoryCacheAdd($this->_file, $data);
             }
             if (($this->_automaticSerialization) and (is_string($data))) {
-                $data = unserialize($data);
+                $data = unserialize($data, ['allowed_classes' => false]);
             }
             return $data;
         }
@@ -445,7 +445,7 @@ class Cache_Lite
     {
         if ($this->_caching) {
             if ($data = $this->get($id, $group, $doNotTestCacheValidity)) {
-                $array = unserialize($data);
+                $array = unserialize($data, ['allowed_classes' => false]);
                 $this->_memoryCachingCounter = $array['counter'];
                 $this->_memoryCachingArray = $array['array'];
             }
@@ -530,14 +530,11 @@ class Cache_Lite
         if ($fp) {
             clearstatcache(); // because the filesize can be cached by PHP itself...
             $length = @filesize($this->_file);
-            $mqr = get_magic_quotes_runtime();
-            set_magic_quotes_runtime(0);
             if ($this->_readControl) {
                 $hashControl = @fread($fp, 32);
                 $length -= 32;
             }
             $data = @fread($fp, $length);
-            set_magic_quotes_runtime($mqr);
             if ($this->_fileLocking) @flock($fp, LOCK_UN);
             @fclose($fp);
             if ($this->_readControl) {
@@ -588,7 +585,7 @@ class Cache_Lite
     function _writeAndControl($data)
     {
         $this->_write($data);
-        $dataRead = $this->_read($data);
+        $dataRead = $this->_read();
         return ($dataRead==$data);
     }
 

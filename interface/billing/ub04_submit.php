@@ -6,7 +6,7 @@
  * UThis is used as an endpoint URL by the UI to call into the ub04 functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>

@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -15,12 +15,12 @@
 require_once __DIR__ . "/../../../../globals.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\Dorn\LabCompendiumInstall;
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $labGuid = $_REQUEST['labGuid'];
     echo "<div style='background-color: white; color: black; padding: 5px;'>" .
         "<div>" . xlt('Compendium Install') . "</div><ul>";

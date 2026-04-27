@@ -4,7 +4,7 @@
  * PdfCreator class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,6 +13,7 @@
 namespace OpenEMR\Pdf;
 
 use Knp\Snappy\Pdf;
+use OpenEMR\Core\OEGlobalsBag;
 
 class PdfCreator
 {
@@ -34,7 +35,7 @@ class PdfCreator
      */
     private function getBinaryPath(): string
     {
-        $binroot = $GLOBALS['vendor_dir'] . "/openemr/wkhtmltopdf-openemr/bin";
+        $binroot = OEGlobalsBag::getInstance()->getKernel()->getVendorDir() . "/openemr/wkhtmltopdf-openemr/bin";
 
         // This will not necessarily reflect actual machine bus width but php bus size.
         $bit = str_contains(php_uname("m"), '64') ? "64" : "32";
@@ -55,7 +56,7 @@ class PdfCreator
     public function __construct()
     {
         $this->binaryPath = $this->getBinaryPath();
-        $this->tempPath = $GLOBALS['OE_SITE_DIR'] . "/documents/temp";
+        $this->tempPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/temp";
     }
 
     /**

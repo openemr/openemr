@@ -37,7 +37,7 @@ class GroupExportFhirApiTest extends TestCase
         // phpunit endpoint location we are going to have issues with the test client not being able to get an access token.
 //        $this->markTestIncomplete("Incomplete until we figure out how to deal with localhost differences in test environments and inferno environments.");
 //        // we just want to execute the code
-//        // non-existant group, but make sure the route exists
+//        // non-existent group, but make sure the route exists
         $groupId = '99999999-511f-4f6d-bc97-b65a78cf1996';
 //
         $this->testClient->setHeaders([

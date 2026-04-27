@@ -5,7 +5,7 @@
  * and upgrade their SQL.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Teny <teny@zhservices.com>
@@ -20,7 +20,9 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;
@@ -224,9 +226,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -251,8 +254,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $special = false;
         $trim = true;
         $progress = 0;
-        while (!feof($fd)) {
-            $line = fgets($fd, 2048);
+        while (($line = fgets($fd)) !== false) {
             $line = rtrim($line);
 
             $progress += strlen($line);
@@ -265,7 +267,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
-            if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
                 // this is skipped when running sql upgrade from command line
                 $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
                 $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
@@ -545,7 +547,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n");
+                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>');
                         $this->flush_echo();
                     }
                     if (!empty($item['column_comment'])) {
@@ -587,7 +589,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>', "\n");
+                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>');
                         $this->flush_echo();
                     }
 
@@ -673,7 +675,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     try {
                         QueryUtils::startTransaction();
                         foreach ($pidChunks as $chunk) {
-                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map('intval', $chunk)) . ")";
+                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map(intval(...), $chunk)) . ")";
                             $encounters = sqlStatementNoLog($encStatement);
 
                             while ($row = sqlFetchArray($encounters)) {
@@ -689,7 +691,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception) {
+                    } catch (\Throwable) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
@@ -747,7 +749,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
-                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
@@ -784,6 +786,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
+            // Insert a space separator between concatenated lines so a
+            // continuation line starting at column 0 cannot fuse with the
+            // previous token (same bug class as #10935 in Installer). fgets()
+            // is unbounded, so every call returns a complete logical line
+            // and the separator is always safe to insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
             $query .= $line;
 
             if (str_ends_with(trim($query), ';')) {
@@ -799,13 +809,18 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
                     $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -819,9 +834,9 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 
@@ -835,7 +850,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             echo $string;
         }
         // now flush to force browser to pay attention.
-        if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
             // this is skipped when running sql upgrade from command line
             echo str_pad('', 4096) . "\n";
         }
@@ -1087,9 +1102,11 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function clickOptionsMigrate()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = (string) $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");
@@ -1195,7 +1212,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function ImportDrugInformation()
     {
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 
@@ -1403,7 +1420,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    private function updateLayoutEditOptions(string $mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
@@ -1424,9 +1441,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
                     $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos((string)$mode, 'add') !== false) {
+                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos((string)$mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {
@@ -1446,7 +1463,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } catch (SqlQueryException $e) {
             $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
@@ -1473,7 +1490,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
-        return intval($versionRecord['v_database'] ?? 0);
+        return $versionRecord['v_database'];
     }
 
     protected function migrateCareTeamsV1ToV2()
@@ -1483,7 +1500,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $this->flush_echo();
 
         // we need to grab all of the uuid mappings for care team and join them with patient_data
-        $commited = false;
+        $committed = false;
         try {
             QueryUtils::startTransaction();
             $fromClause = "FROM patient_data pd
@@ -1495,8 +1512,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                 um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
-            $uuidRecords = QueryUtils::fetchRecords("Select * from uuid_mapping WHERE resource='CareTeam'", [], true);
+            $this->cleanupCareTeamUUIDMappingsForPatientData();
+
             // now do patient history
             $fromClause = "FROM patient_history ph
                 LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
@@ -1507,9 +1524,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
+            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
             QueryUtils::commitTransaction();
-            $commited = true;
+            $committed = true;
         } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
@@ -1519,7 +1536,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             }
         } // we let errors percolate up
         finally {
-            if (!$commited) {
+            if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
         }
@@ -1540,15 +1557,15 @@ class SQLUpgradeService implements ISQLUpgradeService
         ];
         $providers = explode("|", $record['care_team_provider'] ?? '');
         $facilities = explode("|", $record['care_team_facility'] ?? '');
-        $facilitiesIds = array_filter(array_map('intval', $facilities));
+        $facilitiesIds = array_filter(array_map(intval(...), $facilities));
         foreach ($providers as $providerId) {
             // skip invalid provider ids
             if (intval($providerId) <= 0) {
                 continue;
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
-                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE fui.field_id='provider_id' AND u.id = ? ", [$providerId]);
-            $userRoleFacilityIds = array_map(fn($item) => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
+                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE (fui.id IS NULL OR fui.field_id='provider_id') AND u.id = ? ", [$providerId]);
+            $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
             if (!empty($facilitiesIds)) {
                 // intersect user role facilities with care team facilities
                 $facilitiesIds = array_values(array_intersect($facilitiesIds, $userRoleFacilityIds));
@@ -1616,14 +1633,31 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
     }
 
-    protected function cleanupCareTeamUUidMappings(string $fromClause)
-    {
-        $uuidUpdates = "UPDATE uuid_registry SET mapped=0 WHERE uuid IN (select um.uuid " . $fromClause . ")";
-        QueryUtils::sqlStatementThrowException($uuidUpdates, [], true);
-        // we're going to keep the uuid mappings for care teams for historical reference
-        // or if we ever need to recover the data.  Fortunately with uuid_registry.mapped = 0 there won't be
-        // any impact on normal operations.
-//        $uuidDeletes = "DELETE FROM uuid_mapping WHERE uuid IN (select um.uuid " . $fromClause . ")";
-//        QueryUtils::sqlStatementThrowException($uuidDeletes, [], true);
+    private function cleanupCareTeamUUIDMappingsForPatientData() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_data pd ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL)
+            OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientHistory() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_history ph ON um.target_uuid = ph.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL)
+            OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
     }
 }

@@ -26,4 +26,3 @@ class PositivePhysicalExamOrder extends PhysicalExamOrder
 
     public $_type = 'QDM::PositivePhysicalExamOrder';
 }
-

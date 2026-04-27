@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command:
     - mariadbd
     - --character-set-server=utf8mb4
@@ -21,16 +21,16 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.20
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c
     ports:
     - 8080:80
     - 8523:443
     volumes:
     - ../../:/var/www/localhost/htdocs/openemr
     environment:
-      EMPTY: "yes"
-      FORCE_NO_BUILD_MODE: "yes"
-      OPENEMR_ENABLE_CI_PHP: "1"
+      EMPTY: yes
+      FORCE_NO_BUILD_MODE: yes
+      OPENEMR_ENABLE_CI_PHP: '1'
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_host: couchdb
       OPENEMR_SETTING_couchdb_pass: password
@@ -43,10 +43,11 @@ services:
       MYSQL_PASS: openemr
       # Coverage settings - controlled by ENABLE_COVERAGE variable
       # Set ENABLE_COVERAGE=true in run.sh to enable coverage collection
-      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
-      INFERNO_TEST: "${INFERNO_TEST:-false}"
-      XDEBUG_ON: "${XDEBUG_ON:-0}"
-      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
+      PCOV_ON: ${ENABLE_COVERAGE:-false}
+      INFERNO_TEST: ${INFERNO_TEST:-false}
+      XDEBUG_ON: ${XDEBUG_ON:-0}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
     depends_on:
       couchdb:
         condition: service_started
@@ -61,13 +62,13 @@ services:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: inferno
     environment:
-      INFERNO_DISABLE_TLS_TEST: "true"
+      INFERNO_DISABLE_TLS_TEST: 'true'
   worker:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: worker
     environment:
-      INFERNO_DISABLE_TLS_TEST: "true"
+      INFERNO_DISABLE_TLS_TEST: 'true'
   nginx:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
@@ -97,7 +98,7 @@ services:
       dockerfile: Dockerfile.terminology
   couchdb:
     restart: always
-    image: couchdb
+    image: couchdb:3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54
     ports:
     - 5984:5984
     - 6984:6984

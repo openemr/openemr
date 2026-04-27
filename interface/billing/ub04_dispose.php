@@ -4,7 +4,7 @@
  * UB04 Functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
 
 function ub04_dispose(): void
@@ -42,7 +43,7 @@ function ub04_dispose(): void
         } elseif ($dispose == "reset_claim") {
             $pid = $_POST['pid'] ?? $_GET['pid'];
             $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            // clear claim first otherwise get ub04 returns cuurent version.
+            // clear claim first otherwise get ub04 returns current version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
             if ($flg === true) {
@@ -119,9 +120,9 @@ function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin =
 
 function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
 {
-    $top = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
-    $side = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
-    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/$filename";
+    $top = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
+    $side = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
+    $form_filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/$filename";
     // convert points to inches-some tricky calculus here! 72 pts/inch
     $top = round($top / 72.00, 2) . "in";
     $side = round($side / 72.00, 2) . "in";
@@ -169,7 +170,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
             header("Content-Description: File Transfer");
             echo $pdfwkout;
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt($e->getMessage());
     }
     return true;

@@ -5,7 +5,7 @@
  * Test fixture manager for Condition-related tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for most of this file marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot
  *            Minor additions were made by Stephen Nielson
@@ -18,7 +18,6 @@ namespace OpenEMR\Tests\Fixtures;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientIssuesService;
-use OpenEMR\Services\UserService;
 
 /**
  * Manages test fixtures for condition-related unit tests
@@ -249,7 +248,7 @@ class ConditionFixtureManager
                     QueryUtils::sqlStatementThrowException($sql, [$user['id']]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log error but don't throw - cleanup should be best effort
             error_log("Error cleaning up test fixtures: " . $e->getMessage());
         }

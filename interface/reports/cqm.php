@@ -4,7 +4,7 @@
  * CDR reports.  Handles the generation and display of CQM/AMC/patient_alerts/standard reports
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -21,21 +21,23 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
@@ -89,12 +91,12 @@ if (!empty($report_id)) {
   // Collect form parameters (set defaults if empty)
     if ($is_amc_report) {
         $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date'])) : "";
-        $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
+        $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim((string) $_POST['labs_manual_entry']) : "0";
     }
 
     $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_target_date'])) : date('Y-m-d H:i:s');
-    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
-    $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
+    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim((string) $_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
+    $plan_filter = (isset($_POST['form_plan_filter'])) ? trim((string) $_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
     $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim((string) $_POST['form_pat_prov_rel']);
@@ -116,13 +118,13 @@ if ($type_report == "standard") {
     $help_file_name = "cqm_amc_help.php";
 }
 
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 
 $formData = [
     'type_report' => $type_report
     ,'heading_title' => $heading_title
-    ,'date_report' => isset($date_report) ? oeFormatDateTime($date_report, "global", true) : ''
+    ,'date_report' => isset($date_report) ? DateFormatterUtils::oeFormatDateTime($date_report, "global", true) : ''
     ,'report_id' => $report_id ?? null
     ,'show_help' => $show_help
     ,'oemrUiSettings' =>  [
@@ -136,12 +138,12 @@ $formData = [
         'show_help_icon' => $show_help,
         'help_file_name' => $help_file_name
     ]
-    ,'csrf_token' => CsrfUtils::collectCsrfToken()
+    ,'csrf_token' => CsrfUtils::collectCsrfToken(session: $session)
     ,'widthDyn' => '610px'
     ,'is_amc_report' => $is_amc_report
     ,'dis_text' => (!empty($report_id) ? "disabled='disabled'" : "")
-    ,'begin_date' => isset($begin_date) ? oeFormatDateTime($begin_date, 0, true) : ""
-    ,'target_date' => oeFormatDateTime($target_date, 0, true)
+    ,'begin_date' => isset($begin_date) ? DateFormatterUtils::oeFormatDateTime($begin_date, 0, true) : ""
+    ,'target_date' => DateFormatterUtils::oeFormatDateTime($target_date, 0, true)
     ,'target_date_label' => ($is_amc_report ? xl('End Date') : xl('Target Date'))
     ,'rule_filters' => []
     ,'show_plans' => !$is_amc_report

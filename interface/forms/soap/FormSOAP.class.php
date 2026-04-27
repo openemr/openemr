@@ -4,13 +4,14 @@
  * soap form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
@@ -50,7 +51,7 @@ class FormSOAP extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id = "", $_prefix = "")
+    function __construct($id = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
@@ -61,7 +62,7 @@ class FormSOAP extends ORDataObject
 
         $this->_table = "form_soap";
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         if ($id != "") {
             $this->populate();
             //$this->date = $this->get_date();

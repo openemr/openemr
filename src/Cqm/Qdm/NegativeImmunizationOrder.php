@@ -26,4 +26,3 @@ class NegativeImmunizationOrder extends ImmunizationOrder
 
     public $_type = 'QDM::NegativeImmunizationOrder';
 }
-

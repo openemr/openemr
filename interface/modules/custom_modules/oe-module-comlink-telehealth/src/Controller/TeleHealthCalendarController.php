@@ -4,7 +4,7 @@
  * Handles all of the Provider Calendar events and actions
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,12 +12,11 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\The;
-use OpenEMR\Common\Logging\SystemLogger;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
@@ -25,49 +24,47 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\AppointmentService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class TeleHealthCalendarController
 {
     /**
-     * @var The database record if of the currently logged in user
+     * Repository for calendar event categories
      */
-    private $loggedInUserId;
+    private ?CalendarEventCategoryRepository $calendarEventCategoryRepository = null;
 
     /**
-     * @var CalendarEventCategoryRepository
+     * Appointment service instance
      */
-    private $calendarEventCategoryRepository;
+    private ?AppointmentService $apptService = null;
 
     /**
-     * @var AppointmentService
+     * Repository for telehealth providers
      */
-    private $apptService;
-
     private readonly TeleHealthProviderRepository $teleHealthProviderRepository;
 
     /**
      * @param TelehealthGlobalConfig $config
      * @param Environment $twig Twig container
-     * @param SystemLogger $logger
-     * @param mixed $assetPath
-     * @param mixed $loggedInUserId
+     * @param LoggerInterface $logger
+     * @param string $assetPath
+     * @param ?int $loggedInUserId Database record ID of the currently logged in user
      */
     public function __construct(
         TelehealthGlobalConfig $config,
         private readonly Environment $twig,
-        private readonly SystemLogger $logger,
-        private $assetPath,
-        $loggedInUserId
+        private readonly LoggerInterface $logger,
+        private readonly string $assetPath,
+        private readonly ?int $loggedInUserId
     ) {
-        $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);
 //        $this->apptService = new AppointmentService();
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
         $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, $this->filterTelehealthCalendarEvents(...));
         $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, $this->addCalendarJavascript(...));
@@ -123,7 +120,7 @@ class TeleHealthCalendarController
                             $eventViewClasses[] = "event_telehealth_active";
                         }
                     } else if ($dateTime == false) {
-                        $this->logger->errorLogCaller("Failed to create DateTime object for calendar event", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
+                        $this->logger->error("TeleHealthCalendarController: Failed to create DateTime object for calendar event pc_eid={pc_eid}", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
                     }
                     $eventsByDay[$key][$i]['eventViewClass'] = implode(" ", $eventViewClasses);
                 }
@@ -218,7 +215,7 @@ class TeleHealthCalendarController
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
         $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
         if ($dateTime === false) {
-            (new SystemLogger())->errorLogCaller("appointment date time string was invalid", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
+            ServiceContainer::getLogger()->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
             return;
         }
 
