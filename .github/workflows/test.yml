@@ -93,7 +93,7 @@ jobs:
       # Cache keys for restore in test jobs
       vendor_key: ${{ steps.cache-keys.outputs.vendor }}
       npm_build_key: ${{ steps.cache-keys.outputs.npm-build }}
-      ccda_build_key: ${{ steps.cache-keys.outputs.ccdaservice-modules }}
+      ccda_build_key: ${{ steps.cache-keys.outputs.ccda-build }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
@@ -170,7 +170,7 @@ jobs:
           echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccdaservice-modules=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json', 'ci/ciLibrary.source') }}'
+          echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
           echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
 
@@ -272,25 +272,25 @@ jobs:
     # Restore everything that node built for CCDA for the given key.
     # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
-      id: ccdaservice-modules-cache-restore
+      id: ccda-build-cache-restore
       uses: actions/cache/restore@v5
       with:
         path: |
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
-        key: ${{ steps.cache-keys.outputs.ccdaservice-modules }}
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
-          ${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
     # if restore-keys can match the cache key. So we have to manually
     # check if we got a cache hit after all.
     - name: Check ccda build cache
-      id: ccdaservice-modules-cache-check
+      id: ccda-build-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.ccdaservice-modules }}'
-        matched='${{ steps.ccdaservice-modules-cache-restore.outputs.cache-matched-key }}'
+        key='${{ steps.cache-keys.outputs.ccda-build }}'
+        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -301,7 +301,7 @@ jobs:
     # Restore npm's own cache
     # This can still save us time if we miss the npm build caches
     - name: Restore npm cache
-      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccdaservice-modules-cache-check.outputs.hit != 'true' }}
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
       uses: actions/cache/restore@v5
       with:
@@ -332,7 +332,7 @@ jobs:
         npm_build
 
     - name: CCDA build
-      if: ${{ steps.ccdaservice-modules-cache-check.outputs.hit != 'true' }}
+      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         ccda_build
@@ -347,17 +347,17 @@ jobs:
     # Save caches: base caches before derived caches
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
-      if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccdaservice-modules-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
+      if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
-      if: ${{ steps.ccdaservice-modules-cache-check.outputs.hit != 'true' }}
+      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v5
       with:
-        key: ${{ steps.cache-keys.outputs.ccdaservice-modules }}
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: |
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
@@ -500,7 +500,8 @@ jobs:
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
         restore-keys: |
-          ${{ runner.os }}-ccdaservice-modules-${{ needs.setup.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-${{ needs.setup.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-
 
     - name: Download setup snapshot
       uses: actions/download-artifact@v8

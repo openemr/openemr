@@ -157,9 +157,6 @@ post_build_cleanup() {
 ccda_build() (
     cd ccdaservice
     npm ci
-    # libxmljs2 ships prebuilt binaries only for older Node ABIs; force a
-    # local rebuild so the .node binary matches the runtime Node version.
-    npm rebuild libxmljs2 --build-from-source
 )
 
 configure_coverage() {
