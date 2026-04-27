@@ -652,6 +652,34 @@ jobs:
         name: e2e-test-videos-${{ needs.setup.outputs.docker_dir }}
         path: selenium-videos/
 
+    ##
+    # Selenium diagnostics for InvalidSessionIdException flake (#11725).
+    # Captures runner kernel log + container process tree + resource stats so
+    # the next silent Chrome death leaves a usable trace. Only runs on failure
+    # to keep green-build noise down.
+    - name: Capture selenium diagnostics on failure
+      if: ${{ failure() && matrix.suite == 'e2e' }}
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p selenium-diagnostics
+        # Kernel ring buffer — look for OOM-killer / segfault lines around the failure.
+        sudo dmesg | tail -200 > selenium-diagnostics/dmesg.tail.txt 2>&1 || true
+        # Process tree inside the selenium container at teardown.
+        dc top selenium > selenium-diagnostics/docker-compose-top.txt 2>&1 || true
+        # Memory/CPU snapshot at teardown.
+        docker stats --no-stream selenium > selenium-diagnostics/docker-stats.txt 2>&1 || true
+        # Full selenium logs (also echoed to the job log by the step above, but
+        # capturing to a file makes them downloadable alongside the rest).
+        dc logs --no-color selenium > selenium-diagnostics/selenium.log 2>&1 || true
+
+    - name: Upload selenium diagnostics
+      if: ${{ failure() && matrix.suite == 'e2e' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: selenium-diagnostics-${{ needs.setup.outputs.docker_dir }}
+        path: selenium-diagnostics/
+        if-no-files-found: ignore
+
     - name: Test Summary
       if: ${{ always() }}
       run: |
