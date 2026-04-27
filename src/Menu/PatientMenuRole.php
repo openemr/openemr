@@ -53,20 +53,32 @@ class PatientMenuRole extends MenuRole
         // Collect the selected menu of user
         $patientMenuRole = $this->getMenuRole();
 
-        // Validate that the menu role filename is a basename only (no path traversal)
-        if ($patientMenuRole !== basename($patientMenuRole) || str_contains($patientMenuRole, '..')) {
-            ServiceContainer::getLogger()->error("Invalid menu role filename rejected", ['filename' => $patientMenuRole]);
-            die("\nInvalid menu role filename.");
+        // Resolve and validate the menu file path at the read boundary.
+        // Values that resolve outside the expected directory — including
+        // symlinks, DB rows written through paths that bypass write-boundary
+        // validation (REST API, direct DB writes, SQL injection, bulk
+        // imports), or otherwise missing files — fall back to "standard".
+        $path = $this->resolveMenuPath($patientMenuRole);
+        if ($path === null) {
+            ServiceContainer::getLogger()->warning(
+                "Patient menu role file failed read-boundary check, falling back to standard",
+                ['filename' => $patientMenuRole]
+            );
+            $patientMenuRole = 'standard';
+            $path = $this->resolveMenuPath($patientMenuRole);
+        }
+        if ($path === null) {
+            ServiceContainer::getLogger()->error("Standard patient menu role file is unavailable");
+            die("\nMenu role unavailable.");
         }
 
-        // Load the selected menu
-        if (str_ends_with($patientMenuRole, '.json')) {
-            // load custom menu (includes .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
-        } else {
-            // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            ServiceContainer::getLogger()->error("Failed to read patient menu role file", ['path' => $path]);
+            die("\nMenu role unavailable.");
         }
+
+        $menu_parsed = json_decode($contents);
         // if error, then die and report error
         if (!$menu_parsed) {
             die("\nJSON ERROR: " . json_last_error());
@@ -137,6 +149,43 @@ class PatientMenuRole extends MenuRole
         }
 
         return $patientMenuRole;
+    }
+
+    /**
+     * Resolve a patient menu role value to a concrete file path after
+     * confirming the resolved path falls within the expected directory.
+     *
+     * Custom patient menus live under the site's custom_menus/patient_menus
+     * directory; standard menus ship with the installation. A role value is
+     * accepted only if realpath() places it inside the matching directory,
+     * which rejects path traversal, symlinks escaping the tree, and missing
+     * files.
+     */
+    private function resolveMenuPath(string $menuRole): ?string
+    {
+        if ($menuRole === '' || $menuRole !== basename($menuRole) || str_contains($menuRole, '..')) {
+            return null;
+        }
+
+        if (str_ends_with($menuRole, '.json')) {
+            $expectedDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus";
+            $candidate = $expectedDir . "/" . $menuRole;
+        } else {
+            $expectedDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/patient_menus";
+            $candidate = $expectedDir . "/" . $menuRole . ".json";
+        }
+
+        $resolvedDir = realpath($expectedDir);
+        $resolvedFile = realpath($candidate);
+        if ($resolvedDir === false || $resolvedFile === false) {
+            return null;
+        }
+
+        if (!str_starts_with($resolvedFile, $resolvedDir . DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return $resolvedFile;
     }
 
     /**
