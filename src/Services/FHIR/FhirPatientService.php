@@ -231,15 +231,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // us-core-race -> race, us-core-ethnicity -> ethnicity, tribalAffiliation, us-core-birthsex -> birthsex, sex, genderIdentity
         // birthsex and genderIdentity are handled already in parseOpenEMRGenderAndBirthSex
         $this->parseOpenEMRGenderIdentity($patientResource, $dataRecord);
-        $this->parseOpenEMRPatientSexExtension($patientResource, $dataRecord);
-        $this->parseOpenEMRPatientTribalAffiliationExtension($patientResource, $dataRecord);
+        if ($this->getHighestCompatibleUSCoreProfileVersion() !== self::PROFILE_VERSION_3_1_1) {
+            $this->parseOpenEMRPatientSexExtension($patientResource, $dataRecord);
+            $this->parseOpenEMRPatientTribalAffiliationExtension($patientResource, $dataRecord);
+        }
 
         // US Core 7.0.0 Extensions
         // nothing added here
 
         // US Core 8.0.0 Extensions
         // drops genderIdentity,birthSex, adds interpreterRequired
-        $this->parseOpenEMRPatientInterpreterNeededExtension($patientResource, $dataRecord);
+        if (version_compare($this->getHighestCompatibleUSCoreProfileVersion(), self::PROFILE_VERSION_8_0_0, '>=')) {
+            $this->parseOpenEMRPatientInterpreterNeededExtension($patientResource, $dataRecord);
+        }
 
         // Deceased date
         $this->parseOpenEMRPatientDeceasedDateTime($patientResource, $dataRecord);
