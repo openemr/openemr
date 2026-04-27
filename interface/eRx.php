@@ -15,16 +15,15 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\CredentialValidator;
 
 require_once(__DIR__ . '/globals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBuilder.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
-
-use OpenEMR\Rx\CredentialValidator;
-use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 
@@ -72,9 +71,8 @@ if (count($missingExtensions) > 0) {
         <ul>
     <?php
 } elseif (!CredentialValidator::hasRequiredCredentials($GLOBALS)) {
-    // Missing credentials - display Ensora subscription page
-    $twigContainer = OEGlobalsBag::getInstance()->get('twigContainer');
-    echo $twigContainer->getEnvironment()->render('eRx/ensora_subscription.html.twig', [
+    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+    echo $twig->render('eRx/ensora_subscription.html.twig', [
         'errorType' => 'missing_credentials',
     ]);
 } else {
@@ -134,11 +132,9 @@ if (count($missingExtensions) > 0) {
         $errors = $eRxPage->checkError($xml);
 
         if (count($errors) > 0) {
-            // Check if this is an authentication failure
             if (CredentialValidator::isAuthenticationError($xml)) {
-                // Authentication failed - display Ensora subscription page
-                $twigContainer = OEGlobalsBag::getInstance()->get('twigContainer');
-                echo $twigContainer->getEnvironment()->render('eRx/ensora_subscription.html.twig', [
+                $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+                echo $twig->render('eRx/ensora_subscription.html.twig', [
                     'errorType' => 'authentication_failed',
                 ]);
             } else {
@@ -149,7 +145,7 @@ if (count($missingExtensions) > 0) {
                 <?php foreach ($errors as $message) {
                     echo '<li>' . text($message) . '</li>';
                 } ?>
-        <ul>
+        </ul>
                 <?php
             }
         } else {

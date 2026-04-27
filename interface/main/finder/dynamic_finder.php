@@ -411,9 +411,9 @@ function rp()
     $date_cols = [];
     $datetime_cols = [];
     foreach ($pd_dtCols as $v) {
-        if (isset($v['data_type']) && $v['data_type'] == "datetime") {
+        if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
-        } elseif (isset($v['data_type']) && $v['data_type'] == "date") {
+        } else if ($v['data_type'] == "date") {
             $date_cols[] = $v['column_name'];
         }
     }
