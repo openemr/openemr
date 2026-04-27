@@ -130,7 +130,7 @@ class InstallCommand extends Command
             GlobalConnectorsEnum::OAUTH_PASSWORD_GRANT->value => $enablePasswordGrant ? '3' : null, // Users + Patients
             GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => $enableSystemScopes ? '1' : null,
             GlobalConnectorsEnum::SITE_ADDRESS_OAUTH->value => $siteAddress !== '' ? $siteAddress : null,
-            GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE => $enableCcda ? '3' : null, // Care Coordination + Portal
+            GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE->value => $enableCcda ? '3' : null, // Care Coordination + Portal
         ]);
 
         return array_map(fn($v) => ['value' => $v], $flags);
