@@ -171,7 +171,7 @@ jobs:
           echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
+          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
           echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
 
@@ -281,7 +281,7 @@ jobs:
           ccdaservice/packages/oe-cqm-service/node_modules/
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
-          ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -355,7 +355,7 @@ jobs:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
-      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
+      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
@@ -501,8 +501,7 @@ jobs:
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
         restore-keys: |
-          ${{ runner.os }}-ccda-build-${{ needs.setup.outputs.node_version }}-
-          ${{ runner.os }}-ccda-build-
+          ${{ runner.os }}-ccdaservice-modules-${{ needs.setup.outputs.node_version }}-
 
     - name: Download setup snapshot
       uses: actions/download-artifact@v8
