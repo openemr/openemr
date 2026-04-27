@@ -79,7 +79,7 @@ jobs:
 
     - name: Post sticky comment
       if: steps.pr.outputs.number
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@v3
       with:
         header: phpstan-baseline-diff
         number: ${{ steps.pr.outputs.number }}
