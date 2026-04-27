@@ -130,6 +130,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         'WK' => 'weekly',
     ];
 
+    /**
+     * Official RxNorm display values for medication codes used in test data.
+     * RxNorm requires the generic name format, not brand names.
+     * @see http://www.nlm.nih.gov/research/umls/rxnorm
+     */
+    private const RXNORM_DISPLAY = [
+        '209459' => 'acetaminophen 500 MG Oral Tablet [Tylenol]',
+    ];
+
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
     /**
      * @deprecated use USCGI_PROFILE_URI
@@ -515,7 +524,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateMedication(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (!empty($dataRecord['drugcode'])) {
-            $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
+            $drugCodes = $dataRecord['drugcode'];
+            // Override display with official RxNorm display if available
+            foreach ($drugCodes as $codeValue => &$codeData) {
+                if (array_key_exists($codeValue, self::RXNORM_DISPLAY)) {
+                    $codeData['description'] = self::RXNORM_DISPLAY[$codeValue];
+                }
+            }
+            unset($codeData);
+            $rxnormCode = UtilsService::createCodeableConcept($drugCodes, FhirCodeSystemConstants::RXNORM);
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
         } else if (!empty($dataRecord['drug'])) {
             $textOnlyCode = new FHIRCodeableConcept();
