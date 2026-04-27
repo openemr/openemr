@@ -2303,7 +2303,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code_type\' on mixed\\.$#',
-    'count' => 163,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
@@ -2313,7 +2313,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 85,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
@@ -2323,27 +2323,27 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ins_adjust_dollar\' on mixed\\.$#',
-    'count' => 42,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ins_code\' on mixed\\.$#',
-    'count' => 83,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'insadj\' on mixed\\.$#',
-    'count' => 44,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'inspay\' on mixed\\.$#',
-    'count' => 46,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'insref\' on mixed\\.$#',
-    'count' => 45,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
@@ -2358,32 +2358,32 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pat_adjust_dollar\' on mixed\\.$#',
-    'count' => 42,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pat_code\' on mixed\\.$#',
-    'count' => 83,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'patadj\' on mixed\\.$#',
-    'count' => 44,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'patpay\' on mixed\\.$#',
-    'count' => 46,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'patref\' on mixed\\.$#',
-    'count' => 45,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'paytype\' on mixed\\.$#',
-    'count' => 43,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
@@ -2393,222 +2393,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'provider_id\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'user\' on mixed\\.$#',
-    'count' => 45,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 19 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2 on mixed\\.$#',
-    'count' => 8,
+    'message' => '#^Cannot access offset \'user\' on mixed\\.$#',
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35\\|36 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35\\|36\\|37 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35\\|36\\|37\\|38 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35\\|36\\|37\\|38\\|39 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12\\|13\\|14\\|15\\|16\\|17\\|18\\|19\\|20\\|21\\|22\\|23\\|24\\|25\\|26\\|27\\|28\\|29\\|30\\|31\\|32\\|33\\|34\\|35\\|36\\|37\\|38\\|39\\|40 on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<1, 40\\> on mixed\\.$#',
-    'count' => 36,
+    'message' => '#^Cannot access offset int\\<1, max\\> on mixed\\.$#',
+    'count' => 52,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [

@@ -1223,7 +1223,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 9,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
