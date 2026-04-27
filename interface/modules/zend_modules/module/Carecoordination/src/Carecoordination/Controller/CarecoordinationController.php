@@ -28,27 +28,20 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Documents\Plugin\Documents Documents()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CarecoordinationController extends AbstractActionController
 {
-    /**
-     * @var Carecoordination\Model\CarecoordinationTable
-     */
-    private $carecoordinationTable;
+    private readonly CarecoordinationTable $carecoordinationTable;
 
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    private readonly DocumentsController $documentsController;
 
-    /**
-     * @var Application\Listener\Listener
-     */
-    private $listenerObject;
+    private readonly Listener $listenerObject;
 
-    /**
-     * @var string
-     */
-    private $date_format;
+    private readonly string $date_format;
 
     public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
     {

@@ -2522,21 +2522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$carecoordinationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$documentsTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Controller\\\\EncounterccdadispatchController\\:\\:\\$components has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',

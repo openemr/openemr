@@ -287,26 +287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$carecoordinationTable \\(Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable\\) does not accept Carecoordination\\\\Model\\\\CarecoordinationTable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$documentsController \\(Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\) does not accept Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$listenerObject \\(Carecoordination\\\\Controller\\\\Application\\\\Listener\\\\Listener\\) does not accept Application\\\\Listener\\\\Listener\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$documentsController \\(Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\) does not accept Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Model\\\\CcdaGlobalsConfiguration\\:\\:\\$ccdaSections \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGlobalsConfiguration.php',

@@ -107,111 +107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:CommonPlugin\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:Documents\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Carecoordination\\\\Controller\\\\CcdController\\:\\:updateDocumentCategoryUsingCatname\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:document_fetch\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:fetch_cat_id\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:fetch_uploaded_documents\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:getDocument\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Carecoordination\\\\Controller\\\\EncountermanagerController\\:\\:CommonPlugin\\(\\)\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 27,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/SetupController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Documents\\\\Model\\\\DocumentsTable\\:\\:getIssues\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:insertBefore\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:removeChild\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Ccr\\\\Controller\\\\CcrController\\:\\:CommonPlugin\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
@@ -900,21 +795,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getChildren\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:hasAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:setAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:populateServiceWithFhirQuestionnaire\\(\\)\\.$#',

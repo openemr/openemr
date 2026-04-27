@@ -21,22 +21,20 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CcdController extends AbstractActionController
 {
-    /**
-     * @var \Carecoordination\Model\CcdTable
-     */
-    protected $ccdTable;
+    protected CcdTable $ccdTable;
 
-    protected $carecoordinationTable;
+    protected CarecoordinationTable $carecoordinationTable;
 
-    protected $documentsTable;
+    protected DocumentsTable $documentsTable;
 
-    protected $listenerObject;
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    protected Listener $listenerObject;
+
+    private readonly DocumentsController $documentsController;
 
     public function __construct(
         CcdTable $ccdTable,
@@ -79,7 +77,7 @@ class CcdController extends AbstractActionController
                 if ($row['doc_type'] == 'CCD') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    $this->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
@@ -132,16 +130,12 @@ class CcdController extends AbstractActionController
     {
         return $this->ccdTable;
     }
-    /**
-     * Table gateway
-     * @return object
-     */
-    public function getCarecoordinationTable()
+    public function getCarecoordinationTable(): CarecoordinationTable
     {
         return $this->carecoordinationTable;
     }
 
-    public function getDocumentsTable()
+    public function getDocumentsTable(): DocumentsTable
     {
         return $this->documentsTable;
     }

@@ -1027,19 +1027,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:getCarecoordinationTable\\(\\) should return Carecoordination\\\\Model\\\\CarecoordinationTable but returns Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:indexAction\\(\\) should return Laminas\\\\View\\\\Model\\\\ViewModel but returns Laminas\\\\Http\\\\Response\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Controller\\\\CcdController\\:\\:getCarecoordinationTable\\(\\) should return object but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Controller\\\\EncounterccdadispatchController\\:\\:getEncounterccdadispatchTable\\(\\) should return Carecoordination\\\\Model\\\\EncounterccdadispatchTable but returns mixed\\.$#',
@@ -10830,11 +10820,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\QuestionnaireResponse\\\\FhirQuestionnaireResponseFormServiceIntegrationTest\\:\\:createTestQuestionnaireResponse\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceIntegrationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\Modules\\\\CareCoordination\\\\Model\\\\CcdaServiceDocumentRequestorTest\\:\\:getDocumentGenerationTime\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

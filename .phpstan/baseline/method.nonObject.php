@@ -2007,11 +2007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/Module.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method fetchXmlDocuments\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method updateDocumentCategoryUsingCatname\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
@@ -2022,14 +2017,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method updateDocumentCategory\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method updateDocumentCategoryUsingCatname\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method date_format\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method z_xlt\\(\\) on mixed\\.$#',
@@ -9747,18 +9737,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [

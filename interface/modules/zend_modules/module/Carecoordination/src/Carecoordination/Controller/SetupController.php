@@ -16,6 +16,9 @@ use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class SetupController extends AbstractActionController
 {
     /**

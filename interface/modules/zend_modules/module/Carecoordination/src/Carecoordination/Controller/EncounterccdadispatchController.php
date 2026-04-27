@@ -30,6 +30,9 @@ use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class EncounterccdadispatchController extends AbstractActionController
 {
     protected $data;
@@ -238,14 +241,14 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 // split content if unstructured is included from service.
                 $unstructured = "";
-                if (substr_count($content, '</ClinicalDocument>') === 2) {
-                    $d = explode('</ClinicalDocument>', $content);
+                if (substr_count((string) $content, '</ClinicalDocument>') === 2) {
+                    $d = explode('</ClinicalDocument>', (string) $content);
                     $content = $d[0] . '</ClinicalDocument>';
                     $unstructured = $d[1] . '</ClinicalDocument>';
                 }
 
                 if ($view && !$downloadccda) {
-                    if (str_starts_with($content, 'ERROR:')) {
+                    if (str_starts_with((string) $content, 'ERROR:')) {
                         echo "<h3>" . text($content) . "</h3>";
                         ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();

@@ -57,46 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method getDocumentsTable\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method isZipUpload\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method uploadAction\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$carecoordinationTable has unknown class Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$documentsController has unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$listenerObject has unknown class Carecoordination\\\\Controller\\\\Application\\\\Listener\\\\Listener as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method uploadAction\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$documentsController has unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Iterating over an object of an unknown class Installer\\\\Controller\\\\unknown_type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',

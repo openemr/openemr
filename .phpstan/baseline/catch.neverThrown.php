@@ -14,6 +14,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [

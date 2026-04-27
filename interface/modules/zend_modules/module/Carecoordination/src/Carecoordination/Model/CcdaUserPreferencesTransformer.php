@@ -73,6 +73,9 @@ class CcdaUserPreferencesTransformer
         $structuredBodies = $xpath->query($query);
 
         foreach ($structuredBodies as $body) {
+            if (!$body instanceof \DOMElement) {
+                continue;
+            }
             if (!empty($sortedSections)) {
                 foreach ($sortedSections as $section) {
                     $foundSectionNodes = $xpath->query("n1:component[n1:section/n1:templateId/@root = '" . $section . "']", $body);
