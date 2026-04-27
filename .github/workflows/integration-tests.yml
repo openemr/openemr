@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   test:
-    name: Integration Tests (PHP ${{ matrix.php }}, ${{ matrix.database.name }})
+    name: Integration Tests (PHP ${{ matrix.php.version }}, ${{ matrix.database.name }})
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -29,29 +29,37 @@ jobs:
           - name: MySQL 5.7
             image: mysql:5.7
             health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MySQL 8
-            image: mysql:8
+          - name: MySQL 8.4 (LTS)
+            image: mysql:8.4
             health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MySQL 9
-            image: mysql:9
+          - name: MySQL 9.7 (LTS)
+            image: mysql:9.7
             health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MariaDB 10
-            image: mariadb:10
+          - name: MariaDB 10.6 (LTS)
+            image: mariadb:10.6
             health-cmd: "healthcheck.sh --connect --innodb_initialized"
-          - name: MariaDB 11
-            image: mariadb:11
+          - name: MariaDB 10.11 (LTS)
+            image: mariadb:10.11
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
+          - name: MariaDB 11.4 (LTS)
+            image: mariadb:11.4
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
+          - name: MariaDB 11.8 (LTS)
+            image: mariadb:11.8
             health-cmd: "healthcheck.sh --connect --innodb_initialized"
           - name: MariaDB 12
             image: mariadb:12
             health-cmd: "healthcheck.sh --connect --innodb_initialized"
+            coverage: true
         php:
-          - '8.2'
-          - '8.3'
-          - '8.4'
-          - '8.5'
+          - version: '8.2'
+          - version: '8.3'
+          - version: '8.4'
+          - version: '8.5'
+            coverage: true
     env:
       # Only collect coverage on one matrix arm to save time
-      COLLECT_COVERAGE: ${{ matrix.php == '8.5' && matrix.database.name == 'MariaDB 12' }}
+      COLLECT_COVERAGE: ${{ matrix.php.coverage && matrix.database.coverage }}
     services:
       mysql:
         image: ${{ matrix.database.image }}
@@ -77,7 +85,7 @@ jobs:
         uses: ./.github/actions/setup-php-composer
         with:
           coverage: ${{ env.COLLECT_COVERAGE }}
-          php-version: ${{ matrix.php }}
+          php-version: ${{ matrix.php.version }}
 
       - name: Run CLI installer
         run: ./cli install
