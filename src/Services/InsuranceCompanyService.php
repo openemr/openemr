@@ -251,7 +251,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= " LEFT JOIN addresses a ON i.id = a.foreign_id";
 
         if ($search !== []) {
-            $sql .= ' AND ';
+            $sql .= ' WHERE ';
             $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');

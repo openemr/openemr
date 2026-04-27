@@ -227,6 +227,40 @@ class InsuranceCompanyServiceTest extends TestCase
     }
 
     #[Test]
+    public function testGetAllAppliesSearchPredicateAsWhereClause(): void
+    {
+        // Regression for #11558: getAll() previously appended search
+        // predicates with `AND` directly after the LEFT JOIN ON clause,
+        // which made them part of the join condition rather than the
+        // result-set filter. With LEFT JOIN, every insurance_companies
+        // row still came back (with NULL address columns when the
+        // predicate did not match), so callers that asked for a single
+        // record by cms_id received every other company too.
+        $matchedId = $this->insertAndTrack();
+
+        $otherData = $this->getTestData();
+        $otherData['name'] = 'test-fixture-Other Insurance';
+        $otherData['cms_id'] = '99999';
+        /** @var int|string $otherId */
+        $otherId = $this->service->insert($otherData);
+        $this->createdIds[] = $otherId;
+
+        $result = $this->service->getAll(['cms_id' => '88888']);
+
+        $this->assertTrue($result->hasData());
+        /** @var list<array<string, mixed>> $records */
+        $records = $result->getData();
+
+        $matchedRecords = array_values(array_filter(
+            $records,
+            static fn(array $row): bool => ($row['cms_id'] ?? null) === '88888'
+        ));
+        $this->assertCount(1, $records, 'getAll() with a cms_id filter must restrict the result set, not just the join');
+        $this->assertCount(1, $matchedRecords);
+        $this->assertEquals($matchedId, $matchedRecords[0]['id'] ?? null);
+    }
+
+    #[Test]
     public function testInsertWithExplicitId(): void
     {
         $data = $this->getTestData();
