@@ -2,16 +2,14 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Api\BulkAPITestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 
 class BulkPatientExport311APITest extends TestCase
 {

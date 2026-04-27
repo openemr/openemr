@@ -179,7 +179,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     public $crossReference = [];
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation[]
      */
     public $manufacturingBusinessOperation = [];
@@ -556,7 +556,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation[]
      */
     public function getManufacturingBusinessOperation()
@@ -565,7 +565,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation $manufacturingBusinessOperation
      * @return $this
      */

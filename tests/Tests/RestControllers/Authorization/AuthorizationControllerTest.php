@@ -2,17 +2,16 @@
 
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Core\Kernel;
-use OpenEMR\Core\OEHttpKernel;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -49,16 +48,19 @@ class AuthorizationControllerTest extends TestCase
         $coreKernel = $this->createMock(Kernel::class);
         $coreKernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
-        $globalsBag = new OEGlobalsBag(
-            array_merge([
+        $coreKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 4));
+        $coreKernel->method('getWebRoot')->willReturn('');
+        /** @var array<string, mixed> $globalParams */
+        $globalParams = array_merge([
             'kernel' => $coreKernel,
-            ], $globalValues));
+        ], $globalValues);
+        $globalsBag = new OEGlobalsBag($globalParams);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method("getEventDispatcher")
             ->willReturn(new EventDispatcher());
         $kernel->method("getGlobalsBag")->willReturn($globalsBag);
         $authorizationController = new AuthorizationController($session, $kernel);
-        $authorizationController->setSystemLogger(new SystemLogger(Level::Emergency));
+        $authorizationController->setSystemLogger($this->createMock(LoggerInterface::class));
         return $authorizationController;
     }
     public function testOauthAuthorizationFlowMissingResponseType(): void
@@ -113,7 +115,6 @@ class AuthorizationControllerTest extends TestCase
         $clientRepository->method('getClientEntity')->willReturn($clientEntity);
         $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
         $authorizationController->setClientRepository($clientRepository);
-        $authorizationController->setSystemLogger(new SystemLogger(Level::Debug));
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
     }
@@ -137,7 +138,6 @@ class AuthorizationControllerTest extends TestCase
         $clientRepository->method('getClientEntity')->willReturn($clientEntity);
         $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
         $authorizationController->setClientRepository($clientRepository);
-        $authorizationController->setSystemLogger(new SystemLogger(Level::Debug));
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
     }

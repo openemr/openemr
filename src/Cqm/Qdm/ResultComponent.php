@@ -21,4 +21,3 @@ class ResultComponent extends Component
 
     public $_type = 'QDM::ResultComponent';
 }
-

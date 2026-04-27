@@ -2,21 +2,20 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Tests\Fixtures\FixtureManager;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Patient Service Query Tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,7 +38,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
         $this->fhirPatientService = new FhirPatientService();
-        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirPatientService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void
@@ -63,6 +62,7 @@ class FhirPatientServiceQueryTest extends TestCase
         }
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function searchParameter(): array
     {
 
@@ -156,6 +156,7 @@ class FhirPatientServiceQueryTest extends TestCase
         ];
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function searchParameterCompound(): array
     {
         return [

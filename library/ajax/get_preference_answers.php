@@ -15,10 +15,10 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, key: 'csrf_token', dieOnFail: true);
 
 $loincCode = $_GET['loinc_code'] ?? '';
 
@@ -27,8 +27,8 @@ if (empty($loincCode)) {
     die(json_encode(['error' => 'LOINC code required']));
 }
 
-$sql = "SELECT * FROM preference_value_sets 
-        WHERE loinc_code = ? AND active = 1 
+$sql = "SELECT * FROM preference_value_sets
+        WHERE loinc_code = ? AND active = 1
         ORDER BY sort_order";
 
 $result = QueryUtils::fetchRecords($sql, [$loincCode]);

@@ -20,10 +20,10 @@
  *  <http://opensource.org/licenses/gpl-license.php>
  *
  *
- * @link: https://www.open-emr.org
- * @author: Kevin McCormick
- * @package: OpenEMR
- * @subpackage: ediHistory
+ * @link       https://www.open-emr.org
+ * @author     Kevin McCormick
+ * @package    OpenEMR
+ * @subpackage ediHistory
  */
 
 /* ********* project notes =================
@@ -1208,7 +1208,7 @@ class edih_x12_file
                     }
 
                     // PLB segment is part of summary/trailer in 835
-                    // not part of the preceeding transaction
+                    // not part of the preceding transaction
                     if (strncmp((string) $seg, 'PLB' . $de, 4) === 0) {
                         if ($is_found && isset($slice[$sl_idx]['start'])) {
                             $slice[$sl_idx]['count'] = $idx - $slice[$sl_idx]['start'];

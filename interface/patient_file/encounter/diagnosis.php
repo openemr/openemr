@@ -4,7 +4,7 @@
  * diagnosis.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,12 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -44,9 +49,7 @@ if ($payment_method == "insurance") {
 }
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         // Get the provider ID from the new encounter form if possible, otherwise
@@ -55,7 +58,7 @@ if (isset($mode)) {
             "forms.pid = ? AND forms.encounter = ? AND " .
             "forms.formdir='newpatient' AND users.username = forms.user AND " .
             "users.authorized = 1", [$pid, $encounter]);
-        $provid = $tmp['id'] ?: $_SESSION["authUserID"];
+        $provid = $tmp['id'] ?: $session->get("authUserID");
 
         if (strtolower((string) $type) == "copay") {
             BillingUtilities::addBilling(
@@ -127,7 +130,7 @@ if (isset($mode)) {
 
         if (!empty($sql)) {
             foreach ($sql as $q) {
-                $results = sqlQ($q);
+                QueryUtils::sqlStatementThrowException($q);
             }
         }
 
@@ -210,7 +213,7 @@ function validate(f) {
 if (!$thisauth) {
     $erow = sqlQuery("SELECT user FROM forms WHERE " .
     "encounter = ? AND formdir = 'newpatient' LIMIT 1", [$encounter]);
-    if ($erow['user'] == $_SESSION['authUser']) {
+    if ($erow['user'] == $session->get('authUser')) {
         $thisauth = AclMain::aclCheckCore('encounters', 'coding');
     }
 }
@@ -229,7 +232,7 @@ if (!$thisauth) {
 }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  onsubmit="return validate(this)">
 <table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
@@ -239,7 +242,7 @@ if (!$thisauth) {
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo attr($target); ?>" onclick="top.restoreSession()">
-<span class='title'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
+<span class='title'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Billing') : xlt('Coding'); ?></span>
 <span class='more'><?php echo text($tmore); ?></span></a>
 
 <?php
@@ -248,14 +251,14 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
-<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->get('weight_loss_clinic')) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="submit" name="justify" value="<?php echo xla('Justify/Save');?>">
 <?php } ?>
 </dt>
 </dl>
 
-<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+<a href="cash_receipt.php?csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
 <table class="table-borderless">

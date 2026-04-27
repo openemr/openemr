@@ -4,7 +4,7 @@
   * Dash Board Header.
   *
   * @package   OpenEMR
-  * @link      http://www.open-emr.org
+  * @link      https://www.open-emr.org
   * @author    Ranganath Pathak <pathak@scrs1.org>
   * @author    Brady Miller <brady.g.miller@gmail.com>
   * @author    Robert Down <robertdown@live.com>
@@ -16,17 +16,18 @@
 
 require_once("$srcdir/display_help_icon_inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $viewArgs = [
     'pageHeading' => $oemr_ui->pageHeading(),
     'pid' => $pid,
-    'csrf' => CsrfUtils::collectCsrfToken(),
+    'csrf' => CsrfUtils::collectCsrfToken(session: $session),
 ];
 
 echo $t->render('patient/dashboard_header.html.twig', $viewArgs);

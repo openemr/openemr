@@ -11,9 +11,11 @@
  */
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
+OEGlobalsBag::getInstance()->set('form_exit_url', "javascript:parent.closeTab(window.name, false)");
 
 function formHeader($title = "My Form"): void
 {
@@ -23,7 +25,7 @@ function formHeader($title = "My Form"): void
     <?php Header::setupHeader(); ?>
     <title><?php echo text($title); ?></title>
     </head>
-    <body background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+    <body background="<?php echo OEGlobalsBag::getInstance()->get('backpic')?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
     <?php
 }
 
@@ -39,7 +41,9 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 {
     global $attendant_type;
 
-    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+    $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, [$tableName]) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {
@@ -50,14 +54,14 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
             if (!empty($value)) {
                 $code_array = explode(" ", (string) $value, 2);
 
-                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $session->get('pid'), $authorized, $session->get('authUserID'));
             }
         } elseif ((bool) preg_match("/diagnosis\d$/", (string) $key)) {
             // case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
             // icd auto add ICD9-CM
             if (!empty($value)) {
                 $code_array = explode(" ", (string) $value, 2);
-                BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $session->get('pid'), $authorized, $session->get('authUserID'));
             }
         } else {
             $sql .= " " . escape_sql_column_name($key, [$tableName]) . " = ?,";
@@ -72,7 +76,8 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {
@@ -106,13 +111,13 @@ function formJump($address = ''): void
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,$GLOBALS['pid'],$activity]) ;
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from " . escape_table_name($tableName) . " where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,OEGlobalsBag::getInstance()->get('pid'),$activity]) ;
 }
 
 function formDisappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id=? and pid=?", [$id, $pid])) {
+    if (sqlStatement("update " . escape_table_name($tableName) . " set activity = '0' where id=? and pid=?", [$id, $pid])) {
         return true;
     }
 
@@ -122,7 +127,7 @@ function formDisappear($tableName, $id)
 function formReappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id=? and pid=?", [$id, $pid])) {
+    if (sqlStatement("update " . escape_table_name($tableName) . " set activity = '1' where id=? and pid=?", [$id, $pid])) {
         return true;
     }
 

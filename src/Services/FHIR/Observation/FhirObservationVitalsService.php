@@ -3,7 +3,7 @@
 /**
  * FhirObservationVitalsService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
-use InvalidArgumentException;
 use BadMethodCallException;
-use OpenEMR\Common\Logging\SystemLogger;
+use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -29,7 +29,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
-use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -39,7 +38,6 @@ use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -555,7 +553,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 $processingResult->addData($vitalsRecord);
                 unset($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]);
             } else {
-                (new SystemLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
+                ServiceContainer::getLogger()->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
             }
         }
 
@@ -566,7 +564,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             }
             $codeMapping = self::COLUMN_MAPPINGS[$code];
             if (!isset($uuidMappings[$code])) {
-                $this->getSystemLogger()->errorLogCaller("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vital sign record as mapping uuid is missing for code " . $code);
+                $this->getSystemLogger()->error("Cannot return vital sign record as mapping uuid is missing for code {code}", ['code' => $code]);
                 continue;
             }
             // uuid mappings are binary values, we need to convert them to string
@@ -897,6 +895,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             );
     }
 
+    /**
+     * @param literal-string $description
+     */
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description): void
     {
         $component = new FHIRObservationComponent();

@@ -1,15 +1,16 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 require_once('gacl_admin.inc.php');
@@ -86,7 +87,7 @@ $smarty->assign('page_title', strtoupper($group_type) .' Group Admin');
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession()));
 
 $smarty->display('phpgacl/group_admin.tpl');
 ?>

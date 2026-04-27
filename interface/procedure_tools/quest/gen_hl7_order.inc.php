@@ -4,11 +4,11 @@
  * Functions to support HL7 order generation
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,91 +32,7 @@ require_once("$webserver_root/custom/code_types.inc.php");
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
-
-function hl7Text($s)
-{
-  // See http://www.interfaceware.com/hl7_escape_protocol.html:
-    $s = str_replace('\\', '\\E\\', $s);
-    $s = str_replace('^', '\\S\\', $s);
-    $s = str_replace('|', '\\F\\', $s);
-    $s = str_replace('~', '\\R\\', $s);
-    $s = str_replace('&', '\\T\\', $s);
-    $s = str_replace("\r", '\\X0d\\', $s);
-    return $s;
-}
-
-function hl7Zip($s)
-{
-    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
-}
-
-function hl7Date($s)
-{
-    return preg_replace('/[^\d]/', '', (string) $s);
-}
-
-function hl7Time($s)
-{
-    if (empty($s)) {
-        return '';
-    }
-
-    return date('YmdHis', strtotime((string) $s));
-}
-
-function hl7Sex($s)
-{
-    $s = strtoupper(substr((string) $s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') {
-        $s = 'U';
-    }
-
-    return $s;
-}
-
-function hl7Phone($s)
-{
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2];
-    }
-
-    return '';
-}
-
-function hl7SSN($s)
-{
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
-    }
-
-    return '';
-}
-
-function hl7Priority($s)
-{
-    return strtoupper(substr((string) $s, 0, 1)) == 'H' ? 'S' : 'R';
-}
-
-function hl7Relation($s)
-{
-    $tmp = strtolower((string) $s);
-    if ($tmp == 'self' || $tmp == '') {
-        return 1;
-    } elseif ($tmp == 'spouse') {
-        return 2;
-    } elseif ($tmp == 'child') {
-        return 8;
-    } elseif ($tmp == 'other') {
-        return 8;
-    }
-
-  // Should not get here so this will probably get noticed if we do.
-    return $s;
-}
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
@@ -126,7 +42,7 @@ function hl7Relation($s)
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date = '')
+function quest_loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -163,7 +79,7 @@ function loadPayerInfo($pid, $date = '')
  * @return Hl7OrderResult  Result object containing HL7 text and optional lab-specific requisition data.
  * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order(int $orderid): Hl7OrderResult
+function quest_gen_hl7_order(int $orderid): Hl7OrderResult
 {
     $labSample = '';
     $labNote = '';
@@ -247,11 +163,11 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
     $d2 . hl7Text($porow['state']) .
     $d2 . hl7Zip($porow['postal_code']) .
     $d1 .
-    $d1 . hl7Phone($porow['phone_home']) .
-    $d1 . hl7Phone($porow['phone_biz']) .
+    $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+    $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
     $d1 . $d1 . $d1 .
     $d1 . $porow['encounter'] .
-    $d1 . hl7SSN($porow['ss']) .
+    $d1 . hl7SSN($porow['ss'], withDashes: true) .
     $d1 . $d1 . $d1 .
     $d0;
 
@@ -285,7 +201,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
 
   // Insurance stuff.
     $ins_type = trim((string) $porow['billing_type']);
-    $payers = loadPayerInfo($porow['pid'], $porow['date_ordered']);
+    $payers = quest_loadPayerInfo($porow['pid'], $porow['date_ordered']);
     $setid = 0;
     if ($ins_type == 'T') {
         // only send primary and secondary insurance
@@ -303,13 +219,13 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Text($payer_address->get_state()) .  // State
                 $d2 . hl7Zip($payer_address->get_zip()) .     // Zip Code
                 $d1 .
-                $d1 . hl7Phone($payer_object->get_phone()) .    // Phone Number
+                $d1 . hl7Phone($payer_object->get_phone(), formatted: true) .    // Phone Number
                 $d1 . hl7Text($payer['data']['group_number']) . // Insurance Company Group Number
                 str_repeat($d1, 7) .                            // IN1 9-15 all empty
                 $d1 . hl7Text($payer['data']['subscriber_lname']) .   // Insured last name
                 $d2 . hl7Text($payer['data']['subscriber_fname']) . // Insured first name
                 $d2 . hl7Text($payer['data']['subscriber_mname']) . // Insured middle name
-                $d1 . hl7Relation($payer['data']['subscriber_relationship']) .
+                $d1 . hl7RelationCode((string) $payer['data']['subscriber_relationship'], childAsOther: true) .
                 $d1 . hl7Date($payer['data']['subscriber_DOB']) .     // Insured DOB
                 $d1 . hl7Date($payer['data']['subscriber_street']) .  // Insured Street Address
                 $d2 .
@@ -354,13 +270,13 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
             $d2 . hl7Text($porow['city']) .
             $d2 . hl7Text($porow['state']) .
             $d2 . hl7Zip($porow['postal_code']) .
-            $d1 . hl7Phone($porow['phone_home']) .
-            $d1 . hl7Phone($porow['phone_biz']) .
+            $d1 . hl7Phone($porow['phone_home'], formatted: true) .
+            $d1 . hl7Phone($porow['phone_biz'], formatted: true) .
             $d1 . hl7Date($porow['DOB']) .   // DOB
             $d1 . hl7Sex($porow['sex']) .   // Sex: M, F or U
             $d1 .
             $d1 . '1' .                   // Relationship
-            $d1 . hl7SSN($porow['ss']) .
+            $d1 . hl7SSN($porow['ss'], withDashes: true) .
             $d0;
     }
   // Common Order.
@@ -388,7 +304,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
         $d2 . hl7Text($pcrow['procedure_name']) .
         $d1 . hl7Priority($porow['order_priority']) . // S=Stat, R=Routine
         $d1 .
-        $d1 . hl7Time($porow['date_collected']) .     // Observation Date/Time
+        $d1 . hl7Time($porow['date_collected'], withSeconds: true) .     // Observation Date/Time
         str_repeat($d1, 8) .                  // OBR 8-15 not used
         $d1 . hl7Text($porow['docnpi']) .             // Physician ID
         $d2 . hl7Text($porow['doclname']) .         // Last Name
@@ -497,7 +413,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function send_hl7_order($ppid, $out)
+function quest_send_hl7_order($ppid, $out)
 {
     global $srcdir;
 
@@ -562,11 +478,12 @@ function send_hl7_order($ppid, $out)
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
-  // Falling through to here indicates success.
-    EventAuditLogger::instance()->newEvent(
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    // Falling through to here indicates success.
+    EventAuditLogger::getInstance()->newEvent(
         "proc_order_xmit",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "ID: $msgid Protocol: $protocol Host: $remote_host"
     );

@@ -4,7 +4,7 @@
  * edih_csv_inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
@@ -28,6 +28,9 @@
  * function (in ibr_uploads.php) ibr_upload_match_file($param_ar, $fidx, &$html_str)
  *   contains a regular expression that must be correct
  *
+
+use OpenEMR\Core\OEGlobalsBag;
+
  * Also, the constant IBR_HISTORY_DIR must be correct
  * **************************
  * </pre>
@@ -327,10 +330,10 @@ function csv_notes_file($content = '', $open = true)
 function csv_edih_basedir()
 {
     // should be something like /var/www/htdocs/openemr/sites/default
-    if (isset($GLOBALS['OE_SITE_DIR'])) {
+    if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
         // debug
         //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br />'.PHP_EOL;
-        return $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi' . DS . 'history';
+        return OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi' . DS . 'history';
     } else {
         csv_edihist_log('csv_edih_basedir: failed to obtain OpenEMR Site directory');
         return false;
@@ -383,7 +386,7 @@ function csv_setup()
     $out_str = '';
     $chr = 0;
     // $GLOBALS['OE_SITE_DIR'] should be like /var/www/htdocs/openemr/sites/default
-    $sitedir = $GLOBALS['OE_SITE_DIR'];
+    $sitedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
     //$sitedir = csv_edih_basedir();
     //
     if (is_readable($sitedir)) {
@@ -717,7 +720,7 @@ function csv_file_type($type, $gs_code = false)
  *
  * A key function since it holds the paths, columns, etc.
  * Unfortunately, there is an issue with matching the type in  * the case of the
- * values '997', '277', '999', etc, becasue these strings may be recast
+ * values '997', '277', '999', etc, because these strings may be recast
  * from strings to integers, so the 'type' originally supplied is lost.
  * This introduces an inconsistency when the 'type' is used in comparison tests.
  * We call the csv_file_type() function to return a usable file type identifier.
@@ -747,7 +750,7 @@ function csv_parameters($type = 'ALL')
     // OpenEMR copies each batch file to sites/default/documents/edi and this project never writes to that directory
     // batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
     //
-    $p_ar['f837'] = ['type' => 'f837', 'directory' => $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
+    $p_ar['f837'] = ['type' => 'f837', 'directory' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
                         'files_csv' => $edihist_dir . DS . 'csv' . DS . 'files_f837.csv', 'filedate' => 'Date', 'claimdate' => 'SvcDate', 'regex' => '/\-batch(.*)\.txt$/'];
     //
     //$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',
@@ -1077,7 +1080,7 @@ function edih_errseg_parse($err_seg, $id = false)
 /**
  * Order the csv data array according to the csv table heading row
  * so the data to be added to csv table rows are correctly ordered
- *  the supplied data should be in an array with thie structure
+ *  the supplied data should be in an array with this structure
  *  array['icn'] ['file'][i]['key']  ['claim'][i]['key']  ['type']['type']
  *
  * @uses csv_table_header()

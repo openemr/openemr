@@ -7,12 +7,12 @@
 		<element>false</element>
 		<element>false</element>
 	</test>
-	<!-- attibute equivalence -->
+	<!-- attribute equivalence -->
 	<test root="B">
-		<element atttribute="ok">true</element>
+		<element attribute="ok">true</element>
 	</test>
 	<test root="B">
-		<element atttribute="notok">false</element>
+		<element attribute="notok">false</element>
 	</test>
 	<!-- child presence  -->
 	<test root="C">

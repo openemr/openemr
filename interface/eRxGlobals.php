@@ -1,17 +1,16 @@
 <?php
 
 /**
- * interface/eRxGlobals.php Functions for retrieving NewCrop global configurations.
+ * interface/eRxGlobals.php Functions for retrieving Ensora eRx global configurations.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Services\VersionService;
+use OpenEMR\BC\ServiceContainer;
 
 class eRxGlobals
 {
@@ -52,15 +51,6 @@ class eRxGlobals
     }
 
     /**
-     * Return the version of OpenEMR
-     * @return string OpenEMR version
-     */
-    public function getOpenEMRVersion()
-    {
-        return (new VersionService())->asString();
-    }
-
-    /**
      * Return the OpenEMR site directory
      * @return string OpenEMR site directory
      */
@@ -70,8 +60,8 @@ class eRxGlobals
     }
 
     /**
-     * Return enable state for NewCrop eRx service
-     * @return boolean NewCrop eRx service enabled state
+     * Return enable state for Ensora eRx service
+     * @return boolean Ensora eRx service enabled state
      */
     public function getEnabled()
     {
@@ -79,8 +69,8 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx requests URL
-     * @return string URL for NewCrop eRx requests
+     * Return the Ensora eRx requests URL
+     * @return string URL for Ensora eRx requests
      */
     public function getPath()
     {
@@ -88,8 +78,8 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx service URLs
-     * @return array URLs for NewCrop eRx services: index [ 0 = Update, 1 = Patient ]
+     * Return the Ensora eRx service URLs
+     * @return array URLs for Ensora eRx services: index [ 0 = Update, 1 = Patient ]
      */
     public function getSoapPaths()
     {
@@ -97,8 +87,8 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx allergies time-to-live
-     * @return integer Time-to-live in seconds for NewCrop eRx allergies
+     * Return the Ensora eRx allergies time-to-live
+     * @return integer Time-to-live in seconds for Ensora eRx allergies
      */
     public function getTTLSoapAllergies()
     {
@@ -106,8 +96,8 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx medications time-to-live
-     * @return integer Time-to-live in seconds for NewCrop eRx medications
+     * Return the Ensora eRx medications time-to-live
+     * @return integer Time-to-live in seconds for Ensora eRx medications
      */
     public function getTTLSoapMedications()
     {
@@ -115,7 +105,7 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx partner name for credentials
+     * Return the Ensora eRx partner name for credentials
      * @return string Partner name for credentials
      */
     public function getPartnerName()
@@ -124,7 +114,7 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx account name for credentials
+     * Return the Ensora eRx account name for credentials
      * @return string Account name for credentials
      */
     public function getAccountName()
@@ -133,17 +123,18 @@ class eRxGlobals
     }
 
     /**
-     * Return the NewCrop eRx password for credentials
+     * Return the Ensora eRx password for credentials
      * @return string Password for credentials
      */
     public function getAccountPassword()
     {
-        $cryptoGen = new CryptoGen();
-        return $cryptoGen->decryptStandard($this->getGlobalValue('erx_account_password'));
+        $cryptoGen = ServiceContainer::getCrypto();
+        $value = $this->getGlobalValue('erx_account_password');
+        return $cryptoGen->decryptStandard(is_string($value) ? $value : null);
     }
 
     /**
-     * Return the NewCrop eRx account Id for credentials
+     * Return the Ensora eRx account Id for credentials
      * @return string Account Id for credentials
      */
     public function getAccountId()
@@ -152,8 +143,8 @@ class eRxGlobals
     }
 
     /**
-     * Return enable state for NewCrop eRx only upload prescriptions
-     * @return boolean NewCrop eRx only upload prescriptions enabled state
+     * Return enable state for Ensora eRx only upload prescriptions
+     * @return boolean Ensora eRx only upload prescriptions enabled state
      */
     public function getUploadActive()
     {
@@ -161,8 +152,8 @@ class eRxGlobals
     }
 
     /**
-     * Return enable state for NewCrop eRx import status message
-     * @return boolean NewCrop eRx import status message enabled state
+     * Return enable state for Ensora eRx import status message
+     * @return boolean Ensora eRx import status message enabled state
      */
     public function getImportStatusMessage()
     {
@@ -170,8 +161,8 @@ class eRxGlobals
     }
 
     /**
-     * Return enable state for NewCrop eRx display medications uploaded
-     * @return boolean NewCrop eRx display medications uploaded enabled state
+     * Return enable state for Ensora eRx display medications uploaded
+     * @return boolean Ensora eRx display medications uploaded enabled state
      */
     public function getDisplayMedication()
     {
@@ -179,8 +170,8 @@ class eRxGlobals
     }
 
     /**
-     * Return enable state for NewCrop eRx display allergies uploaded
-     * @return boolean NewCrop eRx display allergies uploaded enabled state
+     * Return enable state for Ensora eRx display allergies uploaded
+     * @return boolean Ensora eRx display allergies uploaded enabled state
      */
     public function getDisplayAllergy()
     {
@@ -188,8 +179,8 @@ class eRxGlobals
     }
 
     /**
-     * Return NewCrop eRx default patient country code
-     * @return string NewCrop eRx default patient country code
+     * Return Ensora eRx default patient country code
+     * @return string Ensora eRx default patient country code
      */
     public function getDefaultPatientCountry()
     {
@@ -197,8 +188,8 @@ class eRxGlobals
     }
 
     /**
-     * Return array containing NewCrop eRx credentials
-     * @return array NewCrop eRx credentials: index [ 0 = Partner Name, 1 = Account Name, 2 = Password ]
+     * Return array containing Ensora eRx credentials
+     * @return array Ensora eRx credentials: index [ 0 = Partner Name, 1 = Account Name, 2 = Password ]
      */
     public function getCredentials()
     {
@@ -210,7 +201,7 @@ class eRxGlobals
     }
 
     /**
-     * Return Debug NewCrop eRx settings
+     * Return Debug Ensora eRx settings
      * @return integer Debug settings: flags [ 1 = XML, 2 = RESULT ]
      */
     public function getDebugSetting()

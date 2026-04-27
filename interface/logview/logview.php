@@ -4,7 +4,7 @@
  * Log Viewer.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -14,22 +14,24 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Logs Viewer")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Logs Viewer", xl("Logs Viewer"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -129,7 +131,7 @@ if (!empty($_GET)) {
                         <div class="jumbotron jumbotron-fluid bg-light p-1 m-0">
                             <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
                             <form method="get" name="theform" id="theform">
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>" />
                                 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
                                 <input type=hidden name="csum" value="" />
@@ -137,11 +139,11 @@ if (!empty($_GET)) {
                                 <div class="form-row">
                                     <label class="col-sm-1 col-form-label" for="start_date"><?php echo xlt('Start Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('End Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('Patient'); ?>:</label>
                                     <div class="col-sm-3">
@@ -304,9 +306,9 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
-                                            $cryptoGen = new CryptoGen();
+                                            $cryptoGen = ServiceContainer::getCrypto();
 
                                             while ($iter = sqlFetchArray($ret)) {
                                                 if (empty($iter['id'])) {
@@ -323,53 +325,35 @@ if (!empty($_GET)) {
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {
-                                                    if ($encryptVersion >= 3) {
-                                                        // Use new openssl method
-                                                        if (extension_loaded('openssl')) {
-                                                            $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
-                                                            if ($trans_comments !== false) {
-                                                                $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                            } else {
-                                                                $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                                                            }
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                                                        }
-                                                    } elseif ($encryptVersion == 2) {
-                                                        // Use new openssl method
-                                                        if (extension_loaded('openssl')) {
-                                                            $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
-                                                            if ($trans_comments !== false) {
-                                                                $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                            } else {
-                                                                $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                                                            }
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                                                        }
-                                                    } elseif ($encryptVersion == 1) {
-                                                        // Use new openssl method
-                                                        if (extension_loaded('openssl')) {
-                                                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256DecryptOne($iter["comments"]));
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                                                        }
-                                                    } else { //$encryptVersion == 0
+                                                    if ($encryptVersion === 0) {
                                                         // The old mcrypt method is no longer supported
                                                         $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
+                                                    } else {
+                                                        // For v1/v2, prepend version prefix. For v3+, data already has it.
+                                                        $encryptVersionInt = is_numeric($encryptVersion) ? (int) $encryptVersion : 0;
+                                                        $iterComments = is_string($iter["comments"]) ? $iter["comments"] : '';
+                                                        $comments = $encryptVersionInt < 3
+                                                            ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
+                                                            : $iterComments;
+                                                        $trans_comments = $cryptoGen->decryptStandard($comments);
+                                                        if (is_string($trans_comments)) {
+                                                            $trans_comments = preg_replace($patterns, $replace, $trans_comments);
+                                                        } else {
+                                                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                                                        }
                                                     }
                                                 } else {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                                                     //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                                                     if ($encryptVersion >= 4) {
-                                                        $iter["comments"] = base64_decode((string) $iter["comments"]);
+                                                        $iter["comments"] = base64_decode(is_string($iter["comments"]) ? $iter["comments"] : '');
                                                     }
-                                                    $trans_comments = preg_replace($patterns, $replace, (string) $iter["comments"]);
+                                                    $trans_comments = preg_replace($patterns, $replace, is_string($iter["comments"]) ? $iter["comments"] : '');
                                                 }
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
-                                                    <td><?php echo text(preg_replace('/select$/', 'Query', (string) $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
+                                                    <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                    <td><?php echo text(preg_replace('/select$/', 'Query', is_string($iter["event"]) ? $iter["event"] : '')); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
                                                     <td><?php echo text($iter["crt_user"]); ?></td>
@@ -395,12 +379,12 @@ if (!empty($_GET)) {
 
                                         if (($eventname == "disclosure") || ($gev == "")) {
                                             $eventname = "disclosure";
-                                            if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
+                                            if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
                                                         <td><?php echo xlt($iter["event"]); ?></td>
                                                         <td><?php echo xlt($iter["category"] ?? ''); ?></td>
                                                         <td><?php echo text($iter["user"]); ?></td>
@@ -521,7 +505,7 @@ if (!empty($_GET)) {
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

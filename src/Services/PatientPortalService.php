@@ -4,7 +4,7 @@
  * Portal Base Service
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -14,6 +14,8 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 
 class PatientPortalService
@@ -24,7 +26,7 @@ class PatientPortalService
 
     public function __construct()
     {
-        self::setIsEnabledServices($GLOBALS['oefax_enable_fax'] ?? false, $GLOBALS['oefax_enable_sms'] ?? false, $GLOBALS['oe_enable_email'] ?? false);
+        self::setIsEnabledServices(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? false, OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? false, OEGlobalsBag::getInstance()->get('oe_enable_email') ?? false);
     }
 
     /**
@@ -97,7 +99,7 @@ class PatientPortalService
             'audit_id' => $audit_id,
             'expiry_interval' => $period
         ];
-        $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME);
         return text($statusMsg);
     }
@@ -130,7 +132,8 @@ class PatientPortalService
      */
     public static function isPortalUser($u = null)
     {
-        $user = $u ?: $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $u ?: $session->get('authUserID');
         // test for either id or username
         return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", [$user, $user])['portal_user'];
     }
@@ -157,26 +160,27 @@ class PatientPortalService
     }
 
     /**
-     * @param $param
-     * @param $default
-     * If param not valid then entire super is returned.
-     * @return mixed
+     * Returns a session value by key. The $param is required to prevent callers
+     * from obtaining the raw SessionInterface object and writing to it directly,
+     * which would be silently lost with read_and_close sessions. Use
+     * SessionUtil::setSession() / SessionUtil::unsetSession() for writes.
+     *
+     * @param string $param
+     * @param mixed $default
+     * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param, mixed $default = null): mixed
     {
-        if ($param) {
-            return $_SESSION[$param] ?? $default;
-        }
-
-        return $_SESSION;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get($param, $default);
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed
      */
-    public function getRequest($param = null, $default = null): mixed
+    public function getRequest(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $_REQUEST[$param] ?? $default;

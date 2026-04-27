@@ -12,9 +12,10 @@
 
 namespace OpenEMR\Services\Cda;
 
-use DOMDocument;
-use OpenEMR\Events\CDA\CDAPreParseEvent;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
+use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse
@@ -34,7 +35,7 @@ class CdaTemplateParse
         $this->templateData = [];
         $this->is_qrda_import = false;
         $this->codeService = new CodeTypesService();
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     public function parseCDAEntryComponents($components): array
@@ -121,12 +122,12 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.139' => 'fetchMedicationData', // Medication Dispensed Act @todo set med type
             '2.16.840.1.113883.10.20.24.3.105' => 'fetchMedicationData', // Medication Discharge Act
             '2.16.840.1.113883.10.20.24.3.137' => 'fetchMedicalProblemData',// diagnosis
-            '2.16.840.1.113883.10.20.24.3.138' => 'fetchMedicalProblemData',// concern symtom
+            '2.16.840.1.113883.10.20.24.3.138' => 'fetchMedicalProblemData',// concern symptom
             '2.16.840.1.113883.10.20.24.3.140' => 'fetchImmunizationData',  // Immunization Administered (V3)
             '2.16.840.1.113883.10.20.22.4.14' => 'fetchProcedureActivityData', // procedure activity-performed 2.16.840.1.113883.10.20.24.3.64
-            '2.16.840.1.113883.10.20.24.3.7' => 'fetchProcedureDeviceData', // procedure preformed Device Applied
+            '2.16.840.1.113883.10.20.24.3.7' => 'fetchProcedureDeviceData', // procedure performed Device Applied
             '2.16.840.1.113883.10.20.24.3.32' => 'fetchProcedurePreformedActivity',// procedure activity-intervention
-            '2.16.840.1.113883.10.20.24.3.38' => 'fetchQrdaLabResultData',  // lab test preformed
+            '2.16.840.1.113883.10.20.24.3.38' => 'fetchQrdaLabResultData',  // lab test performed
             '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
             '2.16.840.1.113883.10.20.24.3.143' => 'fetchCarePlanData',  // Immunization Order Substance Order @todo this is planned or goal MOVE
             '2.16.840.1.113883.10.20.24.3.47' => 'fetchCarePlanData', // Plan of Care Medication Substance Observation Activity Ordered
@@ -1187,7 +1188,7 @@ class CdaTemplateParse
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
                 } else {
-                    if (array_key_exists($code, $vitals_array)) {
+                    if ($code !== null && array_key_exists($code, $vitals_array)) {
                         $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
                     }
                 }
@@ -1238,12 +1239,12 @@ class CdaTemplateParse
             ];
             $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
-            if (array_key_exists($code, $vitals_array)) {
+            if ($code !== null && array_key_exists($code, $vitals_array)) {
                 $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
-                error_log('Missed Physical Exam code (likely vital): ' . $code);
+                ServiceContainer::getLogger()->warning('Missed Physical Exam code (likely vital)', ['code' => $code]);
             }
 
             if (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null)) {

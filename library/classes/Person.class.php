@@ -22,7 +22,7 @@ class Person
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct(public $id = "", $prefix = "")
+    function __construct(public $id = "")
     {
     }
 

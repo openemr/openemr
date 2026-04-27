@@ -4,7 +4,7 @@
  * Base Service Interface
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Services\Search\ISearchField;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -47,7 +47,10 @@ interface BaseServiceInterface
 
     public function selectHelper($sqlUpToFromStatement, $map);
 
-    public function search($search, $isAndCondition = true);
+    /**
+     * @param array<string, ISearchField> $search
+     */
+    public function search(array $search, $isAndCondition = true);
 
     public function getFreshId($idField, $table);
 

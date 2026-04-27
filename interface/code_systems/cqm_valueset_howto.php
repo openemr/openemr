@@ -18,13 +18,12 @@
  *
  * @package OpenEMR
  * @author  ViSolve Inc <services@visolve.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once("../../interface/globals.php");
 
 use OpenEMR\Core\Header;
-
 
 ?>
 <?php Header::setupHeader(); ?>

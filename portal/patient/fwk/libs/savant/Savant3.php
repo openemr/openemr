@@ -757,7 +757,7 @@ class Savant3 implements \Stringable
 
             // the substr() check added by Ian Eure to make sure
             // that the realpath() results in a directory registered
-            // with Savant so that non-registered directores are not
+            // with Savant so that non-registered directories are not
             // accessible via directory traversal attempts.
             if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, (string) $path)) {
                 return $fullname;

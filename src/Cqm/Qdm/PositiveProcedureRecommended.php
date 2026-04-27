@@ -26,4 +26,3 @@ class PositiveProcedureRecommended extends ProcedureRecommended
 
     public $_type = 'QDM::PositiveProcedureRecommended';
 }
-

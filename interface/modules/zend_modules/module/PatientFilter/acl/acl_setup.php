@@ -30,4 +30,3 @@ AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Parameters', 'p
 All done configuring and installing access controls (php-GACL)!
 </body>
 </html>
-

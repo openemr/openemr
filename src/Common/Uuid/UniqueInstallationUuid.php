@@ -6,7 +6,7 @@
  *    Support for unique installation UUID. Will create it if it doesn't yet exists.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Ramsey\Uuid\Uuid;
 
 class UniqueInstallationUuid
@@ -21,8 +22,8 @@ class UniqueInstallationUuid
     public static function getUniqueInstallationUuid()
     {
         // Return $GLOBALS if it exists
-        if (!empty($GLOBALS['unique_installation_id'])) {
-            return $GLOBALS['unique_installation_id'];
+        if (!empty(OEGlobalsBag::getInstance()->getString('unique_installation_id'))) {
+            return OEGlobalsBag::getInstance()->getString('unique_installation_id');
         }
 
         // If $GLOBALS does not exists, then try to get it from globals table and return if it exists

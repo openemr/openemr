@@ -92,7 +92,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     public $dateDateTime = null;
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure[]
      */
     public $application = [];
@@ -179,7 +179,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     }
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure[]
      */
     public function getApplication()
@@ -188,7 +188,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     }
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure $application
      * @return $this
      */

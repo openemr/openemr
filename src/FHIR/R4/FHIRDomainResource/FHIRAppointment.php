@@ -83,7 +83,7 @@ class FHIRAppointment extends FHIRDomainResource implements \JsonSerializable
     public $status = null;
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $cancelationReason = null;
@@ -250,7 +250,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getCancelationReason()
@@ -259,7 +259,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $cancelationReason
      * @return $this
      */

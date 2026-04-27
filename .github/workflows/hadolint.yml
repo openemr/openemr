@@ -32,7 +32,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    
+
     - name: Get changed Dockerfile files
       id: changed-files
       # We run hadolint on all Dockerfiles in the repo
@@ -43,7 +43,7 @@ jobs:
       with:
         files: |
           **/Dockerfile*
-    
+
     - name: Run hadolint on changed files
       if: ${{ steps.changed-files.outcome == 'success' && steps.changed-files.outputs.any_changed == 'true' }}
       env:
@@ -52,14 +52,14 @@ jobs:
         # Safely handle changed files list using environment variable
         # Convert space-separated list to newline-separated for safe parsing
         mapfile -t files < <(echo "$CHANGED_FILES" | tr ' ' '\n')
-        
+
         echo "Linting ${#files[@]} changed Dockerfile(s)..."
         for file in "${files[@]}"; do
           [[ -n "$file" ]] || continue
           echo "Checking: $file"
           docker run --rm -i -v "$(pwd)/.hadolint.yaml:/.config/hadolint.yaml" hadolint/hadolint < "$file"
         done
-    
+
     - name: Run hadolint on all files
       if: ${{ steps.changed-files.outcome != 'success' || steps.changed-files.outputs.any_changed != 'true' }}
       run: |

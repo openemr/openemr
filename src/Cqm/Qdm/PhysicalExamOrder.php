@@ -66,4 +66,3 @@ class PhysicalExamOrder extends QDMBaseType
 
     public $_type = 'QDM::PhysicalExamOrder';
 }
-

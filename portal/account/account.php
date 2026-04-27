@@ -4,7 +4,7 @@
  * Ajax Handler for Register
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -12,19 +12,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$globalsBag = OEGlobalsBag::getInstance();
 
 if (
-    (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) ||
-    (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) ||
-    (($_SESSION['credentials_update'] ?? null) === 1 && isset($_SESSION['pid'])) ||
-    (($_SESSION['itsme'] ?? null) === 1 && isset($_SESSION['password_update']))
+    ($session->get('verifyPortalEmail') === true) ||
+    (($session->get('register', null)) === true && $session->has('pid')) ||
+    (($session->get('credentials_update', null)) === 1 && $session->has('pid')) ||
+    (($session->get('itsme', null)) === 1 && $session->has('password_update'))
 ) {
     $ignoreAuth_onsite_portal = true;
 }
@@ -35,20 +39,15 @@ require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 require_once("./account.lib.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\Header;
 
 $action = $_REQUEST['action'] ?? '';
 
 if ($action == 'verify_email') {
-    if (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+    if ($session->get('verifyPortalEmail') === true) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key'))) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf')) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'verifyEmailCsrf')) {
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_POST['g-recaptcha-response'] ?? '');
@@ -73,8 +72,8 @@ if ($action == 'verify_email') {
 
 if ($action == 'userIsUnique') {
     if (
-        ((int)$_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-        ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+        ((int)$session->get('credentials_update') === 1 && $session->has('pid')) ||
+        ((int)$session->get('itsme') === 1 && $session->has('password_update'))
     ) {
         // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
         if (empty(trim((string) $_REQUEST['account']))) {
@@ -102,14 +101,12 @@ if ($action == 'userIsUnique') {
 }
 
 if ($action == 'reset_password') {
-    if (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
+    if ($session->get('register', null) === true && $session->has('pid')) {
         $rtn = 0;
-        if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+        if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key'))) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf')) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session, 'passwordResetCsrf')) {
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_GET['g-recaptcha-response'] ?? '');
@@ -127,30 +124,30 @@ if ($action == 'reset_password') {
 }
 
 if ($action == 'do_signup') {
-    if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+    if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder();
             if ($pidHolder == 0) {
-                (new SystemLogger())->error("account.php action do_signup failed because unable to collect pid from pid_holder");
+                ServiceContainer::getLogger()->error("account.php action do_signup failed because unable to collect pid from pid_holder");
                 cleanupRegistrationSession();
                 exit();
             }
             $rtn = doCredentials($pidHolder);
             if ($rtn) {
-                (new SystemLogger())->debug("account.php action do_signup apparently successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful");
                 if (!empty($_GET['provider'])) {
                     notifyAdmin($pidHolder, $_GET['provider']);
-                    (new SystemLogger())->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
+                    ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
                 }
                 Header::setupHeader();
                 echo '<div class="alert alert-success" role="alert">' . xlt("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon.") . '</div>';
             } else {
-                (new SystemLogger())->debug("account.php action do_signup apparently not successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently not successful");
                 Header::setupHeader();
                 echo '<div class="alert alert-danger" role="alert">' . xlt("There was a problem registering you. Recommend contacting clinic for assistance.") . '</div>';
             }
         } else {
-            (new SystemLogger())->error("account.php action do_signup attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action do_signup attempted without registration module on, so failed");
         }
     }
     cleanupRegistrationSession();
@@ -158,18 +155,18 @@ if ($action == 'do_signup') {
 }
 
 if ($action == 'new_insurance') {
-    if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+    if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder(true);
             if ($pidHolder == 0) {
-                (new SystemLogger())->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
+                ServiceContainer::getLogger()->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
                 exit();
             }
             saveInsurance($pidHolder);
-            (new SystemLogger())->debug("account.php action new_insurance was apparently successful");
+            ServiceContainer::getLogger()->debug("account.php action new_insurance was apparently successful");
             exit();
         } else {
-            (new SystemLogger())->error("account.php action new_insurance attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action new_insurance attempted without registration module on, so failed");
             cleanupRegistrationSession();
             exit();
         }

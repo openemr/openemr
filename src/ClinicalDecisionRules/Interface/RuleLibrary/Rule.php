@@ -11,9 +11,9 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervals;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleActions;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleFilters;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use RuleTargetActionGroups;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
 
 /**
  * This is the primary domain object representing a rule in the rules engine.

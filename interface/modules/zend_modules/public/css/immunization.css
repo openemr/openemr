@@ -27,7 +27,7 @@
     margin-right: 10px;
     font-size:12px !important;
   }
- 
+
   #searchbutton {
     border: none;
     border-bottom-left-radius: 0;
@@ -49,7 +49,7 @@
     margin-right: 10px;
     font-size:12px !important;
   }
-  
+
   #printbutton {
     border: none;
     border-bottom-left-radius: 0;
@@ -71,8 +71,8 @@
     margin-right: 10px;
     font-size:12px !important;
   }
-  
-  
+
+
   @media print {
     #report_parameters_daterange {
           visibility: visible !important;
@@ -80,14 +80,14 @@
           margin-bottom: 10px !important;
     }
     #print_table {
-          display: none !important; 
+          display: none !important;
     }
  }
- 
+
  @media screen{
      #report_parameters_daterange {
         visibility: hidden !important;
         display: none !important;
-       
-    } 
+
+    }
  }

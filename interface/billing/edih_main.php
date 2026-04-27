@@ -4,17 +4,28 @@
  * edi_history_main.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Access control - same permission required as edih_view.php
+if (!AclMain::aclCheckCore('acct', 'eob')) {
+    AccessDeniedHelper::deny('Unauthorized access to EDI history');
+}
 
 /**
  * this define is used to prevent direct access to the included scripts
@@ -23,7 +34,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 define('SITE_IN', 1);
 
 // define constants
-// since enounter digits are sequential, digit length should rarely change
+// since encounter digits are sequential, digit length should rarely change
 // however for a startup they may, or a "mask" value of 1000 or 10000
 // would be a good idea if there are problems with deciphering the pid-encounter
 // same idea for pid value, but since encounter is unique and always last, it is essential
@@ -76,7 +87,7 @@ require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 // php may output line endings with included files
 ob_clean();
 
-if (isset($GLOBALS['OE_SITE_DIR'])) {
+if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
     $edih_base_dir = csv_edih_basedir();
     $edih_tmp_dir = csv_edih_tmpdir();
 } else {
@@ -99,7 +110,7 @@ if (!is_dir($edih_tmp_dir)) {
     }
 }
 
-// avoid unitialized variable error
+// avoid uninitialized variable error
 $html_str = '';
 // debug
 if (count($_GET)) {
@@ -120,15 +131,14 @@ if (count($_POST)) {
     csv_edihist_log($dbg_str);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 /* ******* remove functions to separate file ******* */
 /*
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //
     // === log user access on POST requests ===========
@@ -174,9 +184,7 @@ if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     //
     if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {

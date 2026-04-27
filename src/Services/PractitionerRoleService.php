@@ -4,7 +4,7 @@
  * PractitionerRoleService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,9 +15,10 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcessingResult;
 
 class PractitionerRoleService extends BaseService
 {
@@ -40,7 +41,7 @@ class PractitionerRoleService extends BaseService
         return ['facility_uuid', 'facility_role_uuid', 'provider_uuid', 'uuid', 'location_uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // note we are optimizing our key indexes by specifying our list_ids for list_options
         // note because facility_user_ids is denormalized and stores its form data in a Key Value list in order to grab
@@ -257,12 +258,12 @@ class PractitionerRoleService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         $sqlBindArray = [];
 

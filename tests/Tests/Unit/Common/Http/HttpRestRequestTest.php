@@ -3,7 +3,7 @@
 /*
  * HttpRestRequestTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -188,7 +188,7 @@ class HttpRestRequestTest extends TestCase
         $request = HttpRestRequest::createFromGlobals();
 
         // Verify PATH_INFO handles leading slash correctly (should normalize to single leading slash)
-        $this->assertEquals('/apis/dispatch.php/default/fhir/Patient/123/', $_SERVER['REQUEST_URI'], "REQUEST_URI should be handled correcty");
+        $this->assertEquals('/apis/dispatch.php/default/fhir/Patient/123/', $_SERVER['REQUEST_URI'], "REQUEST_URI should be handled correctly");
         $this->assertEquals('/default/fhir/Patient/123/', $_SERVER['PATH_INFO'], 'PATH_INFO should handle slashes correctly');
         $this->assertEquals('/default/fhir/Patient/123/', $request->getPathInfo(), 'Request path info should handle slashes correctly');
     }

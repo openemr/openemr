@@ -4,7 +4,7 @@
  * Patient history form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
@@ -18,9 +18,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 $CPR = 4; // cells per row
@@ -29,19 +32,21 @@ $CPR = 4; // cells per row
 if (AclMain::aclCheckCore('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt("Not authorized for this squad."));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 }
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to patient history');
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common', 'select2']); ?>
 <title><?php echo xlt("History & Lifestyle");?></title>
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
 <script>
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
@@ -178,7 +183,7 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_related(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php<?php echo ($GLOBALS['ippf_specific']) ? '?codetype=REF' : ''?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? '?codetype=REF' : ''?>', '_blank', 500, 400);
 }
 
 </script>
@@ -195,7 +200,7 @@ $(function () {
 
     $(".select-dropdown").select2({
         theme: "bootstrap4",
-        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
         if (error) {
@@ -207,14 +212,14 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 
@@ -273,8 +278,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
             <script> var constraints = <?php echo $constraints;?>; </script>
 
-            <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>,event,'HIS',constraints)">
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='mode' value='save' />
 
                 <div class="btn-group">
@@ -299,7 +304,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+            <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
         </div>
     </div>
 </div><!--end of container div-->
@@ -334,7 +339,7 @@ var skipArray = [
 <?php /*Include the validation script and rules for this form*/
 $form_id = "HIS";
 //LBF forms use the new validation depending on the global value
-$use_validate_js = $GLOBALS['new_validate'];
+$use_validate_js = OEGlobalsBag::getInstance()->getBoolean('new_validate');
 
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 

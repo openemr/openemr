@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR Care Team
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -15,12 +15,13 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\CareTeamService;
-use OpenEMR\Services\ContactService; // AI-generated import
-use OpenEMR\Services\ContactRelationService; // AI-generated import
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ListService;
 
 class CareTeamViewCard extends CardModel
@@ -122,11 +123,9 @@ class CareTeamViewCard extends CardModel
     private function handleFormSubmission()
     {
         if (($_POST['save_care_team'] ?? '') === 'true') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-            $teamId = filter_var($_POST['team_id'], FILTER_VALIDATE_INT);
+            $teamId = ValidationUtils::validateInt($_POST['team_id']);
             $teamId = $teamId === false ? null : $teamId;
             $teamName = trim($_POST['team_name'] ?? '');
             $team = $_POST['team'] ?? [];
@@ -331,6 +330,7 @@ class CareTeamViewCard extends CardModel
         }
         // AI-generated addition - End
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             'team_id' => $careTeamResult['team_id'] ?? null,
             'pid' => $pid,
@@ -346,7 +346,7 @@ class CareTeamViewCard extends CardModel
             'role_options' => $templateData['role_options'],
             'status_options' => $templateData['status_options'],
             'existing_care_team' => $existingCareTeam,
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => CsrfUtils::collectCsrfToken(session: $session),
             'translations' => self::getTranslations()
         ];
     }

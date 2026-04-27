@@ -1,21 +1,26 @@
 <?php
 
 /**
- * interface/eRxXMLBuilder.php Functions for building NewCrop XML.
+ * interface/eRxXMLBuilder.php Functions for building Ensora eRx XML.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\VersionService;
+
 require_once(__DIR__ . "/../library/patient.inc.php");
 
 class eRxXMLBuilder
 {
+    /** @var ?eRxGlobals */
     private $globals;
+    /** @var ?eRxStore */
     private $store;
 
     private $document;
@@ -42,8 +47,8 @@ class eRxXMLBuilder
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  object  $globals The eRx Globals object to use for processing
-     * @return eRxPage          This object is returned for method chaining
+     * @param  eRxGlobals    $globals The eRx Globals object to use for processing
+     * @return eRxXMLBuilder          This object is returned for method chaining
      */
     public function setGlobals($globals)
     {
@@ -54,7 +59,7 @@ class eRxXMLBuilder
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return object The eRx Globals object to use for processing
+     * @return eRxGlobals The eRx Globals object to use for processing
      */
     public function getGlobals()
     {
@@ -63,8 +68,8 @@ class eRxXMLBuilder
 
     /**
      * Set Store to handle eRx cashed data
-     * @param  object  $store The eRx Store object to use for processing
-     * @return eRxPage        This object is returned for method chaining
+     * @param  eRxStore      $store The eRx Store object to use for processing
+     * @return eRxXMLBuilder        This object is returned for method chaining
      */
     public function setStore($store)
     {
@@ -75,7 +80,7 @@ class eRxXMLBuilder
 
     /**
      * Get Store for handling eRx cashed data
-     * @return object The eRx Store object to use for processing
+     * @return eRxStore The eRx Store object to use for processing
      */
     public function getStore()
     {
@@ -94,7 +99,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];
@@ -268,11 +273,11 @@ class eRxXMLBuilder
             ->getCredentials();
 
         $element = $this->getDocument()->createElement('Credentials');
-        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('NewCrop eRx Partner Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('NewCrop eRx Account Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('NewCrop eRx Password')));
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('Ensora eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('Ensora eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
-        $element->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
+        $element->appendChild($this->createElementText('productVersion', (new VersionService())->getSoftwareVersion()->full));
 
         return $element;
     }
@@ -284,7 +289,7 @@ class eRxXMLBuilder
 
         $eRxUserRole = $eRxUserRole['newcrop_user_role'];
 
-        $this->fieldEmpty($eRxUserRole, xl('NewCrop eRx User Role'));
+        $this->fieldEmpty($eRxUserRole, xl('Ensora eRx User Role'));
         if (!$eRxUserRole) {
             echo xlt('Unauthorized access to ePrescription');
             die;
@@ -301,7 +306,7 @@ class eRxXMLBuilder
         };
 
         $element = $this->getDocument()->createElement('UserRole');
-        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('NewCrop eRx User Role * invalid selection *')));
+        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('Ensora eRx User Role * invalid selection *')));
         $element->appendChild($this->createElementText('role', $eRxUserRole));
 
         return $element;

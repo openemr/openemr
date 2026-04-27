@@ -32,7 +32,7 @@ class ProvenanceFhirApiTest extends TestCase
     public function testGetOneResourceWithSurrogateKeyNotFound(): void
     {
         // we just want to execute the code
-        // non-existant resource
+        // non-existent resource
         $resourceId = 'Patient-PSK-96506861-511f-4f6d-bc97-b65a78cf1996';
         $actualResult = $this->testClient->get("/apis/default/fhir/Provenance/" . $resourceId);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $actualResult->getStatusCode());

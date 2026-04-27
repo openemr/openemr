@@ -2,19 +2,18 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -29,7 +28,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * - getOne
  * - searchForOpenEMRRecords
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -177,7 +176,7 @@ abstract class FhirServiceBase implements
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      * @return ProcessingResult The OpenEMR processing result.
      */
     abstract protected function insertOpenEMRRecord($openEmrRecord);
@@ -241,7 +240,7 @@ abstract class FhirServiceBase implements
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
         $provenanceRequest = false;
-        //Checking for provenance reqest
+        //Checking for provenance request
         if (isset($fhirSearchParameters['_revinclude'])) {
             if ($fhirSearchParameters['_revinclude'] == 'Provenance:target') {
                 $provenanceRequest = true;
@@ -305,7 +304,7 @@ abstract class FhirServiceBase implements
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters and the search configuration.  We would make this
-     * abstract but to preserve backwards compatability with existing installations we leave it as is.  Services that
+     * abstract but to preserve backwards compatibility with existing installations we leave it as is.  Services that
      * wish to leverage the search query config can implement this method.
      * @param array $openEMRSearchParameters OpenEMR search fields
      * @param SearchQueryConfig $searchConfig The search configuration (sort order, pagination, etc)

@@ -8,19 +8,21 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Header.
  *
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
- * for creating a `<head>` element, but for now it sufficently handles the
+ * for creating a `<head>` element, but for now it sufficiently handles the
  * `setupHeader()`
  *
  * @package OpenEMR
@@ -99,11 +101,11 @@ class Header
         // we fire off events to grab any additional module scripts or css files that desire to adjust the currently executed script
         $scriptFilterEvent = new ScriptFilterEvent(basename((string) $scriptName));
         $scriptFilterEvent->setContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $apptScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent($scriptName);
         $styleFilterEvent->setContextArgument(StyleFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $apptStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
         // note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php {
 
         if (!empty($apptScripts->getScripts())) {
@@ -126,9 +128,8 @@ class Header
 
         if ($echoOutput) {
             echo $output;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public static function getFavIcon()
@@ -184,18 +185,19 @@ class Header
         }
 
         // Filter out any empty strings in case assets array contains them
-        $assets = array_filter($assets, fn ($asset) => is_string($asset) && trim($asset) !== '');
+        $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
+        $projectDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
+        $map = self::readConfigFile($projectDir . "/config/config.yaml");
         self::$scripts = [];
         self::$links = [];
 
         self::parseConfigFile($map, $assets);
 
         /* adding custom assets in addition */
-        if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
-            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
+        if (is_file($projectDir . "/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile($projectDir . "/custom/assets/custom.yaml");
             self::parseConfigFile($customMap, $assets);
         }
 
@@ -215,6 +217,9 @@ class Header
     {
         $foundAssets = [];
         $excludedCount = 0;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $language_direction = $session->get('language_direction');
 
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
@@ -240,7 +245,7 @@ class Header
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
                     $t = '';
-                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
+                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !OEGlobalsBag::getInstance()->getBoolean('enable_compact_mode'))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {
@@ -248,13 +253,13 @@ class Header
                     }
                 }
 
-                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($language_direction) && $language_direction == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;
                     }
 
-                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !$GLOBALS['enable_compact_mode'])) {
+                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !OEGlobalsBag::getInstance()->getBoolean('enable_compact_mode'))) {
                     } else {
                         foreach ($tmpRtl['links'] as $l) {
                             self::$links[] = $l;
@@ -266,7 +271,7 @@ class Header
 
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
-                (new SystemLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
+                ServiceContainer::getLogger()->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
             }
         }
     }
@@ -336,7 +341,7 @@ class Header
      *
      * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
+     * array, will replace the occurrence with the value of that key.
      *
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
@@ -348,8 +353,8 @@ class Header
         preg_match_all($re, $subject, $matches, PREG_SET_ORDER, 0);
 
         foreach ($matches as $match) {
-            if (array_key_exists($match[1], $GLOBALS)) {
-                $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
+            if (OEGlobalsBag::getInstance()->has($match[1])) {
+                $subject = str_replace($match[0], OEGlobalsBag::getInstance()->get("{$match[1]}"), $subject);
             }
         }
 
@@ -366,7 +371,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
-        // make sure we clear out any attributes we don't want overriden
+        // make sure we clear out any attributes we don't want overridden
         if (isset($nodeAttributes['src'])) {
             unset($nodeAttributes['src']);
         }
@@ -384,7 +389,7 @@ class Header
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
-            $v = $GLOBALS['v_js_includes'];
+            $v = OEGlobalsBag::getInstance()->get('v_js_includes');
             // need to handle header elements that may already have a ? in the parameter.
             if (strrpos($path, "?") !== false) {
                 $path .= "&v={$v}";
@@ -421,6 +426,7 @@ class Header
         } catch (ParseException $e) {
             error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
+            return [];
         }
     }
 
@@ -432,6 +438,10 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace($GLOBALS['webroot'] . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
+        $uriPath = strtok($_SERVER["REQUEST_URI"], '?') ?: '';
+        $webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
+        return $webRoot !== ''
+            ? str_replace($webRoot . '/', '', $uriPath)
+            : ltrim($uriPath, '/');
     }
 }

@@ -16,21 +16,20 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
 use Mpdf\Mpdf;
-use Laminas\View\Renderer\PhpRenderer;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 /**
  * Class PdfTemplatesController
  * Here you can add custom pdf template for prescription.
  * How to -
- * 1. create new action function (syntax <VIEW_NAME>Action) in ths controller that load custom view
+ * 1. create new action function (syntax <VIEW_NAME>Action) in this controller that load custom view
  * 2. in the 'globals settings' screen go to 'Rx' tab and save your action in the 'Name of zend template for pdf export' label
  * @package PrescriptionTemplates\Controller
  */
@@ -54,7 +53,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $htmlView = $this->renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new Mpdf(['tempDir' => $GLOBALS['MPDF_WRITE_DIR']]);
+        $mpdf = new Mpdf(['tempDir' => (new CacheDirectory())->for('openemr-mpdf')]);
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($htmlView);
         $mpdf->Output();

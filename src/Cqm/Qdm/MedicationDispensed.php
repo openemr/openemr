@@ -78,7 +78,7 @@ class MedicationDispensed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -108,4 +108,3 @@ class MedicationDispensed extends QDMBaseType
 
     public $_type = 'QDM::MedicationDispensed';
 }
-

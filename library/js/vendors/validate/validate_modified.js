@@ -623,7 +623,7 @@
       return ret;
     },
 
-    // Converts the error mesages by prepending the attribute name unless the
+    // Converts the error messages by prepending the attribute name unless the
     // message is prefixed by ^
     convertErrorMessages: function(errors, options) {
       options = options || {};

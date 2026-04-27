@@ -36,7 +36,7 @@
         <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
-                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_{{ table_id|attr }}" 
+                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_{{ table_id|attr }}"
                     style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
             <div class="form-check mr-3" style="margin-bottom: 0;">
@@ -285,7 +285,7 @@
             };
 
             let relationDatePickerSettings = {};
-            
+
             {{ DateToYYYYMMDD_js() }}
 
             disableHTML5Validation();
@@ -311,8 +311,8 @@
                 if (typeof $ !== 'undefined') {
                     // Listen for ANY event that contains 'change' or 'date' in its name
                     // This works with: changedatetime.xdsoft, changeDate, dp.change, etc.
-                    $(table).on('change.datetimepicker changedatetime.xdsoft changeDate dp.change', 
-                        'input[class*="date"], input.datepicker', 
+                    $(table).on('change.datetimepicker changedatetime.xdsoft changeDate dp.change',
+                        'input[class*="date"], input.datepicker',
                         function(e) {
                             console.log('Datepicker changed (generic listener)');
                             // Ensure standard change event fires
@@ -322,7 +322,7 @@
                         }
                     );
                 }
-                
+
                 // ===== FALLBACK: Blur detection for manual typing in DatePicker =====
                 table.addEventListener('blur', function(event) {
                     if (event.target.matches('input[class*="date"], input.datepicker')) {
@@ -448,7 +448,7 @@
 
                 const formRelations = event.target.closest('.form_relations');
                 if (!formRelations) return;
-        
+
                 const relationsGroup = event.target.closest('.relations_group');
                 if (!relationsGroup) return;
 
@@ -495,7 +495,7 @@
                     if (lastNameInput && lastNameInput.value.trim()) {
                         nameParts.push(lastNameInput.value.trim());
                     }
-                    
+
                     // Check if this relation is inactive
                     const isInactive = relationsGroup.getAttribute('data-active') === '0';
                     let nameHtml = nameParts.join(' ');
@@ -640,13 +640,19 @@
                 const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
                 const genderInput = relation_clone.querySelector('.form_relations_gender');
                 const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+                const notesDisplay = relation_clone.querySelector(".form_relations_notes");
 
                 if (firstNameInput) firstNameInput.value = person.first_name || '';
                 if (middleNameInput) middleNameInput.value = person.middle_name || '';
                 if (lastNameInput) lastNameInput.value = person.last_name || '';
                 if (genderInput) genderInput.value = person.gender || '';
                 if (birthDateInput) birthDateInput.value = person.birth_date || '';
+                // we will use the initial person notes and add it as the relationship notes to start with.
+                // it does seem confusing to have both a person note and relationship note and this may need to be
+                // looked at later.
+                if (notesDisplay) notesDisplay.textContent = person.notes || '';
 
+                // TODO: @adunsulag review this heavily as recreating scripts can be very risky
                 // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
                 // Scripts inserted via innerHTML don't execute, so we need to replace them
                 var oldScripts = relation_clone.querySelectorAll('script');

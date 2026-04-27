@@ -4,13 +4,15 @@
  * ProductRegistrationController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\BackgroundTaskManager;
@@ -21,6 +23,7 @@ header("Content-Type: application/json");
 
 // Determine request method
 $method = $_SERVER['REQUEST_METHOD'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($method === 'GET') {
     // retrieve if allowRegisterDialog
@@ -40,7 +43,7 @@ if ($method === 'POST') {
         $email = trim($_POST['email'] ?? '');
 
         // validate email address
-        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        if (!empty($email) && !ValidationUtils::isValidEmail($email)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("Invalid email")]);
             exit;
@@ -53,16 +56,16 @@ if ($method === 'POST') {
             // Handle the exception
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, GenericProductRegistrationException occurred",
                 ['trace' => $e->getTraceAsString()]
             );
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Handle any other exceptions
             http_response_code(500);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, Exception occurred",
                 ['trace' => $e->getTraceAsString()]
             );
@@ -72,7 +75,7 @@ if ($method === 'POST') {
         if (empty($email) && !is_null($submitRegistration)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, error occurred on submit empty email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
             );
@@ -81,7 +84,7 @@ if ($method === 'POST') {
         if (!empty($email) && ($submitRegistration != $email)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, error occurred on submit '" . $email . "' email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
             );
@@ -105,12 +108,12 @@ if ($method === 'POST') {
             $selected_options[] = 'allow_telemetry';
         }
         $options = json_encode($selected_options);
-        $auth_by_id = $_SESSION['authUserID'] ?? null;
+        $auth_by_id = $session->get('authUserID');
 
         // Update the last ask date and version
         $last_ask_date = date("Y-m-d H:i:s");
         $versionService = new VersionService();
-        $last_ask_version = $versionService->asString();
+        $last_ask_version = (string) $versionService->getSoftwareVersion();
 
         // Update the registration record
         //  (note that there will always be a existent record at this point and email registration has already been dealt with, if applicable)
@@ -124,7 +127,7 @@ if ($method === 'POST') {
             // Error, should never happen
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Telemetry Registration Error, missing entry",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
             );
@@ -149,7 +152,7 @@ if ($method === 'POST') {
         } else {
             http_response_code(500);
             echo json_encode(["message" => xlt("Failed to update registration")]);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Telemetry Registration Error, failed to update registration",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
             );

@@ -71,4 +71,3 @@ class EncounterOrder extends QDMBaseType
 
     public $_type = 'QDM::EncounterOrder';
 }
-

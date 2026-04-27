@@ -4,7 +4,7 @@
  * Misc. BatchCom convenience functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Andres Paglayan <andres@paglayan.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2005 Andres Paglayan <andres@paglayan.com>
@@ -12,10 +12,12 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+
 //validation functions
 function check_date_format($date)
 {
-    if (($date == '') || ($date == '0000-00-00')) {
+    if (Utilities::isDateEmpty($date)) {
         return true;
     }
     $ymd = explode('-', (string) $date);

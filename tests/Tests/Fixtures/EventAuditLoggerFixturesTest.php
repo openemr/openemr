@@ -6,10 +6,9 @@
  * of database-dependent functionality like the patient portal menu lookup
  *
  * @package   OpenEMR\Tests\Fixtures
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com/
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class EventAuditLoggerFixturesTest extends TestCase
@@ -58,7 +57,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         $GLOBALS['enable_auditlog'] = true;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        $this->eventAuditLogger = EventAuditLogger::instance();
+        $this->eventAuditLogger = EventAuditLogger::getInstance();
 
         // Install patient portal menu fixtures
         $this->installPatientPortalMenuFixtures();
@@ -148,6 +147,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Create a partial mock to capture recordLogItem calls
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect recordLogItem to be called with the correct menu_item_id
@@ -195,6 +195,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Test dashboard lookup
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -228,6 +229,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Test messages lookup
         $loggerMock2 = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock2->expects($this->once())
@@ -266,6 +268,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
     {
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // When menu item is not found, array_search returns false

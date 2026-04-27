@@ -7,22 +7,20 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace Carecoordination;
 
+use Carecoordination\Listener\CCDAEventsSubscriber;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
-use Laminas\View\Helper\Openemr\Emr;
-use Laminas\View\Helper\Openemr\Menu;
-use Carecoordination\Model\Progressnote;
-use Carecoordination\Model\ProgressnoteTable;
-use Carecoordination\Model\Continuitycaredocument;
-use Carecoordination\Model\ContinuitycaredocumentTable;
-use Carecoordination\Listener\CCDAEventsSubscriber;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
@@ -51,6 +49,20 @@ class Module
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            // Enforce ACL for the Care Coordination module.
+            // Skip for patient portal sessions which have their own authorization.
+            if (($session->get('sessionUser') ?? '') !== '-patient-') {
+                $userId = $session->get('authUserID') ?? '';
+                if (
+                    !AclMain::zhAclCheck($userId, 'send_to_hie')
+                    && !AclMain::aclCheckCore('admin', 'super')
+                ) {
+                    echo xlt('Not Authorized');
+                    exit;
+                }
+            }
+
             $controller = $e->getTarget();
             $controller->layout('carecoordination/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();

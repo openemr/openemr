@@ -3,16 +3,13 @@
 namespace OpenEMR\Services\FHIR\Utils;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 class SearchRequestNormalizer
 {
-    use SystemLoggerAwareTrait;
-
-    public function __construct(SystemLogger $logger)
-    {
-        $this->setSystemLogger($logger);
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function normalizeSearchRequest(HttpRestRequest $dispatchRestRequest): HttpRestRequest
@@ -32,6 +29,7 @@ class SearchRequestNormalizer
 
         // grab any post vars and stuff them into our query vars
         // @see https://www.hl7.org/fhir/http.html#search
+        /** @var array<string, mixed> $queryVars */
         $queryVars = $dispatchRestRequest->getQueryParams();
         $postParams = $dispatchRestRequest->getMethod() !== 'GET' ? $dispatchRestRequest->request->all() : [];
 
@@ -53,7 +51,7 @@ class SearchRequestNormalizer
         $normalizedRequest->server->set('QUERY_STRING', http_build_query($queryVars));
         $normalizedRequest->server->set('REQUEST_METHOD', 'GET');
         $normalizedRequest->server->set('PATH_INFO', $requestPath);
-        $this->getSystemLogger()->debug(
+        $this->logger->debug(
             "SearchRequestNormalizer::normalizeSearchRequest() normalized request",
             ['resource' => $normalizedRequest->getResource(), 'method' => $normalizedRequest->getMethod()
                 , 'user' => $normalizedRequest->getRequestUserUUID(), 'role' => $normalizedRequest->getRequestUserRole()

@@ -76,13 +76,15 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
-use OpenEMR\Services\Globals\GlobalsService;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -282,13 +284,6 @@ $GLOBALS_METADATA = [
             xl('Type of columns displayed for patient search results')
         ],
 
-        'gbl_nav_visit_forms' => [
-            xl('Navigation Area Visit Forms'),
-            'bool',                           // data type
-            '1',                              // default = true
-            xl('Navigation area includes encounter forms')
-        ],
-
         GlobalAppearanceEnum::SIMPLIFIED_PRESCRIPTIONS->value  => [
             xl('Simplified Prescriptions'),
             'bool',                           // data type
@@ -434,7 +429,7 @@ $GLOBALS_METADATA = [
             xl('Form ActionBar (save, cancel, etc) position')
             ,FormActionBarSettings::getGlobalSettingsList()
             ,FormActionBarSettings::getDefaultSetting() // default = top of the form
-            ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
+            ,xl('Placement of the save/cancel, and other buttons where supported (Demographics, Encounter Forms, etc).')
         ],
     ],
 
@@ -446,18 +441,25 @@ $GLOBALS_METADATA = [
             xl('Application name used throughout the user interface.')
         ],
 
-        'machine_name' => [
-            xl('Application Machine Name'),
-            'text',
-            'openemr',
-            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
-        ],
-
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
             'bool',
             '1',
-            xl('Dislay main menu logo'),
+            xl('Display main menu logo'),
+        ],
+
+        'main_menu_logo_link' => [
+            xl('Main menu logo link URL'),
+            'text',
+            'https://www.open-emr.org/',
+            xl('URL the main menu logo links to. Leave blank to make the logo non-clickable.'),
+        ],
+
+        'main_menu_logo_title' => [
+            xl('Main menu logo link title'),
+            'text',
+            '',
+            xl('Tooltip shown when hovering over the main menu logo. Leave blank to use the default (OpenEMR Website).'),
         ],
 
         'online_support_link' => [
@@ -836,11 +838,11 @@ $GLOBALS_METADATA = [
         'weekend_days' => [
             xl('Your weekend days'),
             [
-                '6,0' => xl('Saturday') . ' - ' . xl('Sunday'),
-                '0' => xl('Sunday'),
-                '5' => xl('Friday'),
-                '6' => xl('Saturday'),
-                '5,6' => xl('Friday') . ' - ' . xl('Saturday'),
+                '6,0' => DayOfWeek::Saturday->label() . ' - ' . DayOfWeek::Sunday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '5' => DayOfWeek::Friday->label(),
+                '6' => DayOfWeek::Saturday->label(),
+                '5,6' => DayOfWeek::Friday->label() . ' - ' . DayOfWeek::Saturday->label(),
             ],
             '6,0'
             , xl('which days are your weekend days?')
@@ -1783,9 +1785,9 @@ $GLOBALS_METADATA = [
         'first_day_week' => [
             xl('First day in the week'),
             [
-                '1' => xl('Monday'),
-                '0' => xl('Sunday'),
-                '6' => xl('Saturday')
+                '1' => DayOfWeek::Monday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '6' => DayOfWeek::Saturday->label()
             ],
             '1',
             xl('Your first day of the week.')
@@ -2176,10 +2178,10 @@ $GLOBALS_METADATA = [
         ],
 
         'password_expiration_days' => [
-            xl('Default Password Expiration Days'),
+            xl('Password Expiration Days'),
             'num',                            // data type
             '180',                            // default
-            xl('Default password expiration period in days. 0 means this feature is disabled.')
+            xl('Password expiration period in days. 0 means this feature is disabled.')
         ],
 
         'password_grace_time' => [
@@ -2264,20 +2266,6 @@ $GLOBALS_METADATA = [
             'bool',
             '1',
             xl('New form validation')
-        ],
-
-        'allow_multiple_databases' => [
-            xl('Allow multiple databases'),
-            'bool',
-            '0',
-            xl('Allow to use with multiple database')
-        ],
-
-        'safe_key_database' => [
-            xl('Safe key database'),
-            'text',                           // data type
-            '',                               // default
-            xl('Key for multiple database credentials encryption')
         ],
 
         'google_signin_enabled' => [
@@ -2695,8 +2683,8 @@ $GLOBALS_METADATA = [
         'cqm_performance_period' => [
             xl('Eligible Clinician eCQM Performance Period'),
             'text',                           // data type
-            '2022', // default set
-            xl('Enter the eCQM Performance Period year. For example 2022')
+            '2025', // default set
+            xl('Enter the eCQM Performance Period year. For example 2025')
         ],
 
         'enable_amc' => [
@@ -2711,13 +2699,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '1',                               // default
             xl('Enable Prompting For Automated Measure Calculations (AMC) Required Data')
-        ],
-
-        'enable_amc_tracking' => [
-            xl('Enable AMC Tracking'),
-            'bool',                           // data type
-            '1',                               // default
-            xl('Enable Reporting of Tracking Date For Automated Measure Calculations (AMC)')
         ],
 
         'cdr_report_nice' => [
@@ -3349,7 +3330,7 @@ $GLOBALS_METADATA = [
                 '8.0.0' => 'US Core 8.0.0',
             ],
             '8.0.0',
-            xl('Set the maximum compatability version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
+            xl('Set the maximum compatibility version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
         ],
         'cc_front_payments' => [
             xl('Accept Credit Card transactions from Front Payments'),
@@ -3369,7 +3350,8 @@ $GLOBALS_METADATA = [
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
                 'Sphere' => xl('Gateway for Sphere Payments'),
-                'Stripe' => xl('Gateway for Stripe Manual Payments')
+                'Stripe' => xl('Gateway for Stripe Manual Payments'),
+                'Rainforest' => xl('Gateway for Rainforest payments'),
             ],
             'InHouse',
             xl('Enable a Payment Gateway Service for processing credit card transactions')
@@ -3389,11 +3371,14 @@ $GLOBALS_METADATA = [
             xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
         ],
 
+        // This should be split apart per gateway since it can contain either
+        // a public or a secret value depending on which gateway is configured.
+        // See GHSA-2hq8-wc73-jvvq.
         'gateway_api_key' => [
             xl('Gateway API Login Auth Name or Secret'),
             'encrypted',
             '',
-            xl('The Auth Name or API key for selected account. Auth Name for Authorize.Net and API Secret for Stripe.')
+            xl('The Auth Name or API key for selected account. API Login ID for Authorize.Net and API Secret for Stripe.')
         ],
 
         'gateway_transaction_key' => [
@@ -3401,6 +3386,31 @@ $GLOBALS_METADATA = [
             'encrypted',
             '',
             xl('Mainly Authorize.Net uses two keys')
+        ],
+
+        'rainforest_api_key' => [
+            xl('Rainforest API Key'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
+        ],
+        'rainforest_merchant_id' => [
+            xl('Rainforest Merchant ID'),
+            'text',
+            '',
+            xl('Used when payment_gateway is Rainforest.'),
+        ],
+        'rainforest_platform_id' => [
+            xl('Rainforest Platform ID'),
+            'text',
+            '',
+            xl('Used when payment_gateway is Rainforest.'),
+        ],
+        'rainforest_webhook_secret' => [
+            xl('Rainforest Webhook Secret'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
         ],
 
         'sphere_clinicfront_trxcustid' => [
@@ -3481,98 +3491,98 @@ $GLOBALS_METADATA = [
         ],
 
         'erx_enable' => [
-            xl('Enable NewCrop eRx Service'),
+            xl('Enable Ensora eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.')
+            xl('Enable Ensora eRx Service.')
         ],
 
         'erx_newcrop_path' => [
-            xl('NewCrop eRx Site Address'),
+            xl('Ensora eRx Site Address'),
             'text',
             'https://secure.newcropaccounts.com/ux2/InterfaceV7/RxEntry.aspx',
-            xl('URL for NewCrop eRx Site Address.')
+            xl('URL for Ensora eRx Site Address.')
         ],
 
         'erx_newcrop_path_soap' => [
-            xl('NewCrop eRx Web Service Address'),
+            xl('Ensora eRx Web Service Address'),
             'text',
             'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-            xl('URLs for NewCrop eRx Service Address, separated by a semi-colon.')
+            xl('URLs for Ensora eRx Service Address, separated by a semi-colon.')
         ],
 
         'erx_soap_ttl_allergies' => [
-            xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
+            xl('Ensora eRx SOAP Request Time-To-Live for Allergies'),
             'num',
             '21600',
-            xl('Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.')
+            xl('Time-To-Live for Ensora eRx Allergies SOAP Request in seconds.')
         ],
 
         'erx_soap_ttl_medications' => [
-            xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
+            xl('Ensora eRx SOAP Request Time-To-Live for Medications'),
             'num',
             '21600',
-            xl('Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.')
+            xl('Time-To-Live for Ensora eRx Medications SOAP Request in seconds.')
         ],
 
         'erx_account_partner_name' => [
-            xl('NewCrop eRx Partner Name'),
+            xl('Ensora eRx Partner Name'),
             'text',
             '',
-            xl('Partner Name issued for NewCrop eRx service.')
+            xl('Partner Name issued for Ensora eRx service.')
         ],
 
         'erx_account_name' => [
-            xl('NewCrop eRx Name'),
+            xl('Ensora eRx Name'),
             'text',
             '',
-            xl('Account Name issued for NewCrop eRx service.')
+            xl('Account Name issued for Ensora eRx service.')
         ],
 
         'erx_account_password' => [
-            xl('NewCrop eRx Password'),
+            xl('Ensora eRx Password'),
             'encrypted',
             '',
-            xl('Account Password issued for NewCrop eRx service.')
+            xl('Account Password issued for Ensora eRx service.')
         ],
 
         'erx_account_id' => [
-            xl('NewCrop eRx Account Id'),
+            xl('Ensora eRx Account Id'),
             'text',
             '1',
-            xl('Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.')
+            xl('Account Id issued for Ensora eRx service, used to separate multi-facility accounts.')
         ],
 
         'erx_upload_active' => [
             xl('Only upload active prescriptions'),
             'bool',
             '0',
-            xl('Only upload active prescriptions to NewCrop eRx.')
+            xl('Only upload active prescriptions to Ensora eRx.')
         ],
 
         'erx_import_status_message' => [
-            xl('Enable NewCrop eRx import status message'),
+            xl('Enable Ensora eRx import status message'),
             'bool',
             '0',
-            xl('Enable import status message after visiting NewCrop eRx.')
+            xl('Enable import status message after visiting Ensora eRx.')
         ],
 
         'erx_medication_display' => [
-            xl('Do not display NewCrop eRx Medications uploaded'),
+            xl('Do not display Ensora eRx Medications uploaded'),
             'bool',
             '0',
-            xl('Do not display Medications uploaded after visiting NewCrop eRx.')
+            xl('Do not display Medications uploaded after visiting Ensora eRx.')
         ],
 
         'erx_allergy_display' => [
-            xl('Do not display NewCrop eRx Allergy uploaded'),
+            xl('Do not display Ensora eRx Allergy uploaded'),
             'bool',
             '0',
-            xl('Do not display Allergies uploaded after visiting NewCrop eRx.')
+            xl('Do not display Allergies uploaded after visiting Ensora eRx.')
         ],
 
         'erx_default_patient_country' => [
-            xl('NewCrop eRx Default Patient Country'),
+            xl('Ensora eRx Default Patient Country'),
             [
                 '' => '',
                 'US' => xl('USA'),
@@ -3580,11 +3590,11 @@ $GLOBALS_METADATA = [
                 'MX' => xl('Mexico'),
             ],
             '',
-            xl('Default Patient Country sent to NewCrop eRx, only if patient country is not set.'),
+            xl('Default Patient Country sent to Ensora eRx, only if patient country is not set.'),
         ],
 
         'erx_debug_setting' => [
-            xl('NewCrop eRx Debug Setting'),
+            xl('Ensora eRx Debug Setting'),
             [
                 0 => xl('None'),
                 1 => xl('Request Only'),
@@ -3592,7 +3602,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Request & Response'),
             ],
             '0',
-            xl('Log all NewCrop eRx Requests and / or Responses.'),
+            xl('Log all Ensora eRx Requests and / or Responses.'),
         ],
 
         'ccda_alt_service_enable' => [
@@ -3623,7 +3633,7 @@ $GLOBALS_METADATA = [
             xl("phiMail default force message receipt confirmation to on"),
             'bool',
             '0',
-            xl("Marks a message as succesful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
+            xl("Marks a message as successful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
         ],
 
         'phimail_server_address' => [
@@ -3906,7 +3916,7 @@ $GLOBALS_METADATA = [
                 'P' => xl('Portrait'),
                 'L' => xl('Landscape')
             ],
-            'P', //defaut
+            'P', //default
             xl("Choose Layout Direction"),
         ],
         'pdf_language' => [
@@ -4097,7 +4107,7 @@ $GLOBALS_METADATA = [
                 'zu' => xl('Zulu'),
             ],
             'en', // default English
-            xl('Choose PDF languange Preference'),
+            xl('Choose PDF language Preference'),
         ],
         'pdf_size' => [
             xl('Paper Size'),               // Descriptive Name
@@ -4193,7 +4203,7 @@ $GLOBALS_METADATA = [
                 'D' => xl('Download'),
                 'I' => xl('Inline')
             ],
-            'D', //defaut
+            'D', //default
             xl("Choose Download or Display Inline"),
         ],
 
@@ -4355,7 +4365,7 @@ $GLOBALS_METADATA = [
             xl('Show In Collection on Encounter Form'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl("How to display the 'In Collection' option. May be overriden by Hide Billing Widget setting"),
+            xl("How to display the 'In Collection' option. May be overridden by Hide Billing Widget setting"),
         ],
 
         'enc_enable_issues' => [
@@ -4450,84 +4460,14 @@ $GLOBALS_METADATA = [
 ];
 
 
-if (!empty($GLOBALS['ippf_specific'])) {
-    $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = [
-
-        'gbl_menu_stats_ippf' => [
-            xl('IPPF Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('IPPF statistical reports.')
-        ],
-
-        'gbl_menu_stats_gcac' => [
-            xl('GCAC Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('GCAC statistical reports.')
-        ],
-
-        'gbl_menu_stats_ma' => [
-            xl('MA Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('MA statistical reports.')
-        ],
-
-        'gbl_menu_stats_cyp' => [
-            xl('CYP Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('CYP statistical reports.')
-        ],
-
-        'gbl_menu_stats_daily' => [
-            xl('Daily Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Daily statistical reports.')
-        ],
+if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Menu'] = [
 
         'gbl_menu_stats_c3' => [
             xl('C3 Statistics Reporting'),
             'bool',                           // data type
             '0',                              // default
             xl('C3 statistical reports.')
-        ],
-
-        'gbl_menu_stats_cc' => [
-            xl('Cervical Cancer Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Cervical cancer statistical reports.')
-        ],
-
-        'gbl_menu_stats_sinadi' => [
-            xl('SINADI Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Uruguay SINADI statistical report.')
-        ],
-
-        'gbl_menu_visits_by_item' => [
-            xl('Visits by Item Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Visits by Item Report')
-        ],
-
-        'gbl_menu_acct_trans' => [
-            xl('Accounting Transactions Export'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Accounting transactions export to CSV')
-        ],
-
-        'gbl_menu_projects' => [
-            xl('Restricted Projects Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Belize and maybe others')
         ],
 
         'gbl_menu_surinam_insurance' => [
@@ -4543,30 +4483,9 @@ if (!empty($GLOBALS['ippf_specific'])) {
             '0', // default
             xl('For NetSuite financial integration')
         ],
-
-        'gbl_menu_ive_clients' => [
-            xl('IVE Client List'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Client List of IVE Activity')
-        ],
-
-        'gbl_menu_shifts' => [
-            xl('Shifts Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Argentina and maybe others')
-        ],
-
-        'gbl_menu_service_and_client_volume' => [
-            xl('Service and Client Volume Report'),
-            'bool', // data type
-            '1', // default
-            xl('Service and Client Volume Report')
-        ],
     ];
 
-    $GLOBALS['GLOBALS_METADATA']['IPPF Features'] = [
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Features'] = [
 
         'gbl_rapid_workflow' => [
             xl('Rapid Workflow Option'),
@@ -4654,31 +4573,11 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Present an additional PDF custom receipt after checkout.')
         ],
 
-        'gbl_ma_ippf_code_restriction' => [
-            xl('Allow More than one MA/IPPF code mapping'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Disable the restriction of only one IPPF code per MA code in superbill')
-        ],
-
-        'gbl_uruguay_asse_url' => [
-            xl('Uruguay ASSE URL'),
-            'text',                           // data type
-            '',
-            xl('URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.')
-        ],
-
-        'gbl_uruguay_asse_token' => [
-            xl('Uruguay ASSE Token'),
-            'text',                           // data type
-            '',
-            xl('Token for connection to ASSE SOAP server')
-        ],
     ];
 } // end if ippf_specific
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
+    $globalsInitEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -27,6 +28,9 @@
  *      (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @author credits to Duda <duda@big.hu> - wrote first image function
+
+use OpenEMR\Core\OEGlobalsBag;
+
  *           in repository, helped with lots of functionality
  * @version  1.0
  * @param array
@@ -46,7 +50,7 @@ function smarty_function_html_image($params, &$smarty)
     $prefix = '';
     $suffix = '';
     $path_prefix = '';
-    $server_vars = ($smarty->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
+    $server_vars = ($smarty->request_use_auto_globals) ? $_SERVER : OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS');
     $basedir = $server_vars['DOCUMENT_ROOT'] ?? '';
     foreach($params as $_key => $_val) {
         switch($_key) {

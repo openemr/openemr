@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  */
 
 // array of the data_types of the fields
@@ -58,7 +58,7 @@ $datatypes = [
     "41" => xl("Patient Signature"),
     "42" => xl("User Signature"),
     "43" => xl("List box w/search"),
-    "44" => xl("Multi-Select Facilties"),
+    "44" => xl("Multi-Select Facilities"),
     "45" => xl("Multi-Select Provider"),
     "46" => xl("List box w/comment"),
     "51" => xl("Patient"),

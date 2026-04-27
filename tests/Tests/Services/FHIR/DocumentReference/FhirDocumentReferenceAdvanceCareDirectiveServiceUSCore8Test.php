@@ -23,7 +23,7 @@
  * - Calls PatientAdvanceDirectiveService for data retrieval
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc <snielson@discoverandchange.com>
@@ -38,19 +38,16 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
-use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceAdvancedDirectiveCodeEnum;
+use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
 use OpenEMR\Services\FHIR\DocumentReference\FhirDocumentReferenceAdvanceCareDirectiveService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Rfc4122\UuidV4;
-use Ramsey\Uuid\Uuid;
 
 // AI GENERATED CODE - Start
 class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCase
@@ -272,7 +269,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
         $this->assertNotEmpty($profiles, 'DocumentReference must have at least one profile');
 
         // Verify US Core 8.0 ADI profile is present
-        $profileUris = array_map(fn($profile) => (string)$profile, $profiles);
+        $profileUris = array_map(static fn($profile): string => (string)$profile, $profiles);
 
         $expectedProfile = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference';
         $this->assertContains(
@@ -874,6 +871,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
         );
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function advanceDirectiveDataProvider(): array
     {
         // Note: This will be called before setUp(), so we create minimal data here

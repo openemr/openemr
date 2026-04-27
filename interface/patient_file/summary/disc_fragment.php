@@ -4,7 +4,7 @@
  * disc_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
@@ -16,15 +16,15 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 /**
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
- * @param $limit -  certain limit up to which the disclosures are to be displyed.
+ * @param $limit -  certain limit up to which the disclosures are to be displayed.
  */
 function getDisclosureByDate($pid, $limit)
 {

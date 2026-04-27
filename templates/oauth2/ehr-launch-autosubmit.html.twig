@@ -3,7 +3,7 @@
     <title>{{ "Launching Application"|xlt }}</title>
 </head>
 <body>
-<form method="POST" action="{{ endpoint }}">
+<form method="POST" action="{{ endpoint|attr }}">
     {# Do we want to show any kind of message...? For satellite or slow latency connections... we'd want to show something here. #}
 </form>
 <script>

@@ -1,4 +1,5 @@
 <?php
+
 /********************************************************************************\
  * Copyright (C) Carl Taylor (cjtaylor@adepteo.com)                             *
  * Copyright (C) Torben Nehmer (torben@nehmer.net) for Code Cleanup             *
@@ -17,6 +18,8 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
 \********************************************************************************/
+
+use OpenEMR\Core\OEGlobalsBag;
 
 /// Enable multiple timers to aid profiling of performance over sections of code
 class Profiler {
@@ -206,13 +209,13 @@ class Profiler {
 }
 
 function profiler_start($name): void {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
-      $GLOBALS["midcom_profiler"]->startTimer ($name);
+    if (OEGlobalsBag::getInstance()->has("midcom_profiler"))
+      OEGlobalsBag::getInstance()->get("midcom_profiler")->startTimer ($name);
 }
 
 function profiler_stop($name): void {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
-      $GLOBALS["midcom_profiler"]->stopTimer ($name);
+    if (OEGlobalsBag::getInstance()->has("midcom_profiler"))
+      OEGlobalsBag::getInstance()->get("midcom_profiler")->stopTimer ($name);
 }
 
 ?>

@@ -2,13 +2,10 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use Exception;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use Exception;
 
 class SinglePatient700APITest extends TestCase
 {
@@ -69,7 +66,7 @@ class SinglePatient700APITest extends TestCase
             , 'client_secret' => self::$testClient->getClientSecret()
             , 'token_url' => self::$baseUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
             // shared secret of client_secret is used for symmetric auth
-            // for asymmetric auth, we would use the public key of the registed JWKS
+            // for asymmetric auth, we would use the public key of the registered JWKS
             , 'auth_type' => 'symmetric'
         ];
         if (self::TEST_SUITE == self::TEST_SUITE_G10_CERTIFICATION) {

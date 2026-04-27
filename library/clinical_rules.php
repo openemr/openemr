@@ -8,9 +8,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Medical Information Integration, LLC
  * @author    Ensofttek, LLC
+ * @author    Stephen Waite <stephen.waite@open-emr.org>
  * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Medical Information Integration, LLC
  * @copyright Copyright (c) 2011 Ensofttek, LLC
+ * @copyright Copyright (c) 2026 OpenEMR Foundation Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,9 +21,11 @@ require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/report_database.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 /**
@@ -62,7 +66,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  */
 function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -172,7 +176,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
-        if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
+        if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -182,23 +186,26 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
-    if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authUserID']);
-        if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
-            // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
-            //  Note I am taking advantage of a slight hack in order to run javascript within code that
-            //  is being passed via an ajax call by using a dummy image.
-            echo '<img src="../../pic/empty.gif" onload="alert(' . xlj('New Due Clinical Reminders') . ' + \'\n\n';
+    if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $session->get('authUserID'));
+        if (!empty($new_targets) && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_new_crp')) {
+            $message = xl('New Due Clinical Reminders') . "\n\n";
+
+            // coached claude sonnet 4.5 to rework
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", (string) $key);
-                $category = $category_item[0];
-                $item = $category_item[1];
-                echo generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category) .
-                   ': ' . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $item) . '\n';
+                $category = $category_item[0] ?? '';
+                $item = $category_item[1] ?? '';
+
+                $cat_display = generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category);
+                $item_display = generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $item);
+
+                $message .= $cat_display . ': ' . $item_display . "\n";
             }
 
-            echo '\n\' + ' . xlj('See the Clinical Reminders widget for more details') . ' + \'';
-            echo '\');this.parentNode.removeChild(this);" />';
+            $message .= "\n" . xl('See the Clinical Reminders widget for more details');
+            echo '<img src="../../pic/empty.gif" onload="alert(' . attr_js($message) . ');this.parentNode.removeChild(this);" />';
+            // end claude code
         }
     }
 }
@@ -216,7 +223,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
  */
 function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '', $test = false)
 {
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -265,7 +272,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due and $test is FALSE
-        if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
+        if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -273,8 +280,8 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
-    if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
+    if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $session->get('authUserID'));
         if (!empty($new_targets)) {
             $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
             foreach ($new_targets as $key => $value) {
@@ -301,7 +308,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
  */
 function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Collect allergies
     $sqlParam = [];
     $sqlParam[] = $patient_id;
@@ -358,8 +365,8 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = [];
-    if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test === false)) {
-        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
+    if ((!empty($conflicts_unique)) && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log') && ($test === false)) {
+        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $session->get('authUserID'), $mode);
     }
 
     if ($mode == 'all') {
@@ -392,7 +399,8 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
 {
 
     if (empty($userid)) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     if (empty($current_targets)) {
@@ -493,7 +501,7 @@ LIMIT 1)";
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $batchSize     number of patients to batch (default is 100; plan to optimize this default setting in the future)
  * @param  integer      $report_id     id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
@@ -519,7 +527,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
 
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_batch_method()",
         ['totalNumPatients' => $totalNumPatients, 'totalNumberBatches' => $totalNumberBatches]
     );
@@ -557,19 +565,19 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
 
   // Set ability to itemize report if this feature is turned on
     if (
-        ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
-        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && ($GLOBALS['report_itemizing_cqm'])      ) ||
-        ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
+        ( ($type == "active_alert" || $type == "passive_alert")          && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_standard')) ) ||
+        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_cqm'))      ) ||
+        ( (CertificationReportTypes::isAMCReportType($type)) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_amc'))      )
     ) {
-        $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
+        OEGlobalsBag::getInstance()->set('report_itemizing_temp_flag_and_id', $report_id);
     } else {
-        $GLOBALS['report_itemizing_temp_flag_and_id'] = 0;
+        OEGlobalsBag::getInstance()->set('report_itemizing_temp_flag_and_id', 0);
     }
 
     for ($i = 0; $i < $totalNumberBatches; $i++) {
         // If itemization is turned on, then reset the rule id iterator
-        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $GLOBALS['report_itemized_test_id_iterator'] = 1;
+        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+            OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', 1);
         }
 
         $dataSheet_batch = test_rules_clinic($provider, $type, $dateTarget, $mode, '', $plan, $organize_mode, $options_modified, $pat_prov_rel, (($batchSize * $i) + 1), $batchSize);
@@ -628,7 +636,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
             . " ORDER BY provider_id ",
             [$billing_facility, $billing_facility]
         );
-    } else if ($pat_prov_rel == "primary") {
+    } elseif ($pat_prov_rel == "primary") {
         $rez = sqlStatementCdrEngine(
             "SELECT id AS provider_id , lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 AND users.id IN ( "
             . "SELECT DISTINCT `providerID` AS provider_id FROM `patient_data` JOIN `users` providers ON providerID=providers.id "
@@ -652,7 +660,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * Process clinic rules for the group_calculation provider method.  This will process clinical rules for each of the
  * billing facilities in the entire organization.  Rules are applied to the entire facility where patients are connected
  * to the billing facility either through encounters or their primary care provider.  Rules are then applied to each
- * individual provider who is connected to the billing facility.  This satisifies regulatory requirements where rule
+ * individual provider who is connected to the billing facility.  This satisfies regulatory requirements where rule
  * calculations must be able to group results for one or more provider NPIs to a group tax id number (TIN).  One example
  * of this is in the United States where providers can reassign their medicaid/medicare reimbursements to another TIN and
  * need to report on calculations at both the group and provider group level.
@@ -664,7 +672,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -672,7 +680,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  */
 function test_rules_clinic_group_calculation($type = '', array $dateArray = [], $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_group_calculation()",
         array_combine(
             ['type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
@@ -710,7 +718,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
             $options['billing_facility_id'] = $frow['id'];
             $patientData = buildPatientArray($patient_id, 'group_calculation', $pat_prov_rel, $start, $batchSize, false, $frow['id']);
 
-            (new SystemLogger())->debug(
+            ServiceContainer::getLogger()->debug(
                 "test_rules_clinic_group_calculation() patientIds retrieved for facility",
                 ['facilityId' => $frow['id'], 'patientData' => $patientData]
             );
@@ -728,7 +736,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
                     if (!empty($tempResults)) {
                         $results = array_merge($results, $tempResults);
                     }
-                    (new SystemLogger())->debug(
+                    ServiceContainer::getLogger()->debug(
                         "test_rules_clinic_group_calculation() results returned for facility",
                         ['facilityId' => $frow['id'], 'results' => $tempResults]
                     );
@@ -787,7 +795,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -873,7 +881,7 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
 
 /**
  * Runs the AMC or CQM calculations for a given rule.
- * @param $rowRule The rule we are going to run calculcations against
+ * @param $rowRule The rule we are going to run calculations against
  * @param $patientData The list of patient pids we are going to calculate our rules on
  * @param $dateArray The start and end date of the rule for AMC calculation purposes
  * @param $dateTarget The end date of the rule for CQM purposes
@@ -925,7 +933,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
- * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
@@ -1018,8 +1026,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
         if ((count($targetGroups) == 1) || ($mode == "report")) {
             // If report itemization is turned on, then iterate the rule id iterator
-            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                $GLOBALS['report_itemized_test_id_iterator']++;
+            if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
             }
 
             //skip this section if not report and more than one target group
@@ -1038,7 +1046,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                 $dateCounter = 1; // for reminder mode to keep track of which date checking
                 // If report itemization is turned on, reset flag.
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                     $temp_track_pass = 1;
                 }
 
@@ -1071,7 +1079,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in a different category
                 -- that might succeed
 
-                -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
+                -- Mixing optional and required filters makes no sense, but is tolerated. If one filter is required, any optional filters have no relevance
 
                 -- Same ideas have been applied to analysis of targets
                 */
@@ -1088,7 +1096,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     // increment pass filter counter
                     $pass_filter++;
                     // If report itemization is turned on, trigger flag.
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                         $temp_track_pass = 0;
                     }
 
@@ -1128,8 +1136,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             // increment pass target counter (used for reporting)
                             $pass_target++;
                             // If report itemization is turned on, then record the "passed" item and set the flag
-                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                            if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                                insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 1, $rowPatient['pid']);
                                 $temp_track_pass = 1;
                             }
 
@@ -1155,7 +1163,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         } else {
                             if (($mode != "report") && ($dateCounter == 3)) {
                                 // Did not pass any of the target dates, so place the past_due actions into the reminder
-                                //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                //  return array when running in one of the reminders mode (either reminders-due mode
                                 //  or reminders-all mode).
                                 $actionArray = resolve_action_sql($rowRule['id'], '1');
                                 foreach ($actionArray as $action) {
@@ -1173,8 +1181,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 }
 
                 // If report itemization is turned on, then record the "failed" item if it did not pass
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
-                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) && !($temp_track_pass)) {
+                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 0, $rowPatient['pid']);
                 }
             }
         }
@@ -1186,8 +1194,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             $newRow = array_merge($newRow, $rowRule);
 
             // If itemization is turned on, then record the itemized_test_id
-            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $newRow = array_merge($newRow, ['itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']]);
+            if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                $newRow = array_merge($newRow, ['itemized_test_id' => OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator')]);
             }
 
             $results[] = $newRow;
@@ -1197,8 +1205,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         if (count($targetGroups) > 1) {
             foreach ($targetGroups as $i) {
                 // If report itemization is turned on, then iterate the rule id iterator
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                    $GLOBALS['report_itemized_test_id_iterator']++;
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                    OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
                 }
 
                 //Reset the target counter
@@ -1216,7 +1224,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     $dateCounter = 1; // for reminder mode to keep track of which date checking
                     // If report itemization is turned on, reset flag.
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                         $temp_track_pass = 1;
                     }
 
@@ -1234,7 +1242,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     if ($passFilter) {
                         // If report itemization is turned on, trigger flag.
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                        if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                             $temp_track_pass = 0;
                         }
 
@@ -1261,8 +1269,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 // increment pass target counter (used for reporting)
                                 $pass_target++;
                                 // If report itemization is turned on, then record the "passed" item and set the flag
-                                if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
-                                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id') ?? null) {
+                                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 1, $rowPatient['pid']);
                                     $temp_track_pass = 1;
                                 }
 
@@ -1288,7 +1296,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             } else {
                                 if (($mode != "report") && ($dateCounter == 3)) {
                                     // Did not pass any of the target dates, so place the past_due actions into the reminder
-                                    //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                    //  return array when running in one of the reminders mode (either reminders-due mode
                                     //  or reminders-all mode).
                                     $actionArray = resolve_action_sql($rowRule['id'], $i);
                                     foreach ($actionArray as $action) {
@@ -1306,8 +1314,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
 
                     // If report itemization is turned on, then record the "failed" item if it did not pass
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
-                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) && !($temp_track_pass)) {
+                        insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 0, $rowPatient['pid']);
                     }
                 }
 
@@ -1325,8 +1333,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $newRow = ['is_sub' => true, 'action_category' => $action['category'], 'action_item' => $action['item'], 'total_patients' => '', 'excluded' => '', 'pass_filter' => '', 'pass_target' => $pass_target, 'percentage' => $percentage];
 
                         // If itemization is turned on, then record the itemized_test_id
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                            $newRow = array_merge($newRow, ['itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']]);
+                        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                            $newRow = array_merge($newRow, ['itemized_test_id' => OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator')]);
                         }
 
                         $results[] = $newRow;
@@ -1345,7 +1353,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  *
  * @param  integer       $provider      id of a selected provider. If blank, then will test entire clinic.
  * @param  integer       $patient_id    pid of patient. If blank then will check all patients.
- * @param  string        $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  string        $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selects patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer       $start         applicable patient to start at (when batching process)
  * @param  integer       $batchSize     number of patients to batch (when batching process)
  * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
@@ -1354,7 +1362,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  */
 function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "buildPatientArray()",
         ['patient_id' => $patient_id, 'provider' => $provider, 'pat_prov_rel' => $pat_prov_rel, 'start' => $start
         ,
@@ -1387,13 +1395,13 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
             // Look at an individual physician
             if ($provider == 'group_calculation' && $pat_prov_rel == 'encounter') {
                 return buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
-            } else if ($provider == 'group_calculation' && $pat_prov_rel == 'primary') {
+            } elseif ($provider == 'group_calculation' && $pat_prov_rel == 'primary') {
                 return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
-            } else if ($pat_prov_rel == 'encounter_billing_facility' && is_numeric($provider)) {
+            } elseif ($pat_prov_rel == 'encounter_billing_facility' && is_numeric($provider)) {
                 return buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider);
-            } else if ($pat_prov_rel == 'primary_billing_facility' && is_numeric($provider)) {
+            } elseif ($pat_prov_rel == 'primary_billing_facility' && is_numeric($provider)) {
                 return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider);
-            } else if ($pat_prov_rel == 'encounter') {
+            } elseif ($pat_prov_rel == 'encounter') {
                 // Choose patients that are related to specific physician by an encounter (OR the provider was a referral originator)
                 $sql = "select DISTINCT `pid` FROM `form_encounter` WHERE `provider_id` =? OR `supervisor_id` = ? "
                     . " UNION select DISTINCT `transactions`.`pid` FROM transactions "
@@ -1601,7 +1609,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true
     (So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
 
-    If rule has no inclusion or exclusion filters, return true (if no filters, rule is applicabile to all patients)
+    If rule has no inclusion or exclusion filters, return true (if no filters, rule is applicable to all patients)
     */
 
     // Set date to current if not set
@@ -1619,7 +1627,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If there are no inclusion filters, $anySuccess will be empty string at start of exclusion analysis
     If required inclusions exist, and if any fail, test_filter() will return false on the first failure, before getting to exclusion analysis
     If all required inclusions succeed, $anySuccess will be true at start of exclusion analysis
-    If there no requried inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there no required inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
     If there are inclusion filters and all are optional and none succeed, $anySuccess will be false at end of inclusion analysis and test_filter() will return false without processing exclusions
     */
     $anySuccess = '';
@@ -1716,7 +1724,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Database Filter. Many purposes including lifestyle
     $filter = resolve_filter_sql($rule, 'filt_database');
 
-    // HR: split out conditions to faciliate logging
+    // HR: split out conditions to facilitate logging
     if ((!empty($filter))) {
         if ($anySuccess === '') {
             $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
@@ -1727,7 +1735,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         $dc = database_check($patient_id, $filter, '', '', $dateTarget);
         if ($dc === false) {
             return false;
-        } else if ($dc === 'continue') {
+        } elseif ($dc === 'continue') {
             ;
         } else { // $dc === true
             // need to check if other required filters in other categories also pass
@@ -1750,7 +1758,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         $lc = lists_check($patient_id, $filter, $dateTarget);
         if ($lc === false) {
             return false;
-        } else if ($lc === 'continue') {
+        } elseif ($lc === 'continue') {
             ;
         } else { // $lc === true
             // need to check if other required filters in other categories also pass
@@ -1758,7 +1766,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         }
     }
 
-    // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
+    // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inclusion) ----
     // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter))) {
@@ -1770,7 +1778,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         $pc = procedure_check($patient_id, $filter, '', '', $dateTarget);
         if (!$pc === false) {
             return false;
-        } else if ($pc === 'continue') {
+        } elseif ($pc === 'continue') {
             ;
         } else { // $pc === true
             $anySuccess = true;
@@ -1830,7 +1838,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         if ($lc === false) {
             // a required exclusion did not succeed, so patient can not be excluded from rule. return true
             return true;
-        } else if ($lc === 'continue') {
+        } elseif ($lc === 'continue') {
             // all exclusion filters are optional and none succeeded
             ;
         } else { // $lc === true
@@ -1935,7 +1943,7 @@ function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus =
         $dc = database_check($patient_id, $target, $interval, $dateFocus, $dateTarget);
         if ($dc === false) {
             return false;
-        } else if ($dc === 'continue') {
+        } elseif ($dc === 'continue') {
             ;
         } else { // $dc === true
             // need to check if other required targets in other categories also pass
@@ -1953,7 +1961,7 @@ function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus =
         $pc = procedure_check($patient_id, $target, $interval, $dateFocus, $dateTarget);
         if ($pc === false) {
             return false;
-        } else if ($pc === 'continue') {
+        } elseif ($pc === 'continue') {
             ;
         } else { // $pc === true
             $anySuccess = true;
@@ -1971,7 +1979,7 @@ function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus =
         $ac = appointment_check($patient_id, $dateFocus, $dateTarget);
         if ($ac === false) {
             return false;
-        } else if ($ac === 'continue') {
+        } elseif ($ac === 'continue') {
             ;
         } else { // $ac === true
             $anySuccess = true;
@@ -1980,7 +1988,7 @@ function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus =
 
     if ($anySuccess === '') {
         return false;
-    } else if ($anySuccess === true) {
+    } elseif ($anySuccess === true) {
         return true;
     } else {
         return false;
@@ -2115,7 +2123,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "`= ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_plans` SET " . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "= ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$plan,$patient_id]);
 }
 
@@ -2282,7 +2290,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_rules` SET " . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$patient_rule_original['access_control'],$rule,$patient_id]);
 }
 
@@ -2474,7 +2482,7 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
             if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateFocus, $dateTarget)) {
                 // Record the match
-                // HR: I don't see what $cond_loop is addig here. $isMatch will be either 'continue' or true. If was either 'continue' or true, and this target succeeded
+                // HR: I don't see what $cond_loop is adding here. $isMatch will be either 'continue' or true. If was either 'continue' or true, and this target succeeded
                 // (regardless of whether required or optional), set $isMatch to true. if required target fails, database_check() returns false immediately
                 ///if ($cond_loop > 0) { // For multiple condition check
                 //     $isMatch = $isMatch && 1;
@@ -2619,7 +2627,7 @@ function lists_check($patient_id, $filter, $dateTarget)
 
     /*
     HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately.
-    Otherwise return true if all requried filters are found, or if no requried filters, then if any of the optional filters are found in the patient
+    Otherwise return true if all required filters are found, or if no required filters, then if any of the optional filters are found in the patient
     If some found, and all are optional, and none pass, return 'continue'
     Logic works if list_check is called for either inclusion or exclusion filters
     Among a set of inclusion filters, or a set of exclusion filters, having a mix of both required and optional filters doesn't make a lot of sense.
@@ -2647,7 +2655,7 @@ function lists_check($patient_id, $filter, $dateTarget)
 }
 
 /**
- * Function to check for existance of data in database for a patient
+ * Function to check for existence of data in database for a patient
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $table            selected mysql table
@@ -2711,7 +2719,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
     if (empty($column)) {
         // simple search for any table entries
         $sql = sqlStatementCdrEngine("SELECT * " .
-            "FROM `" . escape_table_name($table)  . "` " .
+            "FROM " . escape_table_name($table)  . " " .
             " " . $whereTables . " " .
             "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, [$patient_id]);
     } else {
@@ -2727,12 +2735,12 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
             $sql = sqlStatementCdrEngine(
-                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                "SELECT b." . escape_sql_column_name($column, [$table]) . " " .
                 "FROM forms a " .
-                "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
+                "LEFT JOIN " . escape_table_name($table) . " " . " b " .
                 "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
                 "WHERE a.deleted != '1' " .
-                "AND b.`" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "AND b." . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 [$data, $patient_id]
@@ -2745,10 +2753,10 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             }
 
             // search for number of specific items
-            $sql = sqlStatementCdrEngine("SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
-                "FROM `" . escape_table_name($table) . "` " .
+            $sql = sqlStatementCdrEngine("SELECT " . escape_sql_column_name($column, [$table]) . " " .
+                "FROM " . escape_table_name($table) . " " .
                 " " . $whereTables . " " .
-                "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "WHERE " . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
                 $dateSql, [$data, $patient_id]);
         }
@@ -2857,7 +2865,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
 }
 
 /**
- * Function to check for existance of data for a patient in the rule_patient_data table
+ * Function to check for existence of data for a patient in the rule_patient_data table
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $category         label in category column
@@ -2883,7 +2891,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
     // Get the interval sql query string
     /*
        For filters, $intervalType and $intervalValue are empty strings
-       For targets, they are defiend (something like 1 year)
+       For targets, they are defined (something like 1 year)
        if $intervalType and $intervalValue are empty strings, sql_interval_string returns something like
         [date field] <= $dateTarget
        If $intervalType and $intervalValue are valued, sql_interval_string returns something like
@@ -2893,7 +2901,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 
     // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `result` " .
-        "FROM `" . escape_table_name($table)  . "` " .
+        "FROM " . escape_table_name($table)  . " " .
         "WHERE `category`=? " .
         "AND `item`=? " .
         "AND `complete`=? " .
@@ -2905,7 +2913,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 }
 
 /**
- * Function to check for existance of data for a patient in lifestyle section
+ * Function to check for existence of data for a patient in lifestyle section
  *
  * @param  string  $patient_id  pid of selected patient.
  * @param  string  $lifestyle   selected label of mysql column of patient history
@@ -3176,7 +3184,7 @@ function collect_database_label($label, $table)
 
     if ($table == 'PROCEDURE-EXCEPTION') {
         // return cell to get procedure collection
-        // special case since reuqires joing of multiple
+        // special case since requires joining of multiple
         // tables to get this value
         if ($label == "pid") {
             $returnedLabel = "procedure_order.patient_id";

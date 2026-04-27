@@ -18,11 +18,15 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 global $pid;
 
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_ccr (created in createCCR.php)
+ */
            $e_ccrDocObjID = $ccr->createElement('CCRDocumentObjectID', getUuid());
            $e_ccr->appendChild($e_ccrDocObjID);
 

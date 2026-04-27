@@ -9,13 +9,13 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaAllergy;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDiagnosis;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaMedicalIssue;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaMedication;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSurgery;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaListsBuilder
@@ -25,7 +25,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSurgery;
 class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
@@ -57,7 +57,7 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {

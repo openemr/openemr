@@ -5,7 +5,7 @@
  * parses the provided http request against that route definition.  Validates the route definition and extracts the
  * resource name as well as any route parameters defined in the route definition.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -47,7 +47,7 @@ class HttpRestParsedRoute
     private ?string $instanceIdentifier;
 
     /**
-     * The endpoint paramters (identifiers, and anything else marked with the :colon param).
+     * The endpoint parameters (identifiers, and anything else marked with the :colon param).
      * Only populated if the route definition matches against the current route
      * @var array
      */
@@ -192,7 +192,7 @@ class HttpRestParsedRoute
         }
 
         // We've implemented our FHIR api spec so the resource is the first argument
-        // We have to accomodate this for our scope permissions
+        // We have to accommodate this for our scope permissions
         // standard api allows for nesting of resources so we have to handle the other possibilities there.
         if ($apiType === 'fhir') {
             $this->resource = $parts[2] ?? null;

@@ -26,4 +26,3 @@ class PositiveDeviceApplied extends DeviceApplied
 
     public $_type = 'QDM::PositiveDeviceApplied';
 }
-

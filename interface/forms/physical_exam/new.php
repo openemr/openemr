@@ -4,7 +4,7 @@
  * physical_exam new.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
@@ -18,6 +18,7 @@ require_once("$srcdir/forms.inc.php");
 require_once("lines.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (! $encounter) { // comes from globals.php
@@ -25,6 +26,7 @@ if (! $encounter) { // comes from globals.php
 }
 
 $returnurl = 'encounter_top.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 {
@@ -91,9 +93,7 @@ if ($_POST['bn_save']) {
  // Skip rows that have no entries.
  // There are also 3 special rows with just one checkbox and a text
  // input field.  Maybe also a diagnosis line, not clear.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($formid) {
         $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";
@@ -165,7 +165,7 @@ if ($formid) {
 <body class="body_top">
 <form method="post" action="<?php echo $rootdir ?>/forms/physical_exam/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

@@ -562,7 +562,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 $block = array_shift($this->_folded_blocks);
                 $this->_current_line_no += substr_count((string) $block[0], "\n");
                 /* the number of matched elements in the regexp in _compile_file()
-                   determins the type of folded tag that was found */
+                   determines the type of folded tag that was found */
                 switch (count($block)) {
                     case 2: /* comment */
                         return '';
@@ -1940,7 +1940,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $this->_parse_vars_props($_modifier_args);
 
             if($_modifier_name == 'default') {
-                // supress notifications of default modifier vars and args
+                // suppress notifications of default modifier vars and args
                 if(str_starts_with($output, '$')) {
                     $output = '@' . $output;
                 }

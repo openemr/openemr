@@ -4,7 +4,7 @@
  * Care plan form save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -20,10 +20,11 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -50,7 +51,7 @@ $reasonDateHigh   = $_POST['reasonDateHigh']   ?? [];
 if ($id) {
     sqlStatement(
         "DELETE FROM `form_care_plan` WHERE id=? AND pid=? AND encounter=?",
-        [$id, $_SESSION["pid"], $_SESSION["encounter"]]
+        [$id, $session->get('pid'), $session->get('encounter')]
     );
     $newid = $id;
 } else {
@@ -58,17 +59,18 @@ if ($id) {
     $getMaxid = sqlFetchArray($res2);
     $newid    = $getMaxid['largestId'] ? ($getMaxid['largestId'] + 1) : 1;
 
-    addForm($encounter, "Care Plan Form", $newid, "care_plan", $_SESSION["pid"], $userauthorized);
+    addForm($encounter, "Care Plan Form", $newid, "care_plan", $session->get('pid'), $userauthorized);
 }
 
 $count = array_filter($count);
 if (!empty($count)) {
+    $authUser = $session->get('authUser');
     foreach ($count as $key => $codeval) :
         $code_val           = $code[$key] ?? '';
         $codetext_val       = $code_text[$key] ?? '';
         $description_val    = $code_des[$key] ?? '';
         $care_plan_type_val = $care_plan_type[$key] ?? '';
-        $care_user_val      = $care_plan_user[$key] ?: $_SESSION["authUser"];
+        $care_user_val      = $care_plan_user[$key] ?: $authUser;
 
         // Dates & status normalization
         $start_date_val = trim($code_date[$key] ?? '');
@@ -111,9 +113,9 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date = ?,
-            date_end = ?, 
-            proposed_date = ?, 
-            plan_status = ?, 
+            date_end = ?,
+            proposed_date = ?,
+            plan_status = ?,
             care_plan_type = ?,
             note_related_to = ?,
             reason_code = ?,
@@ -126,10 +128,10 @@ if (!empty($count)) {
             "INSERT INTO form_care_plan SET " . $sets,
             [
                 $newid,
-                $_SESSION["pid"],
-                $_SESSION["authProvider"],
+                $session->get('pid'),
+                $session->get('authProvider'),
                 $care_user_val,
-                $_SESSION["encounter"],
+                $session->get('encounter'),
                 $userauthorized,
                 $code_val,
                 $codetext_val,
@@ -153,9 +155,3 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-
-function parse_note($note)
-{
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
-    return json_encode($matches[1]);
-}

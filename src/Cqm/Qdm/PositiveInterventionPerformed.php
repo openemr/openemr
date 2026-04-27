@@ -26,4 +26,3 @@ class PositiveInterventionPerformed extends InterventionPerformed
 
     public $_type = 'QDM::PositiveInterventionPerformed';
 }
-

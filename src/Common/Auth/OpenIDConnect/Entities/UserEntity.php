@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,14 +14,9 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PractitionerService;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
@@ -44,7 +39,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function setFhirBaseUrl(string $fhirBaseUrl): void
     {
-        if (filter_var($fhirBaseUrl, FILTER_VALIDATE_URL)) {
+        if (ValidationUtils::isValidUrl($fhirBaseUrl)) {
             $this->fhirBaseUrl = $fhirBaseUrl;
         } else {
             throw OAuthServerException::invalidRequest('fhirBaseUrl', 'Invalid FHIR base URL provided.');

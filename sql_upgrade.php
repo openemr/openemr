@@ -17,6 +17,8 @@
 
 /* @TODO add language selection. needs RTL testing */
 
+// Set these via $GLOBALS before the autoloader is available (interface/globals.php
+// loads it later). The globals bag picks them up once globals.php runs.
 $GLOBALS['ongoing_sql_upgrade'] = true;
 
 if (php_sapi_name() === 'cli') {
@@ -44,20 +46,23 @@ if (ob_get_level() === 0) {
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
 $GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+$skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
-// Force logging off
-$GLOBALS["enable_auditlog"] = 0;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$versions = array();
+$versions = [];
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (!$dh) {
@@ -78,7 +83,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default'] ?? ''));
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -93,10 +98,11 @@ if (count($result2 ?? []) == 1) {
     $defaultLangName = "English";
 }
 
-$_SESSION['language_choice'] = $defaultLangID;
-$_SESSION['language_direction'] = $direction ?? '';
-CsrfUtils::setupCsrfKey();
-session_write_close();
+SessionUtil::setSession([
+    'language_choice' => $defaultLangID,
+    'language_direction' => $direction ?? '',
+]);
+CsrfUtils::setupCsrfKey($session);
 
 $sqlUpgradeService = new SQLUpgradeService();
 
@@ -130,7 +136,7 @@ header('Content-type: text/html; charset=utf-8');
             // start polling
             let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
             let data = new FormData;
-            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('sqlupgrade')); ?>);
+            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
             data.append("poll", currentVersion);
 
             let response = await fetch(url, {
@@ -360,7 +366,7 @@ header('Content-type: text/html; charset=utf-8');
                     $form_old_version = $_POST['form_old_version'];
 
                     foreach ($versions as $version => $filename) {
-                        if (strcmp($version, $form_old_version) < 0) {
+                        if (strcmp($version, (string) $form_old_version) < 0) {
                             continue;
                         }
                         // set polling version and start
@@ -371,7 +377,7 @@ header('Content-type: text/html; charset=utf-8');
                         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
                     }
 
-                    if (!empty($GLOBALS['ippf_specific'])) {
+                    if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                         // Upgrade custom stuff for IPPF.
                         $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
                     }
@@ -399,8 +405,8 @@ header('Content-type: text/html; charset=utf-8');
                     require_once("library/globals.inc.php");
                     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                         foreach ($grparr as $fldid => $fldarr) {
-                            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
+                            [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                            if (is_array($fldtype) || (!str_starts_with((string) $fldtype, 'm_'))) {
                                 $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
                                 if (empty($row['count'])) {
                                     sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .

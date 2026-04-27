@@ -4,7 +4,7 @@
  * Encounter form to track any clinical parameter.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Joe Slam <trackanything@produnis.de>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,7 +15,6 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
 use OpenEMR\Core\Header;
 
 formHeader("Form: Track anything");
@@ -229,7 +228,7 @@ if ($the_item) {
 
 
     if ($deactivate) {
-    // deactive the item/track
+    // deactivate the item/track
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET active = '0' ";
         $updatespell .= "WHERE track_anything_type_id = ? ";
@@ -279,9 +278,9 @@ while ($myrow = sqlFetchArray($result)) {
         echo "<td class='parent'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
         echo "<td class='parent'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
     } elseif ($type_active == '0') {
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_name) . "</td>\n";
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
-        echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_name) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_descr) . "</td>\n";
+        echo "<td class='deactivate'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
     }
 
     echo "<td class='op'>";
@@ -317,9 +316,9 @@ while ($myrow = sqlFetchArray($result)) {
             echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
             echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
         } elseif ($item_active == '0') {
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
-            echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
+            echo "<td class='deactivate'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
         }
 
         echo "<td class='op'>";

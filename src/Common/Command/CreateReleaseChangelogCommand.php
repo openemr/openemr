@@ -9,7 +9,7 @@
  * such as api, code refactoring, etc.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -48,7 +48,7 @@ class CreateReleaseChangelogCommand extends Command
      * Execute the command and spit any output to STDOUT and errors to STDERR
      * @param CommandContext $context All the context information needed for the CLI Command to execute
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         // going to hit the github api endpoint for the milestone given in the api
         $milestoneName = $input->getOption('milestone');
@@ -110,7 +110,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting issues from github. Exception message was: " . $exception->getMessage() . "\n";
             return Command::FAILURE;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting issues from github. Exception message was: " . $e->getMessage() . "\n";
             return Command::FAILURE;
         }
@@ -229,7 +229,7 @@ class CreateReleaseChangelogCommand extends Command
                     throw new \RuntimeException("Error getting milestones from github.  Too many API calls\n");
                 }
                 return false;
-            } else if ($response->getStatusCode() === 403) {
+            } elseif ($response->getStatusCode() === 403) {
                 $this->printRateLimitMessage($response);
                 throw new \RuntimeException("Error getting milestones from github\n");
             } else {
@@ -242,7 +242,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting milestones from github. Exception message was: " . $exception->getMessage() . "\n";
             throw $exception;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting milestones from github. Exception message was: " . $e->getMessage() . "\n";
             throw $e;
         }
@@ -351,7 +351,7 @@ class CreateReleaseChangelogCommand extends Command
                     $headers = $response->getHeaders();
                     $issues = array_merge($issues, json_decode($response->getBody(), true));
                     $nextLink = $this->getNextLink($headers);
-                } else if ($response->getStatusCode() === 403) {
+                } elseif ($response->getStatusCode() === 403) {
                     $this->printRateLimitMessage($response);
                     $nextLink = false;
                 } else {
@@ -361,7 +361,7 @@ class CreateReleaseChangelogCommand extends Command
             if ($loopBreak >= self::MAX_API_FETCH_COUNT) {
                 throw new \RuntimeException("Error getting issues from github.  Too many API calls\n");
             }
-        } else if ($response->getStatusCode() === 403) {
+        } elseif ($response->getStatusCode() === 403) {
             $this->printRateLimitMessage($response);
         } else {
             echo "Error getting issues from github\n";

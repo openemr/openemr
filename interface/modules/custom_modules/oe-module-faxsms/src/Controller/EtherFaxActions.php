@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -15,7 +15,10 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use Document;
 use Exception;
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -28,7 +31,7 @@ class EtherFaxActions extends AppDispatch
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private readonly EtherFaxClient $client;
     private mixed $appSecret;
     private mixed $sid;
@@ -36,13 +39,13 @@ class EtherFaxActions extends AppDispatch
 
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
             throw new \Exception(xlt("Access denied! Module not enabled"));
         }
 
-        $this->crypto = new CryptoGen();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->crypto = ServiceContainer::getCrypto();
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+        $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
         $this->client = new EtherFaxClient();
         $this->client->setCredentials(
@@ -85,7 +88,7 @@ class EtherFaxActions extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -123,8 +126,9 @@ class EtherFaxActions extends AppDispatch
                 break;
             }
             if (!empty($fax->JobId)) {
-                $this->insertFaxQueue($fax);
-                $this->client->setFaxReceived($fax->JobId);
+                if ($this->client->setFaxReceived($fax->JobId)) {
+                    $this->insertFaxQueue($fax);
+                }
             }
         }
         // return the count of faxes processed
@@ -179,69 +183,124 @@ class EtherFaxActions extends AppDispatch
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         }
-        // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
-        $isDocuments = (int)$this->getRequest('isDocuments');
+        $isDocuments = (bool)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_PASS') ?? null) && !empty(OEGlobalsBag::getInstance()->getString('SMTP_USER') ?? null);
+
         $user = $this::getLoggedInUser();
-        $facility = substr((string)$user['facility'], 0, 20);
-        $csid = $this->formatPhone($this->credentials['phone']);
-        $tag = $user['username'];
+        $facility = substr((string)($user['facility'] ?? ''), 0, 20);
+        $csid = $this->formatPhone($this->credentials['phone'] ?? '');
+        $tag = $user['username'] ?? '';
         $fileName = '';
 
+        // Validate file path if not content
+        $allowedTempDir = realpath($this->baseDir . '/send/');
         if (empty($isContent)) {
             if (str_starts_with((string)$file, 'file://')) {
-                // Remove the "file://" prefix
                 $file = substr((string)$file, 7);
             }
-            $realPath = realpath($file);
+            $realPath = realpath((string)$file);
             if ($realPath !== false) {
+                if ($allowedTempDir === false || !str_starts_with($realPath, $allowedTempDir)) {
+                    error_log("Path traversal blocked: " . $realPath);
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
                 $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
             } else {
-                return xlt('Error: No content');
+                return xlt('Error: No Fax content');
             }
         }
 
+        // If document mode, load from Document table instead
         if ($isDocuments) {
-            $file = (new Document($docId))->get_data();
-            $fileName = (new Document($docId))->get_name() ?? 'document';
+            $doc = new Document($docId);
+            $file = $doc->get_data();
+            $fileName = $doc->get_name() ?? 'document';
         }
 
+        // Optional email copy
         if ($hasEmail && $smtpEnabled) {
             self::emailDocument($email, '', $file, $user);
         }
 
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, $fileName);
-            if (!$fax->FaxResult) {
-                return 'Error: ' . json_encode($fax->Message);
+            $fax = $this->client->etherFaxSend(
+                $phone,
+                $file,
+                null,
+                $facility,
+                $csid,
+                $tag,
+                $isDocuments,
+                $fileName
+            );
+            // FaxResult::Success = 0, FaxResult::InProgress = 2
+            if (!is_object($fax) || !property_exists($fax, 'FaxResult')) {
+                return 'Error: ' . json_encode(xlt('Unable to send fax (no response)'));
             }
-            $status = null;
-            if ($fax->FaxResult == FaxResult::InProgress) {
-                while (true) {
-                    $status = $this->client->getFaxStatus($fax->JobId);
-                    if (!$status || $status->FaxResult != FaxResult::InProgress) {
-                        break;
+            $status = $fax;
+            // If InProgress, poll for a short time to catch early failure/success,
+            // but do NOT block indefinitely.
+            if (!empty($fax->JobId) && ($fax->FaxResult == FaxResult::InProgress)) {
+                $jobId = $fax->JobId;
+                $maxSeconds = 15; // keep short to avoid blocking request
+                $deadline = time() + $maxSeconds;
+                $sleep = 2;
+                $maxSleep = 8;
+                $nullCount = 0;
+                while (time() < $deadline) {
+                    $polled = $this->client->getFaxStatus($jobId);
+                    $http = (int)($this->client->getHttpCode() ?? 0);
+                    if (!empty($polled) && isset($polled->FaxResult)) {
+                        $status = $polled;
+                        $nullCount = 0;
+                        if ($status->FaxResult != FaxResult::InProgress) {
+                            break;
+                        }
+                    } else {
+                        // If HTTP was a hard failure (4xx/5xx), stop
+                        $nullCount++;
+                        if ($http >= 400) {
+                            break;
+                        }
+                        if ($nullCount >= 3) {
+                            break;
+                        }
                     }
-                    sleep(5);
+                    sleep($sleep);
+                    $sleep = min($sleep + 2, $maxSleep);
                 }
             }
-            // Store sent fax in queue for tracking (don't block waiting for completion)
-            if (!empty($status->JobId)) {
-                $status->FaxImage = $fax->FaxImage;
+            // Always store sent fax in queue for tracking (even if still InProgress)
+            // Use JobId from initial response if polling didn't return a JobId
+            if (!empty($fax->JobId)) {
+                $status->JobId ??= $fax->JobId;
+                // Preserve the FaxImage from initial response (status response may not include it)
+                if (!empty($fax->FaxImage)) {
+                    $status->FaxImage = $fax->FaxImage;
+                }
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
         }
-
-        return $status->FaxResult ? 'Error: ' . json_encode(FaxResult::getFaxResult($status->FaxResult)) : json_encode(FaxResult::getFaxResult($status->FaxResult));
+        $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
+        // Treat InProgress as non-error (queued for tracking)
+        if (($status->FaxResult ?? null) === FaxResult::InProgress) {
+            return json_encode($resultName);
+        }
+        // Success => OK
+        if (($status->FaxResult ?? null) === FaxResult::Success) {
+            return json_encode($resultName);
+        }
+        // Everything else => Error (include mapped name)
+        return 'Error: ' . json_encode($resultName);
     }
 
     /**
@@ -264,22 +323,6 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $number
-     * @return string
-     */
-    public function formatPhone($number): string
-    {
-        $n = preg_replace('/[^0-9]/', '', (string)$number);
-        if (stripos((string)$n, '1') === 0) {
-            $n = '+' . $n;
-        } elseif (!empty($n)) {
-            $n = '+1' . $n;
-        }
-
-        return $this->validatePhone($n) ? $n : '';
-    }
-
-    /**
      * @param $n
      * @return bool
      */
@@ -298,7 +341,7 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
         $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
@@ -331,7 +374,7 @@ class EtherFaxActions extends AppDispatch
 
         if ($faxNumber) {
             try {
-                $fax = $this->client->sendFax($faxNumber, $filepath, null, $facility, $csid, $tag, false);
+                $fax = $this->client->etherFaxSend($faxNumber, $filepath, null, $facility, $csid, $tag, false);
                 if (!$fax->FaxResult) {
                     return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
                 }
@@ -345,7 +388,7 @@ class EtherFaxActions extends AppDispatch
                     }
                 }
                 $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape('Error: ' . $e->getMessage());
             }
         }
@@ -523,7 +566,7 @@ class EtherFaxActions extends AppDispatch
 
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return "Error: Retrieving Fax:\n" . $e->getMessage();
         }
 
@@ -769,7 +812,7 @@ class EtherFaxActions extends AppDispatch
                 $pinfo = str_replace("|||", " ", $row['patient_info']);
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
@@ -791,17 +834,43 @@ class EtherFaxActions extends AppDispatch
     public function insertFaxQueue($faxDetails): int
     {
         $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
-        $jobId = $faxDetails->JobId;
-        $to = $faxDetails->CalledNumber;
-        $from = $faxDetails->CallingNumber;
-        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
-        $docType = $faxDetails->DocumentParams->Type;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = (int)($session->get('authUserID') ?? 0);
+        $jobId = (string)($faxDetails->JobId ?? '');
+        $to = (string)($faxDetails->CalledNumber ?? '');
+        $from = (string)($faxDetails->CallingNumber ?? '');
+        $received = date('Y-m-d H:i:s', strtotime(($faxDetails->ReceivedOn ?? '') . ' UTC'));
+        $docType = (string)($faxDetails->DocumentParams->Type ?? '');
         $details_encoded = json_encode($faxDetails);
+        if ($details_encoded === false) {
+            $details_encoded = '{}';
+        }
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+        $sql = <<<SQL
+INSERT INTO `oe_faxsms_queue`
+    (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
+VALUES
+    (NULL, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE
+    `id` = LAST_INSERT_ID(`id`),
+    `uid` = VALUES(`uid`),
+    `receive_date` = VALUES(`receive_date`),
+    `calling_number` = VALUES(`calling_number`),
+    `called_number` = VALUES(`called_number`),
+    `mime` = VALUES(`mime`),
+    `details_json` = VALUES(`details_json`)
+SQL;
 
-        return sqlInsert($sql, [$uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded]);
+        return (int)sqlInsert($sql, [
+            $uid,
+            $account,
+            $jobId,
+            $received,
+            $from,
+            $to,
+            $docType,
+            $details_encoded
+        ]);
     }
 
     /**
@@ -818,7 +887,8 @@ class EtherFaxActions extends AppDispatch
     public function insertSentFaxQueue($faxStatus, string $dialNumber, string $callerId, string $tag = '', string $fileName = ''): int
     {
         $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = $session->get('authUserID');
         $jobId = $faxStatus->JobId;
 
         // Build a details object similar to received faxes but for sent
@@ -844,7 +914,7 @@ class EtherFaxActions extends AppDispatch
         $details_encoded = json_encode($details);
         $sentDate = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) 
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
         VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
 
         return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);
@@ -863,13 +933,28 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
+        $sql = <<< 'QUERY'
+            SELECT
+                `id`,
+                CASE
+                    WHEN JSON_VALID(`details_json`)
+                        THEN JSON_REMOVE(`details_json`, '$.FaxImage')
+                    ELSE `details_json`
+                END AS `details_json`,
+                `receive_date`
+            FROM `oe_faxsms_queue`
+            WHERE `deleted` = '0'
+              AND (`receive_date` > ? AND `receive_date` < ?)
+            QUERY;
+
+        $result = sqlStatement($sql, [$start, $end]);
         while ($row = sqlFetchArray($result)) {
             $detail = json_decode((string)$row['details_json']);
             if (json_last_error()) {
                 continue;
             }
+
             $detail->RecordId = $row['id'];
             $rows[] = $detail;
         }

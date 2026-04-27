@@ -273,7 +273,7 @@ WHERE `t`.`pid` = ? AND `d`.`field_id` = 'authorization_001'";
         return sqlQuery($sql, [$pid]);
     }
 
-    // This is a custom table patient_status table doesnt exist normally
+    // This is a custom table; patient_status does not exist normally
     public static function patientInactive($pid): false|array|null
     {
         return sqlQuery("SELECT `ps`.`status` FROM `patient_status` ps WHERE `ps`.`pid` = ? ORDER BY `ps`.`statusId` DESC", [$pid]);

@@ -21,7 +21,9 @@
  * @package OpenEMR
  * @license https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @author  Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/../interface/globals.php");
@@ -34,6 +36,9 @@ require_once(__DIR__ . "/forms.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -93,12 +98,13 @@ class FeeSheet
 
     function __construct($pid = 0, $encounter = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (empty($pid)) {
-            $pid = $GLOBALS['pid'];
+            $pid = OEGlobalsBag::getInstance()->get('pid');
         }
 
         if (empty($encounter)) {
-            $encounter = $GLOBALS['encounter'];
+            $encounter = OEGlobalsBag::getInstance()->get('encounter');
         }
 
         $this->pid = $pid;
@@ -108,14 +114,14 @@ class FeeSheet
         $this->payer_id = $primary_insurance['provider'];
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
-        $this->ALLOW_COPAYS = empty($GLOBALS['ippf_specific']);
+        $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
 
         // Get the user's default warehouse and an indicator if there's a choice of warehouses.
         $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse' AND activity = 1");
         $this->got_warehouses = $wrow['count'] > 1;
         $wrow = sqlQuery(
             "SELECT default_warehouse FROM users WHERE username = ?",
-            [$_SESSION['authUser']]
+            [$session->get('authUser')]
         );
         $this->default_warehouse = empty($wrow['default_warehouse']) ? '' : $wrow['default_warehouse'];
 
@@ -135,7 +141,7 @@ class FeeSheet
         $this->supervisor_id = $visit_row['supervisor_id'];
         // This flag is specific to IPPF validation at form submit time.  It indicates
         // that most contraceptive services and products should match up on the fee sheet.
-        $this->match_services_to_products = $GLOBALS['ippf_specific'] &&
+        $this->match_services_to_products = OEGlobalsBag::getInstance()->get('ippf_specific') &&
           !empty($visit_row['extra_validation']);
 
         // Get some information about the patient.
@@ -182,6 +188,8 @@ class FeeSheet
   //
     public function findProvider()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $find_provider = sqlQuery(
             "SELECT provider_id FROM form_encounter " .
             "WHERE pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
@@ -189,9 +197,9 @@ class FeeSheet
         );
         $providerid = $find_provider['provider_id'];
         if (!$providerid) {
-            $get_authorized = $_SESSION['userauthorized'];
+            $get_authorized = $session->get('userauthorized');
             if ($get_authorized == 1) {
-                $providerid = $_SESSION['authUserID'];
+                $providerid = $session->get('authUserID');
             }
         }
 
@@ -242,7 +250,7 @@ class FeeSheet
                 [$pid, $encounter]
             );
             if (empty($tmprow['invoice_refno'])) { // not empty means there was a previous checkout
-                $refno = updateInvoiceRefNumber();
+                $refno = BillingUtilities::updateInvoiceRefNumber();
                 if ($refno) { // means user has an invoice refno pool
                     sqlStatement(
                         "UPDATE form_encounter SET invoice_refno = ? WHERE pid = ? AND encounter = ?",
@@ -285,6 +293,7 @@ class FeeSheet
   //
     public function logFSMessage($action, $newvalue = '', $logarr = null)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user_notes = $this->encounter;
         if (is_array($logarr)) {
             array_unshift($logarr, $newvalue);
@@ -293,10 +302,10 @@ class FeeSheet
             }
         }
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             'fee-sheet',
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             $action,
             $this->pid,
@@ -308,6 +317,7 @@ class FeeSheet
   //
     public function visitChecksum($saved = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $rowb = sqlQuery(
             "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
             "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
@@ -333,7 +343,7 @@ class FeeSheet
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
             $comment .= ", Saved = " . ($saved ? "true" : "false");
-            EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
+            EventAuditLogger::getInstance()->newEvent("checksum", $session->get('authUser'), $session->get('authProvider'), 1, $comment, $this->pid);
         }
         return $ret;
     }
@@ -397,10 +407,11 @@ class FeeSheet
     //
     public function insert_lbf_item($field_id, $field_value)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         sqlInsert(
             "INSERT INTO shared_attributes (pid, encounter, last_update, user_id, field_id, field_value) " .
             "VALUES (?, ?, 'NOW()', ?, ?, ?)",
-            [$this->pid, $this->encounter, $_SESSION['authId'], $field_id, $field_value]
+            [$this->pid, $this->encounter, $session->get('authId'), $field_id, $field_value]
         );
     }
 
@@ -451,7 +462,7 @@ class FeeSheet
         $del         = !empty($args['del']);
 
         // If using line item billing and user wishes to default to a selected provider, then do so.
-        if (!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('default_fee_sheet_line_item_provider') && OEGlobalsBag::getInstance()->getBoolean('support_fee_sheet_line_item_provider')) {
             if ($provider_id == 0) {
                 $provider_id = (int) $this->findProvider();
             }
@@ -514,7 +525,7 @@ class FeeSheet
                     $fee = $prrow['pr_price'];
 
                     // if percent-based pricing is enabled...
-                    if ($GLOBALS['enable_percent_pricing']) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                         // if this price level is a percentage, calculate price from default price
                         if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                             $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -543,7 +554,7 @@ class FeeSheet
         // This logic is only used for family planning clinics, and then only when
         // the option is chosen to use or auto-generate Contraception forms.
         // It adds contraceptive method and effectiveness to relevant lines.
-        if ($GLOBALS['ippf_specific'] && $GLOBALS['gbl_new_acceptor_policy'] && $codetype == 'MA') {
+        if (OEGlobalsBag::getInstance()->get('ippf_specific') && OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy') && $codetype == 'MA') {
             $codesrow = sqlQuery(
                 "SELECT related_code, cyp_factor FROM codes WHERE " .
                 "code_type = ? AND code = ? ORDER BY active DESC, id LIMIT 1",
@@ -563,7 +574,7 @@ class FeeSheet
         }
 
         if ($codetype == 'COPAY') {
-            $li['codetype'] = xl($codetype);
+            $li['codetype'] = xl('COPAY');
             if ($ndc_info) {
                 $li['codetype'] .= " ($ndc_info)";
             }
@@ -697,7 +708,7 @@ class FeeSheet
                 $fee = $prrow['pr_price'];
 
                 // if percent-based pricing is enabled...
-                if ($GLOBALS['enable_percent_pricing']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                     // if this price level is a percentage, calculate price from default price
                     if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                         $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -729,7 +740,7 @@ class FeeSheet
         // This logic is only used for family planning clinics, and then only when
         // the option is chosen to use or auto-generate Contraception forms.
         // It adds contraceptive method and effectiveness to relevant lines.
-        if ($GLOBALS['ippf_specific'] && $GLOBALS['gbl_new_acceptor_policy']) {
+        if (OEGlobalsBag::getInstance()->get('ippf_specific') && OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy')) {
             $this->checkRelatedForContraception($drow['related_code']);
             if ($this->line_contra_code) {
                 $li['hidden']['method'  ] = $this->line_contra_code;
@@ -919,6 +930,7 @@ class FeeSheet
         $default_warehouse = null,
         $mark_as_closed = false
     ) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         global $code_types;
 
         if (isset($main_provid) && $main_supid == $main_provid) {
@@ -982,7 +994,7 @@ class FeeSheet
                             sqlStatement(
                                 "UPDATE ar_session SET user_id = ?, pay_total = ?, modified_time = now(), " .
                                 "post_to_date = now() WHERE session_id = ?",
-                                [$_SESSION['authUserID'], $fee, $session_id]
+                                [$session->get('authUserID'), $fee, $session_id]
                             );
                         }
                         // deleting old copay
@@ -998,21 +1010,24 @@ class FeeSheet
                             "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
                             "adjustment_code, post_to_date) " .
                             "VALUES ('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
-                            [$_SESSION['authUserID'], $fee, $this->pid]
+                            [$session->get('authUserID'), $fee, $this->pid]
                         );
                     }
                     // adding new or changed copay from fee sheet into ar_activity
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-                      "pid = ? AND encounter = ?", [$this->pid, $this->encounter]);
-                    sqlStatement(
-                        "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
-                        "payer_type, post_time, post_user, session_id, pay_amount, account_code) " .
-                        "VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
-                            $_SESSION['authUserID'], $session_id, $fee]
-                    );
-                    sqlCommitTrans();
+                    $recorder = new Recorder();
+                    $recorder->recordActivity([
+                        'patientId' => $this->pid,
+                        'encounterId' => $this->encounter,
+                        'codeType' => $ct0,
+                        'code' => $cod0,
+                        'modifier' => $mod0,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $fee,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     if (!$cod0) {
                         $copay_update = true;
@@ -1023,13 +1038,13 @@ class FeeSheet
                 }
 
                         # Code to create justification for all codes based on first justification
-                if ($GLOBALS['replicate_justification'] == '1') {
+                if (OEGlobalsBag::getInstance()->getBoolean('replicate_justification')) {
                     if ($justify != '') {
                          $autojustify = $justify;
                     }
                 }
 
-                if (($GLOBALS['replicate_justification'] == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
+                if ((OEGlobalsBag::getInstance()->getBoolean('replicate_justification')) && ($justify == '') && check_is_code_type_justify($code_type)) {
                     $justify =  $autojustify;
                 }
 
@@ -1205,13 +1220,14 @@ class FeeSheet
                 // If the item is already in the database...
                 if ($sale_id) {
                     // Get existing values from database.
+                    // Verify the sale belongs to this patient/encounter to prevent IDOR
                     $tmprow = sqlQuery(
                         "SELECT ds.prescription_id, ds.quantity, ds.inventory_id, ds.fee, " .
                         "ds.sale_date, ds.drug_id, ds.selector, ds.pricelevel, di.warehouse_id " .
                         "FROM drug_sales AS ds " .
                         "LEFT JOIN drug_inventory AS di ON di.inventory_id = ds.inventory_id " .
-                        "WHERE ds.sale_id = ?",
-                        [$sale_id]
+                        "WHERE ds.sale_id = ? AND ds.pid = ? AND ds.encounter = ?",
+                        [$sale_id, $this->pid, $this->encounter]
                     );
                     $rxid = (int) $tmprow['prescription_id'];
                     $logarr = null;
@@ -1232,7 +1248,10 @@ class FeeSheet
                         if (!empty($tmprow)) {
                             // Delete this sale and reverse its inventory update.
                             $this->logFSMessage(xl('Item deleted'), '', $logarr);
-                            sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", [$sale_id]);
+                            sqlStatement(
+                                "DELETE FROM drug_sales WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                [$sale_id, $this->pid, $this->encounter]
+                            );
                             if (!empty($tmprow['inventory_id'])) {
                                 sqlStatement(
                                     "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
@@ -1275,8 +1294,8 @@ class FeeSheet
                                     }
 
                                                   sqlStatement(
-                                                      "UPDATE drug_sales SET `$key` = ? WHERE sale_id = ?",
-                                                      [$value, $sale_id]
+                                                      "UPDATE drug_sales SET `$key` = ? WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                                      [$value, $sale_id, $this->pid, $this->encounter]
                                                   );
                                     if ($key == 'quantity' && $tmprow['inventory_id']) {
                                         sqlStatement(
@@ -1291,7 +1310,10 @@ class FeeSheet
                                 // Changing warehouse.  Requires deleting and re-adding the sale.
                                 // Not setting $somechange because this alone does not affect a prescription.
                                 $this->logFSMessage(xl('Warehouse changed'), $warehouse_id, $logarr);
-                                sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", [$sale_id]);
+                                sqlStatement(
+                                    "DELETE FROM drug_sales WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                    [$sale_id, $this->pid, $this->encounter]
+                                );
                                 sqlStatement(
                                     "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
                                     [$inv_units, $tmprow['inventory_id']]
@@ -1316,8 +1338,11 @@ class FeeSheet
                         }
 
                           // Delete Rx if $rxid and flag not set.
-                        if ($GLOBALS['gbl_auto_create_rx'] && $rxid && empty($iter['rx'])) {
-                            sqlStatement("UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ?", [$sale_id]);
+                        if (OEGlobalsBag::getInstance()->get('gbl_auto_create_rx') && $rxid && empty($iter['rx'])) {
+                            sqlStatement(
+                                "UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                [$sale_id, $this->pid, $this->encounter]
+                            );
                             sqlStatement("DELETE FROM prescriptions WHERE id = ?", [$rxid]);
                         }
                     }
@@ -1487,7 +1512,7 @@ class FeeSheet
                         "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ''",
                         [$newid]
                     );
-                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, $GLOBALS['userauthorized']);
+                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, OEGlobalsBag::getInstance()->get('userauthorized'));
                     // Now add the needed visit fields.
                     $this->insert_lbf_item('cgen_newmauser', $newmauser);
                     $this->insert_lbf_item('cgen_MethAdopt', "IPPFCM:$ippfconmeth");
@@ -1588,6 +1613,6 @@ class FeeSheet
     //
     public function pricesAuthorized()
     {
-        return AclMain::aclCheckCore('acct', 'disc') || acl_check('acct', 'bill');
+        return AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('acct', 'bill');
     }
 }

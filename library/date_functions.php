@@ -1,10 +1,14 @@
 <?php
 
+use OpenEMR\Common\Calendar\DayOfWeek;
+use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Format a date string according to the user's language preference.
  *
  * Returns a formatted date string based on the user's language choice stored in
- * $_SESSION['language_choice']. The format varies by language and can optionally
+ * the session's 'language_choice' value. The format varies by language and can optionally
  * include the day of the week.
  *
  * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.
@@ -24,32 +28,16 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
 
     // name the day of the week for different languages
     $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
-
-    static $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    $dow = xl($days[$day]);
+    $dow = DayOfWeek::from($day)->label();
 
     // name of the month in different languages
     $month = (int) date('m', $strtime);
+    $nom = Month::from($month)->label();
 
-    static $months = [
-        1 => 'January',
-        2 => 'February',
-        3 => 'March',
-        4 => 'April',
-        5 => 'May',
-        6 => 'June',
-        7 => 'July',
-        8 => 'August',
-        9 => 'September',
-        10 => 'October',
-        11 => 'November',
-        12 => 'December',
-    ];
-    $nom = xl($months[$month]);
-
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Date string format
     // First, get current language title
-    $languageTitle = getLanguageTitle($_SESSION['language_choice']);
+    $languageTitle = getLanguageTitle($session->get('language_choice'));
     $day_num = date("d", $strtime);
     $year = date("Y", $strtime);
     $dt = match ($languageTitle) {

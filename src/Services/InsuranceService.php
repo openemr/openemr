@@ -4,7 +4,7 @@
  * InsuranceService - Service class for patient insurance policy (coverage) data
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -19,13 +19,14 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
     FhirSearchWhereClauseBuilder,
+    ISearchField,
     SearchModifier,
     TokenSearchField,
     TokenSearchValue,
@@ -73,7 +74,7 @@ class InsuranceService extends BaseService
         return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
@@ -135,11 +136,11 @@ class InsuranceService extends BaseService
 
     /**
      * @deprecated use search instead
-     * @param $search
+     * @param array<string, string> $search
      * @param $isAndCondition
      * @return ProcessingResult|true
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
 
         // Validating and Converting Patient UUID to PID
@@ -551,7 +552,7 @@ class InsuranceService extends BaseService
                 }
             }
 
-            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
             $this->update($srcInsurance);
 
@@ -568,17 +569,17 @@ class InsuranceService extends BaseService
                 ,'target' => $targetInsurance
             ];
             $processingResult->addData($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $processingResult->addInternalError($e->getMessage());
         } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            } catch (\Exception $e) {
-                (new SystemLogger())->errorLogCaller(
+            } catch (\Throwable $e) {
+                ServiceContainer::getLogger()->error(
                     "Failed to rollback transaction " . $e->getMessage(),
-                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                    ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );
             }
         }

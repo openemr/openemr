@@ -2,23 +2,12 @@
 
 namespace OpenEMR\RestControllers\Config;
 
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use League\OAuth2\Server\Exception\OAuthServerException;
-use League\OAuth2\Server\ResourceServer;
-use LogicException;
-use Nyholm\Psr7Server\ServerRequestCreator;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\TrustedUserService;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -126,25 +115,25 @@ class RestConfig
             self::$web_root = "/" . self::$web_root;
         }
         // Will need these occasionally. sql init comes to mind!
-        $GLOBALS['rootdir'] = self::$web_root . "/interface";
+        OEGlobalsBag::getInstance()->set('rootdir', self::$web_root . "/interface");
         // Absolute path to the source code include and headers file directory (Full path):
-        $GLOBALS['srcdir'] = self::$webserver_root . "/library";
+        OEGlobalsBag::getInstance()->set('srcdir', self::$webserver_root . "/library");
         // Absolute path to the location of documentroot directory for use with include statements:
-        $GLOBALS['fileroot'] = self::$webserver_root;
+        OEGlobalsBag::getInstance()->set('fileroot', self::$webserver_root);
         // Absolute path to the location of interface directory for use with include statements:
-        $GLOBALS['incdir'] = self::$webserver_root . "/interface";
+        OEGlobalsBag::getInstance()->set('incdir', self::$webserver_root . "/interface");
         // Absolute path to the location of documentroot directory for use with include statements:
-        $GLOBALS['webroot'] = self::$web_root;
+        OEGlobalsBag::getInstance()->set('webroot', self::$web_root);
         // Static assets directory, relative to the webserver root.
-        $GLOBALS['assets_static_relative'] = self::$web_root . "/public/assets";
+        OEGlobalsBag::getInstance()->set('assets_static_relative', self::$web_root . "/public/assets");
         // Relative themes directory, relative to the webserver root.
-        $GLOBALS['themes_static_relative'] = self::$web_root . "/public/themes";
+        OEGlobalsBag::getInstance()->set('themes_static_relative', self::$web_root . "/public/themes");
         // Relative images directory, relative to the webserver root.
-        $GLOBALS['images_static_relative'] = self::$web_root . "/public/images";
+        OEGlobalsBag::getInstance()->set('images_static_relative', self::$web_root . "/public/images");
         // Static images directory, absolute to the webserver root.
-        $GLOBALS['images_static_absolute'] = self::$webserver_root . "/public/images";
+        OEGlobalsBag::getInstance()->set('images_static_absolute', self::$webserver_root . "/public/images");
         //Composer vendor directory, absolute to the webserver root.
-        $GLOBALS['vendor_dir'] = self::$webserver_root . "/vendor";
+        OEGlobalsBag::getInstance()->set('vendor_dir', self::$webserver_root . "/vendor");
     }
 
     private static function setSiteFromEndpoint(): void
@@ -211,7 +200,7 @@ class RestConfig
     //       $scopeType = 'user', $resource = 'Organization', $permission = 'write'
     public static function scope_check($scopeType, $resource = null, $permission = null): void
     {
-        if (!empty($GLOBALS['oauth_scopes'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('oauth_scopes'))) {
             // Need to ensure has scope
             if (empty($resource)) {
                 // Simply check to see if $scopeType is an allowed scope
@@ -220,12 +209,12 @@ class RestConfig
                 // Resource scope check
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
-            if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
-                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => $GLOBALS['oauth_scopes']]);
+            if (!in_array($scope, OEGlobalsBag::getInstance()->get('oauth_scopes'))) {
+                ServiceContainer::getLogger()->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => OEGlobalsBag::getInstance()->get('oauth_scopes')]);
                 throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
             }
         } else {
-            (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
+            ServiceContainer::getLogger()->error("RestConfig::scope_check global scope array is empty");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized Access');
         }
     }

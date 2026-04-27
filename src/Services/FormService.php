@@ -4,7 +4,7 @@
  * FormService refactored getFormByEncounter
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    <Unknown> Authorship was not listed in encounter.inc.php
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\BaseForm;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class FormService
 {
@@ -72,19 +73,20 @@ class FormService
     ) {
 
         global $attendant_type;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!$user) {
-            $user = $_SESSION['authUser'] ?? null;
+            $user = $session->get('authUser');
         }
 
         if (!$group) {
-            $group = $_SESSION['authProvider'] ?? null;
+            $group = $session->get('authProvider');
         }
 
         if ($therapy_group == 'not_given') {
-            $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];
+            $therapy_group = $attendant_type == 'pid' ? null : $session->get('therapy_group');
         }
 
-        //print_r($_SESSION['therapy_group']);die;
+        //print_r($session->get('therapy_group'));die;
         $arraySqlBind = [];
         $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir, therapy_group_id) values (";

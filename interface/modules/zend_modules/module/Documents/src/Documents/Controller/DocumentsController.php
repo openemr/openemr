@@ -14,14 +14,15 @@
 
 namespace Documents\Controller;
 
-use DOMDocument;
-use OpenEMR\Common\Crypto\CryptoGen;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
-use Documents\Model\DocumentsTable;
 use Document;
+use Documents\Model\DocumentsTable;
+use DOMDocument;
+use Laminas\Mvc\Controller\AbstractActionController;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
 class DocumentsController extends AbstractActionController
@@ -73,14 +74,14 @@ class DocumentsController extends AbstractActionController
         if ($request->isPost()) {
             $error = false;
             $files = [];
-            $uploaddir = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $request->getPost('file_location');
+            $uploaddir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $request->getPost('file_location');
             $pid = $request->getPost('patient_id');
             $encounter = $request->getPost('encounter_id');
             $batch_upload = $request->getPost('batch_upload');
             $category_id = $request->getPost('document_category');
             $encrypted_file = $request->getPost('encrypted_file');
             $encryption_key = $request->getPost('encryption_key');
-            $storage_method = $GLOBALS['document_storage_method'];
+            $storage_method = OEGlobalsBag::getInstance()->get('document_storage_method');
             $documents = [];
             $i = 0;
             foreach ($_FILES as $file) {
@@ -107,9 +108,10 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $cryptoGen = new CryptoGen();
-                    $plaintext = $cryptoGen->decryptStandard($filetext, $encryption_key);
-                    if ($plaintext === false) {
+                    $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                    try {
+                        $plaintext = $passwordCrypto->decrypt((string) $filetext, (string) $encryption_key);
+                    } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";
                     }
@@ -160,20 +162,15 @@ class DocumentsController extends AbstractActionController
         $document = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds = $this->getDocumentsTable()->getCategoryIDs(['CCD', 'CCR', 'CCDA']);
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
-            $xml = simplexml_load_string((string) $document);
+            $xml = XmlUtils::loadString((string) $document);
             $xsl = new DomDocument();
             $qrda = $xml->templateId[2]['root'];
-            switch ($result['category_id']) {
-                case $categoryIds['CCD']:
-                    $style = "ccd.xsl";
-                    break;
-                case $categoryIds['CCR']:
-                    $style = "ccr.xsl";
-                    break;
-                case $categoryIds['CCDA']:
-                    $style = "cda.xsl";
-                    break;
-            }
+            $style = match ($result['category_id']) {
+                $categoryIds['CCD'] => 'ccd.xsl',
+                $categoryIds['CCR'] => 'ccr.xsl',
+                $categoryIds['CCDA'] => 'cda.xsl',
+                default => throw new \RuntimeException("Unsupported category for XSL transform"),
+            };
 
             if ($qrda == '2.16.840.1.113883.10.20.24.1.2') {
                 // a QRDA QDM CAT I document

@@ -386,6 +386,3 @@ function bodyClick(container,e){
     $(container).css("display","none");
   }
 }
-
-
-

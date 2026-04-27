@@ -4,7 +4,7 @@
  * user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @deprecated 7.0.3 see UserSettingsService
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>
@@ -28,10 +28,10 @@ function effectiveUser($user)
  * Return user setting(s) from the 'users' table
  *
  * @param string $label - Setting key
- * @param int $user - user id number from users table
+ * @param ?int $user - user id number from users table
  * @param int $defaultUser - user id to check as alternative/default
  * @deprecated 7.0.3 see UserSettingsService::getUserSetting
- * @return Effective user setting for $label (NULL if does not exist)
+ * @return ?string Effective user setting for $label (NULL if it does not exist)
  */
 function getUserSetting($label, $user = null, $defaultUser = 0)
 {
@@ -108,7 +108,7 @@ function prevSetting($uspfx, $postvar, $label, $initval)
 /**
  * Function to set the state of expandable forms as per user choice, user default or global default
  * @deprecated 7.0.3 see UserSettingsService::collectAndOrganizeExpandSetting
- * @return the current state of the file after updating table user_settings
+ * @return string the current state of the file after updating table user_settings
  */
 function collectAndOrganizeExpandSetting($filenames = [])
 {

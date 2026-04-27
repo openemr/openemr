@@ -5,7 +5,7 @@
  * rendering events.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Robert Down <robertdown@live.com>
@@ -31,7 +31,7 @@ class TemplatePageEvent extends Event
     private $context;
 
     /**
-     * Array of twig varibles passed to the twig template
+     * Array of twig variables passed to the twig template
      *
      * @var array
      */

@@ -20,19 +20,20 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 
 <?php
  // check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
 
 // If the caller is updating an existing event, then get its ID so
@@ -90,7 +91,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = OEGlobalsBag::getInstance()->get('calendar_interval') * 60;
 
 
 $catslots = 1;
@@ -135,13 +136,17 @@ $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 $evslots = $catslots;
 if (isset($_REQUEST['evdur'])) {
     // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-    // if the event duration is less than or equal to zero, use the global calander interval
+    // if the event duration is less than or equal to zero, use the global calendar interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
-    if (intval($_REQUEST['evdur']) <= 0) {
-        $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']) <= 0 ? 10 : intval($GLOBALS['calendar_interval']);
+    $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
+    if ($evdur === false) {
+        $evdur = ValidationUtils::validateInt(OEGlobalsBag::getInstance()->get('calendar_interval'), min: 1);
+        if ($evdur === false) {
+            $evdur = 10;
+        }
     }
 
-    $evslots = 60 * $_REQUEST['evdur'];
+    $evslots = 60 * $evdur;
     $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
 }
 
@@ -167,7 +172,7 @@ if ($_REQUEST['providerid']) {
         "WHERE pc_aid = ? AND " .
         "pc_eid != ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
@@ -403,7 +408,7 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $ampmFlag = $ampm;
-                $hour_format_leading_zeros = ($GLOBALS['time_display_format'] == 0) ? 'h' : 'H';
+                $hour_format_leading_zeros = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'h' : 'H';
 
                 $atitle = "Choose " . date($hour_format_leading_zeros . ":i a", $utime);
                 $adate = getdate($utime);
@@ -415,7 +420,7 @@ if (isset($_REQUEST['cktime'])) {
                 attr_js($adate['minutes']) . ")'" .
                 " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
-                $hour_format = ($GLOBALS['time_display_format'] == 0) ? 'G' : 'g';
+                $hour_format = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'G' : 'g';
                 echo (strlen(date($hour_format, $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
                 $anchor . date($hour_format . ":i", $utime) . "</a> ";
 
@@ -448,7 +453,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

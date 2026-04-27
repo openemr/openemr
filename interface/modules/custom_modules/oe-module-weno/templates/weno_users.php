@@ -4,7 +4,7 @@
  * Weno users id.
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,22 +12,21 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Users", xl("Weno Users"));
 }
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $wenoLog = new WenoLogService();
@@ -37,7 +36,7 @@ while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$_SESSION['authUserID'] ?? 0]);
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$session->get('authUserID') ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -56,7 +55,7 @@ if (($_POST['save'] ?? false) == 'true') {
     $posted = json_encode($_POST);
     $wenoLog->insertWenoLog("Module setup modified.", "Setup Users modified", $posted);
     unset($_POST['save']);
-    Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
+    Header("Location: " . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
 ?>
@@ -68,7 +67,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
     <?php Header::setupHeader(); ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');
@@ -77,7 +76,7 @@ if (($_POST['save'] ?? false) == 'true') {
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    syncAlertMsg(successMsg, 750, 'success').then(() => {
+                    asyncAlertMsg(successMsg, 750, 'success').then(() => {
                         isPersistEvent = true;
                         $("#form_save_users").click();
                     });
@@ -90,7 +89,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <div class="container-fluid">
         <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
-            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
             <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>

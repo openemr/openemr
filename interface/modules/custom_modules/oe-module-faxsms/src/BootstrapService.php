@@ -4,13 +4,16 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS;
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Companion to event bootstrapping
@@ -19,6 +22,22 @@ class BootstrapService
 {
     public function __construct()
     {
+    }
+
+    /**
+     * Get a single vendor global value
+     *
+     * @param string $globalName The name of the global setting to retrieve
+     * @return string|null The value of the global setting, or null if not found
+     */
+    public static function getVendorGlobal(string $globalName): ?string
+    {
+        $result = sqlQuery(
+            "SELECT gl_value FROM `globals` WHERE `gl_name` = ?",
+            [$globalName]
+        );
+
+        return $result['gl_value'] ?? null;
     }
 
     /**
@@ -32,10 +51,11 @@ class BootstrapService
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
         $vendors['oe_enable_voice'] = '';
+        $vendors['oeenable_users_permissions'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
-            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice']
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?, ?)",
+            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice', 'oeenable_users_permissions']
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -56,7 +76,8 @@ class BootstrapService
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
                        ('oe_enable_email', '0'),
-                       ('oe_enable_voice', '0')"
+                       ('oe_enable_voice', '0'),
+                       ('oeenable_users_permissions', '0')"
         );
     }
 
@@ -74,6 +95,7 @@ class BootstrapService
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
         $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
+        $items['oeenable_users_permissions'] = $vendors['oeenable_users_permissions'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
@@ -95,7 +117,7 @@ class BootstrapService
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
         $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
+            $registry[$k] = trim(((string)preg_replace('/\R/', '', (string)$v)));
         }
 
         return $registry;
@@ -139,8 +161,8 @@ class BootstrapService
         $vendor = '_persisted';
         $authUserId = 0;
         $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
-        if (is_string($globals['credentials'])) {
-            return json_decode($globals['credentials'], true) ?? [];
+        if (is_string(OEGlobalsBag::getInstance()->get('credentials'))) {
+            return json_decode(OEGlobalsBag::getInstance()->get('credentials'), true) ?? [];
         }
         return [];
     }
@@ -148,7 +170,8 @@ class BootstrapService
     public static function getUserPermission($user_id, $service)
     {
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_{$service}_permission";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
@@ -158,8 +181,12 @@ class BootstrapService
 
     public static function usePrimaryAccount($user_id)
     {
+        if (!self::getVendorGlobal('oeenable_users_permissions') ?? null) {
+            return '0';
+        }
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_use_primary";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";

@@ -1,5 +1,8 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$
@@ -59,12 +62,15 @@ function postcalendar_user_view()
     }
 
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) {
-        $viewtype = $_SESSION['viewtype'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionViewtype = $session->get('viewtype');
+    if ($sessionViewtype) {
+        $viewtype = $sessionViewtype;
     }
 
-    if (!empty($_SESSION['pc_username'])) {
-        $pc_username = $_SESSION['pc_username'];
+    $sessionPcUsername = $session->get('pc_username');
+    if (!empty($sessionPcUsername)) {
+        $pc_username = $sessionPcUsername;
     }
 
     return postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]) . postcalendar_footer();
@@ -89,8 +95,10 @@ function postcalendar_user_display($args)
         'pc_facility'
     );
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) {
-        $viewtype = $_SESSION['viewtype'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionViewtype = $session->get('viewtype');
+    if ($sessionViewtype) {
+        $viewtype = $sessionViewtype;
     }
 
     extract($args);
@@ -176,6 +184,8 @@ function postcalendar_user_search()
         $provider_options .= " SELECTED ";
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionPcUsername = $session->get('pc_username', []);
     $provider_options .= ">" . xlt('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
@@ -183,7 +193,8 @@ function postcalendar_user_search()
         // pc_username Session variable
         if ($ProviderID == "") {
             // that variable stores the 'username' and not the numeric 'id'
-            if ($_SESSION['pc_username'][0] == $provider['username']) {
+
+            if ($sessionPcUsername[0] == $provider['username']) {
                 $selected = " SELECTED ";
             }
         } elseif ($ProviderID == $provider['id']) {
@@ -247,39 +258,35 @@ function postcalendar_user_search()
     $tpl->assign("event_category", pnVarCleanFromInput("event_category"));
     $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
     $output = new pnHTML();
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if (_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_startday]);
-        $formdata = $output->FormSelectMultiple('event_startday', $sel_data);
+        $formdata = $output->generateFormSelectMultiple('event_startday', $sel_data);
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_startmonth]);
-        $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data);
+        $formdata .= $output->generateFormSelectMultiple('event_startmonth', $sel_data);
     } else {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_startmonth]);
-        $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data);
+        $formdata = $output->generateFormSelectMultiple('event_startmonth', $sel_data);
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_startday]);
-        $formdata .= $output->FormSelectMultiple('event_startday', $sel_data);
+        $formdata .= $output->generateFormSelectMultiple('event_startday', $sel_data);
     }
 
     $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_startyear]);
-    $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $formdata .= $output->generateFormSelectMultiple('event_startyear', $sel_data);
     $tpl->assign('SelectDateTimeStart', $formdata);
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if (_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_endday]);
-        $formdata = $output->FormSelectMultiple('event_endday', $sel_data);
+        $formdata = $output->generateFormSelectMultiple('event_endday', $sel_data);
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_endmonth]);
-        $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data);
+        $formdata .= $output->generateFormSelectMultiple('event_endmonth', $sel_data);
     } else {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_endmonth]);
-        $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data);
+        $formdata = $output->generateFormSelectMultiple('event_endmonth', $sel_data);
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_endday ]);
-        $formdata .= $output->FormSelectMultiple('event_endday', $sel_data);
+        $formdata .= $output->generateFormSelectMultiple('event_endday', $sel_data);
     }
 
     $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_endyear]);
-    $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $formdata .= $output->generateFormSelectMultiple('event_endyear', $sel_data);
     $tpl->assign('SelectDateTimeEnd', $formdata);
     $output = null;
     if (_SETTING_DISPLAY_TOPICS) {
@@ -307,7 +314,7 @@ function postcalendar_user_search()
     //=================================================================
     //  Perform the search if we have data
     //=================================================================
-    if (!empty($submit) && strtolower($submit) == "find first") {
+    if (!empty($submit) && strtolower((string) $submit) == "find first") {
         // not sure how we get here...
         $searchargs = [];
         $searchargs['start'] = pnVarCleanFromInput("event_startmonth") . "/" . pnVarCleanFromInput("event_startday") . "/" . pnVarCleanFromInput("event_startyear");
@@ -322,7 +329,7 @@ function postcalendar_user_search()
         }
 
         if ($searchargs['end'] == "//") {
-            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime((string) $searchargs['start'])));
+            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
         }
 
         //print_r($searchargs);
@@ -336,7 +343,7 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS', $eventsByDate);
     }
 
-    if (!empty($submit) && strtolower($submit) == "listapps") {
+    if (!empty($submit) && strtolower((string) $submit) == "listapps") {
         // not sure how we get here...
         $searchargs = [];
         $searchargs['start'] = date("m/d/Y");
@@ -358,7 +365,7 @@ function postcalendar_user_search()
     } elseif (!empty($submit)) {
         // we get here by searching via the PostCalendar search
         $sqlKeywords = '';
-        $keywords = explode(' ', $k);
+        $keywords = explode(' ', (string) $k);
         // build our search query
         foreach ($keywords as $word) {
             if (!empty($sqlKeywords)) {
@@ -427,7 +434,7 @@ function postcalendar_user_search()
     }
 
     $tpl->caching = false;
-    $tpl->assign('STYLE', $GLOBALS['style']);
+    $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
     $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
     $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
     return $return;

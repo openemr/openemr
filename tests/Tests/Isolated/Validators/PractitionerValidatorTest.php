@@ -7,7 +7,7 @@
  * Uses test stub to avoid database calls in BaseValidator.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\PractitionerValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\PractitionerValidator;
 use PHPUnit\Framework\TestCase;
 
 class PractitionerValidatorTest extends TestCase

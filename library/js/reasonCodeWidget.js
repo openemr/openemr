@@ -8,7 +8,7 @@
  *
  * .code-selector-popup -> text code that will be sent to the server.  In the format of CODE_SYSTEM:CODE
  * .code-selector-text-display -> text description of the selected code or empty if code is deleted
- * .code-selector-text -> text descriptoin of the selected code or empty (intended to be a hidden attribute to be sent to the server)
+ * .code-selector-text -> text description of the selected code or empty (intended to be a hidden attribute to be sent to the server)
  *
  * If the reasonCodeWidget is toggled off it will clear all of the reason code values inside the container.
  *
@@ -18,7 +18,7 @@
  * Note only one code selector window can be instantiated at a time.  The widget will override the default set_related callback
  * in the document window and restore it once the find code popup window closes.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

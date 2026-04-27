@@ -12,11 +12,10 @@
 
 namespace Documents;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
@@ -31,7 +30,7 @@ return [
             'documents' => [
                 'type'    => Segment::class,
                 'options' => [
-                        // zend framework 3 get's rid of the old /:controller terminology however to be backwards compatible
+                        // zend framework 3 gets rid of the old /:controller terminology however to be backwards compatible
                         // with the links here... we are going to reference the documents controller.
                         'route'    => '/documents/documents[/:action][/:id][/:download][/:doencryption][/:key]',
                         'constraints' => [
@@ -69,7 +68,7 @@ return [
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents($container)
+            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents()
         ]
     ],
     'service_manager' => [

@@ -4,7 +4,7 @@
  * vitals_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,10 +13,11 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
 <div id='vitals''><!--outer div-->
@@ -37,7 +38,7 @@ if (!$result) { //If there are no disclosures recorded
   </b></span>
   <br />
   <br />
-    <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
+    <?php include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/vitals/report.php");
     vitals_report('', '', 1, $result['id']);
     ?>  <span class='text'>
   <br />

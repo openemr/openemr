@@ -4,7 +4,7 @@
  * edih_io.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
@@ -85,7 +85,7 @@ function edih_user_notes()
     } elseif (isset($_POST['notes_hidden']) && isset($_POST['txtnotes'])) {
         $putnt = filter_input(INPUT_POST, 'putnotes', FILTER_DEFAULT);
         if ($putnt == 'yes') {
-            $notetext = trim($_POST['txtnotes']);
+            $notetext = trim((string) $_POST['txtnotes']);
             $filtered = filter_var($notetext, FILTER_DEFAULT);
             //echo $filtered .PHP_EOL;
             $str_html = csv_notes_file($filtered, false);
@@ -498,7 +498,7 @@ function edih_disp_x12trans()
 
 /**
  * display file uploaded from x12 File tab
- * wrap individual transactions in accordian jquery ui widget
+ * wrap individual transactions in accordion jquery ui widget
  *
  * @uses csv_check_x12_obj()
  * @uses edih_271_transaction_html()
