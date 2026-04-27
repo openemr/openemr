@@ -37,6 +37,12 @@
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore Top-level admin popup / argv entry point. Mixes
+ *     globals.php bootstrap, raw `$_GET` writes for site/type, ACL gating
+ *     against the live session, and HTML chrome — none of which is
+ *     reachable from an isolated test. The reusable scan-and-send logic
+ *     lives in `AppointmentNotificationRunner` and is covered there.
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -108,7 +114,7 @@ if ($runtimeType !== '') {
 
 $channel = NotificationChannel::fromLegacyType($TYPE);
 $taskManager = new NotificationTaskManager();
-$cronIntervalHours = (int) $taskManager->getTaskHours(strtolower($TYPE));
+$cronIntervalHours = $taskManager->getTaskHours(strtolower($TYPE));
 
 // Resolve the client for this channel. AppDispatch::getApiService()
 // constructs the vendor-specific client, which in turn runs the ACL

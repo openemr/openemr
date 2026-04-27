@@ -45,6 +45,15 @@
  * @copyright Copyright (c) 2018-2024 Jerry Padgett
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore CLI-bootstrap shim that exists solely to bridge the
+ *     global-namespace function dispatch in `BackgroundServiceRunner` to
+ *     the typed `BackgroundReminderTask`. It writes `$_GET['site']` /
+ *     `$_GET['type']` for downstream legacy code, opens the active
+ *     session, and requires `globals.php` — none of which is reachable
+ *     in an isolated test. The reminder pipeline below the bridge is
+ *     covered in `AppointmentNotificationRunnerTest`. Removing this
+ *     file is tracked in #11848.
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;

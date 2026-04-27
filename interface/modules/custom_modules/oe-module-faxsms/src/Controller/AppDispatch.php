@@ -153,7 +153,7 @@ abstract class AppDispatch
      * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession(string $param = null, mixed $default = null): mixed
+    public function getSession(?string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $this->_session->get($param) ?? $default;

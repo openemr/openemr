@@ -25,6 +25,15 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore Thin bridge: resolves the channel client through
+ *     `AppDispatch::getApiService()` (DB-backed), narrows credentials,
+ *     and constructs the runner. Each step pulls in live module
+ *     bootstrap state that an isolated test cannot supply. The
+ *     scan-and-send pipeline below this bridge is covered in
+ *     `AppointmentNotificationRunnerTest`. The follow-up issue #11848
+ *     proposes replacing this class with a PSR-11-resolved job, at
+ *     which point the bridge itself goes away.
  */
 
 declare(strict_types=1);
@@ -81,7 +90,7 @@ final class BackgroundReminderTask
         $vendor = AppDispatch::getModuleVendor();
         $gatewayType = is_string($vendor) ? $vendor : '';
 
-        $cronIntervalHours = (int) (new NotificationTaskManager())->getTaskHours(strtolower($channel->value));
+        $cronIntervalHours = (new NotificationTaskManager())->getTaskHours(strtolower($channel->value));
 
         // The background path never runs in dry-run mode; live delivery
         // is the whole point of the scheduled task. Keep bTestRun in

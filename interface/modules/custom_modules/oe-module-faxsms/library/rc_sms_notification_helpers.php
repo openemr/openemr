@@ -28,6 +28,14 @@
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore Procedural global-namespace SQL helpers loaded via
+ *     require_once from two entry points. Every function here either
+ *     issues raw SQL (notification_log inserts, calendar updates) or
+ *     reads `OEGlobalsBag` state set by those entry points. Exercising
+ *     them in isolation requires a real database; the orchestrator that
+ *     calls them (`AppointmentNotificationRunner`) is covered separately
+ *     in `tests/Tests/Isolated/Modules/FaxSMS/Notification/`.
  */
 
 use OpenEMR\Common\Database\QueryUtils;
