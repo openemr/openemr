@@ -20,8 +20,10 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $returnurl = 'encounter_top.php';
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
     <?php Header::setupHeader(); ?>
@@ -32,13 +34,13 @@ require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_bronchitis", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/bronchitis/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Bronchitis Form'); ?></span><br /><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
@@ -511,7 +513,7 @@ attr($obj["diagnosis4_bronchitis_form"]);?>" size="40"><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?> ]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?> ]</a>
 
 </form>

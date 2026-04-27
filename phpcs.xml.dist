@@ -24,6 +24,10 @@
   <!-- Indenting -->
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+    <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile"/>
+    <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines"/>
+  </rule>
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
       <property name="ignoreIndentationTokens" type="array">
@@ -40,17 +44,18 @@
   -->
 
   <!-- Use statement rules -->
+  <rule ref="PSR12.Files.FileHeader" />
+  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
     <properties>
       <property name="searchAnnotations" value="true" />
     </properties>
   </rule>
   <!-- To add later
-  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
   <rule ref="SlevomatCodingStandard.Namespaces.MultipleUsesPerLine" />
   <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
   <rule ref="SlevomatCodingStandard.Namespaces.UseFromSameNamespace" />
-  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   -->
 
   <!-- Default scan target (overridden when paths passed on CLI) -->
@@ -61,5 +66,6 @@
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
   <exclude-pattern>/tmp-phpstan/*</exclude-pattern>
+  <exclude-pattern>/.phpstan/baseline/*</exclude-pattern>
   <exclude-pattern>/vendor/*</exclude-pattern>
 </ruleset>

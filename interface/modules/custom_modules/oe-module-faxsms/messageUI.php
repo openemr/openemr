@@ -16,28 +16,31 @@
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
-$assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
+$assetBase = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
 $serviceEnum = ServiceType::fromValue($service);
 $title = $serviceEnum->getTranslatedDisplayName();
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
+$site_id = $session->get('site_id');
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/utif2/UTIF.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -47,7 +50,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
     echo ServiceType::renderJsConstants();
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.js"></script>
 
     <script>
         $(function () {
@@ -56,7 +59,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 $datetimepicker_timepicker = false;
                 $datetimepicker_showseconds = false;
                 $datetimepicker_formatInput = false;
-                require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
             let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -851,12 +854,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                                 <?php if ($serviceType == 'sms') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                                 <?php } ?>
                                 <?php if ($serviceType == 'email') { ?>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($site_id) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
                                 <?php } ?>
                                 <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                             </div>

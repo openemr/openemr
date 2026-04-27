@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\ConditionService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ConditionService;
 
 #[OA\Schema(
     schema: 'api_medical_problem_request',

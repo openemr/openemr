@@ -19,6 +19,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -393,10 +394,9 @@ function endFacility(): void
     CloseTag('IMS_eMRUpload_Point');
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($form_submit)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];
@@ -645,7 +645,7 @@ if ($selmonth < 1) {
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table style='width:30em'>
  <tr>

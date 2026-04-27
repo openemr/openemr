@@ -85,7 +85,7 @@ function edih_user_notes()
     } elseif (isset($_POST['notes_hidden']) && isset($_POST['txtnotes'])) {
         $putnt = filter_input(INPUT_POST, 'putnotes', FILTER_DEFAULT);
         if ($putnt == 'yes') {
-            $notetext = trim($_POST['txtnotes']);
+            $notetext = trim((string) $_POST['txtnotes']);
             $filtered = filter_var($notetext, FILTER_DEFAULT);
             //echo $filtered .PHP_EOL;
             $str_html = csv_notes_file($filtered, false);

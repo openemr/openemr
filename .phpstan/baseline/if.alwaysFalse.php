@@ -68,8 +68,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/welcome.php',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
@@ -165,11 +165,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',

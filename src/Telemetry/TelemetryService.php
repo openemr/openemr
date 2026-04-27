@@ -10,12 +10,13 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
-use OpenEMR\Services\VersionServiceInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Services\VersionServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides telemetry reporting functionality.
@@ -29,18 +30,21 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
+    protected LoggerInterface $logger;
+
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository     $repository
-     * @param ?VersionServiceInterface $versionService
+     * @param TelemetryRepository     $repository
+     * @param VersionServiceInterface $versionService
      * @param ?LoggerInterface         $logger
      */
     public function __construct(
-        protected ?TelemetryRepository $repository = new TelemetryRepository(),
-        protected ?VersionServiceInterface $versionService = new VersionService(),
-        protected ?LoggerInterface $logger = new SystemLogger(),
+        protected TelemetryRepository $repository = new TelemetryRepository(),
+        protected VersionServiceInterface $versionService = new VersionService(),
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -168,7 +172,7 @@ class TelemetryService
         $interval = date("Ym", strtotime("-33 Days"));
 
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
-        $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
+        $time_zone = $timeZoneResult['zone'] ?? OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
         $populationData = $this->repository->fetchSitePopulationData();
@@ -176,7 +180,7 @@ class TelemetryService
         $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
-            'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
+            'portal_enabled' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
         ];
 
         $localeData = [
@@ -186,7 +190,7 @@ class TelemetryService
             'location' => json_encode($serverGeoData),
             'time_zone' => $time_zone,
             'locale' => locale_get_default(),
-            'version' => $this->versionService->asString(),
+            'version' => (string) $this->versionService->getSoftwareVersion(),
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
@@ -241,7 +245,8 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
+        $normalized = ($webRoot !== '') ? preg_replace('#^(' . preg_quote($webRoot, '#') . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 
@@ -280,7 +285,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

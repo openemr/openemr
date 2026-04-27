@@ -21,10 +21,11 @@ require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/report_database.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 /**
@@ -65,7 +66,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  */
 function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -175,7 +176,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
-        if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
+        if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -185,9 +186,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
-    if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
+    if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $session->get('authUserID'));
-        if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
+        if (!empty($new_targets) && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_new_crp')) {
             $message = xl('New Due Clinical Reminders') . "\n\n";
 
             // coached claude sonnet 4.5 to rework
@@ -222,7 +223,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
  */
 function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '', $test = false)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -271,7 +272,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due and $test is FALSE
-        if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
+        if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -279,7 +280,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
-    if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
+    if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $session->get('authUserID'));
         if (!empty($new_targets)) {
             $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
@@ -307,7 +308,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
  */
 function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Collect allergies
     $sqlParam = [];
     $sqlParam[] = $patient_id;
@@ -364,7 +365,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = [];
-    if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test === false)) {
+    if ((!empty($conflicts_unique)) && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log') && ($test === false)) {
         $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $session->get('authUserID'), $mode);
     }
 
@@ -398,7 +399,8 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
 {
 
     if (empty($userid)) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     if (empty($current_targets)) {
@@ -525,7 +527,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
 
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_batch_method()",
         ['totalNumPatients' => $totalNumPatients, 'totalNumberBatches' => $totalNumberBatches]
     );
@@ -563,19 +565,19 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
 
   // Set ability to itemize report if this feature is turned on
     if (
-        ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
-        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && ($GLOBALS['report_itemizing_cqm'])      ) ||
-        ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
+        ( ($type == "active_alert" || $type == "passive_alert")          && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_standard')) ) ||
+        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_cqm'))      ) ||
+        ( (CertificationReportTypes::isAMCReportType($type)) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_amc'))      )
     ) {
-        $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
+        OEGlobalsBag::getInstance()->set('report_itemizing_temp_flag_and_id', $report_id);
     } else {
-        $GLOBALS['report_itemizing_temp_flag_and_id'] = 0;
+        OEGlobalsBag::getInstance()->set('report_itemizing_temp_flag_and_id', 0);
     }
 
     for ($i = 0; $i < $totalNumberBatches; $i++) {
         // If itemization is turned on, then reset the rule id iterator
-        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $GLOBALS['report_itemized_test_id_iterator'] = 1;
+        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+            OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', 1);
         }
 
         $dataSheet_batch = test_rules_clinic($provider, $type, $dateTarget, $mode, '', $plan, $organize_mode, $options_modified, $pat_prov_rel, (($batchSize * $i) + 1), $batchSize);
@@ -678,7 +680,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  */
 function test_rules_clinic_group_calculation($type = '', array $dateArray = [], $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_group_calculation()",
         array_combine(
             ['type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
@@ -716,7 +718,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
             $options['billing_facility_id'] = $frow['id'];
             $patientData = buildPatientArray($patient_id, 'group_calculation', $pat_prov_rel, $start, $batchSize, false, $frow['id']);
 
-            (new SystemLogger())->debug(
+            ServiceContainer::getLogger()->debug(
                 "test_rules_clinic_group_calculation() patientIds retrieved for facility",
                 ['facilityId' => $frow['id'], 'patientData' => $patientData]
             );
@@ -734,7 +736,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
                     if (!empty($tempResults)) {
                         $results = array_merge($results, $tempResults);
                     }
-                    (new SystemLogger())->debug(
+                    ServiceContainer::getLogger()->debug(
                         "test_rules_clinic_group_calculation() results returned for facility",
                         ['facilityId' => $frow['id'], 'results' => $tempResults]
                     );
@@ -1024,8 +1026,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
         if ((count($targetGroups) == 1) || ($mode == "report")) {
             // If report itemization is turned on, then iterate the rule id iterator
-            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                $GLOBALS['report_itemized_test_id_iterator']++;
+            if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
             }
 
             //skip this section if not report and more than one target group
@@ -1044,7 +1046,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                 $dateCounter = 1; // for reminder mode to keep track of which date checking
                 // If report itemization is turned on, reset flag.
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                     $temp_track_pass = 1;
                 }
 
@@ -1094,7 +1096,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     // increment pass filter counter
                     $pass_filter++;
                     // If report itemization is turned on, trigger flag.
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                         $temp_track_pass = 0;
                     }
 
@@ -1134,8 +1136,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             // increment pass target counter (used for reporting)
                             $pass_target++;
                             // If report itemization is turned on, then record the "passed" item and set the flag
-                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                            if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                                insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 1, $rowPatient['pid']);
                                 $temp_track_pass = 1;
                             }
 
@@ -1179,8 +1181,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 }
 
                 // If report itemization is turned on, then record the "failed" item if it did not pass
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
-                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) && !($temp_track_pass)) {
+                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 0, $rowPatient['pid']);
                 }
             }
         }
@@ -1192,8 +1194,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             $newRow = array_merge($newRow, $rowRule);
 
             // If itemization is turned on, then record the itemized_test_id
-            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $newRow = array_merge($newRow, ['itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']]);
+            if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                $newRow = array_merge($newRow, ['itemized_test_id' => OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator')]);
             }
 
             $results[] = $newRow;
@@ -1203,8 +1205,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         if (count($targetGroups) > 1) {
             foreach ($targetGroups as $i) {
                 // If report itemization is turned on, then iterate the rule id iterator
-                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                    $GLOBALS['report_itemized_test_id_iterator']++;
+                if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
+                    OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
                 }
 
                 //Reset the target counter
@@ -1222,7 +1224,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     $dateCounter = 1; // for reminder mode to keep track of which date checking
                     // If report itemization is turned on, reset flag.
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                         $temp_track_pass = 1;
                     }
 
@@ -1240,7 +1242,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     if ($passFilter) {
                         // If report itemization is turned on, trigger flag.
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                        if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'))) {
                             $temp_track_pass = 0;
                         }
 
@@ -1267,8 +1269,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 // increment pass target counter (used for reporting)
                                 $pass_target++;
                                 // If report itemization is turned on, then record the "passed" item and set the flag
-                                if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
-                                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id') ?? null) {
+                                    insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 1, $rowPatient['pid']);
                                     $temp_track_pass = 1;
                                 }
 
@@ -1312,8 +1314,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
 
                     // If report itemization is turned on, then record the "failed" item if it did not pass
-                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
-                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
+                    if (!empty(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) && !($temp_track_pass)) {
+                        insertItemReportTracker(OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'), OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'), 0, $rowPatient['pid']);
                     }
                 }
 
@@ -1331,8 +1333,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $newRow = ['is_sub' => true, 'action_category' => $action['category'], 'action_item' => $action['item'], 'total_patients' => '', 'excluded' => '', 'pass_filter' => '', 'pass_target' => $pass_target, 'percentage' => $percentage];
 
                         // If itemization is turned on, then record the itemized_test_id
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                            $newRow = array_merge($newRow, ['itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']]);
+                        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+                            $newRow = array_merge($newRow, ['itemized_test_id' => OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator')]);
                         }
 
                         $results[] = $newRow;
@@ -1360,7 +1362,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  */
 function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
-    (new SystemLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "buildPatientArray()",
         ['patient_id' => $patient_id, 'provider' => $provider, 'pat_prov_rel' => $pat_prov_rel, 'start' => $start
         ,
@@ -2121,7 +2123,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "`= ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_plans` SET " . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "= ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$plan,$patient_id]);
 }
 
@@ -2288,7 +2290,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_rules` SET " . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$patient_rule_original['access_control'],$rule,$patient_id]);
 }
 
@@ -2717,7 +2719,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
     if (empty($column)) {
         // simple search for any table entries
         $sql = sqlStatementCdrEngine("SELECT * " .
-            "FROM `" . escape_table_name($table)  . "` " .
+            "FROM " . escape_table_name($table)  . " " .
             " " . $whereTables . " " .
             "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, [$patient_id]);
     } else {
@@ -2733,12 +2735,12 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
             $sql = sqlStatementCdrEngine(
-                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                "SELECT b." . escape_sql_column_name($column, [$table]) . " " .
                 "FROM forms a " .
-                "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
+                "LEFT JOIN " . escape_table_name($table) . " " . " b " .
                 "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
                 "WHERE a.deleted != '1' " .
-                "AND b.`" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "AND b." . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 [$data, $patient_id]
@@ -2751,10 +2753,10 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             }
 
             // search for number of specific items
-            $sql = sqlStatementCdrEngine("SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
-                "FROM `" . escape_table_name($table) . "` " .
+            $sql = sqlStatementCdrEngine("SELECT " . escape_sql_column_name($column, [$table]) . " " .
+                "FROM " . escape_table_name($table) . " " .
                 " " . $whereTables . " " .
-                "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "WHERE " . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
                 $dateSql, [$data, $patient_id]);
         }
@@ -2899,7 +2901,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 
     // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `result` " .
-        "FROM `" . escape_table_name($table)  . "` " .
+        "FROM " . escape_table_name($table)  . " " .
         "WHERE `category`=? " .
         "AND `item`=? " .
         "AND `complete`=? " .

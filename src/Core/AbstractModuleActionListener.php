@@ -22,7 +22,7 @@
  * Do not declare a namespace in class extending this abstract class.
  * If you want Laminas manager to set namespace, set it in getModuleNamespace
  * otherwise use below at top of class to register namespace.
- * $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
+ * $classLoader = new \OpenEMR\Core\ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
  * $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\PortalPlugins\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
  * */
 
@@ -40,7 +40,6 @@ abstract class AbstractModuleActionListener
     private $_post;
     private $_server;
     private $_cookies;
-    private $_session;
 
     public function __construct()
     {
@@ -49,7 +48,6 @@ abstract class AbstractModuleActionListener
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = &$_SESSION;
     }
 
     /**

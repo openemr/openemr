@@ -23,7 +23,9 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Procedure Statistics Report", xl("Procedure Statistics Report"));
@@ -36,6 +38,7 @@ $form_show     = $_POST['form_show'] ?? null;   // this is an array
 $form_facility = $_POST['form_facility'] ?? '';
 $form_sexes    = $_POST['form_sexes'] ?? '3';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (empty($form_by)) {
     $form_by = '4';
@@ -281,7 +284,7 @@ $(function () {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -296,7 +299,7 @@ $(function () {
 <h2><?php echo text($report_title); ?></h2>
 
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div class="col-8 col-md-8">
     <div class="row">
@@ -409,9 +412,7 @@ $(function () {
 } // end not export
 
 if (!empty($_POST['form_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {

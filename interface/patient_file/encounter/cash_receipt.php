@@ -21,14 +21,14 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Filesystem\SafeIncludeResolver;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $N = 6;
 $first_issue = 1;
@@ -46,7 +46,7 @@ $titleres = getPatientData($pid, "fname,lname,providerID");
 $sql = "select f.* from facility f " .
     "LEFT JOIN form_encounter fe on fe.facility_id = f.id " .
     "where fe.encounter = ?";
-$db = $GLOBALS['adodb']['db'];
+$db = OEGlobalsBag::getInstance()->get('adodb')['db'];
 $results = $db->Execute($sql, [$encounter]);
 $facility = [];
 if (!$results->EOF) {
@@ -83,9 +83,20 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  //print "Provider: " . $provider  . "<br />";
 
+ $formsBaseDir = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms";
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
-    include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
+    $formDir = $result["formdir"];
+    if (!is_string($formDir) || !SafeIncludeResolver::isSafePathComponent($formDir)) {
+        continue;
+    }
+
+    $reportPath = SafeIncludeResolver::resolve($formsBaseDir, $formDir . "/report.php");
+    if ($reportPath === false) {
+        continue;
+    }
+
+    include_once($reportPath);
 }
 
  $printed = false;

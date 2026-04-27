@@ -129,4 +129,26 @@ class ServiceContainerTest extends TestCase
 
         ServiceContainer::override(LoggerInterface::class, new \stdClass());
     }
+
+    public function testGetterReturnsSameInstanceOnRepeatedCalls(): void
+    {
+        ServiceContainer::reset();
+
+        $first = ServiceContainer::getClock();
+        $second = ServiceContainer::getClock();
+
+        self::assertSame($first, $second);
+        ServiceContainer::reset();
+    }
+
+    public function testResetClearsCachedInstances(): void
+    {
+        ServiceContainer::reset();
+
+        $before = ServiceContainer::getClock();
+        ServiceContainer::reset();
+        $after = ServiceContainer::getClock();
+
+        self::assertNotSame($before, $after);
+    }
 }

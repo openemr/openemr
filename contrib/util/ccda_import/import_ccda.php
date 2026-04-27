@@ -126,13 +126,16 @@ if ($seriousOptimizeFlag == "true") {
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
 outputMessage("CCDA Imports Location: " . $args['sourcePath']);
-outputMessage("Site: " . $_SESSION['site_id']);
+outputMessage("Site: " . $session->get('site_id'));
 
 if ($seriousOptimize) {
     outputMessage("Development Mode is ON (performance mode)\n");
@@ -181,7 +184,7 @@ foreach (glob($dir) as $file) {
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $session->get('site_id') . " --document=" . $file);
     } else {
         // development mode is off
         //  1. import ccda document
@@ -191,10 +194,10 @@ foreach (glob($dir) as $file) {
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
         //  2. import to ccda table
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId . " --auth_name=" . $authName);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $session->get('site_id') . " --document_id=" . $documentId . " --auth_name=" . $authName);
         $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
         //  3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $session->get('site_id') . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
     }
     try {
         if ($enableMoves) {

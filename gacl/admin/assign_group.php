@@ -1,15 +1,16 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
@@ -205,7 +206,7 @@ $smarty->assign('page_title', 'Assign Group - '. strtoupper($group_type));
 $smarty->assign('phpgacl_version', $gacl_api->get_version() );
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
 $smarty->display('phpgacl/assign_group.tpl');
 ?>

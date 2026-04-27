@@ -10,6 +10,9 @@
  // This program implements the XML Writer to generate PQRI 2009 XML.
 
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 class PQRIXml extends XmlWriterOemr
 {
     function __construct($indent = '  ')
@@ -32,8 +35,8 @@ class PQRIXml extends XmlWriterOemr
 
     function add_file_audit_data()
     {
-
-        $res = sqlQuery("select * from users where username=?", [$_SESSION["authUser"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $res = sqlQuery("select * from users where username=?", [$session->get('authUser')]);
 
 
         $this->push('file_audit_data');
@@ -50,8 +53,8 @@ class PQRIXml extends XmlWriterOemr
     {
 
         $this->push('registry');
-        $this->element('registry-name', $GLOBALS['pqri_registry_name']);
-        $this->element('registry-id', $GLOBALS['pqri_registry_id']);
+        $this->element('registry-name', OEGlobalsBag::getInstance()->getString('pqri_registry_name'));
+        $this->element('registry-id', OEGlobalsBag::getInstance()->getString('pqri_registry_id'));
         $this->element('submit-method', $submission_method);
         $this->pop();
     }

@@ -18,9 +18,12 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form:Lab Requisition");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 
@@ -29,7 +32,7 @@ $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $_SESSION['encounter'];
+$encounter = $session->get('encounter');
 
 $oid = fetchProcedureId($pid, $encounter);
 

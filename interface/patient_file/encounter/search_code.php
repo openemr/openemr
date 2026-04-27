@@ -16,8 +16,9 @@ require_once("../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //the maximum number of records to pull out with the search:
 $M = 30;
@@ -42,7 +43,7 @@ $code_type = $_GET['type'];
 <td class="align-top">
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type="hidden" name="mode" value="search" />
 
@@ -52,24 +53,20 @@ $code_type = $_GET['type'];
 
 <input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>' />
 <!-- TODO: Use BS4 classes here !-->
-<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     echo "<div id='resultsummary bg-success'>";
     echo "Enter search criteria above</div>";
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
   //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .
@@ -128,7 +125,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
                     // "&fee="      . attr_url($iter["fee"]) .
                     "&fee="      . attr_url($iter['pr_price']) .
                     "&text="     . attr_url($iter["code_text"]) .
-                    "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) .
+                    "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
                     "' onclick='top.restoreSession()'>";
                 echo ucwords("<b>" . text(strtoupper((string) $iter["code"])) . "&nbsp;" . text($iter['modifier']) .
                     "</b>" . " " . text(strtolower((string) $iter["code_text"])));

@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\FacilityValidator;
 use PHPUnit\Framework\TestCase;
 
 class FacilityValidatorTest extends TestCase

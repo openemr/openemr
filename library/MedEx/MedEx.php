@@ -39,7 +39,7 @@ header('Content-type: application/json');
 $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
 // Verify MedEx is enabled - return 404 to hide endpoint existence
-if (OEGlobalsBag::getInstance()->get('medex_enable') !== '1') {
+if (!OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
     exit;

@@ -29,13 +29,15 @@ require_once("$srcdir/payment.inc.php");
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;
 $from_posting = (0 + ($_REQUEST['isPosting'] ?? null)) ? 1 : 0;
-$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 if ($from_posting) {
     $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 } else {
@@ -221,7 +223,7 @@ $info_msg = "";
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -286,11 +288,10 @@ if (preg_match('/^Ins(\d)/i', ($_POST['form_insurance'] ?? ''), $matches)) {
     $payer_type = $matches[1];
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POST['isLastClosed']) || !empty($_POST['enc_billing_note'])) {
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         if ($debug) {
             echo "<p><b>" . xlt("This module is in test mode. The database will not be changed.") . "</b><p>\n";
@@ -456,7 +457,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
     </div>
     <div class="container-fluid">
         <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <input type="hidden" name="isLastClosed" value="" />
             <fieldset>

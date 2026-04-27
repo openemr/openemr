@@ -20,7 +20,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
@@ -28,6 +28,7 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -70,6 +71,7 @@ function era_payments_callback(array &$out): void
         $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //===============================================================================
 // Validate pending_eraname matches expected pattern (YYYYMMDD_controlnum_payerid)
 // to prevent path traversal. Only alphanumeric and underscores are allowed.
@@ -77,9 +79,7 @@ $validEraName = $pending_eraname !== '' && preg_match('/^[0-9]{8}_[0-9]+_[0-9]+$
 
 // Handle confirmed overwrite from pending upload
 if ($confirm_overwrite === 'yes' && $validEraName) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
     // basename() strips path components; realpath() resolves symlinks and verifies existence
     $safeName = basename($pending_eraname);
@@ -114,21 +114,37 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
 //===============================================================================
   // Handle X12 835 file upload.
 elseif (!empty($_FILES['form_erafile']['size'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
     if (!is_string($tmp_name)) {
         $alertmsg .= xl("Invalid file upload") . " ";
     } else {
-        // Handle .zip extension if present.  Probably won't work on Windows.
+        $shouldParseEra = true;
+        // Handle .zip extension if present.
         if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-            rename($tmp_name, "$tmp_name.zip");
-            exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
-            unlink("$tmp_name.zip");
+            $zip = new ZipArchive();
+            if ($zip->open($tmp_name) === true) {
+                $contents = $zip->getFromIndex(0);
+                $zip->close();
+                if ($contents === false) {
+                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                    $shouldParseEra = false;
+                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                    $shouldParseEra = false;
+                }
+            } else {
+                $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                $shouldParseEra = false;
+            }
         }
-        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_payments_callback');
+        if ($shouldParseEra) {
+            $parseResult = ParseERA::parseERA($tmp_name, 'era_payments_callback');
+            if (is_string($parseResult)) {
+                $alertmsg .= $parseResult;
+            }
+        }
 
         // Ensure the ERA directory exists
         $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
@@ -162,7 +178,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
-    <?php require_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
     function Validate()
     {
@@ -215,7 +231,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
              deposit_date: deposit_date,
              original: 'original',
              InsId: <?php echo js_escape($hidden_type_code); ?>,
-             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
          window.open('sl_eob_process.php?' + params.toString(), '_blank');
          return false;
@@ -229,7 +245,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
        });
     });
@@ -334,7 +350,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <div class="jumbotron py-4">
                             <div class="row h3">

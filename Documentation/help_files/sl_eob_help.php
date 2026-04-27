@@ -11,9 +11,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 require_once("../../interface/globals.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -159,7 +161,7 @@ require_once("../../interface/globals.php");
                     <span><strong>
                     <?php
                     $url = (!empty($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on')) ? 'https' : 'http';
-                    $url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/sites/" . $_SESSION['site_id'] . "/documents/era/";
+                    $url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/sites/" . $session->get('site_id') . "/documents/era/";
                     echo "$url";
                     ?>
                     </strong></span>

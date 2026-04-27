@@ -39,17 +39,17 @@
  */
 
 require_once("../../../../interface/globals.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VitalsService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
-
-$chartpath = $GLOBALS['fileroot'] . "/interface/forms/vitals/growthchart/";
+$chartpath = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/vitals/growthchart/";
 $name = "";
 $pid = $_GET['pid'];
 
@@ -61,7 +61,7 @@ if ($pid == "") {
 
 $vitalsService = new VitalsService();
 
-$isMetric = ((($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) ? true : false);
+$isMetric = (((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) || (OEGlobalsBag::getInstance()->get('units_of_measurement') == 4)) ? true : false);
 
 $patient_data = "";
 if (isset($pid) && is_numeric($pid)) {

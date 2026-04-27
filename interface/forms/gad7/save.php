@@ -17,10 +17,11 @@ require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -30,6 +31,9 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_gad7", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    $pid = $session->get('pid');
+    $authProvider = $session->get('authProvider');
+    $authUser = $session->get('authUser');
     sqlStatement(
         "update form_gad7 set pid = ?,
             groupname = ?,
@@ -46,15 +50,15 @@ if ($_GET["mode"] == "new") {
             difficulty=?
             where id=? ",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $pid,
+            $authProvider,
+            $authUser,
             $userauthorized,
             $_POST["nervous_score"],
             $_POST["control_worry_score"],
             $_POST["worry_score"],
             $_POST["relax_score"],
-             $_POST["restless_score"],
+            $_POST["restless_score"],
             $_POST["irritable_score"],
             $_POST["fear_score"],
             $_POST["difficulty"],

@@ -27,6 +27,7 @@ use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -497,7 +498,7 @@ function eob_process_era_callback(array &$out): void
                 // insert the service item into billing. Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
                 // Check the global to see if this is preferred to be an error.
-                if ($GLOBALS['add_unmatched_code_from_ins_co_era_to_billing'] ?? '') {
+                if (OEGlobalsBag::getInstance()->getBoolean('add_unmatched_code_from_ins_co_era_to_billing')) {
                     $description = "CPT4:$codekey Added by $inslabel $production_date";
                 } else {
                     $error = true;
@@ -734,10 +735,8 @@ function eob_process_era_callback(array &$out): void
 /////////////////////////// End Functions ////////////////////////////
 
 $info_msg = "";
-
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $eraname = $_REQUEST['eraname'];
 
@@ -813,7 +812,7 @@ if (!$debug) {
 </head>
 <body class='m-0'>
 <form action="sl_eob_process.php" method="get">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] === 'original') {

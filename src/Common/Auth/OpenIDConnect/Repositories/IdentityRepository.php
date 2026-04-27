@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
-use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 
 /**
  * @deprecated Use UserRepository instead.

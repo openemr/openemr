@@ -12,11 +12,11 @@
 
 namespace Carecoordination\Controller;
 
+use Carecoordination\Form\ModuleconfigForm;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterInterface;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Carecoordination\Form\ModuleconfigForm;
 
 class ModuleconfigController extends AbstractActionController
 {

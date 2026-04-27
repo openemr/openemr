@@ -1,10 +1,12 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -17,14 +19,12 @@ require_once('gacl_admin.inc.php');
 /** @var \ADOConnection $db */
 /** @var \Smarty $smarty */
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $getAction = $_GET['action'] ?? null;
 switch ($getAction) {
     case 'Delete':
 
-        //CSRF prevent
-        if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
         $gacl_api->debug_text('Delete!');
 
@@ -307,7 +307,7 @@ $smarty->assign('page_title', 'ACL List');
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
 $smarty->display('phpgacl/acl_list.tpl');
 ?>

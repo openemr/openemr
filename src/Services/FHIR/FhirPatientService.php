@@ -2,12 +2,16 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -22,10 +26,6 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -419,7 +419,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     private function parseOpenEMRRaceRecord(FHIRPatient $patientResource, $race)
     {
         $code = 'UNK';
-        $display = xlt("Unknown");
+        $display = xl("Unknown");
         $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
@@ -434,16 +434,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if ($race === 'decline_to_specify' || $race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
-                $display = xlt("Asked but no answer");
+                $display = xl("Asked but no answer");
             } elseif (!empty($record)) {
                 $code = $record['notes'];
-                $display = $record['title'];
+                $title = is_string($record['title']) ? $record['title'] : '';
+                // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                $display = xl($title);
                 $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
             }
         }
         $ombCategoryCoding->setSystem(new FHIRUri($system));
         $ombCategoryCoding->setCode($code);
-        $ombCategoryCoding->setDisplay(xlt($display));
+        $ombCategoryCoding->setDisplay($display);
         $ombCategory->setValueCoding($ombCategoryCoding);
         $raceExtension->addExtension($ombCategory);
 
@@ -531,6 +533,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
     protected function getCachedListOption($list_id, $option_id): ?array
     {
+        if ($option_id === null) {
+            return null;
+        }
         if (!isset($this->cachedListOptions[$list_id])) {
             $this->cachedListOptions[$list_id] = [];
         }
@@ -572,9 +577,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $language = new FHIRCoding();
             $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
-            $language->setDisplay(xlt($record['title']));
+            $languageTitle = is_string($record['title']) ? $record['title'] : '';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $translatedTitle = xl($languageTitle);
+            $language->setDisplay($translatedTitle);
             $languageConcept->addCoding($language);
-            $languageConcept->setText(xlt($record['title']));
+            $languageConcept->setText($translatedTitle);
             $communication->setLanguage($languageConcept);
             $patientResource->addCommunication($communication);
         }

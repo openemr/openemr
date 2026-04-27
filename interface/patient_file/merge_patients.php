@@ -19,14 +19,16 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -48,7 +50,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
     <script>
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         var el_pt_name;
         var el_pt_id;
@@ -287,7 +289,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
                 $session->get('authUser'),
@@ -335,7 +337,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         function resolveDuplicateEncounters($targets): void
         {
             global $PRODUCTION;
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
 
             $target_pid = $targets[0]['pid'];
             $target = $targets[0]['encounter'];
@@ -345,7 +346,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
-                $res = sqlStatement($sql, [$GLOBALS['adodb']['db']->database]);
+                $res = sqlStatement($sql, [OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -359,7 +360,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
                     if ($PRODUCTION) {
                         sqlStatement($sql, [$target, $source['encounter']]);
-                        if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                        if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                             echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                             logMergeEvent(
                                 $target_pid,
@@ -380,7 +381,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     sqlStatement($sql, [$source['encounter']]);
                     $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
                     sqlStatement($sql, [$source['encounter']]);
-                    if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                    if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                         echo "<br />$sql" . text($source['encounter']);
                         logMergeEvent(
                             $target_pid,
@@ -393,9 +394,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
@@ -443,10 +442,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 if ($tprow['ss'] != $sprow['ss']) {
                     die(xlt('Target and source SSN do not match'));
                 }
-                if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($tprow['DOB'])) {
                     die(xlt('Target patient has no DOB'));
                 }
-                if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($sprow['DOB'])) {
                     die(xlt('Source patient has no DOB'));
                 }
                 if ($tprow['DOB'] != $sprow['DOB']) {
@@ -476,13 +475,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             }
 
             // Move scanned encounter documents and delete their container.
+            // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+            // PIDs are sanitized via intval() (line 400-401) and check_file_dir_name() (line 456-457)
             if (is_dir($sencdir)) {
                 if ($PRODUCTION && !file_exists($tdocdir)) {
                     mkdir($tdocdir);
                 }
 
-                if ($PRODUCTION && !file_exists($tencdir)) {
-                    mkdir($tencdir);
+                if ($PRODUCTION && !file_exists($tencdir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                    mkdir($tencdir); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                 }
 
                 $dh = opendir($sencdir);
@@ -498,8 +499,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     if ($sfname == 'index.html') {
                         echo "<br />" . xlt('Deleting') . " " . text($sencdir) . "/"
                             . text($sfname);
-                        if ($PRODUCTION) {
-                            if (!unlink("$sencdir/$sfname")) {
+                        if ($PRODUCTION) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                            if (!unlink("$sencdir/$sfname")) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                                 die("<br />" . xlt('Delete failed!'));
                             }
                         }
@@ -545,7 +546,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     // Don't mess with log data.
                 } else {
                     $crow = sqlQuery(
-                        "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                        "SHOW COLUMNS FROM " . escape_table_name($tblname) . " WHERE " .
                         "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                     );
                     if (!empty($crow['Field'])) {
@@ -606,7 +607,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         <p>
         </p>
         <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="table-responsive">
                 <table class="table w-100">
                     <tr>

@@ -12,7 +12,7 @@ readonly -A WEBSERVER_OPENEMR_DIRS=(
 # to build configurations for tests in GitHub Actions
 parse() {
   local docker_dir="${1}"
-  local node_version=22
+  local node_version
   local database
   local db
   local webserver
@@ -21,20 +21,30 @@ parse() {
   local webserver_template
   local database_template
   local mailpit_template
+  local redis_sentinel_template
+  local redis_sentinel_enabled
+  local mysql_image
 
   # Parse docker directory name
   mysql_image=$(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
+  # Strip any @sha256:... digest suffix before splitting on ':'
+  mysql_image="${mysql_image%%@*}"
   IFS=: read -r database db <<< "${mysql_image}"
   IFS=_ read -r webserver php _ <<< "${docker_dir}"
 
   # Format PHP version
   printf -v php '%d.%d' "${php::1}" "${php:1}"
 
+  # Collect node version from docker-compose.yml
+  node_version=$(yq '.x-includes."node-version"' "ci/${docker_dir}/docker-compose.yml")
+
   # Collect docker-compose.yml templates
   selenium_template=$(yq '.x-includes.selenium-template' "ci/${docker_dir}/docker-compose.yml")
   webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
   database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
   mailpit_template=$(yq '.x-includes.mailpit-template' "ci/${docker_dir}/docker-compose.yml")
+  redis_sentinel_template=$(yq '.x-includes."redis-sentinel-template" // ""' "ci/${docker_dir}/docker-compose.yml")
+  [[ -n "${redis_sentinel_template}" ]] && redis_sentinel_enabled=true || redis_sentinel_enabled=false
 
   # Check if docker_dir ends with "_no-e2e"
   [[ ${docker_dir} = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
@@ -71,8 +81,13 @@ parse() {
     save_node_cache=false
   fi
 
-  # Compose file path (first entry needs to be in ci/ if it has a subdirectory then it breaks things)
-  compose_file="ci/${webserver_template}:ci/${database_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
+  # Compose file path (first entry must be directly in ci/, not a subdirectory,
+  # because Docker Compose resolves all relative paths from the first file's directory)
+  if [[ -n "${redis_sentinel_template}" ]]; then
+    compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${redis_sentinel_template}:ci/${docker_dir}/docker-compose.yml"
+  else
+    compose_file="ci/${database_template}:ci/${webserver_template}:ci/${selenium_template}:ci/${mailpit_template}:ci/${docker_dir}/docker-compose.yml"
+  fi
 
   jq -cn \
     --arg compose_file "${compose_file}" \
@@ -85,6 +100,8 @@ parse() {
     --arg mailpit_template "${mailpit_template}" \
     --arg node_version "${node_version}" \
     --arg php "${php}" \
+    --arg redis_sentinel_enabled "${redis_sentinel_enabled}" \
+    --arg redis_sentinel_template "${redis_sentinel_template}" \
     --arg save_composer_cache "${save_composer_cache}" \
     --arg save_node_cache "${save_node_cache}" \
     --arg selenium_template "${selenium_template}" \
@@ -106,6 +123,8 @@ parse() {
         node_version: $node_version,
         openemr_dir: $openemr_dir,
         php: $php,
+        redis_sentinel_enabled: $redis_sentinel_enabled,
+        redis_sentinel_template: $redis_sentinel_template,
         save_composer_cache: $save_composer_cache,
         save_node_cache: $save_node_cache,
         selenium_template: $selenium_template,

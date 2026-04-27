@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Doctrine Migrations config file
  *
@@ -12,9 +10,11 @@ declare(strict_types=1);
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 return [
     'custom_template' => 'db/migration-template.php.tpl',

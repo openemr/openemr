@@ -10,7 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -25,11 +27,10 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -41,7 +42,7 @@ if ($_GET["mode"] == "new") {
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
     $formid = $_GET["id"];
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
@@ -180,9 +181,9 @@ totalscore=? ,
 additional_notes=?
 WHERE id=?",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"] ?? null,
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["education"] ?? null),
         ($_POST["disability"] ?? null),

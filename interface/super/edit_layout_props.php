@@ -17,7 +17,9 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Gacl\GaclApi;
 
 $alertmsg = "";
@@ -42,7 +44,7 @@ td { font-size:10pt; }
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -98,10 +100,9 @@ function get_related() {
 <body class="body_top">
 
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_submit']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($group_id) {
         $sets =
@@ -244,7 +245,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <table class='w-100 border-0'>
@@ -390,14 +391,15 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     $itres = sqlStatement(
         "SELECT type, singular FROM issue_types " .
         "WHERE category = ? AND active = 1 ORDER BY singular",
-        [$GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default']
+        [OEGlobalsBag::getInstance()->get('ippf_specific') ? 'ippf_specific' : 'default']
     );
     while ($itrow = sqlFetchArray($itres)) {
+        $singularStr = is_string($itrow['singular'] ?? null) ? $itrow['singular'] : '';
         echo "<option value='" . attr($itrow['type']) . "'";
         if ($itrow['type'] == $row['grp_issue_type']) {
             echo " selected";
         }
-        echo ">" . xlt($itrow['singular']) . "</option>\n";
+        echo ">" . text(xl_list_label($singularStr)) . "</option>\n";
     }
     ?>
    </select>
@@ -421,17 +423,28 @@ for ($cols = 2; $cols <= 12; ++$cols) {
             continue;
         }
         asort($list_aco_objects[$seckey]);
+        // get_section_data() and get_object_data() in src/Gacl/GaclApi.php
+        // are docblocked as returning array but can actually return false
+        // on a missing row. The is_array() guard below keeps the offset
+        // access safe at runtime; PHPStan marks it "always true" because
+        // it trusts the (wrong) docblock, so we ignore that specific rule.
         $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-        $aco_section_title = $aco_section_data[3];
+        $aco_section_title = is_array($aco_section_data) && is_string($aco_section_data[3] ?? null) /* @phpstan-ignore function.alreadyNarrowedType */
+            ? $aco_section_data[3]
+            : '';
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
         foreach ($list_aco_objects[$seckey] as $acokey) {
             $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-            $aco_title = $aco_data[0][3];
+            $aco_title = is_array($aco_data) && is_array($aco_data[0] ?? null) && is_string($aco_data[0][3] ?? null) /* @phpstan-ignore function.alreadyNarrowedType */
+                ? $aco_data[0][3]
+                : '';
             echo "  <option value='" . attr("$seckey|$acokey") . "'";
             if ("$seckey|$acokey" == $row['grp_aco_spec']) {
                 echo " selected";
             }
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo ">" . xlt($aco_title) . "</option>\n";
         }
         echo " </optgroup>\n";

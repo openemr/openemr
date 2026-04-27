@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
@@ -284,6 +286,8 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
  */
 function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     if (empty($processedIds)) {
         // Mark all as deleted
         sqlStatement(
@@ -292,13 +296,13 @@ function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
              WHERE procedure_order_id = ?
                AND procedure_order_seq = ?
                AND deleted = 0",
-            [($_SESSION['authUserID'] ?? null), $formid, $order_seq]
+            [$authUserID, $formid, $order_seq]
         );
         return;
     }
 
     $placeholders = implode(',', array_fill(0, count($processedIds), '?'));
-    $params = array_merge([($_SESSION['authUserID'] ?? null), $formid, $order_seq], $processedIds);
+    $params = array_merge([$authUserID, $formid, $order_seq], $processedIds);
 
     sqlStatement(
         "UPDATE procedure_specimen
@@ -437,6 +441,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
 
     $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     return sqlInsert(
         "INSERT INTO procedure_specimen SET
          uuid = ?,
@@ -480,8 +486,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
-            ($_SESSION['authUserID'] ?? null)
+            $authUserID,
+            $authUserID
         ]
     );
 }
@@ -495,6 +501,7 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
  */
 function updateProcedureSpecimen($specimenId, $data): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     sqlStatement(
         "UPDATE procedure_specimen SET
          specimen_identifier = ?,
@@ -532,7 +539,7 @@ function updateProcedureSpecimen($specimenId, $data): void
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
+            $session->get('authUserID'),
             $specimenId
         ]
     );
@@ -628,27 +635,32 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
         }
 
         foreach ($data as $datum) {
-            sqlBeginTrans();
-            $answer_seq = sqlQuery(
-                "SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment
-                 FROM procedure_answers
-                 WHERE procedure_order_id = ?
-                   AND procedure_order_seq = ?
-                   AND question_code = ?",
-                [$formid, $poseq, $qcode]
-            );
+            QueryUtils::inTransaction(function () use ($formid, $poseq, $qcode, $datum, $pcode): void {
+                $answerSeq = QueryUtils::fetchSingleValue(
+                    <<<'SQL'
+                    SELECT IFNULL(MAX(answer_seq), 0) + 1 AS increment
+                    FROM procedure_answers
+                    WHERE procedure_order_id = ?
+                      AND procedure_order_seq = ?
+                      AND question_code = ?
+                    SQL,
+                    'increment',
+                    [$formid, $poseq, $qcode]
+                );
 
-            sqlStatement(
-                "INSERT INTO procedure_answers SET
-                 procedure_order_id = ?,
-                 procedure_order_seq = ?,
-                 question_code = ?,
-                 answer_seq = ?,
-                 answer = ?,
-                 procedure_code = ?",
-                [$formid, $poseq, $qcode, $answer_seq['increment'], trim((string) $datum), $pcode]
-            );
-            sqlCommitTrans();
+                QueryUtils::sqlStatementThrowException(
+                    <<<'SQL'
+                    INSERT INTO procedure_answers SET
+                        procedure_order_id = ?,
+                        procedure_order_seq = ?,
+                        question_code = ?,
+                        answer_seq = ?,
+                        answer = ?,
+                        procedure_code = ?
+                    SQL,
+                    [$formid, $poseq, $qcode, $answerSeq, trim((string) $datum), $pcode]
+                );
+            });
         }
     }
 }

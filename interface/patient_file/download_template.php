@@ -18,15 +18,17 @@
 
 /* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $nextLocation = 0;      // offset to resume scanning
 $keyLocation  = false;  // offset of a potential {string} to replace
@@ -91,7 +93,7 @@ function getIssues($type)
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
-    "ORDER BY begdate", [$GLOBALS['pid'], $type]);
+    "ORDER BY begdate", [OEGlobalsBag::getInstance()->get('pid'), $type]);
     while ($lrow = sqlFetchArray($lres)) {
         if ($tmp) {
             $tmp .= '; ';
@@ -354,7 +356,7 @@ $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.
-$fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$fname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $default_mimetype = 'application/octet-stream';
@@ -393,13 +395,13 @@ if ($ext != 'dotx') {
 $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+    $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
 }
 
 // Create a temporary file to hold the template.
-$dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$dname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 file_put_contents($dname, $fileData);
 
 $zipin = new ZipArchive();

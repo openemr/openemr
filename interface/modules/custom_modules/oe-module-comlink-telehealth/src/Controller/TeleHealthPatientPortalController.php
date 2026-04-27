@@ -15,9 +15,9 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
+use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\AppointmentService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Environment;
 

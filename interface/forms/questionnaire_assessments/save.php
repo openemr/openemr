@@ -33,11 +33,9 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $formid = $_GET["form_id"] ?? 0;
 $mode = $_GET["mode"] ?? '';

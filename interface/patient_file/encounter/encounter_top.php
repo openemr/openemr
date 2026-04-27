@@ -17,11 +17,11 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Tabs\TabsWrapper;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.

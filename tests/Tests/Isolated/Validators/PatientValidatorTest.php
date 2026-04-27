@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 

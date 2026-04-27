@@ -26,14 +26,13 @@
 
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 // Landing page definition -- where to go if something goes wrong
 // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
@@ -48,10 +47,10 @@ if (!isset($skipLandingPageError)) {
 //
 
 // kick out if patient not authenticated
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     if ($skipLandingPageError === true) {
         header('Location: ' . $landingpage);
     } else {

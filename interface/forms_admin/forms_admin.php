@@ -13,30 +13,28 @@ require_once("../globals.php");
 require_once("$srcdir/registry.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('admin', 'forms')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/forms: Forms Administration", xl("Forms Administration"));
 }
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     updateRegistered($_GET['id'], "state=1");
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "disable")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     updateRegistered($_GET['id'], "state=0");
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "install_db")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $dir = getRegistryEntry($_GET['id'], "directory");
     if (installSQL("$srcdir/../interface/forms/{$dir['directory']}")) {
         updateRegistered($_GET['id'], "sql_run=1");
@@ -44,9 +42,7 @@ if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
         $err = xl('ERROR: could not open table.sql, broken form?');
     }
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "register")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $newRegisteredFormId = registerForm($_GET['name']) or $err = xl('error while registering form!');
     if (empty($err)) {
         // below block of code will insert the patient portal template (if it has not yet already been added) if the
@@ -78,9 +74,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
            <div class="col-12 mt-3">
            <?php
             if (!empty($_POST)) {
-                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-                    CsrfUtils::csrfNotVerified();
-                }
+                CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
                 foreach ($_POST as $key => $val) {
                     if (preg_match('/nickname_(\d+)/', (string) $key, $matches)) {
                         sqlQuery("update registry set nickname = ? where id = ?", [$val, $matches[1]]);
@@ -107,7 +101,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 <span class="font-italic">
                     <?php echo xlt('click here to update priority, category, nickname and access control settings'); ?>
                 </span>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input class="btn btn-primary" type='submit' name='update' value='<?php echo xla('Save'); ?>'>
 
                 <div class="table-responsive mt-3">
@@ -128,7 +122,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
                                     [$registry['id']]
                                 );
-                                $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
+                                $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
                             <tr>
                                 <td>
@@ -144,9 +138,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 if ($registry['sql_run'] == 0) {
                                     echo "<td><span class='text'>" . xlt('registered') . "</span>";
                                 } elseif ($registry['state'] == "0") {
-                                    echo "<td><a class='link_submit text-danger' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
+                                    echo "<td><a class='link_submit text-danger' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('disabled') . "</a>";
                                 } else {
-                                    echo "<td><a class='link_submit text-success' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('enabled') . "</a>";
+                                    echo "<td><a class='link_submit text-success' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('enabled') . "</a>";
                                 }
                                 ?>
                                 </td>
@@ -165,7 +159,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     if ($registry['sql_run']) {
                                         echo "<span class='text'>" . xlt('DB installed') . "</span>";
                                     } else {
-                                        echo "<a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=install_db&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('install DB') . "</a>";
+                                        echo "<a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=install_db&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('install DB') . "</a>";
                                     }
                                     ?>
                                 </td>
@@ -226,9 +220,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                    $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
+                                    $form_title_file = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$fname/info.txt");
                                     $form_title = $form_title_file ? $form_title_file[0] : $fname;
-                                    $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
+                                    $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php
                                     echo text(xl_form_title($form_title));
@@ -238,7 +232,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 <td>
                                     <?php
                                     if ($phpState == "PHP extracted") {
-                                        echo '<a class="link_submit" href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '">' . xlt('register') . '</a>';
+                                        echo '<a class="link_submit" href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session) . '">' . xlt('register') . '</a>';
                                     } else {
                                         echo '<span class="text">' . xlt('n/a') . '</span>';
                                     }

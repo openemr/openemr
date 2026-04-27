@@ -9,13 +9,12 @@
  *
  */
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once dirname(__FILE__, 4) . "/globals.php";
-
-use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
-use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
 $kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);

@@ -1,12 +1,14 @@
 /**
  * SearchHighlight plugin for jQuery
- * 
+ *
  * Thanks to Scott Yang <http://scott.yang.id.au/>
  * for the original idea and some code
- *    
- * @author Renato Formato <renatoformato@virgilio.it> 
- *  
- * @version 0.33
+ *
+ * @author Renato Formato <renatoformato@virgilio.it>
+ * @author Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ *
+ * @version 0.34
  *
  *  Options
  *  - exact (string, default:"exact") 
@@ -160,6 +162,11 @@
         });       
     },
     nosearch: /s(?:cript|tyle)|textarea/i,
+    // Escape HTML special characters to prevent XSS when building highlight spans
+    escapeHtml: function(str) {
+        var escapeMap = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
+        return str.replace(/[&<>"']/g, function(c) { return escapeMap[c]; });
+    },
     hiliteElement: function(el, query) {
         var opt = SearchHighlight.options, elHighlight, noHighlight;
         elHighlight = opt.highlight?$(opt.highlight):$("body"); 
@@ -182,14 +189,13 @@
               var newtext="",match,index=0;
               SearchHighlight.regex.lastIndex = 0;
               while(match = SearchHighlight.regex.exec(textNoAcc)) {
-               /* newtext += text.substr(index,match.index-index)+'<span class="'+
-                SearchHighlight.subs[match[matchIndex]]+'">'+text.substr(match.index,match[0].length)+"</span>";*/
-				newtext += text.substr(index,match.index-index)+'<span class="hilite">'+text.substr(match.index,match[0].length)+"</span>";
+                // Escape text content to prevent XSS from browser-decoded HTML entities
+                newtext += SearchHighlight.escapeHtml(text.substr(index,match.index-index))+'<span class="hilite">'+SearchHighlight.escapeHtml(text.substr(match.index,match[0].length))+"</span>";
                 index = match.index+match[0].length;
               }
               if(newtext) {
                 //add the last part of the text
-                newtext += text.substring(index);
+                newtext += SearchHighlight.escapeHtml(text.substring(index));
                 var repl = $.merge([],$("<span>"+newtext+"</span>")[0].childNodes);
                 endIndex += repl.length-1;
                 startIndex += repl.length-1;

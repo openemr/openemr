@@ -15,12 +15,13 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\Events\Core\ModuleLoadEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\Mvc\Application;
 use Laminas\Mvc\Service\ServiceManagerConfig;
 use Laminas\ServiceManager\ServiceManager;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\ModuleLoadEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModulesApplication
 {
@@ -201,6 +202,15 @@ class ModulesApplication
     }
 
     /**
+     * @return string|false The resolved module root path, or false if it cannot be resolved
+     */
+    private static function getModuleRootRealpath(): string|false
+    {
+        // realpath() normalizes directory separators, so forward slashes are platform-agnostic.
+        return realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/modules');
+    }
+
+    /**
      * Checks to make sure the file originates in a module directory and is safe to include.
      *
      * @param string $file
@@ -209,7 +219,7 @@ class ModulesApplication
     public static function isSafeModuleFileForInclude($file)
     {
         $realpath = realpath($file);
-        $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+        $moduleRootLocation = self::getModuleRootRealpath();
 
         // make sure we haven't left our root path ie interface folder
         if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
@@ -231,19 +241,22 @@ class ModulesApplication
     {
         if (is_array($files) && !empty($files)) {
             // for safety we only allow the scripts to be from the local filesystem for now
-            $filteredFiles = array_filter(array_map(function ($scriptSrc) {
+            $globalsBag = OEGlobalsBag::getInstance();
+            $projectDir = $globalsBag->getProjectDir();
+            $webRoot = $globalsBag->getWebRoot();
+            $moduleRootLocation = self::getModuleRootRealpath();
+            $filteredFiles = array_filter(array_map(function ($scriptSrc) use ($projectDir, $webRoot, $moduleRootLocation) {
                 // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, $webRoot);
                 if ($pos !== false) {
-                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) $GLOBALS['web_root']));
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($webRoot));
                 } else {
                     $scriptSrcPathWithoutWebroot = $scriptSrcPath;
                 }
-                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPathWithoutWebroot);
-                $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+                $realPath = realpath($projectDir . $scriptSrcPathWithoutWebroot);
 
                 // make sure we haven't left our root path ie interface folder
                 if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {

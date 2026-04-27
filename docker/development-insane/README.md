@@ -45,14 +45,16 @@ directory) and then restart the development docker (see below for how to do this
 options to choose from:
 - http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 - http://localhost:8084 (with Alpine 3.22 (Apache and PHP 8.2))
-- http://localhost:8085 (with Alpine 3.22 (Apache and PHP 8.3))
-- http://localhost:8086 (with Alpine 3.22 (Apache and PHP 8.4))
-- http://localhost:8087 (with Alpine Edge (Apache and now PHP 8.4))
+- http://localhost:8085 (with Alpine 3.23 (Apache and PHP 8.3))
+- http://localhost:8086 (with Alpine 3.23 (Apache and PHP 8.4))
+- http://localhost:8087 (with Alpine 3.23 (Apache and PHP 8.5))
+- http://localhost:8088 (with Alpine Edge (Apache and now PHP 8.5))
 - http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 - http://localhost:8094 (with Alpine 3.22 (Apache and PHP 8.2) with redis)
-- http://localhost:8095 (with Alpine 3.22 (Apache and PHP 8.3) with redis)
-- http://localhost:8096 (with Alpine 3.22 (Apache and PHP 8.4) with redis)
-- http://localhost:8097 (with Alpine Edge (Apache and now PHP 8.4) with redis)
+- http://localhost:8095 (with Alpine 3.23 (Apache and PHP 8.3) with redis)
+- http://localhost:8096 (with Alpine 3.23 (Apache and PHP 8.4) with redis)
+- http://localhost:8097 (with Alpine 3.23 (Apache and PHP 8.5) with redis)
+- http://localhost:8098 (with Alpine Edge (Apache and now PHP 8.5) with redis)
 - http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 - http://localhost:8104 (with Nginx and PHP-FPM 8.2)
 - http://localhost:8105 (with Nginx and PHP-FPM 8.3)
@@ -67,14 +69,16 @@ options to choose from:
 - http://localhost:8158 (with Nginx and PHP-FPM 8.6 with redis)
 - https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 - https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
-- https://localhost:9085 with SSL and Alpine 3.22 (with Apache and PHP 8.3)
-- https://localhost:9086 with SSL and Alpine 3.22 (with Apache and PHP 8.4)
-- https://localhost:9087 with SSL and Alpine Edge (with Apache and now PHP 8.4)
+- https://localhost:9085 with SSL and Alpine 3.23 (with Apache and PHP 8.3)
+- https://localhost:9086 with SSL and Alpine 3.23 (with Apache and PHP 8.4)
+- https://localhost:9087 with SSL and Alpine 3.23 (with Apache and PHP 8.5)
+- https://localhost:9088 with SSL and Alpine Edge (with Apache and now PHP 8.5)
 - https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 - https://localhost:9094 with SSL and Alpine 3.22 (with Apache and PHP 8.2 with redis)
-- https://localhost:9095 with SSL and Alpine 3.22 (with Apache and PHP 8.3 with redis)
-- https://localhost:9096 with SSL and Alpine 3.22 (with Apache and PHP 8.4 with redis)
-- https://localhost:9097 with SSL and Alpine Edge (with Apache and now PHP 8.4 with redis)
+- https://localhost:9095 with SSL and Alpine 3.23 (with Apache and PHP 8.3 with redis)
+- https://localhost:9096 with SSL and Alpine 3.23 (with Apache and PHP 8.4 with redis)
+- https://localhost:9097 with SSL and Alpine 3.23 (with Apache and PHP 8.5 with redis)
+- https://localhost:9098 with SSL and Alpine Edge (with Apache and now PHP 8.5 with redis)
 - https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 - https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
 - https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
@@ -115,8 +119,9 @@ docker compose up -d
 To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
 ```console
 docker pull openemr/openemr:flex-edge
-docker pull openemr/openemr:flex-3.22-php-8.4
-docker pull openemr/openemr:flex-3.22-php-8.3
+docker pull openemr/openemr:flex-3.23-php-8.5
+docker pull openemr/openemr:flex-3.23-php-8.4
+docker pull openemr/openemr:flex-3.23-php-8.3
 docker pull openemr/openemr:flex-3.22-php-8.2
 docker pull openemr/openemr:flex-3.17
 docker pull openemr/dev-php-fpm:8.6

@@ -12,6 +12,7 @@
  */
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ADODB_mysqli_log extends ADODB_mysqli
 {
@@ -29,10 +30,10 @@ class ADODB_mysqli_log extends ADODB_mysqli
             $outcome = false;
             // Stash the error into last_mysql_error so it doesn't get clobbered when
             // we insert into the audit log.
-            $GLOBALS['last_mysql_error'] = $this->ErrorMsg();
+            OEGlobalsBag::getInstance()->set('last_mysql_error', $this->ErrorMsg());
 
             // Last error no
-            $GLOBALS['last_mysql_error_no'] = $this->ErrorNo();
+            OEGlobalsBag::getInstance()->set('last_mysql_error_no', $this->ErrorNo());
         } else {
             $outcome = true;
         }
@@ -40,7 +41,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         if ($insertNeedReturn) {
-            $GLOBALS['lastidado'] = $this->Insert_ID();
+            OEGlobalsBag::getInstance()->set('lastidado', $this->Insert_ID());
         }
 
         // Skip SQL audit logging if $skipAuditLog is set (e.g., health checks)

@@ -18,7 +18,9 @@ require_once("drugs.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $drug_id = $_REQUEST['drug'];
 $lot_id  = $_REQUEST['lot'];
@@ -54,7 +56,7 @@ if (!$lot_id) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -73,12 +75,11 @@ if (!$lot_id) {
 
 <body class="body_top">
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     sqlStatement(
         "UPDATE drug_inventory SET " .
@@ -101,7 +102,7 @@ if ($_POST['form_save']) {
   //
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " window.close();\n";
@@ -117,7 +118,7 @@ if ($_POST['form_save']) {
 <form method='post' name='theform' onsubmit='return validate(this);'
  action='destroy_lot.php?drug=<?php echo attr_url($drug_id) ?>&lot=<?php echo attr_url($lot_id) ?>'>
 
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

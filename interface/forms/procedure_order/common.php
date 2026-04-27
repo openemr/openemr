@@ -15,7 +15,7 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +29,7 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -56,6 +57,8 @@ if ($_POST['bn_save_ereq'] ?? null) { //labcorp
 }
 
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", [$pid]);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
@@ -146,14 +149,12 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
@@ -251,7 +252,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     }
 
     $lab_name = normalizeDirectoryName(get_lab_name($ppid ?? 0));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -483,7 +484,7 @@ $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $isDorn = isDornLab($row['lab_id']) ?? false;
     $lab_name = normalizeDirectoryName(get_lab_name($row['lab_id']));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
@@ -515,7 +516,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
@@ -593,7 +594,7 @@ if (!empty($row['lab_id'])) {
                         action: 'delete_procedure',
                         order_id: formId,
                         order_seq: orderSeq,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -648,7 +649,7 @@ if (!empty($row['lab_id'])) {
                     data: {
                         action: 'delete_specimen',
                         specimen_id: specimenId,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -699,13 +700,13 @@ if (!empty($row['lab_id'])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             let datetimepicker = {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             $('.datepicker').datetimepicker(datepicker);
             $('.datetimepicker').datetimepicker(datetimepicker);
@@ -1100,7 +1101,7 @@ if (!empty($row['lab_id'])) {
             const params = new URLSearchParams({
                 action: 'code_detail)',
                 code: code,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
@@ -1164,7 +1165,7 @@ if (!empty($row['lab_id'])) {
                 acctid: acctid,
                 action: 'print_labels',
                 count: count,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 dob: dob,
                 order: order,
                 patient: patient,
@@ -1300,7 +1301,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="container-xl clearfix">
                     <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
@@ -1893,7 +1894,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

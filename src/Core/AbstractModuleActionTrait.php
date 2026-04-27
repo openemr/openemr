@@ -11,6 +11,7 @@
 namespace OpenEMR\Core;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Some useful functions.
@@ -22,7 +23,8 @@ trait AbstractModuleActionTrait
      */
     public static function getLoggedInUser(): array
     {
-        $id = $_SESSION['authUserID'] ?? 1;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $id = $session->get('authUserID', 1);
         $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
         $result = sqlQuery($query, [$id]);
 
@@ -72,17 +74,19 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $param
-     * @param $default
+     * Returns a session value by key. The $param is required to prevent callers
+     * from obtaining the raw SessionInterface object and writing to it directly,
+     * which would be silently lost with read_and_close sessions. Use
+     * SessionUtil::setSession() / SessionUtil::unsetSession() for writes.
+     *
+     * @param string $param
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param, mixed $default = null): mixed
     {
-        if ($param) {
-            return $_SESSION[$param] ?? $default;
-        }
-
-        return $this->_session;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get($param, $default);
     }
 
     /**
@@ -119,13 +123,12 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      * @return $this
      */
-    public function setSession($key, $value): static
+    public function setSession(string $key, $value): static
     {
-        // ensure write is allowed by using utility.
         SessionUtil::setSession($key, $value);
         return $this;
     }

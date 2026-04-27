@@ -12,9 +12,10 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use OpenEMR\Common\Acl\AclMain;
 
 class DemographicsViewCard extends CardModel
 {
@@ -22,21 +23,22 @@ class DemographicsViewCard extends CardModel
 
     private const CARD_ID = 'demographics';
 
-    public function __construct(private $patientData, private $employerData, array $opts = [])
+    public function __construct(private readonly mixed $patientData, private readonly mixed $employerData, array $opts = [])
     {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
 
-    private function setupOpts(array $opts)
+    private function setupOpts(array $opts): array
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $opts['acl'] = ['patients', 'demo'];
         $opts['title'] = xl('Demographics');
         $opts['btnLink'] = 'demographics_full.php';
         $opts['linkMethod'] = 'html';
         $opts['edit'] = true;
         $opts['add'] = false;
-        $opts['requireRestore'] = (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false;
+        $opts['requireRestore'] = !$session->has('patient_portal_onsite_two');
         $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0;
         $opts['identifier'] = self::CARD_ID;
         $opts['templateFile'] = self::TEMPLATE_FILE;
@@ -52,12 +54,13 @@ class DemographicsViewCard extends CardModel
         return array_merge($templateVars, $dataVars);
     }
 
-    private function setupDemographicsData()
+    private function setupDemographicsData(): array
     {
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $auth = ACLMain::aclCheckCore('patients', 'demo', '', 'write');
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $viewArgs = [
-            'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
+            'requireRestore' => !$session->has('patient_portal_onsite_two'),
             'initiallyCollapsed' => getUserSetting("demographics_ps_expand") == 0,
             'tabID' => "DEM",
             'title' => xl("Demographics"),

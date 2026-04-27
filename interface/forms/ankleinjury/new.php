@@ -20,9 +20,13 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 formHeader("Form: ankleinjury");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <html><head>
@@ -31,13 +35,13 @@ formHeader("Form: ankleinjury");
 
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br /><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 <br /><br />
 
@@ -227,7 +231,7 @@ wrap="virtual name"><?php echo xlt('1.Rest
 </table>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 <?php

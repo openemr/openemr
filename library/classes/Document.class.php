@@ -20,15 +20,16 @@
 require_once(__DIR__ . "/../pnotes.inc.php");
 require_once(__DIR__ . "/../gprelations.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Core\OEGlobalsBag;
 
 class Document extends ORDataObject
 {
@@ -63,6 +64,54 @@ class Document extends ORDataObject
      * Date format for the expires field
      */
     public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
+
+    /**
+     * Calculate the storage path for a document.
+     *
+     * This encapsulates the (legacy) logic for determining where a document
+     * should be stored, including path sanitization and the random subdirectory
+     * behavior for non-patient documents.
+     *
+     * Note: The patientId is only mutated to 0 when there's no higher level path
+     * AND the patient ID is invalid. In other cases it's returned unchanged.
+     * This matches the legacy behavior where $patient_id was conditionally
+     * reassigned before being used in set_foreign_id().
+     *
+     * @param string $higherLevelPath Optional subdirectory path (will be sanitized)
+     * @param int|string $patientId Patient ID or identifier string
+     * @param int $pathDepth Current path depth
+     * @param int $randomSubdir Random subdirectory number (1-10000) for non-patient docs
+     * @return array{relativePath: string, depth: int, patientId: int|string}
+     */
+    public static function calculateStoragePath(
+        string $higherLevelPath,
+        int|string $patientId,
+        int $pathDepth,
+        int $randomSubdir,
+    ): array {
+        $higherLevelPath = preg_replace("/[^A-Za-z0-9\/]/", "_", $higherLevelPath);
+        $validPatientId = ValidationUtils::validateInt($patientId, min: 1);
+
+        if ($higherLevelPath !== '' && $validPatientId !== false) {
+            $relativePath = $higherLevelPath . '/';
+        } elseif ($higherLevelPath !== '') {
+            $relativePath = $higherLevelPath . '/' . $randomSubdir . '/';
+            ++$pathDepth;
+        } elseif ($validPatientId === false) {
+            $relativePath = $patientId . '/' . $randomSubdir . '/';
+            $pathDepth = 2;
+            $patientId = 0;
+        } else {
+            $relativePath = $patientId . '/';
+            $pathDepth = 1;
+        }
+
+        return [
+            'relativePath' => $relativePath,
+            'depth' => $pathDepth,
+            'patientId' => $patientId,
+        ];
+    }
 
     /**
      * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
@@ -232,7 +281,7 @@ class Document extends ORDataObject
         //this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
 
-        $this->type = $this->type_array[0] ?? '';
+        $this->type = array_key_first($this->type_array) ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
         $this->date_expires = null; // typically no expiration date here
@@ -416,7 +465,7 @@ class Document extends ORDataObject
         $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_reference_table = ? "
         . "AND foreign_reference_id " . $foreign_reference_id_sql;
 
-        (new \OpenEMR\Common\Logging\SystemLogger())->debug(
+        ServiceContainer::getLogger()->debug(
             "documents_factory_for_foreign_reference",
             ['sql' => $sql,
             'sqlArray' => $sqlArray]
@@ -650,7 +699,7 @@ class Document extends ORDataObject
         }
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
-        $filepath = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        $filepath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $from_filename;
         return $filepath;
     }
     /**
@@ -880,7 +929,7 @@ class Document extends ORDataObject
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
-   * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
+   * @param  int     $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
@@ -895,7 +944,7 @@ class Document extends ORDataObject
         $mimetype,
         &$data,
         $higher_level_path = '',
-        $path_depth = 1,
+        int $path_depth = 1,
         $owner = 0,
         $tmpfile = null,
         $date_expires = null,
@@ -909,7 +958,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
@@ -917,10 +966,10 @@ class Document extends ORDataObject
         // and leave it empty. Logically, documents are not tied to encounters.
 
         // Create a crypto object that will be used for for encryption/decryption
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
 
-        if ($GLOBALS['generate_doc_thumb']) {
-            $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
+        if (OEGlobalsBag::getInstance()->getBoolean('generate_doc_thumb')) {
+            $thumb_size = (OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
             $has_thumbnail = !is_null($tmpfile) ? $thumbnail_class->file_support_thumbnail($tmpfile) : false;
@@ -938,18 +987,18 @@ class Document extends ORDataObject
         }
 
         $encounter_id = $eid;
-        $this->storagemethod = $GLOBALS['document_storage_method'];
+        $this->storagemethod = OEGlobalsBag::getInstance()->get('document_storage_method');
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if ($GLOBALS['couchdb_encryption']) {
-                $document = $cryptoGen->encryptStandard($data, null, 'database');
+            if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
+                $document = $cryptoGen->encryptStandard($data, keySource: KeySource::Database);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
-                if ($GLOBALS['couchdb_encryption']) {
-                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
+                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
                 }
@@ -993,34 +1042,21 @@ class Document extends ORDataObject
              * Else resume the local file storage
              */
 
-            if ($GLOBALS['documentStoredRemotely'] ?? '') {
+            if (OEGlobalsBag::getInstance()->get('documentStoredRemotely') ?? '') {
                 return xlt("Document was uploaded to remote storage"); // terminate processing
             }
 
             // Storing document files locally.
-            $repository = $GLOBALS['oer_config']['documents']['repository'];
-            $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
-            $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
-            if ((!empty($higher_level_path)) && $validPatientId !== false) {
-                // Allow higher level directory structure in documents directory and a patient is mapped.
-                $filepath = $repository . $higher_level_path . "/";
-            } elseif (!empty($higher_level_path)) {
-                // Allow higher level directory structure in documents directory and there is no patient mapping
-                // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
-                ++$path_depth;
-            } elseif ($validPatientId === false) {
-                // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
-                // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
-                $path_depth = 2;
-                $patient_id = 0;
-            } else {
-                // This is the default action where the patient is used as one level directory structure
-                // in documents directory.
-                $filepath = $repository . $patient_id . '/';
-                $path_depth = 1;
-            }
+            $repository = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'];
+            $storagePathResult = self::calculateStoragePath(
+                higherLevelPath: $higher_level_path,
+                patientId: $patient_id,
+                pathDepth: $path_depth,
+                randomSubdir: random_int(1, 10000),
+            );
+            $filepath = $repository . $storagePathResult['relativePath'];
+            $path_depth = $storagePathResult['depth'];
+            $patient_id = $storagePathResult['patientId'];
 
             if (!file_exists($filepath)) {
                 if (!mkdir($filepath, 0700, true)) {
@@ -1033,13 +1069,11 @@ class Document extends ORDataObject
             $filenameUuid = UuidRegistry::uuidToString($this->drive_uuid);
 
             $this->url = "file://" . $filepath . $filenameUuid;
-            if (is_numeric($path_depth)) {
-                // this is for when directory structure is more than one level
-                $this->path_depth = $path_depth;
-            }
+            // this is for when directory structure is more than one level
+            $this->path_depth = $path_depth;
 
             // Store the file.
-            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, 'database') : $data;
+            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, keySource: KeySource::Database) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1051,8 +1085,8 @@ class Document extends ORDataObject
             if ($has_thumbnail) {
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
-                if ($GLOBALS['drive_encryption']) {
-                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }
@@ -1072,8 +1106,8 @@ class Document extends ORDataObject
         }
 
         if (
-            ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1))
-            || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))
+            (OEGlobalsBag::getInstance()->getBoolean('drive_encryption') && ($this->storagemethod != 1))
+            || (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption') && ($this->storagemethod == 1))
         ) {
             $this->set_encrypted(self::ENCRYPTED_ON);
         } else {
@@ -1156,8 +1190,8 @@ class Document extends ORDataObject
      */
     public function decrypt_content($data)
     {
-        $cryptoGen = new CryptoGen();
-        $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
+        $cryptoGen = ServiceContainer::getCrypto();
+        $decryptedData = $cryptoGen->decryptStandard($data, keySource: KeySource::Database);
         if ($decryptedData === false) {
             throw new RuntimeException("Failed to decrypt the data");
         }

@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property sms_clickatell\\:\\:\\$api_id \\(int\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property GlobalConfig\\:\\:\\$CONVERT_NULL_TO_EMPTYSTRING \\(Setting\\) does not accept default value of type true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/_global_config.php',

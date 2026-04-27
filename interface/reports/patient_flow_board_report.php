@@ -22,12 +22,13 @@ require_once "$srcdir/appointments.inc.php";
 require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $patient = $_POST['patient'] ?? null;
@@ -89,7 +90,7 @@ if (empty($form_patient)) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -145,7 +146,7 @@ if (empty($form_patient)) {
 <!-- Required for the popup date selectors -->
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-<?php if ($GLOBALS['drug_screen']) { #setting the title of the page based o if drug screening is enabled ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { #setting the title of the page based o if drug screening is enabled ?>
 <span class='title'><?php echo xlt('Patient Flow Board'); ?> - <?php echo xlt('Drug Screen Report'); ?></span>
 <?php } else { ?>
 <span class='title'><?php echo xlt('Patient Flow Board Report'); ?></span>
@@ -156,7 +157,7 @@ if (empty($form_patient)) {
 </div>
 
 <form method='post' name='theform' id='theform' action='patient_flow_board_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -248,7 +249,7 @@ if (empty($form_patient)) {
             <tr>
 
             </tr>
-            <?php if ($GLOBALS['drug_screen']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
             <tr>
                 <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed
@@ -437,7 +438,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         }
 
         #if a patient id is entered just get that patient.
-        if (strlen($form_pid) != 0) {
+        if (strlen((string) $form_pid) != 0) {
             if ($appointment['pid'] != $form_pid) {
                 continue;
             }

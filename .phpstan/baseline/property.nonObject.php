@@ -222,16 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -2417,16 +2407,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$templateId on SimpleXMLElement\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$acl_version on string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$module_id on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
@@ -2483,11 +2463,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address_zip on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
 ];
@@ -3377,27 +3352,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountNumber on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address_zip on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
@@ -3460,51 +3420,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$type on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$BootstrapSQL on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Charset on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ConnectionString on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$DBName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Multibyte on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Password on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TablePrefix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Type on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Username on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
@@ -3612,61 +3527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$FieldType on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ForeignKeyProperty on array\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ForeignObject on array\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsPrimaryKey on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$KeyProperty on array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$LoadType on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$PropertyName on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TableName on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TableName on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$FieldType on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
@@ -3700,16 +3560,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$TableName on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$PropertyName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$CurrentPage on mixed\\.$#',
@@ -4762,6 +4612,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$bibliographic_citation on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
@@ -4769,6 +4624,21 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$criteria on mixed\\.$#',
     'count' => 3,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$developer on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$funding_source on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$groupId on OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria\\|null\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
@@ -4782,13 +4652,83 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$linked_referential_cds on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_dob_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_ethnicity_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_gender_identity_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_health_status_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_language_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_race_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sex_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sexual_orientation_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sodh_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$release on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$rule on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$ruleTypes on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$title on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$type on mixed\\.$#',
     'count' => 4,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$web_reference on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
@@ -4838,21 +4778,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$criteriaType on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$guid on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$inclusion on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$optional on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
 ];
@@ -4889,11 +4814,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$guid on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
@@ -4973,7 +4893,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$enums on mixed\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
@@ -5102,16 +5022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$documentElement on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$textContent on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -5175,11 +5085,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$populations on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$observations on false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$authorDatetime on mixed\\.$#',
@@ -6007,6 +5912,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/Export/ExportMemoryStreamWriterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$box_14_qualifier_options on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -6060,11 +5970,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$viewBean on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/Export/ExportMemoryStreamWriterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

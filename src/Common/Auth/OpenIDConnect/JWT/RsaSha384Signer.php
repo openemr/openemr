@@ -31,7 +31,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 use InvalidArgumentException;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
@@ -52,7 +52,7 @@ class RsaSha384Signer implements Signer
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
         $this->headers = [];
     }
 

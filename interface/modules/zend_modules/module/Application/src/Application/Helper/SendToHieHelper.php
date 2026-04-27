@@ -12,9 +12,9 @@
 
 namespace Application\Helper;
 
-use Laminas\View\Helper\AbstractHelper;
-use Laminas\ServiceManager\ServiceLocatorInterface;
 use Application\Controller\SendtoController;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\View\Helper\AbstractHelper;
 
 class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
 {

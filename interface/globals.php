@@ -9,9 +9,20 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use Dotenv\Dotenv;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -22,19 +33,44 @@ if ($response !== true) {
     http_response_code(500);
     die(htmlspecialchars($response));
 }
+// Is this windows or non-windows? Create a boolean definition.
+if (!defined('IS_WINDOWS')) {
+    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
+}
 
-use Dotenv\Dotenv;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Kernel;
-use OpenEMR\Core\ModulesApplication;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Core\OEGlobalsBag;
+// The webserver_root and web_root are now automatically collected.
+// If not working, can set manually below.
+// Auto collect the full absolute directory path for openemr.
+$webserver_root = dirname(__FILE__, 2);
 
-$logger = new SystemLogger();
+/**
+ * Allow a `.env` file to be read in and applied as $_SERVER variables.
+ *
+ * This allows to define a "development" environment which can then load up
+ * different variables and reporting/debugging functionality. Should be used in
+ * development only, not for production
+ *
+ * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
+ */
+if (file_exists("{$webserver_root}/.env")) {
+    Dotenv::createImmutable($webserver_root)->load();
+}
+
+$logger = ServiceContainer::getLogger();
+
+// Set up exception handling: ensure that any uncaught exceptions have some
+// guaranteed way of reaching the logs, regardless of other settings.
+$handler = new \OpenEMR\Core\ErrorHandler(
+    logger: $logger,
+    rf: ServiceContainer::getResponseFactory(),
+    sf: ServiceContainer::getStreamFactory(),
+    shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
+);
+$handler->installExceptionHandler();
+// Note: installErrorHandler() is intentionally NOT called, too much would
+// break today. As we gain confidence in error handling, we can call it with
+// a high-severity level and incrementally move it to cover more.
+
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -65,8 +101,8 @@ $GLOBALS['debug_ssl_mysql_connection'] = false;
  * - OPENEMR_SETTING_http_verify_ssl (true/false/1/0/yes/no)
  * - OPENEMR_SETTING_http_ca_cert (path to CA certificate file, e.g., /var/www/certs/ca-cert.pem)
  *
- * @var bool $GLOBALS['http_verify_ssl'] - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
- * @var string|false $GLOBALS['http_ca_cert'] - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
+ * $GLOBALS['http_verify_ssl'] (bool) - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
+ * $GLOBALS['http_ca_cert'] (string|false) - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
  *
  * SSL Verification Logic:
  * - Loopback addresses (localhost, 127.x.x.x, ::1) → SSL verification always disabled
@@ -124,20 +160,6 @@ if (!isset($ignoreAuth_onsite_portal)) {
     $ignoreAuth_onsite_portal = false;
 }
 
-// Is this windows or non-windows? Create a boolean definition.
-if (!defined('IS_WINDOWS')) {
-    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
-}
-
-// The webserver_root and web_root are now automatically collected.
-// If not working, can set manually below.
-// Auto collect the full absolute directory path for openemr.
-$webserver_root = dirname(__FILE__, 2);
-if (IS_WINDOWS) {
- //convert windows path separators
-    $webserver_root = str_replace("\\", "/", $webserver_root);
-}
-
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
 if (IS_WINDOWS) {
@@ -188,13 +210,6 @@ $ResolveServerHost = static function () {
     return rtrim(trim($scheme . $host), "/");
 };
 
-// Debug function. Can expand for longer trace or file info.
-function GetCallingScriptName()
-{
-    $e = new Exception();
-    return $e->getTrace()[1]['file'];
-}
-
 // This is the directory that contains site-specific data.  Change this
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
@@ -227,19 +242,16 @@ $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
 // Absolute path to the location of documentroot directory for use with include statements:
 $globalsBag->set('webroot', $web_root);
-$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
+$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor"); // @phpstan-ignore nullCoalesce.offset ($GLOBALS key may not exist yet)
 $globalsBag->set('restRequest', $restRequest);
-$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
-$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
+$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites"); // @phpstan-ignore nullCoalesce.offset
+$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false); // @phpstan-ignore nullCoalesce.offset
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
-    //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
-    SessionUtil::coreSessionStart($web_root, $read_only);
-    //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
-}
+SessionWrapperFactory::getInstance()->setSessionReadOnly($read_only);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
@@ -279,7 +291,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
 
     if ($siteId !== null && $siteId != $tmp) {
       // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
-        $session->clear(); // clear session, clean logout
+        SessionUtil::clearSession();
         if (isset($landingpage) && !empty($landingpage)) {
           // OpenEMR Patient Portal use
             header('Location: index.php?site=' . urlencode((string) $tmp));
@@ -292,7 +304,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
     }
 
     if ($siteId === null || $siteId != $tmp) {
-        $session->set('site_id', $tmp);
+        SessionUtil::setSession('site_id', $tmp);
         // error_log("Session site ID has been set to '$tmp'"); // debugging
     }
 }
@@ -336,40 +348,6 @@ $globalsBag->set('login_screen', $globalsBag->getString('rootdir') . "/login_scr
 // Variable set for Eligibility Verification [EDI-271] path
 $globalsBag->set('edi_271_file_path', $globalsBag->getString('OE_SITE_DIR') . "/documents/edi/");
 
-//  Check necessary writable paths (add them if do not exist)
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
-//  Set and check that necessary writeable path exist for mPDF tool
-$GLOBALS['MPDF_WRITE_DIR'] = $globalsBag->getString('OE_SITE_DIR') . '/documents/mpdf/pdf_tmp';
-if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
-    if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
-/**
- * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
- *
- * This allows to define a "development" environment which can then load up
- * different variables and reporting/debugging functionality. Should be used in
- * development only, not for production
- *
- * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
- */
-if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = Dotenv::createImmutable($webserver_root);
-    $dotenv->load();
-}
-
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
 //    - DEBUG/INFO are great for development
@@ -382,7 +360,7 @@ try {
     // we inject the eventDispatcher if we have one setup already
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
-    $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
+    $globalsBag->set("kernel", new Kernel($webserver_root, $web_root, $globalsBag->get('eventDispatcher')));
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
@@ -494,8 +472,8 @@ if (!empty($glrow)) {
                 [$session->get('pid') ?? 0, 'portal_theme']
             )['setting_value'] ?? null;
             $gl_value = $current_theme ?? null ?: $gl_value;
-            $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
-            $portal_css_header = $GLOBALS[$gl_name];
+            $GLOBALS[(string) $gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
+            $portal_css_header = $GLOBALS[(string) $gl_name];
             $portal_temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $globalsBag->set($gl_name, explode(',', (string) $gl_value));
@@ -532,14 +510,14 @@ if (!empty($glrow)) {
     // Set any user settings that are not also in GLOBALS.
     // This is for modules support.
     foreach ($gl_user as $setting) {
-        if (!array_key_exists($setting['setting_label'], $GLOBALS)) {
+        if (!$globalsBag->has($setting['setting_label'])) {
             $globalsBag->set($setting['setting_label'], $setting['setting_value']);
         }
     }
 
     // Language cleanup stuff.
     $globalsBag->set('language_menu_login', false);
-    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->get('language_menu_showall')) {
+    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->getBoolean('language_menu_showall')) {
         $globalsBag->set('language_menu_login', true);
     }
 
@@ -554,14 +532,14 @@ if (!empty($glrow)) {
     if ($session->has('language_direction') && empty($session->get('patient_portal_onsite_two'))) {
         if (
             $session->get('language_direction') === 'rtl' &&
-            !strpos((string) $globalsBag->get('css_header', ''), 'rtl')
+            !strpos($globalsBag->getString('css_header', ''), 'rtl')
         ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
     } elseif ($session->has('language_choice')) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
-        $session->set('language_direction', getLanguageDir($session->get('language_choice')));
+        SessionUtil::setSession('language_direction', getLanguageDir($session->get('language_choice')));
         if (
             $session->get('language_direction') === 'rtl' &&
             !strpos((string) $globalsBag->get('portal_css_header', ''), 'rtl')
@@ -570,7 +548,7 @@ if (!empty($glrow)) {
             $rtl_portal_override = true;
         }
     } else {
-        //$_SESSION['language_direction'] is not set, so will use the default language
+        //session 'language_direction' is not set, so will use the default language
         $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
         if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string) $GLOBALS['css_header'], 'rtl')) {
@@ -668,7 +646,11 @@ if (empty($globalsBag->getString('qualified_site_addr'))) {
 // Also important to note that changes to this global setting will not take effect during the same
 //  session (ie. user needs to logout) since not worth it to use resources to open session and write to it
 //  for every call to interface/globals.php .
-$session->set("enable_database_connection_pooling", $globalsBag->get("enable_database_connection_pooling", null));
+// Only persist to session on writable requests; read-only requests use the
+// value already stored in the session from a previous writable request.
+if (!$read_only) {
+    $session->set("enable_database_connection_pooling", $globalsBag->getBoolean("enable_database_connection_pooling", false));
+}
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -713,7 +695,7 @@ $globalsBag->set('backpic', $backpic ?? '');
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
+$globalsBag->set('Emergency_Login_email', $globalsBag->getString('Emergency_Login_email_id') ? 1 : 0);
 
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
@@ -721,7 +703,7 @@ $globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_
 // include loops.
 
 // EMAIL SETTINGS
-$globalsBag->set('SMTP_Auth', !empty($globalsBag->get('SMTP_USER', null)));
+$globalsBag->set('SMTP_Auth', !empty($globalsBag->getString('SMTP_USER')));
 
 if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_two_enable', 0) == 1)) {
     $ignoreAuth = true;
@@ -778,7 +760,7 @@ if (!empty($_GET['pid']) && empty($session->get('pid'))) {
     SessionUtil::setSession('pid', $_POST['pid']);
 }
 
-$pid = empty($session->get('pid')) ? 0 : $session->get('pid');
+$pid = $session->get('pid', 0);
 $userauthorized = empty($session->get('userauthorized')) ? 0 : $session->get('userauthorized');
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');
 
@@ -792,40 +774,13 @@ $globalsBag->set('groupname', $groupname);
 $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
 
-// global interface function to format text length using ellipses
-function strterm($string, $length)
-{
-    if (strlen((string) $string) >= ($length - 3)) {
-        return substr((string) $string, 0, $length - 3) . "...";
-    } else {
-        return $string;
-    }
-}
-
-// Helper function to generate an image URL that defeats browser/proxy caching when needed.
-function UrlIfImageExists($filename, $append = true)
-{
-    global $webserver_root, $web_root;
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
-    $path = "sites/" . $session->get('site_id') . "/images/$filename";
-    // @ in next line because a missing file is not an error.
-    if ($stat = @stat("$webserver_root/$path")) {
-        if ($append) {
-            return "$web_root/$path?v=" . $stat['mtime'];
-        } else {
-            return "$web_root/$path";
-        }
-    }
-    return '';
-}
-
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-error_reporting(error_reporting() & ~E_USER_DEPRECATED & ~E_USER_WARNING);
-// user debug mode
+// Report all errors so nothing is silently suppressed.
+error_reporting(E_ALL);
+// user debug mode — controls display_errors
 if ($globalsBag->getInt('user_debug', 0) > 1) {
-    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }
 
@@ -841,7 +796,7 @@ if (empty($skipAuditLog)) {
 }
 
 // Warm translation cache if configured
-if (!empty($GLOBALS['translation_preload_cache'])) {
+if ($globalsBag->getBoolean('translation_preload_cache')) {
     xlWarmCache();
 }
 

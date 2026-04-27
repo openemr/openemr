@@ -19,14 +19,13 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere_revert')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, key: 'csrf_token', subject: 'sphere_revert', dieOnFail: true);
 
-if ($GLOBALS['payment_gateway'] != 'Sphere') {
+if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));
 }
 

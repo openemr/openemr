@@ -17,6 +17,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../globals.php");
 
 //Get the data to place on labels
@@ -39,7 +41,7 @@ $dob   = substr((string) $patdata['DOB'], 5, 2) . "/" . Substr((string) $patdata
 // -------------------------------------------------- //
 
 $code     = $patdata['pubpid']; // what is wanted as the barcode
-$bartype = $GLOBALS['barcode_label_type'] ; // Get barcode type
+$bartype = OEGlobalsBag::getInstance()->get('barcode_label_type') ; // Get barcode type
 
 switch ($bartype) {
     case '1':
@@ -87,7 +89,7 @@ $fontSize = 28;
 $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 
-if ($GLOBALS['barcode_label_type'] == '12') {   // datamatrix
+if (OEGlobalsBag::getInstance()->get('barcode_label_type') == '12') {   // datamatrix
     $marge    = 0;   // between barcode and hri in pixel
     $x        = 35;  // barcode center
     $y        = 120;  // barcode center

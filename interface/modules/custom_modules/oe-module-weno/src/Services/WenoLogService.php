@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-
 class WenoLogService
 {
     public function __construct()

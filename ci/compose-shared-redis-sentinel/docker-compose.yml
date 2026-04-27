@@ -1,0 +1,165 @@
+##
+# Shared Redis Sentinel cluster template.
+#
+# Defines a minimal Redis Sentinel cluster (1 master + 2 replicas + 2 sentinels)
+# and extends the openemr service with the env vars required to activate predis-sentinel
+# session storage.
+#
+# Include this file in COMPOSE_FILE when you want the full test suite to run
+# against Redis-backed sessions.  Redis containers are always started (no profile
+# guard) so the openemr container finds them when it boots.
+#
+# Sentinel config is written inline via the startup command rather than bind-mounted
+# from a host file.  Bind-mounting conf files caused persistent failures in CI:
+# GitHub Actions' actions/checkout does not clean-delete the repo directory between
+# runs, so if a previous Docker run auto-created an empty directory at the source
+# path (which Docker does when the source does not exist), git checkout cannot
+# replace that directory with a file, and Docker subsequently mounts a directory
+# into the container instead of a file.
+
+services:
+  redis-master:
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    container_name: redis-master
+    # Config passed via command-line args instead of bind-mounted redis.conf.
+    # Docker Compose resolves bind-mount paths relative to the first file in
+    # COMPOSE_FILE, not the file that declares the mount — so ./redis.conf
+    # silently resolves to the wrong directory when this template is combined
+    # with other compose files.
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replica-announce-ip
+      - redis-master
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "strongpassword", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  redis-replica-1:
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-announce-ip
+      - redis-replica-1
+    depends_on:
+      redis-master:
+        condition: service_healthy
+
+  redis-replica-2:
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-announce-ip
+      - redis-replica-2
+    depends_on:
+      redis-master:
+        condition: service_healthy
+
+  sentinel-1:
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    # Config is written inline to avoid bind-mount directory pollution — see file header.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 26379' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    healthcheck:
+      # Sentinels in this config have no requirepass, so no -a flag
+      test: ["CMD", "redis-cli", "-p", "26379", "SENTINEL", "masters"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  sentinel-2:
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    # Config is written inline to avoid bind-mount directory pollution — see file header.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 26379' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    healthcheck:
+      # Sentinels in this config have no requirepass, so no -a flag
+      test: ["CMD", "redis-cli", "-p", "26379", "SENTINEL", "masters"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  openemr:
+    environment:
+      SESSION_STORAGE_MODE: predis-sentinel
+      REDIS_SENTINELS: sentinel-1|||sentinel-2
+      REDIS_MASTER: redis-master
+      # REDIS_SENTINELS_PASSWORD is intentionally omitted: the CI sentinel
+      # containers have no requirepass directive.  Only the master password
+      # (used by sentinel auth-pass and by the session handler) is needed.
+      REDIS_MASTER_PASSWORD: strongpassword
+    depends_on:
+      sentinel-1:
+        condition: service_healthy
+      sentinel-2:
+        condition: service_healthy

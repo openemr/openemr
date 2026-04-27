@@ -7,7 +7,7 @@
  * @author Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2023 Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -31,7 +31,7 @@ class FormatMoney
         $globals ??= OEGlobalsBag::getInstance();
 
         $s = number_format(
-            floatval($amount),
+            floatval((string) $amount),
             $globals->getInt('currency_decimals', 2),
             $globals->getString('currency_dec_point', '.'),
             $globals->getString('currency_thousands_sep', ',')

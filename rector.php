@@ -4,10 +4,11 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
+use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
-use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\ValueObject\PhpVersion;
@@ -27,7 +28,6 @@ return RectorConfig::configure()
         __DIR__ . '/gacl',
         __DIR__ . '/interface',
         __DIR__ . '/library',
-        __DIR__ . '/modules',
         __DIR__ . '/oauth2',
         __DIR__ . '/portal',
         __DIR__ . '/sites',
@@ -60,10 +60,8 @@ return RectorConfig::configure()
     ->withRules([
         CallUserFuncArrayToVariadicRector::class,
         CatchExceptionToThrowableRector::class,
+        OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()
-    ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty'
-    ])
     ->withTypeCoverageLevel(5);

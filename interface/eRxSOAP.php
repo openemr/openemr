@@ -21,7 +21,9 @@ class eRxSOAP
     const FLAG_ALLERGY_PRESS        = '3';
     const FLAG_ALLERGY_IMPORT       = '4';
 
+    /** @var ?eRxGlobals */
     private $globals;
+    /** @var ?eRxStore */
     private $store;
 
     private $authUserId;
@@ -67,8 +69,8 @@ class eRxSOAP
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  object  $globals The eRx Globals object to use for processing
-     * @return eRxPage          This object is returned for method chaining
+     * @param  eRxGlobals $globals The eRx Globals object to use for processing
+     * @return eRxSOAP             This object is returned for method chaining
      */
     public function setGlobals($globals)
     {
@@ -79,7 +81,7 @@ class eRxSOAP
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return object The eRx Globals object to use for processing
+     * @return eRxGlobals The eRx Globals object to use for processing
      */
     public function getGlobals()
     {
@@ -88,8 +90,8 @@ class eRxSOAP
 
     /**
      * Set Store to handle eRx cashed data
-     * @param  object  $store The eRx Store object to use for processing
-     * @return eRxSOAP        This object is returned for method chaining
+     * @param  eRxStore $store The eRx Store object to use for processing
+     * @return eRxSOAP          This object is returned for method chaining
      */
     public function setStore($store)
     {
@@ -100,7 +102,7 @@ class eRxSOAP
 
     /**
      * Get Store for handling eRx cashed data
-     * @return object The eRx Store object to use for processing
+     * @return eRxStore The eRx Store object to use for processing
      */
     public function getStore()
     {

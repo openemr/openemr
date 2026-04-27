@@ -1,5 +1,105 @@
 # CHANGELOG.md
 
+## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25
+
+### Fixed
+
+#### Security
+
+- **[High]** [Authenticated Blind Boolean-Based SQL Injection in new_search_popup.php](https://github.com/openemr/openemr/security/advisories/GHSA-2r7h-xm8v-m872)
+- **[High]** [Missing Authorization in Procedure Order AJAX Deletion Handler](https://github.com/openemr/openemr/security/advisories/GHSA-3vvq-pfq6-pw98)
+- **[High]** [Stored XSS in patient encounter Eye Exam form $CHRONIC2 and $CHRONIC3](https://github.com/openemr/openemr/security/advisories/GHSA-6ch2-p26g-x33h)
+- **[High]** [Missing Authorization on Claim File Download Endpoint](https://github.com/openemr/openemr/security/advisories/GHSA-g3p5-5grq-m65m)
+- **[High]** [Stored XSS in CCDA Preview via Unsanitized linkHtml Attributes](https://github.com/openemr/openemr/security/advisories/GHSA-g77x-9p3x-2j8f)
+- **[High]** [IDOR in Patient Notes Web UI allows unauthorized note access/modification](https://github.com/openemr/openemr/security/advisories/GHSA-8gj5-r8vm-mghq)
+- **[High]** [XInclude Injection in CCDA Import Allows Reading Arbitrary Server Files](https://github.com/openemr/openemr/security/advisories/GHSA-9757-3cfj-wc8q)
+- **[High]** [SQL Injection in CAMOS Form](https://github.com/openemr/openemr/security/advisories/GHSA-r6xq-mfwf-wgq8)
+- **[High]** [SQL Injection in PostCalendar Category Delete](https://github.com/openemr/openemr/security/advisories/GHSA-rq3v-38x5-3rm5)
+- **[Medium]** [Improper ACL On Import/Export Popup](https://github.com/openemr/openemr/security/advisories/GHSA-54m8-wpg9-9665)
+- **[Medium]** [SQL Injection via Unsanitized Variables in MedEx Recall/Reminder Processing](https://github.com/openemr/openemr/security/advisories/GHSA-6vx2-w9hw-prqj)
+- **[Medium]** [Reflected XSS via Unescaped contextName Parameter in Custom Template Editor](https://github.com/openemr/openemr/security/advisories/GHSA-9qh7-cfq4-j7c3)
+- **[Medium]** [Reflected XSS in ajax_download.php via reportID parameter](https://github.com/openemr/openemr/security/advisories/GHSA-cpph-949w-w79v)
+- **[Medium]** [IDOR in Portal Payment Page Allows Cross-Patient Record Access](https://github.com/openemr/openemr/security/advisories/GHSA-hf37-5rp9-j27j)
+- **[Medium]** [IDOR in Fee Sheet Product Save](https://github.com/openemr/openemr/security/advisories/GHSA-pvvj-mv7h-7847)
+- **[Medium]** [Missing Authorization in show-signature.php Allows Portal Patients to Read Staff Signatures](https://github.com/openemr/openemr/security/advisories/GHSA-w9w5-7x6h-657q)
+- **[Medium]** [Missing ACL Checks on Insurance Company API Routes](https://github.com/openemr/openemr/security/advisories/GHSA-ww94-26v7-x4gp)
+- **[Medium]** [Reflected XSS in graphs.php via title parameter](https://github.com/openemr/openemr/security/advisories/GHSA-wwhf-6cvc-6766)
+- Missing ACL check on eRx log viewer
+- Parameterize all SQL in deleter.php
+- Add CSRF protection and parameterize SQL in new_payment.php
+- Parameterize SQL, add CSRF, fix serialization injection in portal appointment
+- Parameterize SQL in pnotes.inc.php
+- Prevent open redirect in portal messaging ([#11223](https://github.com/openemr/openemr/pull/11223))
+
+#### Bug Fixes
+
+- Include custom LBF layout forms in patient report ([#11146](https://github.com/openemr/openemr/pull/11146))
+- Hide dispensed medications section when inhouse_pharmacy is disabled ([#11144](https://github.com/openemr/openemr/pull/11144))
+- Correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
+- Align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
+- Enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
+- Correct typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+- Avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
+- Accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
+- Add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
+- Qualify column reference in CareTeamService::getCareTeamData() ([#10899](https://github.com/openemr/openemr/pull/10899))
+- Add state license number to eye prescription popup ([#10894](https://github.com/openemr/openemr/pull/10894))
+- Create certificates directory before writing key files ([#10888](https://github.com/openemr/openemr/pull/10888))
+- Dispense glasses Rx: manifest/dispensed refraction ([#10882](https://github.com/openemr/openemr/pull/10882))
+- Use theme-stable colors for receipt background contrast ([#10851](https://github.com/openemr/openemr/pull/10851))
+
+### Changed
+
+- Add missing GHSA and fix advisory URLs in 8.0.0.2 changelog ([#11180](https://github.com/openemr/openemr/pull/11180))
+
+## [8.0.0.2](https://github.com/openemr/openemr/milestone/27?closed=1) - 2026-03-18
+
+### Fixed
+
+#### Security
+
+- **[Critical]** [RCE in backup.php command injection](https://github.com/openemr/openemr/security/advisories/GHSA-6pmc-3xm7-pm86)
+- **[High]** [Stored XSS in Eye Exam form answers](https://github.com/openemr/openemr/security/advisories/GHSA-pgvq-f22q-2whp)
+- **[High]** [SSRF via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-5pc3-2crw-96rv)
+- **[High]** [Arbitrary file read via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-v9v3-q973-xp2h)
+- **[High]** [zhAclCheck ignores explicit ACL denies](https://github.com/openemr/openemr/security/advisories/GHSA-v68v-pwc4-8p2m)
+- **[Medium]** [DICOM path traversal](https://github.com/openemr/openemr/security/advisories/GHSA-rppw-f689-6hrm)
+- **[Medium]** [Vitals IDOR (POST + PUT + legacy form)](https://github.com/openemr/openemr/security/advisories/GHSA-mv9m-j65p-g55f)
+- **[Medium]** [DOM XSS via SearchHighlight](https://github.com/openemr/openemr/security/advisories/GHSA-q283-5j7f-r6hp)
+- **[Medium]** [Stored XSS in portal credential print view](https://github.com/openemr/openemr/security/advisories/GHSA-cp37-pmfx-5mhm)
+- **[Medium]** [Authorization bypass in dated reminders log](https://github.com/openemr/openemr/security/advisories/GHSA-66j9-ffq4-h222)
+- **[Medium]** [Authorization bypass in FaxSMS AppDispatch](https://github.com/openemr/openemr/security/advisories/GHSA-r973-h5cq-35rc)
+
+- PHPSessionWrapper constructor bypasses read_and_close session mode, causing lock contention ([#10931](https://github.com/openemr/openemr/issues/10931))
+
+### Changed
+- FHIR API documentation minor fixes ([#11104](https://github.com/openemr/openemr/pull/11104))
+- remove 2015 reference with schemaspy regen for rel-800 ([#11101](https://github.com/openemr/openemr/pull/11101))
+
+## [8.0.0.1](https://github.com/openemr/openemr/milestone/26?closed=1) - 2026-03-11
+
+### Fixed
+- Security fixes
+  - https://github.com/openemr/openemr/security/advisories/GHSA-v8q6-h79f-736x
+  - https://github.com/openemr/openemr/security/advisories/GHSA-752v-x6m4-6cf8
+  - https://github.com/openemr/openemr/security/advisories/GHSA-244w-vxhp-7x99
+  - https://github.com/openemr/openemr/security/advisories/GHSA-9hw7-22mr-qhfc
+  - https://github.com/openemr/openemr/security/advisories/GHSA-j4mm-wg7q-v57q
+  - https://github.com/openemr/openemr/security/advisories/GHSA-rwf9-px3c-3prw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-68fr-xm3v-p4vw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-4gh4-q39r-45wf
+  - https://github.com/openemr/openemr/security/advisories/GHSA-55qj-x8wh-m4rm
+- Backport #10408 (sms class rename) to rel-800 to fix non-deterministic PHPStan baseline ([#11013](https://github.com/openemr/openemr/issues/11013))
+
+### Changed
+-  Unable to edit/add prescriptions after 7.0.4 upgrade ([#10834](https://github.com/openemr/openemr/issues/10834))
+-  Update path for phpstan baseline artifacts ([#10242](https://github.com/openemr/openemr/pull/10242))
+-  pass encounter/pid in navbar form URLs to prevent stale session ([#10865](https://github.com/openemr/openemr/pull/10865))
+-  voice vendor ID 6 breaks UI after upgrade ([#10947](https://github.com/openemr/openemr/issues/10947))
+-  use AccessDeniedHelper for ACL denial patterns ([#10683](https://github.com/openemr/openemr/pull/10683))
+-  Split conflicting class name definitions ([#10408](https://github.com/openemr/openemr/pull/10408))
+
+
 ## [8.0.0](https://github.com/openemr/openemr/milestone/23?closed=1) - 2026-02-11
 
 ### Added

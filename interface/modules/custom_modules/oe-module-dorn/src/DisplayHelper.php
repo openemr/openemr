@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\Dorn;
 
-
 class DisplayHelper
 {
     public static function SelectOption($compareA, $compareB)

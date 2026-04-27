@@ -74,6 +74,7 @@ trait PopulationSelectors
                 break;
             }
         }
+        /** @var int $found */
         return $found;
     }
 
@@ -82,7 +83,9 @@ trait PopulationSelectors
         // populations.find {|pop| pop.type == population_type}.id
         foreach ($this->populations as $population) {
             if ($population->type == $population_type) {
-                return $population->id;
+                /** @var string $id */
+                $id = $population->id;
+                return $id;
             }
         }
         return false;

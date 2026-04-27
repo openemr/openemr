@@ -75,7 +75,8 @@ class AddressService extends BaseService
         $addressesSql .= "     country=?,";
         $addressesSql .= "     foreign_id=?";
 
-        $addressesSqlResults = QueryUtils::sqlInsert(
+        // throws an exception if the record doesn't insert
+        QueryUtils::sqlInsert(
             $addressesSql,
             [
                 $freshId,
@@ -89,10 +90,6 @@ class AddressService extends BaseService
                 $foreignId
             ]
         );
-
-        if ($addressesSqlResults === 0) {
-            return false;
-        }
 
         return $freshId;
     }

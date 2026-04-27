@@ -12,12 +12,12 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use InvalidArgumentException;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
-use InvalidArgumentException;
 
 trait ResourceServiceSearchTrait
 {

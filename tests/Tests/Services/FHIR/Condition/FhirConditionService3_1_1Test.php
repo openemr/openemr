@@ -19,8 +19,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirConditionService;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for US Core 3.1.1 Condition Profile compliance

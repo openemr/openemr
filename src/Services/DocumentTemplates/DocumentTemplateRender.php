@@ -21,13 +21,17 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use RuntimeException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
 
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/appointments.inc.php');
+require_once($srcDir . '/options.inc.php');
 
 class DocumentTemplateRender
 {
@@ -51,15 +55,16 @@ class DocumentTemplateRender
     private readonly mixed $encounter;
     public $version;
     private readonly DocumentTemplateService $templateService;
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(private $pid, $user, $encounter = null)
+    public function __construct(private $pid, $user, $encounter = null, ?LoggerInterface $logger = null)
     {
-        $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
-        $this->encounter = $encounter ?: $GLOBALS['encounter'];
-        $this->version = (new VersionService())->asString();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->user = $user ?: $session->get('authUserID', 0);
+        $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -111,7 +116,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
             !is_dir($purifyTempDir)
         ) {
@@ -601,7 +606,7 @@ class DocumentTemplateRender
     {
         $tmp = '';
         $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
-            $GLOBALS['pid'],
+            OEGlobalsBag::getInstance()->get('pid'),
             $type
         ]);
         while ($lrow = sqlFetchArray($lres)) {

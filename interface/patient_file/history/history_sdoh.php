@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH form');
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 
 // Fetch record
 if ($is_new) {

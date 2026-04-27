@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Services\Search\ISearchField;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -46,7 +47,10 @@ interface BaseServiceInterface
 
     public function selectHelper($sqlUpToFromStatement, $map);
 
-    public function search($search, $isAndCondition = true);
+    /**
+     * @param array<string, ISearchField> $search
+     */
+    public function search(array $search, $isAndCondition = true);
 
     public function getFreshId($idField, $table);
 

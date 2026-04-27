@@ -1,5 +1,4 @@
 <?php
-use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * import_template.php
@@ -12,9 +11,11 @@ use OpenEMR\Core\OEGlobalsBag;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
     $globalsBag = OEGlobalsBag::getInstance();
     //require_once ("./../verify_session.php");
-    require_once("../../library/options.inc.php");
+    require_once($globalsBag->getString('srcdir') . "/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
     $this->assign('nav', 'patientdata');
     /*

@@ -3,10 +3,10 @@
 namespace OpenEMR\Tests\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Services\Search\SearchQueryConfig;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PatientRestController;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ServerBag;

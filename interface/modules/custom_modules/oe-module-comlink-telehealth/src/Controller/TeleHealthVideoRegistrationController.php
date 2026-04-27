@@ -19,7 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
@@ -27,6 +27,7 @@ use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TeleHealthVideoRegistrationController
@@ -38,14 +39,14 @@ class TeleHealthVideoRegistrationController
     private $userRepository;
 
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
-    {
-        $this->logger = new SystemLogger();
+    public function __construct(
+        private readonly TeleHealthRemoteRegistrationService $remoteService,
+        private readonly TeleHealthProviderRepository $providerRepository,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
@@ -75,8 +76,8 @@ class TeleHealthVideoRegistrationController
             $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // convert uuid to a string value
             $this->createPatientRegistration($patient);
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create patient registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid']]);
+            $this->logger->error("Failed to create patient registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid']]);
         }
     }
 
@@ -98,8 +99,8 @@ class TeleHealthVideoRegistrationController
                 $this->createPatientRegistration($patient);
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create patient registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid'] ?? '']);
+            $this->logger->error("Failed to create patient registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid'] ?? '']);
         }
     }
 
@@ -130,8 +131,8 @@ class TeleHealthVideoRegistrationController
                 );
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create user registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user['uuid']]);
+            $this->logger->error("Failed to create user registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'user' => $user['uuid']]);
         }
     }
 
@@ -192,8 +193,8 @@ class TeleHealthVideoRegistrationController
                 }
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create user registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user]);
+            $this->logger->error("Failed to create user registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'user' => $user]);
         }
     }
 

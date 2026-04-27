@@ -1,17 +1,19 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class C_PatientFinder extends Controller
 {
     function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         ///////////////////////////////////
         //// What should this be?????
         //////////////////////////////////
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&patient_finder&");
+        $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&patient_finder&");
         /////////////////////////////////
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
     function default_action($form_id = '', $form_name = '', $pid = '')
@@ -35,7 +37,7 @@ class C_PatientFinder extends Controller
 
         $this->assign('hidden_ispid', $isPid);
 
-        return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "patient_finder/" . $this->template_mod . "_find.html");
     }
 
     /**

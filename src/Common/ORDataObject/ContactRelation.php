@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactRelation extends ORDataObject implements \JsonSerializable, \Stringable
@@ -86,9 +86,9 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
         $this->start_date = null;
         $this->end_date = null;
         //$this->created_at = new DateTime();
-        //$this->created_by = $_SESSION['authUser'] ?? null;
+        //$this->created_by = $session->get('authUser');
         //$this->updated_at = new DateTime();
-        //$this->updated_by = $_SESSION['authUser'] ?? null;
+        //$this->updated_by = $session->get('authUser');
 
         if (!empty($this->id)) {
             $this->populate();

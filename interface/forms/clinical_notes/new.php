@@ -22,11 +22,12 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
@@ -36,11 +37,13 @@ use OpenEMR\Services\PatientService;
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $clinicalNotesService = new ClinicalNotesService();
 $alertMessage = '';
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'clinical_notes' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, [$_SESSION["pid"], $_SESSION["encounter"]])['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$session->get('pid'), $session->get('encounter')])['form_id'] ?? 0;
     if (!empty($formid)) {
         $alertMessage = xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.");
     }
@@ -59,7 +62,7 @@ $getDefaultValue = function ($items) {
 $defaultType = $getDefaultValue($clinical_notes_type);
 $defaultCategory = $getDefaultValue($clinical_notes_category);
 if ($formid) {
-    $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
+    $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $session->get('pid'), $session->get('encounter')) ?? [];
     $check_res = [];
     foreach ($records as $record) {
         // we are only going to include active clinical notes, but we leave them as historical records in the system
@@ -86,13 +89,13 @@ if ($formid) {
             ,'clinical_notes_type' => $defaultType
             ,'clinical_notes_category' => $defaultCategory
             ,'description' => ''
-            ,'date' => oeFormatShortDate(date('Y-m-d'))
+            ,'date' =>date('Y-m-d')
         ]
     ];
 }
 
 $patientService = new PatientService();
-$patient = $patientService->findByPid($_SESSION['pid']);
+$patient = $patientService->findByPid($session->get('pid'));
 $listService = new ListService();
 $resultCategories = $listService->getOptionsByListName('Observation_Types');
 $twig = new TwigContainer(dirname(__DIR__), OEGlobalsBag::getInstance()->getKernel());
@@ -114,11 +117,11 @@ $viewArgs = [
     ]
     ,'check_res' => $check_res
     ,'alertMessage' => $alertMessage
-    ,'rootdir' => $GLOBALS['rootdir']
+    ,'rootdir' => OEGlobalsBag::getInstance()->getKernel()->getRootDir()
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
-    ,'csrfToken' => CsrfUtils::collectCsrfToken('api')
+    ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'api')
     ,'resultCategories' => $resultCategories ?? []
 ];
 $templatePageEvent = new TemplatePageEvent(

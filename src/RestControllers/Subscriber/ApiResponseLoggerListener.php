@@ -55,7 +55,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             !$request->attributes->has("skipResponseLogging") &&
             $globalsBag->getInt('api_log_option') > 0
         ) {
-            if ($globalsBag->getInt('api_log_option') == 1) {
+            if ($globalsBag->getInt('api_log_option') === 1) {
                 $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
                 // Do not log the response and requestBody
                 $logResponse = '';

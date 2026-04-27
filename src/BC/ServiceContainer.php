@@ -4,7 +4,7 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -13,9 +13,18 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
+use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use Psr\Log\{
+    LoggerInterface,
+    NullLogger,
+};
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\Location;
+use OpenEMR\Services\Storage\Manager;
+use OpenEMR\Services\Storage\ManagerInterface;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Clock\ClockInterface;
@@ -45,14 +54,18 @@ class ServiceContainer
     /** @var array<class-string, object> */
     private static array $overrides = [];
 
+    /** @var array<class-string, object> */
+    private static array $cache = [];
+
     /**
-     * Reset all registered overrides. For testing only.
+     * Reset all registered overrides and cached instances. For testing only.
      *
      * @internal
      */
     public static function reset(): void
     {
         self::$overrides = [];
+        self::$cache = [];
     }
 
     /**
@@ -79,58 +92,119 @@ class ServiceContainer
     }
 
     /**
+     * Resolve a service from cache, overrides, or create via default factory.
+     *
      * @template T of object
      * @param class-string<T> $interface
-     * @return ?T
+     * @param callable(): T $default
+     * @return T
      */
-    private static function resolve(string $interface): ?object
+    private static function resolveOrCreate(string $interface, callable $default): object
     {
-        /** @var ?T */
-        return self::$overrides[$interface] ?? null;
+        if (array_key_exists($interface, self::$cache)) {
+            /** @var T */
+            return self::$cache[$interface];
+        }
+        /** @var T */
+        $instance = self::$overrides[$interface] ?? $default();
+        self::$cache[$interface] = $instance;
+        return $instance;
     }
 
     public static function getClock(): ClockInterface
     {
-        return self::resolve(ClockInterface::class) ?? SystemClock::fromSystemTimezone();
+        return self::resolveOrCreate(
+            ClockInterface::class,
+            // @phpstan-ignore openemr.deprecatedSqlFunction
+            static fn() => SystemClock::fromSystemTimezone(),
+        );
     }
 
     public static function getCrypto(): Crypto\CryptoInterface
     {
-        return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
+        return self::resolveOrCreate(
+            Crypto\CryptoInterface::class,
+            static fn() => new Crypto\CryptoGen(),
+        );
     }
 
     public static function getLogger(): LoggerInterface
     {
-        return self::resolve(LoggerInterface::class) ?? new Logging\SystemLogger();
+        return self::resolveOrCreate(
+            LoggerInterface::class,
+            static function () {
+                if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+                    return new NullLogger();
+                }
+                return new Logging\SystemLogger();
+            },
+        );
     }
 
     public static function getRequestFactory(): RequestFactoryInterface
     {
-        return self::resolve(RequestFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            RequestFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
     }
 
     public static function getResponseFactory(): ResponseFactoryInterface
     {
-        return self::resolve(ResponseFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            ResponseFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
     }
 
     public static function getServerRequestFactory(): ServerRequestFactoryInterface
     {
-        return self::resolve(ServerRequestFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            ServerRequestFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
     }
 
     public static function getStreamFactory(): StreamFactoryInterface
     {
-        return self::resolve(StreamFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            StreamFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
+    }
+
+    public static function getStorageManager(): ManagerInterface
+    {
+        return self::resolveOrCreate(
+            ManagerInterface::class,
+            static function () {
+                $manager = new Manager();
+                $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                foreach (Location::cases() as $location) {
+                    $path = $siteDir . '/' . $location->getDefaultPath();
+                    $manager->register(
+                        $location,
+                        new Filesystem(new LocalFilesystemAdapter($path)),
+                    );
+                }
+                return $manager;
+            },
+        );
     }
 
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface
     {
-        return self::resolve(UploadedFileFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            UploadedFileFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
     }
 
     public static function getUriFactory(): UriFactoryInterface
     {
-        return self::resolve(UriFactoryInterface::class) ?? new Psr17Factory();
+        return self::resolveOrCreate(
+            UriFactoryInterface::class,
+            static fn() => new Psr17Factory(),
+        );
     }
 }

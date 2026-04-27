@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command:
     - mariadbd
     - --character-set-server=utf8mb4
@@ -21,7 +21,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c
     ports:
     - 8080:80
     - 8523:443
@@ -98,7 +98,7 @@ services:
       dockerfile: Dockerfile.terminology
   couchdb:
     restart: always
-    image: couchdb
+    image: couchdb:3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54
     ports:
     - 5984:5984
     - 6984:6984

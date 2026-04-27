@@ -18,8 +18,9 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -119,8 +120,8 @@ class UserService
 
         if (!empty($user)) {
             if (empty($user['uuid'])) {
-                // we should always have this setup, but create them just in case.
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                // we should always have this setup, but create it just in case.
+                UuidRegistry::createMissingUuidForRow('users', 'id', $user['id']);
             }
         }
         return $user;
@@ -147,7 +148,7 @@ class UserService
      */
     public function getCurrentlyLoggedInUser()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
         /** @var UsersRow|false $user */
         $user = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
@@ -211,7 +212,7 @@ class UserService
         //(CHEMED) facility filter
         $param2 = "";
         if (!empty($facility)) {
-            if ($GLOBALS['restrict_user_facility']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
                 $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
                 $bind[] = $facility;
                 $bind[] = $facility;
@@ -236,7 +237,7 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT  id,
                         uuid,
@@ -299,11 +300,11 @@ class UserService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         $sqlBindArray = [];
 

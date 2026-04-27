@@ -10,6 +10,8 @@
 
 namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class ListAuthorizations
 {
     private int $pid;
@@ -32,8 +34,9 @@ class ListAuthorizations
 
     private static function getAuthsFromModulePriorAuth(): false|array
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sql = "SELECT auth_num FROM module_prior_authorizations WHERE pid = ?";
-        $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
+        $auths = sqlStatement($sql, [$session->get('pid')]);
         $auth_array = [];
         while ($row = sqlFetchArray($auths)) {
             $auth_array[] = $row['auth_num'];
@@ -51,6 +54,7 @@ class ListAuthorizations
     {
         $formsAuths = self::formPriorAuth();
         $formMiscBilling = self::formMiscBilling();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $array_merger = array_push($formsAuths, $formMiscBilling) ?? null;
         $moduleAuths = self::getAuthsFromModulePriorAuth() ?? null;
         if (is_array($moduleAuths) && is_array($array_merger)) {
@@ -64,11 +68,11 @@ class ListAuthorizations
                     }
                     if (!empty($getinfo['date_from'])) {
                         $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?, `start_date` = ?, `end_date` = ?";
-                        $bindArray = [$_SESSION['pid'], $auth, $getinfo['date_from'], $getinfo['date_to']];
+                        $bindArray = [$session->get('pid'), $auth, $getinfo['date_from'], $getinfo['date_to']];
                         sqlStatement($saveInfoWithDate, $bindArray);
                     } elseif (!empty($auth)) {
                         $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?";
-                        $bindArray = [$_SESSION['pid'], $auth];
+                        $bindArray = [$session->get('pid'), $auth];
                         sqlStatement($saveInfoWithDate, $bindArray);
                     }
                 }
@@ -83,9 +87,10 @@ class ListAuthorizations
     {
         $doesExist = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'form_form_prior_auth'");
         $auths_array = [];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!empty($doesExist)) {
             $sql = "select prior_auth_number from form_prior_auth where pid = ?";
-            $auths = sqlStatement($sql, [$_SESSION['pid']]);
+            $auths = sqlStatement($sql, [$session->get('pid')]);
             while ($row = sqlFetchArray($auths)) {
                 $auths_array[] = $row['prior_auth_number'];
             }
@@ -99,8 +104,9 @@ class ListAuthorizations
      */
     private static function formMiscBilling(): array
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sql = "select prior_auth_number from form_misc_billing_options where pid = ?";
-        $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
+        $auths = sqlStatement($sql, [$session->get('pid')]);
         $auths_array = [];
         while ($row = sqlFetchArray($auths)) {
             $auths_array[] = $row['prior_auth_number'];

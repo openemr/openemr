@@ -13,6 +13,8 @@
 
 namespace OpenEMR\FHIR\Config;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ServerConfig
 {
@@ -35,11 +37,13 @@ class ServerConfig
 
     public function __construct()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we may let these be injected at another point in time but for now we set this up as globals
-        $this->siteId = $_SESSION['site_id'] ?? '';
-        $this->oauthAddress = $GLOBALS['site_addr_oath'] ?? $_SERVER['HTTP_HOST'];
-        $this->webServerRoot = $GLOBALS['fileroot'] ?? '';
-        $this->webRoot = $GLOBALS['web_root'] ?? '';
+        $this->siteId = $session->get('site_id') ?? '';
+        $globalsBag = OEGlobalsBag::getInstance();
+        $this->oauthAddress = $globalsBag->get('site_addr_oath') ?? $_SERVER['HTTP_HOST'];
+        $this->webServerRoot = $globalsBag->getProjectDir();
+        $this->webRoot = $globalsBag->getWebRoot();
     }
 
     /**
@@ -145,7 +149,7 @@ class ServerConfig
     {
         // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
         $site = $this->getSiteId() ?? "default";
-        $webServerRoot = $this->getWebServerRoot() ?? $GLOBALS['fileroot'] ?? "";
+        $webServerRoot = $this->getWebServerRoot() ?? OEGlobalsBag::getInstance()->getProjectDir();
         // if we can't get the web server root then we can't get the public key
         if (empty($webServerRoot)) {
             throw new \RuntimeException("Unable to determine web server root");
@@ -182,6 +186,6 @@ class ServerConfig
 
     public function areSystemScopesEnabled()
     {
-        return $GLOBALS['rest_system_scopes_api'] === '1';
+        return OEGlobalsBag::getInstance()->get('rest_system_scopes_api') === '1';
     }
 }

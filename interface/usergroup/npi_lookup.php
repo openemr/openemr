@@ -14,22 +14,25 @@
 
 require_once("../globals.php");
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use GuzzleHttp\Client as Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ConnectException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::deny('Unauthorized access to NPI lookup', format: AccessDeniedResponseFormat::Json);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Verify CSRF token for security
 if (
-    !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')
+    !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '', session: $session)
 ) {
     http_response_code(403);
     echo json_encode(['error' => 'Invalid CSRF token']);
@@ -84,7 +87,7 @@ if (isset($queryParams['limit']) && $queryParams['limit'] > 200) {
 $apiUrl = 'https://npiregistry.cms.hhs.gov/api/';
 
 // Log the request (optional - for debugging)
-if (!empty($GLOBALS['debug_mode'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('debug_mode'))) {
     error_log("NPI Lookup Request: " . $apiUrl . '?' . http_build_query($queryParams));
 }
 
@@ -114,7 +117,7 @@ try {
         http_response_code(500);
         echo json_encode([
             'error' => 'Invalid response from NPPES Registry',
-            'message' => $GLOBALS['debug_mode'] ? json_last_error_msg() : 'Invalid response format'
+            'message' => OEGlobalsBag::getInstance()->get('debug_mode') ? json_last_error_msg() : 'Invalid response format'
         ]);
         exit;
     }
@@ -124,7 +127,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Failed to connect to NPPES Registry',
-        'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Connection error'
+        'message' => OEGlobalsBag::getInstance()->get('debug_mode') ? $e->getMessage() : 'Connection error'
     ]);
     exit;
 } catch (RequestException $e) {
@@ -138,7 +141,7 @@ try {
     echo json_encode([
         'error' => 'NPPES Registry returned error',
         'http_code' => $statusCode,
-        'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Registry error'
+        'message' => OEGlobalsBag::getInstance()->get('debug_mode') ? $e->getMessage() : 'Registry error'
     ]);
     exit;
 } catch (\Throwable $e) {
@@ -147,7 +150,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Unexpected error occurred',
-        'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Server error'
+        'message' => OEGlobalsBag::getInstance()->get('debug_mode') ? $e->getMessage() : 'Server error'
     ]);
     exit;
 }

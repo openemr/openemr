@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use HTML_TreeNode;
 use CategoryTree;
+use HTML_TreeNode;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientDocumentTreeViewFilterEvent extends Event

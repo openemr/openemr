@@ -23,12 +23,15 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc.php");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use phpseclib3\Net\SFTP;
 
 $rhl7_return = [];
@@ -73,10 +76,11 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         EventAuditLogger::getInstance()->newEvent(
             "lab-results-error",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             0,
             $msg
         );
@@ -591,7 +595,9 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
         return;
     }
 
-    $message_sender = $_SESSION['authUser'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUser = $session->get('authUser');
+    $message_sender = $authUser;
     $message_group = 'Default';
     $authorized = '0';
     $activity = '1';
@@ -602,7 +608,7 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
     }
 
     if (!$assigned_to) {
-        $assigned_to = $_SESSION['authUser'];
+        $assigned_to = $authUser;
     }
     $notify = $assigned_to; //@todo get user lookup
 
@@ -786,17 +792,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     // We'll need the document category IDs for any embedded documents.
     $catrow = sqlQuery(
         "SELECT id FROM categories WHERE name = ?",
-        [$GLOBALS['lab_results_category_name']]
+        [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]
     );
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
-            ': ' . $GLOBALS['lab_results_category_name'], true);
+            ': ' . OEGlobalsBag::getInstance()->getString('lab_results_category_name'), true);
     } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [$GLOBALS['gbl_mdm_category_name']]
+            [OEGlobalsBag::getInstance()->getString('gbl_mdm_category_name')]
         );
         if (!empty($catrow['id'])) {
             $mdm_category_id = $catrow['id'];
@@ -1196,32 +1202,37 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $lkup = lookupTestCode($lab_id, $in_procedure_code);
                     $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
                     $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
-                    sqlBeginTrans();
-                    $procedure_order_seq = sqlQuery(
-                        "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code " .
-                        "WHERE procedure_order_id = ? ",
-                        [$in_orderid]
-                    );
-                    sqlInsert(
-                        "INSERT INTO procedure_order_code SET " .
-                        "procedure_order_id = ?, " .
-                        "procedure_order_seq = ?, " .
-                        "procedure_code = ?, " .
-                        "procedure_name = ?, " .
-                        "procedure_type = ?, " .
-                        "transport = ?, " .
-                        "procedure_source = '2'",
-                        [
-                            $in_orderid,
-                            $procedure_order_seq['increment'],
-                            $in_procedure_code,
-                            $in_procedure_name,
-                            $code_type,
-                            $code_transport
-                        ]
-                    );
-                    $pcrow = sqlQuery($pcquery, $pcqueryargs);
-                    sqlCommitTrans();
+                    $pcrow = QueryUtils::inTransaction(function () use ($in_orderid, $in_procedure_code, $in_procedure_name, $code_type, $code_transport, $pcquery, $pcqueryargs) {
+                        $procedure_order_seq = sqlQuery(
+                            <<<'SQL'
+                            SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS increment
+                            FROM procedure_order_code
+                            WHERE procedure_order_id = ?
+                            SQL,
+                            [$in_orderid]
+                        );
+                        sqlInsert(
+                            <<<'SQL'
+                            INSERT INTO procedure_order_code SET
+                                procedure_order_id = ?,
+                                procedure_order_seq = ?,
+                                procedure_code = ?,
+                                procedure_name = ?,
+                                procedure_type = ?,
+                                transport = ?,
+                                procedure_source = '2'
+                            SQL,
+                            [
+                                $in_orderid,
+                                $procedure_order_seq['increment'],
+                                $in_procedure_code,
+                                $in_procedure_name,
+                                $code_type,
+                                $code_transport,
+                            ]
+                        );
+                        return sqlQuery($pcquery, $pcqueryargs);
+                    });
                 } else {
                     // Dry run, make a dummy procedure_order_code row.
                     $pcrow = [
@@ -1536,7 +1547,7 @@ function poll_hl7_results(&$info, $labs = 0)
         $hl7 = '';
         $orphanLog = '';
         $log = '';
-        $logpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results/logs/$lab_npi";
+        $logpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results/logs/$lab_npi";
 
         if ($ppid !== $labs && $labs > 0) {
             continue;
@@ -1583,7 +1594,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                         throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
@@ -1715,7 +1726,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath) && !mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                     throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                 }
@@ -1847,7 +1858,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                         throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
@@ -1938,8 +1949,8 @@ function poll_hl7_results(&$info, $labs = 0)
  */
 function hl7Crypt($content)
 {
-    if ($GLOBALS['drive_encryption']) {
-        $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+        $content = (ServiceContainer::getCrypto())->encryptStandard($content, keySource: KeySource::Database);
     }
 
     return $content;

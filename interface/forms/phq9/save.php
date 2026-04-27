@@ -16,10 +16,11 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -47,9 +48,9 @@ if ($_GET["mode"] == "new") {
             difficulty=?
             where id=? ",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             $_POST["interest_score"],
             $_POST["hopeless_score"],
@@ -58,8 +59,8 @@ if ($_GET["mode"] == "new") {
             $_POST["appetite_score"],
             $_POST["failure_score"],
             $_POST["focus_score"],
-        $_POST["psychomotor_score"],
-        $_POST["suicide_score"],
+            $_POST["psychomotor_score"],
+            $_POST["suicide_score"],
             $_POST["difficulty"],
             $_GET["id"]
         ]

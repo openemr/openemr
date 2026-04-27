@@ -11,17 +11,17 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRValueSet;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetCompose;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetCompose;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetConcept;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude;
 use OpenEMR\Services\AppointmentService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -133,7 +133,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
             $this->addListOptionsValueSetsForSearch($fhirSearchResult, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->errorLogCaller("search exception thrown", ['message' => $exception->getMessage(),
+            ServiceContainer::getLogger()->error("search exception thrown", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

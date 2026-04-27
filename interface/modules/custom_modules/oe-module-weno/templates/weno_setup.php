@@ -15,7 +15,9 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
@@ -38,8 +40,8 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_provider_email'] = '';
 $vendors['weno_provider_password'] = '';
 
-$facilityUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
-$usersUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
+$facilityUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
+$usersUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
 $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;
@@ -48,10 +50,9 @@ $wenoLog = new WenoLogService();
 $posts = $_POST;
 $posts['weno_admin_password'] = 'Privileged';
 $posts['weno_provider_password'] = 'Privileged';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (($_POST['form_save'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $isValidKey = $wenoValidate->verifyEncryptionKey();
@@ -61,9 +62,7 @@ if (($_POST['form_save'] ?? null)) {
     $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin verify Encryption Key", text($msg));
 }
 if (($_POST['form_save_top'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $saveActionPersist = true;
@@ -71,9 +70,7 @@ if (($_POST['form_save_top'] ?? null)) {
     $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin Auto Save", $posted);
 }
 if (isset($_REQUEST['form_reset_key'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     unset($_GET['form_reset_key']);
     // if we are here then we need to reset the key.
     $newKey = $wenoValidate->requestEncryptionKeyReset();
@@ -103,10 +100,10 @@ $vendors = $boot->getVendorGlobals();
     <script>
         $(function () {
             const form = document.querySelector('#set_form');
-            let isValidKey = <?php echo js_escape($isValidKey); ?>;
-            let saveAction = <?php echo js_escape($saveAction); ?>;
+            let isValidKey = <?php echo js_escape((int) $isValidKey); ?>;
+            let saveAction = <?php echo js_escape((int) $saveAction); ?>;
             let isPersistEvent = false;
-            let saveActionPersist = <?php echo js_escape($saveActionPersist); ?>;
+            let saveActionPersist = <?php echo js_escape((int) $saveActionPersist); ?>;
             let scrollPosition = 0;
 
             // Persist form submit so to scroll where left off.
@@ -232,7 +229,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="#">
             <div id="set-weno">
-                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <!-- never active and for persist submit. -->
                 <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="true"></button>
                 <div class="row form-group">

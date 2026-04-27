@@ -22,6 +22,7 @@ namespace OpenEMR\Services\SDOH;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\BaseService;
@@ -283,7 +284,8 @@ class HistorySdohService extends BaseService
             return [];
         }
 
-        $site = $_SESSION['site_id'] ?? 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site = $session->get('site_id', 'default');
         $encId = (int)($row['encounter'] ?? 0);
         $assessDt = (string)($row['assessment_date'] ?? substr((string)($row['updated_at'] ?? ''), 0, 10));
         $assessDt = $assessDt ?: date('Y-m-d');
@@ -1052,7 +1054,8 @@ class HistorySdohService extends BaseService
             return [];
         }
 
-        $site = $_SESSION['site_id'] ?? 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site = $session->get('site_id', 'default');
         $encId = (int)($row['encounter'] ?? 0);
         $assessDt = (string)($row['assessment_date'] ?? substr((string)($row['updated_at'] ?? ''), 0, 10));
         $assessDt = $assessDt ?: date('Y-m-d');

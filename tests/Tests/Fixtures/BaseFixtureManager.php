@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchQueryFragment;
 
@@ -22,31 +22,51 @@ abstract class BaseFixtureManager
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
     private $hasInstalledFixtured;
-    private $fixtures;
+    /** @var array<string, mixed>[] */
+    private $fixtures = [];
 
     public function __construct(private $fileName = "", private $tableName = "")
     {
         $this->hasInstalledFixtured = false;
     }
 
+    /**
+     * @return array<string, mixed>[]
+     */
     protected function getFixturesFromFile()
     {
-        if (empty($this->fixtures)) {
-            $this->fixtures = $this->loadJsonFile($this->fileName);
+        if (count($this->fixtures) === 0) {
+            $this->fixtures = $this->loadPhpFile($this->fileName);
         }
         return $this->fixtures;
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * Load a PHP fixture file that returns a typed array.
+     *
+     * @return array<string, mixed>[]
      */
-    protected function loadJsonFile($fileName)
+    protected function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file, returning the data as an array of records.
+     * Use for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    protected function loadJsonFile(string $fileName): array
+    {
+        $filePath = __DIR__ . '/' . $fileName;
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents($filePath), true);
         return $parsedRecords;
     }
 
@@ -113,10 +133,9 @@ abstract class BaseFixtureManager
                 }
             }
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            $isInserted = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) {
-                $insertCount += 1;
-            }
+            // sqlInsert throws on failure, so if we get here the insert succeeded
+            QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $insertCount += 1;
         }
         return $insertCount;
     }
@@ -144,7 +163,7 @@ abstract class BaseFixtureManager
     }
 
     /**
-     * @return a random fixture.
+     * @return array<string, mixed> Random fixture.
      */
     public function getSingleFixture()
     {
@@ -207,13 +226,14 @@ abstract class BaseFixtureManager
                 return new SearchQueryFragment($sql, [$searchValue]);
             }
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
+            ServiceContainer::getLogger()->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     protected function getSingleEntry($array)
     {

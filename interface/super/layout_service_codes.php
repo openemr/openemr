@@ -14,11 +14,12 @@
  */
 
 require_once('../globals.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -63,12 +64,10 @@ function applyCode($layoutid, $codetype, $code, $description): void
 <body class="body_top">
 
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thecodes = [];
     $tmp_name = $_FILES['form_file']['tmp_name'];
@@ -147,7 +146,7 @@ if (!empty($_POST['bn_upload'])) {
 ?>
 <form method='post' action='layout_service_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

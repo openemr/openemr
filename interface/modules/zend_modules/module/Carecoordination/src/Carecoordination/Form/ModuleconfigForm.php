@@ -12,8 +12,8 @@
 
 namespace Carecoordination\Form;
 
-use Laminas\Form\Form;
 use Application\Listener\Listener;
+use Laminas\Form\Form;
 use OpenEMR\Common\Database\QueryUtils;
 
 class ModuleconfigForm extends Form

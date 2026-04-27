@@ -1,4 +1,5 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 

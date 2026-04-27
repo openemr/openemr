@@ -11,17 +11,20 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use Psr\Log\LoggerInterface;
 
 class FhirExportJobService
 {
-    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
+    private readonly LoggerInterface $logger;
+
+    public function __construct(?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
     // TODO: @adunsulag is there another place in the system that has our standard datetime constants?
     /**
