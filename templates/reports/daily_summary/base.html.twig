@@ -1,12 +1,26 @@
-{% extends "base.html.twig" %}
-
-{% block title %}{{ 'Daily Summary Report' | xlt }}{% endblock %}
-
-{% block content %}
+<html>
+<head>
+    <title>{{ pageTitle | text }}</title>
+    {{ setupHeader(['datetime-picker', 'report-helper']) }}
+    <style>
+        @media print {
+            #report_parameters {
+                display: none;
+                visibility: hidden;
+            }
+        }
+        @media screen {
+            .datepicker {
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body class="body_top">
 <div class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="h3">{{ 'Report' | xlt }} - {{ 'Daily Summary Report' | xlt }}</h1>
+            <span class="title">{{ pageTitle | text }}</span>
         </div>
     </div>
 
@@ -95,19 +109,5 @@
         win.printLogSetup(document.getElementById('printbutton'));
     });
 </script>
-
-<style>
-    @media print {
-        #report_parameters {
-            display: none;
-            visibility: hidden;
-        }
-    }
-
-    @media screen {
-        .datepicker {
-            cursor: pointer;
-        }
-    }
-</style>
-{% endblock %}
+</body>
+</html>
