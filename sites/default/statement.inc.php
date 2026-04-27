@@ -981,9 +981,11 @@ function osp_create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
+        $lineDesc = $line['desc'];
+        $lineDescStr = is_string($lineDesc) ? $lineDesc : '';
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr($lineDescStr, 0, 30) : $lineDescStr;
 
-        $tmp = substr((string) $description, 0, 14);
+        $tmp = substr($description, 0, 14);
         if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
@@ -991,9 +993,10 @@ function osp_create_HTML_statement($stmt)
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
+        $dosStr = is_string($dos) ? $dos : '';
         ksort($line['detail']);
         # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime($dosStr)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
@@ -1024,8 +1027,8 @@ function osp_create_HTML_statement($stmt)
                 $desc = $description;
             }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
-            $dos = '';
+            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dosStr), $desc, $amount);
+            $dosStr = '';
             ++$count;
         }
     }
@@ -1057,8 +1060,9 @@ function osp_create_HTML_statement($stmt)
 
     // This is the top portion of the page.
     $out .= "\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
-        $out .= sprintf("%-46s\n", $stmt['bill_note']);
+    $billNote = $stmt['bill_note'];
+    if (is_string($billNote) && strlen($billNote) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
+        $out .= sprintf("%-46s\n", $billNote);
         $count++;
     }
 
@@ -1068,14 +1072,22 @@ function osp_create_HTML_statement($stmt)
     }
 
     $out .= "\n";
+    $patientName = $stmt['patient'];
+    if (!is_string($patientName)) {
+        $patientName = '';
+    }
+    $amountDue = $stmt['amount'];
+    if (!is_string($amountDue)) {
+        $amountDue = '';
+    }
     $out .= sprintf(
         "%-s: %-25s %-s: %-14s %-s: %8s\n",
         $label_ptname,
-        $stmt['patient'],
+        $patientName,
         $label_today,
         oeFormatShortDate($stmt['today']),
         $label_due,
-        $stmt['amount']
+        $amountDue
     );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
@@ -1111,8 +1123,9 @@ function osp_create_HTML_statement($stmt)
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
-            if (strlen((string) $events[$j]['umname']) != 0) {
+            $next_appoint_time = substr(is_string($pcStartTime = $events[$j]['pc_startTime']) ? $pcStartTime : '', 0, 5);
+            $umname = $events[$j]['umname'];
+            if (is_string($umname) && strlen($umname) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
@@ -1149,7 +1162,7 @@ function osp_create_HTML_statement($stmt)
 
     $out .= '</div><br />';
     if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        $out .= sprintf("   %-32s\n", (is_string($stmtTo3 = $stmt['to'][3]) ? $stmtTo3 : ''));
     }
 
     $out .= ' </pre>

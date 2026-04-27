@@ -69,16 +69,16 @@ class BulkAPITestClient extends ApiTestClient
 
         if ($this->client_id === null || $this->client_id === '') {
             $clientEntity = $this->registerClient($authURL, $credentials['jwks']);
-            /** @var string $identifier */
+            /** @var non-empty-string $identifier */
             $identifier = $clientEntity->getIdentifier();
             $this->client_id = $identifier;
         }
 
         $oauthTokenUrl = $this->baseUrl . $authURL . '/token';
         /** @var InMemory $privateKey */
+        /** @var InMemory $publicKey */
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $privateKey,
-            /** @var InMemory $publicKey */
             $publicKey,
             $oauthTokenUrl,
             $this->client_id

@@ -2282,6 +2282,48 @@ $GLOBALS_METADATA = [
             xl('This Client ID Is Provided By Google For Your App (Required For Google Sign-in)')
         ],
 
+        'oidc_enabled' => [
+            xl('Enable OIDC Authentication'),
+            'bool',
+            '0',
+            xl('Master switch for OIDC/SSO authentication via external identity providers')
+        ],
+
+        'oidc_clock_skew_seconds' => [
+            xl('OIDC Clock Skew (seconds)'),
+            'num',
+            '30',
+            xl('Allowed clock skew tolerance for OIDC token validation')
+        ],
+
+        'oidc_session_revalidation_minutes' => [
+            xl('OIDC Session Re-validation (minutes)'),
+            'num',
+            '5',
+            xl('How often to re-check OIDC token validity during an active session')
+        ],
+
+        'oidc_local_login_disabled' => [
+            xl('Disable Local Password Login'),
+            'bool',
+            '0',
+            xl('When enabled, local password login is disabled and only OIDC authentication is allowed')
+        ],
+
+        'oidc_cache_backend' => [
+            xl('OIDC Cache Backend'),
+            ['filesystem' => xl('Filesystem'), 'database' => xl('Database'), 'redis' => xl('Redis')],
+            'filesystem',
+            xl('Cache backend for OIDC discovery and JWKS data')
+        ],
+
+        'oidc_refresh_margin_minutes' => [
+            xl('OIDC Token Refresh Margin (Minutes)'),
+            'num',
+            '5',
+            xl('Minutes before OIDC token expiry to trigger silent client-side refresh')
+        ],
+
         'gbl_ldap_enabled' => [
             xl('Use LDAP for Authentication'),
             'bool',

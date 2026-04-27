@@ -1,0 +1,3 @@
+GCIP Auth Module v1.0.0
+Google Cloud Identity Platform authentication for OpenEMR.
+Enables SSO via Firebase/GCIP identity providers.

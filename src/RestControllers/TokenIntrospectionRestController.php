@@ -182,7 +182,11 @@ class TokenIntrospectionRestController {
 
     public function getJsonWebKeyParser() : JsonWebKeyParser {
         if (!isset($this->jsonWebKeyParser)) {
-            $this->jsonWebKeyParser = new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $this->getOAuth2KeyConfig()->getPublicKeyLocation());
+            $publicKeyLocation = $this->getOAuth2KeyConfig()->getPublicKeyLocation();
+            if (!is_string($publicKeyLocation) || $publicKeyLocation === '') {
+                throw new \RuntimeException('OAuth2 public key location is not configured');
+            }
+            $this->jsonWebKeyParser = new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $publicKeyLocation);
         }
         return $this->jsonWebKeyParser;
     }
@@ -216,8 +220,12 @@ class TokenIntrospectionRestController {
 
 
     public function getJWTClientAuthenticationService(): JWTClientAuthenticationService {
+        $tokenUrl = $this->getServerConfig()->getTokenUrl();
+        if ($tokenUrl === '') {
+            throw new \RuntimeException('OAuth2 token URL is not configured');
+        }
         return new JWTClientAuthenticationService(
-            $this->getServerConfig()->getTokenUrl(),
+            $tokenUrl,
             $this->getClientRepository(),
             $this->getJWTRepository(),
             null
@@ -308,8 +316,12 @@ class TokenIntrospectionRestController {
             // Handle JWT client authentication if present
             if (!empty($clientAssertion) && !empty($clientAssertionType)) {
                 // Create JWT authentication service
+                $tokenUrl = $this->getServerConfig()->getTokenUrl();
+                if ($tokenUrl === '') {
+                    throw new \RuntimeException('OAuth2 token URL is not configured');
+                }
                 $jwtAuthService = new JWTClientAuthenticationService(
-                    $this->getServerConfig()->getTokenUrl(),
+                    $tokenUrl,
                     $this->getClientRepository(),
                     new JWTRepository(),
                     null

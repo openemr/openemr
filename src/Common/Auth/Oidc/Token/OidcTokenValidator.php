@@ -1,0 +1,252 @@
+<?php
+
+/**
+ * Validates OIDC ID tokens (JWTs).
+ *
+ * This is the central validation component for external OIDC authentication.
+ * Both the web UI flow and the API flow use this class.
+ *
+ * Validation steps (in order):
+ *  1. Parse JWT and extract header (kid, alg)
+ *  2. Reject disallowed algorithms (e.g. "none")
+ *  3. Resolve signing key from JWKS via JsonWebKeySet (cached + rotation-aware)
+ *  4. Verify cryptographic signature
+ *  5. Verify iss matches expected issuer
+ *  6. Verify aud contains expected client ID
+ *  7. Verify exp > current time (with clock skew tolerance)
+ *  8. Verify iat is not unreasonably far in the past
+ *  9. Map claims to NormalizedIdentity via ClaimMapperInterface
+ * 10. Return ValidatedToken
+ *
+ * @link      https://www.open-emr.org
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Common\Auth\Oidc\Token;
+
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer;
+use Lcobucci\JWT\Signer\Rsa\Sha256 as RsSha256;
+use Lcobucci\JWT\Signer\Rsa\Sha384 as RsSha384;
+use Lcobucci\JWT\Signer\Rsa\Sha512 as RsSha512;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Lcobucci\JWT\Validation\Constraint\PermittedFor;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator;
+use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use Psr\Clock\ClockInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
+
+readonly class OidcTokenValidator
+{
+    public function __construct(
+        private ClientInterface $httpClient,
+        private ClaimMapperInterface $claimMapper,
+        private ClockInterface $clock,
+        private JWTRepository $jwtRepository,
+        private ?CacheInterface $cache = null,
+        private ?LoggerInterface $logger = null,
+    ) {
+    }
+
+    /**
+     * Validate an OIDC ID token and return a ValidatedToken on success.
+     *
+     * @param string $idToken The raw JWT string.
+     * @param string $jwksUri The provider's JWKS endpoint URI.
+     * @param OidcValidationParameters $parameters Validation configuration.
+     * @throws OidcTokenValidationException On any validation failure.
+     * @throws \Exception
+     */
+    public function validate(
+        string $idToken,
+        string $jwksUri,
+        OidcValidationParameters $parameters,
+    ): ValidatedToken {
+        if ($idToken === '') {
+            throw new OidcTokenValidationException('ID token is empty');
+        }
+
+        // Step 1: Parse the JWT
+        try {
+            $token = (new Parser(new JoseEncoder()))->parse($idToken);
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
+            throw new OidcTokenValidationException('Failed to parse ID token', 0, $e);
+        }
+
+        if (!$token instanceof Plain) {
+            throw new OidcTokenValidationException('ID token is not a signed JWT');
+        }
+
+        // Step 2: Extract and validate algorithm
+        $alg = $token->headers()->get('alg', '');
+        if (!is_string($alg) || !in_array($alg, $parameters->allowedAlgorithms, true)) {
+            throw new OidcTokenValidationException(
+                "Unsupported or disallowed algorithm: " . (is_string($alg) ? $alg : 'unknown'),
+            );
+        }
+
+        $signer = $this->signerForAlgorithm($alg);
+
+        // Step 3: Get signing key by kid
+        $kid = $token->headers()->get('kid', '');
+        if (!is_string($kid) || $kid === '') {
+            throw new OidcTokenValidationException('ID token missing "kid" header');
+        }
+
+        try {
+            $jwks = new JsonWebKeySet(
+                $this->httpClient,
+                $jwksUri,
+                null,
+                $this->logger,
+                $this->cache,
+            );
+            $publicKey = $jwks->getSigningKeyAsPem($kid, $alg);
+        } catch (JWKValidatorException $e) {
+            throw new OidcTokenValidationException('Failed to retrieve signing key', 0, $e);
+        }
+
+        // Step 4-7: Verify signature, issuer, audience, time claims
+        $constraints = [
+            new SignedWith($signer, $publicKey),
+            new IssuedBy($parameters->expectedIssuer),
+            new PermittedFor($parameters->expectedAudience),
+            // LooseValidAt tolerates missing "nbf" claim, which Firebase/GCIP
+            // tokens do not include. It still validates "exp" and "iat".
+            new LooseValidAt(
+                $this->clock,
+                new \DateInterval('PT' . $parameters->clockSkewSeconds . 'S'),
+            ),
+        ];
+
+        try {
+            (new Validator())->assert($token, ...$constraints);
+        } catch (RequiredConstraintsViolated $e) {
+            throw new OidcTokenValidationException('Token validation failed', 0, $e);
+        }
+
+        // Step 8: Verify iat is not unreasonably old
+        $iat = $token->claims()->get('iat');
+        if ($iat instanceof \DateTimeInterface) {
+            $maxAge = $this->clock->now()->getTimestamp() - $parameters->maxTokenAgeSeconds;
+            if ($iat->getTimestamp() < $maxAge) {
+                throw new OidcTokenValidationException('Token iat claim is too far in the past');
+            }
+        }
+
+        // JTI replay protection.
+        //
+        // Every ID-token validation records a replay key so a second presentation
+        // of the same token is rejected. Providers that omit the "jti" claim
+        // (notably Firebase/GCIP in some configurations) fall back to a synthetic
+        // key derived from (iss, sub, iat), which is unique per token issuance.
+        //
+        // The repository's "jti_exp > ?" filter is passed the current clock time
+        // (not the token's own exp), so the lookup returns "has this jti been
+        // seen recently, and is the stored record still within its validity
+        // window". Records past their stored jti_exp naturally age out.
+        $exp = $token->claims()->get('exp');
+        $replayKey = $this->computeReplayKey($token);
+        $nowTimestamp = $this->clock->now()->getTimestamp();
+        if ($this->jwtRepository->getJwtGrantHistoryForJTI($replayKey, $nowTimestamp) !== []) {
+            throw new OidcTokenValidationException('ID token has already been used (replay detected)');
+        }
+        $issuerClaim = $token->claims()->get('iss');
+        $issuerForRecord = is_string($issuerClaim) ? $issuerClaim : $parameters->expectedIssuer;
+        $storedExpiration = $exp instanceof \DateTimeInterface ? $exp->getTimestamp() : null;
+        $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $storedExpiration);
+
+        // Step 9: Map claims to NormalizedIdentity
+        $claims = $this->extractClaims($token);
+
+        if (!$this->claimMapper->supports($claims)) {
+            throw new OidcTokenValidationException('Claim mapper does not support this token');
+        }
+
+        try {
+            $identity = $this->claimMapper->map($claims);
+        } catch (\RuntimeException $e) {
+            throw new OidcTokenValidationException('Failed to map token claims to identity', 0, $e);
+        }
+
+        // Step 10: Build result
+        $expiresAt = $exp instanceof \DateTimeImmutable
+            ? $exp
+            : new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp());
+
+        $jti = $token->claims()->get('jti');
+
+        return new ValidatedToken(
+            identity: $identity,
+            claims: $claims,
+            expiresAt: $expiresAt,
+            jti: is_string($jti) ? $jti : null,
+        );
+    }
+
+    /**
+     * Compute the replay-protection key for a token.
+     *
+     * Prefers the token's "jti" claim when present (the OIDC standard). Falls
+     * back to a synthetic SHA-256 digest of (iss, sub, iat) when the provider
+     * omits "jti" — this is stable per token issuance so a second presentation
+     * of the same token still collides with the stored record.
+     */
+    private function computeReplayKey(Plain $token): string
+    {
+        $jti = $token->claims()->get('jti');
+        if (is_string($jti) && $jti !== '') {
+            return $jti;
+        }
+
+        $iss = $token->claims()->get('iss');
+        $sub = $token->claims()->get('sub');
+        $iat = $token->claims()->get('iat');
+
+        $issPart = is_string($iss) ? $iss : '';
+        $subPart = is_string($sub) ? $sub : '';
+        $iatPart = match (true) {
+            $iat instanceof \DateTimeInterface => (string) $iat->getTimestamp(),
+            is_int($iat) => (string) $iat,
+            default => '0',
+        };
+
+        return 'oidc-synthetic:' . hash('sha256', $issPart . '|' . $subPart . '|' . $iatPart);
+    }
+
+    private function signerForAlgorithm(string $alg): Signer
+    {
+        return match ($alg) {
+            'RS256' => new RsSha256(),
+            'RS384' => new RsSha384(),
+            'RS512' => new RsSha512(),
+            default => throw new OidcTokenValidationException("No signer for algorithm: {$alg}"),
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractClaims(Plain $token): array
+    {
+        $claims = [];
+        foreach ($token->claims()->all() as $name => $value) {
+            $claims[$name] = $value instanceof \DateTimeInterface ? $value->getTimestamp() : $value;
+        }
+
+        return $claims;
+    }
+}
