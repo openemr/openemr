@@ -54,10 +54,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country","line1", "line2"]),
-            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
-            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ["zip"]),
-            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["a.line1", "a.line2", "a.city", "a.state", "a.zip", "a.country"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['a.city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['a.zip']),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['a.state']),
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
