@@ -23,7 +23,7 @@
         "net": "1.0.2",
         "body-parser": "1.20.4",
         "oe-schematron-service": "github:openemr/oe-schematron-service#v2.0.2",
-        "uuid": "11.1.0",
+        "uuid": "14.0.0",
         "xml2js": "0.6.2"
     }
 }
