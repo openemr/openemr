@@ -57,16 +57,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}
         report_type: test_results
-
-    - name: Hide test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
-      run: mv junit.xml junit.saved-test-data
-
-    - name: Unhide test results for GitHub upload
-      if: ${{ !cancelled() && hashFiles('junit.saved-test-data') != '' }}
-      run: mv junit.saved-test-data junit.xml
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() }}
@@ -87,4 +79,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}

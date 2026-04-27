@@ -60,19 +60,19 @@ jobs:
             --db-name=openemr_test
             --oe-admin-username=admin
             --oe-admin-password=pass
+            --enable-rest-api
+            --enable-fhir-api
+            --enable-portal-api
+            --enable-password-grant
+            --enable-system-scopes
+            --site-address=http://localhost:8080
             --no-interaction
             -vvv
 
-      - name: Configure globals for API
+      - name: Suppress product registration prompt
         run: |
           mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
             INSERT INTO product_registration (opt_out) VALUES (1);
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
-            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
-            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
-            UPDATE globals SET gl_value = 'http://localhost:8080' WHERE gl_name = 'site_addr_oath';
           "
 
       - name: Start server (bg)

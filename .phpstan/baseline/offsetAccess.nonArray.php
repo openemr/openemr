@@ -14,11 +14,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
 ];
 $ignoreErrors[] = [
@@ -27,7 +22,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
+    'message' => '#^Cannot use array destructuring on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/edit_group.php',
 ];
@@ -40,11 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',

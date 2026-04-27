@@ -147,15 +147,19 @@ function DateFormatRead($mode = 'legacy')
         } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
-    } elseif (OEGlobalsBag::getInstance()->get('date_display_format') == 2) {
-        if ($mode == 'legacy') {
-            return "%d/%m/%Y";
-        } elseif ($mode == 'validateJS') {
-            return "DD/MM/YYYY";
-        } else { //$mode=='jquery-datetimepicker'
-            return "d/m/Y";
-        }
     }
+
+    // date_display_format is a 3-value enum (0, 1, 2); fall through to 2 as the default.
+    if ($mode == 'legacy') {
+        return "%d/%m/%Y";
+    }
+
+    if ($mode == 'validateJS') {
+        return "DD/MM/YYYY";
+    }
+
+    //$mode=='jquery-datetimepicker'
+    return "d/m/Y";
 }
 
 function DateToYYYYMMDD($DateValue)

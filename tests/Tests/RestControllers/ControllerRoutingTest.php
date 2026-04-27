@@ -185,4 +185,51 @@ class ControllerRoutingTest extends TestCase
         $this->assertArrayHasKey('sub_action', $dispatchParams);
         $this->assertSame('list', $dispatchParams['sub_action']);
     }
+
+    /**
+     * Controller extends Smarty, and Smarty's __call catches any undefined
+     * method call. This makes is_callable() return true for every method
+     * name on a Controller instance, even methods that don't actually exist.
+     *
+     * The methodExists() guard must combine is_callable() with method_exists()
+     * to distinguish genuinely-defined methods from phantom calls that would
+     * otherwise be dispatched into Smarty's extension handler (which throws
+     * "undefined extension class Smarty_Internal_Method_*" errors).
+     */
+    #[Test]
+    public function testMethodExistsGuardsAgainstSmartyPhantomMethods(): void
+    {
+        $smartyDescendant = new class extends \Controller {
+        };
+
+        $dispatcher = new \Controller();
+
+        $methodExists = new \ReflectionMethod(\Controller::class, 'methodExists');
+
+        // Document the trap: is_callable() alone returns true for any method
+        // name on a Smarty descendant because Smarty's __call catches all calls.
+        // PHPStan can't model __call, so it concludes statically that
+        // is_callable() must be false — which is exactly the runtime trap
+        // this test documents and methodExists() guards against.
+        /** @phpstan-ignore-next-line function.impossibleType */
+        $isCallable = is_callable([$smartyDescendant, 'nonexistent_phantom_method']);
+        /** @phpstan-ignore-next-line method.impossibleType */
+        $this->assertTrue(
+            $isCallable,
+            'Expected is_callable() to return true due to Smarty __call ' .
+            '(this assertion documents the trap that methodExists() guards against).'
+        );
+
+        // The guard must return false for phantom methods that only __call catches.
+        $this->assertFalse(
+            $methodExists->invoke($dispatcher, $smartyDescendant, 'nonexistent_phantom_method'),
+            'methodExists() must return false for phantom methods caught only by __call.'
+        );
+
+        // Positive case: a genuinely-defined method should return true.
+        $this->assertTrue(
+            $methodExists->invoke($dispatcher, $smartyDescendant, 'process_action'),
+            'methodExists() must return true for genuinely-defined methods.'
+        );
+    }
 }

@@ -207,10 +207,11 @@ function smarty_function_fetch($params, &$smarty)
 
 
     if (!empty($params['assign'])) {
-        $smarty->assign($params['assign'],$content);
-    } else {
-        return $content;
+        $smarty->assign($params['assign'], $content);
+        return null;
     }
+
+    return $content;
 }
 
 /* vim: set expandtab: */

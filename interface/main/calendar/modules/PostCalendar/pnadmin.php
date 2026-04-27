@@ -49,22 +49,22 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
     $header = "<html><head><title>" . xlt("Calendar") . "</title>";
     $header .= Header::setupHeader('', false)  . '</head><body>';
 
-    $output->Text($header);
+    $body  = $output->generateText($header);
 
     if (!empty($msg)) {
-        $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success mx-1 text-center" role="alert">');
-        $output->Text("<b>$msg</b>");
-        $output -> Text('</div>');
+        $body .= $output->generateText(postcalendar_adminmenu("clearCache"));
+        $body .= $output->generateText('<div class="alert alert-success mx-1 text-center" role="alert">');
+        $body .= $output->generateText("<b>$msg</b>");
+        $body .= $output->generateText('</div>');
     } else {
         if ($showMenu) {
-            $output->Text(postcalendar_adminmenu(""));
+            $body .= $output->generateText(postcalendar_adminmenu(""));
         }
     }
 
-    $output->Text("</body></html>");
+    $body .= $output->generateText("</body></html>");
 
-    return $output->GetOutput();
+    return $output->GetOutput($body);
 }
 
 function postcalendar_admin_categoriesConfirm()
@@ -76,8 +76,8 @@ function postcalendar_admin_categoriesConfirm()
 	<head>
 EOF;
     $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
-    $output->Text($header);
-    $output->Text(postcalendar_adminmenu("category"));
+    $body  = $output->generateText($header);
+    $body .= $output->generateText(postcalendar_adminmenu("category"));
     [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat, $event_repeat_freq, $event_repeat_freq_type, $event_repeat_on_num, $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq, $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day, $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
         'id',
         'del',
@@ -126,23 +126,23 @@ EOF;
     //data validation
     foreach ($name as $i => $item) {
         if (empty($item)) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Names must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Names must contain a value!"));
+            return $output->GetOutput($body);
         }
         if (empty($constantid[$i])) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            return $output->GetOutput($body);
         }
         $tmp = $constantid[$i];
         if (strpos(trim((string) $tmp), ' ')) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
+            return $output->GetOutput($body);
         }
         $tmp = $color[$i];
         if (strlen((string) $tmp) != 7 || $tmp[0] != "#") {
             $e = $tmp . " size " . strlen((string) $tmp) . " at 0 " . $tmp[0];
-            $output->Text(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
+            return $output->GetOutput($body);
         }
     }
     foreach ($durationh as $i => $val) {
@@ -151,11 +151,11 @@ EOF;
             !is_numeric($event_repeat_freq[$i]) ||
             !is_numeric($event_repeat_on_freq[$i]) || !is_numeric($end_date_freq[$i])
         ) {
-            $output->Text(postcalendar_admin_categories(
+            $body .= $output->generateText(postcalendar_admin_categories(
                 $msg,
                 " Hours, Minutes and recurrence values must be numeric!"
             ));
-            return $output->GetOutput();
+            return $output->GetOutput($body);
         }
     }
     if (!empty($newnam)) {
@@ -166,8 +166,8 @@ EOF;
             !is_numeric($new_event_repeat_on_freq) ||
             !is_numeric($new_end_date_freq)
         ) {
-            $output->Text(postcalendar_admin_categories($msg, "Hours, Minutes and recurrence values must be numeric!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Hours, Minutes and recurrence values must be numeric!"));
+            return $output->GetOutput($body);
         }
     }
     $new_duration = ($new_durationh * (60 * 60)) + ($new_durationm * 60);
@@ -189,67 +189,67 @@ EOF;
         $dels = implode(',', $del);
         $delText = _PC_DELETE_CATS . $dels . '.';
     }
-    $output->FormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate'));
-    $output->Text(_PC_ARE_YOU_SURE);
-    $output->Linebreak(2);
+    $body .= $output->generateFormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate'));
+    $body .= $output->generateText(_PC_ARE_YOU_SURE);
+    $body .= $output->generateLinebreak(2);
     // deletions
     if (isset($delText)) {
-        $output->FormHidden('dels', $dels);
-        $output->Text($delText);
-        $output->Linebreak();
+        $body .= $output->generateFormHidden('dels', $dels);
+        $body .= $output->generateText($delText);
+        $body .= $output->generateLinebreak();
     }
     if (!empty($newname)) {
         if (empty($newconstantid)) {
-            $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
+            return $output->GetOutput($body);
         }
         if (strpos(trim((string) $newconstantid), ' ')) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
+            return $output->GetOutput($body);
         }
-        $output->FormHidden('newname', $newname);
-        $output->FormHidden('newconstantid', $newconstantid);
-        $output->FormHidden('newdesc', $newdesc);
-        $output->FormHidden('newvalue_cat_type', $new_value_cat_type);
-        $output->FormHidden('newcolor', $newcolor);
-        $output->FormHidden('newevent_repeat', $new_event_repeat);
-        $output->FormHidden('newevent_recurrfreq', $new_event_repeat_freq);
-        $output->FormHidden('newevent_recurrspec', $new_event_recurrspec);
-        $output->FormHidden('newduration', $new_duration);
-        $output->FormHidden('newlimitid', $new_limitid);
-        $output->FormHidden('newend_date_flag', $new_end_date_flag);
-        $output->FormHidden('newend_date_type', $new_end_date_type);
-        $output->FormHidden('newend_date_freq', $new_end_date_freq);
-        $output->FormHidden('newend_all_day', $new_end_all_day);
-        $output->FormHidden("newactive", $newactive);
-        $output->FormHidden("newsequence", $newsequence);
-        $output->FormHidden("newaco", $newaco);
-        $output->Text(_PC_ADD_CAT . text($newname) . '.');
-        $output->Linebreak();
+        $body .= $output->generateFormHidden('newname', $newname);
+        $body .= $output->generateFormHidden('newconstantid', $newconstantid);
+        $body .= $output->generateFormHidden('newdesc', $newdesc);
+        $body .= $output->generateFormHidden('newvalue_cat_type', $new_value_cat_type);
+        $body .= $output->generateFormHidden('newcolor', $newcolor);
+        $body .= $output->generateFormHidden('newevent_repeat', $new_event_repeat);
+        $body .= $output->generateFormHidden('newevent_recurrfreq', $new_event_repeat_freq);
+        $body .= $output->generateFormHidden('newevent_recurrspec', $new_event_recurrspec);
+        $body .= $output->generateFormHidden('newduration', $new_duration);
+        $body .= $output->generateFormHidden('newlimitid', $new_limitid);
+        $body .= $output->generateFormHidden('newend_date_flag', $new_end_date_flag);
+        $body .= $output->generateFormHidden('newend_date_type', $new_end_date_type);
+        $body .= $output->generateFormHidden('newend_date_freq', $new_end_date_freq);
+        $body .= $output->generateFormHidden('newend_all_day', $new_end_all_day);
+        $body .= $output->generateFormHidden("newactive", $newactive);
+        $body .= $output->generateFormHidden("newsequence", $newsequence);
+        $body .= $output->generateFormHidden("newaco", $newaco);
+        $body .= $output->generateText(_PC_ADD_CAT . text($newname) . '.');
+        $body .= $output->generateLinebreak();
     }
-    $output->Text(_PC_MODIFY_CATS);
-    $output->FormHidden('id', serialize($id));
-    $output->FormHidden('del', serialize($del));
-    $output->FormHidden('name', serialize($name));
-    $output->FormHidden('constantid', serialize($constantid));
-    $output->FormHidden('desc', serialize($desc));
-    $output->FormHidden('value_cat_type', serialize($value_cat_type));
-    $output->FormHidden('color', serialize($color));
-    $output->FormHidden('event_repeat', serialize($event_repeat));
-    $output->FormHidden('event_recurrspec', $event_recurrspec);
-    $output->FormHidden('durationh', serialize($durationh));
-    $output->FormHidden('durationm', serialize($durationm));
-    $output->FormHidden('end_date_flag', serialize($end_date_flag));
-    $output->FormHidden('end_date_type', serialize($end_date_type));
-    $output->FormHidden('end_date_freq', serialize($end_date_freq));
-    $output->FormHidden('end_all_day', serialize($end_all_day));
-    $output->FormHidden("active", serialize($active));
-    $output->FormHidden("sequence", serialize($sequence));
-    $output->FormHidden("aco", serialize($aco));
-    $output->Linebreak();
-    $output->FormSubmit(_PC_CATS_CONFIRM);
-    $output->FormEnd();
-    return $output->GetOutput();
+    $body .= $output->generateText(_PC_MODIFY_CATS);
+    $body .= $output->generateFormHidden('id', serialize($id));
+    $body .= $output->generateFormHidden('del', serialize($del));
+    $body .= $output->generateFormHidden('name', serialize($name));
+    $body .= $output->generateFormHidden('constantid', serialize($constantid));
+    $body .= $output->generateFormHidden('desc', serialize($desc));
+    $body .= $output->generateFormHidden('value_cat_type', serialize($value_cat_type));
+    $body .= $output->generateFormHidden('color', serialize($color));
+    $body .= $output->generateFormHidden('event_repeat', serialize($event_repeat));
+    $body .= $output->generateFormHidden('event_recurrspec', $event_recurrspec);
+    $body .= $output->generateFormHidden('durationh', serialize($durationh));
+    $body .= $output->generateFormHidden('durationm', serialize($durationm));
+    $body .= $output->generateFormHidden('end_date_flag', serialize($end_date_flag));
+    $body .= $output->generateFormHidden('end_date_type', serialize($end_date_type));
+    $body .= $output->generateFormHidden('end_date_freq', serialize($end_date_freq));
+    $body .= $output->generateFormHidden('end_all_day', serialize($end_all_day));
+    $body .= $output->generateFormHidden("active", serialize($active));
+    $body .= $output->generateFormHidden("sequence", serialize($sequence));
+    $body .= $output->generateFormHidden("aco", serialize($aco));
+    $body .= $output->generateLinebreak();
+    $body .= $output->generateFormSubmit(_PC_CATS_CONFIRM);
+    $body .= $output->generateFormEnd();
+    return $output->GetOutput($body);
 }
 
 function postcalendar_admin_categoriesUpdate()
@@ -415,8 +415,8 @@ function postcalendar_admin_categoriesUpdate()
     if (empty($e)) {
         $msg = 'DONE';
     }
-    $output->Text(postcalendar_admin_categories($msg, $e));
-    return $output->GetOutput();
+    $body = $output->generateText(postcalendar_admin_categories($msg, $e));
+    return $output->GetOutput($body);
 }
 
 /**
@@ -439,18 +439,18 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
         $template_name = 'default';
     }
 
-    $output->Text(postcalendar_adminmenu("category"));
+    $body = $output->generateText(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($e) . '</span>');
-        $output -> Text('</div><br />');
+        $body .= $output->generateText('<div class="alert alert-danger mx-1" role="alert">');
+        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($e) . '</span>');
+        $body .= $output->generateText('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output -> Text('<div class="alert alert-success mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
-        $output -> Text('</div><br />');
+        $body .= $output->generateText('<div class="alert alert-success mx-1" role="alert">');
+        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $body .= $output->generateText('</div><br />');
     }
 
     //=================================================================
@@ -665,9 +665,6 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $acoList = AclExtended::genAcoArray();
     $tpl->assign('ACO_List', $acoList);
 
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
-
     if (isset($data_loaded)) {
         $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
         $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
@@ -679,9 +676,9 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
-    $output->Text($tpl->fetch($template_name . '/admin/submit_category.html'));
-    $output->Text(postcalendar_footer());
-    return $output->GetOutput();
+    $body .= $output->generateText($tpl->fetch($template_name . '/admin/submit_category.html'));
+    $body .= $output->generateText(postcalendar_footer());
+    return $output->GetOutput($body);
 }
 
 /**

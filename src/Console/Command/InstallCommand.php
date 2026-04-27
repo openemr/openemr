@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Console\Command;
 
 use OpenEMR\Common\Installer\InstallerInterface;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -45,6 +46,13 @@ class InstallCommand extends Command
         #[Option(description: 'OpenEMR admin username')] string $oeAdminUsername = 'admin',
         #[Option(description: 'OpenEMR admin password')] string $oeAdminPassword = '',
         #[Option(description: 'OpenEMR practice group name')] string $oeAdminGroup = 'Default',
+        #[Option(description: 'Enable REST API')] bool $enableRestApi = false,
+        #[Option(description: 'Enable FHIR API')] bool $enableFhirApi = false,
+        #[Option(description: 'Enable Portal API')] bool $enablePortalApi = false,
+        #[Option(description: 'Enable OAuth2 password grant (insecure, for testing)')] bool $enablePasswordGrant = false,
+        #[Option(description: 'Enable FHIR system scopes')] bool $enableSystemScopes = false,
+        #[Option(description: 'Enable C-CDA service')] bool $enableCcda = false,
+        #[Option(description: 'Site address for OAuth/FHIR callbacks (e.g. https://localhost:9300)')] string $siteAddress = '',
     ): int {
         $io = new SymfonyStyle($input, $output);
 
@@ -78,6 +86,20 @@ class InstallCommand extends Command
             // == Not user configurable ==
             'site' => 'default', // Only default site supported.
         ];
+
+        $customGlobals = $this->buildCustomGlobals(
+            enableRestApi: $enableRestApi,
+            enableFhirApi: $enableFhirApi,
+            enablePortalApi: $enablePortalApi,
+            enablePasswordGrant: $enablePasswordGrant,
+            enableSystemScopes: $enableSystemScopes,
+            enableCcda: $enableCcda,
+            siteAddress: $siteAddress,
+        );
+        if ($customGlobals !== []) {
+            $params['custom_globals'] = json_encode($customGlobals, JSON_THROW_ON_ERROR);
+        }
+
         $this->installer->setLogger(new ConsoleLogger($output));
         $success = $this->installer->install($params);
         if (!$success) {
@@ -86,5 +108,31 @@ class InstallCommand extends Command
         }
         $io->success('OpenEMR has been installed!');
         return Command::SUCCESS;
+    }
+
+    /**
+     * @return array<string, array{value: string}>
+     */
+    private function buildCustomGlobals(
+        bool $enableRestApi,
+        bool $enableFhirApi,
+        bool $enablePortalApi,
+        bool $enablePasswordGrant,
+        bool $enableSystemScopes,
+        bool $enableCcda,
+        string $siteAddress,
+    ): array {
+        // Magic values: '3' means "enable for both contexts". See #11863 for enum refactor.
+        $flags = array_filter([
+            GlobalConnectorsEnum::REST_API->value => $enableRestApi ? '1' : null,
+            GlobalConnectorsEnum::REST_FHIR_API->value => $enableFhirApi ? '1' : null,
+            GlobalConnectorsEnum::REST_PORTAL_API->value => $enablePortalApi ? '1' : null,
+            GlobalConnectorsEnum::OAUTH_PASSWORD_GRANT->value => $enablePasswordGrant ? '3' : null, // Users + Patients
+            GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => $enableSystemScopes ? '1' : null,
+            GlobalConnectorsEnum::SITE_ADDRESS_OAUTH->value => $siteAddress !== '' ? $siteAddress : null,
+            GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE->value => $enableCcda ? '3' : null, // Care Coordination + Portal
+        ]);
+
+        return array_map(fn($v) => ['value' => $v], $flags);
     }
 }
