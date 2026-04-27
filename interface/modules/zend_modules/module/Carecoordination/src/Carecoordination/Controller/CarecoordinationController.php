@@ -35,20 +35,14 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
  */
 class CarecoordinationController extends AbstractActionController
 {
-    private readonly CarecoordinationTable $carecoordinationTable;
-
-    private readonly DocumentsController $documentsController;
-
     private readonly Listener $listenerObject;
 
     private readonly string $date_format;
 
-    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
+    public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
-        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
         $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
-        $this->documentsController = $documentsController;
     }
 
     /**
