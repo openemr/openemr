@@ -530,13 +530,18 @@ jobs:
         run: |
           # Copy pre-built data from private submodule (matches run.sh behavior)
           cp -r inferno-files/files/* onc-certification-g10-test-kit/
-          # Build and start services
-          docker compose -f compose.simple.yml up --build --detach --wait
+          # Start validator service (inferno runs as one-off CLI command later)
+          docker compose -f compose.simple.yml up -d hl7_validator_service
+
+      - name: Wait for validator
+        run: |
+          echo "Waiting for HL7 validator service..."
+          curl --retry 30 --retry-delay 2 --retry-connrefused -sf http://localhost:3500/validator/version
 
       - name: Run Inferno tests
         working-directory: ci/inferno
         run: |
-          docker compose -f compose.simple.yml exec inferno bundle exec inferno execute \
+          docker compose -f compose.simple.yml run --rm --build -T inferno bundle exec inferno execute \
             --suite us_core_v311 \
             --groups 2 \
             --verbose \

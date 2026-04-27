@@ -8,9 +8,6 @@ services:
       INFERNO_DISABLE_TLS_TEST: 'true'
       FHIR_RESOURCE_VALIDATOR_URL: http://localhost:3500
     network_mode: host
-    depends_on:
-      hl7_validator_service:
-        condition: service_healthy
 
   hl7_validator_service:
     image: infernocommunity/inferno-resource-validator:1.0.65
@@ -19,9 +16,3 @@ services:
       SESSION_CACHE_DURATION: -1
     volumes:
       - ./onc-certification-g10-test-kit/lib/onc_certification_g10_test_kit/igs:/home/igs
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:3500/validator/version"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-      start_period: 10s
