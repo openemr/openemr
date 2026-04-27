@@ -7,6 +7,14 @@ use PHPUnit\Framework\TestCase;
 
 class CommonTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // The class caches the Symfony Request that wraps $_GET/$_POST,
+        // so tests that mutate the superglobals must drop the snapshot
+        // before each case to see their own assignments.
+        Common::resetRequestCache();
+    }
+
     /**
      * Test for implode_funcs method
      */

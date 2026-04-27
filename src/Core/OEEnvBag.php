@@ -38,6 +38,8 @@ class OEEnvBag extends ParameterBag
 
     protected static function createInstance(): static
     {
+        // `getenv()` with no arguments always returns an array<string, string>;
+        // the string-returning overload requires a name argument.
         return new static(array_merge($_SERVER, $_ENV, getenv())); // @phpstan-ignore new.static
     }
 }

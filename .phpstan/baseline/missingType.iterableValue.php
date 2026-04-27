@@ -437,7 +437,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property pnHTML\\:\\:\\$header type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
@@ -909,32 +914,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Function cron_GetNotificationData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms\\(\\) has parameter \\$db_sms_msg with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryFaxsms\\(\\) has parameter \\$prow with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SetMessage\\(\\) has parameter \\$db_sms_msg with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SetMessage\\(\\) has parameter \\$prow with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function isValidPhone\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification_helpers.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getTwigNamespaces\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -15247,12 +15227,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method League\\\\OAuth2\\\\Server\\\\Entities\\\\UserEntityInterface@anonymous/tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest\\.php\\:415\\:\\:getClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Method League\\\\OAuth2\\\\Server\\\\Entities\\\\UserEntityInterface@anonymous/tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest\\.php\\:418\\:\\:getClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method League\\\\OAuth2\\\\Server\\\\Entities\\\\UserEntityInterface@anonymous/tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest\\.php\\:481\\:\\:getClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Method League\\\\OAuth2\\\\Server\\\\Entities\\\\UserEntityInterface@anonymous/tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest\\.php\\:484\\:\\:getClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];

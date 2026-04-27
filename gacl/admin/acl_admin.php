@@ -42,9 +42,11 @@ switch ($_POST['action']) {
         //showarray($_POST['selected_aro']);
 
         //Parse the form values
+        $selected_aco_array = [];
+        $selected_aro_array = [];
+        $selected_axo_array = [];
         foreach (['aco','aro','axo'] as $type) {
             $type_array = 'selected_'. $type .'_array';
-            ${$type_array} = [];
             if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
                 foreach ($_POST['selected_'. $type] as $value) {
                     $split_value = explode('^', (string) $value);
@@ -99,7 +101,7 @@ switch ($_POST['action']) {
             $query = '
 				SELECT id,section_value,allow,enabled,return_value,note
 				FROM '. $gacl_api->_db_table_prefix .'acl
-				WHERE id='. $db->qstr($_GET['acl_id']);
+				WHERE id='. $db->qStr($_GET['acl_id']);
             $acl_row = $db->GetRow($query);
             [$acl_id, $acl_section_value, $allow, $enabled, $return_value, $note] = $acl_row;
 
@@ -113,7 +115,7 @@ switch ($_POST['action']) {
 					FROM '. $gacl_api->_db_table_prefix . $type .'_map a
 					INNER JOIN '. $gacl_api->_db_table_prefix . $type .' b ON b.section_value=a.section_value AND b.value=a.value
 					INNER JOIN '. $gacl_api->_db_table_prefix . $type .'_sections c ON c.value=a.section_value
-					WHERE a.acl_id='. $db->qstr($acl_id);
+					WHERE a.acl_id='. $db->qStr($acl_id);
                 $rs = $db->Execute($query);
 
                 if (is_object($rs)) {
@@ -133,7 +135,7 @@ switch ($_POST['action']) {
                 $query = '
 					SELECT group_id
 					FROM '. $gacl_api->_db_table_prefix . $type .'_groups_map
-					WHERE acl_id='. $db->qstr($acl_id);
+					WHERE acl_id='. $db->qStr($acl_id);
                 ${$type_array} = $db->GetCol($query);
                 //showarray($$type_array);
             }
@@ -149,9 +151,12 @@ switch ($_POST['action']) {
         }
 
         //Grab sections for select boxes
+        $options_acl_sections = [];
+        $options_aco_sections = [];
+        $options_aro_sections = [];
+        $options_axo_sections = [];
         foreach (['acl', 'aco', 'aro', 'axo'] as $type) {
             $type_array = 'options_'. $type .'_sections';
-            ${$type_array} = [];
 
             $query = '
 				SELECT value,name
@@ -168,12 +173,6 @@ switch ($_POST['action']) {
 
             ${$type .'_section_id'} = reset(${$type_array});
         }
-
-        // Variables created dynamically above (lines 155-173)
-        /** @var array<string, string> $options_acl_sections */
-        /** @var array<string, string> $options_aco_sections */
-        /** @var array<string, string> $options_aro_sections */
-        /** @var array<string, string> $options_axo_sections */
 
         //Init the main js array
         $js_array = 'var options = new Array();' . "\n";
@@ -193,6 +192,7 @@ switch ($_POST['action']) {
             $rs = $db->SelectLimit($query, $gacl_api->_max_select_box_items);
 
             if (is_object($rs)) {
+                $i = 0;
                 while ($row = $rs->FetchRow()) {
                     $section_value = addslashes((string) $row[0]);
                     $value = addslashes((string) $row[1]);

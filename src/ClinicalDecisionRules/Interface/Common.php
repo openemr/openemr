@@ -16,9 +16,37 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class Common
 {
+    private static ?Request $request = null;
+
+    /**
+     * Cache the Symfony Request built from the current globals so that the
+     * many `get()`/`post()` helper invocations in CDR controllers do not
+     * each rebuild the parameter bags from scratch. The cache is bound to
+     * a single PHP process; in tests that mutate `$_GET`/`$_POST` between
+     * cases, call {@see self::resetRequestCache()} to drop the snapshot.
+     */
+    private static function request(): Request
+    {
+        if (self::$request === null) {
+            self::$request = Request::createFromGlobals();
+        }
+        return self::$request;
+    }
+
+    /**
+     * Drop the cached Symfony Request. Tests that mutate `$_GET`/`$_POST`
+     * between cases should call this in their setUp/tearDown so subsequent
+     * `get()`/`post()` calls re-read the freshly-mutated globals.
+     */
+    public static function resetRequestCache(): void
+    {
+        self::$request = null;
+    }
+
     /**
      * This is a wrapper for implode function, which calls each function in the
      * array $funcs on each piece in the array $pieces
@@ -51,8 +79,11 @@ class Common
      */
     public static function get($var, $default = ''): string
     {
-        $val = $_GET[$var] ?? null;
-        return isset($val) && $val !== '' ? $val : $default;
+        $val = self::request()->query->all()[$var] ?? null;
+        if (is_string($val) && $val !== '') {
+            return $val;
+        }
+        return $default;
     }
 
     /**
@@ -64,8 +95,15 @@ class Common
      */
     public static function post($var, $default = ''): string|array
     {
-        $val = $_POST[$var] ?? null;
-        return isset($val) && $val !== '' ? $val : $default;
+        $val = self::request()->request->all()[$var] ?? null;
+        if (is_array($val)) {
+            /** @var string[] $val */
+            return $val;
+        }
+        if (is_string($val) && $val !== '') {
+            return $val;
+        }
+        return $default;
     }
 
     /**

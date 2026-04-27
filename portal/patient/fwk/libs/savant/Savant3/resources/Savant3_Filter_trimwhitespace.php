@@ -97,12 +97,12 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
      *          Replace with this text.
      *
      * @param
-     *          string &$buffer The source text.
+     *          string &$buffer The source text, rewritten in place.
      *
-     * @return string The text after search-and-replace.
+     * @return void All callers consume the result through the &$buffer reference.
      *
      */
-    protected static function replace($search, $replace, &$buffer)
+    protected static function replace($search, $replace, &$buffer): void
     {
         $len = strlen($search);
         $pos = 0;

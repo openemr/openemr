@@ -48,6 +48,8 @@ class eRxGlobals
         if (array_key_exists($key, $this->configuration)) {
             return $this->configuration[$key];
         }
+
+        return null;
     }
 
     /**

@@ -2429,7 +2429,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
-         string &\\$buffer The source text\\.\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 278 on line 13$#',
+         string &\\$buffer The source text, rewritten in place\\.\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 278 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php',
 ];

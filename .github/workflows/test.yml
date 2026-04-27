@@ -122,8 +122,9 @@ jobs:
 
     - name: Compute test suite list
       id: compute-suites
+      # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
-        base='["unit","api","fixtures","services","validators","controllers","common","email"'
+        base='["api","services","email"'
         if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
           base="${base},"'"e2e"'
         fi

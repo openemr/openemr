@@ -512,6 +512,8 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
         // run the non-multiple code set search
         return sequential_code_set_search($form_code_type, $search_term, $limit, $modes, $count, $active, $start, $number, $filter_elements);
     }
+
+    return null;
 }
 
 /**
@@ -924,6 +926,8 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
             }
         }
     }
+
+    return null;
 }
 
 /**
@@ -1012,6 +1016,8 @@ function multiple_code_set_search(?array $form_code_types, $search_term, $limit 
             return sqlStatement($query, $sql_bind_array);
         }
     }
+
+    return null;
 }
 
 /**
