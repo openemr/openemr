@@ -130,7 +130,7 @@ jobs:
           "
 
       - name: Run database upgrade
-        run: php sql_upgrade.php --from=7.0.4
+        run: php sql_upgrade.php --from=7.0.3
 
       - name: Start PHP server
         run: |
@@ -590,7 +590,7 @@ jobs:
           "
 
       - name: Run database upgrade
-        run: php sql_upgrade.php --from=7.0.4
+        run: php sql_upgrade.php --from=7.0.3
 
       - name: Start PHP server
         run: php -S 0.0.0.0:8080 -t . public/index.php > /tmp/php.log 2>&1 &
