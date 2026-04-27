@@ -55,8 +55,8 @@ class ParseERA
                         array_unshift($out['svc'], []);
                         $out['svc'][0]['code'] = 'Claim';
                         $out['svc'][0]['mod'] = '';
-                        $out['svc'][0]['chg'] = '0';
-                        $out['svc'][0]['paid'] = '0';
+                        $out['svc'][0]['chg'] = 0.0;
+                        $out['svc'][0]['paid'] = 0.0;
                         $out['svc'][0]['adj'] = [];
                         $out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
                             "force claim balancing.\n";
@@ -277,8 +277,8 @@ class ParseERA
                     $out['svc'][$i] = [];
                     $out['svc'][$i]['code'] = 'Claim';
                     $out['svc'][$i]['mod'] = '';
-                    $out['svc'][$i]['chg'] = '0';
-                    $out['svc'][$i]['paid'] = '0';
+                    $out['svc'][$i]['chg'] = 0.0;
+                    $out['svc'][$i]['paid'] = 0.0;
                     $out['svc'][$i]['adj'] = [];
                 }
 
@@ -291,7 +291,7 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
+                    $out['svc'][$i]['adj'][$j]['amount'] = (float)$seg[$k + 1];
                 }
             } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
@@ -380,8 +380,8 @@ class ParseERA
                     $out['svc'][$i]['mod'] = preg_replace('/:$/', '', $out['svc'][$i]['mod']);
                 }
 
-                $out['svc'][$i]['chg'] = $seg[2];
-                $out['svc'][$i]['paid'] = $seg[3];
+                $out['svc'][$i]['chg'] = (float)$seg[2];
+                $out['svc'][$i]['paid'] = (float)$seg[3];
                 $out['svc'][$i]['adj'] = [];
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
@@ -409,7 +409,7 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
+                    $out['svc'][$i]['adj'][$j]['amount'] = (float)$seg[$k + 1];
                     // Note: $seg[$k+2] is "quantity".  A value here indicates a change to
                     // the number of units of service.  We're ignoring that for now.
                 }
@@ -417,7 +417,7 @@ class ParseERA
                 // ignore
             } elseif ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
-                $out['svc'][$i]['allowed'] = $seg[2]; // report this amount as a note
+                $out['svc'][$i]['allowed'] = (float)$seg[2]; // report this amount as a note
             } elseif ($segid == 'AMT' && $out['loopid'] == '2110') {
                 $out['warnings'] .= "$inline at service level ignored.\n";
             } elseif ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {

@@ -631,7 +631,7 @@ function eob_process_era_callback(array &$out): void
                     echo getMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
                 } elseif (
-                    $svc['paid'] === 0
+                    $svc['paid'] === 0.0
                     && !(
                         $adj['group_code'] === "CO"
                         && (
