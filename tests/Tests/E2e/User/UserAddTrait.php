@@ -130,16 +130,22 @@ trait UserAddTrait
                 try {
                     $this->client->request('GET', '/interface/main/main_screen.php');
                     $this->waitForAppReady(10);
+                    // @codeCoverageIgnoreStart
+                    // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
                 } catch (TimeoutException $e) {
                     $this->dumpForceRefreshFailure($username, 'waiting for app ready after refresh', $e);
                 }
+                // @codeCoverageIgnoreEnd
                 // Navigate back to Admin > Users since force refresh loads the default view
                 try {
                     $this->goToMainMenuLink('Admin||Users');
                     $this->assertActiveTab("User / Groups");
+                    // @codeCoverageIgnoreStart
+                    // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
                 } catch (TimeoutException $e) {
                     $this->dumpForceRefreshFailure($username, 'navigating back to Admin > Users', $e);
                 }
+                // @codeCoverageIgnoreEnd
             } elseif ($isRetry) {
                 // Already retried once - fail with diagnostics
                 throw new TimeoutException(
@@ -166,24 +172,33 @@ trait UserAddTrait
             // Wait for the admin iframe to be ready (it reloads after dialog closes)
             $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
             $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
         } catch (TimeoutException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for admin iframe after modal close', $e);
         }
+        // @codeCoverageIgnoreEnd
 
         try {
             // Wait for the Add User button to be visible again (indicates the iframe has fully reloaded)
             $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
         } catch (TimeoutException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for Add User button after iframe reload', $e);
         }
+        // @codeCoverageIgnoreEnd
 
         try {
             // Now wait for the new user to appear in the table.
             // This will throw a timeout exception and fail if the new user is not listed.
             $this->client->waitFor("//table//a[text()='$username']");
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
         } catch (TimeoutException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for users-table row', $e);
         }
+        // @codeCoverageIgnoreEnd
     }
 
     private function assertUserInDatabase(string $username): void
