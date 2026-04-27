@@ -133,9 +133,9 @@ class ServiceContainer
         return self::resolveOrCreate(
             LoggerInterface::class,
             static function () {
-                if (defined('PHPUNIT_COMPOSER_INSTALL')) {
-                    return new NullLogger();
-                }
+                /* if (defined('PHPUNIT_COMPOSER_INSTALL')) { */
+                /*     return new NullLogger(); */
+                /* } */
                 return new Logging\SystemLogger();
             },
         );
