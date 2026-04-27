@@ -1,16 +1,22 @@
 <?php
 
 /**
- * Daily Summary Report (Modernized)
+ *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
  *
- * This report shows date-wise statistics including appointments scheduled,
- * new patients, visited patients, total charges, total co-pay, balance amount,
- * collection rates, no-show rates, provider metrics, and aging analysis
- * for selected facility and providers.
+ *  This report shows date-wise statistics including appointments scheduled,
+ *  new patients, visited patients, total charges, total co-pay, balance amount,
+ *  collection rates, no-show rates, provider metrics, and aging analysis
+ *  for selected facility and providers.
  *
- * @package   H.E.Project_v3
+ * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Rishabh Software
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016 Rishabh Software
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
