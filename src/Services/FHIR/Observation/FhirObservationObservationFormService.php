@@ -121,7 +121,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
             $systemLookupHash = [];
 
             foreach ($codeSearchField->getValues() as $codeSearchFieldValue) {
-                $system = $codeSearchFieldValue->getSystem() ?? null;
+                $system = $codeSearchFieldValue->getSystem() ?? '';
                 if (isset($systemLookupHash[$system])) {
                     $codeTypes = $systemLookupHash[$system];
                 } else {
