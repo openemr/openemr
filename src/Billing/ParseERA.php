@@ -291,7 +291,11 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = floatval($seg[$k + 1] ?? 0);
+                    $amount = $seg[$k + 1] ?? 0;
+                    if (!is_scalar($amount)) {
+                        $amount = 0;
+                    }
+                    $out['svc'][$i]['adj'][$j]['amount'] = (float)$amount;
                 }
             } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
@@ -409,7 +413,11 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = floatval($seg[$k + 1] ?? 0);
+                    $amount = $seg[$k + 1] ?? 0;
+                    if (!is_scalar($amount)) {
+                        $amount = 0;
+                    }
+                    $out['svc'][$i]['adj'][$j]['amount'] = (float)$amount;
                     // Note: $seg[$k+2] is "quantity".  A value here indicates a change to
                     // the number of units of service.  We're ignoring that for now.
                 }
