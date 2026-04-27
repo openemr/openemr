@@ -46,7 +46,11 @@ jobs:
         # github.event.workflow_run.pull_requests is empty for fork PRs, so
         # resolve the PR number by looking up PRs associated with the head
         # commit. This works for both in-repo and fork PRs.
-        number=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number')
+        # `|| true` prevents `set -e` from aborting if `gh api` fails (e.g.
+        # 404 when the head SHA isn't reachable in this repo because a fork
+        # branch was rebased or force-pushed). `// empty` makes jq emit
+        # nothing instead of `null` on an empty array.
+        number=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty' 2>/dev/null || true)
         if [ -z "$number" ]; then
           echo "Could not resolve a PR number for commit ${HEAD_SHA}; skipping."
           exit 0
