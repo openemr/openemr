@@ -68,7 +68,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($missingExtensions as $missingExtension) {
                 echo '<li>' . text($missingExtension) . '</li>';
             } ?>
-        <ul>
+        </ul>
     <?php
 } elseif (!CredentialValidator::hasRequiredCredentials($GLOBALS)) {
     $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
@@ -86,7 +86,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['demographics'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to Ensora again.'); ?></p>
         <?php
 
@@ -106,7 +106,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['empty'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <?php
     } else {
         if (count($messages['warning']) > 0) {
@@ -117,7 +117,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['warning'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <p><strong><?php echo xlt('This will not prevent you from going to the e-Prescriptions site.'); ?></strong></p>
             <?php
 
