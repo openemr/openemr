@@ -461,6 +461,9 @@ jobs:
             INSERT INTO product_registration (opt_out) VALUES (1)
               ON DUPLICATE KEY UPDATE opt_out = 1;
             UPDATE users_secure SET last_update_password = NOW();
+            INSERT INTO globals (gl_name, gl_index, gl_value)
+              VALUES ('fhir_us_core_profile_version', 0, '3.1.1')
+              ON DUPLICATE KEY UPDATE gl_value = '3.1.1';
           "
 
       - name: Run database upgrade
