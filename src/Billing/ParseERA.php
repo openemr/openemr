@@ -291,11 +291,7 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $amount = $seg[$k + 1] ?? 0;
-                    if (!is_scalar($amount)) {
-                        $amount = 0;
-                    }
-                    $out['svc'][$i]['adj'][$j]['amount'] = (float)$amount;
+                    $out['svc'][$i]['adj'][$j]['amount'] = floatval($seg[$k + 1]);
                 }
             } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
