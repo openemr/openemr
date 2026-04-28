@@ -12,7 +12,22 @@ services:
   hl7_validator_service:
     image: infernocommunity/inferno-resource-validator:1.0.73
     network_mode: host
-    command: ["-tx", "n/a"]
+    command:
+      - java
+      - -server
+      - -XX:+UnlockExperimentalVMOptions
+      - -XX:InitialRAMPercentage=79
+      - -XX:MinRAMPercentage=79
+      - -XX:MaxRAMPercentage=79
+      - -XX:+UseG1GC
+      - -XX:MaxGCPauseMillis=100
+      - -XX:+UseStringDeduplication
+      - -XX:+CrashOnOutOfMemoryError
+      - -jar
+      - validator-wrapper.jar
+      - -startServer
+      - -tx
+      - n/a
     environment:
       SESSION_CACHE_DURATION: -1
     volumes:
