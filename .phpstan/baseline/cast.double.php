@@ -8,6 +8,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to float\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to float\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to float\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
 ];

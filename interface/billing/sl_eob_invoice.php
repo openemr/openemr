@@ -20,11 +20,11 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once "$srcdir/user.inc.php";
-require_once("$srcdir/payment.inc.php");
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;

@@ -67,22 +67,22 @@ if (!defined("DS")) {
 
 //
 // path will be "$srcdir/edihistory/filename.php"
-require_once("$srcdir/edihistory/edih_csv_inc.php");    //__DIR__ . "/edihist/csv_record_include.php");
-require_once("$srcdir/edihistory/edih_io.php");         //__DIR__ . "/edihist/ibr_io.php");
-require_once("$srcdir/edihistory/edih_x12file_class.php");
-require_once("$srcdir/edihistory/edih_uploads.php");         //__DIR__ . "/edihist/ibr_uploads.php");
-require_once("$srcdir/edihistory/edih_csv_parse.php");          //__DIR__ . "/edihist/ibr_997_read.php");
-require_once("$srcdir/edihistory/edih_csv_data.php");          //__DIR__ . "/edihist/ibr_277_read.php");
-require_once("$srcdir/edihistory/edih_997_error.php");
-require_once("$srcdir/edihistory/edih_segments.php");
-require_once("$srcdir/edihistory/edih_archive.php");        //__DIR__ . "/edihist/ibr_batch_read.php");
-require_once("$srcdir/edihistory/edih_271_html.php");          //__DIR__ . "/edihist/ibr_ack_read.php");
-require_once("$srcdir/edihistory/edih_277_html.php");
-require_once("$srcdir/edihistory/edih_278_html.php");
-require_once("$srcdir/edihistory/edih_835_html.php");           //__DIR__ . "/edihist/ibr_era_read.php");
-require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //__DIR__ . "/edihist/ibr_code_arrays.php");
-require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //__DIR__ . "/edihist/ibr_status_code_arrays.php");
-require_once("$srcdir/edihistory/codes/edih_997_codes.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_csv_inc.php");    //__DIR__ . "/edihist/csv_record_include.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_io.php");         //__DIR__ . "/edihist/ibr_io.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_x12file_class.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_uploads.php");         //__DIR__ . "/edihist/ibr_uploads.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_csv_parse.php");          //__DIR__ . "/edihist/ibr_997_read.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_csv_data.php");          //__DIR__ . "/edihist/ibr_277_read.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_997_error.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_segments.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_archive.php");        //__DIR__ . "/edihist/ibr_batch_read.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_271_html.php");          //__DIR__ . "/edihist/ibr_ack_read.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_277_html.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_278_html.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/edih_835_html.php");           //__DIR__ . "/edihist/ibr_era_read.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/codes/edih_271_code_class.php");      //__DIR__ . "/edihist/ibr_code_arrays.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/codes/edih_835_code_class.php"); //__DIR__ . "/edihist/ibr_status_code_arrays.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/edihistory/codes/edih_997_codes.php");
 //
 // php may output line endings with included files
 ob_clean();
@@ -96,6 +96,7 @@ if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
 
 // if we are not set up, create directories and csv files
 //if (!is_dir(__DIR__ . '/edihist' . IBR_HISTORY_DIR) ) {
+$html_str = '';
 if (!is_dir($edih_tmp_dir)) {
     //
     //echo "setup with base directory: $edih_base_dir <br />" .PHP_EOL;

@@ -777,6 +777,41 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_process.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/billing_tracker.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/billing/edi_270.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/billing/edi_271.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/indigent_patients_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getSrcDir\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',

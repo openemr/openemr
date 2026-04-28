@@ -20,8 +20,8 @@
 
 require_once "../globals.php";
 require_once "../../custom/code_types.inc.php";
-require_once "$srcdir/patient.inc.php";
-require_once "$srcdir/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -38,7 +38,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
-$EXPORT_INC = "$webserver_root/custom/BillingExport.php";
+$EXPORT_INC = OEGlobalsBag::getInstance()->getString('webserver_root') . "/custom/BillingExport.php";
 // echo $GLOBALS['daysheet_provider_totals'];
 
 $daysheet = false;
@@ -100,6 +100,9 @@ if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
     $left_margin = '24';
     $top_margin = '20';
 }
+$ub04_support = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
+$left_ubmargin = 0;
+$top_ubmargin = 0;
 if ($ub04_support) {
     $left_ubmargin = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
     $top_ubmargin = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
@@ -526,7 +529,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             return true;
         }
     </script>
-    <?php require_once "$srcdir/../interface/reports/report.script.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/reports/report.script.php"; ?>
     <!-- Criteria Section common javascript page-->
     <!-- =============Included for Insurance ajax criteria==== -->
     <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"; ?>
@@ -728,7 +731,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         }
                         ?>
                     <?php
-                        require_once "$srcdir/../interface/reports/criteria.tab.php";
+                        require_once OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/reports/criteria.tab.php";
                     ?>
                     <!-- end criteria -->
                 </form>
@@ -1018,6 +1021,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
+                                $enc_billing_note ??= [];
+                                $default_x12_partner = null;
 
                                 $ptname = $name['fname'] . " " . $name['lname'];
                                 $raw_encounter_date = date("Y-m-d", strtotime((string) $iter['enc_date']));

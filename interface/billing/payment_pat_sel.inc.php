@@ -19,6 +19,9 @@
 
 use OpenEMR\Billing\SLEOB;
 
+$hidden_patient_code ??= '';
+$bgcolor ??= '';
+
 //-----------------------------------------------------------------------+
 //===============================================================================
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.

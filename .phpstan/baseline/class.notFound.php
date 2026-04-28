@@ -2,6 +2,41 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/billing_tracker.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/billing/edi_270.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/billing/edi_271.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/indigent_patients_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',

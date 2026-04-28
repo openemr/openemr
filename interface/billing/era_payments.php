@@ -19,9 +19,9 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -306,7 +306,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     // files they should be listed thereafter, please add _xpd suffix to the file name
     $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php

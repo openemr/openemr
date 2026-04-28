@@ -15,10 +15,10 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
-require_once("$srcdir/calendar.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
@@ -36,6 +36,7 @@ if (!empty($_POST)) {
 //  File location (URL or server path)
 $target = OEGlobalsBag::getInstance()->get('edi_271_file_path');
 $batch_log = '';
+$message = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
     $uploadedName = (string) $_FILES['uploaded']['name'];
@@ -51,7 +52,7 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (in_array($uploadedExt, ['inc', 'php', 'php7', 'php8'], true)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
-    if (!isset($message)) {
+    if ($message === '') {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
         if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {

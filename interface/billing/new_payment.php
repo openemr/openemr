@@ -19,9 +19,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -32,7 +29,14 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$PaymentType = '';
+$TypeCode = '';
+$CountIndexBelow = 0;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
@@ -427,7 +431,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-<script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
+<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
 $(function () {
     $('select').removeClass('class1 text');

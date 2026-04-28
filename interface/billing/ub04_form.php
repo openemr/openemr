@@ -16,6 +16,9 @@ require_once("./ub04_dispose.php");
 
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 global $isAuthorized;
+$pid ??= '0';
+$encounter ??= '0';
+$ub04id ??= '';
 if ($isAuthorized !== true) {
     ub04_dispose();
     $isAuthorized = 0;

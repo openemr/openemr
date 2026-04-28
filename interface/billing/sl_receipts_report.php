@@ -380,6 +380,12 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                         $ids_to_skip = [];
                         $irow = 0;
+                        $doctotal1 = 0;
+                        $doctotal2 = 0;
+                        $docname = '';
+                        $docnameleft = '';
+                        $thedate = '';
+                        $patient_name = '';
 
                         // Get copays.  These will be ignored if a CPT code was specified.
                         //

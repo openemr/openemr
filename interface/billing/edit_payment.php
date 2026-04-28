@@ -22,10 +22,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -33,7 +29,17 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$CountIndexAbove = 0;
+$CountIndexBelow = 0;
+$TypeCode = '';
+$AccountCode = '';
+$AdjustString = '';
+$bgcolor = '';
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Confirm Payment", xl("Confirm Payment"));

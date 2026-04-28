@@ -14,7 +14,7 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once "$srcdir/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,
