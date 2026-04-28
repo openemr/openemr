@@ -33652,6 +33652,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
