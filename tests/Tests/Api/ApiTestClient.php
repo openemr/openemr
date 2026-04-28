@@ -266,6 +266,7 @@ class ApiTestClient
             if (isset($errorBody->hint)) {
                 $errorMessage .= ": " . $errorBody->hint;
             }
+            throw new \RuntimeException($errorMessage);
         }
 
         return $authResponse;
