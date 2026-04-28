@@ -356,7 +356,7 @@ if ($_POST['form_save']) {
 
             $form_cb_delete = '2';
             while (false !== ($jfname = readdir($dh))) {
-                if (preg_match('/\.jpg$/', $jfname)) {
+                if (strtolower(pathinfo($jfname, PATHINFO_EXTENSION)) === 'jpg') {
                     $form_cb_delete = '1';
                 }
             }

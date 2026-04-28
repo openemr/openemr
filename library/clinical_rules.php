@@ -2036,7 +2036,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 // merge the custom plan with the default plan
                 $mergedPlan = [];
                 foreach ($customPlan as $key => $value) {
-                    if ($value == null && preg_match("/_flag$/", (string) $key)) {
+                    if ($value == null && str_ends_with((string) $key, '_flag')) {
                         // use default setting
                         $mergedPlan[$key] = $plan[$key];
                     } else {
@@ -2205,7 +2205,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
                     // note this explicitly relies on type conversion, null, "", 0 becoming equal to null...
                     // if anything changes in language spec this might break.
                     // TODO: consider using strict comparison
-                    if ($value == null && preg_match("/_flag$/", (string) $key)) {
+                    if ($value == null && str_ends_with((string) $key, '_flag')) {
                         // use default setting
                         $mergedRule[$key] = $rule[$key];
                     } else {

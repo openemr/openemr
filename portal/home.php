@@ -190,7 +190,8 @@ function collectStyles(): array
         if (
             $tfname == 'style_blue.css' ||
             $tfname == 'style_pdf.css' ||
-            !preg_match("/^" . 'style_' . ".*\.css$/", $tfname)
+            !str_starts_with($tfname, 'style_') ||
+            !str_ends_with($tfname, '.css')
         ) {
             continue;
         }

@@ -164,13 +164,13 @@ if ($charttype == 'birth') {
     $HT_x = 1187; //start here to draw wt and height graph at bottom of Head circumference chart
     $HT_delta_x = 24.32;
 
-    if (preg_match('/^male/i', (string) $patient_data['sex'])) {
+    if (str_starts_with(strtolower((string) $patient_data['sex']), 'male')) {
         $chart = "birth-24mos_boys_HC.png";
 
         // added by BM for CSS html output
         $chartCss1 = "birth-24mos_boys_HC-1.png";
         $chartCss2 = "birth-24mos_boys_HC-2.png";
-    } elseif (preg_match('/^female/i', (string) $patient_data['sex'])) {
+    } elseif (str_starts_with(strtolower((string) $patient_data['sex']), 'female')) {
         $chart = "birth-24mos_girls_HC.png";
 
         // added by BM for CSS html output
@@ -216,13 +216,13 @@ if ($charttype == 'birth') {
     $bmi_dot_y = 1130;
     $bmi_delta_y = 37.15;
 
-    if (preg_match('/^male/i', (string) $patient_data['sex'])) {
+    if (str_starts_with(strtolower((string) $patient_data['sex']), 'male')) {
         $chart = "2-20yo_boys_BMI.png";
 
         // added by BM for CSS html output
         $chartCss1 = "2-20yo_boys_BMI-1.png";
         $chartCss2 = "2-20yo_boys_BMI-2.png";
-    } elseif (preg_match('/^female/i', (string) $patient_data['sex'])) {
+    } elseif (str_starts_with(strtolower((string) $patient_data['sex']), 'female')) {
         $chart = "2-20yo_girls_BMI.png";
 
         // added by BM for CSS html output

@@ -2390,13 +2390,13 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codetype !== 'IPPF2') {
                 continue;
             }
-            if (preg_match('/^211/', $code)) {
+            if (str_starts_with($code, '211')) {
                 $gcac_related_visit = true;
                 if (
-                    preg_match('/^211313030110/', $code) // Medical
-                    || preg_match('/^211323030230/', $code) // Surgical
-                    || preg_match('/^211403030110/', $code) // Incomplete Medical
-                    || preg_match('/^211403030230/', $code) // Incomplete Surgical
+                    str_starts_with($code, '211313030110') // Medical
+                    || str_starts_with($code, '211323030230') // Surgical
+                    || str_starts_with($code, '211403030110') // Incomplete Medical
+                    || str_starts_with($code, '211403030230') // Incomplete Surgical
                 ) {
                     $gcac_service_provided = true;
                 }

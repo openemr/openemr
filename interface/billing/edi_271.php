@@ -46,7 +46,8 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (mime_content_type($_FILES['uploaded']['tmp_name']) != "text/plain") {
         $message .= xlt('You may only upload .txt files') . "<br />";
     }
-    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", (string) $_FILES['uploaded']['name']) !== 0) {
+    $uploadedExt = strtolower(pathinfo((string) $_FILES['uploaded']['name'], PATHINFO_EXTENSION));
+    if (in_array($uploadedExt, ['inc', 'php', 'php7', 'php8'], true)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {

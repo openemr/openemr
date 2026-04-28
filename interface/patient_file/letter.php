@@ -554,15 +554,7 @@ while (false !== ($tfname = readdir($dh))) {
         continue;
     }
 
-    if (preg_match("/\.php$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.jpg$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.png$/", $tfname)) {
+    if (in_array(strtolower(pathinfo($tfname, PATHINFO_EXTENSION)), ['php', 'jpg', 'png'], true)) {
         continue;
     }
 

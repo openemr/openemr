@@ -563,7 +563,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
         attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin form-control form-control-sm' />";
     echo "</td>\n";
 
-    if (preg_match('/_issue_list$/', (string) $list_id)) {
+    if (str_ends_with((string) $list_id, '_issue_list')) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][subtype]", 'issue_subtypes', $subtype, 'Subtype', ' ', 'optin');
         echo "</td>\n";
@@ -1381,7 +1381,7 @@ function writeITLine($it_array): void
 
                     <th><?php echo xlt('Code(s)'); ?></th>
                     <?php
-                    if (preg_match('/_issue_list$/', (string) $list_id)) { ?>
+                    if (str_ends_with((string) $list_id, '_issue_list')) { ?>
                         <th><?php echo xlt('Subtype'); ?></th>
                         <?php
                     }
