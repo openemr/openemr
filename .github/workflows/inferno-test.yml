@@ -470,7 +470,7 @@ jobs:
         run: php sql_upgrade.php --from=7.0.3
 
       - name: Start PHP server
-        run: php -S 0.0.0.0:8080 -t . public/index.php > /tmp/php.log 2>&1 &
+        run: php -S 0.0.0.0:8080 -t . public/index.php > /tmp/php.log 2>/tmp/error.log &
 
       - name: Wait for server
         run: curl --retry-connrefused --retry 30 --retry-delay 1 --fail -so /dev/null http://127.0.0.1:8080/
@@ -555,6 +555,10 @@ jobs:
       - name: Show PHP server logs
         if: ${{ !cancelled() }}
         run: cat /tmp/php.log || true
+
+      - name: Show PHP error logs
+        if: ${{ !cancelled() }}
+        run: cat /tmp/error.log || true
 
       - name: Show Inferno logs
         if: ${{ !cancelled() }}
