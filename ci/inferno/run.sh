@@ -198,10 +198,10 @@ main() {
       fi
     fi
 
+    fix_redis_permissions
     initialize_inferno
     check_inferno
     initialize_openemr
-    fix_redis_permissions
 
     # Run the test suite and capture exit code
     # shellcheck disable=SC2310
