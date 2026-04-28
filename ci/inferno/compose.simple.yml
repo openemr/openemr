@@ -12,10 +12,8 @@ services:
   hl7_validator_service:
     image: infernocommunity/inferno-resource-validator:1.0.73
     network_mode: host
+    command: ["-tx", "n/a"]
     environment:
       SESSION_CACHE_DURATION: -1
-      # Disable external terminology server (tx.fhir.org) lookups - they timeout in CI
-      # Uses 'n/a' to match the CLI flag '-tx n/a'
-      TX_SERVER_URL: "n/a"
     volumes:
       - ./onc-certification-g10-test-kit/lib/onc_certification_g10_test_kit/igs:/home/igs
