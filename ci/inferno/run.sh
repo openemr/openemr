@@ -164,15 +164,7 @@ fix_redis_permissions() {
      docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
 }
 
-cleanup() {
-    echo 'Performing cleanup...'
-    docker compose down -v || true
-    echo 'Cleanup completed'
-}
-
 main() {
-    # Set up trap for cleanup on exit
-    trap cleanup EXIT
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.
