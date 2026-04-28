@@ -108,48 +108,74 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
         }
 
-        if ($_POST["taxid"]) {
-            sqlStatement("update users set federaltaxid=? where id= ? ", [$_POST["taxid"], $_POST["id"]]);
+        // Map POST keys → DB columns for simple string fields.
+        // Collect new values for fields that actually changed, then issue
+        // a single fixed-shape UPDATE.  Fields that did not change are
+        // excluded so we avoid unnecessary writes and audit-log noise.
+        $stringFields = [
+            'taxid' => 'federaltaxid',
+            'state_license_number' => 'state_license_number',
+            'drugid' => 'federaldrugid',
+            'upin' => 'upin',
+            'npi' => 'npi',
+            'taxonomy' => 'taxonomy',
+            'lname' => 'lname',
+            'fname' => 'fname',
+            'suffix' => 'suffix',
+            'valedictory' => 'valedictory',
+            'job' => 'specialty',
+            'mname' => 'mname',
+        ];
+
+        $changedFields = [];
+        foreach ($stringFields as $postKey => $dbColumn) {
+            if (isset($_POST[$postKey])) {
+                $submittedValue = (string) $_POST[$postKey];
+                $currentValue = is_array($user_data) && array_key_exists($dbColumn, $user_data)
+                    ? $user_data[$dbColumn]
+                    : null;
+                $currentStringValue = $currentValue === null ? null : (string) $currentValue;
+
+                if ($currentStringValue !== $submittedValue) {
+                    $changedFields[$dbColumn] = $_POST[$postKey];
+                }
+            }
         }
 
-        if ($_POST["state_license_number"]) {
-            sqlStatement("update users set state_license_number=? where id= ? ", [$_POST["state_license_number"], $_POST["id"]]);
-        }
+        if ($changedFields !== []) {
+            $preserveUserValue = static function (string $dbColumn) use ($changedFields, $user_data) {
+                if (array_key_exists($dbColumn, $changedFields)) {
+                    return $changedFields[$dbColumn];
+                }
 
-        if ($_POST["drugid"]) {
-            sqlStatement("update users set federaldrugid=? where id= ? ", [$_POST["drugid"], $_POST["id"]]);
-        }
+                return is_array($user_data) && array_key_exists($dbColumn, $user_data)
+                    ? $user_data[$dbColumn]
+                    : null;
+            };
 
-        if ($_POST["upin"]) {
-            sqlStatement("update users set upin=? where id= ? ", [$_POST["upin"], $_POST["id"]]);
-        }
-
-        if ($_POST["npi"]) {
-            sqlStatement("update users set npi=? where id= ? ", [$_POST["npi"], $_POST["id"]]);
-        }
-
-        if ($_POST["taxonomy"]) {
-            sqlStatement("update users set taxonomy = ? where id= ? ", [$_POST["taxonomy"], $_POST["id"]]);
-        }
-
-        if ($_POST["lname"]) {
-            sqlStatement("update users set lname=? where id= ? ", [$_POST["lname"], $_POST["id"]]);
-        }
-
-        if ($_POST["suffix"]) {
-            sqlStatement("update users set suffix=? where id= ? ", [$_POST["suffix"], $_POST["id"]]);
-        }
-
-        if ($_POST["valedictory"]) {
-            sqlStatement("update users set valedictory=? where id= ? ", [$_POST["valedictory"], $_POST["id"]]);
-        }
-
-        if ($_POST["job"]) {
-            sqlStatement("update users set specialty=? where id= ? ", [$_POST["job"], $_POST["id"]]);
-        }
-
-        if ($_POST["mname"]) {
-            sqlStatement("update users set mname=? where id= ? ", [$_POST["mname"], $_POST["id"]]);
+            sqlStatement(
+                "UPDATE users SET"
+                . " federaltaxid = ?, state_license_number = ?,"
+                . " federaldrugid = ?, upin = ?, npi = ?, taxonomy = ?,"
+                . " lname = ?, fname = ?, suffix = ?, valedictory = ?,"
+                . " specialty = ?, mname = ?"
+                . " WHERE id = ?",
+                [
+                    $preserveUserValue('federaltaxid'),
+                    $preserveUserValue('state_license_number'),
+                    $preserveUserValue('federaldrugid'),
+                    $preserveUserValue('upin'),
+                    $preserveUserValue('npi'),
+                    $preserveUserValue('taxonomy'),
+                    $preserveUserValue('lname'),
+                    $preserveUserValue('fname'),
+                    $preserveUserValue('suffix'),
+                    $preserveUserValue('valedictory'),
+                    $preserveUserValue('specialty'),
+                    $preserveUserValue('mname'),
+                    $_POST["id"],
+                ]
+            );
         }
 
         if ($_POST["facility_id"]) {
@@ -221,10 +247,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     );
                 }
             }
-        }
-
-        if ($_POST["fname"]) {
-            sqlStatement("update users set fname=? where id= ? ", [$_POST["fname"], $_POST["id"]]);
         }
 
         if (isset($_POST['default_warehouse'])) {
