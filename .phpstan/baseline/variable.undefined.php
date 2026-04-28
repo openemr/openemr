@@ -13407,56 +13407,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/display_help_icon_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$ebo7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$cls might not be defined\\.$#',
-    'count' => 26,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$dmg03 might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$loopid might not be defined\\.$#',
-    'count' => 57,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$bht might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$cls might not be defined\\.$#',
-    'count' => 42,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$loopid might not be defined\\.$#',
-    'count' => 33,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$qtystr might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sc204 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sc304 might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$dtp03$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',

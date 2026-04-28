@@ -1570,7 +1570,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     //
     if (trim($filename)) {
         $obj835 = csv_check_x12_obj($filename, 'f835');
-        if ($obj835 && 'edih_x12_file' == $obj835::class) {
+        if ($obj835 !== false) {
             $fn = $obj835->edih_filename();
             $delims = $obj835->edih_delimiters();
             $env_ar = $obj835->edih_x12_envelopes();
