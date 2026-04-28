@@ -98,6 +98,7 @@ function sqlStatement($statement, $binds = false)
     try {
         return QueryUtils::sqlStatementThrowException($statement, $binds, noLog: false);
     } catch (SqlQueryException $e) {
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
@@ -159,6 +160,7 @@ function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error
         if ($throw_exception_on_error) {
             throw $e;
         }
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
@@ -241,6 +243,7 @@ function sqlInsert($statement, $binds = false)
     try {
         return QueryUtils::sqlInsert($statement, $binds);
     } catch (SqlQueryException $e) {
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("insert failed: $statement", $e->sqlError);
     }
 }
@@ -261,6 +264,7 @@ function sqlQuery($statement, $binds = false)
     try {
         return QueryUtils::querySingleRow($statement, $binds ?: []);
     } catch (SqlQueryException $e) {
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
@@ -291,6 +295,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
         if ($throw_exception_on_error) {
             throw $e;
         }
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
@@ -332,6 +337,7 @@ function sqlInsertClean_audit($statement, $binds = false): void
     try {
         QueryUtils::sqlStatementThrowException($statement, $binds, noLog: true);
     } catch (SqlQueryException $e) {
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("insert failed: $statement", $e->sqlError);
     }
 }
@@ -434,6 +440,7 @@ function sqlQ($statement, $binds = false)
     try {
         return QueryUtils::sqlStatementThrowException($statement, $binds);
     } catch (SqlQueryException $e) {
+        ServiceContainer::getLogger()->error('{func} error', ['func' => __FUNCTION__, 'exception' => $e]);
         HelpfulDie("query failed: $statement", $e->sqlError);
     }
 }
