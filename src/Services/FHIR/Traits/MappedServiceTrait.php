@@ -81,8 +81,12 @@ trait MappedServiceTrait
     public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind)
     {
         $processingResult = new ProcessingResult();
+        $hasSearchCriteria = $this->hasNonMetaSearchParams($fhirSearchParams);
         foreach ($this->getMappedServices() as $service) {
             $filteredParams = $service->getSupportedSearchParams($fhirSearchParams);
+            if ($hasSearchCriteria && !$this->hasNonMetaSearchParams($filteredParams)) {
+                continue;
+            }
             $innerResult = $service->getAll($filteredParams, $puuidBind);
             $processingResult->addProcessingResult($innerResult);
             if ($processingResult->hasErrors()) {
@@ -92,6 +96,16 @@ trait MappedServiceTrait
             }
         }
         return $processingResult;
+    }
+
+    private function hasNonMetaSearchParams(array $params): bool
+    {
+        foreach ($params as $key => $value) {
+            if (!str_starts_with($key, '_')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getMappedServiceForResourceUuid($resourceUuid)
