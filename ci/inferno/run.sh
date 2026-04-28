@@ -190,8 +190,10 @@ cleanup() {
 }
 
 main() {
-    # Set up trap for cleanup on exit
-    trap cleanup EXIT
+    # NOTE: No cleanup trap here - the GitHub Actions workflow handles cleanup
+    # after capturing logs. Running cleanup here would remove containers before
+    # the workflow can read error logs for debugging.
+
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.
