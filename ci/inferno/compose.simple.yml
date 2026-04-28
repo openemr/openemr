@@ -14,5 +14,7 @@ services:
     network_mode: host
     environment:
       SESSION_CACHE_DURATION: -1
+      # Disable external terminology server (tx.fhir.org) lookups - they timeout in CI
+      DISABLE_TX: 'true'
     volumes:
       - ./onc-certification-g10-test-kit/lib/onc_certification_g10_test_kit/igs:/home/igs
