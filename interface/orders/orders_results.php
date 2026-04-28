@@ -13,8 +13,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lab.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -42,10 +42,12 @@ if ($form_review and !$reviewauth and !$thisauth) {
 }
 
 // Set pid for pending review.
+$pid = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
 if (!empty($_GET['set_pid']) && $form_review) {
-    require_once("$srcdir/pid.inc.php");
-    require_once("$srcdir/patient.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
     setpid($_GET['set_pid']);
+    $pid = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
 
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
     ?>

@@ -1340,7 +1340,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         $ares['document_id'] = $d->get_id();
                     }
                 } // @todo suspect below!!
-                $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
+                $ares['date'] = $arep['date_report'] ?? ''; // $arep is left over from the OBR logic.
                 // Append this result to those for the most recent report.
                 // Note the 'procedure_report_id' item is not yet present.
                 //$amain[count($amain) - 1]['res'][] = $ares;
@@ -1441,7 +1441,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $ares['document_id'] = $d->get_id();
             }
 
-            $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
+            $ares['date'] = $arep['date_report'] ?? ''; // $arep is left over from the OBR logic.
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain) - 1]['res'][] = $ares;

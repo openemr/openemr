@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
 }
 
-$educationdir = "$OE_SITE_DIR/documents/education";
+$educationdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/education";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_save'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

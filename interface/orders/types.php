@@ -43,7 +43,7 @@ if ($popup && $_POST['form_save'] ?? '') {
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>
-    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js"></script>
     <script>
     if (opener.closed || ! opener.set_proc_type) {
         alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
@@ -289,6 +289,7 @@ if ($popup && $_POST['form_save'] ?? '') {
 
 <body>
     <?php
+    $help_icon = '';
     if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {

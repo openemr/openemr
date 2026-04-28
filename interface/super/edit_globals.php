@@ -20,8 +20,12 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/globals.inc.php");
-require_once("$srcdir/user.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
+
+/** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
+/** @var list<string> $USER_SPECIFIC_GLOBALS */
+/** @var list<string> $USER_SPECIFIC_TABS */
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -488,6 +492,8 @@ function checkBackgroundServices(): void
                                                 // Collect user specific setting if mode set to user
                                                 $userSetting = "";
                                                 $settingDefault = "checked='checked'";
+                                                $globalValue = '';
+                                                $globalTitle = '';
                                                 if ($userMode) {
                                                     $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$authUserID, "global:" . $fldid]);
                                                     $userSetting = $userSettingArray['setting_value'] ?? '';
@@ -723,7 +729,7 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    $themedir = "$webserver_root/public/themes";
+                                                    $themedir = OEGlobalsBag::getInstance()->getProjectDir() . "/public/themes";
                                                     $dh = opendir($themedir);
                                                     if ($dh) {
                                                         // Collect styles

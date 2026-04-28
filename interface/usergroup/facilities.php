@@ -173,8 +173,8 @@ $(function () {
                         <?php
                         $fres = 0;
                         $fres = $facilityService->getAllFacility();
+                        $result2 = [];
                         if ($fres) {
-                            $result2 = [];
                             for ($iter3 = 0; $iter3 < count($fres); $iter3++) {
                                 $result2[$iter3] = $fres[$iter3];
                             }

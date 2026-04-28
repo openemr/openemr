@@ -15,7 +15,11 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/layout.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/layout.inc.php");
+
+/** @var array<int,string> $datatypes */
+/** @var list<int> $typesUsingList */
+/** @var array<string,string> $sources */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
