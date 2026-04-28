@@ -166,6 +166,37 @@ function medexHasEnabledService(array $enabledServices, array $candidates): bool
 }
 
 /**
+ * Load only the bootstrap files for currently enabled optional services.
+ *
+ * @param array<int|string,mixed> $enabledServices
+ */
+function medexLoadEnabledComponentBootstraps(array $enabledServices): void
+{
+    foreach (ComponentLoader::manifests() as $manifest) {
+        $candidates = array_merge(
+            [(string)($manifest['key'] ?? '')],
+            array_values((array)($manifest['aliases'] ?? []))
+        );
+        $alwaysLoad = !empty($manifest['bootstrap_always']);
+        if (!$alwaysLoad && !medexHasEnabledService($enabledServices, $candidates)) {
+            continue;
+        }
+
+        foreach ((array)($manifest['bootstrap'] ?? []) as $relativePath) {
+            $cleanPath = ltrim(str_replace('..', '', (string)$relativePath), '/');
+            $baseDir = (string)($manifest['component_dir'] ?? '');
+            if ($cleanPath === '' || $baseDir === '') {
+                continue;
+            }
+            $path = $baseDir . '/' . $cleanPath;
+            if (is_file($path)) {
+                require_once $path;
+            }
+        }
+    }
+}
+
+/**
  * @return array{0:string,1:string}
  */
 function medexCalendarFeedsAclReq(array $state): array
@@ -409,7 +440,8 @@ require_once __DIR__ . '/src/MedExAPI.php';
 require_once __DIR__ . '/src/ModuleManagerListener.php';
 require_once __DIR__ . '/src/ComponentLoader.php';
 
-ComponentLoader::includeBootstrapFiles();
+$medexBootstrapState = \medexBootstrapState();
+\medexLoadEnabledComponentBootstraps((array)($medexBootstrapState['enabled_services'] ?? []));
 
 if (!class_exists('OpenEMR\\Modules\\MedEx\\Bootstrap')) {
     class Bootstrap
