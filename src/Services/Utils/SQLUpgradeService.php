@@ -1289,7 +1289,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
         while ($row = sqlFetchArray($res)) {
-            $form_id = $row['form_id'];
+            $form_id = (string)$row['form_id'];
             $props = [
                 'title' => 'Unknown',
                 'mapping' => 'Core',
@@ -1297,7 +1297,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with((string)$form_id, 'LBF')) {
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1308,7 +1308,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with((string)$form_id, 'LBT')) {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]
