@@ -305,12 +305,13 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function getSupportedVersions(): array
     {
-        // version 3.1.1 DOES NOT support RelatedPerson as care team members so we can't compatible across all versions
-        if ($this->getHighestCompatibleUSCoreProfileVersion() == self::PROFILE_VERSION_3_1_1) {
-            return self::PROFILE_VERSIONS_V1;
-        } else {
-            return self::PROFILE_VERSIONS_V2;
-        }
+        // Note: version 3.1.1 does not support RelatedPerson as care team members
+        $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
+        return match ($highestVersion) {
+            self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
+            self::PROFILE_VERSION_7_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_7_0_0],
+            default => self::PROFILE_VERSIONS_ALL
+        };
     }
 
     /**

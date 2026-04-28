@@ -974,8 +974,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return match ($highestVersion) {
             self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
             self::PROFILE_VERSION_7_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_7_0_0],
-            self::PROFILE_VERSION_8_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0],
-            default => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0]
+            default => self::PROFILE_VERSIONS_ALL
         };
     }
 
