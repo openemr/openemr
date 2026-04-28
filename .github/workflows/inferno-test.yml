@@ -428,6 +428,12 @@ jobs:
         with:
           php-version: '8.5'
 
+      - name: Configure MySQL collation
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot -e "
+            ALTER DATABASE openemr CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+          "
+
       - name: Install OpenEMR
         run: >-
           ./cli install
