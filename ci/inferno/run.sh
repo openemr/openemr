@@ -83,6 +83,12 @@ initialize_openemr() {
     install_configure
     "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+    #  Snapshot is from 7.0.3; run migrations to create any new tables
+    docker compose exec -T openemr php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
+    # (may need to configure api globals here)
+    # Prevent password expiration from blocking OAuth password grant
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users_secure SET last_update_password = NOW()"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
