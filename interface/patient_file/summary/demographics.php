@@ -1220,6 +1220,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['title'] = 'Prescription History';
                         $viewArgs['btnLabel'] = 'Add';
                         $viewArgs['btnLink'] = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/eRx.php?page=compose";
+                        $viewArgs['linkMethod'] = 'html';
                     } else {
                         $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                         $viewArgs['linkMethod'] = "javascript";
