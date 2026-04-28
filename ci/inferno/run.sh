@@ -185,7 +185,10 @@ collect_inferno_coverage() {
 }
 
 fix_redis_permissions() {
-     docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
+     # The cloned submodule has pre-existing Redis data files owned by the CI runner.
+     # Redis runs as the 'redis' user inside the container and needs write access.
+     # Using 777 is acceptable here since this is ephemeral CI infrastructure.
+     chmod -R 777 "${PWD}/onc-certification-g10-test-kit/data/redis"
 }
 
 cleanup() {
