@@ -100,6 +100,9 @@ initialize_openemr() {
     docker compose exec -T openemr php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
     # Snapshot may not have API globals configured; ensure they're set
     configure_api_globals
+    # Prevent password expiration from blocking OAuth password grant
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users_secure SET last_update_password = NOW()"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
