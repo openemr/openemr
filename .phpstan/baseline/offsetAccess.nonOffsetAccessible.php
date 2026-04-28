@@ -1847,11 +1847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_reminders.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_reminders.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_reminders.php',
@@ -1860,11 +1855,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 1 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batch_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batchcom.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'authorized\' on mixed\\.$#',

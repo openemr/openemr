@@ -67,6 +67,8 @@ function generate_csv($sql_result): void
     // create file header.
     // menu for fields could be added in the future
 
+    $flag_on = false;
+    $file = '';
     while ($row = sqlFetchArray($sql_result)) {
         if (!$flag_on) {
             $flag_on = true;
@@ -79,6 +81,7 @@ function generate_csv($sql_result): void
             reset($row);
         }
 
+        $line = '';
         foreach ($row as $value) {
             $line .= csvEscape($value) . ",";
         }
@@ -86,7 +89,6 @@ function generate_csv($sql_result): void
         $line = substr($line, 0, -1);
         $line .= "\n";
         $file .= $line;
-        $line = '';
     }
 
     //download

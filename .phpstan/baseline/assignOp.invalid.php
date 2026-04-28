@@ -107,26 +107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/batchcom/batchcom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/batchcom/emailnotification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/settingsnotification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/smsnotification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
