@@ -3,9 +3,9 @@
 /**
  * MissingSiteIdException is thrown when the session does not contain a site ID.
  *
- * This is distinct from MissingSiteException (which covers the site directory
- * not being configured).  Both share a common parent so callers can catch
- * either the specific scenario or the broader "site cannot be identified" family.
+ * This extends MissingSiteException, which covers the broader case where the
+ * site directory is not configured. Catch MissingSiteException to handle both
+ * scenarios; catch MissingSiteIdException for the session-specific case only.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
