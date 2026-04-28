@@ -8597,11 +8597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uuid\' on array\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
