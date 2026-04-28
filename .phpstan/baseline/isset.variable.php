@@ -132,11 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ta1_icn in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pdrow in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -195,6 +190,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$_POST in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$ta1_icn in isset\\(\\) always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$code_types in isset\\(\\) is never defined\\.$#',

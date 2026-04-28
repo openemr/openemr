@@ -197,11 +197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$seg_array \\(string\\) of method edih_x12_file\\:\\:edih_get_segment\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$authorized \\(string\\) of function addPnote\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
@@ -320,6 +315,11 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$params \\(string\\) of method PortalController\\:\\:Redirect\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$seg_array \\(string\\) of method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_get_segment\\(\\) is incompatible with type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',

@@ -4952,86 +4952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/codes/edih_835_code_class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$constructing has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$delimiters has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$envelopes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$filename has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$filepath has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$gstype_ar has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$hasGS has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$hasST has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$isx12 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$length has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$message has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$segments has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$text has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$type has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$valid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property edih_x12_file\\:\\:\\$version has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property RestResponse\\:\\:\\$ErrorMessage has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/maviq_phone_api.php',
@@ -23725,6 +23645,86 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\Claim\\:\\:\\$x12_partner has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$constructing has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$delimiters has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$envelopes has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$filename has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$filepath has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$gstype_ar has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$hasGS has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$hasST has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$isx12 has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$length has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$message has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$segments has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$text has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$type has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$valid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$version has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:\\$hcfa_curr_col has no type specified\\.$#',

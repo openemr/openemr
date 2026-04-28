@@ -1674,11 +1674,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array    note\\: all element values except \'keys\' are strings\\)\\: Unexpected token "note", expected variable at offset 613 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array/string \\$whitelist_items  Items used in whitelisting method \\(See function description for details of whitelisting method\\)\\.
                                          Standard use is to use a array\\. If use a string, then should be regex expression of allowed
                                          characters \\(for example \'a\\-zA\\-Z0\\-9_\'\\)\\.\\)\\: Unexpected token "/string", expected variable at offset 1377 on line 21$#',
@@ -3327,6 +3322,11 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 104 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param has invalid value \\(array    note\\: all element values except \'keys\' are strings\\)\\: Unexpected token "note", expected variable at offset 613 on line 14$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(json array \\$options \\["G","P","T"\\], \\["G"\\] or could be legacy string with form "GPT", "G", "012"\\)\\: Unexpected token "array", expected variable at offset 99 on line 4$#',

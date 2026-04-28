@@ -567,26 +567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'GS\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\?\\: non\\-empty\\-array\\<array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\: non\\-empty\\-array\\<array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\>\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'ST\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\?\\: non\\-empty\\-array\\<array\\{count\\?\\: int\\<1, max\\>, gscount\\?\\: string, start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string\\}\\>\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'count\' might not exist on array\\{start\\: mixed, count\\?\\: \\(float\\|int\\)\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'icn\' might not exist on array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on \'\'\\|non\\-empty\\-list\\<string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
@@ -840,6 +820,26 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'start_date\' might not exist on array\\{id\\: int, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\: \'EB\', 1\\?\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'GS\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\?\\: non\\-empty\\-array\\<array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\: non\\-empty\\-array\\<array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\>\\}\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ST\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\?\\: non\\-empty\\-array\\<array\\{count\\?\\: int\\<1, max\\>, gscount\\?\\: string, start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string\\}\\>\\}\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'count\' might not exist on array\\{start\\: mixed, count\\?\\: \\(float\\|int\\)\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'icn\' might not exist on array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'bal\' might not exist on array\\{chg\\: float\\|int, bal\\: float\\|int, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: numeric\\-string\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\?\\: float\\|int, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: numeric\\-string\\}\\>\\}\\.$#',

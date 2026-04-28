@@ -5,6 +5,7 @@ parameters:
   bootstrapFiles:
   - .phpstan/phpstan_panther_alias.php
   - .phpstan/phpstan_include_paths.php
+  - .phpstan/phpstan_legacy_aliases.php
   level: 10
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
