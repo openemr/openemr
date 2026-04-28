@@ -132,11 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'sex\' might not exist on \'\'\\|array\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',

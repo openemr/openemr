@@ -43,7 +43,7 @@ if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] 
     $list_id = 'language';
     $blank_list_id = true;
 } else {
-    $list_id = $_REQUEST['list_id'];
+    $list_id = (string) $_REQUEST['list_id'];
 }
 
 // Check authorization.
@@ -242,7 +242,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     $notes = trim($iter['notes'] ?? '');
                 }
 
-                if (preg_match("/Eye_QP_/", (string) $list_id)) {
+                if (preg_match("/Eye_QP_/", $list_id)) {
                     if (preg_match("/^[BLR]/", $id)) {
                         $stuff = explode("_", $id)[0];
                         $iter['mapping'] = substr($stuff, 1);
@@ -1157,8 +1157,8 @@ function writeITLine($it_array): void
                              * Keep proper list name (otherwise list name changes according to
                              * the options shown on the screen).
                              */
-                            $list_id_container = $_GET["list_id_container"] ?? null;
-                            if (isset($_GET["list_id_container"]) && strlen((string) $list_id_container) > 0) {
+                            $list_id_container = (string) ($_GET["list_id_container"] ?? '');
+                            if ($list_id_container !== '') {
                                 $list_id = $list_id_container;
                             }
 
