@@ -54,8 +54,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Inferno Certification Test
     timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
-    # SHORT-CIRCUITED for debugging - restore when debug_fhir_endpoint issue is resolved
-    if: false && needs.check_secret.outputs.has_inferno_pat == 'true'
+    if: needs.check_secret.outputs.has_inferno_pat == 'true'
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
