@@ -1,0 +1,230 @@
+{% extends "reports/daily_summary/base.html.twig" %}
+
+{% block report_content %}
+
+<!-- Date Range Display -->
+<div class="alert alert-light border mb-4">
+    <strong>{{ 'Report Period' | xlt }}:</strong>
+    {{ form_from_date | shortDate }} {{ 'to{{Range}}' | xlt }} {{ form_to_date | shortDate }}
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title text-white-50">{{ 'Appointments' | xlt }}</h6>
+                <p class="card-text h4">{{ summary_metrics.total_appointments | number_format(0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title text-white-50">{{ 'Visits' | xlt }}</h6>
+                <p class="card-text h4">{{ summary_metrics.total_visits | number_format(0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title text-white-50">{{ 'Total Charges' | xlt }}</h6>
+                <p class="card-text h4">${{ summary_metrics.total_charges | money }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card {% if summary_metrics.collection_rate >= 85 %}bg-success{% elseif summary_metrics.collection_rate >= 70 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+            <div class="card-body">
+                <h6 class="card-title text-white-50">{{ 'Collection Rate' | xlt }}</h6>
+                <p class="card-text h4">{{ summary_metrics.collection_rate | number_format(1) }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Metrics Row -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{ 'Total Paid' | xlt }}</h6>
+                <p class="card-text text-success h5">${{ summary_metrics.total_paid | money }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{ 'Outstanding Balance' | xlt }}</h6>
+                <p class="card-text {% if summary_metrics.total_balance > 0 %}text-danger{% else %}text-success{% endif %} h5">${{ summary_metrics.total_balance | money }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{ 'No-Show Rate' | xlt }}</h6>
+                <p class="card-text {% if summary_metrics.no_show_rate <= 5 %}text-success{% elseif summary_metrics.no_show_rate <= 10 %}text-warning{% else %}text-danger{% endif %} h5">{{ summary_metrics.no_show_rate | number_format(1) }}%</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{ 'Avg Charge per Visit' | xlt }}</h6>
+                <p class="card-text h5">${{ summary_metrics.average_charge_per_visit | money }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Provider Productivity Table -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">{{ 'Provider Productivity' | xlt }}</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ 'Provider' | xlt }}</th>
+                    <th class="text-end">{{ 'Appointments' | xlt }}</th>
+                    <th class="text-end">{{ 'Visits' | xlt }}</th>
+                    <th class="text-end">{{ 'No-Show %' | xlt }}</th>
+                    <th class="text-end">{{ 'Charges' | xlt }}</th>
+                    <th class="text-end">{{ 'Paid' | xlt }}</th>
+                    <th class="text-end">{{ 'Balance' | xlt }}</th>
+                    <th class="text-end">{{ 'Collection %' | xlt }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for provider in provider_metrics %}
+                    <tr>
+                        <td>{{ provider.name }}</td>
+                        <td class="text-end">{{ provider.appointments | number_format(0) }}</td>
+                        <td class="text-end">{{ provider.visits | number_format(0) }}</td>
+                        <td class="text-end">
+                            <span class="badge {% if provider.no_show_rate <= 5 %}bg-success{% elseif provider.no_show_rate <= 10 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ provider.no_show_rate | number_format(1) }}%
+                            </span>
+                        </td>
+                        <td class="text-end">${{ provider.charges | money }}</td>
+                        <td class="text-end text-success">${{ provider.paid | money }}</td>
+                        <td class="text-end {% if provider.balance > 0 %}text-danger fw-bold{% endif %}">${{ provider.balance | money }}</td>
+                        <td class="text-end">
+                            <span class="badge {% if provider.collection_rate >= 85 %}bg-success{% elseif provider.collection_rate >= 70 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ provider.collection_rate | number_format(1) }}%
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">{{ 'No provider data available.' | xlt }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Daily Detail Table -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">{{ 'Daily Summary by Facility and Provider' | xlt }}</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ 'Date' | xlt }}</th>
+                    <th>{{ 'Facility' | xlt }}</th>
+                    <th>{{ 'Provider' | xlt }}</th>
+                    <th class="text-end">{{ 'Appointments' | xlt }}</th>
+                    <th class="text-end">{{ 'New Patients' | xlt }}</th>
+                    <th class="text-end">{{ 'Visits' | xlt }}</th>
+                    <th class="text-end">{{ 'Charges' | xlt }}</th>
+                    <th class="text-end">{{ 'Paid' | xlt }}</th>
+                    <th class="text-end">{{ 'Balance' | xlt }}</th>
+                    <th class="text-end">{{ 'Collection %' | xlt }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for date, dateData in report_data %}
+                    {% for facility, facilityData in dateData %}
+                        {% for provider, metrics in facilityData %}
+                            <tr>
+                                <td>{{ date | shortDate }}</td>
+                                <td>{{ facility }}</td>
+                                <td>{{ provider }}</td>
+                                <td class="text-end">{{ metrics.appointments | number_format(0) }}</td>
+                                <td class="text-end">{{ metrics.newPatients | number_format(0) }}</td>
+                                <td class="text-end">{{ metrics.visits | number_format(0) }}</td>
+                                <td class="text-end">${{ metrics.charges | money }}</td>
+                                <td class="text-end text-success">${{ metrics.paid | money }}</td>
+                                <td class="text-end {% if metrics.balance > 0 %}text-danger fw-bold{% endif %}">${{ metrics.balance | money }}</td>
+                                <td class="text-end">
+                                    <span class="badge {% if metrics.collection_rate >= 85 %}bg-success{% elseif metrics.collection_rate >= 70 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ metrics.collection_rate | number_format(1) }}%
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center">{{ 'No data available for the selected date range.' | xlt }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Aging Analysis Card -->
+{% if aging_analysis %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{{ 'Outstanding Balance - Aging Analysis' | xlt }}</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>{{ 'Facility' | xlt }}</th>
+                        <th>{{ 'Provider' | xlt }}</th>
+                        <th>{{ 'Age Category' | xlt }}</th>
+                        <th class="text-end">{{ 'Balance' | xlt }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in aging_analysis %}
+                        <tr class="{% if item.ageCategory == '90+ days' %}table-danger{% elseif item.ageCategory == '61-90 days' %}table-warning{% endif %}">
+                            <td>{{ item.facilityName }}</td>
+                            <td>{{ item.providerName }}</td>
+                            <td>
+                                <span class="badge {% if item.ageCategory == '90+ days' %}bg-danger{% elseif item.ageCategory == '61-90 days' %}bg-warning{% elseif item.ageCategory == '31-60 days' %}bg-info{% else %}bg-success{% endif %}">
+                                    {{ item.ageCategory }}
+                                </span>
+                            </td>
+                            <td class="text-end text-danger fw-bold">${{ item.balance | money }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">{{ 'No aging data available.' | xlt }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}
