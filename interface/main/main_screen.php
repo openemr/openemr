@@ -242,7 +242,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $authGroup = '';
                     if ($username !== '') {
                         $userService = new \OpenEMR\Services\UserService();
-                        $authGroup = $userService->getAuthGroupForUser($username);
+                        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
                     }
                     EventAuditLogger::getInstance()->newEvent(
                         'login',
@@ -290,7 +290,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $authGroup = '';
                     if ($username !== '') {
                         $userService = new \OpenEMR\Services\UserService();
-                        $authGroup = $userService->getAuthGroupForUser($username);
+                        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
                     }
                     EventAuditLogger::getInstance()->newEvent(
                         'login',
