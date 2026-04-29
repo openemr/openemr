@@ -35,6 +35,14 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
+// payment_master.inc.php (loaded later via require_once) reassigns these.
+// Initialize from request input so PHPStan sees them as `string` / `int` rather
+// than narrowing to literal '' / 0, which would mark downstream comparisons as
+// dead code.
+$PaymentType = (string) (filter_input(INPUT_POST, 'type_name') ?: filter_input(INPUT_GET, 'type_name') ?: '');
+$TypeCode = (string) (filter_input(INPUT_POST, 'hidden_type_code') ?: filter_input(INPUT_GET, 'hidden_type_code') ?: '');
+$CountIndexBelow = (int) (filter_input(INPUT_POST, '_init_count_index_below', FILTER_VALIDATE_INT) ?: 0);
+
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
 }

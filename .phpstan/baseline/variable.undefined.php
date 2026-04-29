@@ -372,21 +372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/era_payments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$CountIndexBelow might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/new_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$PaymentType might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/new_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$TypeCode might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/new_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gtotal_fee might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
