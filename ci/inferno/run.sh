@@ -103,10 +103,11 @@ initialize_openemr() {
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
-    # Remove orphan care_team_member records that reference non-existent users
-    # These cause Practitioner 404 errors in FHIR API tests
+    # Remove care_team_member records that reference users who don't qualify as Practitioners
+    # PractitionerService requires: username is not empty OR abook_type in ('ord_lab','spe','external_provider')
+    # CareTeam references to non-qualifying users cause Practitioner 404 errors
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
-        -e "DELETE FROM care_team_member WHERE user_id IS NOT NULL AND user_id NOT IN (SELECT id FROM users)"
+        -e "DELETE FROM care_team_member WHERE user_id IS NOT NULL AND user_id IN (SELECT id FROM users WHERE (username IS NULL OR username = '') AND (abook_type IS NULL OR abook_type NOT IN ('ord_lab', 'spe', 'external_provider')))"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
