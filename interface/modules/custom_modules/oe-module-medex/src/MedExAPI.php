@@ -630,17 +630,30 @@ class MedExAPI
 
             $response = $this->makeRequest('index.php?route=api/oemr/register', $data, 'POST');
 
-            if (!empty($response['success']) && !empty($response['api_key']) && !empty($response['practice_id'])) {
+            $hasProvisionedCredentials = !empty($response['api_key']) && !empty($response['practice_id']);
+            $isProvisionallyRegistered = !empty($response['pending_review']) && $hasProvisionedCredentials;
+
+            if ((!empty($response['success']) || $isProvisionallyRegistered) && $hasProvisionedCredentials) {
                 // Save credentials
                 $this->apiKey = $response['api_key'];
                 $this->practiceId = $response['practice_id'];
 
                 // Save to globals - use REPLACE to ensure values are saved
                 try {
-                    QueryUtils::sqlStatementThrowException(
-                        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_api_key', 0, ?)",
-                        [$this->apiKey]
-                    );
+                    // medex_api_key can exceed globals.gl_value (varchar(255)).
+                    // medex_prefs.ME_api_key is the authoritative storage for the full key.
+                    // Keep globals non-authoritative here so registration does not fail on long keys.
+                    if (strlen((string)$this->apiKey) <= 255) {
+                        QueryUtils::sqlStatementThrowException(
+                            "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_api_key', 0, ?)",
+                            [$this->apiKey]
+                        );
+                    } else {
+                        QueryUtils::sqlStatementThrowException(
+                            "DELETE FROM globals WHERE gl_name = 'medex_api_key'",
+                            []
+                        );
+                    }
                     QueryUtils::sqlStatementThrowException(
                         "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_practice_id', 0, ?)",
                         [$this->practiceId]
@@ -669,8 +682,11 @@ class MedExAPI
 
                 return [
                     'success' => true,
+                    'pending_review' => !empty($response['pending_review']),
                     'practice_id' => $this->practiceId,
-                    'message' => 'Registration successful'
+                    'message' => !empty($response['pending_review'])
+                        ? ((string)($response['message'] ?? 'Registration received and awaiting review'))
+                        : 'Registration successful'
                 ];
             }
 
@@ -1461,14 +1477,8 @@ class MedExAPI
                     }
                 }
             }
-            if ($callbackToken === '') {
-                $callbackToken = QueryUtils::fetchSingleValue(
-                    "SELECT gl_value FROM globals WHERE gl_name = ?",
-                    'gl_value',
-                    ['medex_callback_token']
-                ) ?? '';
-            }
             if (trim((string)$callbackToken) === '') {
+                error_log('[MedEx] Refusing to build dashboard SSO URL without a current callback token');
                 return null;
             }
             $openEmrBaseUrl = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
