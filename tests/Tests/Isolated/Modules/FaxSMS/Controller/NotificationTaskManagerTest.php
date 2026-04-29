@@ -39,21 +39,25 @@ class NotificationTaskManagerTest extends TestCase
     public static function cronWindowProvider(): array
     {
         return [
-            'exactly on time'                    => [0, 1, true],
-            'one hour early with 1h interval'    => [1, 1, true],
-            'one hour late with 1h interval'     => [-1, 1, true],
-            'two hours early with 1h interval'   => [2, 1, false],
-            'two hours late with 1h interval'    => [-2, 1, false],
-            'within 24h window (positive)'       => [12, 24, true],
-            'within 24h window (negative)'       => [-12, 24, true],
-            'at boundary of 24h window'          => [24, 24, true],
-            'at negative boundary of 24h window' => [-24, 24, true],
-            'outside 24h window'                 => [25, 24, false],
-            'far outside window'                 => [100, 24, false],
-            'old 150h window was a no-op'        => [100, 150, true],
-            'zero interval clamps to 1h'         => [1, 0, true],
-            'zero interval rejects 2h early'     => [2, 0, false],
-            'negative interval clamps to 1h'     => [0, -5, true],
+            // Upper bound is enforced: do not fire too early.
+            'exactly on time'                  => [0, 1, true],
+            'one hour early with 1h interval'  => [1, 1, true],
+            'two hours early with 1h interval' => [2, 1, false],
+            'within 24h window (positive)'     => [12, 24, true],
+            'at boundary of 24h window'        => [24, 24, true],
+            'outside 24h window'               => [25, 24, false],
+            'far outside window'               => [100, 24, false],
+            'zero interval clamps to 1h'       => [1, 0, true],
+            'zero interval rejects 2h early'   => [2, 0, false],
+            // No lower bound: a missed tick must still send on the next
+            // run. The runner's per-event check skips appointments that
+            // have already started; the SQL dedup prevents re-sends for
+            // already-notified events.
+            'one hour late with 1h interval'   => [-1, 1, true],
+            'two hours late with 1h interval'  => [-2, 1, true],
+            'far late with 1h interval'        => [-100, 1, true],
+            'far late with 24h interval'       => [-1000, 24, true],
+            'negative interval clamps to 1h'   => [0, -5, true],
         ];
     }
 }
