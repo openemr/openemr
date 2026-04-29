@@ -1,5 +1,242 @@
 # OpenEMR Development Guide
 
+---
+
+## Agent Environment (read first)
+
+This file is loaded automatically by Claude Code in every session — primary repo or any worktree.
+
+### Orient yourself first
+
+Before doing anything else, run:
+
+```bash
+git rev-parse --show-toplevel   # confirm which repo you are in
+openemr-cmd worktree list       # see all worktrees, their status, and assigned ports
+```
+
+`openemr-cmd` auto-detects context from git — it works correctly from the primary repo or any worktree without manual configuration.
+
+### Universal — applies in all environments
+
+Regardless of how the development environment is set up, these rules always apply:
+
+**Required tools on PATH:** `openemr-cmd`, `git`, `gh`, `docker`, `jq` — plus `kubectl`, `kind`, `helm` for Kubernetes work
+
+**Key paths** (structure is always the same, base location varies by environment):
+- Git base directory: `<git-dir>/` — all sibling directories live here
+- Primary repo: `<git-dir>/openemr/`
+- Worktrees: `<git-dir>/openemr-wt-<slug>/`
+- State file: `<git-dir>/openemr/.worktrees.json` — managed by openemr-cmd, never edit by hand
+
+**Golden rules:**
+
+1. **Use `openemr-cmd` for all worktree and stack operations.** Do not call `git worktree add/remove` or `docker compose` directly for worktree lifecycle. openemr-cmd manages port offsets, named volumes, override files, and state — bypassing it will corrupt state.
+2. **Never run `openemr-cmd worktree remove`.** The project maintainer reviews and merges PRs. Worktree removal only happens on explicit instruction after a PR is merged — never autonomously.
+3. **Never push directly to `master` or `main`.** All work happens on a feature branch in a worktree.
+4. **Open PRs as drafts.** The maintainer promotes them to ready after review.
+5. **Do not edit `.worktrees.json` by hand.** It is managed exclusively by openemr-cmd.
+
+### Environment-specific configuration
+
+Development environments vary. Check with your maintainer for the specifics of your setup. One reference configuration is documented below.
+
+#### LXC appliance (reference configuration)
+
+A jailed Ubuntu LXC container connected to the host's git directory via bind mount. Uses LXC's default NAT networking (`lxcbr0`) — the container has no LAN presence and is invisible to everything outside the host. A static IP inside the container (`10.0.3.100`) and a single `/etc/hosts` entry on the host gives a stable `claude-appliance.local` name without mDNS or Avahi. Works on any connection including mobile hotspot.
+
+Key characteristics:
+- Lean orchestration toolchain only: `openemr-cmd`, `git`, `gh`, `docker`, `kubectl`, `kind`, `helm`, `jq`
+- PHP, Composer, and Node are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands
+- Own Docker daemon running inside the container (not the host's Docker socket)
+- Git base directory bind-mounted read-write: path is identical on host and inside container
+- Multiple agents can run simultaneously, each in its own worktree with its own Docker stack
+- Port ranges are automatically offset per worktree — no manual port management needed
+- Container reachable from host browser at `https://claude-appliance.local:<port>`
+
+Full step-by-step setup: [Documentation/contributors/claude-appliance-setup.md](Documentation/contributors/claude-appliance-setup.md).
+
+### Worktree lifecycle
+
+**Creating a worktree for a new branch:**
+
+```bash
+# Standard dev environment (most tasks)
+openemr-cmd worktree add <branch-name> -b --env easy --start
+
+# Lightweight (no Selenium, CouchDB, Mailpit — faster startup)
+openemr-cmd worktree add <branch-name> -b --env easy-light --start
+
+# Redis/Sentinel environment (session or cache work)
+openemr-cmd worktree add <branch-name> -b --env easy-redis --start
+```
+
+The `--start` flag creates the worktree AND brings up the Docker stack in one step.
+Without `--start`, create first then start separately:
+
+```bash
+openemr-cmd worktree add <branch-name> -b --env easy
+openemr-cmd worktree up <branch-name>
+```
+
+**Checking worktrees and stacks:**
+
+```bash
+openemr-cmd worktree list
+```
+
+Output shows branch, env, offset, status (running/stopped/missing), and directory.
+
+**Stopping a stack (keep worktree and volumes for maintainer review):**
+
+```bash
+openemr-cmd worktree down <branch-name> --keep-volumes
+```
+
+Always use `--keep-volumes` when stopping after completing work.
+
+**Port assignments** are automatic by offset. Check `openemr-cmd worktree list` for your assigned ports:
+
+| Service    | Formula         | Example (offset 1) |
+|------------|-----------------|-------------------|
+| HTTPS      | 9300 + offset   | 9301              |
+| HTTP       | 8300 + offset   | 8301              |
+| phpMyAdmin | 8310 + offset   | 8311              |
+| MySQL      | 8320 + offset   | 8321              |
+| Mailpit UI | 8025 + offset   | 8026              |
+| CouchDB    | 5984 + offset   | 5985              |
+| Selenium   | 4444 + offset   | 4445              |
+| Redis      | 6379 + offset   | 6380              |
+
+**Regenerating compose files** (if override gets corrupted or env changes):
+
+```bash
+openemr-cmd worktree regen <branch-name>
+```
+
+**Environment selection:**
+
+| Task | Recommended env |
+|------|----------------|
+| General feature work, bug fixes | `easy` |
+| Quick lint/refactor pass, no DB needed | `easy-light` |
+| Session handling, Redis/Sentinel work | `easy-redis` |
+| API or FHIR work | `easy` (includes CouchDB) |
+| E2E / Selenium tests | `easy` (includes Selenium) |
+
+When in doubt use `easy`.
+
+### Dev tooling via openemr-cmd
+
+All devtools run inside the OpenEMR container via openemr-cmd. When in a worktree,
+openemr-cmd auto-detects the correct container from the state file.
+
+```bash
+# Code quality
+openemr-cmd pf          # PSR-12 fix (auto-fix PHP style)
+openemr-cmd pr          # PSR-12 report (check only)
+openemr-cmd pp          # PHP parse error check
+openemr-cmd pst         # PHPStan static analysis
+openemr-cmd rd          # Rector dry run (modernization preview)
+openemr-cmd rp          # Rector process (apply modernization)
+
+# JavaScript / themes
+openemr-cmd ljf         # Lint JS fix
+openemr-cmd ljr         # Lint JS report
+openemr-cmd ltf         # Lint themes fix
+openemr-cmd ltr         # Lint themes report
+openemr-cmd bt          # Build themes
+
+# Tests
+openemr-cmd ut          # Unit tests (PHP)
+openemr-cmd jut         # JavaScript unit tests
+openemr-cmd at          # API tests
+openemr-cmd et          # E2E tests (Selenium)
+openemr-cmd st          # Services tests
+openemr-cmd ft          # Fixtures tests
+openemr-cmd vt          # Validators tests
+openemr-cmd ct          # Controllers tests
+openemr-cmd ctt         # Common tests
+openemr-cmd cst         # Clean sweep tests (all suites)
+
+# Database
+openemr-cmd dr          # Dev reset
+openemr-cmd di          # Dev install
+openemr-cmd dri         # Dev reset + install
+openemr-cmd drid        # Dev reset + install + demo data (recommended for feature work)
+openemr-cmd ms          # MariaDB shell
+
+# Logs
+openemr-cmd pl          # PHP log
+openemr-cmd dl          # Docker log
+openemr-cmd xl          # Xdebug log
+
+# Shell access
+openemr-cmd s           # Shell inside OpenEMR container
+openemr-cmd e "tail -f /var/log/apache2/error.log"   # Exec arbitrary command
+```
+
+For worktree-specific container targeting (if auto-detection fails):
+```bash
+openemr-cmd -d <container-name> <command>
+```
+
+### Completing work and opening a PR
+
+```bash
+# 1. Final code quality pass
+openemr-cmd pf && openemr-cmd pp
+
+# 2. Commit remaining changes (see commit message conventions below)
+git add -A
+git commit --trailer "Assisted-by: Claude Code" -m "type(scope): description"
+
+# 3. Push branch
+git push origin <branch-name>
+
+# 4. Open draft PR
+gh pr create \
+  --repo openemr/openemr \
+  --draft \
+  --title "<clear summary of what this does>" \
+  --body "$(cat <<'EOF'
+## Summary
+<what was changed and why>
+
+## Testing
+<what was run, what passed>
+
+## Notes for reviewer
+<edge cases, open questions, follow-up items>
+EOF
+)"
+
+# 5. Stop stack but keep volumes
+openemr-cmd worktree down <branch-name> --keep-volumes
+```
+
+### Post-merge cleanup (maintainer instruction only)
+
+```bash
+# Only run this when explicitly instructed after a PR is merged
+echo "y" | openemr-cmd worktree remove <branch-name>
+```
+
+This deletes Docker volumes by default (correct post-merge). Use `--keep-volumes` only if explicitly asked.
+
+### What not to do
+
+- Do not `git worktree add` or `git worktree remove` directly
+- Do not `docker compose up/down` directly for worktree stacks
+- Do not edit `.worktrees.json` by hand
+- Do not push to `master`, `main`, or any branch you did not create
+- Do not run `openemr-cmd worktree remove` unless explicitly instructed after a PR merge
+- Do not open PRs as ready — always draft
+- Do not install packages or system dependencies globally without explicit approval from the maintainer
+
+---
+
+
 ## Project Structure
 
 ```
