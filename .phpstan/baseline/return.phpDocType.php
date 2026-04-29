@@ -142,11 +142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/LogoService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string is incompatible with native type OpenEMR\\\\Services\\\\Search\\\\SearchQueryFragment\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FhirSearchWhereClauseBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type void\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',

@@ -76,6 +76,12 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
     $dep_nm1_html = "";
     $sbr_stc_html = "";
     $dep_stc_html = "";
+    $cls = '';
+    $loopid = '';
+    $bht = '';
+    $qtystr = '';
+    $sc204 = '';
+    $sc304 = '';
     //
     $trns_ct = count($trans);
     for ($i = 0; $i < $trns_ct; $i++) {
@@ -546,7 +552,7 @@ function edih_277_html($filename, $bht03 = '')
 
     if ($fn) {
         $obj277 = csv_check_x12_obj($fn, 'f277');
-        if ($obj277 && 'edih_x12_file' == $obj277::class) {
+        if ($obj277 !== false) {
             if ($bht03) {
                 // particular transaction
                 $html_str .= edih_277_transaction_html($obj277, $bht03);

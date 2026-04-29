@@ -24,21 +24,6 @@ function js_escape($text)
 }
 
 /**
- * Escape a javascript literal with a protected string
- *
- * @param string $text
- * @return string
- */
-function js_escape_protected($text, string $protected = '\r\n')
-{
-    if (empty($text)) {
-        return '""';
-    }
-    $bookmark = '___PROTECTED_STRING___';
-    return str_replace($bookmark, $protected, json_encode(str_replace($protected, $bookmark, $text)));
-}
-
-/**
  * Escape a javascript literal within html onclick attribute.
  *
  * @param string $text
@@ -284,26 +269,24 @@ function attr($text): string
 }
 
 /**
- * Don't call this function.  You don't see this function.  This function
- * doesn't exist.
+ * Private helper used by xlt()/xla()/xlj()/xlx() to look up a translation.
+ *
+ * library/translation.inc.php (which declares xl()) and this file are both
+ * in composer's autoload.files list, so xl() is always defined by the time
+ * any caller can reach this helper. The null check exists so the xl*
+ * wrappers can accept nullable input without sprinkling coalesces.
  *
  * TODO: Hide this function so it can be called from this file but not from
- * PHP that includes / requires this file.  Either that, or write reasonable
+ * PHP that includes / requires this file. Either that, or write reasonable
  * documentation and clean up the name.
- * @return string
  */
-function hsc_private_xl_or_warn($key)
+function hsc_private_xl_or_warn(?string $key): string
 {
-    if (function_exists('xl')) {
-        return xl($key ?? '');
-    } else {
-        trigger_error(
-            'Translation via xl() was requested, but the xl()'
-            . ' function is not defined, yet.',
-            E_USER_WARNING
-        );
-        return $key;
+    if ($key === null) {
+        return '';
     }
+    // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
+    return xl($key);
 }
 
 /**

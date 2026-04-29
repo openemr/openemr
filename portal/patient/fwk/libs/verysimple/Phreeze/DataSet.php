@@ -62,7 +62,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_eof = false;
         $this->_phreezer = & $preezer;
         $this->_rs = null;
-        $this->_cache_timeout = is_null($cache_timeout) ? $preezer->ValueCacheTimeout : $cache_timeout;
+        $this->_cache_timeout = $cache_timeout ?? $preezer->ValueCacheTimeout;
     }
 
     /**

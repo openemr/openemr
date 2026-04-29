@@ -121,6 +121,8 @@ class QuestionnaireService extends BaseService
         }
         $name = trim((string) $name);
         $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
+        $q_uuid = null;
+        $q_url = null;
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
             $q_id = UuidRegistry::uuidToString($q_uuid);

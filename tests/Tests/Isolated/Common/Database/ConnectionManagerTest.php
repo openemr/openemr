@@ -8,10 +8,8 @@ use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ConnectionManager::class)]
 class ConnectionManagerTest extends TestCase
 {
     public function testGetReturnsConnectionFromFactory(): void

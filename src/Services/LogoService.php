@@ -75,7 +75,7 @@ class LogoService
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
         $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
-        $publicDir = OEGlobalsBag::getInstance()->get('images_static_absolute') . "/logos/" . $type . "/";
+        $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -116,9 +116,10 @@ class LogoService
      */
     private function convertToWebPath(string $path): string
     {
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         $paths = [
             OEGlobalsBag::getInstance()->get('OE_SITE_DIR') => OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT'),
-            OEGlobalsBag::getInstance()->get('images_static_absolute') => OEGlobalsBag::getInstance()->get('images_static_relative'),
+            $kernel->getImagesAbsolute() => $kernel->getImagesRelative(),
         ];
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $path = str_replace('\\', '/', $path);
@@ -145,14 +146,13 @@ class LogoService
 
         $this->finder->files()->in($directory)->name($filename);
 
+        $return = "";
         if ($this->finder->hasResults()) {
             // There is at least 1 file in the sites directory for the given logo
             foreach ($this->finder as $f) {
                 $return = $f->getRealPath();
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
-        } else {
-            $return = "";
         }
 
         return $return;

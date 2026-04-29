@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +18,7 @@ use UnexpectedValueException;
 final readonly class Message
 {
     public function __construct(
-        public Keys\Id $keyId,
+        public KeyId $keyId,
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
@@ -63,7 +63,7 @@ final readonly class Message
 
         return new Message(
             format: MessageFormat::ImplicitKey,
-            keyId: new Keys\Id($numericKeyId),
+            keyId: new KeyId($numericKeyId),
             ciphertext: new Ciphertext($ciphertext),
         );
     }
@@ -83,7 +83,7 @@ final readonly class Message
         assert($this->format === MessageFormat::ImplicitKey);
         return sprintf('%s%s',
             $this->keyId->id,
-            base64_encode($this->ciphertext->wrapped),
+            base64_encode($this->ciphertext->value),
         );
     }
 }

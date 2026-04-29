@@ -32,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 </head>
 
 <body class='ml-1'>
-    <form method=post action="<?php echo OEGlobalsBag::getInstance()->getString('rootdir');?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+    <form method=post action="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir();?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>

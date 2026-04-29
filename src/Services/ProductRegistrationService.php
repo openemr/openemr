@@ -18,7 +18,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
+require_once(__DIR__ . '/../../interface/product_registration/exceptions/generic_product_registration_exception.php');
 
 class ProductRegistrationService
 {
@@ -43,7 +43,7 @@ class ProductRegistrationService
         $row['allowEmail'] = 0; // if show email dialog
         $row['allowTelemetry'] = 0; // if show telemetry dialog
         $row['allowRegisterDialog'] = 0; // if show registration dialog
-        $currentVersion = (new VersionService())->asString();
+        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
         if ($currentVersion != $lastAskVersion) {
             // Change in version (or empty entry), so ignore opt outs and show the dialog if empty email or telemetry not enabled
             //  (if do show the dialog, then return if show email and/or telemetry dialog)
@@ -111,7 +111,7 @@ class ProductRegistrationService
     private function optInStrategy($email)
     {
         // build the information array
-        $info = ['email' => $email, 'version' => (new VersionService())->asString()];
+        $info = ['email' => $email, 'version' => (string) (new VersionService())->getSoftwareVersion()];
         if (!empty(getenv('OPENEMR_DOCKER_ENV_TAG', true))) {
             // this will add standard package information if it exists
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
@@ -128,7 +128,7 @@ class ProductRegistrationService
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        $currentVersion = (new VersionService())->asString();
+        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
         switch ($responseCode) {
             case 201:
                 $entry = $this->entryExist();
@@ -147,7 +147,7 @@ class ProductRegistrationService
     // void... don't bother checking for success/failure.
     private function optOutStrategy()
     {
-        $currentVersion = (new VersionService())->asString();
+        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
         $entry = $this->entryExist();
         if ($this->entryExist()) {
             sqlStatement("UPDATE `product_registration` SET `email` = null, `opt_out` = 1, `last_ask_version` = ? WHERE `id` = ?", [$currentVersion, $entry]);

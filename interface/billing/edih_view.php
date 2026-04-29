@@ -36,9 +36,9 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <title><?php echo xlt("EDI History"); ?></title>
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
     <?php if ($session->get('language_direction') === 'rtl') { ?>
-      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_edi_history_v2.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/rtl_edi_history_v2.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
-      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/edi_history_v2.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/edi_history_v2.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } ?>
 </head>
 <!-- style for OpenEMR color -->
@@ -262,7 +262,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <a class="text-decoration-none" href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a>
+                                <a class="text-decoration-none" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a>
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
@@ -380,7 +380,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -728,7 +728,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                         'scrollX': true,
                         'paging': true,
                         <?php // Bring in the translations ?>
-                        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+                        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
                     });
                 },
             ]

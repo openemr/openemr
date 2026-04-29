@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -65,7 +67,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -415,14 +417,17 @@ if (isset($_POST['new_login_session_management'])) {
     } else {
         $_POST["clearPass"] = '';
     }
+    // Set up the csrf private_key
+    //  Note this key always remains private and never leaves server session. It is used to create
+    //  the csrf tokens.
+    //  Generated only on the new-login path. Rotating it on every main_screen.php load
+    //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
+    //  which polls every 60s with the token captured at render time).
+    CsrfUtils::setupCsrfKey($session);
 } else {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->migrate(false);
 }
-// Set up the csrf private_key
-//  Note this key always remains private and never leaves server session. It is used to create
-//  the csrf tokens.
-CsrfUtils::setupCsrfKey($session);
 // Set up the session uuid. This will be used for mapping session setting to database.
 //  At this time only used for lastupdate tracking
 SessionTracker::setupSessionDatabaseTracker();
@@ -440,7 +445,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $session->set('facilityId', $facility_id);
     if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->get('webroot')]);
+        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 }
 

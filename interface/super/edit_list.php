@@ -17,9 +17,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/lists.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -43,7 +43,7 @@ if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] 
     $list_id = 'language';
     $blank_list_id = true;
 } else {
-    $list_id = $_REQUEST['list_id'];
+    $list_id = (string) $_REQUEST['list_id'];
 }
 
 // Check authorization.
@@ -189,6 +189,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         // all other lists
         //
         // collect the option toggle if using the 'immunizations' list
+        $ok_map_cvx_codes = 0;
         if ($list_id == 'immunizations') {
             $ok_map_cvx_codes = $_POST['ok_map_cvx_codes'] ?? 0;
         }
@@ -242,7 +243,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     $notes = trim($iter['notes'] ?? '');
                 }
 
-                if (preg_match("/Eye_QP_/", (string) $list_id)) {
+                if (preg_match("/Eye_QP_/", $list_id)) {
                     if (preg_match("/^[BLR]/", $id)) {
                         $stuff = explode("_", $id)[0];
                         $iter['mapping'] = substr($stuff, 1);
@@ -347,6 +348,7 @@ function getCodeDescriptions($codes)
         $code_type = $arrcode[0];
         // test for code with a modifier.
         $modifier = '';
+        $code = '';
         if (stripos($arrcode[1], ':') !== false) {
             $tmp = explode(':', $arrcode[1]);
             if (!empty($tmp[0] ?? null)) {
@@ -383,7 +385,7 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
+function writeOptionLine($option_id, string $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
 {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
@@ -410,7 +412,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $session->get('language_choice') > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($title) . "</td>\n";
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($title)) . "</td>\n";
     }
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][seq]' value='" .
@@ -519,7 +521,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "</td>\n";
     } elseif ($list_id == 'ptlistcols') {
         echo "  <td>";
-        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', null, 'option');
+        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', '', 'option');
         echo "</td>\n";
     }
 
@@ -563,7 +565,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin form-control form-control-sm' />";
     echo "</td>\n";
 
-    if (preg_match('/_issue_list$/', (string) $list_id)) {
+    if (str_ends_with((string) $list_id, '_issue_list')) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][subtype]", 'issue_subtypes', $subtype, 'Subtype', ' ', 'optin');
         echo "</td>\n";
@@ -716,7 +718,8 @@ function writeCTLine($ct_array): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $session->get('language_choice') > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
+        $ctLabelStr = is_string($ct_array['ct_label'] ?? null) ? $ct_array['ct_label'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($ctLabelStr)) . "</td>\n";
     }
     echo ctGenCell(
         $opt_line_no,
@@ -833,17 +836,20 @@ function writeITLine($it_array): void
     $language_choice = $session->get('language_choice');
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
+        $pluralStr = is_string($it_array['plural'] ?? null) ? $it_array['plural'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($pluralStr)) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'singular', 15, 75, xl('Singular'));
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
+        $singularStr = is_string($it_array['singular'] ?? null) ? $it_array['singular'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($singularStr)) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'abbreviation', 5, 10, xl('Abbreviation'));
     // if not english and translating lists then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $language_choice > 1) {
-        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
+        $abbrStr = is_string($it_array['abbreviation'] ?? null) ? $it_array['abbreviation'] : '';
+        echo "  <td align='center' class='translation'>" . text(xl_list_label($abbrStr)) . "</td>\n";
     }
     echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
     echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
@@ -886,7 +892,7 @@ function writeITLine($it_array): void
         $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -1153,8 +1159,8 @@ function writeITLine($it_array): void
                              * Keep proper list name (otherwise list name changes according to
                              * the options shown on the screen).
                              */
-                            $list_id_container = $_GET["list_id_container"] ?? null;
-                            if (isset($_GET["list_id_container"]) && strlen((string) $list_id_container) > 0) {
+                            $list_id_container = (string) ($_GET["list_id_container"] ?? '');
+                            if ($list_id_container !== '') {
                                 $list_id = $list_id_container;
                             }
 
@@ -1377,7 +1383,7 @@ function writeITLine($it_array): void
 
                     <th><?php echo xlt('Code(s)'); ?></th>
                     <?php
-                    if (preg_match('/_issue_list$/', (string) $list_id)) { ?>
+                    if (str_ends_with((string) $list_id, '_issue_list')) { ?>
                         <th><?php echo xlt('Subtype'); ?></th>
                         <?php
                     }
@@ -1387,9 +1393,9 @@ function writeITLine($it_array): void
             <tbody>
             <?php
             // Get the selected list's elements.
+            $total_rows = 0;
             if ($list_id) {
                 $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
-                $total_rows = 0;
                 if ($list_from > 0) {
                     $list_from--;
                 }
@@ -1450,7 +1456,7 @@ function writeITLine($it_array): void
                     while ($row = sqlFetchArray($res)) {
                         writeOptionLine(
                             $row['option_id'],
-                            $row['title'],
+                            is_string($row['title'] ?? null) ? $row['title'] : '',
                             $row['seq'],
                             $row['is_default'],
                             $row['option_value'],

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BillingUtilities
@@ -1673,30 +1674,38 @@ class BillingUtilities
              * "target = '$target', " .
              * "x12_partner_id = '$partner_id'";
              ****/
-            sqlBeginTrans();
-            $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", [$patient_id, $encounter_id]);
+            QueryUtils::inTransaction(function () use ($patient_id, $encounter_id, $crossover, $claimset, $sqlBindClaimset, $status): void {
+                $version = sqlQuery(
+                    'SELECT IFNULL(MAX(version), 0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?',
+                    [$patient_id, $encounter_id]
+                );
 
-            $sqlBindArray = [];
-            array_push($sqlBindArray, $patient_id, $encounter_id);
-            if ($crossover <> 1) {
-                $sql = "INSERT INTO claims SET " .
-                    "patient_id = ?, " .
-                    "encounter_id = ?, " .
-                    "bill_time = NOW() $claimset ," .
-                    "version = ?";
-                $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
-                array_push($sqlBindArray, $version['increment']);
-            } else {//Claim automatic forward case.startTra
-                $sql = "INSERT INTO claims SET " .
-                    "patient_id = ?, " .
-                    "encounter_id = ?, " .
-                    "bill_time = NOW(), status=? ," .
-                    "version = ?";
-                array_push($sqlBindArray, $status, $version['increment']);
-            }
+                $sqlBindArray = [];
+                array_push($sqlBindArray, $patient_id, $encounter_id);
+                if ($crossover <> 1) {
+                    // heredoc (not nowdoc) because $claimset is a dynamic SQL fragment
+                    $sql = <<<SQL
+                    INSERT INTO claims SET
+                        patient_id = ?,
+                        encounter_id = ?,
+                        bill_time = NOW() $claimset ,
+                        version = ?
+                    SQL;
+                    $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
+                    array_push($sqlBindArray, $version['increment']);
+                } else {//Claim automatic forward case.startTra
+                    $sql = <<<'SQL'
+                    INSERT INTO claims SET
+                        patient_id = ?,
+                        encounter_id = ?,
+                        bill_time = NOW(), status = ? ,
+                        version = ?
+                    SQL;
+                    array_push($sqlBindArray, $status, $version['increment']);
+                }
 
-            sqlStatement($sql, $sqlBindArray);
-            sqlCommitTrans();
+                sqlStatement($sql, $sqlBindArray);
+            });
         } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);

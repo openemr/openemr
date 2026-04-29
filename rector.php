@@ -28,7 +28,6 @@ return RectorConfig::configure()
         __DIR__ . '/gacl',
         __DIR__ . '/interface',
         __DIR__ . '/library',
-        __DIR__ . '/modules',
         __DIR__ . '/oauth2',
         __DIR__ . '/portal',
         __DIR__ . '/sites',
@@ -65,7 +64,4 @@ return RectorConfig::configure()
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()
-    ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty'
-    ])
     ->withTypeCoverageLevel(5);

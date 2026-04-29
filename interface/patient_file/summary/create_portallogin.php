@@ -23,6 +23,8 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once('../../../library/amc.php');
 
 use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
@@ -41,7 +43,6 @@ if ($option == '2') {
     $forced_reset_disable = 1; // sets database to ignore force reset on login
 }
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $credPlainMessage = '';
 $credEmailSent = false;
 $credEmailAddress = '';

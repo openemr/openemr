@@ -55,8 +55,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
-        node-version: ['22']
+        php-version: ['8.5']
+        node-version: ['24']
     steps:
     - uses: actions/checkout@v6
       with:
@@ -88,8 +88,8 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
         } >> "$GITHUB_OUTPUT"
 
     ##
@@ -385,8 +385,6 @@ jobs:
           coverage.inferno-phpunit.clover.xml
           coverage.inferno-http.clover.xml
 
-    - name: Cleanup Docker resources
-      if: always()
-      run: |
-        docker compose -f ci/inferno/compose.yml down --volumes --remove-orphans || true
-        docker system prune -f || true
+    - name: Show Docker logs
+      if: ${{ !cancelled() }}
+      run: docker compose -f ci/inferno/compose.yml logs

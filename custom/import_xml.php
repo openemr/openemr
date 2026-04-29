@@ -194,7 +194,7 @@ if (!empty($_POST['form_import'])) {
 
     echo "<html>\n<body>\n<script>\n";
     if ($alertmsg) {
-        echo " alert('" . addslashes((string) $alertmsg) . "');\n";
+        echo " alert(" . js_escape((string) $alertmsg) . ");\n";
     }
 
     echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";

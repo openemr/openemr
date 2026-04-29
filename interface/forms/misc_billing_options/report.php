@@ -18,7 +18,7 @@ use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
@@ -78,7 +78,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
 
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td><span class="bold">%s: </span><span class="text">%s</span></td>', xlt($key), text($value));
             $count++;
 
             if ($count == $cols) {

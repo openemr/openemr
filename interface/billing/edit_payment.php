@@ -22,10 +22,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -33,7 +29,18 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/payment.inc.php');
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$CountIndexAbove = 0;
+$CountIndexBelow = 0;
+$TypeCode = '';
+$AccountCode = '';
+$AdjustString = '';
+$bgcolor = '';
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Confirm Payment", xl("Confirm Payment"));
@@ -360,8 +367,8 @@ $ResultSearchSub = sqlStatement(
     <script>
     const mypcc = '1';
     </script>
-    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
-    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
         function ModifyPayments() {//Used while modifying the allocation
             if (!FormValidations())//FormValidations contains the form checks
@@ -518,7 +525,7 @@ $ResultSearchSub = sqlStatement(
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

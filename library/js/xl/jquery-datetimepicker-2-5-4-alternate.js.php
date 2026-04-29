@@ -8,7 +8,7 @@
  * need to instead send variables to the javascript script.
  *
  * Example code in the script that will use the picker:
- *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-alternate-2-5-4.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-alternate-2-5-4.js.php'); (php command)
  *
  * Example code in the javascript for datepicker:
  *    $('.jquery-date-picker').datetimepicker({

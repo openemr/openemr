@@ -67,6 +67,34 @@ Isolated tests run on the host without a database or Docker:
 composer phpunit-isolated        # Run all isolated tests
 ```
 
+### Data providers: mark as `@codeCoverageIgnore`
+
+PHPUnit data provider methods execute *before* coverage instrumentation
+starts, so their lines never register as "hit" even though they run on every
+test. Without an explicit ignore they show up as uncovered in Codecov
+patch-coverage reports and drag the number down for no real reason (a
+10-case data provider = 10 spurious "missing" lines on every new test).
+
+Annotate every data provider with the standard comment used elsewhere in
+this repo (see `tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php`):
+
+```php
+/**
+ * @return array<string, array{string, int}>
+ *
+ * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+ */
+public static function exampleProvider(): array
+{
+    return [
+        'case one' => ['input-1', 1],
+        'case two' => ['input-2', 2],
+    ];
+}
+```
+
+Use this exact wording so a repo-wide grep finds every provider in one pass.
+
 ### Twig template tests
 
 Twig templates have two layers of testing (both isolated):

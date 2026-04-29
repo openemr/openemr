@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
@@ -21,7 +21,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$educationdir = "$OE_SITE_DIR/documents/education";
+$educationdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/education";
 
 $codetype  = empty($_REQUEST['type'    ]) ? '' : $_REQUEST['type'    ];
 $codevalue = empty($_REQUEST['code'    ]) ? '' : $_REQUEST['code'    ];

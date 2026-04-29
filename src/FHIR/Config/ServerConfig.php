@@ -40,9 +40,10 @@ class ServerConfig
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we may let these be injected at another point in time but for now we set this up as globals
         $this->siteId = $session->get('site_id') ?? '';
-        $this->oauthAddress = OEGlobalsBag::getInstance()->get('site_addr_oath') ?? $_SERVER['HTTP_HOST'];
-        $this->webServerRoot = OEGlobalsBag::getInstance()->get('fileroot') ?? '';
-        $this->webRoot = OEGlobalsBag::getInstance()->get('web_root') ?? '';
+        $globalsBag = OEGlobalsBag::getInstance();
+        $this->oauthAddress = $globalsBag->get('site_addr_oath') ?? $_SERVER['HTTP_HOST'];
+        $this->webServerRoot = $globalsBag->getProjectDir();
+        $this->webRoot = $globalsBag->getWebRoot();
     }
 
     /**
@@ -148,7 +149,7 @@ class ServerConfig
     {
         // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
         $site = $this->getSiteId() ?? "default";
-        $webServerRoot = $this->getWebServerRoot() ?? OEGlobalsBag::getInstance()->get('fileroot') ?? "";
+        $webServerRoot = $this->getWebServerRoot() ?? OEGlobalsBag::getInstance()->getProjectDir();
         // if we can't get the web server root then we can't get the public key
         if (empty($webServerRoot)) {
             throw new \RuntimeException("Unable to determine web server root");

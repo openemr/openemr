@@ -232,10 +232,10 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
         }
         // parse out what we need
         $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$_FILES['template_files']['name'][$i]);
-        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string)$name) !== 0) {
+        $parts = pathinfo((string)$name);
+        if (in_array(strtolower($parts['extension'] ?? ''), ['php', 'php7', 'php8', 'doc', 'docx'], true)) {
             die(xlt('Invalid file type.'));
         }
-        $parts = pathinfo((string)$name);
         $name = ucwords(strtolower($parts["filename"]));
         if (empty($patient)) {
             $patient = ['-1'];

@@ -79,7 +79,7 @@ class Phreezer extends Observable
     public $LockFilePath;
 /**
 *
-* @var array
+* @var ICache
 */
     private $_mapCache;
 /**
@@ -697,7 +697,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object that your DataSet will contain
-* @return Array of FieldMap objects
+* @return array<string, FieldMap>
 */
     public function GetFieldMaps($objectclass)
     {
@@ -755,7 +755,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object
-* @return Array of KeyMap objects
+* @return array<string, KeyMap>
 */
     public function GetKeyMaps($objectclass)
     {
@@ -792,7 +792,7 @@ class Phreezer extends Observable
 *          the type of object
 * @param string $propertyname
 *          the name of the property
-* @return Array of FieldMap objects
+* @return FieldMap
 */
     public function GetFieldMap($objectclass, $propertyname)
     {
@@ -808,7 +808,7 @@ class Phreezer extends Observable
 *          the type of object
 * @param string $keyname
 *          the name of the key
-* @return Array of KeyMap objects
+* @return KeyMap
 */
     public function GetKeyMap($objectclass, $keyname)
     {

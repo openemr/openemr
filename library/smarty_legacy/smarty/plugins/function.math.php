@@ -97,14 +97,17 @@ function smarty_function_math($params, &$smarty)
     if (empty($params[ 'format' ])) {
         if (empty($params[ 'assign' ])) {
             return $smarty_math_result;
-        } else {
-            $smarty->assign($params[ 'assign' ], $smarty_math_result);
         }
-    } else {
-        if (empty($params[ 'assign' ])) {
-            printf($params[ 'format' ], $smarty_math_result);
-        } else {
-            $smarty->assign($params[ 'assign' ], sprintf($params[ 'format' ], $smarty_math_result));
-        }
+
+        $smarty->assign($params[ 'assign' ], $smarty_math_result);
+        return null;
     }
+
+    if (empty($params[ 'assign' ])) {
+        printf($params[ 'format' ], $smarty_math_result);
+        return null;
+    }
+
+    $smarty->assign($params[ 'assign' ], sprintf($params[ 'format' ], $smarty_math_result));
+    return null;
 }

@@ -51,7 +51,8 @@ if ($_GET['file']) {
     die("No filename was given.");
 }
 
-$ext = substr((string) $filename, strrpos((string) $filename, '.'));
+$filename = (string) $filename;
+$ext = substr($filename, strrpos($filename, '.'));
 $filebase = basename("/$filename", $ext);
 $faxcache = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcache/$mode/$filebase";
 
@@ -127,10 +128,10 @@ if ($_POST['form_save']) {
         //
         if ($_POST['form_cb_copy_type'] == 1) {
             // Compute a target filename that does not yet exist.
-            $ffname = check_file_dir_name(trim((string) $_POST['form_filename']));
-            $i = strrpos((string) $ffname, '.');
+            $ffname = (string) check_file_dir_name(trim((string) $_POST['form_filename']));
+            $i = strrpos($ffname, '.');
             if ($i) {
-                $ffname = trim(substr((string) $ffname, 0, $i));
+                $ffname = trim(substr($ffname, 0, $i));
             }
 
             if (!$ffname) {
@@ -356,7 +357,7 @@ if ($_POST['form_save']) {
 
             $form_cb_delete = '2';
             while (false !== ($jfname = readdir($dh))) {
-                if (preg_match('/\.jpg$/', $jfname)) {
+                if (strtolower(pathinfo($jfname, PATHINFO_EXTENSION)) === 'jpg') {
                     $form_cb_delete = '1';
                 }
             }
@@ -397,7 +398,7 @@ if ($_POST['form_save']) {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -467,7 +468,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
  function divclick(cb, divid) {
   var divstyle = document.getElementById(divid).style;
@@ -584,7 +585,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

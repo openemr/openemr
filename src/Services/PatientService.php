@@ -382,14 +382,14 @@ class PatientService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @param $config - Search Query Config has sorting, pagination and other query configuration options for the request.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -415,7 +415,7 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search($search, $isAndCondition = true, ?SearchQueryConfig $config = null)
+    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
@@ -947,7 +947,7 @@ class PatientService extends BaseService
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
         $row = sqlQuery($query, [$curUser['id']]);
-        $rp = ($row) ? unserialize($row['patients']) : [];
+        $rp = ($row) ? unserialize($row['patients'], ['allowed_classes' => false]) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
         foreach ($rp as $k => $p) {
@@ -999,7 +999,7 @@ class PatientService extends BaseService
         // We only want the pid value so we can fetch the data from patient_data...
         //
         $pids = [];
-        foreach (($res) ? unserialize($res['patients']) : [] as $v) {
+        foreach (($res) ? unserialize($res['patients'], ['allowed_classes' => false]) : [] as $v) {
             $pids[]['pid'] = $v['pid'];
         }
         return($pids);

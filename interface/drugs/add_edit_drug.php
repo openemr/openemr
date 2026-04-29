@@ -109,7 +109,7 @@ echo ' ' . xlt('Drug'); ?></title>
 
 <script>
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
@@ -398,7 +398,7 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
   //
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " if (opener.refreshme) opener.refreshme();\n";
@@ -483,7 +483,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label><?php echo xlt('NDC Number'); ?>:</label>
-        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' />
+        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>)' onblur='maskblur(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>)' />
     </div>
 
     <div class="form-group mt-3">
@@ -699,7 +699,7 @@ dispensable_changed();
 
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 

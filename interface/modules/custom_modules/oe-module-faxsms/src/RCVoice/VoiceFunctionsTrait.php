@@ -139,6 +139,7 @@ trait VoiceFunctionsTrait
 
     public function install()
     {
+        $response = null;
         try {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $token = $session->get('ringcentral_voice_token') ?? 'changeme';

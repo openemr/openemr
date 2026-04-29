@@ -36,7 +36,7 @@ $versionService = new VersionService();
 
 // Auto-generate the link if no override is specified. This is tied directly to the OpenEMR Wiki
 $userManual = (OEGlobalsBag::getInstance()->getString('user_manual_link') === '')
-    ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false, false) . "_Users_Guide"
+    ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->getSoftwareVersion()->base . "_Users_Guide"
     : OEGlobalsBag::getInstance()->getString('user_manual_link');
 
 // Collect registered email, if applicable
@@ -46,7 +46,7 @@ $viewArgs = [
     'onlineSupportHref' => OEGlobalsBag::getInstance()->getString("online_support_link"),
     'ackHref' => "../../acknowledge_license_cert.html",
     'applicationTitle' => $openemr_name,
-    'versionNumber' => $versionService->asString(),
+    'versionNumber' => (string) $versionService->getSoftwareVersion(),
     'supportPhoneNumber' => OEGlobalsBag::getInstance()->getString('support_phone_number') ?? false,
     'theUUID' => UniqueInstallationUuid::getUniqueInstallationUuid(),
     'userManualHref' => $userManual,

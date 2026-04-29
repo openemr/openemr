@@ -87,10 +87,12 @@ function create_client_cert(): void
         return;
     }
 
+    $user = '';
     if ($_POST["client_cert_user"]) {
         $user = trim((string) $_POST['client_cert_user']);
     }
 
+    $email = '';
     if ($_POST["client_cert_email"]) {
         $email = trim((string) $_POST['client_cert_email']);
     }

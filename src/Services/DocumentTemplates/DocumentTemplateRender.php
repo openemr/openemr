@@ -29,8 +29,9 @@ use OpenEMR\Services\VersionService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/appointments.inc.php');
+require_once($srcDir . '/options.inc.php');
 
 class DocumentTemplateRender
 {
@@ -61,7 +62,7 @@ class DocumentTemplateRender
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
-        $this->version = (new VersionService())->asString();
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
@@ -190,7 +191,7 @@ class DocumentTemplateRender
                 $form_name = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
-                $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+                $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($form_name) . "</script>";
                 $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             }

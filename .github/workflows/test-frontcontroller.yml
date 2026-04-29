@@ -1,0 +1,118 @@
+name: Test Front Controller
+
+on:
+  pull_request:
+    # All PRs
+  push:
+    branches:
+      - master
+
+env:
+  ENVIRONMENT: ci
+
+permissions:
+  contents: read
+
+jobs:
+  built-in:
+    name: Built-in webserver ${{ matrix.php }} / ${{ matrix.suite }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - 8.2
+          - 8.3
+          - 8.4
+          - 8.5
+        suite:
+          - api
+
+    services:
+      # Future: Matrix here too?
+      database:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: topsecret
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Run CLI installer
+        run: ./cli install
+            --db-root-user=root
+            --db-root-password=root
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --enable-rest-api
+            --enable-fhir-api
+            --enable-portal-api
+            --enable-password-grant
+            --enable-system-scopes
+            --site-address=http://localhost:8080
+            --no-interaction
+            -vvv
+
+      - name: Suppress product registration prompt
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+          "
+
+      - name: Start server (bg)
+        env:
+          ENVIRONMENT: ci
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
+
+      - name: Wait for webserver
+        run: |
+          curl --retry-connrefused --retry 30 --retry-delay 1 \
+               --fail --silent --show-error \
+               -o /dev/null http://127.0.0.1:8080/
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:8080
+        run: vendor/bin/phpunit
+            --testsuite ${{ matrix.suite }}
+            --log-junit junit-${{ matrix.suite }}.xml
+
+      - name: Show server stdout
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.out.log"
+
+      - name: Show server stderr
+        if: ${{ !cancelled() }}
+        run: cat "${RUNNER_TEMP}/php-server.err.log"
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+
+  # Future jobs:
+  # - apache (mod_php)
+  # - apache (fastcgi/php-fpm)
+  # - nginx (fastcgi/php-fpm)

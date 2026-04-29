@@ -254,7 +254,7 @@ class parseCSV
         }
 
         $mode = ($append) ? 'at' : 'wt';
-        $is_php = (preg_match('/\.php$/i', (string) $file)) ? true : false;
+        $is_php = strtolower(pathinfo((string) $file, PATHINFO_EXTENSION)) === 'php';
         return $this->_wfile($file, $this->unparse($data, $fields, $append, $is_php), $mode);
     }
 
@@ -681,7 +681,7 @@ class parseCSV
                 $this->file = $file;
             }
 
-            if (preg_match('/\.php$/i', (string) $file) && preg_match('/<\?.*?\?>(.*)/ims', (string) $data, $strip)) {
+            if (strtolower(pathinfo((string) $file, PATHINFO_EXTENSION)) === 'php' && preg_match('/<\?.*?\?>(.*)/ims', (string) $data, $strip)) {
                 $data = ltrim($strip [1]);
             }
 
@@ -906,10 +906,12 @@ class parseCSV
                 $pref = strpos((string) $preferred, (string) $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
                 return $pref . $match . '.' . (99999 - str_pad((string) $first, 5, '0', STR_PAD_LEFT));
-            } else {
-                return false;
             }
+
+            return false;
         }
+
+        return null;
     }
 
     /**

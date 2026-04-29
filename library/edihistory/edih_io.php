@@ -77,6 +77,7 @@ function edih_disp_logfiles()
 function edih_user_notes()
 {
     //
+    $str_html = '';
     if (isset($_GET['getnotes'])) {
         $getnt = filter_input(INPUT_GET, 'getnotes', FILTER_DEFAULT);
         if ($getnt == 'yes') {
@@ -344,9 +345,7 @@ function edih_disp_x12trans()
     //                  $fn & $ft $ pid                                     $trace & $rsptype
     //
     $str_htm = '';
-    if (isset($_GET['gtbl'])) {
-        $qs = filter_input(INPUT_GET, 'gtbl', FILTER_DEFAULT);
-    }
+    $qs = isset($_GET['gtbl']) ? filter_input(INPUT_GET, 'gtbl', FILTER_DEFAULT) : '';
 
     if (!$qs) {
         $str_htm .= '<p>edih_disp_x12 error: missing parameter</p>';

@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 535
+-- v_database: 538
 --
 
 --
@@ -196,6 +196,7 @@ CREATE TABLE `background_services` (
   `function` varchar(127) NOT NULL COMMENT 'name of background service function',
   `require_once` varchar(255) default NULL COMMENT 'include file (if necessary)',
   `sort_order` int(11) NOT NULL default '100' COMMENT 'lower numbers will be run first',
+  `lock_expires_at` datetime DEFAULT NULL COMMENT 'Lease expiration. Compared with NOW() on acquire, so the stored value uses whatever session timezone is in effect (OpenEMR syncs it to gbl_time_zone). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.',
   PRIMARY KEY  (`name`)
 ) ENGINE=InnoDB;
 
@@ -8271,8 +8272,8 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_counter` mediumint(8) unsigned default '0',
   `pc_topic` int(3) NOT NULL default '1',
   `pc_informant` varchar(20) default NULL,
-  `pc_eventDate` date NOT NULL default '0000-00-00',
-  `pc_endDate` date NOT NULL default '0000-00-00',
+  `pc_eventDate` date NOT NULL,
+  `pc_endDate` date DEFAULT NULL,
   `pc_duration` bigint(20) NOT NULL default '0',
   `pc_recurrtype` int(1) NOT NULL default '0',
   `pc_recurrspec` text,
@@ -12691,7 +12692,8 @@ INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
 INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
 ('46', '3', 'medical_devices', 'Medical Devices', '0'),
-('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
+('47', '3', 'goals', 'Goals', '0');
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `ccda_field_mapping`
@@ -13870,7 +13872,7 @@ CREATE TABLE `form_eye_antseg` (
   `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
   `ODTBUT`               varchar(25) DEFAULT NULL,
   `OSTBUT`               varchar(25) DEFAULT NULL,
-  `OSCONJ`               varchar(25) DEFAULT NULL,
+  `OSCONJ`               text,
   `ODCONJ`               text,
   `ODCORNEA`             text,
   `OSCORNEA`             text,
@@ -14321,7 +14323,7 @@ CREATE TABLE `questionnaire_repository` (
     `name` varchar(255) DEFAULT NULL,
     `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
     `profile` varchar(255) DEFAULT NULL,
-    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
     `status` varchar(31) DEFAULT NULL,
     `source_url` text,
     `code` varchar(255) DEFAULT NULL,
@@ -15380,3 +15382,14 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('org
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);
+
+-- Doctrine Migrations tracking
+-- Their tooling will create this automatically, but having it here simplifies
+-- schema comparisons.
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE `migrations` (
+    `version` varchar(191) NOT NULL,
+    `executed_at` datetime DEFAULT NULL,
+    `execution_duration_ms` int DEFAULT NULL,
+    PRIMARY KEY (`version`)
+) ENGINE=InnoDB;

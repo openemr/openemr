@@ -5,7 +5,7 @@
  *
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://www.opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -38,6 +38,8 @@ class OEEnvBag extends ParameterBag
 
     protected static function createInstance(): static
     {
+        // `getenv()` with no arguments always returns an array<string, string>;
+        // the string-returning overload requires a name argument.
         return new static(array_merge($_SERVER, $_ENV, getenv())); // @phpstan-ignore new.static
     }
 }

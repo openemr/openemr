@@ -13,7 +13,7 @@
  */
 
 require_once('../globals.php');
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -36,7 +36,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('U2F Registration'); ?></title>
-<script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
 <script>
 
 function doregister() {

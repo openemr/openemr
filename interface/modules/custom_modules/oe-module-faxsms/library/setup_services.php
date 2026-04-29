@@ -27,6 +27,8 @@ $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
+$selectedService = null;
+$period = null;
 
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

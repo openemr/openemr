@@ -171,14 +171,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
     /**
      * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
      *
-     * @param  array $fhirResource The source FHIR resource
+     * @param  FHIROrganization|array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
     public function parseFhirResource($fhirResource = [])
     {
         if (!$fhirResource instanceof FHIROrganization) {
-            // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
+            // get_debug_type handles both objects and arrays; avoids `::class` on non-object.
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_debug_type($fhirResource));
         }
 
         $data = [];

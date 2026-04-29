@@ -23,7 +23,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
 class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {

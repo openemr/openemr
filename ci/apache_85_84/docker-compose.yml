@@ -1,0 +1,12 @@
+x-includes:
+  node-version: "24"
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mysql.yml"
+  mailpit-template: "compose-shared-mailpit/compose.yml"
+
+services:
+  mysql:
+    image: mysql:8.4.9@sha256:43bd9764df60666fb2ba2cf8217dd17b3d2414c150005d2fdd07a0cd73d3b7f5
+  openemr:
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:e4562b0c7d3f222ec8f72122ce00d10ffa93f559c38c00ab12c1355394c35d1c

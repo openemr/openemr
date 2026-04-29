@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,7 +15,7 @@ namespace OpenEMR\Tests\Isolated\Encryption;
 use BadMethodCallException;
 use OpenEMR\Encryption\{
     Ciphertext,
-    Keys\Id,
+    KeyId,
     Message,
     MessageFormat,
 };
@@ -82,7 +82,7 @@ class MessageTest extends TestCase
 
     public function testConstructWithImplicitKeyFormat(): void
     {
-        $keyId = new Id('005');
+        $keyId = new KeyId('005');
         $ciphertext = new Ciphertext('test data');
         $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
 
@@ -92,7 +92,7 @@ class MessageTest extends TestCase
 
     public function testConstructWithInvalidImplicitKey(): void
     {
-        $keyId = new Id('not-a-number');
+        $keyId = new KeyId('not-a-number');
         $ciphertext = new Ciphertext('test data');
         $this->expectException(BadMethodCallException::class);
         $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
@@ -101,13 +101,13 @@ class MessageTest extends TestCase
 
     public function testConstructParseRoundtripImplicitKey(): void
     {
-        $keyId = new Id('007');
+        $keyId = new KeyId('007');
         $ciphertext = new Ciphertext('some encrypted data');
         $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
         $encoded = $message->encode();
         $parsed = Message::parse($encoded);
         self::assertSame($keyId->id, $parsed->keyId->id, 'Key mismatch');
-        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
+        self::assertSame($ciphertext->value, $parsed->ciphertext->value, 'Ciphertext mismatch');
     }
 
     public function testParseThrowsOnTooShortMessage(): void

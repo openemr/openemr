@@ -47,12 +47,27 @@ class ControllerAlerts extends BaseController
     {
 
 
-        $ids = $_POST["id"];
-        $actives = $_POST["active"] ?? null;
-        $passives = $_POST["passive"];
-        $reminders = $_POST["reminder"] ?? null;
-        $access_controls = $_POST["access_control"];
+        $ids = filter_input(INPUT_POST, 'id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $actives = filter_input(INPUT_POST, 'active', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $passives = filter_input(INPUT_POST, 'passive', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
 
+        // CdrAlertManager::update() consumes id[] and access_control[]
+        // by zero-based positional offset, so reindex both via
+        // array_values() to defang sparse/non-sequential POST data
+        // (e.g. id[3]=… without id[0..2]) and then require the two to
+        // line up by length. The active/passive/reminder checkbox
+        // arrays are sparse on purpose — only checked boxes get
+        // submitted — and the loop below already collapses absent
+        // indices to "0", so they intentionally aren't checked here.
+        $ids = array_values($ids);
+        $access_controls = array_values($access_controls);
+        $numrows = count($ids);
+        if (count($access_controls) !== $numrows) {
+            http_response_code(400);
+            die(xlt('Malformed request: access_control must be aligned with id.'));
+        }
 
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
         // So, we have to manually create the entitre arrays with right values.
@@ -61,7 +76,6 @@ class ControllerAlerts extends BaseController
         $reminders_final = [];
 
 
-        $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
             $actives_final[] = !empty($actives[$i]) && $actives[$i] == "on" ? "1" : "0";
 

@@ -9,19 +9,9 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-// Set up autoloader as early as possible
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
-// Checks if the server's PHP version is compatible with OpenEMR:
-$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
-if ($response !== true) {
-    http_response_code(500);
-    die(htmlspecialchars($response));
-}
 
 use Dotenv\Dotenv;
 use OpenEMR\BC\ServiceContainer;
@@ -34,7 +24,53 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 
+// Set up autoloader as early as possible
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+// Checks if the server's PHP version is compatible with OpenEMR:
+$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
+if ($response !== true) {
+    http_response_code(500);
+    die(htmlspecialchars($response));
+}
+// Is this windows or non-windows? Create a boolean definition.
+if (!defined('IS_WINDOWS')) {
+    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
+}
+
+// The webserver_root and web_root are now automatically collected.
+// If not working, can set manually below.
+// Auto collect the full absolute directory path for openemr.
+$webserver_root = dirname(__FILE__, 2);
+
+/**
+ * Allow a `.env` file to be read in and applied as $_SERVER variables.
+ *
+ * This allows to define a "development" environment which can then load up
+ * different variables and reporting/debugging functionality. Should be used in
+ * development only, not for production
+ *
+ * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
+ */
+if (file_exists("{$webserver_root}/.env")) {
+    Dotenv::createImmutable($webserver_root)->load();
+}
+
 $logger = ServiceContainer::getLogger();
+
+// Set up exception handling: ensure that any uncaught exceptions have some
+// guaranteed way of reaching the logs, regardless of other settings.
+$handler = new \OpenEMR\Core\ErrorHandler(
+    logger: $logger,
+    rf: ServiceContainer::getResponseFactory(),
+    sf: ServiceContainer::getStreamFactory(),
+    shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
+);
+$handler->installExceptionHandler();
+// Note: installErrorHandler() is intentionally NOT called, too much would
+// break today. As we gain confidence in error handling, we can call it with
+// a high-severity level and incrementally move it to cover more.
+
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -122,20 +158,6 @@ if (!isset($ignoreAuth)) {
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal)) {
     $ignoreAuth_onsite_portal = false;
-}
-
-// Is this windows or non-windows? Create a boolean definition.
-if (!defined('IS_WINDOWS')) {
-    define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
-}
-
-// The webserver_root and web_root are now automatically collected.
-// If not working, can set manually below.
-// Auto collect the full absolute directory path for openemr.
-$webserver_root = dirname(__FILE__, 2);
-if (IS_WINDOWS) {
- //convert windows path separators
-    $webserver_root = str_replace("\\", "/", $webserver_root);
 }
 
 // Collect the apache server document root (and convert to windows slashes, if needed)
@@ -247,8 +269,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
-            http_response_code(400);
-            die("Site ID is missing from session data!");
+            throw new \OpenEMR\Common\System\MissingSiteIdException();
         }
 
         $tmp = $_SERVER['HTTP_HOST'];
@@ -326,40 +347,6 @@ $globalsBag->set('login_screen', $globalsBag->getString('rootdir') . "/login_scr
 // Variable set for Eligibility Verification [EDI-271] path
 $globalsBag->set('edi_271_file_path', $globalsBag->getString('OE_SITE_DIR') . "/documents/edi/");
 
-//  Check necessary writable paths (add them if do not exist)
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/gacl', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-if (! is_dir($globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main')) {
-    if (!mkdir($concurrentDirectory = $globalsBag->getString('OE_SITE_DIR') . '/documents/smarty/main', 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
-//  Set and check that necessary writeable path exist for mPDF tool
-$GLOBALS['MPDF_WRITE_DIR'] = $globalsBag->getString('OE_SITE_DIR') . '/documents/mpdf/pdf_tmp';
-if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
-    if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-    }
-}
-
-/**
- * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
- *
- * This allows to define a "development" environment which can then load up
- * different variables and reporting/debugging functionality. Should be used in
- * development only, not for production
- *
- * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
- */
-if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = Dotenv::createImmutable($webserver_root);
-    $dotenv->load();
-}
-
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
 //    - DEBUG/INFO are great for development
@@ -372,7 +359,7 @@ try {
     // we inject the eventDispatcher if we have one setup already
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
-    $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
+    $globalsBag->set("kernel", new Kernel($webserver_root, $web_root, $globalsBag->get('eventDispatcher')));
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
@@ -789,10 +776,10 @@ $globalsBag->set('groupname', $groupname);
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-error_reporting(error_reporting() & ~E_USER_DEPRECATED & ~E_USER_WARNING);
-// user debug mode
+// Report all errors so nothing is silently suppressed.
+error_reporting(E_ALL);
+// user debug mode — controls display_errors
 if ($globalsBag->getInt('user_debug', 0) > 1) {
-    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }
 

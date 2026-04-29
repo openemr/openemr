@@ -16,7 +16,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/user.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -43,7 +43,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 
 <script>
 //Validating password and display message if password field is empty - starts
-var webroot=<?php echo js_escape($webroot); ?>;
+var webroot=<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
 function update_password()
 {
     top.restoreSession();

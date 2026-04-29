@@ -258,6 +258,59 @@ function display_desc($desc)
 }
 
 /**
+ * Supported input date formats are:
+ *   mm/dd/yyyy
+ *   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
+ *   yyyy/mm/dd
+ *   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
+ *
+ * Prefer native date formatting utilities over this
+ *
+ * @template TDefault
+ * @param ?string $date
+ * @param TDefault $default
+ * @return string|TDefault
+ */
+function fixDate($date, $default = "0000-00-00")
+{
+    $date = trim((string) $date);
+    if (preg_match('/^(\d{1,4})[\/.\-](\d{1,2})[\/.\-](\d{1,4})$/', $date, $matches) !== 1) {
+        return $default;
+    }
+
+    [, $first, $second, $third] = $matches;
+    $first = (int)$first;
+    $second = (int)$second;
+    $third = (int)$third;
+
+    // Year-first format (YYYY/MM/DD)
+    if ($first > 99) {
+        return sprintf('%04u-%02u-%02u', $first, $second, $third);
+    }
+
+    // Adjust two/three-digit years: 00-09 → 2000-2009, 10-99 → 1910-1999
+    $year = $third;
+    if ($first !== 0 || $second !== 0 || $third !== 0) {
+        if ($year < 1000) {
+            $year += 1900;
+        }
+        if ($year < 1910) {
+            $year += 100;
+        }
+    }
+
+    // Determine if MDY date format is used, preferring Date Display Format from
+    // global settings if it's not YMD, otherwise guessing from country code.
+    $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format'))
+        ? (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1)
+        : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
+
+    [$month, $day] = $using_mdy ? [$first, $second] : [$second, $first];
+
+    return sprintf('%04u-%02u-%02u', $year, $month, $day);
+}
+
+/**
  * Format a money amount with decimals but no other decoration.
  *
  * @param float $value The value to format

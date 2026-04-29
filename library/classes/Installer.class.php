@@ -12,7 +12,7 @@
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,10 +20,14 @@ use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
-class Installer
+/**
+ * @phpstan-import-type InstallParams from InstallerInterface
+ */
+class Installer implements InstallerInterface
 {
     public array $custom_globals;
     public array $dumpfiles;
@@ -64,10 +68,17 @@ class Installer
     /**
      * Initialize the Installer with configuration variables.
      *
-     * @param array $cgi_variables Configuration array containing installation parameters
-     * @param LoggerInterface $logger Logger instance for error reporting
+     * @param InstallParams $cgi_variables Configuration array containing installation parameters
      */
-    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
+    public function __construct(array $cgi_variables, private LoggerInterface $logger)
+    {
+        $this->initializeParams($cgi_variables);
+    }
+
+    /**
+     * @param InstallParams $cgi_variables
+     */
+    protected function initializeParams(array $cgi_variables): void
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -81,7 +92,7 @@ class Installer
         $this->i2faSecret               = $cgi_variables['i2fasecret'] ?? '';
         $this->server                   = $cgi_variables['server'] ?? ''; // mysql server (usually localhost)
         $this->loginhost                = $cgi_variables['loginhost'] ?? ''; // php/apache server (usually localhost)
-        $this->port                     = $cgi_variables['port'] ?? '';
+        $this->port                     = (string) ($cgi_variables['port'] ?? '');
         $this->root                     = $cgi_variables['root'] ?? '';
         $this->rootpass                 = $cgi_variables['rootpass'] ?? '';
         $this->login                    = $cgi_variables['login'] ?? '';
@@ -220,6 +231,21 @@ class Installer
     {
         if ($this->iuname === '') {
             $this->error_message = "Initial user last name is invalid: '$this->iuname'";
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate if the initial group is valid.
+     *
+     * @return bool True if initial group is valid, false otherwise
+     */
+    public function igroup_is_valid(): bool
+    {
+        if ($this->igroup === '') {
+            $this->error_message = "Initial group is invalid: '$this->igroup'";
             return false;
         }
 
@@ -472,13 +498,23 @@ class Installer
         }
 
         while (!$this->atEndOfFile($fd)) {
-            $line = $this->getLine($fd, 1024);
-            $line = rtrim($line);
+            $rawLine = $this->getLine($fd);
+            if ($rawLine === false) {
+                continue;
+            }
+            $line = rtrim($rawLine);
             if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
                 continue;
             }
 
-            $query .= $line;          // Check for full query
+            // Insert a newline separator between concatenated lines.
+            // A space would fuse a SQL "--" comment with the following line,
+            // swallowing it (see #11465). A newline terminates the comment
+            // at the line boundary as SQL requires.
+            if ($query !== "") {
+                $query .= "\n";
+            }
+            $query .= $line;
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                 $query = rtrim($query, ";");
@@ -1194,7 +1230,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'encounters' => ['notes', 'relaxed'],
-                'patients' => ['demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
+                'patients' => ['demo', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
                 'sensitivities' => ['normal']
             ],
             null,
@@ -1207,6 +1243,20 @@ $config = 1; /////////////
             'Things that clinicians can read and enter but not modify'
         );
         // xl('Things that clinicians can read and enter but not modify')
+        $gacl->add_acl(
+            [
+                'patients' => ['med']
+            ],
+            null,
+            [$clin],
+            null,
+            null,
+            1,
+            1,
+            'write',
+            'Things that clinicians can read and modify'
+        );
+        // xl('Things that clinicians can read and modify')
         $gacl->add_acl(
             [
                 'placeholder' => ['filler']
@@ -1402,6 +1452,7 @@ $config = 1; /////////////
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
+            $this->logger->debug('Validating installation parameters');
             if (! $this->login_is_valid()) {
                 return false;
             }
@@ -1413,6 +1464,10 @@ $config = 1; /////////////
             if (! $this->user_password_is_valid()) {
                 return false;
             }
+
+            if (! $this->igroup_is_valid()) {
+                return false;
+            }
         }
 
         // Validation of mysql database password
@@ -1422,6 +1477,7 @@ $config = 1; /////////////
 
         if (! $this->no_root_db_access) {
             // Connect to mysql via root user
+            $this->logger->debug('Connecting to database as root');
             if (! $this->root_database_connection()) {
                 return false;
             }
@@ -1429,6 +1485,7 @@ $config = 1; /////////////
             // Create the dumpfile
             //   (applicable if cloning from another database)
             if (! empty($this->clone_database)) {
+                $this->logger->debug('Creating database dumpfiles for cloning');
                 if (! $this->create_dumpfiles()) {
                     return false;
                 }
@@ -1437,6 +1494,7 @@ $config = 1; /////////////
             // Create the site directory
             //   (applicable if mirroring another local site)
             if (! empty($this->source_site_id)) {
+                $this->logger->debug('Creating site directory from {source}', ['source' => $this->source_site_id]);
                 if (! $this->create_site_directory()) {
                     return false;
                 }
@@ -1460,16 +1518,19 @@ $config = 1; /////////////
                 }
 
                 // Create the mysql database
+                $this->logger->debug('Creating database {dbname}', ['dbname' => $this->dbname]);
                 if (! $this->create_database()) {
                     return false;
                 }
 
                 // Create the mysql user
+                $this->logger->debug('Creating database user {login}', ['login' => $this->login]);
                 if (! $this->create_database_user()) {
                     return false;
                 }
 
                 // Grant user privileges to the mysql database
+                $this->logger->debug('Granting database privileges');
                 if (! $this->grant_privileges()) {
                     return false;
                 }
@@ -1479,16 +1540,19 @@ $config = 1; /////////////
         }
 
         // Connect to mysql via created user
+        $this->logger->debug('Connecting to database as {login}', ['login' => $this->login]);
         if (! $this->user_database_connection()) {
             return false;
         }
 
         // Build the database
+        $this->logger->debug('Loading database schema (this may take a while)');
         if (! $this->load_dumpfiles()) {
             return false;
         }
 
         // Write the sql configuration file
+        $this->logger->debug('Writing configuration file');
         if (! $this->write_configuration_file()) {
             return false;
         }
@@ -1497,10 +1561,12 @@ $config = 1; /////////////
         // initial user, and set up gacl access controls.
         // (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
+            $this->logger->debug('Adding version info');
             if (! $this->add_version_info()) {
                 return false;
             }
 
+            $this->logger->debug('Inserting global settings');
             if (! $this->insert_globals()) {
                 return false;
             }
@@ -1509,18 +1575,22 @@ $config = 1; /////////////
                 return false;
             }
 
+            $this->logger->debug('Creating initial user {iuser}', ['iuser' => $this->iuser]);
             if (! $this->add_initial_user()) {
                 return false;
             }
 
+            $this->logger->debug('Installing access controls');
             if (! $this->install_gacl()) {
                 return false;
             }
 
+            $this->logger->debug('Installing additional users');
             if (! $this->install_additional_users()) {
                 return false;
             }
 
+            $this->logger->debug('Configuring care coordination');
             if (! $this->on_care_coordination()) {
                 return false;
             }
@@ -2116,12 +2186,11 @@ SETHLP;
      * @codeCoverageIgnore
      *
      * @param resource $stream
-     * @param int $length
      * @return string|false
      */
-    protected function getLine($stream, int $length): string|false
+    protected function getLine($stream): string|false
     {
-        return fgets($stream, $length);
+        return fgets($stream);
     }
 
     /**
@@ -2311,5 +2380,23 @@ SETHLP;
     protected function writeToFile($stream, string $data, ?int $length = null): int|false
     {
         return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
+    }
+
+    // InstallerInterface implementation
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function install(array $params): bool
+    {
+        $this->initializeParams($params);
+        return $this->quick_install();
+    }
+
+    public function getErrorMessage(): string
+    {
+        return $this->error_message;
     }
 }

@@ -233,6 +233,56 @@ class UuidRegistry
         }
     }
 
+    /**
+     * Populate the UUID for a single row when missing, keyed by the caller's
+     * id column. Intended for code paths (authentication, authorization) that
+     * need to ensure the current principal has a UUID without letting an
+     * authenticated request trigger a whole-table backfill across every row
+     * missing a UUID. Prefer this over createMissingUuidsForTables() whenever
+     * the caller already knows which row it cares about.
+     *
+     * Generates a candidate UUID without inserting into uuid_registry, runs
+     * a guarded UPDATE against NULL / empty / all-zero byte UUID values on
+     * the target row, and only then records the UUID in uuid_registry when
+     * the UPDATE actually wrote a row. This keeps the call idempotent and
+     * avoids leaking orphaned uuid_registry entries when the row already
+     * has a UUID or does not exist.
+     *
+     * The all-zero byte comparison is bound as a parameter rather than
+     * embedded as a backslash-escaped SQL literal so the predicate works
+     * regardless of the connection's NO_BACKSLASH_ESCAPES mode.
+     *
+     * @param string     $tableName table registered in UUID_TABLE_DEFINITIONS
+     * @param string     $idColumn  column to match in the WHERE clause
+     * @param int|string $idValue   id value to match
+     * @throws \InvalidArgumentException if the table is unknown or the id column is not a valid identifier
+     */
+    public static function createMissingUuidForRow(string $tableName, string $idColumn, int|string $idValue): void
+    {
+        if (!isset(self::UUID_TABLE_DEFINITIONS[$tableName])) {
+            throw new \InvalidArgumentException(
+                "UuidRegistry::createMissingUuidForRow: unknown table '" . $tableName . "'"
+            );
+        }
+        if (preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $idColumn) !== 1) {
+            throw new \InvalidArgumentException(
+                "UuidRegistry::createMissingUuidForRow: invalid id column '" . $idColumn . "'"
+            );
+        }
+        $registry = new self(['table_name' => $tableName]);
+        $uuidBytes = $registry->getUnusedUuidBatch(1)[0];
+        $nilUuid = str_repeat("\0", 16);
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `" . $tableName . "` SET `uuid` = ? "
+            . "WHERE `" . $idColumn . "` = ? "
+            . "AND (`uuid` IS NULL OR `uuid` = '' OR `uuid` = ?)",
+            [$uuidBytes, $idValue, $nilUuid]
+        );
+        if (QueryUtils::affectedRows() === 1) {
+            $registry->insertUuidsIntoRegistry([$uuidBytes]);
+        }
+    }
+
 
     // Helper function for above populateAllMissingUuids function
     private static function appendPopulateLog($table, $count, &$logEntry)

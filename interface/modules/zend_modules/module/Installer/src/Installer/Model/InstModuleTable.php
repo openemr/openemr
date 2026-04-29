@@ -39,7 +39,7 @@ class InstModuleTable
     public function __construct(
         private readonly ContainerInterface $container
     ) {
-        $this->module_zend_path = OEGlobalsBag::getInstance()->get('srcdir') . DIRECTORY_SEPARATOR
+        $this->module_zend_path = OEGlobalsBag::getInstance()->getSrcDir() . DIRECTORY_SEPARATOR
             . ".." . DIRECTORY_SEPARATOR . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('zendModDir') . DIRECTORY_SEPARATOR . "module";
     }
 
@@ -237,8 +237,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt");
+            if (file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
             }
             $name = !empty($lines) ? $lines[0] : $directory;
 
@@ -740,11 +740,11 @@ class InstModuleTable
     public function getDependencyModules($mod_id)
     {
         $modDirname = $this->getModuleDirectory($mod_id);
+        $ret_str = "";
         if ($modDirname <> "") {
             $depModuleStatusArr = [];
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr = $this->getDependedModulesByDirectoryName($modDirname);
-            $ret_str = "";
             if (count($depModulesArr) > 0) {
                 $count = 0;
                 foreach ($depModulesArr as $modDir) {

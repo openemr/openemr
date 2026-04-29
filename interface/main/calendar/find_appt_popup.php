@@ -20,7 +20,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -172,7 +172,7 @@ if ($_REQUEST['providerid']) {
         "WHERE pc_aid = ? AND " .
         "pc_eid != ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
@@ -453,7 +453,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

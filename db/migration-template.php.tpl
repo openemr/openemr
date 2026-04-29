@@ -14,9 +14,12 @@ namespace <namespace>;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations;
 
 final class <className> extends AbstractMigration
 {
+    use CreateTableTrait;
+
     public function getDescription(): string
     {
         return '';

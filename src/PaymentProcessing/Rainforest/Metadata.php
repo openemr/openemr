@@ -2,7 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
  * @package   OpenEMR
@@ -50,7 +50,7 @@ readonly class Metadata implements JsonSerializable
      * @param array{
      *   formatVersion: int,
      *   patientId: string,
-     *   encounters: array<string, mixed>[],
+     *   encounters: array<int, array{id: string, code: string, codeType: string, amount: array{amount: numeric-string, currency: non-empty-string}}>,
      * } $data
      */
     public static function fromParsedJson(array $data): Metadata

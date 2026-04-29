@@ -1,9 +1,24 @@
 <?php
 
+/**
+ * Controller Class.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    OpenEMR contributors
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) OpenEMR contributors
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\CacheDirectory;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -51,9 +66,9 @@ class Controller extends Smarty implements ControllerInterface
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
-         $this->setCompileDir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main');
+         $this->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
          $this->setCompileCheck(true);
-         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->get('vendor_dir') . "/smarty/smarty/libs/plugins"]);
+         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->getKernel()->getVendorDir() . "/smarty/smarty/libs/plugins"]);
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
@@ -98,7 +113,7 @@ class Controller extends Smarty implements ControllerInterface
 
     public function function_argument_error(): never
     {
-         $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "error/" . $this->template_mod . "_function_argument.html");
+         $this->display(OEGlobalsBag::getInstance()->getKernel()->getTemplateDir() . "error/" . $this->template_mod . "_function_argument.html");
          exit;
     }
 
@@ -196,7 +211,7 @@ class Controller extends Smarty implements ControllerInterface
         }
 
         // Load controller file
-        $controllerFile = OEGlobalsBag::getInstance()->getString('fileroot') . "/controllers/$className.class.php";
+        $controllerFile = OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/$className.class.php";
         if (!$this->i_once($controllerFile)) {
             throw new NotFoundHttpException("Unable to load controller: $className");
         }
@@ -232,20 +247,32 @@ class Controller extends Smarty implements ControllerInterface
 
         $isProcessing = ($_POST['process'] ?? '') === 'true';
 
-        if ($isProcessing && is_callable([$controllerObj, $processMethod])) {
+        if ($isProcessing && $this->methodExists($controllerObj, $processMethod)) {
             $output .= $callMethod($processMethod);
             if ($controllerObj->_state === false) {
                 return $output;
             }
         }
 
-        if ($isProcessing || is_callable([$controllerObj, $actionMethod])) {
+        if ($this->methodExists($controllerObj, $actionMethod)) {
             $output .= $callMethod($actionMethod);
         } else {
             throw new NotFoundHttpException("Action '$action' does not exist on controller: $className");
         }
 
         return $output;
+    }
+
+    /**
+     * Check whether a method genuinely exists on a controller object.
+     *
+     * Smarty 4's __call makes is_callable() always return true on
+     * Smarty-derived objects, so we must also check method_exists().
+     */
+    private function methodExists(object $controllerObj, string $method): bool
+    {
+        return method_exists($controllerObj, $method)
+            && is_callable([$controllerObj, $method]);
     }
 
     public function _link($action = "default", $inlining = false)

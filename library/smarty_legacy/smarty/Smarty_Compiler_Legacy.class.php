@@ -594,6 +594,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 }
 
         }
+
+        // _syntax_error triggers a fatal, but declare the fallthrough explicitly.
+        return '';
     }
 
 
@@ -2332,6 +2335,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         }
         $this->_syntax_error("mismatched tag {/$close_tag}.$message",
                              E_USER_ERROR, __FILE__, __LINE__);
+
+        // _syntax_error triggers a fatal, but declare the fallthrough explicitly.
+        return '';
     }
 
 }

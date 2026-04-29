@@ -20,6 +20,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once("gacl_admin.inc.php");
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 //GET takes precedence.
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
     $object_type = $_GET['object_type'];
@@ -94,7 +98,7 @@ switch ($postAction) {
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
 
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+        $rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
         $sections = [];

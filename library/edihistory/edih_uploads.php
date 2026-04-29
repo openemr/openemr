@@ -191,7 +191,7 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     }
 
     if ($zip_obj->status != 0) {
-        $err .= "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
+        $err = "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
         $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
         return $f_zr;

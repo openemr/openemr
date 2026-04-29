@@ -19,9 +19,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
-require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -32,6 +29,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
@@ -120,13 +121,31 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     if (!is_string($tmp_name)) {
         $alertmsg .= xl("Invalid file upload") . " ";
     } else {
-        // Handle .zip extension if present.  Probably won't work on Windows.
+        $shouldParseEra = true;
+        // Handle .zip extension if present.
         if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-            rename($tmp_name, "$tmp_name.zip");
-            exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
-            unlink("$tmp_name.zip");
+            $zip = new ZipArchive();
+            if ($zip->open($tmp_name) === true) {
+                $contents = $zip->getFromIndex(0);
+                $zip->close();
+                if ($contents === false) {
+                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                    $shouldParseEra = false;
+                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                    $shouldParseEra = false;
+                }
+            } else {
+                $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                $shouldParseEra = false;
+            }
         }
-        $alertmsg .= ParseERA::parseERA($tmp_name, 'era_payments_callback');
+        if ($shouldParseEra) {
+            $parseResult = ParseERA::parseERA($tmp_name, 'era_payments_callback');
+            if (is_string($parseResult)) {
+                $alertmsg .= $parseResult;
+            }
+        }
 
         // Ensure the ERA directory exists
         $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
@@ -160,7 +179,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
-    <?php require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
     function Validate()
     {
@@ -227,7 +246,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
        });
     });
@@ -288,7 +307,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     // files they should be listed thereafter, please add _xpd suffix to the file name
     $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/expand_contract_inc.php');
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php
@@ -413,7 +432,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
+    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js'></script>
 
     <!-- Overwrite Confirmation Modal -->
     <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">

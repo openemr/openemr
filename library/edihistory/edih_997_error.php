@@ -81,6 +81,15 @@ function edih_997_errdata($obj997)
     $iserr = false;
     $batchfile = '';
     $idx = -1;
+    $sub_icn = '';
+    $subdate = '';
+    $subtime = '';
+    $ackcode = '';
+    $acknote = '';
+    $fg_type = '';
+    $fg_id = '';
+    $subtype = '';
+    $substn = '';
     //
     foreach ($segments as $seg) {
         $sar = [];
@@ -341,7 +350,7 @@ function edih_997_error($filepath)
     $html_str = '';
     //
     $obj997 = csv_check_x12_obj($filepath, 'f997');
-    if ($obj997 && ('edih_x12_file' == $obj997::class)) {
+    if ($obj997 !== false) {
         $data = edih_997_errdata($obj997);
         $html_str .= edih_997_err_report($data);
     } else {

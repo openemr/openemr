@@ -29,6 +29,7 @@ if (!$clientApp->verifyAcl()) {
 }
 $c = $clientApp->getCredentials();
 $module_config = $_REQUEST['module_config'] ?? 1;
+$pid = $session->get('pid') ?? 0;
 echo "<script>var pid=" . js_escape($pid) . "</script>";
 ?>
 <!DOCTYPE html>

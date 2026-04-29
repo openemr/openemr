@@ -86,8 +86,9 @@ class ReceiveHl7Results
         $debug = trim((string) $record['DorP']) === 'D';
 
         $logpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results/logs/$lab_npi";
-        $prpath .= $resultPath . '/' . $ppid . '-' . $lab_npi;
+        $prpath = $resultPath . '/' . $ppid . '-' . $lab_npi;
         $file = "result_" . $orderNumber . ".hl7";
+        $log = '';
 
         $msg = $this->validatePaths($resultPath);
         if (!empty($msg)) {
@@ -198,6 +199,7 @@ class ReceiveHl7Results
 
         $rhl7_segnum = 0;
         $obrPerformingOrganization = '';
+        $arep = [];
 
         if (!str_starts_with((string) $hl7, 'MSH')) {
             return $this->rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
@@ -687,32 +689,37 @@ class ReceiveHl7Results
                         $lkup = $this->lookupTestCode($lab_id, $in_procedure_code);
                         $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
                         $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
-                        sqlBeginTrans();
-                        $procedure_order_seq = sqlQuery(
-                            "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code " .
-                            "WHERE procedure_order_id = ? ",
-                            [$in_orderid]
-                        );
-                        sqlInsert(
-                            "INSERT INTO procedure_order_code SET " .
-                            "procedure_order_id = ?, " .
-                            "procedure_order_seq = ?, " .
-                            "procedure_code = ?, " .
-                            "procedure_name = ?, " .
-                            "procedure_type = ?, " .
-                            "transport = ?, " .
-                            "procedure_source = '2'",
-                            [
-                                $in_orderid,
-                                $procedure_order_seq['increment'],
-                                $in_procedure_code,
-                                $in_procedure_name,
-                                $code_type,
-                                $code_transport
-                            ]
-                        );
-                        $pcrow = sqlQuery($pcquery, $pcqueryargs);
-                        sqlCommitTrans();
+                        $pcrow = QueryUtils::inTransaction(function () use ($in_orderid, $in_procedure_code, $in_procedure_name, $code_type, $code_transport, $pcquery, $pcqueryargs) {
+                            $procedure_order_seq = sqlQuery(
+                                <<<'SQL'
+                                SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS increment
+                                FROM procedure_order_code
+                                WHERE procedure_order_id = ?
+                                SQL,
+                                [$in_orderid]
+                            );
+                            sqlInsert(
+                                <<<'SQL'
+                                INSERT INTO procedure_order_code SET
+                                    procedure_order_id = ?,
+                                    procedure_order_seq = ?,
+                                    procedure_code = ?,
+                                    procedure_name = ?,
+                                    procedure_type = ?,
+                                    transport = ?,
+                                    procedure_source = '2'
+                                SQL,
+                                [
+                                    $in_orderid,
+                                    $procedure_order_seq['increment'],
+                                    $in_procedure_code,
+                                    $in_procedure_name,
+                                    $code_type,
+                                    $code_transport,
+                                ]
+                            );
+                            return sqlQuery($pcquery, $pcqueryargs);
+                        });
                     } else {
                         // Dry run, make a dummy procedure_order_code row.
                         $pcrow = [

@@ -213,6 +213,7 @@ $EXPORT_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "
                                                 "ORDER BY procedure_type_id DESC LIMIT 1",
                                                 [$form_group, $acsv[0]]
                                             );
+                                            $ptid = $trow['procedure_type_id'] ?? 0;
                                         if (empty($trow['procedure_type_id']) || $trow['activity'] == 0) {
                                             if (empty($trow['procedure_type_id'])) {
                                                 $ptid = sqlInsert(

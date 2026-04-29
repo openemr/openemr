@@ -577,44 +577,33 @@ function csv_clear_tmpdir()
  *
  * @uses csv_check_filepath()
  *
- * @param string   filepath or filename
- * @parm string    file x12 type
- * @return object  edih_x12_file class
+ * @param  string $filepath  filepath or filename
+ * @param  string $type      file x12 type
+ * @return edih_x12_file|false
  */
-function csv_check_x12_obj($filepath, $type = '')
+function csv_check_x12_obj($filepath, $type = ''): edih_x12_file|false
 {
-    //
-    $x12obj = false;
-    $ok = false;
-    //
     $fp = csv_check_filepath($filepath, $type);
-    //
-    if ($fp) {
-        $x12obj = new edih_x12_file($fp);
-        if ('edih_x12_file' == $x12obj::class) {
-            if ($x12obj->edih_valid() == 'ovigs') {
-                $ok = count($x12obj->edih_segments());
-                $ok = ($ok) ?  count($x12obj->edih_envelopes()) : false;
-                $ok = ($ok) ?  count($x12obj->edih_delimiters()) : false;
-                if (!$ok) {
-                    csv_edihist_log("csv_check_x12_obj: object missing properties [$filepath]");
-                    csv_edihist_log($x12obj->edih_message());
-                    return false;
-                }
-            } else {
-                csv_edihist_log("csv_check_x12_obj: invalid object $filepath");
-                return false;
-            }
-        } else {
-            csv_edihist_log("csv_check_x12_obj: object not edih_x12_file $filepath");
-            return false;
-        }
-    } else {
+    if (!$fp) {
         csv_edihist_log("csv_check_x12_obj: invalid file path $filepath");
         return false;
     }
 
-    //
+    $x12obj = new edih_x12_file($fp);
+    if ($x12obj->edih_valid() != 'ovigs') {
+        csv_edihist_log("csv_check_x12_obj: invalid object $filepath");
+        return false;
+    }
+
+    $ok = count($x12obj->edih_segments())
+        && count($x12obj->edih_envelopes())
+        && count($x12obj->edih_delimiters());
+    if (!$ok) {
+        csv_edihist_log("csv_check_x12_obj: object missing properties [$filepath]");
+        csv_edihist_log($x12obj->edih_message());
+        return false;
+    }
+
     return $x12obj;
 }
 
@@ -1553,6 +1542,7 @@ function edih_csv_write($csv_data)
     }
 
     //
+    $rws = 0;
     foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
         $ft = $isa['type'] ?? '';
@@ -1948,7 +1938,7 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
         $type = 'f278';
         $csv_type = 'claim';
     } else {
-        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $file_type);
+        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $from_type);
         return $fn;
     }
 
@@ -2064,6 +2054,8 @@ function csv_pid_enctr_parse($pid_enctr)
     }
 
     $pval = trim($pid_enctr);
+    $pid = '';
+    $enc = '';
     if (strpos($pval, '-')) {
         $pid = substr($pval, 0, strpos($pval, '-'));
         $enc = substr($pval, strpos($pval, '-') + 1);

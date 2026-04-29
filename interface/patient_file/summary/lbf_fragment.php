@@ -13,12 +13,12 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $lbf_form_id = $_GET['formname'];
@@ -52,7 +52,7 @@ $lbf_form_id = $_GET['formname'];
         <br />
         <br />
         <?php
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/LBF/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/LBF/report.php");
         lbf_report('', '', 2, $result['form_id'], $lbf_form_id);
         ?>
         <span class='text'>

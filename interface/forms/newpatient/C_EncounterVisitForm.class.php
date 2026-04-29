@@ -342,16 +342,16 @@ class C_EncounterVisitForm
     function getInCollectionOptionsForTemplate($encounter = null)
     {
         $options = [
+            ['value' => '0', 'title' => xl('No')],
             ['value' => '1', 'title' => xl('Yes')],
-            ['value' => '0', 'title' => xl('No')]
         ];
-
-        // Mark selected option for existing encounters
+        // For new encounters default to No, for existing use stored value
+        $current = ($encounter && isset($encounter['in_collection']))
+            ? $encounter['in_collection']
+            : '0';
         foreach ($options as &$option) {
-            $option['selected'] = ($encounter && isset($encounter['in_collection'])
-                && $encounter['in_collection'] == $option['value']);
+            $option['selected'] = ($option['value'] === $current);
         }
-
         return $options;
     }
 
@@ -507,9 +507,14 @@ class C_EncounterVisitForm
         if ($viewmode) {
             $id = $_REQUEST['id'] ?? '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
+            if (!is_array($result)) {
+                throw new \RuntimeException('Encounter not found for id ' . var_export($id, true));
+            }
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.
-            $encounter['uuid'] = UuidRegistry::uuidToString($result['uuid']);
+            $encounter['uuid'] = $result['uuid'] !== null
+                ? UuidRegistry::uuidToString($result['uuid'])
+                : '';
             $encounter_followup_id = $encounter['parent_encounter_id'] ?? null;
             if ($encounter_followup_id) {
                 $q = "SELECT fe.date as date, fe.encounter as encounter FROM form_encounter AS fe " .

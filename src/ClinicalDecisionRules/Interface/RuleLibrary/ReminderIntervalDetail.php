@@ -33,8 +33,8 @@ class ReminderIntervalDetail
 
     function display()
     {
-        $display = xl($this->intervalRange->lbl) . ": "
-            . $this->amount . " " . xl($this->timeUnit->lbl);
+        $display = $this->intervalRange->lbl . ": "
+            . $this->amount . " " . $this->timeUnit->lbl;
         return $display;
     }
 }

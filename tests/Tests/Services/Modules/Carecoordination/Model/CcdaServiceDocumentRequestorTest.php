@@ -99,7 +99,7 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $xpath = new DOMXPath($xml);
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
         $effectiveTime = $xpath->query("//hl7:effectiveTime")->item(0);
-        if ($effectiveTime && $effectiveTime->hasAttribute('value')) {
+        if ($effectiveTime instanceof \DOMElement && $effectiveTime->hasAttribute('value')) {
             return $effectiveTime->getAttribute('value');
         } else {
             throw new \RuntimeException('effectiveTime element with value attribute not found in XML');
@@ -114,7 +114,9 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $expr = '//*[@value="' . $currentTimestamp .  '"]';
         $timestampValues = $xpath->query($expr);
         foreach ($timestampValues as $timestamp) {
-            $timestamp->setAttribute('value', $newTimeStamp);
+            if ($timestamp instanceof \DOMElement) {
+                $timestamp->setAttribute('value', $newTimeStamp);
+            }
         }
 
         $dateTime = \DateTimeImmutable::createFromFormat("Ymd", $currentTimestamp);
@@ -174,6 +176,8 @@ class CcdaServiceDocumentRequestorTest extends TestCase
 
             $currentNodeId = $path->query(".//hl7:id", $currentNode)->item(0);
             $expectedNodeId = $expectedXpath->query(".//hl7:id", $expectedNode)->item(0);
+            static::assertInstanceOf(\DOMElement::class, $currentNodeId);
+            static::assertInstanceOf(\DOMElement::class, $expectedNodeId);
 
             $expectedRootId = $expectedNodeId->getAttribute('root');
             $currentNodeId->setAttribute('root', $expectedRootId);

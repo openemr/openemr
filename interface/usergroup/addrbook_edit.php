@@ -15,7 +15,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -879,7 +879,7 @@ if ($type) { // note this only happens when its new
 
 <input type='submit' class='btn btn-primary' name='form_save' value='<?php echo xla('Save'); ?>' />
 
-<?php if ($userid && !$row['username']) { ?>
+<?php if ($userid && (($row['username'] ?? '') === '')) { ?>
 &nbsp;
 <input type='submit' class='btn btn-danger' name='form_delete' value='<?php echo xla('Delete'); ?>' />
 <?php } ?>

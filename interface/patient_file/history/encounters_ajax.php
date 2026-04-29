@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormReportRenderer;

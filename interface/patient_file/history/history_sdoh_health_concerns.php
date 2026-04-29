@@ -21,7 +21,8 @@
 
 $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -29,14 +30,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
@@ -129,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $committed = true;
         }
         // Redirect to SDOH summary
-        $redirectUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
+        $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
@@ -253,7 +252,7 @@ $csrf = CsrfUtils::collectCsrfToken(session: $session);
                         <?php echo xlt("Add Selected Concerns"); ?>
                     </button>
 
-                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
+                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
                        class="btn btn-secondary btn-lg">
                         <i class="fa fa-times"></i>
                         <?php echo xlt("Skip - No Concerns"); ?>

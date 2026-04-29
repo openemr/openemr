@@ -59,13 +59,6 @@ if (!extension_loaded('zlib')) {
       die('Abort ' . basename(__FILE__) . ' : Missing zlib extensions');
 }
 
-if (!function_exists('gzopen') && function_exists('gzopen64')) {
-    function gzopen($filename, $mode, $use_include_path = 0)
-    {
-        return gzopen64($filename, $mode, $use_include_path);
-    }
-}
-
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
@@ -418,7 +411,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

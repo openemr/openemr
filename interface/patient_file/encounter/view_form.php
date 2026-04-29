@@ -51,5 +51,5 @@ require_once($file);
 
 $id = $clean_id;
 if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled')) { ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>
