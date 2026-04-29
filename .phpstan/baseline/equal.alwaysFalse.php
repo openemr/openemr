@@ -102,7 +102,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'2100\' and \'2110\' will always evaluate to false\\.$#',
+    'message' => '#^Loose comparison using \\=\\= between \'\' and \'2100\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'\' and \'PER\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'\'\\|\'2100\' and \'2110\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];

@@ -38,6 +38,7 @@ class GenHl7OrderBase
 
     public function buildHl7Segment($segmentName, $fields)
     {
+        $segment = '';
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }

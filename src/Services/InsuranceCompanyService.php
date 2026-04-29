@@ -457,9 +457,9 @@ class InsuranceCompanyService extends BaseService
     public function getAllByPayerID($cms_id)
     {
         $insuranceCompanyResult = $this->search(['cms_id' => $cms_id]);
-        if ($insuranceCompanyResult->hasData()) {
-            $result = $insuranceCompanyResult->getData();
+        if (!$insuranceCompanyResult->hasData()) {
+            return [];
         }
-        return $result;
+        return $insuranceCompanyResult->getData();
     }
 }

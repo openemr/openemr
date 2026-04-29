@@ -57,6 +57,176 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitAdditionalInfos\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitAmount\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitInformationDesc\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitInformation\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitPercent\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$benefitQuantity\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$certificationIndicator\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$coverageLevel\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$inPlanNetworkIndicator\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$insuranceTypeCodeDesc\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$planCoverageDescription\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$quantityQualifierDesc\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$serviceTypes\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$timePeriodQualifierDesc\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$dates\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$identifiers\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$railroadMedicareBeneficiary\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$messages\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$procedureInfo\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$entityIdentifierCodeQualifier\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$firstName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$identifier\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$lastOrganizationName\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$middleName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$suffix\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$relatedEntities\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$serviceDeliveries\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$identifier\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$lastOrganizationName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$firstName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$identifier\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$lastOrganizationName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$middleName\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$suffix\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EmailClient\\:\\:\\$appKey\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',

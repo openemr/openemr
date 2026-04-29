@@ -1187,7 +1187,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/inventory_transactions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$product, \\$productcyp, \\$producttotal, \\$productqty, \\$grandtotal, \\$grandqty\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$product, \\$productleft, \\$productcyp, \\$producttotal, \\$productqty, \\$grandtotal, \\$grandqty\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];

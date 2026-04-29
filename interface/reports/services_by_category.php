@@ -15,6 +15,8 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 
+/** @var array<string, array<string, mixed>> $code_types */
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -204,6 +206,7 @@ if (!empty($_POST['form_refresh'])) {
             ++$irow;
         }
 
+        $key = '';
         foreach ($code_types as $key => $value) {
             if ($value['id'] == $row['code_type']) {
                 break;

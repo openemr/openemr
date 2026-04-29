@@ -437,6 +437,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/download_log_viewer.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$pid on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/indexrx.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$vendors on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php',
@@ -480,6 +485,16 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$div on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$aclSetupFlag on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/acl/acl_setup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$aclSetupFlag on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/acl/acl_upgrade.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -653,7 +668,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$forms_encounters on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [

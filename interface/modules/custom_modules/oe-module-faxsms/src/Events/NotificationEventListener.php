@@ -319,7 +319,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $status = '';
 
         if (empty($data['alt_content'] ?? '')) {
-            xl("Please follow below link to complete the requested document.");
+            $message = xl("Please follow below link to complete the requested document.");
         } else {
             $message = $data['alt_content'];
         }

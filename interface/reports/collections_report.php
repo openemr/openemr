@@ -23,7 +23,7 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
@@ -622,6 +622,7 @@ if (!empty($_POST['form_csvexport'])) {
                                echo "   <select name='form_provider' class='form-control'>\n";
                                echo "    <option value=''>-- " . xlt('All') . " --\n";
 
+                               $provider_name = '';
                         while ($urow = sqlFetchArray($ures)) {
                             $provid = $urow['id'];
                             echo "    <option value='" . attr($provid) . "'";
@@ -787,6 +788,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
     $eres = sqlStatement($query, $sqlArray);
 
+    $invlines = [];
+    $ins_id = 0;
+    $insposition = 0;
     while ($erow = sqlFetchArray($eres)) {
         $patient_id = $erow['pid'];
         $encounter_id = $erow['encounter'];

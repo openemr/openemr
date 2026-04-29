@@ -19,7 +19,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -159,7 +159,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
     while ($r = sqlFetchArray($res)) {
         // MSH
-        $content .= "MSH|^~\&|" . strtoupper((string) $openemr_name) .
+        $content .= "MSH|^~\&|" . strtoupper(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('openemr_name')) .
         "|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
         "|||$now||" .
         "ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility

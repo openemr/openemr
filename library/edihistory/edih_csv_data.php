@@ -49,6 +49,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
     //
     $str_html = '';
     $clm_html = '';
+    $errct = 0;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     //
     foreach ($data_ar as $icn => $csvdata) {
@@ -258,7 +259,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
             foreach ($row_ar as $row) {
                 $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
                 $rwct++;
-                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&ftype=" . attr_url($tp) . "&trace=" . attr_url($row[2]) . "&rsptype=" . attr_url($row[6]) . "&err=" . attr_url($row[7]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[2]) . "</a></dt>" . PHP_EOL;
+                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&ftype=" . attr_url($ft) . "&trace=" . attr_url($row[2]) . "&rsptype=" . attr_url($row[6]) . "&err=" . attr_url($row[7]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[2]) . "</a></dt>" . PHP_EOL;
             }
         }
 
@@ -502,6 +503,8 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     // given dates should be in CCYY-MM-DD or CCYY/MM/DD format
     // edih_view.php is supposed to use CCYY-MM-DD
     $dts = $dt4 = $dte = '';
+    $dtpd2 = '';
+    $dtpdlbl = '';
     if (preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $datestart)) {
         $dts = implode('', preg_split("/\D/", $datestart));
         if ($dateend && preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $dateend)) {
@@ -616,6 +619,8 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
                 $csv_html .= "<tr class='" . attr($bgc) . "'>" . PHP_EOL;
+                $fn = '';
+                $trc = '';
                 foreach ($val as $k => $v) {
                     if ($k == 'Date') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
@@ -651,6 +656,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $csv_html .= "<tr class='" . attr($bgc) . "'>" . PHP_EOL;
                 //
                 $rsp = $val['RspType'];
+                $fn = '';
                 foreach ($val as $k => $v) {
                     if ($k == 'Date') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;

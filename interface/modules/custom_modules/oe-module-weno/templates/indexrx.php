@@ -15,6 +15,7 @@
 //header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;", true); // Preserve CSP header for security
 
 require_once("../../../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
@@ -34,6 +35,7 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid') ?? '';
 // Let's see if letting user decide to reset fly's!
 // We really don't need because we can do transparently but Weno requested so...
 $wenoValidate = new WenoValidate();

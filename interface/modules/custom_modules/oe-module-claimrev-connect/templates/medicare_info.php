@@ -12,6 +12,8 @@
 
     use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
+/** @var object $eligibilityData */
+
 if (property_exists($eligibilityData, 'medicarePartADate')) {
     if (property_exists($eligibilityData->medicarePartADate, 'startDate')) {
         PrintProperty::displayDateProperty("Medicare Part A Start Date:", $eligibilityData->medicarePartADate->startDate);

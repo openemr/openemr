@@ -93,9 +93,11 @@ class DecisionSupportInterventionService extends BaseService
         if ($type === ClientEntity::DSI_TYPE_PREDICTIVE) {
             $service = new PredictiveDSIServiceEntity();
             $attributes = $this->getPredictiveDSIAttributes();
-        } else if ($type === ClientEntity::DSI_TYPE_EVIDENCE) {
+        } elseif ($type === ClientEntity::DSI_TYPE_EVIDENCE) {
             $service = new EvidenceBasedDSIServiceEntity();
             $attributes = $this->getEvidenceDSIAttributes();
+        } else {
+            throw new \InvalidArgumentException("Unknown DSI service type: $type");
         }
         foreach ($attributes as $attr) {
             $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');

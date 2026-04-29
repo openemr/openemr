@@ -62,11 +62,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between 2 and 0 is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/eventdispatcher/RestApiEventHookExample/Module.php',

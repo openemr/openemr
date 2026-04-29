@@ -20,8 +20,8 @@
  */
 
 require_once "../globals.php";
-require_once "$srcdir/patient.inc.php";
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 require_once "../drugs/drugs.inc.php";
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -851,6 +851,7 @@ if (!empty($_POST['form_refresh'])) {
         $sortorder = "asc";
     }
 
+    $sortlink = [];
     for ($i = 0; $i < count($sort); $i++) {
         $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
     }
@@ -869,6 +870,7 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
+    $odrstmt = "";
     switch ($srch_option_pointer) {
         case "diagnosis_check":
         case "procs":

@@ -12,6 +12,7 @@
  */
 
 require_once(__DIR__ . "/../../../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
@@ -52,6 +53,8 @@ if ($_POST['form_create'] ?? null) {
         $newpid = $result['pid'];
     }
     setpid($newpid);
+    /** @var int|string|null $pid populated by setpid() into the global scope */
+    $pid = $GLOBALS['pid'] ?? null;
     if ($pid == null) {
         $pid = 0;
     }

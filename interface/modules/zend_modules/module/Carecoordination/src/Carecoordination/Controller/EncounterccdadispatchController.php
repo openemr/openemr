@@ -460,6 +460,7 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
+        $combination = $this->params('pids');
         $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
@@ -484,6 +485,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $date = date('Y-m-d', $str_time);
 
         $encounter = $this->getEncounterccdadispatchTable()->getEncounterDate($date);
+        $result = null;
         foreach ($encounter as $row) {
             $result = $this->getEncounterccdadispatchTable()->signOff($row['pid'], $row['encounter']);
         }

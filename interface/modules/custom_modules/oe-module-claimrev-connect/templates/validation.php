@@ -12,6 +12,9 @@
 
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
+/** @var object $data */
+/** @var object $eligibilityData */
+
 $validations = null;
 if (property_exists($data, 'requestValidations')) {
     $validations = $data->requestValidations;
