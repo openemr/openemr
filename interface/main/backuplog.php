@@ -25,6 +25,7 @@ if (!isset($argv[1])) {
 }
 
 require_once("$argv[1]/library/sqlconf.php");
+/** @var array<string,string> $sqlconf */
 $backuptime = date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
 if (!file_exists($BACKUP_EVENTLOG_DIR)) {

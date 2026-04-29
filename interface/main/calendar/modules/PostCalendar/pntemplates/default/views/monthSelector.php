@@ -46,7 +46,7 @@ $pYear = date("Y");
 
 $tdClasses = "tdDatePicker tdMonthName-small";
 for ($idx = 0; $idx < 13; $idx++) {
-    $pDay = $cDay;
+    $pDay = $cDay ?? (int) date('d');
 
     if ($pMonth > 12) {
         $pMonth -= 12;

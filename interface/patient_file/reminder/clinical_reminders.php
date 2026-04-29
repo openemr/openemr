@@ -15,14 +15,15 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/clinical_rules.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 

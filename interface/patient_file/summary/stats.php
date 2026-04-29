@@ -11,20 +11,25 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $twigContainer = new TwigContainer(null, $kernel);
 $t = $twigContainer->getTwig();
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$need_head = true;
 
 /**
  * Return an array of list data for a given issue type and patient

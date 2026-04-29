@@ -46,8 +46,12 @@ set_time_limit(0);
 $globalsBag = require_once("../globals.php");
 assert($globalsBag instanceof OEGlobalsBag);
 
-require_once("$srcdir/layout.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once($globalsBag->getSrcDir() . "/layout.inc.php");
+require_once($globalsBag->getSrcDir() . "/patient.inc.php");
+
+/** @var array<string,string> $datatypes */
+/** @var array<string,string> $sources */
+/** @var array<string,string> $UOR */
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -272,13 +276,13 @@ if ($form_step == 102.2) {
                 }
                 echo csvEscape($row['form_id'     ]) . ',';
                 echo csvEscape($row['seq'         ]) . ',';
-                echo csvEscape($sources[$row['source']]) . ',';
+                echo csvEscape($sources[(string) $row['source']]) . ',';
                 echo csvEscape($row['grp_title'   ]) . ',';
                 echo csvEscape($row['field_id'    ]) . ',';
                 echo csvEscape($row['title'       ]) . ',';
                 echo csvEscape($xtitle) . ',';
-                echo csvEscape($UOR[$row['uor']]) . ',';
-                echo csvEscape($datatypes[$row['data_type']]) . ',';
+                echo csvEscape($UOR[(string) $row['uor']]) . ',';
+                echo csvEscape($datatypes[(string) $row['data_type']]) . ',';
                 echo csvEscape($row['fld_length'  ]) . ',';
                 echo csvEscape($row['fld_rows'    ]) . ',';
                 echo csvEscape($row['max_length'  ]) . ',';
@@ -371,10 +375,10 @@ if ($form_step == 402) {
                 die("tempnam('" . text(OEGlobalsBag::getInstance()->getString('temporary_files_dir')) . "','OEZ') failed.\n");
             }
             if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== true) {
-                die(xlt('Cannot create file') . " '$zipname'\n");
+                die(xlt('Cannot create file') . " '$zippedoutfile'\n");
             }
             if (!$zip->addFile($outfile, $filename)) {
-                die(xlt('Cannot add to archive') . " '$zipname'\n");
+                die(xlt('Cannot add to archive') . " '$zippedoutfile'\n");
             }
             $zip->close();
             $filename .= '.zip';
@@ -532,7 +536,7 @@ if ($form_step == 3) {
     $form_status .= xl('Dumping OpenEMR web directory tree') . "...||br-placeholder||";
     echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
-    chdir($webserver_root);
+    chdir($globalsBag->getString('webserver_root'));
 
     // Select the files and directories to archive.  Basically everything
     // except site-specific data for other sites.
@@ -542,9 +546,9 @@ if ($form_step == 3) {
         'tmp-phpstan',
     ];
     $file_list = [];
-    $dh = opendir($webserver_root);
+    $dh = opendir($globalsBag->getString('webserver_root'));
     if (!$dh) {
-        die("Cannot read directory '" . text($webserver_root) . "'.");
+        die("Cannot read directory '" . text($globalsBag->getString('webserver_root')) . "'.");
     }
 
     while (false !== ($filename = readdir($dh))) {

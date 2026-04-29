@@ -1625,6 +1625,7 @@ class Date_Calc
     */
     static function getMonthNames()
     {
+        $months = [];
         for ($i = 1; $i < 13; $i++) {
             $months[$i] = strftime('%B', mktime(0, 0, 0, $i, 1, 2001));
         }
@@ -1643,6 +1644,7 @@ class Date_Calc
     */
     static function getWeekDays()
     {
+        $weekdays = [];
         for ($i = 0; $i < 7; $i++) {
             $weekdays[$i] = strftime('%A', mktime(0, 0, 0, 1, $i, 2001));
         }

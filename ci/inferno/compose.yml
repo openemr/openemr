@@ -80,6 +80,8 @@ services:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: redis
+    # Disable persistence - this is ephemeral CI infrastructure
+    command: redis-server --save "" --appendonly no
   hl7_validator_service:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml

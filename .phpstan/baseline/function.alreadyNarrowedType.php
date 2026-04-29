@@ -77,11 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_numeric\\(\\) with int will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',

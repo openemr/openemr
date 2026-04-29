@@ -17,7 +17,8 @@
 set_time_limit(0);
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -28,7 +29,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -178,6 +178,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     " WHERE `pid` = ?";
                 $target_res = sqlStatement($target_sel, [$target_pid]);
 
+                $source_row = [];
                 while ($source_row = sqlFetchArray($source_res)) {
                     while ($target_row = sqlFetchArray($target_res)) {
                         if ($source_row['type'] == $target_row['type']) {
@@ -347,6 +348,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
                 $res = sqlStatement($sql, [OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
+                $tables = [];
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -453,8 +455,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 }
             }
 
-            $tdocdir = "$OE_SITE_DIR/documents/" . check_file_dir_name($target_pid);
-            $sdocdir = "$OE_SITE_DIR/documents/" . check_file_dir_name($source_pid);
+            $tdocdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/" . check_file_dir_name($target_pid);
+            $sdocdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/" . check_file_dir_name($source_pid);
             $sencdir = "$sdocdir/encounters";
             $tencdir = "$tdocdir/encounters";
 

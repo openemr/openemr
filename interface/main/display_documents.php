@@ -16,13 +16,14 @@
  */
 
 require_once('../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
@@ -53,7 +54,7 @@ $display_div = "style='display:block;'";
 <head>
 <?php
     Header::setupHeader(['datetime-picker', 'common']);
-    require_once("$srcdir/payment_jav.inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php");
 ?>
 
 <script>

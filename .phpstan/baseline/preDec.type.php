@@ -4,11 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/printed_fee_sheet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\-\\- on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/patient_list.php',
 ];
 $ignoreErrors[] = [

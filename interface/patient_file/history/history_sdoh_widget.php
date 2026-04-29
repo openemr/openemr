@@ -29,6 +29,7 @@ use OpenEMR\Services\SDOH\HistorySdohService;
 
 $logger = ServiceContainer::getLogger();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 /** Lookup a list option title by (list_id, option_id). */
 function hs_lo_title(string $listId, ?string $value): string

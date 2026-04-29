@@ -132,26 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 3 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'version\' does not exist on array\\{\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{1\\: non\\-falsy\\-string\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
@@ -315,6 +295,11 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'skip_total_table_count\' does not exist on array\\<int, mixed\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: 0\\|float, payments\\: 0\\}\\.$#',
