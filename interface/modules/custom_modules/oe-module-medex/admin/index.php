@@ -25,6 +25,13 @@ require_once(__DIR__ . '/../src/MedExAPI.php');
 
 function medexResolveOpenEmrBaseUrlAdmin(): string
 {
+    foreach (['medex_callback_base_url', 'medex_preview_tunnel_public_base_url'] as $globalName) {
+        $candidate = rtrim(trim((string)($GLOBALS[$globalName] ?? '')), '/');
+        if ($candidate !== '' && filter_var($candidate, FILTER_VALIDATE_URL)) {
+            return $candidate;
+        }
+    }
+
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
     if ($host === '') {
@@ -93,6 +100,29 @@ if (!$isConfigured || !$api) {
 $cloudUrl = '';
 $errorMessage = '';
 try {
+    $openemrUserFirstName = '';
+    $openemrUserDisplayName = '';
+    $openemrUserId = (int)($_SESSION['authUserID'] ?? 0);
+    if ($openemrUserId > 0) {
+        $userRow = sqlQuery("SELECT fname, lname, username FROM users WHERE id = ?", [$openemrUserId]);
+        if (is_array($userRow)) {
+            $openemrUserFirstName = trim((string)($userRow['fname'] ?? ''));
+            $openemrUserDisplayName = trim(
+                preg_replace('/\s+/', ' ', (string)(($userRow['fname'] ?? '') . ' ' . ($userRow['lname'] ?? '')))
+            );
+            if ($openemrUserDisplayName === '') {
+                $openemrUserDisplayName = trim((string)($userRow['username'] ?? ''));
+            }
+        }
+    }
+    if ($openemrUserDisplayName === '') {
+        $openemrUserDisplayName = trim((string)($_SESSION['authUser'] ?? ''));
+    }
+    if ($openemrUserFirstName === '' && $openemrUserDisplayName !== '') {
+        $parts = preg_split('/\s+/', $openemrUserDisplayName);
+        $openemrUserFirstName = trim((string)($parts[0] ?? ''));
+    }
+
     $loginData = $api->login(false);
     $sessionToken = trim((string)($loginData['token'] ?? ''));
     $practiceId = trim((string)($loginData['practice_id'] ?? ($loginData['practice']['P_PID'] ?? '')));
@@ -123,9 +153,9 @@ try {
             }
         }
         if ($callbackToken === '') {
-            $callbackTokenRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1");
-            $callbackToken = trim((string)($callbackTokenRow['gl_value'] ?? ''));
+            throw new \RuntimeException('Unable to load the current MedEx callback token for dashboard SSO.');
         }
+
         $payload = [
             'practice_id' => $practiceId,
             'session_token' => $sessionToken,
@@ -141,19 +171,20 @@ try {
         if ($email !== '') {
             $payload['email'] = $email;
         }
-
+        if ($openemrUserFirstName !== '') {
+            $payload['openemr_user_firstname'] = $openemrUserFirstName;
+        }
+        if ($openemrUserDisplayName !== '') {
+            $payload['openemr_user_display_name'] = $openemrUserDisplayName;
+        }
         $encodedPayload = base64_encode(json_encode($payload));
-        $signature = ($callbackToken !== '')
-            ? hash_hmac('sha256', $encodedPayload, $callbackToken)
-            : '';
+        $signature = hash_hmac('sha256', $encodedPayload, $callbackToken);
 
         $cloudUrl = 'https://api.hipaabank.net/cart/upload/dashboard_sso.php'
             . '?site=' . urlencode($siteId)
             . '&tab=' . urlencode($tab)
-            . '&sso_token=' . urlencode($encodedPayload);
-        if ($signature !== '') {
-            $cloudUrl .= '&sso_sig=' . urlencode($signature);
-        }
+            . '&sso_token=' . urlencode($encodedPayload)
+            . '&sso_sig=' . urlencode($signature);
     }
 
     $errorMessage = xlt('Unable to create a valid MedEx dashboard session.');
@@ -209,6 +240,7 @@ if ($cloudUrl !== '') {
             id="medexDashboardFrame"
             src="<?php echo attr($cloudUrl); ?>"
             title="<?php echo attr(xlt('MedEx Dashboard')); ?>"
+            allow="microphone *; payment *; clipboard-read *; clipboard-write *"
             referrerpolicy="strict-origin-when-cross-origin"
         ></iframe>
     </div>
