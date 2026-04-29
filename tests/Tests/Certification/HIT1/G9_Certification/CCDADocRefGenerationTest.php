@@ -139,12 +139,17 @@ class CCDADocRefGenerationTest extends TestCase {
     private function replaceRootIdForXpathQuery(string $query, DOMXPath $path, DOMXPath $expectedXpath): void {
         $currentList1 = $path->query($query);
         $expectedList2 = $expectedXpath->query($query);
-        $this->replaceRootIdForNodes($path, $expectedXpath, $currentList1, $expectedList2);
+        $this->replaceRootIdForNodes($path, $expectedXpath, $currentList1, $expectedList2, $query);
     }
-    private function replaceRootIdForNodes(DOMXPath $path, DOMXPath $expectedXpath, \DOMNodeList $currentList1, \DOMNodeList $expectedList2): void {
+    private function replaceRootIdForNodes(DOMXPath $path, DOMXPath $expectedXpath, \DOMNodeList $currentList1, \DOMNodeList $expectedList2, string $query = ''): void {
         $count = $currentList1->count();
         if ($currentList1->count() != $expectedList2->count()) {
-            throw new \RuntimeException('Node lists have different counts');
+            throw new \RuntimeException(sprintf(
+                'Node lists have different counts for query "%s": generated=%d, expected=%d',
+                $query,
+                $currentList1->count(),
+                $expectedList2->count()
+            ));
         }
         for ($i = 0; $i < $count; $i++) {
             $currentNode = $currentList1->item($i)->parentElement;
