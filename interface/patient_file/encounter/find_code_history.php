@@ -14,7 +14,10 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
 
 function get_history_codes($pid)
 {
