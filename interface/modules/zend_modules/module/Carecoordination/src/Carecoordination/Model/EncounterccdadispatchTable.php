@@ -1279,6 +1279,7 @@ class EncounterccdadispatchTable
     {
         $information_recipient = '';
         $field_name = [];
+        $query = '';
         $details = $this->getDetails('hie_recipient_id');
 
         if ($recipients == 'hie') {
@@ -1662,6 +1663,8 @@ class EncounterccdadispatchTable
 
             $active = $row['active'] > 0 ? 'active' : 'completed';
 
+            $start_date = '';
+            $start_date_formatted = '';
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
                 $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
@@ -2259,6 +2262,7 @@ class EncounterccdadispatchTable
             $problem = '';
             $primary_diagnosis = '';
             $issue_codes = '';
+            $encounter_diagnosis = '';
             if (count($res_issues ?? []) > 0) {
                 $i = 0;
                 foreach ($res_issues as $issue) {
@@ -3409,7 +3413,10 @@ class EncounterccdadispatchTable
      */
     public function getDetails($field_name): ?array
     {
-        if ($field_name == 'hie_custodian_id') {
+        if (!is_string($field_name) && !is_int($field_name)) {
+            return null;
+        }
+        if ($field_name === 'hie_custodian_id') {
             $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
         FROM facility AS f
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
@@ -3754,6 +3761,7 @@ class EncounterccdadispatchTable
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
                 $result_patient_data = QueryUtils::fetchRecords($query_patient_data, [$pid]);
+        $row_patient_data = [];
         foreach ($result_patient_data as $row_patient_data) {
         }
 
@@ -3770,6 +3778,7 @@ class EncounterccdadispatchTable
         $query_saved_forms = "SELECT formid FROM combined_encountersaved_forms WHERE pid = ? AND encounter = ?";
                 $result_saved_forms = QueryUtils::fetchRecords($query_saved_forms, [$pid, $encounter]);
         $count = 0;
+        $forms = [];
         foreach ($result_saved_forms as $row_saved_forms) {
             $form_dir = '';
             $form_type = 0;
@@ -3837,6 +3846,7 @@ class EncounterccdadispatchTable
     {
         $query = "select count(*) as count from combination_form where pid = ? and encounter = ? and form_dir = ? and form_type = ? and form_id = ?";
                 $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formdir, $formtype, $formid]);
+        $count = ['count' => 0];
         foreach ($result as $count) {
         }
 
@@ -3984,6 +3994,7 @@ class EncounterccdadispatchTable
 
         // this query is only true if the referral was inserted as part of the ccda generation process.  This is code migrated from EncountermanagerTable
         $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
+        $trans_id = null;
         if (count($refs) == 0) {
             // the choose the most recent transaction to link this up...  This could create problems in the
             // future if multiple referrals are created BEFORE sending the CCDA.
@@ -4056,6 +4067,7 @@ class EncounterccdadispatchTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }

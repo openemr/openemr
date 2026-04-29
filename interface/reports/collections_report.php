@@ -23,7 +23,7 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
@@ -61,6 +61,7 @@ $is_all         = $form_category == 'All';
 $is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
+$provider_name  = '';
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
 // reposition the page after closing invoice variables
 $form_page_y    = $_POST['form_page_y'] ?? '';
@@ -622,6 +623,7 @@ if (!empty($_POST['form_csvexport'])) {
                                echo "   <select name='form_provider' class='form-control'>\n";
                                echo "    <option value=''>-- " . xlt('All') . " --\n";
 
+                               $provider_name = '';
                         while ($urow = sqlFetchArray($ures)) {
                             $provid = $urow['id'];
                             echo "    <option value='" . attr($provid) . "'";
@@ -787,6 +789,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
     $eres = sqlStatement($query, $sqlArray);
 
+    $invlines = [];
+    $ins_id = 0;
+    $insposition = 0;
     while ($erow = sqlFetchArray($eres)) {
         $patient_id = $erow['pid'];
         $encounter_id = $erow['encounter'];

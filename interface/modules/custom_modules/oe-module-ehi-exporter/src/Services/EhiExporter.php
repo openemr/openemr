@@ -153,6 +153,7 @@ class EhiExporter
     }
     public function exportAll(bool $includePatientDocuments, $defaultZipSize): EhiExportJob
     {
+        $job = null;
         try {
             $sql = "SELECT pid FROM patient_data"; // We do everything here
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);

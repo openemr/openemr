@@ -146,14 +146,13 @@ class LogoService
 
         $this->finder->files()->in($directory)->name($filename);
 
+        $return = "";
         if ($this->finder->hasResults()) {
             // There is at least 1 file in the sites directory for the given logo
             foreach ($this->finder as $f) {
                 $return = $f->getRealPath();
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
-        } else {
-            $return = "";
         }
 
         return $return;

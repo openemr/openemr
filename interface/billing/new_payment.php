@@ -19,9 +19,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -32,7 +29,20 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/payment.inc.php');
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// payment_master.inc.php (loaded later via require_once) reassigns these.
+// Initialize from request input so PHPStan sees them as `string` / `int` rather
+// than narrowing to literal '' / 0, which would mark downstream comparisons as
+// dead code.
+$PaymentType = filter_input(INPUT_POST, 'type_name') ?: filter_input(INPUT_GET, 'type_name') ?: '';
+$TypeCode = filter_input(INPUT_POST, 'hidden_type_code') ?: filter_input(INPUT_GET, 'hidden_type_code') ?: '';
+$CountIndexBelow = filter_input(INPUT_POST, '_init_count_index_below', FILTER_VALIDATE_INT) ?: 0;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
@@ -427,7 +437,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-<script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
+<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
 $(function () {
     $('select').removeClass('class1 text');

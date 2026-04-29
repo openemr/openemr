@@ -90,13 +90,11 @@ class DecisionSupportInterventionService extends BaseService
 
     public function getEmptyService(int $type): DecisionSupportInterventionEntity
     {
-        if ($type === ClientEntity::DSI_TYPE_PREDICTIVE) {
-            $service = new PredictiveDSIServiceEntity();
-            $attributes = $this->getPredictiveDSIAttributes();
-        } else if ($type === ClientEntity::DSI_TYPE_EVIDENCE) {
-            $service = new EvidenceBasedDSIServiceEntity();
-            $attributes = $this->getEvidenceDSIAttributes();
-        }
+        [$service, $attributes] = match ($type) {
+            ClientEntity::DSI_TYPE_PREDICTIVE => [new PredictiveDSIServiceEntity(), $this->getPredictiveDSIAttributes()],
+            ClientEntity::DSI_TYPE_EVIDENCE => [new EvidenceBasedDSIServiceEntity(), $this->getEvidenceDSIAttributes()],
+            default => throw new \InvalidArgumentException("Unknown DSI service type: $type"),
+        };
         foreach ($attributes as $attr) {
             $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');
         }

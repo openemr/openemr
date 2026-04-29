@@ -52,6 +52,7 @@ $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
 $file_name = '';
+$pid = '';
 if (empty($isSMS)) {
 // fax contact form
     $interface_pid = $clientApp->getRequest('pid', '');

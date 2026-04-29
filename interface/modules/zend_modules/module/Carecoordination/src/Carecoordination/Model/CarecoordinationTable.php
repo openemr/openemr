@@ -1638,6 +1638,7 @@ class CarecoordinationTable
 
                                 $query_select = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
                                 $result = QueryUtils::fetchRecords($query_select, ['outcome', $data['lists1-observation_text-con'][$i]]);
+                                $o_id = null;
                                 if (count($result) > 0) {
                                     $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ? AND codes = ?";
                                     QueryUtils::sqlStatementThrowException($q_update, ['outcome', $data['lists1-observation_text-con'][$i], 'SNOMED-CT:' . $data['lists1-observation-con'][$i]]);
@@ -1687,6 +1688,7 @@ class CarecoordinationTable
                                     QueryUtils::sqlStatementThrowException($query4, [(null), $data['pid'], $data['lists1_exist-list_id'][$i]]);
                                 }
                             } elseif (substr((string) $key, 0, -4) == 'lists2-con') {
+                                $allergy_begdate_value = null;
                                 if (!empty($data['lists2-begdate-con'][$i])) {
                                     $allergy_begdate_value = ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
                                 } elseif (empty($data['lists2-begdate-con'][$i])) {
@@ -1745,8 +1747,9 @@ class CarecoordinationTable
                                                   ?,
                                                   1
                                                  )";
-                                    if ($value['reaction_text']) {
-                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $data['lists2-reaction_text-con'][$i]]);
+                                    $reactionText = $data['lists2-reaction_text-con'][$i] ?? '';
+                                    if ($reactionText !== '') {
+                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $reactionText]);
                                     }
                                 }
 
@@ -1792,6 +1795,7 @@ class CarecoordinationTable
                                                       FROM users
                                                       WHERE npi=?";// abook_type='external_provider' AND
                                 $res_query_sel_users = QueryUtils::fetchRecords($query_sel_users, [$data['lists3-provider_npi-con'][$i]]);
+                                $provider_id = null;
                                 if (count($res_query_sel_users) > 0) {
                                     foreach ($res_query_sel_users as $value1) {
                                         $provider_id = $value1['id'];

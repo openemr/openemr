@@ -34,6 +34,7 @@ class PrescriptionTemplatesController extends AbstractActionController
     {
         $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         $prescriptions = [];
+        $p = null;
         foreach ($ids as $id) {
             $p = new \Prescription($id);
 
@@ -43,7 +44,7 @@ class PrescriptionTemplatesController extends AbstractActionController
 
             $prescriptions[$p->provider->id][] = $p;
         }
-        $patient = $p->patient;
+        $patient = $p?->patient;
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $session->get('language_direction')]);

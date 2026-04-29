@@ -1192,6 +1192,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function CreateImmunizationManufacturerList()
     {
         $res = sqlStatement("SELECT DISTINCT manufacturer FROM immunizations WHERE manufacturer <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[] = $row['manufacturer'];
         }

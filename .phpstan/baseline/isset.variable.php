@@ -217,11 +217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$puuid in isset\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$codeMapping in isset\\(\\) always exists and is always null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',

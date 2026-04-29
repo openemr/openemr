@@ -41,6 +41,7 @@ $from_date     = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form
 $form_facility = $_POST['form_facility'] ?? '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
+$report_type = filter_input(INPUT_GET, 't', FILTER_DEFAULT) ?: '';
 $report_title = xl('Clinic Daily Record');
 $report_col_count = 12;
 

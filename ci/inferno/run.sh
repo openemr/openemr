@@ -96,10 +96,10 @@ initialize_openemr() {
     install_configure
     "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-    # Snapshot is from 7.0.3; run migrations to create any new tables
+    #  Snapshot is from 7.0.3; run migrations to create any new tables
     docker compose exec -T openemr php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
     # Snapshot may not have API globals configured; ensure they're set
-    configure_api_globals
+    # configure_api_globals
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
@@ -196,17 +196,7 @@ fix_redis_permissions() {
      chmod -R 777 "${PWD}/onc-certification-g10-test-kit/data/redis"
 }
 
-cleanup() {
-    echo 'Performing cleanup...'
-    docker compose down -v || true
-    echo 'Cleanup completed'
-}
-
 main() {
-    # NOTE: No cleanup trap here - the GitHub Actions workflow handles cleanup
-    # after capturing logs. Running cleanup here would remove containers before
-    # the workflow can read error logs for debugging.
-
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.

@@ -15,10 +15,6 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
-require_once("$srcdir/calendar.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
@@ -28,6 +24,12 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/forms.inc.php');
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/report.inc.php');
+require_once($srcDir . '/calendar.inc.php');
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -36,6 +38,7 @@ if (!empty($_POST)) {
 //  File location (URL or server path)
 $target = OEGlobalsBag::getInstance()->get('edi_271_file_path');
 $batch_log = '';
+$message = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
     $uploadedName = (string) $_FILES['uploaded']['name'];
@@ -51,7 +54,7 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (in_array($uploadedExt, ['inc', 'php', 'php7', 'php8'], true)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
-    if (!isset($message)) {
+    if ($message === '') {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
         if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
@@ -134,7 +137,7 @@ if ($batch_log && !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_
 </head>
 <body class="body_top">
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-    <?php if (isset($message) && !empty($message)) { ?>
+    <?php if ($message !== '') { ?>
                 <div class="text-danger text-center bg-light w-50" style="margin-left:25%; font-family: 'Arial', sans-serif; font-size:15px; border:1px solid;"><?php echo $message; ?></div>
         <?php
                 $message = "";

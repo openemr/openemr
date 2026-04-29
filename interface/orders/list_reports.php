@@ -22,7 +22,7 @@ $orphanLog = '';
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-$includeRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root');
+$includeRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot();
 if (file_exists("$includeRoot/procedure_tools/quest/QuestResultClient.php")) {
     require_once("$includeRoot/procedure_tools/quest/QuestResultClient.php");
 }

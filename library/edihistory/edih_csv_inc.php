@@ -1542,6 +1542,7 @@ function edih_csv_write($csv_data)
     }
 
     //
+    $rws = 0;
     foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
         $ft = $isa['type'] ?? '';
@@ -1937,7 +1938,7 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
         $type = 'f278';
         $csv_type = 'claim';
     } else {
-        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $file_type);
+        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $from_type);
         return $fn;
     }
 
@@ -2053,6 +2054,8 @@ function csv_pid_enctr_parse($pid_enctr)
     }
 
     $pval = trim($pid_enctr);
+    $pid = '';
+    $enc = '';
     if (strpos($pval, '-')) {
         $pid = substr($pval, 0, strpos($pval, '-'));
         $enc = substr($pval, strpos($pval, '-') + 1);
