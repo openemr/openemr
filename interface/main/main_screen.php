@@ -138,6 +138,25 @@ function generate_html_end()
     return 0;
 }
 
+function log_failed_mfa_attempt(int $userid, string $reason): void
+{
+    $ip = collectIpAddresses();
+    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
+    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
+    $authGroup = '';
+    if ($username !== '') {
+        $userService = new \OpenEMR\Services\UserService();
+        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
+    }
+    EventAuditLogger::getInstance()->newEvent(
+        'login',
+        $username,
+        $authGroup,
+        0,
+        "failure: " . $ip['ip_string'] . ". " . $reason
+    );
+}
+
 if (isset($_POST['new_login_session_management'])) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
@@ -235,22 +254,7 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
-                    // Log failed TOTP authentication attempt
-                    $ip = collectIpAddresses();
-                    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
-                    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
-                    $authGroup = '';
-                    if ($username !== '') {
-                        $userService = new \OpenEMR\Services\UserService();
-                        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
-                    }
-                    EventAuditLogger::getInstance()->newEvent(
-                        'login',
-                        $username,
-                        $authGroup,
-                        0,
-                        "failure: " . $ip['ip_string'] . ". TOTP code incorrect"
-                    );
+                    log_failed_mfa_attempt($userid, 'TOTP code incorrect');
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -283,22 +287,7 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
-                    // Log failed U2F authentication attempt
-                    $ip = collectIpAddresses();
-                    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
-                    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
-                    $authGroup = '';
-                    if ($username !== '') {
-                        $userService = new \OpenEMR\Services\UserService();
-                        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
-                    }
-                    EventAuditLogger::getInstance()->newEvent(
-                        'login',
-                        $username,
-                        $authGroup,
-                        0,
-                        "failure: " . $ip['ip_string'] . ". U2F authentication error: " . $e->getMessage()
-                    );
+                    log_failed_mfa_attempt($userid, 'U2F authentication error: ' . $e->getMessage());
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }
