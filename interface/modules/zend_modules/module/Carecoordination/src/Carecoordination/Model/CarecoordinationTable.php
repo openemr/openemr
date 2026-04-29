@@ -1747,8 +1747,9 @@ class CarecoordinationTable
                                                   ?,
                                                   1
                                                  )";
-                                    if (!empty($data['lists2-reaction_text-con'][$i])) {
-                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $data['lists2-reaction_text-con'][$i]]);
+                                    $reactionText = $data['lists2-reaction_text-con'][$i] ?? '';
+                                    if ($reactionText !== '') {
+                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $reactionText]);
                                     }
                                 }
 

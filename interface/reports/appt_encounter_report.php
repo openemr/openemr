@@ -501,14 +501,6 @@ if (!empty($_POST['form_refresh'])) {
    </td>
    <td>
       &nbsp;<?php
-
-         /*****************************************************************
-         if ($form_to_date) {
-            echo $row['pc_eventDate'] . '<br />';
-            echo substr($row['pc_startTime'], 0, 5);
-         }
-         *****************************************************************/
-
         if (empty($row['pc_eventDate'])) {
             echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {

@@ -32,10 +32,6 @@ use OpenEMR\Billing\BillingReport;
 /** @var bool                       $daysheet_total */
 /** @var bool                       $provider_run */
 
-?>
-
-<?php
-
 // TPS = This Page Search
 
 $TPSCriteriaKey = [];

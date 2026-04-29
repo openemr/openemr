@@ -30,9 +30,10 @@ require_once("../../library/patient.inc.php");
 /**
  * @global $srcdir
  */
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
+$srcDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcDir . '/options.inc.php';
+require_once $srcDir . '/appointments.inc.php';
+require_once $srcDir . '/clinical_rules.php';
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,

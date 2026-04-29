@@ -58,7 +58,7 @@ if (isset($_POST['submit'])) {
             );
         // TODO: @adunsulag we really should move all of this into a controller to be cleaner, but we are time crunched here.
         } else if ($_POST['action'] == 'startExport') {
-            $taskId = intval($_POST['taskId'] ?? 0);
+            $taskId = filter_input(INPUT_POST, 'taskId', FILTER_VALIDATE_INT) ?: 0;
             try {
                 $task = $exporter->runExportTask($taskId);
                 echo json_encode($task->getJSON());
@@ -69,7 +69,7 @@ if (isset($_POST['submit'])) {
             }
             exit;
         } else if ($_POST['action'] == 'statusUpdate') {
-            $taskId = intval($_POST['taskId'] ?? 0);
+            $taskId = filter_input(INPUT_POST, 'taskId', FILTER_VALIDATE_INT) ?: 0;
             try {
                 $task = $exporter->getExportTaskForStatusUpdate($taskId);
                 // will already have the encoded progress results in the task

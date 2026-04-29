@@ -3413,7 +3413,10 @@ class EncounterccdadispatchTable
      */
     public function getDetails($field_name): ?array
     {
-        if ($field_name == 'hie_custodian_id') {
+        if (!is_string($field_name) && !is_int($field_name)) {
+            return null;
+        }
+        if ($field_name === 'hie_custodian_id') {
             $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
         FROM facility AS f
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
@@ -3441,8 +3444,6 @@ class EncounterccdadispatchTable
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         LEFT JOIN list_options AS provider_roles ON provider_roles.list_id = 'us-core-provider-role' AND provider_roles.option_id = u.taxonomy
         WHERE u.id=?";
-        } else {
-            return null;
         }
 
                 $res = QueryUtils::fetchRecords($query, [$field_name]);

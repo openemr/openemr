@@ -130,4 +130,15 @@ class OEGlobalsBag extends ParameterBag
             ? $this->getKernel()->getSrcDir()
             : $this->getString('srcdir');
     }
+
+    /**
+     * Get the include root (project_dir/interface), falling back to the
+     * 'include_root' global when the Kernel is not initialized.
+     */
+    public function getIncludeRoot(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getIncludeRoot()
+            : $this->getString('include_root');
+    }
 }

@@ -428,7 +428,7 @@ if ($_REQUEST['form_csvexport']) {
         });
     </script>
     <script>
-    <?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
+    <?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
     </script>
     <?php
     if ($type_form == '0') {
@@ -465,7 +465,7 @@ if ($_REQUEST['form_csvexport']) {
             <div class="col-sm-12">
                 <?php
                 if ($type_form != '0') {
-                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/patient_file/summary/dashboard_header.php");
+                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php");
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>

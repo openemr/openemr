@@ -28,7 +28,7 @@ $records2 = [];
     <head>
         <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
-        <script><?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
+        <script><?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
         <?php
         $arrOeUiSettings = [
             'heading_title' => xl('External Data'),
@@ -49,7 +49,7 @@ $records2 = [];
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/patient_file/summary/dashboard_header.php")
+                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php")
                     ?>
                 </div>
             </div>

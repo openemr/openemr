@@ -237,30 +237,31 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
         $str_html .= "<h4>Denied/Rejected Claims Listing</h4>" . PHP_EOL;
         $str_html .= "<dl class ='" . attr($ft) . "'>" . text($rw_ct) . " claims <em>File</em>" .  text($filename) . " ";
         $str_html .= ($trace) ? "<em>Trace</em> $trace</dl>" . PHP_EOL : "" . PHP_EOL;
-        if ($ft == 'f835') {
-            foreach ($row_ar as $row) {
-                $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
-                $rwct++;
-                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($row[5]) . "&ftype=" . attr_url($ft) . "&pid=" . attr_url($row[2]) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[2]) . "</a></dt>" . PHP_EOL;
+        $csrf = CsrfUtils::collectCsrfToken(session: $session);
+        foreach ($row_ar as $row) {
+            $oe = ($rwct % 2) ? 'codd' : 'ceven';
+            $rwct++;
+            if ($ft == 'f835') {
+                $params = ['gtbl' => 'claim', 'fname' => $row[5], 'ftype' => $ft, 'pid' => $row[2], 'fmt' => 'htm', 'csrf_token_form' => $csrf];
+                $label = $row[2];
+            } elseif ($ft == 'f277' || $ft == 'f271') {
+                $params = ['gtbl' => 'claim', 'fname' => $row[5], 'ftype' => $ft, 'bht03' => $row[4], 'fmt' => 'htm', 'csrf_token_form' => $csrf];
+                $label = $row[4];
+            } elseif ($ft == 'f997') {
+                $params = ['gtbl' => 'claim', 'ftype' => $ft, 'trace' => $row[2], 'rsptype' => $row[6], 'err' => $row[7], 'csrf_token_form' => $csrf];
+                $label = $row[2];
+            } else {
+                continue;
             }
-        } elseif ($ft == 'f277') {
-            foreach ($row_ar as $row) {
-                $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
-                $rwct++;
-                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($row[5]) . "&ftype=" . attr_url($ft) . "&bht03=" . attr_url($row[4]) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[4]) . "</a></dt>" . PHP_EOL;
-            }
-        } elseif ($ft == 'f271') {
-            foreach ($row_ar as $row) {
-                $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
-                $rwct++;
-                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($row[5]) . "&ftype=" . attr_url($ft) . "&bht03=" . attr_url($row[4]) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[4]) . "</a></dt>" . PHP_EOL;
-            }
-        } elseif ($ft == 'f997') {
-            foreach ($row_ar as $row) {
-                $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
-                $rwct++;
-                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&ftype=" . attr_url($ft) . "&trace=" . attr_url($row[2]) . "&rsptype=" . attr_url($row[6]) . "&err=" . attr_url($row[7]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($row[2]) . "</a></dt>" . PHP_EOL;
-            }
+            $href = 'edih_main.php?' . http_build_query($params);
+            $str_html .= sprintf(
+                '<dt class="%s">%s <a class="rpt" href="%s">%s</a></dt>%s',
+                attr($oe),
+                text($row[0]),
+                attr($href),
+                text($label),
+                PHP_EOL
+            );
         }
 
         //
