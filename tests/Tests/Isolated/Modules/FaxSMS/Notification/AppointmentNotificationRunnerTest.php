@@ -305,6 +305,57 @@ class AppointmentNotificationRunnerTest extends TestCase
         $this->assertSame(0, $client->sendCalls);
     }
 
+    public function testRunCatchesUpReminderForLateAppointmentStillInFuture(): void
+    {
+        // Simulate a tick that ran several hours after the ideal send
+        // moment because of an outage. The clock is anchored at 2026-04-14
+        // 10:00; lead time = 24h, cron interval = 1h. An appointment at
+        // 2026-04-15 04:00 has remainHour = -6 — well below the old
+        // lower bound — but is still 18h in the future, so the catch-up
+        // path should pick it up rather than silently dropping it.
+        $client = new FakeSmsClient();
+        $runner = $this->makeSmsRunner(
+            client: $client,
+            dryRun: false,
+            appointments: [$this->makeRow([
+                'phone_cell'   => '2125551234',
+                'pc_eventDate' => '2026-04-15',
+                'pc_startTime' => '04:00:00',
+            ])],
+        );
+
+        $result = $runner->run();
+
+        $this->assertSame(1, $result->scanned);
+        $this->assertSame(1, $result->inWindow);
+        $this->assertSame(1, $result->sent);
+        $this->assertSame(1, $client->sendCalls);
+    }
+
+    public function testRunSkipsAppointmentThatHasAlreadyStarted(): void
+    {
+        // Removing the lower bound on isWithinCronWindow could otherwise
+        // let a stale row for a past appointment send a misleading
+        // reminder. The runner's per-event guard skips anything whose
+        // start time is at or before "now".
+        $client = new FakeSmsClient();
+        $runner = $this->makeSmsRunner(
+            client: $client,
+            dryRun: false,
+            appointments: [$this->makeRow([
+                'phone_cell'   => '2125551234',
+                'pc_eventDate' => '2026-04-14',
+                'pc_startTime' => '09:00:00',
+            ])],
+        );
+
+        $result = $runner->run();
+
+        $this->assertSame(1, $result->scanned);
+        $this->assertSame(0, $result->inWindow);
+        $this->assertSame(0, $client->sendCalls);
+    }
+
     public function testRunSmsHappyPathSendsAndLogsAndMarks(): void
     {
         $client = new FakeSmsClient();
