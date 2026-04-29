@@ -104,6 +104,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
+        $cls = '';
         foreach ($trans as $seg) {
             //
             $test_str = substr((string) $seg, 0, 3);
@@ -950,6 +951,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         $lxkey = '';
         $capstr = "Remittance ";
         $tblid = "";
+        $loopid = '';
+        $cls = '';
+        $cur03 = '';
+        $cur04 = '';
+        $n405 = '';
         //
         foreach ($trans as $seg) {
             //

@@ -61,6 +61,7 @@ $is_all         = $form_category == 'All';
 $is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
+$provider_name  = '';
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
 // reposition the page after closing invoice variables
 $form_page_y    = $_POST['form_page_y'] ?? '';

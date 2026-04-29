@@ -256,6 +256,7 @@ class EncountermanagerTable
 
         $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];

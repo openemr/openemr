@@ -15917,11 +15917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_835_accounting\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function fetchCategoryIdByEncounter\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/encounter.inc.php',

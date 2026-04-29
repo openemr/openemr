@@ -2883,11 +2883,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];

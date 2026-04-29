@@ -480,6 +480,7 @@ class CdaTemplateParse
             }
             $this->templateData['field_name_value_array']['lists1'][$i]['subtype'] = $classification;
 
+            $code = [];
             if (!empty($entry['act']['entryRelationship']['observation']['value']['code'])) {
                 $code = $this->codeService->resolveCode(
                     $entry['act']['entryRelationship']['observation']['value']['code'],
@@ -493,8 +494,8 @@ class CdaTemplateParse
                     $entry['act']['entryRelationship']['observation']['value']['translation']['displayName']
                 );
             }
-            $this->templateData['field_name_value_array']['lists1'][$i]['list_code'] = $code['formatted_code'] ?: $entry['act']['entryRelationship']['observation']['value']['code'] ?? '';
-            $this->templateData['field_name_value_array']['lists1'][$i]['list_code_text'] = $code['code_text'] ?: $entry['act']['entryRelationship']['observation']['value']['displayName'] ?? '';
+            $this->templateData['field_name_value_array']['lists1'][$i]['list_code'] = ($code['formatted_code'] ?? '') ?: $entry['act']['entryRelationship']['observation']['value']['code'] ?? '';
+            $this->templateData['field_name_value_array']['lists1'][$i]['list_code_text'] = ($code['code_text'] ?? '') ?: $entry['act']['entryRelationship']['observation']['value']['displayName'] ?? '';
 
             $this->templateData['field_name_value_array']['lists1'][$i]['type'] = 'medical_problem';
             $this->templateData['field_name_value_array']['lists1'][$i]['extension'] = $entry['act']['id']['extension'] ?? null;

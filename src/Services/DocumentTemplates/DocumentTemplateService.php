@@ -604,6 +604,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function setProfileActiveStatus($profiles): int
     {
         sqlQuery("UPDATE `document_template_profiles` SET `active` = '0' WHERE `template_id` = 0");
+        $rtn = true;
         foreach ($profiles as $profile) {
             $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", [$profile]);
         }

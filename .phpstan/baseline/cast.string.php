@@ -2258,11 +2258,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 22,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/encounter.inc.php',
 ];

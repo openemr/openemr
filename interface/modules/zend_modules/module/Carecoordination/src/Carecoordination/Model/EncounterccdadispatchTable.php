@@ -3441,6 +3441,8 @@ class EncounterccdadispatchTable
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         LEFT JOIN list_options AS provider_roles ON provider_roles.list_id = 'us-core-provider-role' AND provider_roles.option_id = u.taxonomy
         WHERE u.id=?";
+        } else {
+            return null;
         }
 
                 $res = QueryUtils::fetchRecords($query, [$field_name]);

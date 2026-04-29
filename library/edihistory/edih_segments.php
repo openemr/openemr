@@ -853,6 +853,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $err_ar = [];
     $idx = 0;
     $stsegct = 0;
+    $stn = '';
     //
     // to highlight identified errors listed in 999/997 ack
     if ($err_seg) {
