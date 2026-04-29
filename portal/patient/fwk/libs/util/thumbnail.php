@@ -52,8 +52,7 @@ class thumbnail
      *          The maximum height for the resulting thumbnail
      * @param string $targetFormatOrFilename
      *          Either a filename extension (gif|jpg|png) or the
-     * @param
-     *          bool set to true to set the image to the exact size given (stretching if necessary)
+     * @param bool $useExactSize set to true to set the image to the exact size given (stretching if necessary)
      *          filename the resulting file should be written to. This is optional and if not specified
      *          will send a jpg to the browser.
      * @return bool true if the image could be created, false if not

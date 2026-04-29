@@ -26,7 +26,7 @@ class LayoutsUtils
     /**
      * Test if modifier($test) is in array of options for data type.
      *
-     * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
+     * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
      * @param string $test
      * @return bool
      */

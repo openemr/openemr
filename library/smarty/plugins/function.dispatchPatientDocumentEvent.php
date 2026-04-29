@@ -30,7 +30,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  * {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
  * {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
  *
- * @param array
+ * @param array $params
  * @param mixed $smarty
  */
 

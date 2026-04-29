@@ -27,6 +27,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function collect_codetypes\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function define_external_table\\(\\) has parameter \\$extraColumns with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
@@ -48,6 +53,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function main_code_set_search\\(\\) has parameter \\$filter_elements with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function main_code_set_search\\(\\) has parameter \\$form_code_type with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
@@ -273,6 +283,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getIOPTARGETS\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function send_json_values\\(\\) has parameter \\$PMSFH with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -1557,7 +1572,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:allModules\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getConfigSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getInstalledModules\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
@@ -2072,6 +2097,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/thumbnail/ThumbnailGenerator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function allergy_conflict\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function buildPatientArrayEncounterBillingFacility\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function buildPatientArrayPrimaryProviderBillingFacility\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function buildPatientArray\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function calculate_reminder_dates\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -2172,6 +2217,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function test_rules_clinic\\(\\) has parameter \\$dateTarget with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function test_rules_clinic\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -2182,12 +2232,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function test_rules_clinic_batch_method\\(\\) has parameter \\$dateTarget with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function test_rules_clinic_batch_method\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function test_rules_clinic_batch_method\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function test_rules_clinic_collate\\(\\) has parameter \\$dateTarget with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
@@ -2252,6 +2312,41 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function addNewDocument\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/documents.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$delimiters with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$trans_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$delimiters with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$segments with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$delimiters with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$trans_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function edih_997_err_report\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
@@ -2260,6 +2355,11 @@ $ignoreErrors[] = [
     'message' => '#^Function edih_997_errdata\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_archive_cleanup\\(\\) has parameter \\$types_ar with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function edih_archive_create_zip\\(\\) has parameter \\$filename_ar with no value type specified in iterable type array\\.$#',
@@ -2282,7 +2382,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function edih_archive_filenames\\(\\) has parameter \\$csv_ar with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function edih_archive_filenames\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_archive_move_old\\(\\) has parameter \\$filename_ar with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
@@ -2300,6 +2410,11 @@ $ignoreErrors[] = [
     'message' => '#^Function edih_archive_rewrite_csv\\(\\) has parameter \\$row_array with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_csv_process_html\\(\\) has parameter \\$data_ar with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function csv_archive_select_list\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -2372,7 +2487,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function edih_csv_order\\(\\) has parameter \\$csvdata with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function edih_csv_order\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_csv_write\\(\\) has parameter \\$csv_data with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -2482,6 +2607,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function escape_identifier\\(\\) has parameter \\$whitelist_items with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function escape_sql_column_name\\(\\) has parameter \\$s with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formdata.inc.php',
@@ -2577,6 +2707,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function isOption\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/options.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getEffectiveInsurances\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -2622,6 +2757,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function patient_fetch_reminders\\(\\) has parameter \\$patient_id with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/reminders.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function patient_fetch_reminders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
@@ -2647,6 +2787,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function collectItemizedPatientsCdrReport\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/report_database.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function collectReportDatabase\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
@@ -2655,6 +2800,41 @@ $ignoreErrors[] = [
     'message' => '#^Function formatReportData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_assetVersionNumber\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_assetsTemplate\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetsTemplate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_dispatchPatientDocumentEvent\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.dispatchPatientDocumentEvent.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_headerTemplate\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_xla\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_xlj\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlj.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_xlt\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:_set_config_var\\(\\) has parameter \\$container with no value type specified in iterable type array\\.$#',
@@ -2842,9 +3022,109 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function smarty_core_assign_smarty_interface\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_display_debug_console\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_block_textformat\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_config_load\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_counter\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_cycle\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_debug\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_eval\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_fetch\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_checkboxes\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_image\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_options\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_radios\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_table\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_mailto\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_function_math\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_popup\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_popup_init\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_debug_print_var\\(\\) has parameter \\$var with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_regex_replace\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_regex_replace\\(\\) has parameter \\$search with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function privQuery\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
@@ -3177,6 +3457,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method parseCSV\\:\\:parse_file\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method parseCSV\\:\\:parse_string\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property zipfile\\:\\:\\$ctrl_dir type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/zip.lib.php',
@@ -3297,6 +3587,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method DataPage\\:\\:ToObjectArray\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method DataPage\\:\\:ToObjectArray\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
@@ -3308,6 +3603,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:GetLabelArray\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method DataSet\\:\\:ToObjectArray\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
@@ -3422,6 +3722,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Phreezable\\:\\:ToObject\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Phreezable\\:\\:__construct\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
@@ -3472,6 +3777,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method PortalController\\:\\:RenderXML\\(\\) has parameter \\$additionalProps with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
@@ -3493,6 +3803,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Reporter\\:\\:Load\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Reporter\\:\\:ToObject\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
 ];
@@ -3545,6 +3860,16 @@ $ignoreErrors[] = [
     'message' => '#^Property VerySimpleStringUtil\\:\\:\\$XML_SPECIAL_CHARS type has no value type specified in iterable type list\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method MemCacheProxy\\:\\:__construct\\(\\) has parameter \\$server_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) has parameter \\$errors with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AppBasePortalController\\:\\:SimpleObjectParams\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -3798,6 +4123,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_segments\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_slice\\(\\) has parameter \\$arg_array with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
@@ -4455,6 +4785,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:\\$options type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:isOption\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:LOG_TABLES type has no value type specified in iterable type array\\.$#',
@@ -8612,9 +8947,104 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_check_array\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aco_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aro_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$axo_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$axo_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aco_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aro_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$axo_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$axo_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:count_all\\(\\) has parameter \\$arg with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aco_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aro_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$axo_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$axo_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$level with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$sorted_groups with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -8662,7 +9092,62 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aco_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aro_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$axo_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$axo_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$ignore_acl_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aco_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aro_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aro_group_ids with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$axo_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$axo_group_ids with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -8960,6 +9445,26 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\PaymentProcessing\\:\\:saveRevertAudit\\(\\) has parameter \\$auditData with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/PaymentProcessing/PaymentProcessing.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\Rainforest\\\\EncounterData\\:\\:fromParsedJson\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Rainforest/EncounterData.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\Rainforest\\\\Metadata\\:\\:fromParsedJson\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Rainforest/Metadata.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:createSession\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Recorder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Recorder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:completeTransaction\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -15020,6 +15525,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:\\$response type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:extractDataArray\\(\\) return type has no value type specified in iterable type array\\.$#',

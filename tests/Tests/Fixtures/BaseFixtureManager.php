@@ -75,7 +75,7 @@ abstract class BaseFixtureManager
      * This will return a recorded uuid (recorded in uuid_registry)
      *
      * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @return string uuid
      */
     protected function getUuid($tableName)
     {

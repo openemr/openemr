@@ -27,6 +27,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#1 \\$PMSFH \\(string\\) of function send_json_values\\(\\) is incompatible with type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$view \\(string\\) of function display_PMSFH\\(\\) is incompatible with type option\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$min_height \\(string\\) of function display_PMSFH\\(\\) is incompatible with type option\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$currLevel \\(int\\) of method Acl\\\\Controller\\\\AclController\\:\\:createTreeView\\(\\) is incompatible with type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
@@ -65,6 +80,11 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$id \\(string\\) of method Note\\:\\:__construct\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$quality \\(int\\) of method Thumbnail\\:\\:image_to_file\\(\\) is incompatible with type optional\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$patient_id \\(string\\) of function buildPatientArray\\(\\) is incompatible with type int\\.$#',
@@ -197,6 +217,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/documents.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$eid \\(false\\) of function get_patient_balance\\(\\) is incompatible with type int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$authorized \\(string\\) of function addPnote\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
@@ -205,6 +230,11 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#4 \\$activity \\(string\\) of function addPnote\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#1 \\$patient_id \\(string\\) of function patient_fetch_reminders\\(\\) is incompatible with type array\\|int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$patient_id \\(string\\) of function update_reminders\\(\\) is incompatible with type int\\.$#',
@@ -225,6 +255,11 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#6 \\$sqllimit \\(string\\) of function collectItemizedPatientsCdrReport\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$esc_type \\(string\\) of function smarty_modifier_escape\\(\\) is incompatible with type hex\\|hexentity\\|html\\|htmlall\\|javascript\\|quotes\\|url\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsertClean_audit\\(\\) is incompatible with type array\\.$#',
@@ -317,9 +352,54 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#5 \\$forceUTF8 \\(int\\) of method PortalController\\:\\:RenderJSON\\(\\) is incompatible with type bool\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$seg_array \\(string\\) of method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_get_segment\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#11 \\$acl_id \\(false\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) is incompatible with type int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$group_type \\(string\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_children\\(\\) is incompatible with type int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$type \\(string\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) is incompatible with type int\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#2 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) is incompatible with type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) is incompatible with type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#3 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) is incompatible with type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#4 \\$level \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) is incompatible with type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Default value of the parameter \\#4 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) is incompatible with type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',

@@ -54,7 +54,7 @@ class eRxPage
 
     /**
      * Set the Id of the authenticated user
-     * @param  integer $userId The Id for the authenticated user
+     * @param int $userId The Id for the authenticated user
      * @return eRxPage         This object is returned for method chaining
      */
     public function setAuthUserId($userId)
@@ -66,7 +66,7 @@ class eRxPage
 
     /**
      * Get the Id of the authenticated user
-     * @return integer The Id of the authenticated user
+     * @return int The Id of the authenticated user
      */
     public function getAuthUserId()
     {
@@ -96,7 +96,7 @@ class eRxPage
 
     /**
      * Set the Patient Id for the page request
-     * @param  integer $patientId The Patient Id for the page request
+     * @param int $patientId The Patient Id for the page request
      * @return eRxPage            This object is returned for method chaining
      */
     public function setPatientId($patientId)

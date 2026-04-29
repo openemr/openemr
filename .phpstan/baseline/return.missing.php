@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/FacilityProperties.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Context\\:\\:Set\\(\\) should return object\\|null but return statement is missing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method MockRouter\\:\\:GetRoute\\(\\) should return array but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',

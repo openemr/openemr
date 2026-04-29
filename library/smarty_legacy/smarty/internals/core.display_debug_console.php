@@ -12,7 +12,7 @@
  * Type:     core<br>
  * Name:     display_debug_console<br>
  * Purpose:  display the javascript debug console window
- * @param array Format: null
+ * @param array $params Format: null
  * @param mixed $smarty
  */
 function smarty_core_display_debug_console($params, &$smarty)

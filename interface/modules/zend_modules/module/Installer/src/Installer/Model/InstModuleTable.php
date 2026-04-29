@@ -302,7 +302,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function allModules()
     {
@@ -313,7 +313,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function getInstalledModules()
     {

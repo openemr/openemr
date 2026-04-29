@@ -222,9 +222,99 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_delimiters\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_filename\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_x12_transaction\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_delimiters\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_filename\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_x12_transaction\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:get_271_code\\(\\)\\.$#',
+    'count' => 16,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:get_835_code\\(\\)\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_delimiters\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_segments\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_delimiters\\(\\)\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_envelopes\\(\\)\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_filename\\(\\)\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_get_segment\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_segments\\(\\)\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_type\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:edih_x12_transaction\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:_compile_file\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method Smarty\\:\\:trigger_error\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:get\\(\\)\\.$#',
@@ -279,6 +369,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:OnUpdate\\(\\)\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:ToString\\(\\)\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
@@ -445,6 +540,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:setValues\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:supportsCode\\(\\)\\.$#',

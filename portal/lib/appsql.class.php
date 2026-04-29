@@ -129,7 +129,7 @@ class ApplicationTable
      *            openemr Logging True / False
      * @param bool $error
      *            Error Display True / False
-     * @param type audit array params for portal audits
+     * @param mixed $type audit array params for portal audits
      *         $audit = Array();
      *         $audit['patient_id']="";
      *         $audit['activity']="";

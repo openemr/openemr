@@ -57,7 +57,7 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @return boolean - true if setting exist and false if does not exist
+     * @return bool - true if setting exist and false if does not exist
      */
     public static function checkUserSetting($label, $value, $user = null)
     {
@@ -78,8 +78,8 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @param boolean $createDefault - If no current global default value, create one.
-     * @param boolean $overwrite - If this is set to true, then overwrite the current setting
+     * @param bool $createDefault - If no current global default value, create one.
+     * @param bool $overwrite - If this is set to true, then overwrite the current setting
      */
     public static function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
     {

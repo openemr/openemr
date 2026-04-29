@@ -24,8 +24,7 @@ class Includer
      * If PHP is unable to include the file,
      * an IncludeException is thrown instead of a PHP warning
      *
-     * @param
-     *          string path to file passed to the include_once statement
+     * @param string $path path to file passed to the include_once statement
      */
     public static function IncludeFile($path)
     {
@@ -52,10 +51,8 @@ class Includer
      * will be thrown. The path that will be used for include_once is
      * $classpath . "/" . $classname . ".php"
      *
-     * @param
-     *          string name of class (ex Phreeze)
-     * @param
-     *          string or array [optional] the relative path(s) where the file would be found
+     * @param string $classname name of class (ex Phreeze)
+     * @param string $classpath or array [optional] the relative path(s) where the file would be found
      */
     public static function RequireClass($classname, $classpath = "")
     {

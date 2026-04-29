@@ -208,7 +208,7 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

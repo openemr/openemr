@@ -52,6 +52,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7/Numerator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type void is incompatible with native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/Error.php',

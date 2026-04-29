@@ -24,7 +24,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     use SystemLoggerAwareTrait;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $issueNewRefreshToken;
 

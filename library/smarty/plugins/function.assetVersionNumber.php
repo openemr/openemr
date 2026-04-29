@@ -27,7 +27,7 @@
  *
  * {jsVersionNumber}
  *
- * @param array
+ * @param array $params
 
 use OpenEMR\Core\OEGlobalsBag;
 

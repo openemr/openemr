@@ -274,7 +274,7 @@ function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_
  * @param int $report_id Report id
  * @param int $itemized_test_id Itemized test id
  * @param int $numerator_label Numerator label (if applicable)
- * @return  string/boolean              Rule title for itemization display (false if nothing found)
+ * @return string|bool Rule title for itemization display (false if nothing found)
  */
 function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label = '')
 {
@@ -380,7 +380,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
  * @param int $numerator_label Numerator label (if applicable)
  * @param int $sqllimit Sql query pagination info
  * @param int $fstart Sql query pagination info
- * @return  array/integer               Array list or a count
+ * @return array|int Array list or a count
  */
 function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass = 'all', $numerator_label = '', $count = false, $sqllimit = 'all', $fstart = 0)
 {

@@ -17,7 +17,7 @@
  *          strip_tags (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @param mixed $string
- * @param boolean
+ * @param bool $replace_with_space
  * @return string
  */
 function smarty_modifier_strip_tags($string, $replace_with_space = true)

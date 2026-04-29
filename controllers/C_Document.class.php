@@ -598,8 +598,8 @@ class C_Document extends Controller
     /**
      * Retrieve file from hard disk / CouchDB.
      * In case that file isn't download this public function will return thumbnail image (if exist).
-     * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
-     * @param (string) $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
+     * @param bool $show_original - enable to show the original image (not thumbnail) in inline status.
+     * @param string $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {

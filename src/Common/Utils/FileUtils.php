@@ -66,7 +66,7 @@ class FileUtils
     /**
      * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
      *
-     * @param int
+     * @param int $bytes
      * @author    Kevin McCormick Longview, Texas
      *
      * @return string

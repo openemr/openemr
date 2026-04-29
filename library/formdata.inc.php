@@ -192,7 +192,7 @@ function escape_table_name($s)
  *  may not always be the case.
  *
  * @param   string       $s                Sql identifier variable to be escaped/sanitized.
- * @param   array/string $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
+ * @param array|string $whitelist_items Items used in whitelisting method (See function description for details of whitelisting method).
  *                                          Standard use is to use a array. If use a string, then should be regex expression of allowed
  *                                          characters (for example 'a-zA-Z0-9_').
  * @param bool $die_if_no_match If there is no match in the whitelist, then die and echo an error to screen and log.

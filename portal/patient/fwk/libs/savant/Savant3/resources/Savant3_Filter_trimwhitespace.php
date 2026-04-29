@@ -96,8 +96,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
      * @param string $replace
      *          Replace with this text.
      *
-     * @param
-     *          string &$buffer The source text, rewritten in place.
+     * @param string &$buffer The source text, rewritten in place.
      *
      * @return void All callers consume the result through the &$buffer reference.
      *

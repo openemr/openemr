@@ -37,7 +37,7 @@
 /**
  * Provide a more user-friendly date in csv tables
  *
- * @param string        YYYYMMDD
+ * @param string $strdate YYYYMMDD
  * @return string       YYYY-MM-DD
  */
 function edih_parse_date($strdate)
@@ -77,7 +77,7 @@ function edih_parse_date($strdate)
  * @uses edih_parse_date()
  * @uses edih_x12_transaction()
  * @uses edih_get_segment()
- * @param object     edih_x12_obj
+ * @param object $obj835 edih_x12_obj
  * @return array
  */
 function edih_835_csv_data($obj835)
@@ -710,7 +710,7 @@ function edih_277_csv_data($obj277)
 /**
  * parse an x12 278 file into data rows for csv tables
  *
- * @param object   x12_file_object
+ * @param object $obj278 x12_file_object
  * @return array
  */
 function edih_278_csv_data($obj278)
@@ -949,8 +949,8 @@ function edih_278_csv_data($obj278)
  * @uses csv_file_type()
  * @uses csv_search_record()
  *
- * @param string    concatenate ISA13 and ST02 for source file
- * @param string    type of source file
+ * @param string $rsp_trace concatenate ISA13 and ST02 for source file
+ * @param string $file_type type of source file
  * @return array
  */
 function edih_rsp_st_match($rsp_trace, $file_type)
@@ -1000,7 +1000,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
  *
  * @uses edih_x12_file()  edi HC file class
  * @uses edih_997_837_st_match()
- * @param object  edih_x12_file object of type 999/997
+ * @param object $obj997 edih_x12_file object of type 999/997
  * @return array
  */
 function edih_997_csv_data($obj997)
@@ -1220,7 +1220,7 @@ function edih_997_csv_data($obj997)
 /**
  * parse an x12 270/271 file into data rows for csv tables
  *
- * @param object   x12_file_object
+ * @param object $obj270 x12_file_object
  * @return array
  */
 function edih_271_csv_data($obj270)

@@ -129,11 +129,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../sql_patch.php',
 ];
 $ignoreErrors[] = [

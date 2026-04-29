@@ -16,7 +16,7 @@
  * @author Monte Ohrt <monte at ohrt dot com>
  * @link http://smarty.php.net/manual/en/language.function.counter.php {counter}
  *       (Smarty online manual)
- * @param array parameters
+ * @param array $params parameters
  * @param mixed $smarty
  * @return string|null
  */

@@ -290,7 +290,7 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

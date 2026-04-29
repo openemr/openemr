@@ -259,7 +259,7 @@ $viewArgs = [
 ];
 
 /**
- * @var EventDispatcher;
+ * @var EventDispatcher
  */
 $ed = $globalsBag->getKernel()->getEventDispatcher();
 

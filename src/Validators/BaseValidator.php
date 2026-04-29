@@ -69,7 +69,7 @@ abstract class BaseValidator
      *
      * @param $dataFields -  The fields to validate.
      * @param $context - The validation context to utilize. This is simply a "handle" for the rules.
-     * @return $validationResult array
+     * @return array
      */
     public function validate($dataFields, $context)
     {

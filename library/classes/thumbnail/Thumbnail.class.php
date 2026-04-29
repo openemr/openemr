@@ -43,7 +43,7 @@ class Thumbnail
 
     /**
      * Check if system could make thumbnail for current file.
-     * @param (string) path to file
+     * @param string $file path to file
      * @return (boolean)
      */
     public function file_support_thumbnail($file)
@@ -64,8 +64,8 @@ class Thumbnail
 
     /**
      * Create thumbnail (calculate by the size at $this->max_size)
-     * @param (string) path to file
-     * @param (optional) (string) content of file (prevent to get content again)
+     * @param string $file path to file
+     * @param optional $content_file (string) content of file (prevent to get content again)
      * @return (resource) resource of new file or false if failed.
      */
     public function create_thumbnail($file = null, $content_file = null)
@@ -118,9 +118,9 @@ class Thumbnail
 
     /**
      * Save the image to a file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @param string $fileName file name (pull path with wanted name)
+     * @param optional $quality (int) quality for 'jpeg' type
      * @return bool
      */
     public function image_to_file($resource_file, $fileName, $quality = 80)

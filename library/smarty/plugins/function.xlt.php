@@ -27,7 +27,7 @@
  *
  * {xlt t="some words"}
  *
- * @param array
+ * @param array $params
  * @param mixed $smarty
  */
 

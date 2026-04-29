@@ -247,7 +247,7 @@ class AclMain
      *
      * @param String $user_id Auth user Id
      * $param String $section_identifier ACL Section id
-     * @return boolean
+     * @return bool
      */
     public static function zhAclCheck($user_id, $section_identifier)
     {

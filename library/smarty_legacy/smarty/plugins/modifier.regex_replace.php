@@ -17,8 +17,8 @@
  *          regex_replace (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @param mixed $string
- * @param string|array
- * @param string|array
+ * @param string|array $search
+ * @param string|array $replace
  * @return string
  */
 function smarty_modifier_regex_replace($string, $search, $replace)

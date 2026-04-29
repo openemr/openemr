@@ -1970,7 +1970,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      *
      * @param string $type
      * @param string $name
-     * @param boolean? $delayed_loading
+     * @param ?boolean $delayed_loading
      */
     function _add_plugin($type, $name, $delayed_loading = null)
     {
@@ -2292,7 +2292,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
     /**
      * push opening tag-name, file-name and line-number on the tag-stack
-     * @param string the opening tag's name
+     * @param string $open_tag the opening tag's name
      */
     function _push_tag($open_tag)
     {
@@ -2302,7 +2302,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     /**
      * pop closing tag-name
      * raise an error if this stack-top doesn't match with the closing tag
-     * @param string the closing tag's name
+     * @param string $close_tag the closing tag's name
      * @return string the opening tag's name
      */
     function _pop_tag($close_tag)

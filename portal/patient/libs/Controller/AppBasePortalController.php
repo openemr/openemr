@@ -92,7 +92,7 @@ class AppBasePortalController extends PortalController
     /**
      * Output a Json error message to the browser
      * @param string $message
-     * @param array key/value pairs where the key is the fieldname and the value is the error
+     * @param array $errors key/value pairs where the key is the fieldname and the value is the error
      */
     protected function RenderErrorJSON($message, $errors = null, $exception = null)
     {

@@ -43,7 +43,7 @@
  * @version  1.1
  * @link http://smarty.php.net/manual/en/language.function.html.table.php {html_table}
  *          (Smarty online manual)
- * @param array
+ * @param array $params
  * @param mixed $smarty
  * @return string
  */

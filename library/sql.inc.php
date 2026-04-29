@@ -212,8 +212,8 @@ function sqlFetchArray($r)
  *
  * @param string $sql
  * @param string[] $bindvars
- * @param boolean $forceArray
- * @param boolean $first2Cols
+ * @param bool $forceArray
+ * @param bool $first2Cols
  * @return array
  */
 function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols = false)
@@ -236,7 +236,7 @@ function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols =
 *
 * @param  string   $statement  query
 * @param  array    $binds      binded variables array (optional)
-* @return integer  Last id generated from the sql insert command
+* @return int Last id generated from the sql insert command
 */
 function sqlInsert($statement, $binds = false)
 {
@@ -365,7 +365,7 @@ function sqlListFields($table)
 * Returns the number of sql rows
 *
 * @param ADORecordSet $r
-* @return integer Number of rows
+* @return int Number of rows
 */
 function sqlNumRows($r)
 {
@@ -412,7 +412,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 * Increments the number in the sequences table.
 * One example of use is the counter for form_id in the forms table.
 *
-* @return integer
+* @return int
 */
 function generate_id(): int
 {
@@ -452,7 +452,7 @@ function sqlQ($statement, $binds = false)
 * No longer needed since PHP does this automatically.
 *
 * @deprecated
-* @return boolean
+* @return bool
 */
 function sqlClose()
 {
@@ -564,7 +564,7 @@ function privQuery($sql, $params = null)
 * Increments the number in the edi_sequences table.
 * One example of use is the counter for batches in the 837 claims creation.
 *
-* @return integer
+* @return int
 */
 function edi_generate_id()
 {

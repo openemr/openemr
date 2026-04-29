@@ -73,8 +73,8 @@ function getUserFacWH($uID, $fID)
 
  /**
  * Check if day is weekend day
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
 function is_weekend_day($day)
 {
@@ -88,8 +88,8 @@ function is_weekend_day($day)
 
 /**
  * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
 function is_holiday($date)
 {

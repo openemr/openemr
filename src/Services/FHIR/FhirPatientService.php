@@ -927,7 +927,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // we need to process our gender values here.
         if (isset($openEMRSearchParameters[self::FIELD_NAME_GENDER])) {
             /**
-             * @var $field ISearchField
+             * @var ISearchField $field
              */
             $field = $openEMRSearchParameters[self::FIELD_NAME_GENDER];
 

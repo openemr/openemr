@@ -392,7 +392,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param <string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @param ISearchField> $openEMRSearchParameters <string, OpenEMR search fields
      * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult

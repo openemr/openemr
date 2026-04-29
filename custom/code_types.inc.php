@@ -402,7 +402,7 @@ function check_code_set_filters($key, $filters = [])
  * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
  * @param  string       $return_format  format or returned code types ('array' or 'csv')
  * @deprecated use CodeTypesService::collectCodeTypes()
- * @return string/array
+ * @return string|array
  */
 function collect_codetypes($category, $return_format = "array")
 {
@@ -477,7 +477,7 @@ function return_code_information($form_code_type, $code, $active = true)
  * Note that when searching numerous code sets, you CAN NOT search the PROD
  * codes; the PROD codes can only be searched by itself.
  *
- * @param string/array  $form_code_type   code set key(s) (can either be one key in a string or multiple/one key(s) in an array
+ * @param string|array $form_code_type code set key(s) (can either be one key in a string or multiple/one key(s) in an array
  * @param string        $search_term      search term
  * @param int $limit Number of results to return (NULL means return all)
  * @param string        $category         Category of code sets. This WILL OVERRIDE the $form_code_type setting (category options can be found in the collect_codetypes() function above)

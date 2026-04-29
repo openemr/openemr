@@ -38,7 +38,7 @@
  * @author credit to Gerard <gerard@interfold.com>
  * @author credit to Jason Sweat <jsweat_php@yahoo.com>
  * @version  1.3
- * @param array
+ * @param array $params
  * @param mixed $smarty
  * @return string|null
  */

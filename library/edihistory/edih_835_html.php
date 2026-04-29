@@ -20,8 +20,8 @@
 /**
  * callback to round floats to 2 digit precision
  *
- * @param float
- * @param string
+ * @param float $v
+ * @param string $k
  * @return float
  */
 function edih_round_cb(&$v, $k)
@@ -32,11 +32,11 @@ function edih_round_cb(&$v, $k)
 /**
  * Create summary html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $trans_array
+ * @param object $codes27x
+ * @param object $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string
  */
@@ -292,11 +292,11 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 /**
  * Create html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $trans_array
+ * @param object $codes27x
+ * @param object $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string
  */
@@ -865,11 +865,11 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  * Create an HTML rendition of the 835 check payment transaction.
  *
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $segments
+ * @param object $codes27x
+ * @param object $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string     HTML table
  */
@@ -1558,7 +1558,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
  * @uses csv_check_x12_obj()
  *
  * @param string  $filename the filename
- * @param string  TRN02 identifier from 835 check ir EFT
+ * @param string $trace TRN02 identifier from 835 check ir EFT
  * @param string $clm01 CLM01 identifier from 837 CLM
  *
  * @return string  error message or a table with file information

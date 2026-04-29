@@ -669,7 +669,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     /**
     * How many of the indent chars to use
     * per indentation level
-    * @var integer
+    * @var int
     */
     public $indentNum;
 

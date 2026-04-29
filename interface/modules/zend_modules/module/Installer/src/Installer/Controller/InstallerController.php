@@ -329,7 +329,7 @@ class InstallerController extends AbstractActionController
      * Function to install ACL for the installed modules
      *
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
-     * @return boolean
+     * @return bool
      */
     private function installACL($dir): bool
     {
@@ -792,7 +792,7 @@ class InstallerController extends AbstractActionController
      * Function to Enable Module
      *
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
-     * @return boolean
+     * @return bool
      */
     public function EnableModule($modId = '')
     {
@@ -809,7 +809,7 @@ class InstallerController extends AbstractActionController
      * Function to Disable Module
      *
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
-     * @return boolean
+     * @return bool
      */
     public function DisableModule($modId = '')
     {
@@ -833,7 +833,7 @@ class InstallerController extends AbstractActionController
      * Function to Install Module
      *
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
-     * @return boolean
+     * @return bool
      */
     public function InstallModule($modId = '', $mod_enc_menu = '', $mod_nick_name = '')
     {
@@ -872,7 +872,7 @@ class InstallerController extends AbstractActionController
      * Function to Unregister Module
      *
      * @param string $modId
-     * @return boolean
+     * @return bool
      */
     public function UnregisterModule($modId = ''): bool|string
     {

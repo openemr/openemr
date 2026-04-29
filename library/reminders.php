@@ -437,7 +437,7 @@ function send_reminders()
 /**
  * Function to fetch reminders.
  *
- * @param  integer/array  $patient_id  pid(s) of patient(s).
+ * @param int|array $patient_id pid(s) of patient(s).
  * @param  string         $type        Can choose unsent ('unsent') vs all active (BLANK) reminders
  * @param  string         $due_status  due status of reminders (soon_due,due,past_due). If blank, then will return all.
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.

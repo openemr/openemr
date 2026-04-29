@@ -1072,8 +1072,7 @@ class Savant3 implements \Stringable
      *
      * @access protected
      *
-     * @param
-     *          array An array of filter callbacks.
+     * @param array An array of filter callbacks.
      *
      * @return void
      *
@@ -1089,8 +1088,7 @@ class Savant3 implements \Stringable
      *
      * @access protected
      *
-     * @param
-     *          array An array of filter callbacks.
+     * @param array An array of filter callbacks.
      *
      * @return void
      *

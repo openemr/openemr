@@ -304,7 +304,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
  * @param  string   $mode           either 'all' or 'new' (required)
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see
  * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
- * @return  array/boolean           Array of allergy alerts or FALSE is empty.
+ * @return array|bool Array of allergy alerts or FALSE is empty.
  */
 function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
@@ -496,7 +496,7 @@ LIMIT 1)";
  *
  * @param int $provider id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
  * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2014,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
- * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
+ * @param string|array $dateTarget target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
@@ -666,7 +666,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * need to report on calculations at both the group and provider group level.
  *
  * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
- * @param  string/array $dateArray     Date filter to run the calculation on.  Should have two keys ('dateBegin' and 'dateTarget').
+ * @param string|array $dateArray Date filter to run the calculation on. Should have two keys ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param int $patient_id pid of patient. If blank then will check all patients.
  * @param  string       $plan          test for specific plan only
@@ -789,7 +789,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
  *
  * @param int $provider id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
  * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
- * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
+ * @param string|array $dateTarget target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param int $patient_id pid of patient. If blank then will check all patients.
  * @param  string       $plan          test for specific plan only
@@ -927,7 +927,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  *
  * @param int $provider id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
  * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
- * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
+ * @param string|array $dateTarget target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param int $patient_id pid of patient. If blank then will check all patients.
  * @param  string       $plan          test for specific plan only
@@ -1358,7 +1358,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  * @param int $batchSize number of patients to batch (when batching process)
  * @param bool $onlyCount If true, then will just return the total number of applicable records (ignores batching parameters)
  * @param int $billing_facility id of the billing facility to constrain patient relationships to
- * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ * @return array|int Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
 function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
@@ -1459,7 +1459,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
  * @param bool $onlyCount If true, then will just return the total number of applicable records (ignores batching parameters)
  * @param int $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
  * @param  integer|null  $provider_id   The id of a provider to restrict patient data to if we have one
- * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ * @return array|int Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
 function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider_id = null)
 {
@@ -1519,7 +1519,7 @@ function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCoun
  * @param bool $onlyCount If true, then will just return the total number of applicable records (ignores batching parameters)
  * @param int $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
  * @param  integer|null  $provider_id   The id of a provider to restrict patient data to if we have one
- * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ * @return array|int Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
 function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider_id = null)
 {
@@ -1576,7 +1576,7 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
  * @param int $patient_id pid of selected patient.
  * @param  string         $rule        id(string) of selected rule
  * @param  string         $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
- * @return boolean/string              if pass filter then TRUE; if excluded then 'EXCLUDED'; if not pass filter then FALSE
+ * @return bool|string if pass filter then TRUE; if excluded then 'EXCLUDED'; if not pass filter then FALSE
  */
 function test_filter($patient_id, $rule, $dateTarget)
 {
