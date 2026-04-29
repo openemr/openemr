@@ -108,6 +108,10 @@ initialize_openemr() {
     # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "DELETE FROM care_team_member WHERE user_id = (SELECT id FROM users WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', '')))"
+    # Fix typo in procedure name: "Urinanalysis" -> "Urinalysis"
+    # LOINC 24357-6 display must match official terminology
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE procedure_order_code SET procedure_name = REPLACE(procedure_name, 'Urinanalysis', 'Urinalysis') WHERE procedure_name LIKE '%Urinanalysis%'"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
