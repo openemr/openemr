@@ -1156,6 +1156,7 @@ class MedExAPI
             // which PHP sees as an array, breaking validateSessionToken() on the server.
             $response = $this->makeRequest('index.php?route=api/oemr/pricing', [], 'GET');
             if ($response && !empty($response['success']) && isset($response['services'])) {
+                $response = $this->normalizeFreeTierPricing($response, $currentGroup);
                 $this->updateStatusCache([
                     'pricing_cache'       => $response,
                     'pricing_cache_ts'    => time(),
@@ -1169,6 +1170,30 @@ class MedExAPI
 
         // Return empty fallback — do NOT cache so next request retries the API
         return $emptyFallback;
+    }
+
+    /**
+     * MedEx pricing should already be customer-group aware. When SaaS pricing
+     * temporarily falls back to public group 1, keep DEMO/free practices from
+     * seeing billable onboarding prices in the module.
+     */
+    private function normalizeFreeTierPricing(array $response, int $currentGroup): array
+    {
+        $reportedGroup = (int)($response['customer_group_id'] ?? 1);
+        $isFreeGroup = in_array($currentGroup, [3, 7], true);
+        if (!$isFreeGroup || $reportedGroup === $currentGroup) {
+            return $response;
+        }
+
+        foreach (($response['services'] ?? []) as $serviceKey => $service) {
+            if (!is_array($service) || empty($service['available'])) {
+                continue;
+            }
+            $response['services'][$serviceKey]['price'] = 0.0;
+        }
+
+        $response['customer_group_id'] = $currentGroup;
+        return $response;
     }
 
     /**
