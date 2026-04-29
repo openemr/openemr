@@ -21,10 +21,24 @@
 // loads it later). The globals bag picks them up once globals.php runs.
 $GLOBALS['ongoing_sql_upgrade'] = true;
 
+$cliFromVersion = null;
 if (php_sapi_name() === 'cli') {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
     $GLOBALS['force_simple_sql_upgrade'] = true;
+
+    // Set HTTP_HOST for CLI mode so globals.php can determine the site
+    // @phpstan-ignore openemr.forbiddenRequestGlobals (Required for write)
+    $_SERVER['HTTP_HOST'] = 'default';
+
+    assert(isset($argv));
+    // Parse --from=VERSION argument for CLI upgrades
+    foreach ($argv as $arg) {
+        if (str_starts_with($arg, '--from=')) {
+            $cliFromVersion = substr($arg, 7);
+            break;
+        }
+    }
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
@@ -362,8 +376,8 @@ header('Content-type: text/html; charset=utf-8');
         </div>
         <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
             <div class='col-md bg-light text-dark'>
-                <?php if (!empty($_POST['form_submit'])) {
-                    $form_old_version = $_POST['form_old_version'];
+                <?php if (!empty($_POST['form_submit']) || $cliFromVersion !== null) {
+                    $form_old_version = $cliFromVersion ?? $_POST['form_old_version'];
 
                     foreach ($versions as $version => $filename) {
                         if (strcmp($version, (string) $form_old_version) < 0) {
