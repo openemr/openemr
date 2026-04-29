@@ -11312,11 +11312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'csv_file_by_enctr\\:…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'csv_search_record\\:…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
@@ -15317,12 +15312,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between array\\|literal\\-string\\|non\\-falsy\\-string and 20 results in an error\\.$#',
+    'message' => '#^Binary operation "\\*" between int\\|literal\\-string\\|non\\-falsy\\-string and 20 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between array\\|literal\\-string\\|non\\-falsy\\-string and 1 results in an error\\.$#',
+    'message' => '#^Binary operation "\\+" between int\\|literal\\-string\\|non\\-falsy\\-string and 1 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -15353,16 +15348,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'get_object_data\\(\\)\\:…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between array\\|literal\\-string\\|non\\-falsy\\-string and \'\\|&nbsp; \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between array\\|literal\\-string\\|non\\-falsy\\-string and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];

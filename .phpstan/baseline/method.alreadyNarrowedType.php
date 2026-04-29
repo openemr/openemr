@@ -968,7 +968,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response\' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#',
-    'count' => 2,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
 $ignoreErrors[] = [

@@ -259,9 +259,8 @@ function edih_archive_filenames($csv_ar, $archive_date)
  * @uses csv_file_type()
  * @uses csv_assoc_array()
  *
- * @param string  the file type
- * @param string  the csv type file or claim
- * @param array   the array of archived file names and retained file names
+ * @param array $csv_ar         the csv associative array
+ * @param array $filename_array  the archived and retained file names
  *
  * @return array
  */

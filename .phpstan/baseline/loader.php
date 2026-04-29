@@ -124,7 +124,6 @@ return ['includes' => [
     __DIR__ . '/parameter.notFound.php',
     __DIR__ . '/parameter.phpDocType.php',
     __DIR__ . '/parameterByRef.type.php',
-    __DIR__ . '/phpDoc.parseError.php',
     __DIR__ . '/postDec.type.php',
     __DIR__ . '/postInc.type.php',
     __DIR__ . '/preDec.type.php',

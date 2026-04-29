@@ -1733,9 +1733,8 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
  *
  * @uses csv_parameters()
  * @uses csv_pid_enctr_parse()
- * @param string                     patient control-- pid-encounter, encounter, or pid
+ * @param string $clm01    patient control -- pid-encounter, encounter, or pid
  * @param string $filetype filetype -- x12 type or f837, f277, etc
- * @param string                     search type encounter, pid, or clm01
  * @return array|bool                [i] data row array  or empty on error
  */
 function csv_file_by_enctr($clm01, $filetype = 'f837')

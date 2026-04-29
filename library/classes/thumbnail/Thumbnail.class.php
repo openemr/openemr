@@ -136,10 +136,8 @@ class Thumbnail
 
     /**
      * Return content file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
-     * @return (string) content file
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @return string content file
      */
     public function get_string_file($resource_file)
     {

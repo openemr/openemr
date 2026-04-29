@@ -5,10 +5,10 @@
  *
  * This script may be executed by a suitable Ajax request, by a cron job, or both.
  *
- * When called from cron, optional args are [site] [service] [force]
- * @param site to specify a specific site, 'default' used if omitted
- * @param service to specify a specific service, 'all' used if omitted
- * @param force '1' to ignore specified wait interval, '0' to honor wait interval
+ * When called from cron, optional args are [site] [service] [force]:
+ *   site:    a specific site name, 'default' used if omitted
+ *   service: a specific service name, 'all' used if omitted
+ *   force:   '1' to ignore the specified wait interval, '0' to honor it
  *
  * The same parameters can be accessed via Ajax using the $_POST variables
  * 'site', 'background_service', and 'background_force', respectively.

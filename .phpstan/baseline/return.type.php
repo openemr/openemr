@@ -1352,6 +1352,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method ESign\\\\DbRow_Signable\\:\\:getLastLockHash\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\ESign\\:\\:isLocked\\(\\) should return bool but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/ESign.php',
@@ -1360,6 +1365,11 @@ $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\ESign\\:\\:isLogViewable\\(\\) should return bool but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/ESign.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method ESign\\\\Form_Signable\\:\\:getLastLockHash\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MedExApi\\\\Events\\:\\:addRecurrent\\(\\) should return array\\|bool but returns int\\<0, max\\>\\.$#',

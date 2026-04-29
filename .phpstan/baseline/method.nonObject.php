@@ -7382,11 +7382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method setDisplay\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
@@ -9667,18 +9662,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormVitalsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setExternalCDRController\\(\\) on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
 $ignoreErrors[] = [

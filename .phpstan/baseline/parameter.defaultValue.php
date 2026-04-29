@@ -372,11 +372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$type \\(string\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) is incompatible with type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) is incompatible with type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -388,11 +383,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$value \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) is incompatible with type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#4 \\$level \\(int\\) of method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];

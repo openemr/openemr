@@ -506,7 +506,6 @@ function edih_disp_x12trans()
  * @uses edih_835_html_page()
  * @uses edih_display_text()
  *
- * @param string  path to x12 file
  * @return string
  */
 function edih_disp_x12file()

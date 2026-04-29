@@ -2377,6 +2377,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$csv_ar with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$filename_array with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function edih_archive_csv_split\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
@@ -3035,6 +3045,11 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_block_textformat\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_assign_debug_info\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_function_config_load\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
@@ -3860,6 +3875,11 @@ $ignoreErrors[] = [
     'message' => '#^Property VerySimpleStringUtil\\:\\:\\$XML_SPECIAL_CHARS type has no value type specified in iterable type list\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method ExceptionFormatter\\:\\:FormatTrace\\(\\) has parameter \\$tb with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionFormatter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MemCacheProxy\\:\\:__construct\\(\\) has parameter \\$server_array with no value type specified in iterable type array\\.$#',
@@ -9037,11 +9057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$level with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$sorted_groups with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -13778,11 +13793,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationVitalsService\\:\\:parseOpenEMRRecord\\(\\) has parameter \\$dataRecord with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationVitalsService\\:\\:searchForOpenEMRRecords\\(\\) has parameter \\$openEMRSearchParameters with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];

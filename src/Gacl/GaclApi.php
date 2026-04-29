@@ -1282,11 +1282,11 @@ class GaclApi extends Gacl {
      *
      * @return array Array of formatted text, ordered by group id, formatted according to $type
      *
-     * @param array Output from gacl_api->sorted_groups($group_type)
-     * @param array $sorted_groups Output type desired, either 'TEXT', 'HTML', or 'ARRAY'
-     * @param int $type Root of tree to produce
-     * @param int $root_id Current level of depth
-     * @param array $level Pass the current formatted groups object for appending via recursion.
+     * @param array  $sorted_groups     Output from gacl_api->sorted_groups($group_type)
+     * @param string $type               Output type desired, either 'TEXT', 'HTML', or 'ARRAY'
+     * @param int    $root_id            Root of tree to produce
+     * @param int    $level              Current level of depth
+     * @param mixed  $formatted_groups   Pass the current formatted groups object for appending via recursion.
      */
     function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
         if ( !is_array ($sorted_groups) ) {

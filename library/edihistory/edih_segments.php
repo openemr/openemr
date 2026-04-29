@@ -1083,7 +1083,7 @@ function edih_997_text($segments, $delimiter)
  * @param string   $filepath path to desired file
  * @param string   $filetype used when filepath is just filename
  * @param string $claimid CLM01, or BHT03 to identify a transaction or a trace value
- * @param bool     false: $claimid is pt transaction, true: $claimid is trace from 835 or 999
+ * @param bool   $trace    false: $claimid is pt transaction, true: $claimid is trace from 835 or 999
  * @param string $err_info the prepared error info from a 997/999 response
  * @return string  html for display of file segments
  */

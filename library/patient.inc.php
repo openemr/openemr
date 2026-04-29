@@ -231,7 +231,7 @@ GET FACILITIES
 returns all facilities or just the id for the first one
 (FACILITY FILTERING (lemonsoftware))
 
-@param string - if 'first' return first facility ordered by id
+@param string $first if 'first' return first facility ordered by id
 @return array | int for 'first' case
 */
 function getFacilities($first = '')

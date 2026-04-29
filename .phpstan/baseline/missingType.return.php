@@ -8152,11 +8152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/ConfigurationIF.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\DbRow_Signable\\:\\:getLastLockHash\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\DbRow_Signable\\:\\:getSignatures\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
@@ -8363,11 +8358,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Form_Signable\\:\\:getData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Form_Signable\\:\\:getLastLockHash\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
 ];
@@ -29300,11 +29290,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Forms\\\\FormVitalsTest\\:\\:getVitalFormRecords\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormVitalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\FHIR\\\\SMART\\\\ClientAdminControllerTest\\:\\:getAdminController\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\RouteControllerTest\\:\\:setupDSIServiceForClientEntity\\(\\) has no return type specified\\.$#',

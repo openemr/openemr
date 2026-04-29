@@ -73,7 +73,7 @@ class Dispatcher
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param string (optional) $action the user requested action (if not provided will use router->GetRoute())
+     * @param string $action (optional) the user requested action (if not provided will use router->GetRoute())
      * @param Context $context (optional) a context object for persisting state
      * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */

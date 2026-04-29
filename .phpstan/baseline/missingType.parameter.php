@@ -22262,11 +22262,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:get_string_file\\(\\) has parameter \\$resource_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ThumbnailGenerator\\:\\:error_log\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/thumbnail/ThumbnailGenerator.php',
@@ -22837,16 +22832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$csv_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$filename_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_archive_rewrite_csv\\(\\) has parameter \\$csv_keys with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
@@ -22873,11 +22858,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function csv_file_by_controlnum\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_enctr\\(\\) has parameter \\$clm01 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -22948,11 +22928,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function edih_change_loop\\(\\) has parameter \\$lpval with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_display_text\\(\\) has parameter \\$trace with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
@@ -24303,11 +24278,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getEmployerData\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFacilities\\(\\) has parameter \\$first with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
@@ -26212,11 +26182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assign_debug_info\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_checkboxes_output\\(\\) has parameter \\$extra with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
@@ -27437,11 +27402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Dispatcher\\:\\:Dispatch\\(\\) has parameter \\$action with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method GenericRouter\\:\\:GetUrlParam\\(\\) has parameter \\$paramKey with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
@@ -27665,11 +27625,6 @@ $ignoreErrors[] = [
     'message' => '#^Method VerySimpleStringUtil\\:\\:EncodeSpecialCharacters\\(\\) has parameter \\$replaceSmartQuotes with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExceptionFormatter\\:\\:FormatTrace\\(\\) has parameter \\$tb with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionFormatter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MemCacheProxy\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
@@ -33525,11 +33480,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:redirectAndLaunchSmartApp\\(\\) has parameter \\$intent with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$formatted_groups with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\MedicalDevice\\\\MedicalDevice\\:\\:__construct\\(\\) has parameter \\$udi_data with no type specified\\.$#',
