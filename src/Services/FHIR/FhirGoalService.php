@@ -121,22 +121,18 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             }
         }
 
-        // US Core 8.0: category is Must Support
+        // US Core 8.0: category is Must Support but optional with Example binding
+        // Only add category for SDOH goals where we have a valid code
         if (version_compare($this->getHighestCompatibleUSCoreProfileVersion(), self::PROFILE_VERSION_8_0_0, '>=')) {
-            $category = new FHIRCodeableConcept();
-            $categoryCoding = new FHIRCoding();
-            $categoryCoding->setSystem('http://terminology.hl7.org/CodeSystem/goal-category');
-
-            // Check if this is an SDOH goal based on code or description
             if ($this->isSDOHGoal($dataRecord)) {
+                $category = new FHIRCodeableConcept();
+                $categoryCoding = new FHIRCoding();
+                $categoryCoding->setSystem('http://hl7.org/fhir/us/core/CodeSystem/us-core-category');
                 $categoryCoding->setCode('sdoh');
-                $categoryCoding->setDisplay('Social Determinants of Health');
-            } else {
-                $categoryCoding->setCode('physiological');
-                $categoryCoding->setDisplay('Physiological');
+                $categoryCoding->setDisplay('SDOH');
+                $category->addCoding($categoryCoding);
+                $goal->addCategory($category);
             }
-            $category->addCoding($categoryCoding);
-            $goal->addCategory($category);
         }
 
         // US Core 8.0: expressedBy is Must Support for provenance
