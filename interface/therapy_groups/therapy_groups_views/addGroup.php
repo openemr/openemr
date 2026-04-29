@@ -28,6 +28,10 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+/** @var array<string,mixed> $groupData */
+/** @var string $message */
+/** @var string $savingStatus */
+
 ?>
 
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>

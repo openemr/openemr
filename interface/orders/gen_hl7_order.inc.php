@@ -28,7 +28,7 @@
 * Then export as a CSV file and read it into your favorite spreadsheet app.
 */
 
-require_once("$webserver_root/custom/code_types.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;

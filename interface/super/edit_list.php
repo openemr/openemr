@@ -17,9 +17,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/lists.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -189,6 +189,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         // all other lists
         //
         // collect the option toggle if using the 'immunizations' list
+        $ok_map_cvx_codes = 0;
         if ($list_id == 'immunizations') {
             $ok_map_cvx_codes = $_POST['ok_map_cvx_codes'] ?? 0;
         }
@@ -347,6 +348,7 @@ function getCodeDescriptions($codes)
         $code_type = $arrcode[0];
         // test for code with a modifier.
         $modifier = '';
+        $code = '';
         if (stripos($arrcode[1], ':') !== false) {
             $tmp = explode(':', $arrcode[1]);
             if (!empty($tmp[0] ?? null)) {
@@ -1391,9 +1393,9 @@ function writeITLine($it_array): void
             <tbody>
             <?php
             // Get the selected list's elements.
+            $total_rows = 0;
             if ($list_id) {
                 $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
-                $total_rows = 0;
                 if ($list_from > 0) {
                     $list_from--;
                 }

@@ -64,6 +64,8 @@ if (empty($report_id) && !empty(OEGlobalsBag::getInstance()->get('pat_rem_clin_n
               <td class='text' align='left' colspan="3"><br />
 
                 <?php
+                $results_log = ['type' => '', 'date_report' => '', 'data' => ''];
+                $send_rem_log = [];
                 if ($report_id) {
                 // collect log from a previous run to show
                     $results_log = collectReportDatabase($report_id);

@@ -77,7 +77,7 @@ $show_message = 0;
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
-    $mail_id = explode(".", (string) $SMTP_HOST);
+    $mail_id = explode(".", OEGlobalsBag::getInstance()->getString('SMTP_HOST'));
     for ($i = 0; $i < $bg_count; $i++) {
         if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
             if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
@@ -336,6 +336,7 @@ if (isset($_POST["mode"])) {
             $_POST["authorized"] = 0;
         }
 
+        $success = false;
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
@@ -482,6 +483,7 @@ if (isset($_POST["mode"])) {
         }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
+        $result = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
@@ -531,10 +533,12 @@ if (isset($_GET["mode"])) {
 
     if ($_GET["mode"] == "delete_group") {
         $res = sqlStatement("select distinct user from `groups` where id = ?", [$_GET["id"]]);
+        $result = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
 
+        $un = '';
         foreach ($result as $iter) {
             $un = $iter["user"];
         }
@@ -676,10 +680,14 @@ function resetCounter(username) {
 
                         $query .= "ORDER BY username";
                         $res = sqlStatement($query);
+                        $result4 = [];
                         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                             $result4[$iter] = $row;
                         }
 
+                        $current_date = '';
+                        $pwd_expires = '';
+                        $grace_time = '';
                         foreach ($result4 as $iter) {
                             // Skip this user if logged-in user does not have all of its permissions.
                             // Note that a superuser now has all permissions.
@@ -716,10 +724,10 @@ function resetCounter(username) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<td>';
                                     echo xlt('Not Applicable');
-                                } elseif (strtotime((string) $current_date) > strtotime((string) $grace_time)) {
+                                } elseif (strtotime($current_date) > strtotime($grace_time)) {
                                     echo '<td class="bg-danger text-light">';
                                     echo xlt('Expired');
-                                } elseif (strtotime((string) $current_date) > strtotime((string) $pwd_expires)) {
+                                } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
                                     echo '<td class="bg-warning text-dark">';
                                     echo xlt('Grace Period');
                                 } else {
@@ -772,19 +780,21 @@ function resetCounter(username) {
             <?php
             if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
                 $res = sqlStatement("select * from `groups` order by name");
+                $result5 = [];
                 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $result5[$iter] = $row;
                 }
 
+                $grouplist = [];
                 foreach ($result5 as $iter) {
-                    $grouplist[$iter["name"]] .= text($iter["user"]) .
+                    $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . text($iter["user"]) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
                         attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr((string) $list, 0, strlen((string) $list) - 2) . "</span><br />\n";
+                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
                 }
             }
             ?>

@@ -52,7 +52,7 @@ var current_sel_name = '';
 // This invokes the "dynamic" find-code popup.
 function sel_related(elem, codetype) {
  current_sel_name = elem ? elem.name : '';
- var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
+ var url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface" ?>/patient_file/encounter/find_code_dynamic.php';
  if (codetype) url += '?codetype=' + encodeURIComponent(codetype);
  dlgopen(url, '_blank', 800, 500);
 }

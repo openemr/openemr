@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/registry.inc.php");
 require_once("batchcom.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -26,6 +26,14 @@ use OpenEMR\Core\Header;
 if (!AclMain::aclCheckCore('admin', 'notification')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/notification: Notification Settings", xl("Notification Settings"));
 }
+
+$form_err = '';
+$SettingsId = '';
+$Send_SMS_Before_Hours = '';
+$Send_Email_Before_Hours = '';
+$SMS_gateway_password = '';
+$SMS_gateway_username = '';
+$SMS_gateway_apikey = '';
 
  $type = 'SMS/Email Settings';
 // process form
