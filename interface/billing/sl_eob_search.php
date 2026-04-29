@@ -48,17 +48,18 @@ use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/appointments.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/appointments.inc.php');
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 // statement.inc.php sets $STMT_TEMP_FILE
 assert(isset($STMT_TEMP_FILE));
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/../controllers/C_Document.class.php");
-require_once("$srcdir/documents.php");
-require_once("$srcdir/options.inc.php");
-require_once "$srcdir/user.inc.php";
+require_once($srcDir . '/api.inc.php');
+require_once($srcDir . '/forms.inc.php');
+require_once($srcDir . '/../controllers/C_Document.class.php');
+require_once($srcDir . '/documents.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/user.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
@@ -277,8 +278,6 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     } else {
         global $STMT_TEMP_FILE_PDF;
     }
-
-    global $srcdir;
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
@@ -1151,7 +1150,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 // yet closed out insurance.
                                 //
                                 if (!$duncount) {
-                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i); ++$i) {
+                                    $i = 1;
+                                    while ($i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i)) {
+                                        ++$i;
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }

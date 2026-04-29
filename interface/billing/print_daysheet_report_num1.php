@@ -15,8 +15,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\DaySheet\DaySheetAggregator;
@@ -26,6 +24,9 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/daysheet.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -100,6 +101,7 @@ if (!isset($_GET["mode"])) {
                 $code_type = '%';
             }
 
+            $list = [];
             if (isset($_GET["mode"]) && $_GET["mode"] === 'bill') {
                 BillingReport::billCodesList($list);
             }
@@ -110,42 +112,28 @@ if (!isset($_GET["mode"])) {
             $anypats = 0;
             $the_first_time = 1;
             $itero = [];
+            $run_provider = 0;
+            $totals_only = 0;
+            $line_total = 0.0;
+            $line_total_pay = 0.0;
             $daySheetTotals = new DaySheetTotals([], [], new SlotTotals(''));
 
             if ($ret = getBillsBetweendayReport($code_type)) {
             // checking to see if there is any information in the array if not display a message (located after this if statement)
                 $anypats = count($ret);
-                $run_provider = 0;
                 $old_pid = -1;
                 $first_time = 1;
                 $new_old_pid = -1;
 
             // $iter has encounter information
 
-            // this loop gathers the user and provider numbers
-                foreach ($ret as $iter) {
-                    $catch_user[] = $iter['user'];
-                    $catch_provider[] = $iter['provider_id'];
-                }
-
-            //This statement uniques the arrays removing duplicates
-
-                $user_list = array_unique($catch_user);
-                $provider_list = array_unique($catch_provider);
-
-            // reorder the list starting with array element zero
-                $user_final_list = array_values($user_list);
-                $provider_final_list = array_values($provider_list);
-            // sort array in ascending order
-                sort($user_final_list);
-                sort($provider_final_list);
                 $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
-                if ($_POST['end_of_day_provider_only'] == 1) {
+                if (filter_input(INPUT_POST, 'end_of_day_provider_only', FILTER_VALIDATE_INT) === 1) {
                     $run_provider = 1;
                 }
 
-                if ($_POST['end_of_day_totals_only'] == 1) {
+                if (filter_input(INPUT_POST, 'end_of_day_totals_only', FILTER_VALIDATE_INT) === 1) {
                     $totals_only = 1;
                 }
 
@@ -376,6 +364,8 @@ if (!isset($_GET["mode"])) {
             }
 
                 // TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
+            $user_info = ['user' => [], 'fee' => [], 'inspay' => [], 'insadj' => [], 'insref' => [], 'patadj' => [], 'patpay' => [], 'patref' => []];
+            $provider_info = ['user' => [], 'fee' => [], 'inspay' => [], 'insadj' => [], 'insref' => [], 'patadj' => [], 'patpay' => [], 'patref' => []];
             if ($run_provider != 1) {
                 foreach ($daySheetTotals->userTotals as $slot) {
                     $user_info['user'][$k] = $slot->key;
@@ -405,8 +395,9 @@ if (!isset($_GET["mode"])) {
             }
 
             if ($totals_only === 1) {
-                $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
-                $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));?>
+                $query_part_day = OEGlobalsBag::getInstance()->getString('query_part_day');
+                $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
+                $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));?>
                 <br />
                 <br />
                 <p><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></p>
@@ -532,12 +523,6 @@ if (!isset($_GET["mode"])) {
                                                                 <td class='text' width='25'>
 
                     <?php
-                    $gtotal_fee += $user_info['fee'][$i];
-                    $gtotal_insadj += $user_info['insadj'][$i];
-                    $gtotal_inspay += $user_info['inspay'][$i];
-                    $gtotal_patadj += $user_info['patadj'][$i];
-                    $gtotal_patpay += $user_info['patpay'][$i];
-
                     ++$i;
 
                     print "<br /></td></tr>";
@@ -666,14 +651,6 @@ if (!isset($_GET["mode"])) {
                                                                 <td class='text' width='25'>
 
                     <?php
-                        $gtotal_fee += $provider_info['fee'][$i];
-                        $gtotal_insadj += $provider_info['insadj'][$i];
-                        $gtotal_inspay += $provider_info['inspay'][$i];
-                        $gtotal_insref += $provider_info['insref'][$i];
-                        $gtotal_patadj += $provider_info['patadj'][$i];
-                        $gtotal_patpay += $provider_info['patpay'][$i];
-                        $gtotal_patref += $provider_info['patref'][$i];
-
                         ++$i;
 
                         print "<br /></td></tr>";

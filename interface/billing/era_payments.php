@@ -19,9 +19,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
-require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -32,6 +29,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
@@ -306,7 +307,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     // files they should be listed thereafter, please add _xpd suffix to the file name
     $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/expand_contract_inc.php');
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php
@@ -431,7 +432,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
+    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js'></script>
 
     <!-- Overwrite Confirmation Modal -->
     <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
