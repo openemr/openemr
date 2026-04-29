@@ -21,6 +21,8 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../globals.php");
 
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 //Get the data to place on labels
 
 $patdata = sqlQuery("SELECT " .
@@ -43,6 +45,7 @@ $dob   = substr((string) $patdata['DOB'], 5, 2) . "/" . Substr((string) $patdata
 $code     = $patdata['pubpid']; // what is wanted as the barcode
 $bartype = OEGlobalsBag::getInstance()->get('barcode_label_type') ; // Get barcode type
 
+$type = '';
 switch ($bartype) {
     case '1':
         $type     = 'std25';

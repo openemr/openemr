@@ -15,9 +15,11 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+require_once($srcdir . '/lists.inc.php');
+require_once($webserver_root . '/custom/code_types.inc.php');
+require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -30,6 +32,10 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 
 // Check if user has permission for any issue type.
 $auth = false;
@@ -168,7 +174,7 @@ function newEncounter() {
 </script>
 <script>
 <?php
-require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
 ?>
 </script>
 <?php
@@ -200,7 +206,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
+                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php") ?>
             </div>
         </div>
         <?php

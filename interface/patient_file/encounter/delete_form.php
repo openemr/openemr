@@ -13,17 +13,21 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
 require_once(__DIR__ . "/../../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$incdir = OEGlobalsBag::getInstance()->getProjectDir() . "/interface";
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {

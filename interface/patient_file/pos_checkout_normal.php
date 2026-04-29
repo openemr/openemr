@@ -49,7 +49,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -63,7 +66,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Patient Checkout", xl("Patient Checkout"));
@@ -671,6 +673,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
 
       // Post discount.
         if ($_POST['form_discount']) {
+            $amount = '0.00';
             if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
                 $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {

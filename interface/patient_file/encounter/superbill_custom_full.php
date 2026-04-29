@@ -17,19 +17,18 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
@@ -48,6 +47,9 @@ function ffescape($field)
     return trim((string) $field);
 }
 
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+
 $alertmsg = '';
 $pagesize = 100;
 $mode = $_POST['mode'] ?? null;
@@ -57,6 +59,13 @@ $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
 $revenue_code = '';
+$code = '';
+$code_type = '';
+$code_type_name_external = '';
+$modifier = '';
+$taxrates = '';
+$res = false;
+$filter_key = [];
 
 if (isset($mode) && $thisauthwrite) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

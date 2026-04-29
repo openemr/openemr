@@ -18,6 +18,8 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../globals.php");
 
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 //Get the data to place on labels
 //
 
