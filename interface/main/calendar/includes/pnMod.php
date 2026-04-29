@@ -155,7 +155,7 @@ function pnModGetIDFromName($module)
 
 /**
  * get information on module
- * @param id $modid
+ * @param int $modid
  * @returns array
  * @ return array of module information or false if core ( id = 0 )
  */
@@ -269,7 +269,7 @@ function pnModAPILoad($modname, $type = 'user')
 
 /**
  * load database definition for a module
- * @param name $modname - name of module to load database definition for
+ * @param string $modname - name of module to load database definition for
  * @param mixed $directory - directory that module is in (if known)
  * @returns bool
  */
@@ -319,7 +319,7 @@ function pnModDBInfoLoad($modname, $directory = '')
 
 /**
  * load a module
- * @param name $modname - name of module to load
+ * @param string $modname - name of module to load
  * @param mixed $type - type of functions to load
  * @return string|false|null name of module loaded, or false on failure
  */

@@ -2042,9 +2042,9 @@ function build_PMSFH($pid)
 /**
  *  This function uses the complete PMSFH array for a given patient, including the ROS for this encounter
  *  and returns the PMSFH display square.
- *  @param int $rows rows is the number of rows you want to display
- *  @param option $view string view defaults to white on beige, versus right sliding panel (text on beige only).
- *  @param option $min_height string min_height to set min height for the row
+ *  @param int $rows the number of rows you want to display
+ *  @param string $view defaults to white on beige, versus right sliding panel (text on beige only).
+ *  @param string $min_height to set min height for the row
  *  @return mixed HTML pane when PMSFH is expanded to two panes.
  */
 function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px;")

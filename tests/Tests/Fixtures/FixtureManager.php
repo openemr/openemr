@@ -153,7 +153,7 @@ class FixtureManager
     }
 
     /**
-     * @return single|random fhir patient fixture
+     * @return array<string, mixed> a single random fhir patient fixture
      */
     public function getSingleFhirPatientFixture()
     {

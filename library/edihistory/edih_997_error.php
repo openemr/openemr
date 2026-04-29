@@ -62,7 +62,7 @@ function edih_997_sbmtfile($icn, $filetype)
 /**
  * Extract information on rejected files or transactions
  *
- * @param object $obj997
+ * @param mixed $obj997
  * @return array
  */
 function edih_997_errdata($obj997)
@@ -224,7 +224,7 @@ function edih_997_errdata($obj997)
  * @uses edih_997_code_text()
  * @uses edih_rsp_st_match()
  *
- * @param object $err_array
+ * @param mixed $err_array
  * @return array
  */
 function edih_997_err_report($err_array)

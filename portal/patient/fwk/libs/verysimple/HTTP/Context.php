@@ -51,10 +51,9 @@ class Context
      *
      * @access public
      * @param mixed $var
-     * @param value $val
-     * @return object|null
+     * @param mixed $val
      */
-    public function Set($var, $val)
+    public function Set($var, $val): void
     {
         SessionUtil::setSession($this->GUID . "_" . $var, serialize($val));
     }

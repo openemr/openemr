@@ -32,16 +32,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$view \\(string\\) of function display_PMSFH\\(\\) is incompatible with type option\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$min_height \\(string\\) of function display_PMSFH\\(\\) is incompatible with type option\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$currLevel \\(int\\) of method Acl\\\\Controller\\\\AclController\\:\\:createTreeView\\(\\) is incompatible with type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
@@ -80,11 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$id \\(string\\) of method Note\\:\\:__construct\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$quality \\(int\\) of method Thumbnail\\:\\:image_to_file\\(\\) is incompatible with type optional\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$patient_id \\(string\\) of function buildPatientArray\\(\\) is incompatible with type int\\.$#',
@@ -255,11 +240,6 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#6 \\$sqllimit \\(string\\) of function collectItemizedPatientsCdrReport\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$esc_type \\(string\\) of function smarty_modifier_escape\\(\\) is incompatible with type hex\\|hexentity\\|html\\|htmlall\\|javascript\\|quotes\\|url\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#2 \\$binds \\(false\\) of function sqlInsertClean_audit\\(\\) is incompatible with type array\\.$#',

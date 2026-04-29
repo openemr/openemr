@@ -128,7 +128,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return single|random fhir practitioner fixture
+     * @return array<string, mixed> a single random fhir practitioner fixture
      */
     public function getSingleFhirPractitionerFixture()
     {

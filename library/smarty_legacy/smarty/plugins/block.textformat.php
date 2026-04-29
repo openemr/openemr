@@ -26,7 +26,7 @@
  * </pre>
  * @author Monte Ohrt <monte at ohrt dot com>
  * @param string $content contents of the block
- * @param Smarty $smarty clever simulation of a method
+ * @param Smarty_Legacy $smarty clever simulation of a method
  * @return string string $content re-formatted
  */
 function smarty_block_textformat($params, $content, &$smarty)

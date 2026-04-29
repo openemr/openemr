@@ -33,8 +33,8 @@ function edih_round_cb(&$v, $k)
  * Create summary html string for an x12 835 claim payment
  *
  * @param array $trans_array
- * @param object $codes27x
- * @param object $codes835
+ * @param mixed $codes27x
+ * @param mixed $codes835
  * @param array $delimiters
  * @param string $fname
  *
@@ -294,8 +294,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
  * Create html string for an x12 835 claim payment
  *
  * @param array $trans_array
- * @param object $codes27x
- * @param object $codes835
+ * @param mixed $codes27x
+ * @param mixed $codes835
  * @param array $delimiters
  * @param string $fname
  *
@@ -873,8 +873,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  *
  *
  * @param array $segments
- * @param object $codes27x
- * @param object $codes835
+ * @param mixed $codes27x
+ * @param mixed $codes835
  * @param array $delimiters
  * @param string $fname
  *

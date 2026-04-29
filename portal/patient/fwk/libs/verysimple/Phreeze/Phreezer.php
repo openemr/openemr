@@ -121,7 +121,7 @@ class Phreezer extends Observable
 * If a single ConnectionSetting is supplied, it will be assigned the key "default"
 *
 * @access public
-* @param ConnectionSetting|Associative $csetting Array of ConnectionSetting objects
+* @param ConnectionSetting|array<string, ConnectionSetting> $csetting Array of ConnectionSetting objects
 * @param Observable $observer
 */
     public function __construct($csetting, $observer = null)
@@ -353,9 +353,9 @@ class Phreezer extends Observable
 /**
 * Phreezer::Compare is used internally by Phreezer::Sort
 *
-* @param object $a
-* @param object $b
-* @return bool
+* @param mixed $a
+* @param mixed $b
+* @return int
 */
     static function Compare($a, $b)
     {

@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_specimen_row.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var with type EventDispatcher is not subtype of native type Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type OpenEMR\\\\Services\\\\Qdm\\\\PopulationSet is not subtype of native type array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',

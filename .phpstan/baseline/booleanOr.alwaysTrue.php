@@ -19,11 +19,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of \\|\\| is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [

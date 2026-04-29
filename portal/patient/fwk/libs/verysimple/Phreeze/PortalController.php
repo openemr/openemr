@@ -78,7 +78,7 @@ abstract class PortalController
      * @param IRenderEngine $renderEngine
      *          rendering engine
      * @param Context $context (optional) a context object for persisting the state of the current page
-     * @param Router $router (optional) a custom writer for URL formatting
+     * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
     final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
@@ -353,7 +353,7 @@ abstract class PortalController
      * Use as an alternative to print in order to capture debug output
      *
      * @param string $text text to print
-     * @param mime $contentType content type (example text/plain)
+     * @param string|null $contentType content type (example text/plain)
      */
     protected function PrintOut($text, $contentType = null)
     {

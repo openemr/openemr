@@ -11247,7 +11247,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset id on mixed\\.$#',
+    'message' => '#^Cannot access offset int\\<min, \\-1\\>\\|int\\<1, max\\> on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -11257,13 +11257,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset name on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
-    'count' => 2,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
@@ -32117,7 +32112,97 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ctxacct\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ctxelem\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ctxid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ctxloop\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ctxpos\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'e\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik3code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik3loop\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik3segid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik3segpos\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik401\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik402\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik403\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik404\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik501\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik502\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik503\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik504\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ik505\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
 ];
@@ -32128,6 +32213,41 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'s\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'substn\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'subtype\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 4 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 5 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
 ];

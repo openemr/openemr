@@ -58,7 +58,7 @@ class GaclAdminApi extends GaclApi {
      *
      * Creates a basic array for Smarty to deal with paging large recordsets.
      *
-     * @param ADORecordSet $rs ADODB recordset.
+     * @param mixed $rs ADODB recordset.
      */
     function get_paging_data($rs) {
                 return [

@@ -36,7 +36,7 @@
  * @uses edih_format_date()
  * @uses edih_format_percent()
  *
- * @param object $obj271 edih_x12_file type 271
+ * @param mixed $obj271 edih_x12_file type 271
  * @param string $bht03 bht03 or clm01 reference for transaction
  * @return string
  */

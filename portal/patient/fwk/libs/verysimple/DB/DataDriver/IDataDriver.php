@@ -80,7 +80,7 @@ interface IDataDriver
      * When no more data is available, null is returned
      *
      * @param mixed $connection
-     * @param resultset $rs
+     * @param mixed $rs
      * @return array (or null)
      */
     function Fetch($connection, $rs);
@@ -105,7 +105,7 @@ interface IDataDriver
      * Releases the resources for the given resultset.
      *
      * @param mixed $connection
-     * @param resultset $rs
+     * @param mixed $rs
      */
     function Release($connection, $rs);
 
@@ -122,7 +122,7 @@ interface IDataDriver
      * Return a stringified version of $val ready to insert with appropriate quoting and escaping
      * This method must handle at a minimum: strings, numbers, NULL and ISqlFunction objects
      *
-     * @param variant $val value to insert/update/query
+     * @param mixed $val value to insert/update/query
      * @return string value ready to use in a SQL statement quoted and escaped if necessary
      */
     function GetQuotedSql($val);
@@ -140,7 +140,7 @@ interface IDataDriver
     /**
      * Optimize, clean, defrag or whatever action is relevant for the database server
      *
-     * @param mixes $connection connection reference
+     * @param mixed $connection connection reference
      * @param string $table name of table to optimize
      */
     function Optimize($connection, $table);
