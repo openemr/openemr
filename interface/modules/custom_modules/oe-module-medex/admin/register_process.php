@@ -1016,8 +1016,16 @@ if (!empty($result['success'])) {
             $reviewMsg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
         }
     }
-    $result['success'] = false;
-    $result['error'] = $reviewMsg;
+    if (medexOnboardingDevModeEnabled() || !empty($GLOBALS['medex_preview_tunnel_public_base_url'])) {
+        $result['success'] = true;
+        $result['pending_review'] = true;
+        $result['message'] = $reviewMsg;
+        $result['review_notice'] = $reviewMsg;
+        medexClearOtpSession();
+    } else {
+        $result['success'] = false;
+        $result['error'] = $reviewMsg;
+    }
 }
 
     // Return result
