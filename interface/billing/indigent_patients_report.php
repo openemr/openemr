@@ -24,7 +24,7 @@ use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Indigent Patients Report", xl("Indigent Patients Report"));

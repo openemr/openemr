@@ -30,9 +30,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/statement.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
@@ -307,7 +307,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
     // files they should be listed thereafter, please add _xpd suffix to the file name
     $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/expand_contract_inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/expand_contract_inc.php');
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php

@@ -25,8 +25,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/daysheet.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/daysheet.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {

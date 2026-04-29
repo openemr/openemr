@@ -31,15 +31,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
-$EXPORT_INC = OEGlobalsBag::getInstance()->getString('webserver_root') . "/custom/BillingExport.php";
+$EXPORT_INC = OEGlobalsBag::getInstance()->getString('webserver_root') . '/custom/BillingExport.php';
 // echo $GLOBALS['daysheet_provider_totals'];
 
 $daysheet = false;
@@ -530,7 +530,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             return true;
         }
     </script>
-    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/reports/report.script.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . '/../interface/reports/report.script.php'; ?>
     <!-- Criteria Section common javascript page-->
     <!-- =============Included for Insurance ajax criteria==== -->
     <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"; ?>
@@ -732,7 +732,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         }
                         ?>
                     <?php
-                        require_once OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/reports/criteria.tab.php";
+                        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/../interface/reports/criteria.tab.php';
                     ?>
                     <!-- end criteria -->
                 </form>

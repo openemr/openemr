@@ -24,8 +24,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/daysheet.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/daysheet.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -128,7 +128,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
     $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
-    if (($_POST['end_of_day_totals_only'] ?? 0) == 1) {
+    if (filter_input(INPUT_POST, 'end_of_day_totals_only', FILTER_VALIDATE_INT) === 1) {
         $totals_only = 1;
     }
 
@@ -136,7 +136,13 @@ if ($ret = getBillsBetweendayReport($code_type)) {
         // Tally information by user. Legacy code capped at the first 20
         // distinct users (a per-slot $us0..$us19 accumulator); this map
         // accumulates every distinct user.
-        $u = (string) ($iter['user'] ?? '');
+        $userVal = $iter['user'] ?? null;
+        $u = is_string($userVal) ? $userVal : '';
+        $feeVal = $iter['fee'] ?? null;
+        $insCodeVal = $iter['ins_code'] ?? null;
+        $insAdjVal = $iter['ins_adjust_dollar'] ?? null;
+        $patAdjVal = $iter['pat_adjust_dollar'] ?? null;
+        $patCodeVal = $iter['pat_code'] ?? null;
         $user_totals[$u] ??= [
             'user' => $u,
             'fee' => 0.0,
@@ -145,11 +151,11 @@ if ($ret = getBillsBetweendayReport($code_type)) {
             'patadj' => 0.0,
             'patpay' => 0.0,
         ];
-        $user_totals[$u]['fee']    += floatval($iter['fee'] ?? 0);
-        $user_totals[$u]['inspay'] += floatval($iter['ins_code'] ?? 0);
-        $user_totals[$u]['insadj'] += floatval($iter['ins_adjust_dollar'] ?? 0);
-        $user_totals[$u]['patadj'] += floatval($iter['pat_adjust_dollar'] ?? 0);
-        $user_totals[$u]['patpay'] += floatval($iter['pat_code'] ?? 0);
+        $user_totals[$u]['fee']    += is_numeric($feeVal) ? (float) $feeVal : 0.0;
+        $user_totals[$u]['inspay'] += is_numeric($insCodeVal) ? (float) $insCodeVal : 0.0;
+        $user_totals[$u]['insadj'] += is_numeric($insAdjVal) ? (float) $insAdjVal : 0.0;
+        $user_totals[$u]['patadj'] += is_numeric($patAdjVal) ? (float) $patAdjVal : 0.0;
+        $user_totals[$u]['patpay'] += is_numeric($patCodeVal) ? (float) $patCodeVal : 0.0;
 
         if ($the_first_time == 1) {
               $user = $iter['user'];

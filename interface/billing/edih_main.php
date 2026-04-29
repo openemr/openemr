@@ -68,22 +68,22 @@ if (!defined("DS")) {
 //
 // path will be "$srcDir/edihistory/filename.php"
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . "/edihistory/edih_csv_inc.php");
-require_once($srcDir . "/edihistory/edih_io.php");
-require_once($srcDir . "/edihistory/edih_x12file_class.php");
-require_once($srcDir . "/edihistory/edih_uploads.php");
-require_once($srcDir . "/edihistory/edih_csv_parse.php");
-require_once($srcDir . "/edihistory/edih_csv_data.php");
-require_once($srcDir . "/edihistory/edih_997_error.php");
-require_once($srcDir . "/edihistory/edih_segments.php");
-require_once($srcDir . "/edihistory/edih_archive.php");
-require_once($srcDir . "/edihistory/edih_271_html.php");
-require_once($srcDir . "/edihistory/edih_277_html.php");
-require_once($srcDir . "/edihistory/edih_278_html.php");
-require_once($srcDir . "/edihistory/edih_835_html.php");
-require_once($srcDir . "/edihistory/codes/edih_271_code_class.php");
-require_once($srcDir . "/edihistory/codes/edih_835_code_class.php");
-require_once($srcDir . "/edihistory/codes/edih_997_codes.php");
+require_once($srcDir . '/edihistory/edih_csv_inc.php');
+require_once($srcDir . '/edihistory/edih_io.php');
+require_once($srcDir . '/edihistory/edih_x12file_class.php');
+require_once($srcDir . '/edihistory/edih_uploads.php');
+require_once($srcDir . '/edihistory/edih_csv_parse.php');
+require_once($srcDir . '/edihistory/edih_csv_data.php');
+require_once($srcDir . '/edihistory/edih_997_error.php');
+require_once($srcDir . '/edihistory/edih_segments.php');
+require_once($srcDir . '/edihistory/edih_archive.php');
+require_once($srcDir . '/edihistory/edih_271_html.php');
+require_once($srcDir . '/edihistory/edih_277_html.php');
+require_once($srcDir . '/edihistory/edih_278_html.php');
+require_once($srcDir . '/edihistory/edih_835_html.php');
+require_once($srcDir . '/edihistory/codes/edih_271_code_class.php');
+require_once($srcDir . '/edihistory/codes/edih_835_code_class.php');
+require_once($srcDir . '/edihistory/codes/edih_997_codes.php');
 //
 // php may output line endings with included files
 ob_clean();
