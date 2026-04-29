@@ -5,7 +5,7 @@
 
 ---
 
-## Executive Summary (~500 words)
+## Executive Summary
 
 This audit covers the OpenEMR codebase as the foundation for a Clinical Co-Pilot AI agent. Five areas were assessed: security, performance, architecture, data quality, and compliance. The findings below represent the most impactful issues — those that would block a trustworthy agent deployment, not a complete enumeration of every gap.
 
