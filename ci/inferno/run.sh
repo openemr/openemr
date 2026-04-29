@@ -166,10 +166,6 @@ collect_inferno_coverage() {
     echo 'Inferno coverage collection completed'
 }
 
-fix_redis_permissions() {
-     docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
-}
-
 main() {
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
@@ -204,7 +200,6 @@ main() {
       fi
     fi
 
-    fix_redis_permissions
     initialize_inferno
     check_inferno
     initialize_openemr
