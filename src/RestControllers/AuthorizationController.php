@@ -878,11 +878,11 @@ class AuthorizationController
             }
             //Check the validity of the authentication token
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
-                if (!$mfaToken || !$mfa->check($mfaToken, $request->get('mfa_type'))) {
+                if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     // Log failed MFA authentication attempt
                     $ip = collectIpAddresses();
                     $username = $request->request->get('username', '');
-                    $mfaType = $request->get('mfa_type', 'unknown');
+                    $mfaType = $request->request->get('mfa_type', 'unknown');
                     $userService = new UserService();
                     $authGroup = !empty($username) ? $userService->getAuthGroupForUser($username) : '';
                     EventAuditLogger::getInstance()->newEvent(
