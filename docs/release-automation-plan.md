@@ -87,6 +87,26 @@ In dependency order:
    - [ ] Confirm `openemr-devops` infra PR is green
    - [ ] Merge this PR (triggers the tag and downstream finalization)
 
+## Permissions self-check
+
+`.github/workflows/release-permissions-check.yml` (manual `workflow_dispatch`).
+Mints an App token from `RELEASE_APP_ID` + `RELEASE_APP_PRIVATE_KEY` and
+probes everything the conductor workflow performs:
+
+- `GET /installation/repositories` — confirm this repo is in the install list.
+- Create + delete a throwaway branch `release-permissions-check/<run-id>` —
+  confirm `contents:write`.
+- Open + close a draft PR from that branch — confirm `pull-requests:write`.
+- Create + delete a throwaway annotated tag `release-permissions-check-<run-id>`
+  — confirm tag-creation works (catches issues an unsigned-vs-signed flip
+  would cause).
+- Send a no-op `repository_dispatch` (event type `release-permissions-probe`)
+  to **openemr/openemr-devops** and **openemr/website-openemr** — confirm
+  cross-repo `actions:write` on both consumer repos.
+
+Fails loudly with the missing permission name. Run after installing the App
+on this repo and the consumer repos; re-run if secrets are rotated.
+
 ## Out of scope here
 
 - Docs publishing — `website-openemr` PR.
