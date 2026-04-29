@@ -34,9 +34,6 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$PaymentType = '';
-$TypeCode = '';
-$CountIndexBelow = 0;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));

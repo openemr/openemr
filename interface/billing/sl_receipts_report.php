@@ -716,10 +716,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <!-- TODO: Replace bgcolor with BS4 !-->
                 <tr bgcolor="#ddddff">
                 <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
-                        <?php echo xlt('Totals for ') . text($docname ?? '') ?>
+                        <?php echo xlt('Totals for ') . text($docname) ?>
                 </td>
                 <td>
-                        <?php echo text(FormatMoney::getBucks($doctotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($doctotal1)) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td>

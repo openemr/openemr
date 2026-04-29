@@ -146,11 +146,11 @@ if ($ret = getBillsBetweendayReport($code_type)) {
             'patadj' => 0.0,
             'patpay' => 0.0,
         ];
-        $user_totals[$u]['fee']    += (float) ($iter['fee'] ?? 0);
-        $user_totals[$u]['inspay'] += (float) ($iter['ins_code'] ?? 0);
-        $user_totals[$u]['insadj'] += (float) ($iter['ins_adjust_dollar'] ?? 0);
-        $user_totals[$u]['patadj'] += (float) ($iter['pat_adjust_dollar'] ?? 0);
-        $user_totals[$u]['patpay'] += (float) ($iter['pat_code'] ?? 0);
+        $user_totals[$u]['fee']    += floatval($iter['fee'] ?? 0);
+        $user_totals[$u]['inspay'] += floatval($iter['ins_code'] ?? 0);
+        $user_totals[$u]['insadj'] += floatval($iter['ins_adjust_dollar'] ?? 0);
+        $user_totals[$u]['patadj'] += floatval($iter['pat_adjust_dollar'] ?? 0);
+        $user_totals[$u]['patpay'] += floatval($iter['pat_code'] ?? 0);
 
         if ($the_first_time == 1) {
               $user = $iter['user'];

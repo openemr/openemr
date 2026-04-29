@@ -207,7 +207,7 @@ var isTemplate;
 var ub04id = new Array();
 payerid = <?php echo js_escape($payerid ?? ''); ?>;
 pid = <?php echo js_escape($pid);?>;
-encounter = <?php echo js_escape($encounter ?? null);?>;
+encounter = <?php echo js_escape($encounter);?>;
 isTemplate = <?php echo js_escape((int) ($isAuthorized === true ? $isAuthorized : false)); ?>;
 ub04id = <?php echo $ub04id;?>
 
