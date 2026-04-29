@@ -367,16 +367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations_full.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and 12 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
@@ -422,12 +412,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \'" target\\="_blank"\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between \'\'\\|absolute and \'" target\\="_blank"\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_url.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \'" target\\=…\' results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between \'\'\\|absolute and \'" target\\=…\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_url.php',
 ];
@@ -473,11 +463,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between "\\\\n\\\\n\\<\\!\\-\\- START user…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];

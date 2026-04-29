@@ -132,26 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 3 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'version\' does not exist on array\\{\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{1\\: non\\-falsy\\-string\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',

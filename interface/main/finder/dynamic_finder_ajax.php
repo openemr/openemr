@@ -39,6 +39,7 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 // Probably could have used a session var here because datatable server url
 // persists not allowing easy way to unset any for normal search but opted not.
 //
+$aColumns = [];
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(

@@ -233,6 +233,13 @@ class AppointmentNotificationRunner
             return false;
         }
         $nowTs = $this->clock->now()->getTimestamp();
+        // Skip reminders for appointments that have already started.
+        // isWithinCronWindow has no lower bound (so missed ticks catch up
+        // on the next run); without this guard, a stale appointment that
+        // never got a reminder would still be picked up after it began.
+        if ($apptTs <= $nowTs) {
+            return false;
+        }
         $remainHour = self::computeRemainingHours($apptTs, $nowTs, $this->notificationHours);
         return NotificationTaskManager::isWithinCronWindow($remainHour, $this->cronIntervalHours);
     }

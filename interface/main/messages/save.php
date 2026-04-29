@@ -11,15 +11,16 @@
  */
 
 require_once "../../globals.php";
-require_once "$srcdir/lists.inc.php";
-require_once "$srcdir/forms.inc.php";
-require_once "$srcdir/patient.inc.php";
-require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -27,6 +28,7 @@ if ($_REQUEST['go'] == 'sms_search') {
     $param = "%" . $_GET['term'] . "%";
     $query = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ?";
     $result = sqlStatement($query, [$param, $param]);
+    $results = [];
     while ($frow = sqlFetchArray($result)) {
         $data['Label']  = 'Name';
         $data['value']  = text($frow['fname'] . " " . $frow['lname']);
@@ -105,10 +107,10 @@ if ($_REQUEST['MedEx'] == "start") {
         if ($_SERVER["SSL_TLS_SNI"]) {
             $prefix = "https://";
         }
-        $data['website_url'] = $prefix . $_SERVER['HTTP_HOST'] . $web_root;
-        $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+        $data['website_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getWebRoot();
+        $practice_logo = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/practice_logo.gif";
         if (!file_exists($practice_logo)) {
-            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . $web_root . "/sites/" . $session->get('site_id') . "/images/practice_logo.gif";
+            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getWebRoot() . "/sites/" . $session->get('site_id') . "/images/practice_logo.gif";
         } else {
             $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/menu-logo.png";
         }
@@ -117,11 +119,13 @@ if ($_REQUEST['MedEx'] == "start") {
             sqlQuery("DELETE FROM medex_prefs");
             $runQuery = "SELECT * FROM facility ORDER BY name";
             $fetch = sqlStatement($runQuery);
+            $facilities = [];
             while ($frow = sqlFetchArray($fetch)) {
                 $facilities[] = $frow['id'];
             }
             $runQuery = "SELECT * FROM users WHERE username != '' AND active = '1' AND authorized = '1'";
             $prove = sqlStatement($runQuery);
+            $providers = [];
             while ($prow = sqlFetchArray($prove)) {
                 $providers[] = $prow['id'];
             }

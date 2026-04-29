@@ -194,13 +194,6 @@ collect_inferno_coverage() {
     echo 'Inferno coverage collection completed'
 }
 
-fix_redis_permissions() {
-     # The cloned submodule has pre-existing Redis data files owned by the CI runner.
-     # Redis runs as the 'redis' user inside the container and needs write access.
-     # Using 777 is acceptable here since this is ephemeral CI infrastructure.
-     chmod -R 777 "${PWD}/onc-certification-g10-test-kit/data/redis"
-}
-
 main() {
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
@@ -235,7 +228,6 @@ main() {
       fi
     fi
 
-    fix_redis_permissions
     initialize_inferno
     check_inferno
     initialize_openemr

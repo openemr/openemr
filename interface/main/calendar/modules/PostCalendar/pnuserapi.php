@@ -76,6 +76,10 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
+    $cacheid ??= null;
+    $starting_date ??= '';
+    $ending_date ??= '';
+    $viewtype ??= '';
     $schedule_start = OEGlobalsBag::getInstance()->getInt('schedule_start');
     $schedule_end = OEGlobalsBag::getInstance()->getInt('schedule_end');
 
@@ -613,6 +617,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     $end = '0000-00-00';
     extract($args);
+    $event_status ??= null;
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
     $eventstatus = 1;
     if (is_numeric($event_status)) {
         $eventstatus = $event_status;
@@ -837,6 +845,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
 {
     $end = '0000-00-00';
     extract($args);
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
 
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
@@ -1210,6 +1221,12 @@ function &postcalendar_userapi_pcGetEvents($args)
 {
     $s_keywords = $s_category = $s_topic = '';
     extract($args);
+    $viewtype ??= '';
+    $provider_id ??= '';
+    $event_status ??= null;
+    $stime ??= '';
+    $etime ??= '';
+    $patient_id ??= 0;
 
     $date = postcalendar_getDate();
     $cy = substr((string) $date, 0, 4);

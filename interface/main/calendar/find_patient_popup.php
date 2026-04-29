@@ -15,11 +15,12 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 $info_msg = "";
 
@@ -174,7 +175,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
         <?php elseif (count($result) >= 100) : ?>
             <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo text(xl('More than 100 records found. Please narrow your search criteria.')); ?></div>
         <?php elseif (count($result) < 100) : ?>
-            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count($result ?? [])) . ' '; ?><?php echo text(xl('records found.')); ?></div>
+            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count(is_array($result) ? $result : [])) . ' '; ?><?php echo text(xl('records found.')); ?></div>
         <?php endif; ?>
 
         <?php if (isset($result)) : ?>

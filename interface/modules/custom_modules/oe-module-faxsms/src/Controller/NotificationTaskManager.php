@@ -37,7 +37,7 @@ class NotificationTaskManager
     }
 
     /**
-     * Check whether a reminder falls within the cron send window.
+     * Check whether a reminder is eligible to send on this tick.
      *
      * Both parameters use whole-hour granularity. $remainHour is the
      * difference between hours-until-appointment and the configured
@@ -46,15 +46,26 @@ class NotificationTaskManager
      *
      * $cronIntervalHours is the background-service execution interval
      * converted to hours (via getTaskHours()). Values below 1 are clamped
-     * to 1 so the window is never zero-width.
+     * to 1 so the upper bound is never zero-width.
+     *
+     * Only the upper bound is enforced here: a reminder more than
+     * $cronIntervalHours hours before its ideal send time is too early.
+     * No lower bound is applied so a missed tick (pod restart, deploy,
+     * lead-time change) does not silently drop the reminder. Dedup
+     * prevents repeats: the SQL filter excludes events whose
+     * pc_sendalertemail/pc_sendalertsms is already 'YES', and recurring
+     * events are additionally checked against notification_log keyed on
+     * (pc_eid, pc_eventDate, type). The runner is responsible for
+     * skipping appointments that have already started.
      */
     public static function isWithinCronWindow(int $remainHour, int $cronIntervalHours): bool
     {
-        // Enforce a minimum 1-hour window. getTaskHours() returns int, so
-        // sub-hour intervals (e.g. 30 minutes) truncate to 0 — which would
-        // make the window zero-width and silently suppress all sends.
+        // Clamp to a minimum 1-hour window. getTaskHours() returns int, so
+        // sub-hour intervals (e.g. 30 minutes) truncate to 0; without the
+        // clamp, an interval of 0 would only fire on the exact tick where
+        // remainHour == 0 and silently drop everything else.
         $cronIntervalHours = max(1, $cronIntervalHours);
-        return $remainHour >= -$cronIntervalHours && $remainHour <= $cronIntervalHours;
+        return $remainHour <= $cronIntervalHours;
     }
 
     /**

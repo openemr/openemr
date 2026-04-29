@@ -693,11 +693,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 20,
     'path' => __DIR__ . '/../../interface/main/backup.php',
 ];
