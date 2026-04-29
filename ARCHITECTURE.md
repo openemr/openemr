@@ -3,7 +3,7 @@
 
 ---
 
-## Executive Summary (~500 words)
+## Executive Summary
 
 The Clinical Co-Pilot is a single-patient conversational agent that runs as a separate service and surfaces inside OpenEMR's chart view as a SMART on FHIR app. It supports a primary care physician across the full point-of-care context: a synthesized brief before walking into the room, cross-source reasoning during the visit, and a safety check at the prescribing moment. The 60–90 second pre-room window is the binding time constraint that makes a conversational shape (rather than a dashboard or list) necessary — but the agent operates across the entire encounter, not only the pre-visit moment. This document specifies how the agent integrates with OpenEMR's existing infrastructure, how it accesses patient data safely, and how it produces answers a physician can trust.
 
