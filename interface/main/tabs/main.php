@@ -99,7 +99,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 <html>
 
 <head>
-    <title><?php echo text($openemr_name); ?></title>
+    <title><?php echo text(OEGlobalsBag::getInstance()->getString('openemr_name')); ?></title>
 
     <script>
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
@@ -138,7 +138,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         ?>
         var site_id_js = <?php echo js_escape($sessionSiteIdString); ?>;
         var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
-        var webroot_url = <?php echo js_escape($web_root); ?>;
+        var webroot_url = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
         var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
         'ltr';
         var jsGlobals = {};
@@ -150,7 +150,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         jsGlobals.timezone = <?php echo js_escape(OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape(OEGlobalsBag::getInstance()->get('v_js_includes')); ?>;
         var WindowTitleAddPatient = <?php echo(OEGlobalsBag::getInstance()->getBoolean('window_title_add_patient_name') ? 'true' : 'false'); ?>;
-        var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
+        var WindowTitleBase = <?php echo js_escape(OEGlobalsBag::getInstance()->getString('openemr_name')); ?>;
         const isSms = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null); ?>";
         const isFax = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ?? null?>";
         const isServicesOther = (isSms || isFax);
@@ -362,15 +362,15 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         }
     </script>
 
-    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/shortcuts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/custom_bindings.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/user_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/patient_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/therapy_group_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/tabs_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/application_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/frame_proxies.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/dialog_utils.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/shortcuts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
@@ -417,13 +417,14 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             $visible = "true";
             $default_open_tabs = $session->get('default_open_tabs');
             foreach ($default_open_tabs as $i => $tab) :
+                $fileroot = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot();
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, (string) $fileroot)) {
+                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, $fileroot)) {
                     unset($default_open_tabs[$i]);
                     $session->set('default_open_tabs', $default_open_tabs);
                     continue;
                 }
-                $url = json_encode($webroot . "/" . $tab['notes']);
+                $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
                 $target = json_encode($tab['option_id']);
                 $label = json_encode(xl("Loading") . " " . $tab['title']);
                 $loading = xlj("Loading");
@@ -455,8 +456,10 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 <body class="min-vw-100">
     <?php
     // fire off an event here
-    if (OEGlobalsBag::getInstance()->hasKernel()) {
-        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+    $dispatcher = OEGlobalsBag::getInstance()->hasKernel()
+        ? OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
+        : null;
+    if ($dispatcher !== null) {
         $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>
@@ -499,9 +502,9 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             <?php if (OEGlobalsBag::getInstance()->get('search_any_patient') != 'none') : ?>
                 <form name="frm_search_globals" class="form-inline">
                     <div class="input-group">
-                        <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                        <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?? '' ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
                         <div class="input-group-append">
-                            <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                            <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?? '' ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type ?? ''); ?>')}">
                                 <i class="fa fa-search">&nbsp;</i></button>
                         </div>
                     </div>
@@ -511,7 +514,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data}"></span>
             <?php
             // fire off a nav event
-            $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_NAV);
+            $dispatcher?->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_NAV);
             ?>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
@@ -520,7 +523,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
         <?php echo $twig->render("product_registration/product_registration_modal.html.twig", [
-            'webroot' => $webroot,
+            'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
             'allowEmail' => $allowEmail ?? false,
             'allowTelemetry' => $allowTelemetry ?? false]); ?>
     </div>
@@ -559,11 +562,11 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
 
     // fire off an event here
-    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+    $dispatcher?->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 
     if ($allowRegisterDialog !== false) { // disable if running unit tests.
         // Include the product registration js, telemetry and usage data reporting dialog
-        echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => $webroot]);
+        echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 
     ?>

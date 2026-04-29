@@ -107,6 +107,19 @@ if (isset($_GET['starttimeh'])) {
 /* some defaults to start */
 $startampm = '';
 $info_msg = "";
+$duration = 0;
+$endtime = '';
+$starttime = '';
+$event_date = '';
+$locationspec = '';
+$multiple_value = 0;
+$my_recurrtype = 0;
+$noRecurrspec = [];
+$providers_current = [];
+$recurrence_end_date = '';
+$recurrspec = [];
+$e2f = '';
+$new_eid = 0;
 $g_edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');
 $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 
