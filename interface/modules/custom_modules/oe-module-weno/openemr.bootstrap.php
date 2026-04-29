@@ -20,7 +20,7 @@ namespace OpenEMR\Modules\WenoModule;
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\WenoModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
- * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 
 $bootstrap = new Bootstrap($eventDispatcher);

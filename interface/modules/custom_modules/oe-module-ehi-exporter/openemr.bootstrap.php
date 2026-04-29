@@ -91,6 +91,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\EhiExporter\\", __DIR__ . DIRECTORY_SEPARATOR . "src");
 
 /**
- * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 $bootstrap = Bootstrap::instantiate($eventDispatcher, OEGlobalsBag::getInstance()->getKernel());
