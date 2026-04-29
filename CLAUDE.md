@@ -32,7 +32,12 @@ Regardless of how the development environment is set up, these rules always appl
 **Golden rules:**
 
 1. **Use `openemr-cmd` for all worktree and stack operations.** Do not call `git worktree add/remove` or `docker compose` directly for worktree lifecycle. openemr-cmd manages port offsets, named volumes, override files, and state — bypassing it will corrupt state.
-2. **Never run `openemr-cmd worktree remove`.** The project maintainer reviews and merges PRs. Worktree removal only happens on explicit instruction after a PR is merged — never autonomously.
+2. **Never run `openemr-cmd worktree remove` autonomously.** It is destructive: it deletes the worktree directory, prunes the git worktree registration, and (without `--keep-volumes`) removes ~10 branch-scoped Docker named volumes including the database. Only run it when the human explicitly asks you to remove a specific named worktree (e.g. after a PR is merged, after the human says they are abandoning the branch, or as a one-off cleanup). Before running, do a pre-flight check on the target worktree and surface anything risky to the human:
+   - `git -C <worktree-dir> status --porcelain` is empty (no uncommitted/untracked changes)
+   - `git -C <worktree-dir> log @{upstream}..` is empty (no unpushed commits) — or the branch was intentionally never pushed
+   - The branch is not the one you are currently working in
+
+   If any check fails, stop and ask the human to confirm before proceeding. If all checks pass, run with the human-confirmed flag set (default removes volumes; pass `--keep-volumes` only if the human asks).
 3. **Never push directly to `master` or `main`.** All work happens on a feature branch in a worktree.
 4. **Default to opening PRs as drafts.** Open as ready-for-review only when explicitly asked.
 5. **Do not edit `.worktrees.json` by hand.** It is managed exclusively by openemr-cmd.
@@ -47,7 +52,7 @@ A jailed Ubuntu LXC container connected to the host's git directory via bind mou
 
 Key characteristics:
 - Lean orchestration toolchain only: `openemr-cmd`, `git`, `gh`, `docker`, `kubectl`, `kind`, `helm`, `jq`
-- PHP, Composer, and Node are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands
+- PHP, Composer, and Node *for OpenEMR work* are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands. Node is installed only to run the agent CLI itself (Claude Code).
 - Own Docker daemon running inside the container (not the host's Docker socket)
 - Git base directory bind-mounted read-write: path is identical on host and inside container
 - Multiple agents can run simultaneously, each in its own worktree with its own Docker stack
@@ -215,14 +220,20 @@ EOF
 openemr-cmd worktree down <branch-name> --keep-volumes
 ```
 
-### Post-merge cleanup (maintainer instruction only)
+### Removing a worktree (only when the human explicitly asks)
 
 ```bash
-# Only run this when explicitly instructed after a PR is merged
+# Pre-flight: confirm nothing will be lost
+git -C <worktree-dir> status --porcelain      # must be empty
+git -C <worktree-dir> log @{upstream}..       # must be empty (or branch never pushed)
+
+# If both checks pass and the human has explicitly asked, remove it:
 echo "y" | openemr-cmd worktree remove <branch-name>
 ```
 
-This deletes Docker volumes by default (correct post-merge). Use `--keep-volumes` only if explicitly asked.
+`worktree remove` deletes Docker volumes by default (correct after a PR is merged or a branch is abandoned). Use `--keep-volumes` only if the human asks.
+
+If either pre-flight check turns up changes, do **not** run remove — surface the diff/commits to the human and ask whether to discard, push, or stash first.
 
 ### What not to do
 
@@ -230,7 +241,7 @@ This deletes Docker volumes by default (correct post-merge). Use `--keep-volumes
 - Do not `docker compose up/down` directly for worktree stacks
 - Do not edit `.worktrees.json` by hand
 - Do not push to `master`, `main`, or any branch you did not create
-- Do not run `openemr-cmd worktree remove` unless explicitly instructed after a PR merge
+- Do not run `openemr-cmd worktree remove` autonomously — only when the human explicitly names a worktree to remove, and only after the pre-flight checks above pass
 - Do not open PRs as ready-for-review unless explicitly asked — default is draft
 - Do not install packages or system dependencies globally without explicit approval from the maintainer
 

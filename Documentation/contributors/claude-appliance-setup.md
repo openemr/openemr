@@ -8,43 +8,67 @@
 
 ## Overview
 
-A jailed Ubuntu LXC container running on the host Linux machine, connected to the host's git directory via bind mount (mirrored path). The container uses LXC's default NAT networking — no bridge required — with a static IP inside the container and a single `/etc/hosts` entry on the host for name resolution.
+A jailed Ubuntu LXC container running on the host Linux machine, connected to the host's git directory via bind mount (mirrored path). The container uses LXC's default NAT bridge (`lxcbr0`) rather than a separate LAN/host bridge such as `br0`, with a static IP inside the container and a single `/etc/hosts` entry on the host for name resolution.
 
 **Key design decisions:**
-- PHP, Composer, and Node are **not** installed in the LXC — all dev tooling runs inside the demo stacks via `openemr-cmd` commands (`docker exec`)
-- LXC provides the jail — agents cannot reach host Docker, host filesystem, or host localhost services
-- **NAT networking** (not bridged) — the container has no LAN presence, cannot reach your router or other LAN devices, and is invisible to everything outside the host
+- PHP, Composer, and Node for OpenEMR work are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands (`docker exec`). Node is installed only to run the agent CLI itself (Claude Code).
+- LXC provides the jail — agents cannot reach host Docker, host filesystem outside the bind mount, or host localhost services
+- **NAT networking** (not bridged) — LAN hosts cannot initiate connections *to* the container; the container is invisible from outside the host. The container can still reach the LAN *outbound* once forwarding is enabled — see threat model below.
 - Static IP inside the container + `/etc/hosts` on the host gives a stable `claude-appliance.local` name — no mDNS or Avahi needed
 - Works on any connection including mobile hotspot — no dependency on LAN or router config
 - `openemr-cmd` handles all worktree lifecycle, port offset management, and Docker stack orchestration
 
 **Containment stack:**
 - **LXC** — jails the filesystem, processes, and kernel namespaces
-- **NAT networking** — jails the network; container traffic exits only via host NAT
-- **No PHP/Composer/Node on appliance** — no dev tooling to exploit
-- **`claude-agent` user with limited sudo** — minimal privilege inside the container
+- **NAT networking** — jails inbound network access; container is not reachable from the LAN
+- **No OpenEMR dev tooling on appliance** — PHP, Composer, and project Node deps live only inside demo stacks
 - **Bind-mounted git directory** — the only intentional read-write bridge to the host
+
+---
+
+## Threat model
+
+Before changing anything below, understand what this appliance is and is not:
+
+- **The container is the trust boundary, not the user inside it.** The agent has effectively full privilege inside the container (root via passwordless sudo, full capabilities for nested Docker, `--dangerously-skip-permissions` on Claude Code). That is intentional — the design treats the *whole appliance* as already-compromised and relies on LXC + NAT to contain blast radius.
+- **What is protected:** the host filesystem outside `<git-dir>`, the host Docker daemon, host localhost services, your LAN's inbound surface, and any GitHub/SSH credentials that live on the host but not in the container.
+- **What is *not* protected:** anything reachable from the bind-mounted `<git-dir>`, anything the container can dial outbound (LAN included, unless you add egress firewall rules), and the contents of any tokens/keys you place inside the container (the GitHub PAT, the deploy key, the optional GPG key).
+- **Posture:** treat the appliance as disposable. Snapshots are the rollback path. Do not put credentials in the container that you would not be willing to revoke. Use a separate GitHub PAT, a per-repo deploy key, and (if you sign) a separate signing key — all documented below.
+- **If you want stricter outbound isolation,** add explicit host firewall rules to block container → LAN traffic (e.g. `iptables` rules dropping `lxcbr0` traffic destined for RFC1918 ranges other than the loopback uplink). The default config below does *not* do this.
 
 ---
 
 ## Step 1 — Configure ufw to allow LXC bridge forwarding
 
-LXC container networking requires packet forwarding through the `lxcbr0` bridge. By default ufw blocks this. Two changes needed on the host:
+LXC container networking requires packet forwarding through the `lxcbr0` bridge. By default ufw blocks this. Prefer **scoped** route rules over flipping the global default forwarding policy — this keeps `DEFAULT_FORWARD_POLICY="DROP"` for every other interface (VPN tunnels, additional bridges, etc.) and only opens the path the container actually needs.
 
 ```bash
-# Allow traffic in and out on the lxcbr0 bridge
+# Allow ufw-managed traffic to/from the lxcbr0 bridge itself
 sudo ufw allow in on lxcbr0
 sudo ufw allow out on lxcbr0
 
-# Allow forwarding (ufw blocks it by default)
-sudo nano /etc/default/ufw
-# Change: DEFAULT_FORWARD_POLICY="DROP"
-# To:     DEFAULT_FORWARD_POLICY="ACCEPT"
+# Allow routed/NAT forwarding for traffic to/from the lxcbr0 subnet.
+# We deliberately do not pin the *other* interface so this works regardless
+# of which uplink is active (home wifi, ethernet dock, phone tether, mobile
+# hotspot, etc.) — the design goal is "works on any connection."
+sudo ufw route allow in on lxcbr0 from 10.0.3.0/24
+sudo ufw route allow out on lxcbr0 to 10.0.3.0/24
 
 sudo ufw reload
 ```
 
-> **Security note:** `DEFAULT_FORWARD_POLICY="ACCEPT"` allows packets to be forwarded between network interfaces. This is required for NAT-based container networking. It does not open any new ports to the internet or weaken your existing ufw rules — your inbound/outbound rules all remain in effect. On a typical home or dev machine this is a negligible change.
+> **Why not `DEFAULT_FORWARD_POLICY="ACCEPT"`?** Flipping that flag changes forwarding behavior for *every* interface pair on the host, not just `lxcbr0`. On a multi-interface host (VPN, Docker bridges, additional LXC networks) it can permit unintended traffic paths. The `ufw route` rules above are still meaningfully narrower — they only allow forwarding when one side of the path is `lxcbr0` and the source/destination is the lxcbr0 subnet — but they do not pin the uplink, so they keep working when you switch networks.
+>
+> **If you want stricter scoping** at the cost of network portability, replace the two `ufw route` lines above with one pair per uplink you use, e.g.:
+>
+> ```bash
+> sudo ufw route allow in on lxcbr0 out on <uplink_if> from 10.0.3.0/24
+> sudo ufw route allow in on <uplink_if> out on lxcbr0 to 10.0.3.0/24
+> ```
+>
+> You will then need to re-run those commands (or maintain one pair per interface) whenever you switch between wifi, ethernet, and tethered uplinks.
+>
+> **If your distro or ufw version does not support `ufw route`** and you must use the global policy switch, document it as a host-wide change and review your other firewall rules first.
 
 ---
 
@@ -68,20 +92,35 @@ sudo lxc-create -n claude-appliance -t download -- \
 
 ## Step 4 — Configure the container
 
-`lxc-create` already generates `/var/lib/lxc/claude-appliance/config` with the hostname, architecture, rootfs path, and NAT networking (including a real MAC address). You only need to **append** three blocks to the end of that existing file:
+`lxc-create` already generates `/var/lib/lxc/claude-appliance/config` with the hostname, architecture, rootfs path, and NAT networking (including a real MAC address). Append the following block to the end of that existing file. Replace `<git-dir>` with your actual git base directory path (e.g. `/home/<your-username>/git`); the target (second path) must be the same path without the leading `/`.
 
 ```bash
 sudo tee -a /var/lib/lxc/claude-appliance/config << 'EOF'
-# Allow nested Docker
+# AppArmor: unconfined is currently required for nested Docker.
+# See the explanation below for why, and the threat-model section for
+# what this posture does and does not protect.
 lxc.apparmor.profile = unconfined
-lxc.cap.drop =
-lxc.cgroup2.devices.allow = a
 # Git directory bind mount (mirror host path exactly)
-lxc.mount.entry = /home/brady2/git home/brady2/git none bind,create=dir 0 0
+lxc.mount.entry = <git-dir> <git-dir-no-leading-slash> none bind,create=dir 0 0
 EOF
 ```
 
-> Replace `/home/brady2/git` with your actual git directory path if different. The target (second path) must be the same path without the leading `/`.
+For example, if your git base is `/home/alice/git`:
+
+```text
+lxc.mount.entry = /home/alice/git home/alice/git none bind,create=dir 0 0
+```
+
+> **What this configuration deliberately leaves out.** Older guides for nested Docker in LXC commonly add two more lines: `lxc.cap.drop =` (empty — "drop no capabilities") and `lxc.cgroup2.devices.allow = a` ("allow access to every device node"). Both are over-permissive defaults that LXC does not need — Docker runs fine with the default LXC capability set and the default cgroup device controller. What those lines *do* grant is the easiest container-to-host escape paths: loading kernel modules (`cap_sys_module`), raw block-device I/O (`cap_sys_rawio`), and direct opens of `/dev/sda`-style nodes for "mount the host's disk" tricks. We omit them.
+
+> **Why `unconfined` rather than the `generated` AppArmor profile?** The `generated` profile (with or without `lxc.apparmor.allow_nesting = 1`) blocks `runc` from writing per-container sysctls into `/proc/sys/net/...`, which prevents Docker 26+ from starting any container. `docker run --rm hello-world` fails with `open sysctl net.ipv4.ip_unprivileged_port_start file: reopen fd 8: permission denied`. Until either the LXC profile or Docker's reliance on those sysctls changes upstream, `unconfined` is the working configuration on Ubuntu 24 hosts. This means the LXC stays a *privileged* container — kernel exploits inside it land as host root rather than an unprivileged user. The threat-model section above frames the rest of the posture; tightening this further (unprivileged LXC with idmap mounts) is a future direction, not what is documented here.
+
+> **Portability across Linux distributions.** The configuration above is specific to AppArmor-based hosts (Ubuntu, Debian, openSUSE) on cgroup v2. On other systems:
+> - **SELinux hosts (Fedora, RHEL, Rocky, Alma):** the equivalent control is `lxc.selinux.context` — start with `unconfined_t` for permissive operation, or build a project-specific policy. Nested Docker on SELinux often also needs SELinux relaxed inside the container itself (`SELINUX=permissive` in `/etc/selinux/config`, or a tailored policy).
+> - **Hosts with no MAC system (Arch, Gentoo, custom kernels):** the `lxc.apparmor.*` line is a no-op and can be omitted.
+> - **cgroup v1 hosts:** if you later add cgroup-related directives, use `lxc.cgroup.*` (no `2`) instead of `lxc.cgroup2.*`. Most modern distros default to cgroup v2 — `stat -fc %T /sys/fs/cgroup/` returns `cgroup2fs` on v2.
+>
+> Use `docker info` and `docker run --rm hello-world` inside the container as the smoke test, and pick the smallest configuration that passes it on your distro.
 
 Verify the final config looks correct:
 
@@ -109,7 +148,7 @@ First check your host UID:
 ```bash
 # On the host
 id <your-username>
-# e.g. uid=1000(brady2) ...
+# e.g. uid=1000(<your-username>) ...
 ```
 
 Then inside the container:
@@ -126,13 +165,18 @@ usermod -u <host-uid> claude-agent
 groupmod -g <host-uid> claude-agent
 chown -R claude-agent:claude-agent /home/claude-agent
 
-# Always run this — grants passwordless sudo for apt-get and systemctl
+# Always run this — grants passwordless sudo for apt-get and systemctl.
+# Single write (not append) avoids duplicate lines on re-runs.
+# 0440 is the only mode sudo will load files in /etc/sudoers.d/ with.
 echo "claude-agent ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/systemctl" \
-  >> /etc/sudoers.d/claude-agent
+  | tee /etc/sudoers.d/claude-agent > /dev/null
+chmod 0440 /etc/sudoers.d/claude-agent
 
 # Verify UID matches host
 id claude-agent
 ```
+
+> **Note on threat model.** This is "passwordless root inside the container" by design — see the threat model section at the top. The container, not the `claude-agent` user, is the security boundary; if you tighten this, you are hardening against an attack vector the design does not protect against in the first place.
 
 ---
 
@@ -161,19 +205,28 @@ systemctl enable docker
 systemctl start docker
 
 # kubectl
+# Note: this fetches the current stable release. Pin to a specific version
+# and verify the published .sha256 file if you want stricter supply-chain guarantees.
 curl -fsSL https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl \
   -o /usr/local/bin/kubectl
 chmod +x /usr/local/bin/kubectl
 
 # kind (Kubernetes IN Docker — for openemr-devops kubernetes work)
+# Note: this fetches the latest release. Pin to a specific version and verify the
+# SHA from https://github.com/kubernetes-sigs/kind/releases for stricter supply-chain guarantees.
 curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 \
   -o /usr/local/bin/kind
 chmod +x /usr/local/bin/kind
 
 # helm (used by kub-up to install cert-manager and NFS provisioner)
+# Note: piping a remote install script to a shell is convenient but trusts the upstream;
+# pin a specific Helm release if you want stricter supply-chain guarantees.
 curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-# openemr-cmd (available via bind-mounted git dir)
+# openemr-cmd (clone openemr-devops into the bind-mounted git dir if not already present)
+if [ ! -d "<git-dir>/openemr-devops" ]; then
+  git clone https://github.com/openemr/openemr-devops.git <git-dir>/openemr-devops
+fi
 cp <git-dir>/openemr-devops/utilities/openemr-cmd/openemr-cmd /usr/local/bin/openemr-cmd
 chmod +x /usr/local/bin/openemr-cmd
 
@@ -426,14 +479,17 @@ git log --show-signature -1
 
 ```bash
 ls <git-dir>/
-# Should see: openemr  openemr-wt-1  openemr-wt-2 ...
-
-cd <git-dir>/openemr-wt-1
-git status
-# Should work — .git pointer resolves to <git-dir>/openemr/.git
+# Should see: openemr  plus zero or more openemr-wt-<branch-slug> directories
+# (openemr-cmd derives the slug from the branch name — e.g. branch
+# "feature/foo" becomes directory openemr-wt-feature-foo).
 
 openemr-cmd worktree list
-# Shows all worktrees and status
+# Shows all worktrees, ports, and status. Pick one of the listed
+# directories for the cd test below (skip if no worktrees yet).
+
+# cd <git-dir>/openemr-wt-<branch-slug>
+# git status
+# Should work — .git pointer resolves to <git-dir>/openemr/.git
 ```
 
 ---
@@ -464,11 +520,15 @@ https://claude-appliance.local:9301
 
 Click through the SSL warning (self-signed cert — connection is still encrypted). You should see the OpenEMR setup/login screen.
 
-> 🖥️ **Inside container** — clean up test worktree:
+> 🖥️ **Inside container** — fully remove the test worktree (this is a one-time human-run setup verification, not an agent action):
 
 ```bash
 echo "y" | openemr-cmd worktree remove test-appliance
 ```
+
+> **Why `remove` here and not `down`?** This is a human-driven setup verification — the test worktree has no purpose afterwards. `worktree remove` (default, without `--keep-volumes`) runs `docker compose down --volumes`, which deletes the ~10 branch-scoped named volumes that openemr-cmd creates per worktree (`openemr-<slug>_db`, `_assets`, `_themes`, `_sites`, `_nodemodules`, `_vendor`, `_ccdanodemodules`, `_ccdanodemodules2`, `_logs`, `_couchdb`, plus `_mailpit` on non-light envs). Each worktree's volumes are fully namespaced — nothing is shared between worktrees — so removing `test-appliance` cleans up only its own volumes and leaves any other worktrees untouched. Using `worktree down --keep-volumes` here would orphan those volumes on disk indefinitely.
+>
+> Note: `CLAUDE.md` instructs *agents* never to run `openemr-cmd worktree remove`. This step is run by you, the human setting up the appliance, before any agent ever attaches.
 
 ---
 
@@ -514,28 +574,51 @@ Save as `<git-dir>/launch-agent.sh`:
 set -euo pipefail
 
 BRANCH="${1:-}"
-ENV="${2:---env easy}"
+ENV_NAME="easy"
 OPENEMR_ROOT="<git-dir>/openemr"
 
 if [[ -z "${BRANCH}" ]]; then
-  echo "Usage: launch-agent.sh <branch-name> [--env easy|easy-light|easy-redis]"
+  echo "Usage: launch-agent.sh <branch-name> [--env easy|easy-light|easy-redis]" >&2
   exit 1
 fi
 
+# Parse optional "--env <value>" — passed as two separate args, validated
+# against an allowlist so the value can never reach the shell unquoted.
+if [[ $# -ge 3 && "$2" == "--env" ]]; then
+  ENV_NAME="$3"
+fi
+
+case "${ENV_NAME}" in
+  easy|easy-light|easy-redis) ;;
+  *) echo "Invalid --env value: ${ENV_NAME}" >&2; exit 1 ;;
+esac
+
 export OPENEMR_ROOT
 
-echo "==> Creating worktree and stack for: ${BRANCH}"
-openemr-cmd worktree add "${BRANCH}" -b ${ENV} --start
+echo "==> Creating worktree and stack for: ${BRANCH} (env=${ENV_NAME})"
+openemr-cmd worktree add "${BRANCH}" -b --env "${ENV_NAME}" --start
 
-SLUG=$(echo "${BRANCH}" | tr '/' '-' | tr -cd 'a-zA-Z0-9_-' | tr '[:upper:]' '[:lower:]')
-WORKTREE_DIR="<git-dir>/openemr-wt-${SLUG}"
+# Resolve the worktree path from openemr-cmd output rather than reconstructing
+# the slug ourselves — keeps this script consistent with whatever naming
+# scheme openemr-cmd actually produces.
+WORKTREE_DIR="$(openemr-cmd worktree list \
+  | awk -v branch="${BRANCH}" '$1 == branch { print $NF; exit }')"
+
+if [[ -z "${WORKTREE_DIR}" ]]; then
+  echo "Unable to determine worktree path for branch: ${BRANCH}" >&2
+  exit 1
+fi
 
 echo "==> Stack ports:"
-openemr-cmd worktree list | grep "${BRANCH}"
+openemr-cmd worktree list | grep -F -- "${BRANCH}"
 
 echo "==> Launching Claude Code agent in ${WORKTREE_DIR}"
 cd "${WORKTREE_DIR}"
 
+# --dangerously-skip-permissions disables Claude Code's per-action permission
+# prompts. This is appropriate *inside this appliance* because the LXC + NAT
+# boundary is the security model (see threat model section). Outside this
+# context, leave the prompts on.
 claude --dangerously-skip-permissions
 ```
 
@@ -581,7 +664,7 @@ echo "${ISSUES}" | jq -r '.[] | "\(.number) \(.title)"' | while read -r NUM TITL
   fi
 
   echo "==> Spawning agent for issue #${NUM}: ${TITLE}"
-  bash <git-dir>/launch-agent.sh "${BRANCH}" "--env ${ENV}" &
+  bash <git-dir>/launch-agent.sh "${BRANCH}" --env "${ENV}" &
 
   # Stagger starts to avoid port collision during stack init
   sleep 5
