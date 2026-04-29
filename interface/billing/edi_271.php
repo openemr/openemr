@@ -15,10 +15,6 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
@@ -27,6 +23,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
