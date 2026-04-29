@@ -882,7 +882,8 @@ class AuthorizationController
                     // Log failed MFA authentication attempt
                     $ip = collectIpAddresses();
                     $username = $request->request->get('username', '');
-                    $mfaType = $request->request->get('mfa_type', 'unknown');
+                    $rawMfaType = (string) $request->request->get('mfa_type', '');
+                    $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
                     $userService = new UserService();
                     $authGroup = $username !== '' ? ($userService->getAuthGroupForUser($username) ?: '') : '';
                     EventAuditLogger::getInstance()->newEvent(
