@@ -276,8 +276,8 @@ class InfernoSinglePatientAPITest extends TestCase
     {
         foreach ($results as $result) {
             $failMessage = '';
-            if ($result['result'] === 'skip') {
-                continue; // skip this test if it's skipped
+            if ($result['result'] === 'skip' || $result['result'] === 'omit') {
+                continue; // skip/omit results are acceptable (omit = not applicable due to missing data)
             }
             if ($result['result'] !== 'pass') {
 //                var_dump($result);
