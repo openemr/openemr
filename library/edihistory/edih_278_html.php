@@ -63,8 +63,15 @@ function edih_278_transaction_html($obj278, $bht03)
     $rcv_html = "";
     $sbr_nm1_html = "";
     $dep_nm1_html = "";
+    $sbr_eb_html = "";
+    $dep_eb_html = "";
     $evt_html = "";
     $svc_html = "";
+    $loopid = '';
+    $elem03 = '';
+    $elem05 = '';
+    $ar01 = [];
+    $dtp03 = '';
     //
     $trns_ct = count($trans);
     for ($i = 0; $i < $trns_ct; $i++) {

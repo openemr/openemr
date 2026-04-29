@@ -340,6 +340,7 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $rtn = 0;
         try {
             sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
             $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
@@ -355,7 +356,7 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('COMMIT');
         sqlStatementNoLog('SET autocommit=1');
 
-        return $rtn ?? 0;
+        return $rtn;
     }
 
     /**
@@ -366,6 +367,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
+        $rtn = false;
         try {
             $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
             foreach ($patients as $id => $groups) {
@@ -602,6 +604,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function setProfileActiveStatus($profiles): int
     {
         sqlQuery("UPDATE `document_template_profiles` SET `active` = '0' WHERE `template_id` = 0");
+        $rtn = true;
         foreach ($profiles as $profile) {
             $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", [$profile]);
         }
@@ -774,7 +777,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function fetchDefaultGroups(): array
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Patient_Groupings']);
-        $category_list = [];
+        $group_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $group_list[$row['option_id']] = $row;
         }

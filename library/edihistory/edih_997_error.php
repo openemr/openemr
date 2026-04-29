@@ -81,6 +81,15 @@ function edih_997_errdata($obj997)
     $iserr = false;
     $batchfile = '';
     $idx = -1;
+    $sub_icn = '';
+    $subdate = '';
+    $subtime = '';
+    $ackcode = '';
+    $acknote = '';
+    $fg_type = '';
+    $fg_id = '';
+    $subtype = '';
+    $substn = '';
     //
     foreach ($segments as $seg) {
         $sar = [];

@@ -30,9 +30,10 @@ require_once("../../library/patient.inc.php");
 /**
  * @global $srcdir
  */
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/appointments.inc.php";
-require_once "$srcdir/clinical_rules.php";
+$srcDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcDir . '/options.inc.php';
+require_once $srcDir . '/appointments.inc.php';
+require_once $srcDir . '/clinical_rules.php';
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,
@@ -134,6 +135,7 @@ function appointments_fetch_reminders($pid, $appt_date): array
     $seq_due = [];
     $seq_cat = [];
     $seq_act = [];
+    $rems_out = [];
     foreach ($rems as $ix => $rem) {
         $rem_out = [];
         $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);

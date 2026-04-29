@@ -20,11 +20,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once "$srcdir/user.inc.php";
-require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
@@ -33,6 +29,12 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/forms.inc.php');
+require_once($srcDir . '/user.inc.php');
+require_once($srcDir . '/payment.inc.php');
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;

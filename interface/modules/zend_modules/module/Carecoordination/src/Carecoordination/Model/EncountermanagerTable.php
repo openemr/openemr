@@ -153,6 +153,7 @@ class EncountermanagerTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
@@ -255,6 +256,7 @@ class EncountermanagerTable
 
         $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
@@ -262,6 +264,8 @@ class EncountermanagerTable
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = QueryUtils::fetchRecords($query, [$value]);
+                    $ccda_id = null;
+                    $trans_id = null;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];

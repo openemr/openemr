@@ -32,6 +32,7 @@ if ($_POST) {
 $wenoLog = new WenoLogService();
 
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > ''");
+$usersData = [];
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }

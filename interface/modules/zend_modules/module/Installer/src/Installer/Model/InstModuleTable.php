@@ -740,11 +740,11 @@ class InstModuleTable
     public function getDependencyModules($mod_id)
     {
         $modDirname = $this->getModuleDirectory($mod_id);
+        $ret_str = "";
         if ($modDirname <> "") {
             $depModuleStatusArr = [];
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr = $this->getDependedModulesByDirectoryName($modDirname);
-            $ret_str = "";
             if (count($depModulesArr) > 0) {
                 $count = 0;
                 foreach ($depModulesArr as $modDir) {

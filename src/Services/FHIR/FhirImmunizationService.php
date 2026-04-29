@@ -107,10 +107,9 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             // TODO: @adunsulag we need to update these codes here as we need to map better from NIP002
             // to these status codes here: https://terminology.hl7.org/3.1.0/CodeSystem-v3-ActReason.html
             //
+            $code = "PATOBJ";
+            $display = "patient objection";
             if (!empty($dataRecord['refusal_reason_cdc_nip_code'])) {
-                $code = "PATOBJ";
-                $display = "patient objection";
-
                 // we are leaving these here just to document these values as PATOBJ corresponds to both patient or
                 // guardian objection.  Other doesn't have a correspondence, and patient decision is already handled.
                 switch ($dataRecord['refusal_reason_cdc_nip_code']) {

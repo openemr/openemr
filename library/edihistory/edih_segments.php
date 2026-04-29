@@ -103,6 +103,8 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     $segnum = 0;
     $stsegct = 0;
     $bterr = 'btseg';
+    $stn = '';
+    $has_eb = false;
     //
     foreach ($segments as $key => $seg) {
         $idx++;
@@ -359,6 +361,9 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     $hasst = false;
     $idx = 0;
     $stsegct = 0;
+    $stn = '';
+    $has_eb = false;
+    $has_iii = false;
     //
     // to highlight identified errors listed in 999/997 ack (for 270)
     if ($err_seg) {
@@ -848,6 +853,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $err_ar = [];
     $idx = 0;
     $stsegct = 0;
+    $stn = '';
     //
     // to highlight identified errors listed in 999/997 ack
     if ($err_seg) {
@@ -993,6 +999,8 @@ function edih_997_text($segments, $delimiter)
     //
     $de = $delimiter;
     $loopid = "0";
+    $rspicn = '';
+    $rspfile = '';
     //
     //echo 'edih_997_text() foreach segment count: '.count($segments).PHP_EOL;
     //

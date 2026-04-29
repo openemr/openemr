@@ -117,6 +117,7 @@ function get_codes_list($group, $term): void
     $response = sqlStatement("SELECT CONCAT_WS(': ', isc.code, isc.primary_desc, isc.desc1) as label, isc.code as value, isc.code_group as cg FROM inst_support_codes as isc
 HAVING label LIKE ? And cg = ? ORDER BY code ASC", [$term, $group ]);
 
+    $resultpd = [];
     while ($row = sqlFetchArray($response)) {
         $resultpd[] = $row;
     }

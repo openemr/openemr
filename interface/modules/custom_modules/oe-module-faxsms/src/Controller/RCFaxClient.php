@@ -974,6 +974,7 @@ class RCFaxClient extends AppDispatch
                     $type = strtolower((string)$messageStore->type);
                     $direction = strtolower((string)$messageStore->direction);
                     $messageText = '';
+                    $pname = '';
                     if ($type === "sms" && $type === $serviceType) {
                         if ($direction === "inbound") {
                             $links = $this->generateSmsActionLinks($id, $uri, $messageStore->from->phoneNumber ?? '');

@@ -13,8 +13,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$include_root/drugs/drugs.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

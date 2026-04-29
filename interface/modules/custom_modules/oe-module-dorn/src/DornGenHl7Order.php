@@ -141,6 +141,9 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         $cntDx = 0;
+        $D = [];
+        $C = [];
+        $T = [];
         $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         // $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
@@ -690,6 +693,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($altCharScheme), // POS 20
             $this->buildHL7Field("ELINCS_MT-OML-1_1.0"), // POS 21
         ];
+        $segment = '';
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }

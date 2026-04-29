@@ -29,8 +29,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
+
+/** @var array<string, array<string, mixed>> $code_types */
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -110,6 +112,7 @@ function endDoctor(&$docrow): void
 $form_facility  = $_POST['form_facility'] ?? '';
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$res = null;
 if (!empty($_POST['form_refresh'])) {
     // MySQL doesn't grok full outer joins so we do it the hard way.
     //
@@ -498,12 +501,6 @@ if (!empty($_POST['form_refresh'])) {
    </td>
    <td>
       &nbsp;<?php
-         /*****************************************************************
-         if ($form_to_date) {
-            echo $row['pc_eventDate'] . '<br />';
-            echo substr($row['pc_startTime'], 0, 5);
-         }
-         *****************************************************************/
         if (empty($row['pc_eventDate'])) {
             echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {

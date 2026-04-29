@@ -541,6 +541,9 @@ class InstallerController extends AbstractActionController
         $upgrade_sql = $ModulePath . "/sql/upgrade.sql";
         $install_acl = $ModulePath . "/acl/acl_setup.php";
         if (file_exists($version_of_module) && (file_exists($table_sql) || file_exists($install_sql) || file_exists($install_acl))) {
+            $v_major = '0';
+            $v_minor = '0';
+            $v_patch = '0';
             include_once($version_of_module);
             $version = $v_major . "." . $v_minor . "." . $v_patch;
             return $version;
@@ -733,6 +736,7 @@ class InstallerController extends AbstractActionController
             $add_query_string = 0;
             $add_ended_divs = 0;
             $k = 0;
+            $curr_html_tag = false;
             foreach ($matches[1] as $string) {
                 $prev_html_tag = false;
                 if (preg_match("/<([a-z]+).*?>([^<]+)<\/([a-z]+)>/i", $string, $mm)) {
@@ -841,6 +845,7 @@ class InstallerController extends AbstractActionController
         $modType = $registryEntry->type;
         $dirModule = $registryEntry->modDirectory;
         $sqlInstalled = false;
+        $status = $this->listenerObject->z_xlt("Failure");
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
             $fullDirectory = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('customModDir') . "/" . $dirModule;
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {

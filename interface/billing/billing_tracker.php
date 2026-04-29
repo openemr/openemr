@@ -14,7 +14,6 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,
@@ -25,6 +24,8 @@ use OpenEMR\Common\{
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {

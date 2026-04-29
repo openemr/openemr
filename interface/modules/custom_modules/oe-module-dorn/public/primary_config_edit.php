@@ -33,6 +33,8 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Edit/Add Procedure Provider", xl("Edit/Add Procedure Provider"));
 }
 
+$npi = "";
+$data = null;
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) { //check if form was submitted
         $saveData = CustomerPrimaryInfoView::loadByPost($_POST);
