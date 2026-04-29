@@ -25,9 +25,7 @@ require_once(__DIR__ . "/../../../../library/options.inc.php");
 chdir(dirname(__DIR__));
 
 // Run the application!
-/** @var OpenEMR/Core/ModulesApplication
- * Defined in globals.php
-*/
+/** @var \OpenEMR\Core\ModulesApplication Defined in globals.php */
 if (!empty(OEGlobalsBag::getInstance()->get('modules_application'))) {
     // $time_start = microtime(true);
     // run the request lifecycle.  The application has already inited in the globals.php

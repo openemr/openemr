@@ -51,7 +51,7 @@ class zipfile
     /**
      * Last offset position
      *
-     * @var integer $old_offset
+     * @var int $old_offset
      */
     public $old_offset = 0;
 
@@ -59,10 +59,9 @@ class zipfile
      * Converts an Unix timestamp to a four byte DOS date and time format (date
      * in high two bytes, time in low two bytes allowing magnitude comparison).
      *
-     * @param
-     *          integer the current Unix timestamp
+     * @param int $unixtime the current Unix timestamp
      *
-     * @return integer the current date in a four byte DOS format
+     * @return int the current date in a four byte DOS format
      *
      * @access private
      */
@@ -85,12 +84,9 @@ class zipfile
     /**
      * Adds "file" to archive
      *
-     * @param
-     *          string file contents
-     * @param
-     *          string name of the file in the archive (may contains the path)
-     * @param
-     *          integer the current timestamp
+     * @param string $data file contents
+     * @param string $name name of the file in the archive (may contains the path)
+     * @param int $time the current timestamp
      *
      * @access public
      */

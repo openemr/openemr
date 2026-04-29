@@ -14,7 +14,7 @@
  * @param string $cache_id
  * @param string $compile_id
  * @param string $results
- * @return boolean
+ * @return bool
  */
 
 //  $tpl_file, $cache_id, $compile_id, &$results

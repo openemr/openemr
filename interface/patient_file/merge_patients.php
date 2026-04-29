@@ -81,10 +81,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         /**
          * Deletes rows from the given table that are no longer needed due to the merge.
          *
-         * @param [type] $tblname    the name of the table to operate on.
-         * @param [type] $colname    the column used for the query.
-         * @param [type] $source_pid the source patient id.
-         * @param [type] $target_pid the target patient id.
+         * @param mixed $tblname the name of the table to operate on.
+         * @param mixed $colname the column used for the query.
+         * @param mixed $source_pid the source patient id.
+         * @param mixed $target_pid the target patient id.
          *
          * @return void
          */
@@ -117,10 +117,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * Updates rows in the given table, where the given column's value
          * is the source_pid to the given target_pid value.
          *
-         * @param [type] $tblname    the name of the table to operate on.
-         * @param [type] $colname    the column used for the query.
-         * @param [type] $source_pid the source patient id.
-         * @param [type] $target_pid the target patient id.
+         * @param mixed $tblname the name of the table to operate on.
+         * @param mixed $colname the column used for the query.
+         * @param mixed $source_pid the source patient id.
+         * @param mixed $target_pid the target patient id.
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
@@ -152,10 +152,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * Merge rows by changing the given column of the given table
          * from source_pid to target_pid.
          *
-         * @param [type] $tblname    the table to operate on.
-         * @param [type] $colname    the column name of the data to change.
-         * @param [type] $source_pid the data to be changed from.
-         * @param [type] $target_pid the data to be changed to.
+         * @param mixed $tblname the table to operate on.
+         * @param mixed $colname the column name of the data to change.
+         * @param mixed $source_pid the data to be changed from.
+         * @param mixed $target_pid the data to be changed to.
          *
          * @return void
          */
@@ -282,9 +282,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         /**
          * Add a line into the audit log for a merge event.
          *
-         * @param [type] $target_pid  the target patient id.
-         * @param [type] $event_type  the type of db change (update,delete,etc.)
-         * @param [type] $log_message the message to log
+         * @param mixed $target_pid the target patient id.
+         * @param mixed $event_type the type of db change (update,delete,etc.)
+         * @param mixed $log_message the message to log
          *
          * @return void
          */

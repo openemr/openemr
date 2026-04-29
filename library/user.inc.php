@@ -45,7 +45,7 @@ function getUserSetting($label, $user = null, $defaultUser = 0)
  * @param string $value - Setting value
  * @param int $user - user id number from users table
  * @deprecated 7.0.3 see UserSettingsService::checkUserSetting
- * @return boolean - true if setting exist and false if does not exist
+ * @return bool - true if setting exist and false if does not exist
  */
 function checkUserSetting($label, $value, $user = null)
 {
@@ -58,8 +58,8 @@ function checkUserSetting($label, $value, $user = null)
  * @param string $label - Setting key
  * @param string $value - Setting value
  * @param int $user - user id number from users table
- * @param boolean $createDefault - If no current global default value, create one.
- * @param boolean $overwrite - If this is set to true, then overwrite the current setting
+ * @param bool $createDefault - If no current global default value, create one.
+ * @param bool $overwrite - If this is set to true, then overwrite the current setting
  * @deprecated 7.0.3 see UserSettingsService::setUserSetting
  */
 function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)

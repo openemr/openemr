@@ -39,7 +39,7 @@ class FacilityFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * @return single/random fhir facility fixture
+     * @return array<string, mixed> a single random fhir facility fixture
      */
     public function getSingleFhirFacilityFixture()
     {

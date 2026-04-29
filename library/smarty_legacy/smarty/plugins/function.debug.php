@@ -18,8 +18,8 @@
  *       (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @version  1.0
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string output from {@link Smarty::_generate_debug_output()}
  */
 function smarty_function_debug($params, &$smarty)

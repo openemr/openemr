@@ -40,8 +40,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  *
  * @uses csv_table_header()
  * @uses csv_thead_html()
- * @param array
- * @param bool
+ * @param array $data_ar
+ * @param bool $err_only
  * @return string
  */
 function edih_csv_process_html($data_ar, $err_only = false)
@@ -204,9 +204,9 @@ function edih_csv_process_html($data_ar, $err_only = false)
  * @uses edih_997_error()
  * @uses csv_denied_by_file()
  *
- * @param string
- * @param string
- * @param string
+ * @param string $filetype
+ * @param string $filename
+ * @param string $trace
  *
  * @return string
  */
@@ -284,7 +284,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
  * @uses csv_table_select_list()
  * @uses csv_search_record()
  *
- * @param string       encounter number
+ * @param string $encounter encounter number
  *
  * @return string
  */

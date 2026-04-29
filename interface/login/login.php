@@ -259,7 +259,7 @@ $viewArgs = [
 ];
 
 /**
- * @var EventDispatcher;
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $ed
  */
 $ed = $globalsBag->getKernel()->getEventDispatcher();
 

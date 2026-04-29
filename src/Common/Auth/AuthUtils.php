@@ -125,7 +125,7 @@ class AuthUtils
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $email    - used in case of portal auth when a email address is required
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      */
     public function confirmPassword($username, &$password, $email = '')
     {
@@ -141,7 +141,7 @@ class AuthUtils
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $email    - used when a email address is required
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      */
     private function confirmPatientPassword($username, &$password, $email = '')
     {
@@ -269,7 +269,7 @@ class AuthUtils
      *
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      * @throws SodiumException
      */
     private function confirmUserPassword($username, &$password)
@@ -510,7 +510,7 @@ class AuthUtils
      * @param $create          Are we creating a new user or
      * @param array<string, mixed> $userData  Associative array of column => value pairs for the new users row.
      * @param $new_username    The username for a new user
-     * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
+     * @return bool Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
     public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, array $userData = [], $new_username = null)
     {
@@ -1012,7 +1012,7 @@ class AuthUtils
      * Does the new password meet the minimum length requirements?
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password long enough?
+     * @return bool is the password long enough?
      */
     private function testMinimumPasswordLength(&$pwd)
     {
@@ -1039,7 +1039,7 @@ class AuthUtils
      *  argon hashing and wish to allow larger passwords).
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password short enough?
+     * @return bool is the password short enough?
      */
     private function testMaximumPasswordLength(&$pwd)
     {
@@ -1057,7 +1057,7 @@ class AuthUtils
      * Does the new password meet the strength requirements?
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password strong enough?
+     * @return bool is the password strong enough?
      */
     private function testPasswordStrength(&$pwd)
     {

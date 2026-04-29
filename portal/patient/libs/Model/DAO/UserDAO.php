@@ -145,7 +145,7 @@ class UserDAO extends Phreezable
     public $PortalUser;
 /**
      * Returns a dataset of FormHearing objects with matching ExaminerId
-     * @param Criteria
+     * @param mixed $criteria
      * @return DataSet
      */
     public function GetExaminerFormHearings($criteria = null)
@@ -155,7 +155,7 @@ class UserDAO extends Phreezable
 
     /**
      * Returns a dataset of FormHearing objects with matching ReviewerId
-     * @param Criteria
+     * @param mixed $criteria
      * @return DataSet
      */
     public function GetReviewerFormHearings($criteria = null)

@@ -172,6 +172,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$string in isset\\(\\) always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.default.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$eid in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',

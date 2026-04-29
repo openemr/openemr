@@ -24,7 +24,7 @@ class ReminderIntervalDetail
      *
      * @param ReminderIntervalType $intervalType
      * @param ReminderIntervalRange $intervalRange
-     * @param integer $amount
+     * @param int $amount
      * @param TimeUnit $timeUnit
      */
     function __construct(public $intervalType, public $intervalRange, public $amount, public $timeUnit)

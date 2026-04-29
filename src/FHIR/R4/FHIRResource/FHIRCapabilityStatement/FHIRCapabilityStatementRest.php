@@ -413,7 +413,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

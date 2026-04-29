@@ -656,7 +656,7 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

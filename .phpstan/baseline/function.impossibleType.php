@@ -64,6 +64,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',
 ];
 $ignoreErrors[] = [
@@ -72,7 +77,42 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'DataPage\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'DataSet\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'Phreezable\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'Reporter\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'SplFixedArray\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with VARIANT will always evaluate to false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with value will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
@@ -107,6 +147,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with non\\-empty\\-array will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with array will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportJob.php',
@@ -118,6 +163,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with OpenEMR\\\\Gacl\\\\ADORecordSet will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_object\\(\\) with array\\|null will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_scalar\\(\\) with array\\|null will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];

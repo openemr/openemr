@@ -770,7 +770,7 @@ function sort_byTimeD($a, $b)
 }
 /**
  *    pc_clean
- *    @param s string text to clean
+ *    @param mixed $s string text to clean
  *    @return string cleaned up text
  */
 function pc_clean($s)

@@ -2,6 +2,16 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var above a function has no effect\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var above a function has no effect\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var above a method has no effect\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Twig/TwigContainer.php',

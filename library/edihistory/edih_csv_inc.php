@@ -144,7 +144,7 @@ function csv_log_html($logname = '')
 /**
  * list log files and store old logs in an archive
  *
- * @param bool
+ * @param bool $list
  * @return array (json)
  */
 function csv_log_manage($list = true)
@@ -260,8 +260,8 @@ function csv_log_manage($list = true)
 /**
  * open or save a user notes file
  *
- * @param string
- * @param bool
+ * @param string $content
+ * @param bool $open
  * @return string
  */
 function csv_notes_file($content = '', $open = true)
@@ -377,7 +377,7 @@ function csv_edih_tmpdir()
  * @uses csv_edih_basedir()
  *
  * @param string &$out_str  referenced, should be created in calling function
- * @return boolean
+ * @return bool
  */
 function csv_setup()
 {
@@ -528,7 +528,6 @@ function csv_setup()
  * Empty all contents of tmp dir /documents/edi/history/tmp
  *
  * @uses csv_edih_tmpdir()
- * @param  none
  * @return bool
  */
 function csv_clear_tmpdir()
@@ -660,8 +659,8 @@ function csv_check_filepath($filename, $type = 'ALL')
 /**
  * verify file type parameter
  *
- * @param string    file type
- * @param bool      return GS02 code or fXXX
+ * @param string $type file type
+ * @param bool $gs_code return GS02 code or fXXX
  * @return string   file type or empty
  */
 function csv_file_type($type, $gs_code = false)
@@ -770,7 +769,7 @@ function csv_parameters($type = 'ALL')
 /**
  * determine if a csv table has data for select dropdown
  *
- * @param string   default 'json'
+ * @param string $outtp default 'json'
  * @return array   json if argument is 'json'
  */
 function csv_table_select_list($outtp = 'json')
@@ -820,7 +819,7 @@ function csv_table_select_list($outtp = 'json')
 /**
  * list existing archive files
  *
- * @param string   default 'json'
+ * @param string $outtp default 'json'
  * @return array   json if argument is 'json'
  */
 function csv_archive_select_list($outtp = 'json')
@@ -1014,8 +1013,8 @@ function csv_newfile_list($type)
  * The error segment string is specially created in edih_997_csv_data()
  * Simple analysis, but the idea is just to identify the bad segment
  *
- * @param string            error segment from edih_997_csv_data()
- * @param bool              true if only the 1st segmentID is wanted
+ * @param string $err_seg error segment from edih_997_csv_data()
+ * @param bool $id true if only the 1st segmentID is wanted
  * return array|string
  */
 function edih_errseg_parse($err_seg, $id = false)
@@ -1074,7 +1073,7 @@ function edih_errseg_parse($err_seg, $id = false)
  *
  * @uses csv_table_header()
  *
- * @param array   data_ar    data array from edih_XXX_csv_data()
+ * @param array $csvdata data_ar data array from edih_XXX_csv_data()
  * @return array|bool        ordered array or false on error
  */
 function edih_csv_order($csvdata)
@@ -1195,8 +1194,8 @@ function edih_format_percent($str_val)
  * HTML string for table thead element
  *
  * @uses csv_table_header()
- * @param string
- * @param string
+ * @param string $file_type
+ * @param string $csv_type
  * @return string
  */
 function csv_thead_html($file_type, $csv_type, $tblhd = null)
@@ -1374,7 +1373,7 @@ function csv_files_header($file_type, $csv_type) {
 /**
  * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
  *
- * @param int
+ * @param int $bytes
  *
  * @return string
  */
@@ -1397,7 +1396,7 @@ function csv_convert_bytes($bytes)
 /**
  * Determine whether an array is multidimensional
  *
- * @param array
+ * @param mixed $array
  * @return bool   false if arrayis multidimensional
  */
 function csv_singlerecord_test($array)
@@ -1530,7 +1529,7 @@ function csv_array_flatten($array)
  * @uses csv_parameters()
  * @usescsv_table_header()
  *
- * @param array    data array from parse functions
+ * @param array $csv_data data array from parse functions
  * @return bool    true if no error
  */
 function edih_csv_write($csv_data)
@@ -1734,9 +1733,8 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
  *
  * @uses csv_parameters()
  * @uses csv_pid_enctr_parse()
- * @param string                     patient control-- pid-encounter, encounter, or pid
- * @param string                     filetype -- x12 type or f837, f277, etc
- * @param string                     search type encounter, pid, or clm01
+ * @param string $clm01    patient control -- pid-encounter, encounter, or pid
+ * @param string $filetype filetype -- x12 type or f837, f277, etc
  * @return array|bool                [i] data row array  or empty on error
  */
 function csv_file_by_enctr($clm01, $filetype = 'f837')
@@ -1881,9 +1879,9 @@ function csv_file_by_controlnum($type, $control_num)
  * Note: the 997/999 trace is the ISA13 of a batch file
  *
  *
- * @param string     trace value (TRN02, TA101, or BHT03)
- * @param string     from type (default is f835)
- * @param string     to type (default is f835)
+ * @param string $trace trace value (TRN02, TA101, or BHT03)
+ * @param string $from_type from type (default is f835)
+ * @param string $to_type to type (default is f835)
  * @return string    file name or empty string
  */
 function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
@@ -1971,8 +1969,8 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
 /**
  * list claim records with Denied or Reject status in  given file
  *
- * @param string
- * @param string
+ * @param string $filetype
+ * @param string $filename
  *
  * @return array
  */

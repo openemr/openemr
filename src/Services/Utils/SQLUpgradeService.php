@@ -874,7 +874,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Check if a Sql table exists.
      *
      * @param string $tblname Sql Table Name
-     * @return boolean           returns true if the sql table exists
+     * @return bool returns true if the sql table exists
      */
     private function tableExists($tblname)
     {
@@ -892,7 +892,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql column exists
+     * @return bool returns true if the sql column exists
      */
     private function columnExists($tblname, $colname)
     {
@@ -911,7 +911,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $coltype Sql Column Type
-     * @return boolean           returns true if the sql column is of the specified type
+     * @return bool returns true if the sql column is of the specified type
      */
     private function columnHasType($tblname, $colname, $coltype)
     {
@@ -931,7 +931,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname    Sql Column Name
      * @param string $coltype    Sql Column Type
      * @param string $coldefault Sql Column Default
-     * @return boolean              returns true if the sql column is of the specified type and default
+     * @return bool returns true if the sql column is of the specified type and default
      */
     private function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
     {
@@ -966,7 +966,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRowNull($tblname, $colname)
     {
@@ -982,7 +982,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $value   Sql value
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow($tblname, $colname, $value)
     {
@@ -1000,7 +1000,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value    Sql value 1
      * @param string $colname2 Sql Column Name 2
      * @param string $value2   Sql value 2
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
     {
@@ -1020,7 +1020,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value2   Sql value 2
      * @param string $colname3 Sql Column Name 3
      * @param string $value3   Sql value 3
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
     {
@@ -1042,7 +1042,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value3   Sql value 3
      * @param string $colname4 Sql Column Name 4
      * @param string $value4   Sql value 4
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
     {
@@ -1057,7 +1057,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Index/Key
-     * @return boolean           returns true if the sql tables has the specified index/key
+     * @return bool returns true if the sql tables has the specified index/key
      */
     private function tableHasIndex($tblname, $colname)
     {
@@ -1070,7 +1070,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname database table Name
      * @param string $engine  engine name ( myisam, memory, innodb )...
-     * @return boolean true if the table has been created using specified engine
+     * @return bool true if the table has been created using specified engine
      */
     private function tableHasEngine($tblname, $engine)
     {
@@ -1082,7 +1082,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Check if a list exists.
      *
      * @param string $option_id Sql List Option ID
-     * @return boolean           returns true if the list exists
+     * @return bool returns true if the list exists
      */
     private function listExists($option_id)
     {

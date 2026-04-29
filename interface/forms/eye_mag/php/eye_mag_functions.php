@@ -1589,7 +1589,7 @@ margin: 2px 0 2px 2px;">
  * Function to prepare for sending the PMSFH_panel and PMSFH_right_panel
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
- * @param associative array $PMSFH if it exists
+ * @param array $PMSFH associative if it exists
  * @return void
  */
 function send_json_values($PMSFH = ""): void
@@ -1622,7 +1622,7 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return $PMSFH array, access items as $PMSFH[0]
+ * @return mixed array, access items as $PMSFH[0]
  */
 function build_PMSFH($pid)
 {
@@ -2042,10 +2042,10 @@ function build_PMSFH($pid)
 /**
  *  This function uses the complete PMSFH array for a given patient, including the ROS for this encounter
  *  and returns the PMSFH display square.
- *  @param integer rows is the number of rows you want to display
- *  @param option string view defaults to white on beige, versus right sliding panel (text on beige only).
- *  @param option string min_height to set min height for the row
- *  @return $display_PMSFH HTML pane when PMSFH is expanded to two panes.
+ *  @param int $rows the number of rows you want to display
+ *  @param string $view defaults to white on beige, versus right sliding panel (text on beige only).
+ *  @param string $min_height to set min height for the row
+ *  @return mixed HTML pane when PMSFH is expanded to two panes.
  */
 function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px;")
 {
@@ -2412,7 +2412,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
  *  and returns the PMSFH/ROS sliding Right Panel
  *
  *  @param array $PMSFH
- *  @return $right_panel html
+ *  @return mixed html
  */
 function show_PMSFH_panel($PMSFH, $columns = '1')
 {
@@ -3804,7 +3804,7 @@ function build_CODING_items($pid, $encounter)
  *  Each document info from documents table is added to these as arrays
  *
  *  @param string $pid patient_id
- *  @return array($documents)
+ *  @return array
  */
 function document_engine($pid)
 {
@@ -3880,7 +3880,7 @@ function document_engine($pid)
  *  @param string $category_value options EXT,ANTSEG,RETINA,NEURO,OTHER
  *                These values are taken from the "value" field in the Documents' table "categories".
  *                They allow us to regroup the categories how we like them.
- *  @return array($imaging,$episode)
+ *  @return array
  */
 function display($pid, $encounter, $category_value)
 {
@@ -3952,7 +3952,7 @@ function display($pid, $encounter, $category_value)
  *  @param string $encounter is the encounter_id
  *  @param string $title is the form title
  *
- *  @return nothing, outputs directly to screen
+ *  @return void
  */
 function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 {
@@ -4099,7 +4099,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
  *
  *  @param string $pid patient_id
  *  @param string $encounter is the current encounter number
- *  @return nothing, outputs directly to screen
+ *  @return void
  */
 function menu_overhaul_left($pid, $encounter): void
 {
@@ -4235,7 +4235,7 @@ function menu_overhaul_left($pid, $encounter): void
  *
  *  @param string $pid patient_id
  *  @param string $encounter is the current encounter number
- *  @return nothing, outputs directly to screen
+ *  @return void
  */
 
 function menu_overhaul_bottom($pid, $encounter): void
@@ -6710,7 +6710,7 @@ function display_refractive_data($encounter_data): void
  * @param $needle
  * @param $haystack
  * @param bool $strict
- * @return bool*
+ * @return bool
  */
 function in_array_r($needle, $haystack, $strict = false)
 {

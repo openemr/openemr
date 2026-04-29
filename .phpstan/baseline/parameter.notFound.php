@@ -27,6 +27,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$args$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$name$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$variable$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$Date$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -520,6 +535,11 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$b64encode$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$msg$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$observer$#',

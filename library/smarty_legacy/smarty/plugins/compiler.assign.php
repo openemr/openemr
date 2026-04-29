@@ -16,8 +16,8 @@
  *       (Smarty online manual)
  * @author Monte Ohrt <monte at ohrt dot com> (initial author)
  * @author messju mohr <messju at lammfellpuschen dot de> (conversion to compiler function)
- * @param string containing var-attribute and value-attribute
- * @param Smarty_Compiler_Legacy
+ * @param string $tag_attrs containing var-attribute and value-attribute
+ * @param Smarty_Compiler_Legacy $compiler
  */
 function smarty_compiler_assign($tag_attrs, &$compiler)
 {

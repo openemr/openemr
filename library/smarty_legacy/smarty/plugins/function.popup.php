@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.function.popup.php {popup}
  *          (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string
  */
 function smarty_function_popup($params, &$smarty)

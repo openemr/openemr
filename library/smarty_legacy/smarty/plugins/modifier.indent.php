@@ -16,9 +16,9 @@
  * @link http://smarty.php.net/manual/en/language.modifier.indent.php
  *          indent (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param integer
- * @param string
+ * @param string $string
+ * @param int $chars
+ * @param string $char
  * @return string
  */
 function smarty_modifier_indent($string,$chars=4,$char=" ")

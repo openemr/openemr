@@ -45,7 +45,7 @@ class GaclAdminApi extends GaclApi {
      * return_page()
      *
      * Sends the user back to a passed URL
-     * @param string URL to return to.
+     * @param string $url URL to return to.
      */
     function return_page($url=""): never {
         $return_page = basename((string) $url);
@@ -58,7 +58,7 @@ class GaclAdminApi extends GaclApi {
      *
      * Creates a basic array for Smarty to deal with paging large recordsets.
      *
-     * @param ADORecordSet ADODB recordset.
+     * @param mixed $rs ADODB recordset.
      */
     function get_paging_data($rs) {
                 return [

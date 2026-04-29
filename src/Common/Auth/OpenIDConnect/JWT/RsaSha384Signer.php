@@ -93,7 +93,7 @@ class RsaSha384Signer implements Signer
      * @param string $payload
      * @param Key|string $key
      *
-     * @return boolean
+     * @return bool
      *
      * @throws InvalidArgumentException When given key is invalid
      */

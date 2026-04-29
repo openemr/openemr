@@ -40,7 +40,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Generate HL7 for the specified procedure order.
      *
-     * @param integer  $orderid Procedure order ID.
+     * @param int $orderid Procedure order ID.
      * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
@@ -704,7 +704,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Transmit HL7 for the specified lab.
      *
-     * @param integer $ppid Procedure provider ID.
+     * @param int $ppid Procedure provider ID.
      * @param string  $out  The HL7 text to be sent.
      * @return string         Error text, or empty if no errors.
      */

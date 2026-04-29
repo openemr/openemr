@@ -27,9 +27,9 @@ use function PHP81_BC\strftime;
  * @link http://smarty.php.net/manual/en/language.modifier.date.format.php
  *          date_format (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param string
- * @param string
+ * @param string $string
+ * @param string $format
+ * @param string $default_date
  * @return string|void
  * @uses smarty_make_timestamp()
  */

@@ -1070,10 +1070,9 @@ class Savant3 implements \Stringable
      *
      * Resets the filter stack to the provided list of callbacks.
      *
-     * @access protected
+     * Accepts a variadic list of filter callbacks via func_get_args().
      *
-     * @param
-     *          array An array of filter callbacks.
+     * @access protected
      *
      * @return void
      *
@@ -1087,10 +1086,9 @@ class Savant3 implements \Stringable
      *
      * Adds filter callbacks to the stack of filters.
      *
-     * @access protected
+     * Accepts a variadic list of filter callbacks via func_get_args().
      *
-     * @param
-     *          array An array of filter callbacks.
+     * @access protected
      *
      * @return void
      *
@@ -1202,7 +1200,7 @@ class Savant3 implements \Stringable
      * @param object $obj
      *          The object to be tested.
      *
-     * @return boolean True if $obj is an error object of the type
+     * @return bool True if $obj is an error object of the type
      *         Savant3_Error, or is a subclass that Savant3_Error. False if not.
      *
      */

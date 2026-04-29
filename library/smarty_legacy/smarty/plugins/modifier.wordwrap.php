@@ -16,10 +16,10 @@
  * @link http://smarty.php.net/manual/en/language.modifier.wordwrap.php
  *          wordwrap (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param integer
- * @param string
- * @param boolean
+ * @param string $string
+ * @param int $length
+ * @param string $break
+ * @param bool $cut
  * @return string
  */
 function smarty_modifier_wordwrap($string,$length=80,$break="\n",$cut=false)

@@ -268,7 +268,7 @@ class PractitionerService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
-            $processingResult->addErrorMessage("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($uuid);
         }

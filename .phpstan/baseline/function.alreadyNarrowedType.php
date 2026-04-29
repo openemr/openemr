@@ -107,6 +107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\{pmt\\: 0\\|\'\'\\|float, fee\\: 0\\|float, clmpmt\\: 0\\|float, clmadj\\: 0\\|float, ptrsp\\: 0\\|float, svcptrsp\\: 0\\|float, svcfee\\: float\\|int, svcpmt\\?\\: \\(float\\|int\\), \\.\\.\\.\\} will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
@@ -133,7 +138,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 2,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
@@ -143,7 +148,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 8,
+    'count' => 9,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
@@ -233,7 +238,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
@@ -277,13 +282,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with ADOConnection will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_scalar\\(\\) with string will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 4,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [

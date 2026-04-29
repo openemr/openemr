@@ -20,8 +20,8 @@
  *          strip (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @version  1.0
- * @param string
- * @param string
+ * @param string $text
+ * @param string $replace
  * @return string
  */
 function smarty_modifier_strip($text, $replace = ' ')
