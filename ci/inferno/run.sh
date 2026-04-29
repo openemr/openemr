@@ -103,11 +103,11 @@ initialize_openemr() {
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
-    # Fix user to qualify as Practitioner (requires username OR valid abook_type)
+    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
     # Snapshot predates commit 4af4c827f which added username/abook_type filtering
     # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
-        -e "UPDATE users SET abook_type = 'external_provider' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
+        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
     # Fix procedure name to match LOINC 24357-6 official display
     # Snapshot has "Urinanalysis macro (dipstick) panel" (typo + missing suffix)
     # LOINC requires "Urinalysis macro (dipstick) panel - Urine"
