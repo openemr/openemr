@@ -133,10 +133,12 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $codes = explode(";", (string) $dataRecord['diagnosis']);
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($codes as $code) {
+                $parsedCode = $codesService->parseCode($code);
+                $codeValue = $parsedCode['code'];
                 $description = $codesService->lookup_code_description($code);
                 $description = !empty($description) ? $description : null; // we can get an "" string back from lookup
                 $system = $codesService->getSystemForCode($code);
-                $diagnosisCode->addCoding(UtilsService::createCoding($code, $description, $system));
+                $diagnosisCode->addCoding(UtilsService::createCoding($codeValue, $description, $system));
             }
             $procedureResource->setCode($diagnosisCode);
         }

@@ -38,6 +38,9 @@ error_reporting(E_ALL);
 
 require_once 'vendor/autoload.php';
 
+// Debug: make ADODB throw exceptions instead of echoing errors
+require_once 'vendor/adodb/adodb-php/adodb-exceptions.inc.php';
+
 // class_exists check is because dotenv should be a dev dependency and not
 // installed in prod deployments, though as of writing that's not the case.
 if (class_exists(Dotenv::class) && file_exists('.env')) {

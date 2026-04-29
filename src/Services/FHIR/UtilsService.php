@@ -35,7 +35,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
-use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class UtilsService
 {
@@ -226,13 +225,14 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_end'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end'], true);
+            $format = str_contains((string) $dataRecord['period_end'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
+            $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_end'], new \DateTimeZone(date('P')));
             if ($date === false) {
                 ServiceContainer::getLogger()->error(
                     "Failed to format period_end date {date} for contact_address_id {contact_address_id}",
                     ['date' => $dataRecord['period_end'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
                 );
-                $date = new \DateTime();
+                $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
             // if we have an end date we need to set our use to be old
             // TODO: when FHIR R4 5.0.1 is the standard, it has proposed to go off the 'end' date instead of the use column for an old address

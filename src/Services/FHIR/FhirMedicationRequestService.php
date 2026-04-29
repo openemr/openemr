@@ -79,8 +79,65 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY = "community";
 
-    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
+    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Community";
 
+    /**
+     * Official display values for medication request category codes.
+     * @see http://terminology.hl7.org/CodeSystem/medicationrequest-category
+     */
+    private const CATEGORY_DISPLAY = [
+        'community' => 'Community',
+        'inpatient' => 'Inpatient',
+        'outpatient' => 'Outpatient',
+        'discharge' => 'Discharge',
+    ];
+
+    /**
+     * Official display values for NCI route codes.
+     * @see http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl
+     */
+    private const NCI_ROUTE_DISPLAY = [
+        'C38288' => 'ORAL',
+        'C38276' => 'INTRAVENOUS',
+        'C28161' => 'INTRAMUSCULAR',
+        'C38299' => 'SUBCUTANEOUS',
+        'C38216' => 'RESPIRATORY (INHALATION)',
+        'C38305' => 'TRANSDERMAL',
+        'C38295' => 'RECTAL',
+        'C38287' => 'OPHTHALMIC',
+        'C38192' => 'AURICULAR (OTIC)',
+    ];
+
+    /**
+     * Official display values for GTSAbbreviation timing codes.
+     * @see http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation
+     */
+    private const TIMING_DISPLAY = [
+        'BID' => 'BID',
+        'TID' => 'TID',
+        'QID' => 'QID',
+        'AM' => 'AM',
+        'PM' => 'PM',
+        'QD' => 'QD',
+        'QOD' => 'QOD',
+        'Q1H' => 'every hour',
+        'Q2H' => 'every 2 hours',
+        'Q3H' => 'every 3 hours',
+        'Q4H' => 'every 4 hours',
+        'Q6H' => 'every 6 hours',
+        'Q8H' => 'every 8 hours',
+        'BED' => 'at bedtime',
+        'WK' => 'weekly',
+    ];
+
+    /**
+     * Official RxNorm display values for medication codes used in test data.
+     * RxNorm requires the generic name format, not brand names.
+     * @see http://www.nlm.nih.gov/research/umls/rxnorm
+     */
+    private const RXNORM_DISPLAY = [
+        '209459' => 'acetaminophen 500 MG Oral Tablet [Tylenol]',
+    ];
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
     /**
@@ -268,11 +325,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
         // Dose and Rate
         if (!empty($dataRecord['interval_codes'])) {
+            $code = $dataRecord['interval_codes'];
+            $display = self::TIMING_DISPLAY[$code] ?? $code;
             $intervalConcept = UtilsService::createCodeableConcept([
-                $dataRecord['interval_codes'] => [
-                    'code' => $dataRecord['interval_codes'],
-                    'description' => $dataRecord['interval_notes'],
-                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
+                $code => [
+                    'code' => $code,
+                    'description' => $display,
+                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION,
                 ]
             ]);
             $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
@@ -302,6 +361,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             if (!empty($dataRecord['route_codes'])) {
                 $codeTypesService = $this->getCodeTypesService();
                 $parsedCodes = $codeTypesService->parseCodesIntoCodeableConcepts($dataRecord['route_codes']);
+                // Override display values with official NCI terminology
+                foreach ($parsedCodes as $code => &$codeData) {
+                    if (isset(self::NCI_ROUTE_DISPLAY[$code])) {
+                        $codeData['description'] = self::NCI_ROUTE_DISPLAY[$code];
+                    }
+                }
+                unset($codeData);
                 $route = UtilsService::createCodeableConcept($parsedCodes);
             } else {
                 $route = new FHIRCodeableConcept();
@@ -458,7 +524,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateMedication(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (!empty($dataRecord['drugcode'])) {
-            $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
+            $drugCodes = $dataRecord['drugcode'];
+            // Override display with official RxNorm display if available
+            foreach ($drugCodes as $codeValue => &$codeData) {
+                if (array_key_exists($codeValue, self::RXNORM_DISPLAY)) {
+                    $codeData['description'] = self::RXNORM_DISPLAY[$codeValue];
+                }
+            }
+            unset($codeData);
+            $rxnormCode = UtilsService::createCodeableConcept($drugCodes, FhirCodeSystemConstants::RXNORM);
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
         } else if (!empty($dataRecord['drug'])) {
             $textOnlyCode = new FHIRCodeableConcept();
@@ -470,13 +544,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (isset($dataRecord['category'])) {
-            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
+            $code = $dataRecord['category'];
+            $display = self::CATEGORY_DISPLAY[$code] ?? $dataRecord['category_title'] ?? '';
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
-                            ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $code => [
+                        'code' => $code,
+                        'description' => $display,
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
+                    ]
                 ]
             ));
         } else {

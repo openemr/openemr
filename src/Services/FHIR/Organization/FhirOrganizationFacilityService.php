@@ -97,7 +97,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
             'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code"]),
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),

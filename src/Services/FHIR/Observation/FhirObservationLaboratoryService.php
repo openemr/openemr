@@ -53,6 +53,14 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     const USCDI_PROFILE = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab';
 
     /**
+     * LOINC display values that must match official terminology. The test data may
+     * have incorrect display text, so we override it here.
+     */
+    private const LOINC_DISPLAY = [
+        '5804-0' => 'Protein [Mass/volume] in Urine by Test strip',
+    ];
+
+    /**
      * @var ProcedureService
      */
     private ProcedureService $service;
@@ -249,11 +257,13 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
+            $code = $dataRecord['code'];
+            $display = self::LOINC_DISPLAY[$code] ?? $dataRecord['text'];
             $observation->setCode(UtilsService::createCodeableConcept([
-                $dataRecord['code'] => [
-                    'code' => $dataRecord['code'],
+                $code => [
+                    'code' => $code,
                     'system' => FhirCodeSystemConstants::LOINC,
-                    'description' => $dataRecord['text']
+                    'description' => $display,
                 ]
             ]));
         } else {

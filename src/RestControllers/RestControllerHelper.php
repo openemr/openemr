@@ -212,11 +212,11 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->info("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->error("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getInternalErrors()]);
         } else {
             http_response_code($successStatusCode ?? 0);
             $dataResult = $processingResult->getData();
@@ -261,11 +261,11 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             $statusCode = Response::HTTP_BAD_REQUEST;
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->info("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->error("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getInternalErrors()]);
         } else {
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
@@ -316,13 +316,13 @@ class RestControllerHelper
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->info("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
             return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
         } elseif (count($processingResult->getData()) <= 0) {
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            ServiceContainer::getLogger()->info("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
             return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->error("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getInternalErrors()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
@@ -438,7 +438,7 @@ class RestControllerHelper
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
         } elseif (is_string($operation) && str_starts_with($operation, '$')) {
-            ServiceContainer::getLogger()->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
+            ServiceContainer::getLogger()->warning("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 

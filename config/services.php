@@ -76,13 +76,15 @@ return [
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
         // Duplicated from setup in SystemLogger (for now)
-        $logger = new Logger('OpenEMR');
-        $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $c->get(Level::class));
-        $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%");
-        $formatter->includeStacktraces(true);
-        $handler->setFormatter($formatter);
-        $logger->pushHandler($handler);
-        $logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true));
+        /* $logger = new Logger('OpenEMR'); */
+        /* $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $c->get(Level::class)); */
+        /* $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%"); */
+        /* $formatter->includeStacktraces(true); */
+        /* $handler->setFormatter($formatter); */
+        /* $logger->pushHandler($handler); */
+        /* $logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true)); */
+        $logger = new Logger('oe.di');
+        $logger->pushHandler(new ErrorLogHandler());
         return $logger;
     },
 

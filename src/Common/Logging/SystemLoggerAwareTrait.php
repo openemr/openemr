@@ -2,11 +2,11 @@
 
 namespace OpenEMR\Common\Logging;
 
-use Monolog\Level;
 use Psr\Log\{
     LoggerAwareTrait,
     LoggerInterface,
 };
+use OpenEMR\BC\ServiceContainer;
 
 /**
  * @deprecated Prefer constructor injection of a logger; use PSR's LoggerAwareTrait if unavoidable.
@@ -26,10 +26,10 @@ trait SystemLoggerAwareTrait
     /**
      * @deprecated read from the ->logger property
      */
-    public function getSystemLogger(?Level $defaultLoggingLevel = null): LoggerInterface
+    public function getSystemLogger(): LoggerInterface
     {
         if ($this->logger === null) {
-            $this->logger = new SystemLogger($defaultLoggingLevel);
+            $this->logger = ServiceContainer::getLogger();
         }
 
         return $this->logger;

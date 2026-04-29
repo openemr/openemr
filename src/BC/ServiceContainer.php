@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Monolog\Logger;
+use Monolog\Handler\ErrorLogHandler;
 use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
@@ -133,10 +135,15 @@ class ServiceContainer
         return self::resolveOrCreate(
             LoggerInterface::class,
             static function () {
-                if (defined('PHPUNIT_COMPOSER_INSTALL')) {
-                    return new NullLogger();
-                }
-                return new Logging\SystemLogger();
+                /* if (defined('PHPUNIT_COMPOSER_INSTALL')) { */
+                /*     return new NullLogger(); */
+                /* } */
+                /* return new Logging\SystemLogger(); */
+
+                $logger = new Logger('oe.sc');
+                $logger->pushHandler(new ErrorLogHandler());
+                /* $logger-> */
+                return $logger;
             },
         );
     }

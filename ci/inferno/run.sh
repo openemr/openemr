@@ -66,6 +66,19 @@ initialize_inferno() {
     echo 'Inferno lit'
 }
 
+configure_api_globals() {
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr <<'SQL'
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES
+            ('rest_api', 0, '1'),
+            ('rest_fhir_api', 0, '1'),
+            ('rest_portal_api', 0, '1'),
+            ('oauth_password_grant', 0, '3'),
+            ('rest_system_scopes_api', 0, '1'),
+            ('ccda_alt_service_enable', 0, '3')
+        ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value);
+SQL
+}
+
 initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
@@ -85,10 +98,21 @@ initialize_openemr() {
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
     #  Snapshot is from 7.0.3; run migrations to create any new tables
     docker compose exec -T openemr php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
-    # (may need to configure api globals here)
+    # Snapshot may not have API globals configured; ensure they're set
+    # configure_api_globals
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
+    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
+    # Snapshot predates commit 4af4c827f which added username/abook_type filtering
+    # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
+    # Fix procedure name to match LOINC 24357-6 official display
+    # Snapshot has "Urinanalysis macro (dipstick) panel" (typo + missing suffix)
+    # LOINC requires "Urinalysis macro (dipstick) panel - Urine"
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE procedure_order_code SET procedure_name = 'Urinalysis macro (dipstick) panel - Urine' WHERE procedure_code = '24357-6'"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
@@ -121,18 +145,21 @@ run_testsuite() {
     # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
 
     # Run PHPUnit tests with coverage if enabled
+    local exit_code=0
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
+        # Note: ciLibrary.source phpunit() adds --log-junit automatically for testsuite
         phpunit --testsuite certification \
                 --coverage-clover coverage.inferno-phpunit.clover.xml \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     else
+        # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
         phpunit --testsuite certification \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     fi
 
     echo 'Certification Tests Executed'
+    return "${exit_code}"
 }
 
 collect_inferno_coverage() {
@@ -205,12 +232,14 @@ main() {
     initialize_openemr
 
     # Run the test suite and capture exit code
-    # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    local exit_code=0
+    # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310 # Intentionally ignore coverage failure
             collect_inferno_coverage || echo "Warning: Coverage collection failed"
         fi
         exit "${exit_code}"

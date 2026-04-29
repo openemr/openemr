@@ -17,6 +17,9 @@
 // below brings in autoloader
 require_once "../vendor/autoload.php";
 
+// Debug: make ADODB throw exceptions instead of echoing errors
+require_once "../vendor/adodb/adodb-php/adodb-exceptions.inc.php";
+
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;

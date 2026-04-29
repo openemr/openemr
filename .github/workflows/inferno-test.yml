@@ -17,6 +17,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  ENVIRONMENT: ci
+
 jobs:
   check_secret:
     runs-on: ubuntu-24.04
@@ -388,3 +391,187 @@ jobs:
     - name: Show Docker logs
       if: ${{ !cancelled() }}
       run: docker compose -f ci/inferno/compose.yml logs
+
+  inferno_simple:
+    needs: check_secret
+    if: needs.check_secret.outputs.has_inferno_pat == 'true'
+    runs-on: ubuntu-24.04
+    name: Inferno (Simple)
+    timeout-minutes: 30
+    services:
+      database:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: openemr
+          MYSQL_PASSWORD: openemr
+          MYSQL_DATABASE: openemr
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          token: ${{ secrets.INFERNO_PAT }}
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: '8.5'
+
+      - name: Configure MySQL collation
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot -e "
+            ALTER DATABASE openemr CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+          "
+
+      - name: Install OpenEMR
+        run: >-
+          ./cli install
+          --db-root-user=root
+          --db-root-password=root
+          --db-host=127.0.0.1
+          --db-port=3306
+          --db-user=openemr
+          --db-password=openemr
+          --db-name=openemr
+          --oe-admin-username=admin
+          --oe-admin-password=pass
+          --enable-rest-api
+          --enable-fhir-api
+          --enable-portal-api
+          --enable-password-grant
+          --enable-system-scopes
+          --site-address=http://localhost:8080
+          --no-interaction
+
+      - name: Load test data and configure API
+        run: |
+          tar -xzf ci/inferno/inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr < 2025-06-25-inferno-baseline/backup.sql
+          # Preserve sqlconf.php (has correct DB host), copy rest from snapshot
+          cp sites/default/sqlconf.php /tmp/sqlconf.php
+          rm -rf sites/default
+          cp -r 2025-06-25-inferno-baseline/sites/default sites/
+          cp /tmp/sqlconf.php sites/default/sqlconf.php
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr -e "
+            INSERT INTO product_registration (opt_out) VALUES (1)
+              ON DUPLICATE KEY UPDATE opt_out = 1;
+            UPDATE users_secure SET last_update_password = NOW();
+            INSERT INTO globals (gl_name, gl_index, gl_value)
+              VALUES ('fhir_us_core_profile_version', 0, '3.1.1')
+              ON DUPLICATE KEY UPDATE gl_value = '3.1.1';
+          "
+
+      - name: Run database upgrade
+        run: php sql_upgrade.php --from=7.0.3
+
+      - name: Start PHP server
+        run: php -S 0.0.0.0:8080 -t . public/index.php > /tmp/php.log 2>/tmp/error.log &
+
+      - name: Wait for server
+        run: curl --retry-connrefused --retry 30 --retry-delay 1 --fail -so /dev/null http://127.0.0.1:8080/
+
+      - name: Verify FHIR endpoint
+        run: curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata | jq -r '.fhirVersion'
+
+      - name: Debug OAuth endpoints
+        run: |
+          echo "=== well-known ==="
+          curl -sf http://127.0.0.1:8080/apis/default/fhir/.well-known/smart-configuration
+          echo ""
+          echo "=== metadata ==="
+          curl -sf http://127.0.0.1:8080/apis/default/fhir/metadata
+
+      - name: Register OAuth client and get token
+        id: oauth
+        run: |
+          # Use user/* scopes for password grant (patient/* requires patient context from SMART launch)
+          SCOPES="openid offline_access api:fhir"
+          SCOPES="$SCOPES user/AllergyIntolerance.read user/CarePlan.read user/CareTeam.read"
+          SCOPES="$SCOPES user/Condition.read user/Device.read user/DiagnosticReport.read"
+          SCOPES="$SCOPES user/DocumentReference.read user/Encounter.read user/Goal.read"
+          SCOPES="$SCOPES user/Immunization.read user/Location.read user/Medication.read"
+          SCOPES="$SCOPES user/MedicationRequest.read user/Observation.read user/Organization.read"
+          SCOPES="$SCOPES user/Patient.read user/Practitioner.read user/Procedure.read user/Provenance.read"
+
+          # Register a new OAuth client
+          CLIENT_RESPONSE=$(curl -sf http://127.0.0.1:8080/oauth2/default/registration \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"application_type\": \"private\",
+              \"redirect_uris\": [\"https://inferno.healthit.gov/suites/custom/smart/redirect\"],
+              \"client_name\": \"Inferno Test Client\",
+              \"token_endpoint_auth_method\": \"client_secret_post\",
+              \"contacts\": [\"test@example.org\"],
+              \"scope\": \"$SCOPES\"
+            }")
+          CLIENT_ID=$(echo "$CLIENT_RESPONSE" | jq -r '.client_id')
+          echo "client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
+
+          # Enable the client (newly registered clients are disabled by default)
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr \
+            -e "UPDATE oauth_clients SET is_enabled = 1 WHERE client_id = '$CLIENT_ID'"
+
+          # Get access token via password grant
+          TOKEN_RESPONSE=$(curl -sf http://127.0.0.1:8080/oauth2/default/token \
+            -d "grant_type=password" \
+            -d "client_id=$CLIENT_ID" \
+            -d "username=admin" \
+            -d "password=pass" \
+            -d "scope=$SCOPES" \
+            -d "user_role=users")
+          ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
+          echo "::add-mask::$ACCESS_TOKEN"
+          echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Inferno
+        working-directory: ci/inferno
+        run: |
+          # Copy pre-built data from private submodule (matches run.sh behavior)
+          cp -r inferno-files/files/* onc-certification-g10-test-kit/
+          # Start validator service (inferno runs as one-off CLI command later)
+          docker compose -f compose.simple.yml up -d hl7_validator_service
+
+      - name: Wait for validator
+        run: |
+          echo "Waiting for HL7 validator service..."
+          curl --retry 30 --retry-delay 2 --retry-connrefused -sf http://localhost:3500/validator/version
+
+      - name: Run Inferno tests
+        working-directory: ci/inferno
+        run: |
+          # Run US Core 3.1.1 Group 2 tests, excluding 2.32 (Missing Data Tests)
+          # 2.32 requires test data with missing values to trigger DataAbsentReason;
+          # the current snapshot has complete data, so these tests fail.
+          docker compose -f compose.simple.yml run --rm --build -T inferno bundle exec inferno execute \
+            --suite us_core_v311 \
+            --groups 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 2.10 2.11 2.12 2.13 2.14 2.15 2.16 2.17 2.18 2.19 2.20 2.21 2.22 2.23 2.24 2.25 2.26 2.27 2.28 2.29 2.30 2.31 \
+            --verbose \
+            --inputs "url:http://localhost:8080/apis/default/fhir" \
+                     "patient_ids:96506861-511f-4f6d-bc97-b65a78cf1995,96891ab2-01ad-49f9-9958-cdad71bd33c1,968944d0-180a-48ac-8049-636ae8ac6127" \
+                     'smart_auth_info:{"access_token":"${{ steps.oauth.outputs.access_token }}"}'
+
+      - name: Show PHP server logs
+        if: ${{ !cancelled() }}
+        run: cat /tmp/php.log || true
+
+      - name: Show PHP error logs
+        if: ${{ !cancelled() }}
+        run: cat /tmp/error.log || true
+
+      - name: Show Inferno logs
+        if: ${{ !cancelled() }}
+        working-directory: ci/inferno
+        run: docker compose -f compose.simple.yml logs
+
+      - name: Cleanup
+        if: always()
+        working-directory: ci/inferno
+        run: docker compose -f compose.simple.yml down --volumes || true

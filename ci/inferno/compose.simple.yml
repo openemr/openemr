@@ -1,0 +1,18 @@
+services:
+  inferno:
+    build:
+      context: onc-certification-g10-test-kit
+    volumes:
+      - ./onc-certification-g10-test-kit/data:/opt/inferno/data
+    environment:
+      INFERNO_DISABLE_TLS_TEST: 'true'
+      FHIR_RESOURCE_VALIDATOR_URL: http://localhost:3500
+    network_mode: host
+
+  hl7_validator_service:
+    image: infernocommunity/inferno-resource-validator:1.0.73
+    network_mode: host
+    environment:
+      SESSION_CACHE_DURATION: -1
+    volumes:
+      - ./onc-certification-g10-test-kit/lib/onc_certification_g10_test_kit/igs:/home/igs

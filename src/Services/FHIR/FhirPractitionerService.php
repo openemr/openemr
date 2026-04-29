@@ -67,7 +67,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["users.title", "fname", "mname", "lname"]),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
