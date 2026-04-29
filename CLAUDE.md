@@ -34,7 +34,7 @@ Regardless of how the development environment is set up, these rules always appl
 1. **Use `openemr-cmd` for all worktree and stack operations.** Do not call `git worktree add/remove` or `docker compose` directly for worktree lifecycle. openemr-cmd manages port offsets, named volumes, override files, and state — bypassing it will corrupt state.
 2. **Never run `openemr-cmd worktree remove`.** The project maintainer reviews and merges PRs. Worktree removal only happens on explicit instruction after a PR is merged — never autonomously.
 3. **Never push directly to `master` or `main`.** All work happens on a feature branch in a worktree.
-4. **Open PRs as drafts.** The maintainer promotes them to ready after review.
+4. **Default to opening PRs as drafts.** Open as ready-for-review only when explicitly asked.
 5. **Do not edit `.worktrees.json` by hand.** It is managed exclusively by openemr-cmd.
 
 ### Environment-specific configuration
@@ -194,7 +194,7 @@ git commit --trailer "Assisted-by: Claude Code" -m "type(scope): description"
 # 3. Push branch
 git push origin <branch-name>
 
-# 4. Open draft PR
+# 4. Open PR (default: draft — drop --draft only if asked for ready-for-review)
 gh pr create \
   --repo openemr/openemr \
   --draft \
@@ -231,7 +231,7 @@ This deletes Docker volumes by default (correct post-merge). Use `--keep-volumes
 - Do not edit `.worktrees.json` by hand
 - Do not push to `master`, `main`, or any branch you did not create
 - Do not run `openemr-cmd worktree remove` unless explicitly instructed after a PR merge
-- Do not open PRs as ready — always draft
+- Do not open PRs as ready-for-review unless explicitly asked — default is draft
 - Do not install packages or system dependencies globally without explicit approval from the maintainer
 
 ---

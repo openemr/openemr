@@ -286,6 +286,138 @@ gh auth login
 # Select: GitHub.com → HTTPS → Paste token
 ```
 
+> The token alone does **not** grant `git push`. The fine-grained PAT has no `Contents` permission by design — it only authorizes API operations (PR creation, issue access). Pushes to your fork are handled separately by the deploy key set up in Step 10a.
+
+---
+
+## Step 10a — Deploy key for fork pushes
+
+> 🖥️ **Inside container** (as claude-agent)
+
+To let agents push branches to your fork from inside the container, use a **per-repo SSH deploy key** rather than a user-level SSH key. A user-level SSH key on GitHub inherits every permission your account has — including write access to upstream repositories you maintain. A deploy key is scoped to a single repository, so even if the in-container key is exposed the blast radius stops at that one repo.
+
+For each fork the agent should push to (typically just `<your-username>/openemr`):
+
+```bash
+ssh-keygen -t ed25519 \
+  -C "claude-appliance:<your-username>/openemr" \
+  -f ~/.ssh/id_<your-username>_openemr -N ""
+
+# Print the public half — paste this into GitHub
+cat ~/.ssh/id_<your-username>_openemr.pub
+```
+
+On GitHub:
+
+```
+<your-username>/openemr → Settings → Deploy keys → Add deploy key
+  Title: claude-appliance
+  Key:   <paste public key>
+  ☑ Allow write access
+```
+
+Tell SSH which key to use for that one repo. Append to `~/.ssh/config` (create if missing, `chmod 600`):
+
+```
+Host github-<your-username>-openemr
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_<your-username>_openemr
+  IdentitiesOnly yes
+```
+
+Rewrite origin in the primary repo so worktrees inherit:
+
+```bash
+cd <git-dir>/openemr
+git remote set-url origin git@github-<your-username>-openemr:<your-username>/openemr.git
+```
+
+Verify:
+
+```bash
+ssh -T git@github-<your-username>-openemr
+# Expected: "Hi <your-username>/openemr! You've successfully authenticated,
+#            but GitHub does not provide shell access."
+```
+
+The greeting naming the **repo** (not your username) confirms the key is repo-scoped — it cannot reach any other repository on GitHub. Push to upstream `openemr/openemr` or any other repo will be rejected at the protocol level.
+
+> **Mirror the alias on the host.** Because `<git-dir>` is bind-mounted, the rewritten origin URL (`git@github-<your-username>-openemr:...`) lives in the shared `.git/config` and is visible from the host too. The host won't resolve the alias unless its own `~/.ssh/config` defines a matching `Host` stanza pointing at the host's regular SSH key:
+>
+> ```
+> Host github-<your-username>-openemr
+>   HostName github.com
+>   User git
+>   IdentityFile ~/.ssh/id_ed25519       # your normal host key
+>   IdentitiesOnly yes
+> ```
+>
+> Same alias name, different identity file. Container side uses the deploy key (repo-scoped); host side uses your full account key (unrestricted). Without this, host pushes/fetches will fail with "Could not resolve hostname".
+
+> **Multiple forks?** Generate a separate deploy key per fork (`<your-username>/openemr-devops`, etc.). Each gets its own SSH config alias and origin URL inside the container, and a matching `Host` stanza on the host. Explicit per-repo authorization is the point.
+
+---
+
+## Step 10b — Optional: GPG signing inside the container
+
+> 🖥️ **Inside container** (as claude-agent)
+
+**This step is optional.** By default, agents commit unsigned and you re-sign on the host with `git commit --amend --no-edit -S` before pushing — every signed commit on your branch is then one a human has touched.
+
+If host-side amending is more friction than you want, you can let the agent sign inside the container. Two trade-offs to weigh first:
+
+- **Attestation blurs.** Agent commits will show as "verified" on GitHub under your name. The `Assisted-by: Claude Code` trailer still records AI involvement, but reviewers can no longer infer "human attested" from the signature alone.
+- **Use a separate key.** Generate a fresh signing key for this purpose only — not your main identity's signing key. If the appliance is ever exposed, revocation is targeted to the container key and your main signing identity stays untouched.
+
+If you accept those, generate the key in batch (loopback) mode:
+
+```bash
+gpg --batch --pinentry-mode loopback --passphrase "" \
+  --quick-generate-key 'Your Name (claude-appliance) <your@email.com>' \
+  default sign 1y
+```
+
+The email must match a verified email on your GitHub account. The empty passphrase is intentional — the LXC jail is the security boundary, and a passphrase the agent would have to type back doesn't add anything.
+
+> **Why batch/loopback?** The interactive `gpg --full-generate-key` flow invokes pinentry, which fails inside LXC + `su -` sessions ("error calling pinentry: Permission denied") because pinentry can't reliably attach to the controlling terminal. Batch mode skips pinentry entirely.
+
+Get the long key ID and full fingerprint:
+
+```bash
+gpg --list-secret-keys --keyid-format long
+# Output:
+#   sec   ed25519/ABCDEF1234567890 ...   <- 16-char long key ID
+#         FULL40CHARFINGERPRINT...        <- full fingerprint (use this below)
+```
+
+Print the public half (this is safe — only the public key, the secret stays in the keyring):
+
+```bash
+gpg --armor --export ABCDEF1234567890
+```
+
+Copy the entire `-----BEGIN PGP PUBLIC KEY BLOCK-----` … `-----END PGP PUBLIC KEY BLOCK-----` block from your terminal, then paste it into GitHub under `Settings → SSH and GPG keys → New GPG key`.
+
+Configure git to sign:
+
+```bash
+git config --global user.signingkey ABCDEF1234567890
+git config --global commit.gpgsign true
+git config --global tag.gpgsign true
+```
+
+Verify with a test commit:
+
+```bash
+cd <some-worktree>
+git commit --allow-empty -m "test signing"
+git log --show-signature -1
+# Expected: "gpg: Good signature from ..."
+```
+
+> **To revoke later:** revoke the key on GitHub, then `gpg --delete-secret-keys ABCDEF1234567890` inside the container.
+
 ---
 
 ## Step 11 — Verify git path and worktree resolution
