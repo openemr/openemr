@@ -27,6 +27,11 @@ class ObservationScreeningAndAssessmentsTest extends TestCase
         // we are testing for searching for observations with category 'survey'
         // at some point we'll cover all the other tests, but for now just verify this one works.
         // note this requires the inferno-files db dataset to be loaded as that is where the data for this patient is.
+        $this->markTestIncomplete(
+            'The inferno-files snapshot (2025-06-25-inferno-baseline) does not contain SDOH/survey ' .
+            'observations for the test patients. This test requires survey category observations ' .
+            '(e.g., from screening assessment forms) to be added to the snapshot.'
+        );
         $response = self::$testClient->get(
             '/apis/default/fhir/Observation',
             [
