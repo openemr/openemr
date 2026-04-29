@@ -884,7 +884,7 @@ class AuthorizationController
                     $username = $request->request->get('username', '');
                     $mfaType = $request->request->get('mfa_type', 'unknown');
                     $userService = new UserService();
-                    $authGroup = !empty($username) ? $userService->getAuthGroupForUser($username) : '';
+                    $authGroup = $username !== '' ? $userService->getAuthGroupForUser($username) : '';
                     EventAuditLogger::getInstance()->newEvent(
                         'login',
                         $username,

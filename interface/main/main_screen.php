@@ -240,7 +240,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
                     $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
                     $authGroup = '';
-                    if (!empty($username)) {
+                    if ($username !== '') {
                         $userService = new \OpenEMR\Services\UserService();
                         $authGroup = $userService->getAuthGroupForUser($username);
                     }
@@ -288,7 +288,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
                     $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
                     $authGroup = '';
-                    if (!empty($username)) {
+                    if ($username !== '') {
                         $userService = new \OpenEMR\Services\UserService();
                         $authGroup = $userService->getAuthGroupForUser($username);
                     }
