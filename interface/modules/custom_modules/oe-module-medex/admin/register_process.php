@@ -174,6 +174,82 @@ function medexBuildCallbackUrl(string $openEmrBaseUrl): array
     return [true, $baseUrl, $callbackUrl, 'ok'];
 }
 
+function medexPreviewTunnelBrokerBaseUrl(): string
+{
+    $configured = trim((string)($GLOBALS['medex_preview_broker_url'] ?? ''));
+    if ($configured !== '') {
+        return rtrim($configured, '/');
+    }
+
+    return 'https://preview.experiencemedex.com';
+}
+
+function medexPreviewTunnelLeaseCreate(string $email, string $localBaseUrl): array
+{
+    $brokerBase = medexPreviewTunnelBrokerBaseUrl();
+    $payload = json_encode([
+        'email' => $email,
+        'slug' => preg_replace('/[^a-z0-9-]+/i', '-', strtolower((string)preg_replace('/@.*$/', '', $email))),
+        'ttl_seconds' => 86400,
+        'allowlist_paths' => [
+            '/interface/modules/custom_modules/oe-module-medex/public/callback.php',
+            '/interface/modules/custom_modules/oe-module-medex/admin/onboarding_otp.php',
+            '/interface/modules/custom_modules/oe-module-medex/admin/agreement_sign.php',
+        ],
+        'local_base_url' => $localBaseUrl,
+    ], JSON_UNESCAPED_SLASHES);
+
+    if (!is_string($payload) || $payload === '') {
+        return [false, [], 'Failed to encode preview tunnel lease payload'];
+    }
+
+    $ch = curl_init($brokerBase . '/api/leases');
+    if (!$ch) {
+        return [false, [], 'Failed to initialize preview tunnel request'];
+    }
+
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ]);
+
+    $body = curl_exec($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = curl_error($ch);
+    curl_close($ch);
+
+    if (!empty($curlErr)) {
+        return [false, [], 'Preview tunnel request failed: ' . $curlErr];
+    }
+    if ($httpCode < 200 || $httpCode >= 300) {
+        return [false, [], 'Preview tunnel lease API returned HTTP ' . $httpCode];
+    }
+
+    $decoded = json_decode((string)$body, true);
+    if (!is_array($decoded) || empty($decoded['success']) || !is_array($decoded['lease'] ?? null)) {
+        return [false, [], 'Preview tunnel lease API did not return a valid lease'];
+    }
+
+    return [true, $decoded['lease'], 'ok'];
+}
+
+function medexUpsertGlobal(string $name, string $value): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)",
+        [$name, $value]
+    );
+}
+
 function medexEnsureAgreementColumns(): void
 {
     $alterStatements = [
@@ -702,6 +778,29 @@ try {
     if (!$derivedOk) {
         echo json_encode(['success' => false, 'error' => $deriveErr]);
         exit;
+    }
+    if (medexIsPrivateHost((string)(parse_url($openEmrBaseUrl, PHP_URL_HOST) ?? ''))) {
+        [$leaseOk, $lease, $leaseErr] = medexPreviewTunnelLeaseCreate($email, $openEmrBaseUrl);
+        if (!$leaseOk) {
+            echo json_encode(['success' => false, 'error' => $leaseErr]);
+            exit;
+        }
+        $leasePublicBaseUrl = trim((string)($lease['public_base_url'] ?? ''));
+        $leaseCallbackUrl = trim((string)($lease['callback_url'] ?? ''));
+        if ($leasePublicBaseUrl === '' || $leaseCallbackUrl === '') {
+            echo json_encode(['success' => false, 'error' => 'Preview tunnel lease did not return callback details']);
+            exit;
+        }
+        $openEmrBaseUrl = rtrim($leasePublicBaseUrl, '/');
+        $derivedCallbackUrl = $leaseCallbackUrl;
+        try {
+            medexUpsertGlobal('medex_callback_base_url', $openEmrBaseUrl);
+            medexUpsertGlobal('medex_preview_tunnel_public_base_url', $openEmrBaseUrl);
+            medexUpsertGlobal('medex_preview_tunnel_lease_id', (string)($lease['lease_id'] ?? ''));
+            medexUpsertGlobal('medex_preview_tunnel_expires_at', (string)($lease['expires_at'] ?? ''));
+        } catch (\Throwable $e) {
+            error_log('[MedEx] Failed to persist preview tunnel globals: ' . $e->getMessage());
+        }
     }
     $detectedBaseUrl = medexNormalizeOpenEmrBaseUrl(medexDetectedOpenEmrBaseUrl());
     if (medexOnboardingDevModeEnabled()) {
