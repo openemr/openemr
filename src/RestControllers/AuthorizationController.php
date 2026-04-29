@@ -881,11 +881,18 @@ class AuthorizationController
                 if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     // Log failed MFA authentication attempt
                     $ip = collectIpAddresses();
-                    $username = $request->request->get('username', '');
                     $rawMfaType = (string) $request->request->get('mfa_type', '');
                     $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
                     $userService = new UserService();
-                    $authGroup = $username !== '' ? ($userService->getAuthGroupForUser($username) ?: '') : '';
+                    $userRow = $userService->getUser($this->userId);
+                    $username = ($userRow !== false && isset($userRow['username'])) ? (string) $userRow['username'] : '';
+                    $authGroup = '';
+                    if ($username !== '') {
+                        $resolvedGroup = $userService->getAuthGroupForUser($username);
+                        if (is_string($resolvedGroup)) {
+                            $authGroup = $resolvedGroup;
+                        }
+                    }
                     EventAuditLogger::getInstance()->newEvent(
                         'login',
                         $username,
