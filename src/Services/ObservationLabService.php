@@ -53,7 +53,7 @@ class ObservationLabService extends BaseService
             ,"puuid" => $factory->uuid4()->toString()
             ,"result_status" => "final"
             ,"procedure_code" => "24357-6"
-            ,"procedure_name" => "Urinanalysis macro (dipstick) panel"
+            ,"procedure_name" => "Urinalysis macro (dipstick) panel - Urine"
             ,"units" => "[pH]"
             ,"range" => "5.0-8.0"
             ,"result" => "5.0"
