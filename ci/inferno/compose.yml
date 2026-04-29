@@ -85,9 +85,6 @@ services:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: hl7_validator_service
-    # Override to fix NoClassDefFoundError: org/commonmark/ext/gfm/tables/TablesExtension
-    # Version 1.0.65 lacks this dependency; 1.0.73 includes it
-    image: infernocommunity/inferno-resource-validator:1.0.73
   terminology_builder:
     ##
     # Use a profile so this only runs when specified

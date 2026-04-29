@@ -122,27 +122,6 @@ class FhirMetaDataRestController
      */
     private function addOauthSecurityExtensions(FHIRCapabilityStatementSecurity $statement): void
     {
-        // Add OAuth2 endpoint URIs per SMART on FHIR spec
-        $oauthUrisExtension = new FHIRExtension();
-        $oauthUrisExtension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris");
-
-        $authorizeExtension = new FHIRExtension();
-        $authorizeExtension->setUrl("authorize");
-        $authorizeExtension->setValueUri(new FHIRUri($this->config->getAuthorizeUrl()));
-        $oauthUrisExtension->addExtension($authorizeExtension);
-
-        $tokenExtension = new FHIRExtension();
-        $tokenExtension->setUrl("token");
-        $tokenExtension->setValueUri(new FHIRUri($this->config->getTokenUrl()));
-        $oauthUrisExtension->addExtension($tokenExtension);
-
-        $introspectExtension = new FHIRExtension();
-        $introspectExtension->setUrl("introspect");
-        $introspectExtension->setValueUri(new FHIRUri($this->config->getIntrospectionUrl()));
-        $oauthUrisExtension->addExtension($introspectExtension);
-
-        $statement->addExtension($oauthUrisExtension);
-
         // now add our SMART capabilities
         foreach (Capability::FHIR_SUPPORTED_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
