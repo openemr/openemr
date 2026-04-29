@@ -148,14 +148,13 @@ run_testsuite() {
     local exit_code=0
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
+        # Note: ciLibrary.source phpunit() adds --log-junit automatically for testsuite
         phpunit --testsuite certification \
                 --coverage-clover coverage.inferno-phpunit.clover.xml \
-                --log-junit junit-inferno.xml \
                 -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     else
         # shellcheck disable=SC2310 # Intentionally capture exit code without triggering errexit
         phpunit --testsuite certification \
-                --log-junit junit-inferno.xml \
                 -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     fi
 
