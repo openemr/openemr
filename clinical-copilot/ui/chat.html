@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clinical Co-Pilot</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --ink: #1a1f2c;
+    --muted: #6c7280;
+    --accent: #2c5282;
+    --warn: #b7791f;
+    --block: #c53030;
+    --pass: #2f855a;
+    --border: #e2e8f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --panel: #181b22;
+      --ink: #e7e9ee;
+      --muted: #9aa0aa;
+      --accent: #82a9d6;
+      --border: #283041;
+    }
+  }
+  html, body { background: var(--bg); color: var(--ink); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; }
+  .wrap { max-width: 920px; margin: 24px auto; padding: 0 16px; }
+  h1 { margin: 0 0 4px 0; font-size: 22px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .controls { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 16px; }
+  select, button { background: var(--panel); border: 1px solid var(--border); color: var(--ink); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  button { cursor: pointer; background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.55; }
+  .verdict { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+  .verdict.passed { background: color-mix(in srgb, var(--pass) 18%, transparent); color: var(--pass); }
+  .verdict.warned { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+  .verdict.blocked { background: color-mix(in srgb, var(--block) 18%, transparent); color: var(--block); }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 12px; }
+  .pill { display: inline-block; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 2px 8px; border-radius: 99px; font-size: 11px; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Clinical Co-Pilot</h1>
+  <div class="sub">Pairwise comparison engine for OpenEMR. Read-only. Citations required.</div>
+
+  <div class="controls">
+    <select id="patient" aria-label="Patient">
+      <option value="">Loading patients…</option>
+    </select>
+    <select id="purpose" aria-label="Purpose">
+      <option value="diagnostic_cross_check">Pre-visit cross-check (Use Case A)</option>
+      <option value="chart_error_scan">Chart-error scan (Use Case B)</option>
+    </select>
+    <button id="run">Run</button>
+  </div>
+
+  <div id="output" class="panel" aria-live="polite">
+    <pre>Pick a patient and a purpose, then press Run.</pre>
+  </div>
+
+  <div class="meta" id="meta"></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const sidecarBase = window.location.origin;
+
+async function loadPatients() {
+  const res = await fetch(`${sidecarBase}/patients`);
+  const items = await res.json();
+  const sel = $('patient');
+  sel.innerHTML = '';
+  if (!items.length) {
+    sel.innerHTML = '<option value="">(no fixtures bundled)</option>';
+    return;
+  }
+  for (const id of items) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    sel.appendChild(opt);
+  }
+}
+
+async function run() {
+  const patient = $('patient').value;
+  const purpose = $('purpose').value;
+  if (!patient) return;
+  $('run').disabled = true;
+  $('output').innerHTML = '<pre>Running pairwise engine…</pre>';
+  $('meta').textContent = '';
+  try {
+    const res = await fetch(`${sidecarBase}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient_id: patient,
+        purpose: purpose,
+        user_id: 'dr.m@example.org',
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      $('output').innerHTML = `<pre>HTTP ${res.status}: ${data.detail || JSON.stringify(data)}</pre>`;
+      return;
+    }
+    const verdictClass = data.verdict || 'passed';
+    const head = `<div><strong>Result</strong><span class="verdict ${verdictClass}">${verdictClass.toUpperCase()}</span></div>`;
+    $('output').innerHTML = head + `<pre>${escapeHtml(data.text)}</pre>`;
+    const t = data.telemetry || {};
+    const dropped = (data.dropped || []).length;
+    $('meta').innerHTML = [
+      `<span class="pill">${t.total_pair_count ?? 0} pairs</span>`,
+      `<span class="pill">${t.total_prompt_tokens ?? 0} prompt tok</span>`,
+      `<span class="pill">${t.total_completion_tokens ?? 0} completion tok</span>`,
+      `<span class="pill">$${(t.total_dollar_cost ?? 0).toFixed(4)}</span>`,
+      `<span class="pill">${dropped} dropped</span>`,
+    ].join(' ');
+  } catch (err) {
+    $('output').innerHTML = `<pre>Error: ${escapeHtml(String(err))}</pre>`;
+  } finally {
+    $('run').disabled = false;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+$('run').addEventListener('click', run);
+loadPatients();
+</script>
+</body>
+</html>

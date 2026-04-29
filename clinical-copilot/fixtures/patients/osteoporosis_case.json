@@ -1,0 +1,81 @@
+{
+  "patient_id": "Patient/87414",
+  "demographics": {
+    "age": 68,
+    "sex_at_birth": "F",
+    "weight_kg": 62
+  },
+  "active_problems": [
+    {
+      "id": "Condition/4001",
+      "label": "Osteoporosis",
+      "icd10": "M81.0",
+      "onset": "2013-08-12",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 4001,
+        "observed_at": "2013-08-12",
+        "fhir_resource": "Condition/4001"
+      }
+    },
+    {
+      "id": "Condition/4002",
+      "label": "Osteopenia",
+      "icd10": "M85.80",
+      "onset": "2017-05-04",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 4002,
+        "observed_at": "2017-05-04",
+        "fhir_resource": "Condition/4002"
+      }
+    },
+    {
+      "id": "Condition/4003",
+      "label": "Hypothyroidism",
+      "icd10": "E03.9",
+      "onset": "2015-01-12",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 4003,
+        "observed_at": "2015-01-12",
+        "fhir_resource": "Condition/4003"
+      }
+    }
+  ],
+  "medications": [
+    {
+      "id": "MedicationRequest/9100",
+      "label": "Levothyroxine 50 mcg",
+      "rxnorm": "892244",
+      "dose": "50 mcg PO daily",
+      "started": "2015-01-15",
+      "active": true,
+      "provenance": {"table": "prescriptions", "row_id": 9100}
+    }
+  ],
+  "allergies": [],
+  "recent_vitals": [],
+  "recent_labs": [
+    {
+      "id": "Observation/lab10",
+      "loinc": "3016-3",
+      "label": "Thyroid stimulating hormone",
+      "value": 2.4,
+      "unit": "mIU/L",
+      "reference_low": 0.4,
+      "reference_high": 4.0,
+      "observed_at": "2026-02-22T08:15:00Z",
+      "provenance": {"table": "procedure_result", "row_id": "lab10"}
+    }
+  ],
+  "presenting": {
+    "symptoms": ["routine annual exam"],
+    "since": "1 year",
+    "source": "scheduled visit"
+  },
+  "free_text_notes_index": "vector://patient-87414"
+}

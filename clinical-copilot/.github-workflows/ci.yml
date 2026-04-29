@@ -1,0 +1,49 @@
+# Clinical Co-Pilot CI
+#
+# This file is named with a leading dot+dash so it does not conflict with
+# the parent OpenEMR's ``.github/workflows/`` (which it should not). To
+# enable, copy or symlink to ``.github/workflows/clinical-copilot-ci.yml``
+# at the repo root.
+name: clinical-copilot-ci
+on:
+  push:
+    paths:
+      - "clinical-copilot/**"
+  pull_request:
+    paths:
+      - "clinical-copilot/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clinical-copilot
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: |
+          ruff check .
+
+      - name: Unit + eval suite (mock provider, no API key)
+        env:
+          COPILOT_LLM_PROVIDER: mock
+        run: |
+          pytest tests/ evals/ -v --tb=short
+
+      - name: Eval results artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: clinical-copilot/evals/results/

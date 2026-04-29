@@ -1,0 +1,113 @@
+{
+  "patient_id": "Patient/87413",
+  "demographics": {
+    "age": 71,
+    "sex_at_birth": "F",
+    "weight_kg": 74,
+    "height_cm": 162
+  },
+  "active_problems": [
+    {
+      "id": "Condition/2241",
+      "label": "Type 2 diabetes mellitus",
+      "icd10": "E11.9",
+      "snomed": "44054006",
+      "onset": "2014-03-12",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 2241,
+        "observed_at": "2014-03-12",
+        "fhir_resource": "Condition/2241"
+      }
+    },
+    {
+      "id": "Condition/3018",
+      "label": "Gout, unspecified",
+      "icd10": "M10.9",
+      "snomed": "90560007",
+      "onset": "2019-06-04",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 3018,
+        "observed_at": "2019-06-04",
+        "fhir_resource": "Condition/3018"
+      }
+    },
+    {
+      "id": "Condition/3214",
+      "label": "Essential hypertension",
+      "icd10": "I10",
+      "snomed": "59621000",
+      "onset": "2010-01-15",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 3214,
+        "observed_at": "2010-01-15",
+        "fhir_resource": "Condition/3214"
+      }
+    }
+  ],
+  "medications": [
+    {
+      "id": "MedicationRequest/9001",
+      "label": "Metformin 500 mg",
+      "rxnorm": "860975",
+      "dose": "500 mg PO twice daily",
+      "started": "2014-03-15",
+      "active": true,
+      "provenance": {
+        "table": "prescriptions",
+        "row_id": 9001,
+        "observed_at": "2014-03-15"
+      }
+    },
+    {
+      "id": "MedicationRequest/9002",
+      "label": "Lisinopril 10 mg",
+      "rxnorm": "314076",
+      "dose": "10 mg PO daily",
+      "started": "2010-02-01",
+      "active": true,
+      "provenance": {
+        "table": "prescriptions",
+        "row_id": 9002,
+        "observed_at": "2010-02-01"
+      }
+    }
+  ],
+  "allergies": [],
+  "recent_vitals": [
+    {
+      "id": "Observation/v01",
+      "loinc": "8480-6",
+      "label": "Systolic blood pressure",
+      "value": 138,
+      "unit": "mm[Hg]",
+      "observed_at": "2026-04-15T09:12:00Z",
+      "provenance": {"table": "form_vitals", "row_id": "v01"}
+    }
+  ],
+  "recent_labs": [
+    {
+      "id": "Observation/lab01",
+      "loinc": "4548-4",
+      "label": "Hemoglobin A1c",
+      "value": 7.2,
+      "unit": "%",
+      "reference_low": 4.0,
+      "reference_high": 5.7,
+      "abnormal_flag": "H",
+      "observed_at": "2026-03-10T08:30:00Z",
+      "provenance": {"table": "procedure_result", "row_id": "lab01"}
+    }
+  ],
+  "presenting": {
+    "symptoms": ["right toe pain", "swelling", "body aches"],
+    "since": "3 days",
+    "source": "patient portal pre-visit form"
+  },
+  "free_text_notes_index": "vector://patient-87413"
+}

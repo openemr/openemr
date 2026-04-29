@@ -1,0 +1,61 @@
+# Clinical Co-Pilot sidecar stack.
+# Runs alongside an existing OpenEMR docker network (e.g. development-easy).
+# To attach to OpenEMR's network add `network_mode: "service:openemr"`
+# or join the same external network.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: copilot-postgres
+    environment:
+      POSTGRES_USER: copilot
+      POSTGRES_PASSWORD: copilot
+      POSTGRES_DB: copilot
+    ports:
+      - "5433:5432"
+    volumes:
+      - copilot-pgdata:/var/lib/postgresql/data
+      - ./sidecar/audit/schema.sql:/docker-entrypoint-initdb.d/01-audit.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U copilot -d copilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  sidecar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: copilot-sidecar
+    env_file:
+      - .env
+    environment:
+      COPILOT_DATABASE_URL: postgresql+psycopg://copilot:copilot@postgres:5432/copilot
+    ports:
+      - "8801:8801"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  bff:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: copilot-bff
+    env_file:
+      - .env
+    environment:
+      COPILOT_DATABASE_URL: postgresql+psycopg://copilot:copilot@postgres:5432/copilot
+      COPILOT_SIDECAR_URL: http://sidecar:8801
+    command: ["uvicorn", "bff.main:app", "--host", "0.0.0.0", "--port", "8800"]
+    ports:
+      - "8800:8800"
+    depends_on:
+      sidecar:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  copilot-pgdata:

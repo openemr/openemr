@@ -1,0 +1,75 @@
+# Curated rule store for the verifier.
+#
+# ARCHITECTURE.md §5.2: rules are versioned. Adding a rule requires a PR
+# with a test case. Adding/removing a rule bumps the store_version below.
+store_version: "1.0.0"
+
+rules:
+  # ─── Biologically improbable progressions ─────────────────────────────────
+  - id: osteo_progression_backward
+    kind: temporal
+    action: warn
+    description: >
+      Osteoporosis followed by osteopenia in the chart timeline is
+      biologically backward; osteoporosis does not regress to osteopenia
+      without intervening treatment.
+    triggers:
+      label_a_contains: ["osteoporosis"]
+      label_b_contains: ["osteopenia"]
+      a_before_b: true
+
+  - id: hba1c_without_dm_meds
+    kind: biological
+    action: warn
+    description: >
+      Type 2 diabetes diagnosis with sustained HbA1c < 5.7% for 6+ months
+      without medication suggests prediabetes miscoded as diabetes.
+    triggers:
+      label_a_contains: ["type 2 diabetes", "diabetes mellitus type 2"]
+      hba1c_below: 5.7
+      no_diabetes_meds_for_months: 6
+
+  # ─── Pharmacological contradictions ───────────────────────────────────────
+  - id: penicillin_allergy_amoxicillin
+    kind: pharmacological
+    action: warn
+    description: >
+      Documented penicillin-class allergy with subsequent amoxicillin
+      (penicillin-class) exposure without a re-exposure-tolerated note.
+    triggers:
+      allergy_label_contains: ["penicillin", "amoxicillin", "ampicillin"]
+      medication_label_contains: ["amoxicillin", "ampicillin", "penicillin"]
+      tolerated_re_exposure: false
+
+  - id: nsaid_with_stage_4_ckd
+    kind: pharmacological
+    action: block
+    description: >
+      Non-steroidal anti-inflammatory drug (NSAID) prescribed alongside
+      stage 4+ chronic kidney disease — block the response and surface
+      the conflict.
+    triggers:
+      problem_label_contains: ["chronic kidney disease stage 4", "ckd stage 4", "ckd 4"]
+      medication_label_contains: ["ibuprofen", "naproxen", "ketorolac", "celecoxib"]
+
+  # ─── Drug-drug interactions (high impact subset) ──────────────────────────
+  - id: warfarin_nsaid
+    kind: pharmacological
+    action: warn
+    description: >
+      Warfarin with NSAID raises bleeding risk; flag for review.
+    triggers:
+      medication_a_contains: ["warfarin", "coumadin"]
+      medication_b_contains: ["ibuprofen", "naproxen", "aspirin", "ketorolac"]
+
+  # ─── Per-condition anchors ────────────────────────────────────────────────
+  - id: gout_present_toe_pain_anchor
+    kind: clinical_anchor
+    action: warn
+    description: >
+      When the chart already documents gout and the patient presents with
+      monoarticular toe pain, do not anchor on infection without joint
+      aspirate or uric acid.
+    triggers:
+      problem_label_contains: ["gout"]
+      symptom_contains: ["toe pain", "podagra", "first metatarsophalangeal"]

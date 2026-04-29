@@ -1,0 +1,58 @@
+{
+  "patient_id": "Patient/87415",
+  "demographics": {
+    "age": 54,
+    "sex_at_birth": "M",
+    "weight_kg": 88
+  },
+  "active_problems": [
+    {
+      "id": "Condition/5001",
+      "label": "Acute sinusitis",
+      "icd10": "J01.90",
+      "onset": "2026-04-25",
+      "verification": "confirmed",
+      "provenance": {
+        "table": "lists",
+        "row_id": 5001,
+        "observed_at": "2026-04-25",
+        "fhir_resource": "Condition/5001"
+      }
+    }
+  ],
+  "medications": [
+    {
+      "id": "MedicationRequest/9201",
+      "label": "Amoxicillin 500 mg",
+      "rxnorm": "308182",
+      "dose": "500 mg PO three times daily",
+      "started": "2026-04-25",
+      "active": true,
+      "provenance": {"table": "prescriptions", "row_id": 9201}
+    }
+  ],
+  "allergies": [
+    {
+      "id": "AllergyIntolerance/al01",
+      "label": "Penicillin allergy",
+      "rxnorm": "7980",
+      "reaction": "Hives",
+      "severity": "moderate",
+      "criticality": "high",
+      "onset": "2002-06-12",
+      "provenance": {
+        "table": "lists",
+        "row_id": "al01",
+        "observed_at": "2002-06-12"
+      }
+    }
+  ],
+  "recent_vitals": [],
+  "recent_labs": [],
+  "presenting": {
+    "symptoms": ["congestion", "facial pressure", "post-nasal drip"],
+    "since": "5 days",
+    "source": "Encounter.reasonCode"
+  },
+  "free_text_notes_index": "vector://patient-87415"
+}
