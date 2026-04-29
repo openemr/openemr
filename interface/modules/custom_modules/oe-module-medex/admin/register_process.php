@@ -15,6 +15,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
 const MEDEX_ONBOARDING_VERIFICATION_TTL_SECONDS = 14400;
@@ -33,21 +34,48 @@ function medexIsPrivateHost(string $host): bool
     return false;
 }
 
+function medexOnboardingDevModeEnabled(): bool
+{
+    $env = strtolower(trim((string)getenv('MEDEX_ONBOARDING_DEV_MODE')));
+    if (in_array($env, ['1', 'true', 'yes', 'on'], true)) {
+        return true;
+    }
+
+    $global = strtolower(trim((string)($GLOBALS['medex_onboarding_dev_mode'] ?? '')));
+    if (in_array($global, ['1', 'true', 'yes', 'on'], true)) {
+        return true;
+    }
+
+    $host = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+    if (($pos = strpos($host, ':')) !== false) {
+        $host = substr($host, 0, $pos);
+    }
+
+    return medexIsPrivateHost($host);
+}
+
 function medexValidateCallbackUrl(string $url): array
 {
     $url = trim($url);
+    $devMode = medexOnboardingDevModeEnabled();
     if ($url === '') {
         return [false, 'OpenEMR URL is required'];
     }
-    if (stripos($url, 'https://') !== 0) {
+
+    if ($devMode) {
+        if (!preg_match('#^https?://#i', $url)) {
+            return [false, 'OpenEMR URL must start with http:// or https:// in developer mode'];
+        }
+    } elseif (stripos($url, 'https://') !== 0) {
         return [false, 'OpenEMR URL must use HTTPS'];
     }
+
     $parts = parse_url($url);
     $host = strtolower($parts['host'] ?? '');
     if ($host === '') {
         return [false, 'OpenEMR URL host is invalid'];
     }
-    if (medexIsPrivateHost($host)) {
+    if (!$devMode && medexIsPrivateHost($host)) {
         return [false, 'OpenEMR URL cannot be a private or local host'];
     }
     return [true, 'ok'];
@@ -61,7 +89,11 @@ function medexNormalizeOpenEmrBaseUrl(string $url): string
         return '';
     }
 
-    $scheme = 'https';
+    $devMode = medexOnboardingDevModeEnabled();
+    $scheme = $devMode ? strtolower((string)($parts['scheme'] ?? 'https')) : 'https';
+    if (!in_array($scheme, ['http', 'https'], true)) {
+        $scheme = 'https';
+    }
     $host = strtolower((string)$parts['host']);
     $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
     $path = trim((string)($parts['path'] ?? ''), '/');
@@ -507,8 +539,25 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-// Verify CSRF token (subject-first signature on this OpenEMR build).
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
+$session = null;
+if (class_exists(SessionWrapperFactory::class)) {
+    try {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    } catch (\Throwable $e) {
+        $session = null;
+    }
+}
+
+$csrfToken = (string)($_POST['csrf_token_form'] ?? '');
+$csrfOk = false;
+if ($session) {
+    $csrfOk = CsrfUtils::verifyCsrfToken(token: $csrfToken, subject: 'default', session: $session) ||
+        CsrfUtils::verifyCsrfToken(token: $csrfToken, subject: 'api', session: $session);
+} else {
+    $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
+        CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+}
+if (!$csrfOk) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }

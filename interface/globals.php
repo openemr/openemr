@@ -811,7 +811,7 @@ function strterm(string $string, int $length)
 function UrlIfImageExists($filename, $append = true)
 {
     global $webserver_root, $web_root;
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $path = "sites/" . $session->get('site_id') . "/images/$filename";
     // @ in next line because a missing file is not an error.
     if ($stat = @stat("$webserver_root/$path")) {
