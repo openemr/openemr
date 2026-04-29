@@ -429,9 +429,10 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && !str_starts_with((string) $billtime, '0000')) {
+    $billtimeStr = (string) $billtime;
+    if ($billtimeStr !== '' && !str_starts_with($billtimeStr, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
-            text(oeFormatShortDate($billtime)) . attr(substr((string) $billtime, 10)) . "'";
+            text(oeFormatShortDate($billtime)) . attr(substr($billtimeStr, 10)) . "'";
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
@@ -1638,10 +1639,11 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Post discount.
     if ($_POST['form_discount'] != 0) {
+        $discount = trim((string) $_POST['form_discount']);
         if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
+            $amount  = formatMoneyNumber($discount);
         } else {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
+            $amount  = formatMoneyNumber($discount * $form_amount / 100);
         }
         $memo = trimPost('form_discount_type');
         $recorder = new Recorder();
@@ -2006,9 +2008,10 @@ while ($urow = sqlFetchArray($ures)) {
         "list_id = 'chargecats' AND activity = 1"
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
+        $notes = (string) $tmprow['notes'];
         if (
-            preg_match('/ADJ=(\w+)/', (string) $tmprow['notes'], $matches) ||
-            preg_match('/ADJ="(.*?)"/', (string) $tmprow['notes'], $matches)
+            preg_match('/ADJ=(\w+)/', $notes, $matches) ||
+            preg_match('/ADJ="(.*?)"/', $notes, $matches)
         ) {
             echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
@@ -2390,13 +2393,13 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codetype !== 'IPPF2') {
                 continue;
             }
-            if (preg_match('/^211/', $code)) {
+            if (str_starts_with($code, '211')) {
                 $gcac_related_visit = true;
                 if (
-                    preg_match('/^211313030110/', $code) // Medical
-                    || preg_match('/^211323030230/', $code) // Surgical
-                    || preg_match('/^211403030110/', $code) // Incomplete Medical
-                    || preg_match('/^211403030230/', $code) // Incomplete Surgical
+                    str_starts_with($code, '211313030110') // Medical
+                    || str_starts_with($code, '211323030230') // Surgical
+                    || str_starts_with($code, '211403030110') // Incomplete Medical
+                    || str_starts_with($code, '211403030230') // Incomplete Surgical
                 ) {
                     $gcac_service_provided = true;
                 }

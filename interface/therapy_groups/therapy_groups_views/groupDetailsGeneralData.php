@@ -20,6 +20,12 @@ use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+/** @var array<string,mixed> $groupData */
+/** @var string $readonly */
+/** @var string $savingStatus */
+/** @var string $message */
+/** @var array<int,array<string,mixed>> $statuses */
+
 ?>
 
 

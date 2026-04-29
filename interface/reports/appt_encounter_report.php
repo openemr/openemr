@@ -426,7 +426,7 @@ if (!empty($_POST['form_refresh'])) {
                                 continue;
                             }
 
-                            if (preg_match('/^25222/', $code)) {
+                            if (str_starts_with($code, '25222')) {
                                 $gcac_related_visit = true;
                             }
                         }

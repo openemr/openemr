@@ -20,10 +20,11 @@
 $orphanLog = '';
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
-    require_once("$include_root/procedure_tools/quest/QuestResultClient.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+$includeRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root');
+if (file_exists("$includeRoot/procedure_tools/quest/QuestResultClient.php")) {
+    require_once("$includeRoot/procedure_tools/quest/QuestResultClient.php");
 }
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
@@ -471,7 +472,7 @@ function doWait(e){
 
             if ($form_patient) {
                 $where .= " AND po.patient_id = ?";
-                $sqlBindArray[] = $pid;
+                $sqlBindArray[] = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
             }
 
             if ($form_provider) {

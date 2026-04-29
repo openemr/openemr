@@ -118,10 +118,11 @@ if ($appts) {
     foreach ($appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $count++;
+        $startTime = (string) $row['pc_startTime'];
         $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
-        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
+        $disphour = (int)substr($startTime, 0, 2);
+        $dispmin = substr($startTime, 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -152,10 +153,11 @@ if ($past_appts) {
     foreach ($past_appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $pastCount++;
+        $startTime = (string) $row['pc_startTime'];
         $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
-        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
+        $disphour = (int)substr($startTime, 0, 2);
+        $dispmin = substr($startTime, 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -190,7 +192,8 @@ function collectStyles(): array
         if (
             $tfname == 'style_blue.css' ||
             $tfname == 'style_pdf.css' ||
-            !preg_match("/^" . 'style_' . ".*\.css$/", $tfname)
+            !str_starts_with($tfname, 'style_') ||
+            !str_ends_with($tfname, '.css')
         ) {
             continue;
         }

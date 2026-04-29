@@ -38,7 +38,8 @@ $target = OEGlobalsBag::getInstance()->get('edi_271_file_path');
 $batch_log = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
-    $target = $target . time() . basename((string) $_FILES['uploaded']['name']);
+    $uploadedName = (string) $_FILES['uploaded']['name'];
+    $target = $target . time() . basename($uploadedName);
 
     if ($_FILES['uploaded']['size'] > 350000) {
         $message .=  xlt('Your file is too large') . "<br />";
@@ -46,7 +47,8 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (mime_content_type($_FILES['uploaded']['tmp_name']) != "text/plain") {
         $message .= xlt('You may only upload .txt files') . "<br />";
     }
-    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", (string) $_FILES['uploaded']['name']) !== 0) {
+    $uploadedExt = strtolower(pathinfo($uploadedName, PATHINFO_EXTENSION));
+    if (in_array($uploadedExt, ['inc', 'php', 'php7', 'php8'], true)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
@@ -56,7 +58,7 @@ if (isset($_FILES) && !empty($_FILES)) {
             $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, keySource: KeySource::Database);
         }
         if (file_put_contents($target, $uploadedFile)) {
-            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($uploadedName)) . '"';
             $Response271 = file_get_contents($target);
             if ($cryptoGen->cryptCheckStandard($Response271)) {
                 $Response271 = $cryptoGen->decryptStandard($Response271, keySource: KeySource::Database);
@@ -64,10 +66,10 @@ if (isset($_FILES) && !empty($_FILES)) {
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {
-                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($uploadedName)) . '"';
             }
         } else {
-            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename($uploadedName)) . '"';
         }
     } else {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br /><br />";

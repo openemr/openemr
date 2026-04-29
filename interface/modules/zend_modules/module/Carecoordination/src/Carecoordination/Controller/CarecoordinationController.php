@@ -28,34 +28,21 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Documents\Plugin\Documents Documents()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CarecoordinationController extends AbstractActionController
 {
-    /**
-     * @var Carecoordination\Model\CarecoordinationTable
-     */
-    private $carecoordinationTable;
+    private readonly Listener $listenerObject;
 
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    private readonly string $date_format;
 
-    /**
-     * @var Application\Listener\Listener
-     */
-    private $listenerObject;
-
-    /**
-     * @var string
-     */
-    private $date_format;
-
-    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
+    public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
-        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
         $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
-        $this->documentsController = $documentsController;
     }
 
     /**

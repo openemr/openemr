@@ -492,6 +492,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$arep on left side of \\?\\? is never defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$attendant_type on left side of \\?\\? is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
@@ -545,6 +550,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$my_fid on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/facility_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$uuid on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$events on left side of \\?\\? is never defined\\.$#',

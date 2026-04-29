@@ -34,6 +34,10 @@ use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Validators\ProcessingResult;
 use XSLTProcessor;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class EncountermanagerController extends AbstractActionController
 {
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for

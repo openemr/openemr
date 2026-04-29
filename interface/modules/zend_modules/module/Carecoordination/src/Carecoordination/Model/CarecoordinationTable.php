@@ -1153,18 +1153,6 @@ class CarecoordinationTable
     }
 
     /**
-     * @param $pid
-     * @return mixed
-     */
-    public function getIssues($pid)
-    {
-        // @todo Beware getIssues() doesn't exist in DocumentTable()! Method not used
-        $doc_obj = new DocumentsTable();
-        $issues = $doc_obj->getIssues($pid);
-        return $issues;
-    }
-
-    /**
      * @return string
      */
     public function getCategoryIDs(): string

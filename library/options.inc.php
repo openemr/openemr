@@ -692,7 +692,7 @@ function generate_form_field($frow, $currvalue): void
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", (string) $currvalue);
-            if (!preg_match('/^comment_/', (string) $currvalue) || (count($selectedValues) == 1)) {
+            if (!str_starts_with((string) $currvalue, 'comment_') || (count($selectedValues) == 1)) {
                 $display = "display:none";
                 $comment = "";
             } else {
@@ -4288,7 +4288,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             }
         } elseif ($data_type == 46) {
             $reslist = trim((string) $_POST["$prefix$field_id"]);
-            if (preg_match('/^comment_/', $reslist)) {
+            if (str_starts_with($reslist, 'comment_')) {
                 $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = $reslist . "|" . $res_comment;
             } else {

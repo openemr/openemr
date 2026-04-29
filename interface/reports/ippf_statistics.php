@@ -226,36 +226,36 @@ function ippf_stats_genNumCell($num, $cnum): void
 // Translate an IPPF code to the corresponding descriptive name of its
 // contraceptive method, or to an empty string if none applies.
 //
-function getContraceptiveMethod($code)
+function getContraceptiveMethod(string $code)
 {
     $key = '';
-    if (preg_match('/^111101/', (string) $code)) {
+    if (str_starts_with($code, '111101')) {
         $key = xl('Pills');
-    } elseif (preg_match('/^11111[1-9]/', (string) $code)) {
+    } elseif (preg_match('/^11111[1-9]/', $code)) {
         $key = xl('Injectables');
-    } elseif (preg_match('/^11112[1-9]/', (string) $code)) {
+    } elseif (preg_match('/^11112[1-9]/', $code)) {
         $key = xl('Implants');
-    } elseif (preg_match('/^111132/', (string) $code)) {
+    } elseif (str_starts_with($code, '111132')) {
         $key = xl('Patch');
-    } elseif (preg_match('/^111133/', (string) $code)) {
+    } elseif (str_starts_with($code, '111133')) {
         $key = xl('Vaginal Ring');
-    } elseif (preg_match('/^112141/', (string) $code)) {
+    } elseif (str_starts_with($code, '112141')) {
         $key = xl('Male Condoms');
-    } elseif (preg_match('/^112142/', (string) $code)) {
+    } elseif (str_starts_with($code, '112142')) {
         $key = xl('Female Condoms');
-    } elseif (preg_match('/^11215[1-9]/', (string) $code)) {
+    } elseif (preg_match('/^11215[1-9]/', $code)) {
         $key = xl('Diaphragms/Caps');
-    } elseif (preg_match('/^11216[1-9]/', (string) $code)) {
+    } elseif (preg_match('/^11216[1-9]/', $code)) {
         $key = xl('Spermicides');
-    } elseif (preg_match('/^11317[1-9]/', (string) $code)) {
+    } elseif (preg_match('/^11317[1-9]/', $code)) {
         $key = xl('IUD');
-    } elseif (preg_match('/^145212/', (string) $code)) {
+    } elseif (str_starts_with($code, '145212')) {
         $key = xl('Emergency Contraception');
-    } elseif (preg_match('/^121181.13/', (string) $code)) {
+    } elseif (preg_match('/^121181.13/', $code)) {
         $key = xl('Female VSC');
-    } elseif (preg_match('/^122182.13/', (string) $code)) {
+    } elseif (preg_match('/^122182.13/', $code)) {
         $key = xl('Male VSC');
-    } elseif (preg_match('/^131191.10/', (string) $code)) {
+    } elseif (preg_match('/^131191.10/', $code)) {
         $key = xl('Awareness-Based');
     }
 
@@ -321,17 +321,17 @@ function getRelatedAbortionMethod($row)
 // Translate an IPPF code to the corresponding descriptive name of its
 // abortion method, or to an empty string if none applies.
 //
-function getAbortionMethod($code)
+function getAbortionMethod(string $code)
 {
     $key = '';
-    if (preg_match('/^25222[34]/', (string) $code)) {
-        if (preg_match('/^2522231/', (string) $code)) {
+    if (preg_match('/^25222[34]/', $code)) {
+        if (str_starts_with($code, '2522231')) {
             $key = xl('D&C');
-        } elseif (preg_match('/^2522232/', (string) $code)) {
+        } elseif (str_starts_with($code, '2522232')) {
             $key = xl('D&E');
-        } elseif (preg_match('/^2522233/', (string) $code)) {
+        } elseif (str_starts_with($code, '2522233')) {
             $key = xl('MVA');
-        } elseif (preg_match('/^252224/', (string) $code)) {
+        } elseif (str_starts_with($code, '252224')) {
             $key = xl('Medical');
         } else {
             $key = xl('Other Surgical');
@@ -576,7 +576,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
 
 // This is called for each IPPF service code that is selected.
 //
-function process_ippf_code($row, $code, $quantity = 1): void
+function process_ippf_code($row, string $code, $quantity = 1): void
 {
     global $areport, $arr_titles, $form_by, $form_content;
 
@@ -585,9 +585,9 @@ function process_ippf_code($row, $code, $quantity = 1): void
   // SRH including Family Planning
   //
     if ($form_by === '1') {
-        if (preg_match('/^1/', (string) $code)) {
+        if (str_starts_with($code, '1')) {
             $key = xl('SRH - Family Planning');
-        } elseif (preg_match('/^2/', (string) $code)) {
+        } elseif (str_starts_with($code, '2')) {
             $key = xl('SRH Non Family Planning');
         } else {
             if ($form_content != 5) {
@@ -595,33 +595,33 @@ function process_ippf_code($row, $code, $quantity = 1): void
             }
         }
     } elseif ($form_by === '3') { // General Service Category
-        if (preg_match('/^1/', (string) $code)) {
+        if (str_starts_with($code, '1')) {
             $key = xl('SRH - Family Planning');
-        } elseif (preg_match('/^2/', (string) $code)) {
+        } elseif (str_starts_with($code, '2')) {
             $key = xl('SRH Non Family Planning');
-        } elseif (preg_match('/^3/', (string) $code)) {
+        } elseif (str_starts_with($code, '3')) {
             $key = xl('Non-SRH Medical');
-        } elseif (preg_match('/^4/', (string) $code)) {
+        } elseif (str_starts_with($code, '4')) {
             $key = xl('Non-SRH Non-Medical');
         } else {
             $key = xl('Invalid Service Codes');
         }
     } elseif ($form_by === '13') { // Abortion-Related Category
-        if (preg_match('/^252221/', (string) $code)) {
+        if (str_starts_with($code, '252221')) {
             $key = xl('Pre-Abortion Counseling');
-        } elseif (preg_match('/^252222/', (string) $code)) {
+        } elseif (str_starts_with($code, '252222')) {
             $key = xl('Pre-Abortion Consultation');
-        } elseif (preg_match('/^252223/', (string) $code)) {
+        } elseif (str_starts_with($code, '252223')) {
             $key = xl('Induced Abortion');
-        } elseif (preg_match('/^252224/', (string) $code)) {
+        } elseif (str_starts_with($code, '252224')) {
             $key = xl('Medical Abortion');
-        } elseif (preg_match('/^252225/', (string) $code)) {
+        } elseif (str_starts_with($code, '252225')) {
             $key = xl('Incomplete Abortion Treatment');
-        } elseif (preg_match('/^252226/', (string) $code)) {
+        } elseif (str_starts_with($code, '252226')) {
             $key = xl('Post-Abortion Care');
-        } elseif (preg_match('/^252227/', (string) $code)) {
+        } elseif (str_starts_with($code, '252227')) {
             $key = xl('Post-Abortion Counseling');
-        } elseif (preg_match('/^25222/', (string) $code)) {
+        } elseif (str_starts_with($code, '25222')) {
             $key = xl('Other/Generic Abortion-Related');
         } else {
             if ($form_content != 5) {
@@ -714,7 +714,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
     } elseif ($form_by === '8') { // Post-Abortion Care and Followup by Source.
         // Requirements just call for counting sessions, but this way the columns
         // can be anything - age category, religion, whatever.
-        if (preg_match('/^25222[567]/', (string) $code)) { // care, followup and incomplete abortion treatment
+        if (preg_match('/^25222[567]/', $code)) { // care, followup and incomplete abortion treatment
             $key = getGcacClientStatus($row);
         } else {
             return;
@@ -761,7 +761,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
         //   Decided not to have the abortion
         //
     } elseif ($form_by === '12') {
-        if (preg_match('/^252221/', (string) $code)) { // all pre-abortion counseling
+        if (str_starts_with($code, '252221')) { // all pre-abortion counseling
             $key = getGcacClientStatus($row);
         } else {
             return;

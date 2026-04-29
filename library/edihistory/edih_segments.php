@@ -1093,7 +1093,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     // verify x12 file
     $x12obj = csv_check_x12_obj($filepath, $ft);
     //
-    if ($x12obj && 'edih_x12_file' == $x12obj::class) {
+    if ($x12obj !== false) {
         $ftype = $x12obj->edih_type();
         $ft = csv_file_type($ftype);
         $delims = $x12obj->edih_delimiters();
@@ -1109,7 +1109,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
             return $str_html;
         }
 
-        if (!is_array($segs_ar) || !count($segs_ar)) {
+        if (count($segs_ar) === 0) {
             // unknown error
             $str_html = "<p>unknown error retrieving segments for " . text($fn) . "</p>" . PHP_EOL;
             $str_html .= $x12obj->edih_message() . PHP_EOL;

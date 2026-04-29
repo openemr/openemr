@@ -466,7 +466,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotMigrateClickOptions')) {
                 if ($this->tableExists("issue_types")) {
                     $skipping = true;
                 } else {
@@ -478,7 +478,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListOccupation/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListOccupation')) {
                 if (($this->listExists("Occupation")) || (!$this->columnExists('patient_data', 'occupation'))) {
                     $skipping = true;
                 } else {
@@ -491,7 +491,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListReaction/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListReaction')) {
                 if (($this->listExists("reaction")) || (!$this->columnExists('lists', 'reaction'))) {
                     $skipping = true;
                 } else {
@@ -504,7 +504,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListImmunizationManufacturer')) {
                 if ($this->listExists("Immunization_Manufacturer")) {
                     $skipping = true;
                 } else {
@@ -517,7 +517,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotWenoRx/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotWenoRx')) {
                 if ($this->tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                     $skipping = true;
                 } else {
@@ -530,7 +530,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
                 // convert all *text types to use default null setting
-            } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfTextNullFixNeeded')) {
                 $items_to_convert = sqlStatement(
                     "SELECT col.`table_name` AS table_name, col.`column_name` AS column_name,
       col.`data_type` AS data_type, col.`column_comment` AS column_comment
@@ -575,7 +575,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfInnoDBMigrationNeeded')) {
                 // find MyISAM tables and attempt to convert them
                 //tables that need to skip InnoDB migration (stay at MyISAM for now)
                 $tables_skip_migration = ['form_eye_mag'];
@@ -610,7 +610,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#ConvertLayoutProperties/', $line)) {
+            } elseif (str_starts_with($line, '#ConvertLayoutProperties')) {
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 } else {
@@ -618,7 +618,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->flush_echo();
                     $this->convertLayoutProperties();
                 }
-            } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfDocumentNamingNeeded')) {
                 $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
                 if (sqlNumRows($emptyNames) > 0) {
                     $this->echo("<p>Converting document names.</p>\n");
@@ -644,7 +644,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfVitalsDatesNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfVitalsDatesNeeded')) {
                 $emptyDates = sqlStatementNoLog("SELECT fv.id as vitals_id, f.date as new_date FROM form_vitals fv LEFT JOIN forms f on fv.id = f.form_id WHERE fv.date = '0000-00-00 00:00:00' AND f.form_name = 'Vitals'");
                 if (sqlNumRows($emptyDates) > 0) {
                     $this->echo("<p>Converting empty vital dates.</p>\n");
@@ -661,7 +661,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfMBOEncounterNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfMBOEncounterNeeded')) {
                 $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
                 if (sqlNumRows($emptyMBOEncounters) > 0) {
                     $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
@@ -703,7 +703,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfEyeFormLaserCategoriesNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfEyeFormLaserCategoriesNeeded')) {
                 $eyeFormCategoryParent = sqlQueryNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Module'");
                 $eyeFormAntSegLaser = sqlQueryNoLog("SELECT `id` FROM `categories` WHERE `name` = 'AntSeg Laser - Eye'");
                 if (!empty($eyeFormCategoryParent) && empty($eyeFormAntSegLaser)) {
@@ -748,7 +748,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfCareTeamsV1MigrationNeeded')) {
                 $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
@@ -762,14 +762,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $skipping = true;
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#EndIf/', $line)) {
+            } elseif (str_starts_with($line, '#EndIf')) {
                 $skipping = false;
             }
 
-            if (preg_match('/^#SpecialSql/', $line)) {
+            if (str_starts_with($line, '#SpecialSql')) {
                 $special = true;
                 $line = " ";
-            } elseif (preg_match('/^#EndSpecialSql/', $line)) {
+            } elseif (str_starts_with($line, '#EndSpecialSql')) {
                 $special = false;
                 $trim = false;
                 $line = " ";
@@ -1112,11 +1112,11 @@ class SQLUpgradeService implements ISQLUpgradeService
             $this->echo("Importing clickoption setting<br />");
             while (!feof($file_handle)) {
                 $line_of_text = fgets($file_handle);
-                if (preg_match('/^#/', $line_of_text)) {
+                if ($line_of_text === false || $line_of_text === "") {
                     continue;
                 }
 
-                if ($line_of_text == "") {
+                if (str_starts_with($line_of_text, '#')) {
                     continue;
                 }
 
@@ -1289,7 +1289,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
         while ($row = sqlFetchArray($res)) {
-            $form_id = $row['form_id'];
+            $form_id = (string)$row['form_id'];
             $props = [
                 'title' => 'Unknown',
                 'mapping' => 'Core',
@@ -1297,7 +1297,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with((string)$form_id, 'LBF')) {
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1308,7 +1308,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with((string)$form_id, 'LBT')) {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]

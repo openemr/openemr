@@ -17,9 +17,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/lists.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -43,7 +43,7 @@ if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] 
     $list_id = 'language';
     $blank_list_id = true;
 } else {
-    $list_id = $_REQUEST['list_id'];
+    $list_id = (string) $_REQUEST['list_id'];
 }
 
 // Check authorization.
@@ -189,6 +189,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         // all other lists
         //
         // collect the option toggle if using the 'immunizations' list
+        $ok_map_cvx_codes = 0;
         if ($list_id == 'immunizations') {
             $ok_map_cvx_codes = $_POST['ok_map_cvx_codes'] ?? 0;
         }
@@ -242,7 +243,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     $notes = trim($iter['notes'] ?? '');
                 }
 
-                if (preg_match("/Eye_QP_/", (string) $list_id)) {
+                if (preg_match("/Eye_QP_/", $list_id)) {
                     if (preg_match("/^[BLR]/", $id)) {
                         $stuff = explode("_", $id)[0];
                         $iter['mapping'] = substr($stuff, 1);
@@ -347,6 +348,7 @@ function getCodeDescriptions($codes)
         $code_type = $arrcode[0];
         // test for code with a modifier.
         $modifier = '';
+        $code = '';
         if (stripos($arrcode[1], ':') !== false) {
             $tmp = explode(':', $arrcode[1]);
             if (!empty($tmp[0] ?? null)) {
@@ -563,7 +565,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
         attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin form-control form-control-sm' />";
     echo "</td>\n";
 
-    if (preg_match('/_issue_list$/', (string) $list_id)) {
+    if (str_ends_with((string) $list_id, '_issue_list')) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][subtype]", 'issue_subtypes', $subtype, 'Subtype', ' ', 'optin');
         echo "</td>\n";
@@ -1157,8 +1159,8 @@ function writeITLine($it_array): void
                              * Keep proper list name (otherwise list name changes according to
                              * the options shown on the screen).
                              */
-                            $list_id_container = $_GET["list_id_container"] ?? null;
-                            if (isset($_GET["list_id_container"]) && strlen((string) $list_id_container) > 0) {
+                            $list_id_container = (string) ($_GET["list_id_container"] ?? '');
+                            if ($list_id_container !== '') {
                                 $list_id = $list_id_container;
                             }
 
@@ -1381,7 +1383,7 @@ function writeITLine($it_array): void
 
                     <th><?php echo xlt('Code(s)'); ?></th>
                     <?php
-                    if (preg_match('/_issue_list$/', (string) $list_id)) { ?>
+                    if (str_ends_with((string) $list_id, '_issue_list')) { ?>
                         <th><?php echo xlt('Subtype'); ?></th>
                         <?php
                     }
@@ -1391,9 +1393,9 @@ function writeITLine($it_array): void
             <tbody>
             <?php
             // Get the selected list's elements.
+            $total_rows = 0;
             if ($list_id) {
                 $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
-                $total_rows = 0;
                 if ($list_from > 0) {
                     $list_from--;
                 }

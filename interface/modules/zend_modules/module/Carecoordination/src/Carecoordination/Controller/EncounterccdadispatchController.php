@@ -30,6 +30,9 @@ use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class EncounterccdadispatchController extends AbstractActionController
 {
     protected $data;
@@ -78,6 +81,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
+        $content = '';
         $request = $this->getRequest();
         $this->patient_id = $request->getQuery('pid');
         $this->encounter_id = $request->getQuery('encounter');
@@ -238,6 +242,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 // split content if unstructured is included from service.
                 $unstructured = "";
+                $content = strval($content);
                 if (substr_count($content, '</ClinicalDocument>') === 2) {
                     $d = explode('</ClinicalDocument>', $content);
                     $content = $d[0] . '</ClinicalDocument>';
@@ -307,25 +312,11 @@ class EncounterccdadispatchController extends AbstractActionController
             die();
         }
 
-        try {
-            ob_clean();
-            if (!empty($_POST['sent_by_app'] ?? '')) {
-                echo $content;
-                exit;
-            }
-            if (empty($downloadccda)) {
-                $practice_filename = "CCDA_{$this->patient_id}.xml";
-                header("Cache-Control: public");
-                header("Content-Description: File Transfer");
-                header("Content-Disposition: attachment; filename=" . $practice_filename);
-                header("Content-Type: application/download");
-                header("Content-Transfer-Encoding: binary");
-                echo $content;
-            }
-            exit;
-        } catch (\Throwable $e) {
-            die($e->getMessage());
+        ob_clean();
+        if (!empty($_POST['sent_by_app'] ?? '')) {
+            echo $content;
         }
+        exit;
     }
 
     /**

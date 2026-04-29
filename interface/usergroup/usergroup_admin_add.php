@@ -12,8 +12,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -311,6 +311,7 @@ foreach ($result2 as $iter) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
+    $result = [];
     for ($iter = 0; $iter < count($fres); $iter++) {
         $result[$iter] = $fres[$iter];
     }
@@ -575,6 +576,7 @@ foreach ($list_acl_groups as $value) {
 <select name='rumple'>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
+$result = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result[$iter] = $row;
 }
@@ -606,6 +608,7 @@ foreach ($result as $iter) {
 <select name='rumple'>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
+$result3 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result3[$iter] = $row;
 }
@@ -641,19 +644,21 @@ foreach ($result2 as $iter) {
 <?php
 if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
     $res = sqlStatement("select * from `groups` order by name");
+    $result5 = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result5[$iter] = $row;
     }
 
+    $grouplist = [];
     foreach ($result5 as $iter) {
-        $grouplist[$iter["name"]] .= $iter["user"] .
+        $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . $iter["user"] .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
         attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr((string) $list, 0, strlen((string) $list) - 2)) . "</span><br />\n";
+        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
     }
 }
 ?>

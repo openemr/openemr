@@ -17,26 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$CONVERT_NULL_TO_EMPTYSTRING \\(Setting\\) does not accept default value of type true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$DEBUG_MODE \\(set\\) does not accept default value of type false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$DEFAULT_ACTION \\(default\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$TEMPLATE_ENGINE \\(specify\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Savant3_Plugin_date\\:\\:\\$default \\(array\\) does not accept default value of type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',

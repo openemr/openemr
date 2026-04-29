@@ -33,11 +33,11 @@ class UserDAO extends Phreezable
     public $Id;
 /** @var string */
     public $Username;
-/** @var longtext */
+/** @var string */
     public $Password;
 /** @var int */
     public $Authorized;
-/** @var longtext */
+/** @var string */
     public $Info;
 /** @var int */
     public $Source;
@@ -123,11 +123,11 @@ class UserDAO extends Phreezable
     public $Calendar;
 /** @var string */
     public $AbookType;
-/** @var date */
+/** @var string */
     public $PwdExpirationDate;
-/** @var longtext */
+/** @var string */
     public $PwdHistory1;
-/** @var longtext */
+/** @var string */
     public $PwdHistory2;
 /** @var string */
     public $DefaultWarehouse;
