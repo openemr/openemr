@@ -704,27 +704,31 @@ try {
         exit;
     }
     $detectedBaseUrl = medexNormalizeOpenEmrBaseUrl(medexDetectedOpenEmrBaseUrl());
-    if ($detectedBaseUrl === '') {
-        $attempt = medexRecordAutoApprovalFailure($email, 'missing_detected_site_url');
-        $msg = 'Auto-approval unavailable: site URL could not be detected from current request headers.';
-        if ($attempt['locked']) {
-            $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
-        } else {
-            $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+    if (medexOnboardingDevModeEnabled()) {
+        $detectedBaseUrl = $openEmrBaseUrl;
+    } else {
+        if ($detectedBaseUrl === '') {
+            $attempt = medexRecordAutoApprovalFailure($email, 'missing_detected_site_url');
+            $msg = 'Auto-approval unavailable: site URL could not be detected from current request headers.';
+            if ($attempt['locked']) {
+                $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
+            } else {
+                $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+            }
+            echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
+            exit;
         }
-        echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
-        exit;
-    }
-    if ($detectedBaseUrl !== $openEmrBaseUrl) {
-        $attempt = medexRecordAutoApprovalFailure($email, 'submitted_url_mismatch');
-        $msg = 'Auto-approval unavailable: submitted OpenEMR URL does not match detected site URL.';
-        if ($attempt['locked']) {
-            $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
-        } else {
-            $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+        if ($detectedBaseUrl !== $openEmrBaseUrl) {
+            $attempt = medexRecordAutoApprovalFailure($email, 'submitted_url_mismatch');
+            $msg = 'Auto-approval unavailable: submitted OpenEMR URL does not match detected site URL.';
+            if ($attempt['locked']) {
+                $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
+            } else {
+                $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+            }
+            echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
+            exit;
         }
-        echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
-        exit;
     }
 
 // Create API instance
