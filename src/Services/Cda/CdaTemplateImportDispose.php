@@ -813,7 +813,9 @@ class CdaTemplateImportDispose
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             QueryUtils::sqlStatementThrowException($insertEX, [$encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)]);
         }
-        $this->currentEncounter = $encounter_id;
+        if ($encounter_id !== null) {
+            $this->currentEncounter = $encounter_id;
+        }
     }
 
     /**

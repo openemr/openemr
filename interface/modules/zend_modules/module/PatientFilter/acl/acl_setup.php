@@ -2,7 +2,7 @@
 
 /** @var bool $aclSetupFlag */
 // Ensure this script is not called separately
-if (($aclSetupFlag ?? false) !== true) {
+if ($aclSetupFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 

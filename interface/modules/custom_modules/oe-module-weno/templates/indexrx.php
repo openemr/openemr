@@ -126,7 +126,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
                 asyncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
-                    window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($session->get('pid') ?? $pid ?? '')) ?>";
+                    window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($session->get('pid') ?? $pid)) ?>";
                 });
             });
             <?php } elseif (!$isValidKey) { ?>

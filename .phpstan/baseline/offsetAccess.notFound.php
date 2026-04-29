@@ -562,11 +562,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 0 does not exist on non\\-empty\\-array\\<literal\\-string&non\\-falsy\\-string, mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on \'\'\\|non\\-empty\\-list\\<string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',

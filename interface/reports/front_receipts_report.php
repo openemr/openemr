@@ -295,6 +295,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             $total1 += $row['amount1'];
             $total2 += $row['amount2'];
             $method = $row['method'];
+            if (!is_string($method)) {
+                continue;
+            }
             if (empty($total1_by_method[$method])) {
                 $total1_by_method[$method] = 0;
             }

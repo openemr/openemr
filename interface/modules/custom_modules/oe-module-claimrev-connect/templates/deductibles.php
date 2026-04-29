@@ -12,8 +12,6 @@
 
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
-/** @var object $eligibilityData */
-
 if (property_exists($eligibilityData, 'deductibleReleaseReason')) {
     PrintProperty::displayProperty("Deductible Release Reason:", $eligibilityData->deductibleReleaseReason);
 }

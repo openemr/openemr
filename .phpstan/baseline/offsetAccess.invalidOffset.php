@@ -544,11 +544,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 6,
-    'path' => __DIR__ . '/../../interface/reports/front_receipts_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 6,
     'path' => __DIR__ . '/../../interface/reports/insurance_allocation_report.php',
 ];
 $ignoreErrors[] = [
@@ -728,7 +723,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 212,
+    'count' => 195,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [

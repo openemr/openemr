@@ -14,8 +14,6 @@ use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
 use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
-$pid = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
-
 if ($pid == null) {
     echo xlt("Error retrieving patient.");
     exit;

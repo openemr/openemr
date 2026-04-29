@@ -53,11 +53,7 @@ if ($_POST['form_create'] ?? null) {
         $newpid = $result['pid'];
     }
     setpid($newpid);
-    /** @var int|string|null $pid populated by setpid() into the global scope */
-    $pid = $GLOBALS['pid'] ?? null;
-    if ($pid == null) {
-        $pid = 0;
-    }
+    $pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
     $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));

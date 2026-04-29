@@ -10,8 +10,6 @@
 
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
-/** @var iterable<object> $benefits */
-
 $benefitPatResponse = ["B","C","G","J","Y"];
 
 foreach ($benefits as $benefit) {

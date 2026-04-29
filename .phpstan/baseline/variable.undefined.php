@@ -9827,6 +9827,91 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefits might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$eligibilityData might not be defined\\.$#',
+    'count' => 20,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$pid might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$eligibilityData might not be defined\\.$#',
+    'count' => 22,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$tab might not be defined\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/navbar.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$receiver might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$benefit might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$source might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$subscriberPatient might not be defined\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$data might not be defined\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$eligibilityData might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$response might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
@@ -11893,7 +11978,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$cdx might not be defined\\.$#',
-    'count' => 1,
+    'count' => 9,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$hl might not be defined\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -11912,7 +12002,32 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$de$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$delimiter3$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$ds$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$bpr02 might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$check_amount might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$check_date might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
@@ -11922,12 +12037,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$ck might not be defined\\.$#',
+    'count' => 52,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$de might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$gs_date might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$i might not be defined\\.$#',
+    'count' => 27,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$loop might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$loopid might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$lx01 might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$out might not be defined\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$plbar might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
@@ -11938,6 +12088,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$seg might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$segid might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];

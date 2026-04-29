@@ -8,7 +8,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'CLM01\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -22,33 +22,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot assign offset \'InsLevel\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'Payer\' to array\\<string, mixed\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot assign offset \'Provider\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'PtName\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot assign offset \'PtPaid\' to array\\<string, mixed\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'SvcDate\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -58,12 +43,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset mixed to array\\<array\\<string, mixed\\>\\>\\|string\\.$#',
-    'count' => 15,
+    'count' => 7,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset mixed to array\\<int\\<0, max\\>, array\\<string, mixed\\>\\>\\|string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [

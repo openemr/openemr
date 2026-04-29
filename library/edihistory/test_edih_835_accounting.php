@@ -232,25 +232,6 @@ function edih_835_accounting($segments, $delimiters)
         return "835 accounting: invalid segments argument";
     }
 
-    $de = is_array($delimiters) && isset($delimiters['e']) ? $delimiters['e'] : '*';
-    $ds = is_array($delimiters) && isset($delimiters['s']) ? $delimiters['s'] : ':';
-    $delimiter3 = $ds;
-    $out = [];
-    $ck = '';
-    $i = 0;
-    $loop = '';
-    $loopid = '';
-    $gs_date = '';
-    $check_amount = '';
-    $check_date = '';
-    $bpr02 = '';
-    $chk = false;
-    $lx01 = '';
-    $plbar = '';
-    $pmt_html = '';
-    $segid = '';
-    $sar = [];
-    $seg = '';
     foreach ($segments as $seg) {
         if (strncmp('GS' . $de, (string) $seg, 3) === 0) {
             $sar = explode($de, (string) $seg);

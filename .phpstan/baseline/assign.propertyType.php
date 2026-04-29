@@ -1567,11 +1567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateImportDispose\\:\\:\\$currentEncounter \\(int\\) does not accept int\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Laminas\\\\Config\\\\Reader\\\\Xml\\:\\:\\$directory \\(string\\) does not accept null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/XmlExtended.php',

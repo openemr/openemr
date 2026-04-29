@@ -33237,6 +33237,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_amount\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'chg\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
@@ -33257,6 +33272,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'clp\' on mixed\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
@@ -33273,6 +33293,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fye\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gs_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'loopid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
@@ -33319,6 +33349,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'payer_claim_id\' on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'per\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'plb\' on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
@@ -33398,12 +33438,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'warnings\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 2,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
@@ -33428,7 +33468,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
-    'count' => 19,
+    'count' => 20,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [

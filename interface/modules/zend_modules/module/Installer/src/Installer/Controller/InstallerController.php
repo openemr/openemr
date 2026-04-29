@@ -541,9 +541,6 @@ class InstallerController extends AbstractActionController
         $upgrade_sql = $ModulePath . "/sql/upgrade.sql";
         $install_acl = $ModulePath . "/acl/acl_setup.php";
         if (file_exists($version_of_module) && (file_exists($table_sql) || file_exists($install_sql) || file_exists($install_acl))) {
-            /** @var string $v_major */
-            /** @var string $v_minor */
-            /** @var string $v_patch */
             include_once($version_of_module);
             $version = $v_major . "." . $v_minor . "." . $v_patch;
             return $version;

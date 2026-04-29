@@ -313,10 +313,6 @@ function edih_837_csv_data($obj837)
                     //array('PtName'=>0, 'SvcDate'=>1, 'CLM01'=>2, 'InsLevel'=>3, 'Control'=>4, 'FileName'=>5, 'Fee'=>6, 'PtPaid'=>7, 'Provider'=>8 );
 
                     //'f837': $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' )
-                    $cdx = 0;
-                    $bht03 = '';
-                    $hl = '';
-                    $sar = [];
                     foreach ($trans as $seg) {
                         if (strncmp((string) $seg, 'BHT' . $de, 4) === 0) {
                             $cdx = count($ret_ar[$icn]['claim']);
