@@ -102,6 +102,68 @@ In dependency order:
   defer to the docs PR? Currently leaning: generate the raw list here, render
   in the docs PR.
 
+## Hypotheses (claims this slice rises or falls on)
+
+1. **Release-prep is truly mechanical.** Every pre-tag edit is derivable from
+   `target version + repo state` on every push. Anything requiring per-release
+   human judgment degrades the conductor to a checklist and breaks the model.
+2. **`bin/console openemr:create-api-documentation` runs in CI without a full
+   database/install** — or can be made to.
+3. **Annotated tags created by an app/bot identity are acceptable** to
+   maintainers and downstream consumers (signing, GPG expectations met or
+   waived).
+4. **The `feat:` / `bug:` / `refactor:` / `chore:` prefix convention is
+   applied consistently enough** to drive a release-notes draft. (Weakest
+   hypothesis — many merged PRs don't follow it; spot-check before relying.)
+5. **Force-pushing the long-lived release-prep PR is acceptable to reviewers**
+   even though it can drop inline comments.
+6. **`git shortlog` is an acceptable acknowledgements source** — no
+   contributor opt-outs, no affiliation tracking needed.
+
+## Assumptions
+
+- An app or PAT with `contents:write`, `pull-requests:write`, and cross-repo
+  dispatch will be provisioned.
+- `rel-*` is the only release-branch naming pattern.
+- The release manager's manual surface really is just "edit draft + ONC
+  sign-off + merge three PRs" — no hidden fourth step.
+- The existing `openemr-dev:create-release-change-log` CLI's grouping logic
+  can be reused (or shared helpers extracted).
+
+## Testing
+
+### Independent / per-component (fast, no cross-repo)
+
+- **`bin/console openemr:release-prep` unit tests.** One test per mutator:
+  `version.php` strip, `globals.inc.php` toggle, `docker-version` bump,
+  `acknowledge_license_cert.html` refresh, `_rest_routes.inc.php` version
+  set. Fixture checkout, assert exact diff, assert **idempotence** (run
+  twice → no diff).
+- **Swagger-regen smoke test.** Run the existing
+  `openemr:create-api-documentation` against a fixture, assert output is
+  well-formed YAML and contains the expected version constant.
+- **Tag-object verifier.** Given a tag name, assert it's annotated (has tag
+  object, author, date, message) — not a lightweight ref. Reusable across
+  repos.
+- **Dispatch-payload schema.** JSON schema for the `openemr-rel-cut`,
+  `openemr-rel-update`, `openemr-tag` payloads; both this repo and consumers
+  validate against the same schema file.
+
+### Single-repo integration
+
+- **Synthetic `rel-*` run.** Push a fake `rel-test` to a sandbox repo, run
+  the workflow, assert the draft PR opens with the expected mechanical diff.
+- **Re-push idempotence.** Push the same `rel-test` HEAD twice, assert the
+  PR is byte-identical (no churn from non-deterministic generators).
+
+### E2E (cross-repo, only meaningful in a fork triplet)
+
+- **Full dry-run.** Cut `rel-test` here → conductor PR opens → merge →
+  annotated tag created → confirm both consumer PRs (devops + website) update
+  → confirm DRAFT flips to FINAL on docs pages.
+- **Race rehearsal.** Merge the conductor while a consumer workflow is
+  mid-run, confirm the consumer recovers and still reaches FINAL.
+
 ## Status
 
 Draft plan. Lives alongside the existing `openemr-dev:` CLI conventions; the
