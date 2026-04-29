@@ -958,7 +958,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [

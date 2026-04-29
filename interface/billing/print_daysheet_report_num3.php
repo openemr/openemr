@@ -18,14 +18,15 @@
 /* TODO: Code Cleanup */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/daysheet.inc.php";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {

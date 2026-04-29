@@ -142,11 +142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and float results in an error\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',

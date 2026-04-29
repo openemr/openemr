@@ -15,8 +15,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\DaySheet\DaySheetAggregator;
@@ -26,6 +24,9 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/daysheet.inc.php";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -522,12 +523,6 @@ if (!isset($_GET["mode"])) {
                                                                 <td class='text' width='25'>
 
                     <?php
-                    $gtotal_fee += $user_info['fee'][$i];
-                    $gtotal_insadj += $user_info['insadj'][$i];
-                    $gtotal_inspay += $user_info['inspay'][$i];
-                    $gtotal_patadj += $user_info['patadj'][$i];
-                    $gtotal_patpay += $user_info['patpay'][$i];
-
                     ++$i;
 
                     print "<br /></td></tr>";
@@ -656,14 +651,6 @@ if (!isset($_GET["mode"])) {
                                                                 <td class='text' width='25'>
 
                     <?php
-                        $gtotal_fee += $provider_info['fee'][$i];
-                        $gtotal_insadj += $provider_info['insadj'][$i];
-                        $gtotal_inspay += $provider_info['inspay'][$i];
-                        $gtotal_insref += $provider_info['insref'][$i];
-                        $gtotal_patadj += $provider_info['patadj'][$i];
-                        $gtotal_patpay += $provider_info['patpay'][$i];
-                        $gtotal_patref += $provider_info['patref'][$i];
-
                         ++$i;
 
                         print "<br /></td></tr>";

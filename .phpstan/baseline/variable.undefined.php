@@ -362,66 +362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$CheckBoxBilling might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$webroot might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_fee might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_insadj might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_inspay might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_insref might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_patadj might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_patpay might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$gtotal_patref might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/code_systems/standard_tables_manage.php',

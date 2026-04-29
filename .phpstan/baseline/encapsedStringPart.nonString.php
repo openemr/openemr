@@ -267,21 +267,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/payment_pat_sel.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$reason \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',

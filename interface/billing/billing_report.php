@@ -1373,8 +1373,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $rhtml2 .= "<td></td>\n";
                                         }
                                         if (!$iter['id'] && $rowcnt == 1) {
-                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr($CheckBoxBilling * 1) . "'>&nbsp;</td>\n";
-                                            $CheckBoxBilling++;
+                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? 0) * 1) . "'>&nbsp;</td>\n";
+                                            $CheckBoxBilling = ($CheckBoxBilling ?? 0) + 1;
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
                                         }
