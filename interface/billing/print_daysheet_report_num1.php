@@ -129,11 +129,11 @@ if (!isset($_GET["mode"])) {
 
                 $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
-                if (($_POST['end_of_day_provider_only'] ?? 0) == 1) {
+                if (filter_input(INPUT_POST, 'end_of_day_provider_only', FILTER_VALIDATE_INT) === 1) {
                     $run_provider = 1;
                 }
 
-                if (($_POST['end_of_day_totals_only'] ?? 0) == 1) {
+                if (filter_input(INPUT_POST, 'end_of_day_totals_only', FILTER_VALIDATE_INT) === 1) {
                     $totals_only = 1;
                 }
 

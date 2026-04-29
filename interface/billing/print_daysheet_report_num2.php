@@ -352,38 +352,45 @@ $gtotal_inspay = 0.0;
 $gtotal_patadj = 0.0;
 $gtotal_patpay = 0.0;
 
-foreach ($user_info as $row) {
-    print "<table border=1><tr>\n";
-    print "<br /><br />";
+$userLabel = xlt('User ');
+$chargesLabel = xlt('Charges');
+$insadjLabel = xlt('Insurance Adj');
+$inspayLabel = xlt('Insurance Payments');
+$patadjLabel = xlt('Patient Adj');
+$patpayLabel = xlt('Patient Payments');
 
-    Printf("<td width=70><span class=text><b>" . xlt("User ") . "</center></b><center>" . text($row['user'])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Charges") . ' ' . "</center></b><center>" . " %1\$.2f", text((string) $row['fee'])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text((string) $row['insadj'])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text((string) $row['inspay'])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Patient Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text((string) $row['patadj'])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Patient Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text((string) $row['patpay'])) . "</center>";
+foreach ($user_info as $row) {
+    $user = text($row['user']);
+    $fee = sprintf('%.2f', $row['fee']);
+    $insadj = sprintf('%.2f', $row['insadj']);
+    $inspay = sprintf('%.2f', $row['inspay']);
+    $patadj = sprintf('%.2f', $row['patadj']);
+    $patpay = sprintf('%.2f', $row['patpay']);
+
+    echo <<<HTML
+        <table border=1><tr>
+        <br /><br /><td width=70><span class=text><b>{$userLabel}</center></b><center>{$user}<td width=140><span class=text><b><center>{$chargesLabel} </center></b><center> {$fee}<td width=140><span class=text><b><center>{$insadjLabel}. </center></b><center>{$insadj}<td width=140><span class=text><b><center>{$inspayLabel} </center></b><center>{$inspay}<td width=140><span class=text><b><center>{$patadjLabel}. </center></b><center>{$patadj}<td width=140><span class=text><b><center>{$patpayLabel} </center></b><center>{$patpay}<br /></td>
+        HTML;
 
     $gtotal_fee += $row['fee'];
     $gtotal_insadj += $row['insadj'];
     $gtotal_inspay += $row['inspay'];
     $gtotal_patadj += $row['patadj'];
     $gtotal_patpay += $row['patpay'];
-
-    print "<br /></td>";
 }
 
-print "<table border=1><tr>\n";
-print "<br /><br />";
+$grandTotalsLabel = xlt('Grand Totals');
+$totalChargesLabel = xlt('Total Charges');
+$gtotalFee = sprintf('%.2f', $gtotal_fee);
+$gtotalInsadj = sprintf('%.2f', $gtotal_insadj);
+$gtotalInspay = sprintf('%.2f', $gtotal_inspay);
+$gtotalPatadj = sprintf('%.2f', $gtotal_patadj);
+$gtotalPatpay = sprintf('%.2f', $gtotal_patpay);
 
-Printf("<td width=70><span class=text><b><center>" . xlt("Grand Totals") . ' ');
-Printf("<td width=140><span class=text><b><center>" . xlt("Total Charges") . ' ' . "</center></b><center>" . " %1\$.2f", text($gtotal_fee)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($gtotal_insadj)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($gtotal_inspay)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Patient Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($gtotal_patadj)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Patient Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($gtotal_patpay)) . "</center>";
-
-print "<br /></td>";
-print "</table>";
+echo <<<HTML
+    <table border=1><tr>
+    <br /><br /><td width=70><span class=text><b><center>{$grandTotalsLabel} <td width=140><span class=text><b><center>{$totalChargesLabel} </center></b><center> {$gtotalFee}<td width=140><span class=text><b><center>{$insadjLabel}. </center></b><center>{$gtotalInsadj}<td width=140><span class=text><b><center>{$inspayLabel} </center></b><center>{$gtotalInspay}<td width=140><span class=text><b><center>{$patadjLabel}. </center></b><center>{$gtotalPatadj}<td width=140><span class=text><b><center>{$patpayLabel} </center></b><center>{$gtotalPatpay}<br /></td></table>
+    HTML;
 
 ?>
 </body>

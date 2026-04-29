@@ -30,10 +30,11 @@ use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php");
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . "/patient.inc.php");
+require_once($srcDir . "/forms.inc.php");
+require_once($srcDir . "/user.inc.php");
+require_once($srcDir . "/payment.inc.php");
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;

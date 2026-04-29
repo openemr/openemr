@@ -29,9 +29,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . "/patient.inc.php");
+require_once($srcDir . "/options.inc.php");
+require_once($srcDir . "/payment.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $CountIndexAbove = 0;

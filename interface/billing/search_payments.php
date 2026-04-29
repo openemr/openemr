@@ -28,9 +28,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Billing\Payments\DeletePayment;
 use OpenEMR\OeUI\OemrUI;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/payment.inc.php";
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . "/patient.inc.php");
+require_once($srcDir . "/options.inc.php");
+require_once($srcDir . "/payment.inc.php");
 
 $ResultSearch = null;
 $PaymentDateString = '';

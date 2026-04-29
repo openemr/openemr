@@ -927,6 +927,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $mmo_num_charges = 0;
                         $encount = 0;
                         $divPut = false;
+                        $CheckBoxBilling = 0;
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
@@ -1324,8 +1325,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($tmpbpr == '0' && $iter['billed']) {
                                     $tmpbpr = '2';
                                 }
-                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? null) * 1) . "'>&nbsp;</td>\n";
-                                $CheckBoxBilling = ($CheckBoxBilling ?? null) + 1;
+                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
+                                $CheckBoxBilling++;
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }
@@ -1373,8 +1374,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $rhtml2 .= "<td></td>\n";
                                         }
                                         if (!$iter['id'] && $rowcnt == 1) {
-                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? 0) * 1) . "'>&nbsp;</td>\n";
-                                            $CheckBoxBilling = ($CheckBoxBilling ?? 0) + 1;
+                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
+                                            $CheckBoxBilling++;
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
                                         }

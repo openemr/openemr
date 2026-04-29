@@ -48,17 +48,18 @@ use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . "/patient.inc.php");
+require_once($srcDir . "/appointments.inc.php");
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/statement.inc.php");
 // statement.inc.php sets $STMT_TEMP_FILE
 assert(isset($STMT_TEMP_FILE));
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/../controllers/C_Document.class.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/documents.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
+require_once($srcDir . "/api.inc.php");
+require_once($srcDir . "/forms.inc.php");
+require_once($srcDir . "/../controllers/C_Document.class.php");
+require_once($srcDir . "/documents.php");
+require_once($srcDir . "/options.inc.php");
+require_once($srcDir . "/user.inc.php");
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
@@ -1150,7 +1151,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 //
                                 if (!$duncount) {
                                     $i = 1;
-                                    for (; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i); ++$i) {
+                                    while ($i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i)) {
+                                        ++$i;
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }

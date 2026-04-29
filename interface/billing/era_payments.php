@@ -31,7 +31,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
+require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/statement.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -432,7 +432,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot'); ?>/library/js/oeUI/oeFileUploads.js'></script>
+    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js'></script>
 
     <!-- Overwrite Confirmation Modal -->
     <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
