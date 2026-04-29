@@ -18,8 +18,9 @@
 
 /* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . '/appointments.inc.php');
+require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
@@ -28,6 +29,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$encounter = $session->get('encounter', 0);
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $nextLocation = 0;      // offset to resume scanning
@@ -352,7 +355,7 @@ if ($encounter) {
 }
 
 $form_filename = $_REQUEST['form_filename'];
-$templatedir   = "$OE_SITE_DIR/documents/doctemplates";
+$templatedir   = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.

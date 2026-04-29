@@ -18,18 +18,22 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/payment.inc.php");
-require_once("$srcdir/forms.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/payment.inc.php");
+require_once($srcdir . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/encounter_events.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -40,7 +44,6 @@ use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $globalsBag = OEGlobalsBag::getInstance();
 $twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
@@ -61,6 +64,10 @@ $pid = (is_numeric($hiddenPatientCode) && $hiddenPatientCode > 0) ? (int) $hidde
 
 $facilityService = new FacilityService();
 $recorder = new Recorder();
+$cryptoGen = new CryptoGen();
+$form_pid = $_POST['form_pid'] ?? ($_GET['patient'] ?? $pid);
+$payment_id = 0;
+$session_id = 0;
 
 ?>
 <!DOCTYPE html>
@@ -365,7 +372,7 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
     <?php Header::setupHeader(); ?>
 <script>
 
-    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
+    <?php require($srcdir . "/restoreSession.php"); ?>
 
 $(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -681,7 +688,7 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var mypcc = '1';
 </script>
-    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once($srcdir . "/ajax/payment_ajax_jav.inc.php"); ?>
 <script>
     document.onclick=HideTheAjaxDivs;
 </script>
@@ -710,7 +717,7 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
-    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
+    <?php require($srcdir . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
         dlgclose();

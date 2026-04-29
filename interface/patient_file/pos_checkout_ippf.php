@@ -49,11 +49,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/checkout_receipt_array.inc.php");
-require_once("$srcdir/appointment_status.inc.php");
+require_once($srcdir . "/checkout_receipt_array.inc.php");
+require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
@@ -71,6 +73,15 @@ $facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+
+// load_taxes() (called via write_form_headers()) sets these as globals.
+// Initialize defaults so PHPStan can verify top-level usage below.
+$num_optional_columns = 0;
+$form_num_type_columns = 2;
+$form_num_method_columns = 1;
+$form_num_ref_columns = 1;
+$form_num_amount_columns = 1;
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
@@ -540,7 +551,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
 
     <script>
 
-    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -1842,7 +1853,7 @@ while ($urow = sqlFetchArray($ures)) {
 <script>
     var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     // This clears tax amounts in preparation for recomputing taxes.
     // TBD: Probably don't need this at all.
@@ -2511,6 +2522,7 @@ echo "   <td class='bold' colspan='$form_num_amount_columns' align='right' nowra
 echo "  </tr>\n";
 
 $lino = 0;
+$thisdate = '';
 
 // Write co-pays.
 foreach ($aCopays as $brow) {
@@ -2825,8 +2837,9 @@ if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
     // o If there is an initial contraceptive consult, make sure a LBFccicon form exists with that method on it.
     // o If a LBFccicon form exists with a new method on it, make sure the TS initial consult exists.
 
-    require_once("$srcdir/contraception_billing_scan.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/contraception_billing_scan.inc.php");
     contraception_billing_scan($patient_id, $encounter_id);
+    $contraception_billing_code = OEGlobalsBag::getInstance()->get('contraception_billing_code', '');
 
     $csrow = sqlQuery(
         "SELECT field_value FROM shared_attributes WHERE pid = ? AND encounter = ? AND field_id = 'cgen_MethAdopt'",

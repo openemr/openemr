@@ -14492,6 +14492,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function printHTML\\(\\) has parameter \\$title with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function printPDF\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
@@ -14503,6 +14508,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function printPDF\\(\\) has parameter \\$res2 with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function printPDF\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];

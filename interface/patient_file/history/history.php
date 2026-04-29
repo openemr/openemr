@@ -11,9 +11,13 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/patient.inc.php");
 require_once("history.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -31,11 +35,11 @@ $(function () {
     tabbify();
 });
 <?php
-    require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+    require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
 ?>
 </script>
 
-<?php require_once("$srcdir/options.js.php"); ?> <!-- Don't include inside of script tags. Include already have.-->
+<?php require_once($srcdir . "/options.js.php"); ?> <!-- Don't include inside of script tags. Include already have.-->
 
 <style>
 <?php
@@ -104,14 +108,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <?php
+    $list_id = "history"; // to indicate nav item is active, count and give correct id
     if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {?>
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
+                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
         <?php
-        $list_id = "history"; // to indicate nav item is active, count and give correct id
         $menuPatient = new PatientMenuRole();
         $menuPatient->displayHorizNavBarMenu();
         ?>

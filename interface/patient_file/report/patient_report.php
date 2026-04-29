@@ -17,9 +17,12 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -30,8 +33,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Patient Reports", xl("Patient Reports"));
@@ -46,10 +51,8 @@ $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
-/**
- * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
- */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 ?>
 <!DOCTYPE>
@@ -76,7 +79,7 @@ function show_date_fun(){
   }
   return;
 }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
+<?php require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
 $arrOeUiSettings = [
@@ -99,7 +102,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div id="patient_reports"> <!-- large outer DIV -->
             <div class="row">
                 <div class="col-sm-12">
-                    <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
+                    <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
                 </div>
             </div>
             <?php

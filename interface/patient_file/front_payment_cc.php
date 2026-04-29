@@ -12,6 +12,8 @@
 
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
@@ -45,7 +47,8 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
-        return $ex->getMessage();
+        echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {
@@ -94,6 +97,7 @@ if ($_POST['mode'] == 'Stripe') {
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
         echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {

@@ -16,9 +16,13 @@
  */
 
 require_once("../../globals.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 // Option to substitute a custom version of this script.
-$customDemographicsPrint = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/demographics_print.php';
+$customDemographicsPrint = $webserver_root . '/custom/demographics_print.php';
 if (
     !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow')) &&
     \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow') == 'LBFmsivd' &&
@@ -28,16 +32,14 @@ if (
     return;
 }
 
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
@@ -195,8 +197,8 @@ td.dcols3 { width: 80%; }
 // Generate header with optional logo.
 $logo = '';
 $ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
-if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "$web_root/$ma_logo_path";
+if (is_file($webserver_root . "/$ma_logo_path")) {
+    $logo = \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() . "/$ma_logo_path";
 }
 
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);

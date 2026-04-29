@@ -17,6 +17,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
