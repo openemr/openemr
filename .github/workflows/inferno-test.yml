@@ -385,12 +385,6 @@ jobs:
           coverage.inferno-phpunit.clover.xml
           coverage.inferno-http.clover.xml
 
-    - name: Show PHP error logs
-      if: ${{ !cancelled() }}
-      run: |
-        docker compose -f ci/inferno/compose.yml exec -T openemr cat /var/log/apache2/error.log || true
-        docker compose -f ci/inferno/compose.yml exec -T openemr cat /var/www/localhost/htdocs/openemr/sites/default/logs/*.txt 2>/dev/null || true
-
     - name: Show Docker logs
       if: ${{ !cancelled() }}
       run: docker compose -f ci/inferno/compose.yml logs
