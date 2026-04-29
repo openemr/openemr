@@ -16,7 +16,7 @@
  * @link http://smarty.php.net/manual/en/language.modifier.regex.replace.php
  *          regex_replace (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
+ * @param mixed $string
  * @param string|array
  * @param string|array
  * @return string

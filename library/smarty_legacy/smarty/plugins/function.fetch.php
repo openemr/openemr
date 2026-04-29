@@ -17,7 +17,7 @@
  *       (Smarty online manual)
  * @author Monte Ohrt <monte at ohrt dot com>
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  * @return string|null if the assign parameter is passed, Smarty assigns the
  *                     result to a template variable
  */

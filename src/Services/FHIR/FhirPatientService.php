@@ -189,7 +189,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Parses an OpenEMR patient record, returning the equivalent FHIR Patient Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPatient
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

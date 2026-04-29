@@ -4443,7 +4443,7 @@ function generate_layout_validation($form_id): void
  *                           use '0' for "unspecified facility"
  *                           use '' for "All facilities" (the default)
  * @param string $name - the name/id for select form (defaults to "form_facility")
- * @param boolean $allow_unspecified - include an option for "unspecified" facility
+ * @param bool $allow_unspecified - include an option for "unspecified" facility
  *                                     defaults to true
  * @return void - just echo the html encoded string
  *
@@ -4861,7 +4861,7 @@ EOD;
  * @deprecated use LayoutsUtils::isOption
  * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
- * @return boolean
+ * @return bool
  */
 function isOption($options, string $test): bool
 {

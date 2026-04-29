@@ -30,7 +30,7 @@ interface IRouter
      *
      * @param
      *          string the url, if not provided will be obtained using the current URL
-     * @return array($controller,$method)
+     * @return array
      */
     public function GetRoute($uri = "");
 

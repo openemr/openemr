@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$exception with type mixed is not subtype of native type Exception\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$target with type mixed is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',

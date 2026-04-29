@@ -62,7 +62,7 @@ class zipfile
      * @param
      *          integer the current Unix timestamp
      *
-     * @return integer the current date in a four byte DOS format
+     * @return int the current date in a four byte DOS format
      *
      * @access private
      */

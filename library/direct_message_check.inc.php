@@ -620,7 +620,7 @@ function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
 /**
  * Registers an attachment or non-text message file using the existing Document structure
  *
- * @return Array(doc_id,URL) of the file as stored in documents table, false = failure
+ * @return Array of the file as stored in documents table, false = failure
  */
 function phimail_store($name, $mime_type, $fn)
 {

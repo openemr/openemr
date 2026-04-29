@@ -176,7 +176,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * directly may fire a database query, this method can be used to tell if
      * the number of records is known without actually firing any queries
      *
-     * @return boolean
+     * @return bool
      */
     function CountIsKnown()
     {

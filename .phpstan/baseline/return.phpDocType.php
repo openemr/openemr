@@ -92,6 +92,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Validators\\\\ProcessingResult is incompatible with native type never\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',

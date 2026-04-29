@@ -17,7 +17,7 @@
  * @link http://smarty.php.net/manual/en/language.function.counter.php {counter}
  *       (Smarty online manual)
  * @param array parameters
- * @param Smarty
+ * @param mixed $smarty
  * @return string|null
  */
 function smarty_function_counter($params, &$smarty)

@@ -450,7 +450,7 @@ class HTML_TreeMenu_Presentation
     * class.
     *
     * @access public
-    * @param  array  Options to set. Any options taken by
+    * @param array $options Options to set. Any options taken by
     *                the presentation class can be specified
     *                here.
     */

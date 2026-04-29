@@ -24,7 +24,7 @@
  * @author Contributions from Lars Noschinski <lars@usenet.noschinski.de>
  * @version  1.3
  * @param string
- * @param Smarty
+ * @param mixed $smarty
  */
 function smarty_outputfilter_trimwhitespace($source, &$smarty)
 {

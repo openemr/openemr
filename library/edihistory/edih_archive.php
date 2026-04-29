@@ -163,7 +163,7 @@ function edih_archive_report($period = '')
 /**
  * Format the date used in comparisons
  *
- * @param string   period from select list e.g. 6m, 12m
+ * @param string $period period from select list e.g. 6m, 12m
  *
  * @return string  archive date in CCYYMMDD format
  */
@@ -439,7 +439,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
  * Archived files have been included in archive file
  * so we move the files to the archive tmp directory, for later deletion
  *
- * @param array   parameters array for type
+ * @param array $parameters parameters array for type
  * @param array   filename array
  *
  * @return int    count of moved files
@@ -948,7 +948,7 @@ function edih_archive_undo()
  * @param string $csv_path   the tmp csv file path is expected
  * @param array $row_array   the data rows to be written (an associative array)
  *
- * @return integer           count the rows written
+ * @return int count the rows written
  */
 function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
 {

@@ -37,7 +37,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * @param int     $category_id                    Document category id
  * @param string  $higher_level_path              Can set a higher level path here (and then place the path depth in $path_depth)
  * @param int     $path_depth                     Path depth when using the $higher_level_path feature
- * @param boolean $skip_acl_check                 This needs to be set to true for when uploading via services that piggyback on any user (ie. the background services) or uses cron/cli
+ * @param bool $skip_acl_check This needs to be set to true for when uploading via services that piggyback on any user (ie. the background services) or uses cron/cli
  * @return array/boolean                          Array(doc_id,url) of the file as stored in documents table, false = failure
  */
 function addNewDocument(

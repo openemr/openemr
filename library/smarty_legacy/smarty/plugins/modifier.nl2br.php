@@ -23,7 +23,7 @@
  *          nl2br (Smarty online manual)
  * @version  1.0
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
+ * @param mixed $string
  * @return string
  */
 function smarty_modifier_nl2br($string)

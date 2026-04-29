@@ -34,7 +34,7 @@ class GaclApi extends Gacl {
      *
      * Dump all contents of an array in HTML (kinda)
      *
-     * @param array
+     * @param mixed $array
      *
      */
     function showarray($array) {
@@ -897,10 +897,10 @@ class GaclApi extends Gacl {
      * @param array Array of Group IDs
      * @param array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      * @param array Array of Group IDs
-     * @param int Allow flag
-     * @param int Enabled flag
+     * @param int $allow Allow flag
+     * @param int $enabled Enabled flag
      * @param string Return Value
-     * @param string Note
+     * @param string $note Note
      * @param string ACL Section Value
      * @param int ACL ID # Specific Request
 
@@ -1131,10 +1131,10 @@ class GaclApi extends Gacl {
      * @param array Array of Group IDs
      * @param array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      * @param array Array of Group IDs
-     * @param int Allow flag
-     * @param int Enabled flag
+     * @param int $allow Allow flag
+     * @param int $enabled Enabled flag
      * @param string Return Value
-     * @param string Note
+     * @param string $note Note
      * @param string ACL Section Value
      */
     function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $section_value=NULL) {
@@ -1792,7 +1792,7 @@ class GaclApi extends Gacl {
      *
      * @param int Group ID #
      * @param string Group Type, either 'ARO' or 'AXO'
-     * @param string Option, either 'RECURSE' or 'NO_RECURSE'
+     * @param string $option Option, either 'RECURSE' or 'NO_RECURSE'
      */
     function get_group_objects($group_id, $group_type='ARO', $option='NO_RECURSE') {
 
@@ -2142,7 +2142,7 @@ class GaclApi extends Gacl {
      *
      * @param string Group Type, either 'ARO' or 'AXO'
      * @param int Group ID #
-     * @param int Left value of Group
+     * @param int $left Left value of Group
      */
     function rebuild_tree($group_type = 'ARO', $group_id = NULL, $left = 1) {
         $this->debug_text("rebuild_tree(): Group Type: $group_type Group ID: $group_id Left: $left");
@@ -2188,9 +2188,9 @@ class GaclApi extends Gacl {
      *
      * @return int Returns right value of this node + 1
      *
-     * @param string Table name of group type
+     * @param string $table Table name of group type
      * @param int Group ID #
-     * @param int Left value of Group
+     * @param int $left Left value of Group
      */
     function _rebuild_tree($table, $group_id, $left = 1) {
         $this->debug_text("_rebuild_tree(): Table: $table Group ID: $group_id Left: $left");
@@ -2880,7 +2880,7 @@ class GaclApi extends Gacl {
      *
      * @param int Object ID #
      * @param string Object Type, either 'ARO' or 'AXO'
-     * @param string Option, either 'RECURSE', or 'NO_RECURSE'
+     * @param string $option Option, either 'RECURSE', or 'NO_RECURSE'
      */
     function get_object_groups($object_id, $object_type = 'ARO', $option = 'NO_RECURSE') {
         $this->debug_text('get_object_groups(): Object ID: '. $object_id .' Object Type: '. $object_type .' Option: '. $option);
@@ -2947,7 +2947,7 @@ class GaclApi extends Gacl {
      * @param string Object Name
      * @param string Object Value
      * @param int Display Order
-     * @param int Hidden Flag, either 1 to hide, or 0 to show.
+     * @param int $hidden Hidden Flag, either 1 to hide, or 0 to show.
      * @param string Object Type, either 'ACO', 'ARO', or 'AXO'
      */
     function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
@@ -3051,7 +3051,7 @@ class GaclApi extends Gacl {
      * @param string Object Name
      * @param string Object Value
      * @param int Display Order
-     * @param int Hidden Flag, either 1 to hide, or 0 to show
+     * @param int $hidden Hidden Flag, either 1 to hide, or 0 to show
      * @param string Object Type, either 'ACO', 'ARO', or 'AXO'
      */
     function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
@@ -3449,7 +3449,7 @@ class GaclApi extends Gacl {
      * @param string Object Name
      * @param string Object Value
      * @param int Display Order
-     * @param int Hidden flag, hides section if 1, shows section if 0
+     * @param int $hidden Hidden flag, hides section if 1, shows section if 0
      * @param string Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
      */
     function add_object_section($name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
@@ -3518,7 +3518,7 @@ class GaclApi extends Gacl {
      * @param string Object Section Name
      * @param string Object Section Value
      * @param int Display Order
-     * @param int Hidden Flag, hide object section if 1, show if 0
+     * @param int $hidden Hidden Flag, hide object section if 1, show if 0
      * @param string Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
      */
     function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {

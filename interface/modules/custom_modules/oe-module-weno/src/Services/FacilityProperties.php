@@ -34,7 +34,7 @@ class FacilityProperties
     }
 
     /**
-     * @return
+     * @return mixed
      */
     public function updateFacilityNumber()
     {

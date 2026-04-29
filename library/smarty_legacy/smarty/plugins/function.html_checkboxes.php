@@ -35,7 +35,7 @@
  * @author credits to Monte Ohrt <monte at ohrt dot com>
  * @version    1.0
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  * @return string
  * @uses smarty_function_escape_special_chars()
  */

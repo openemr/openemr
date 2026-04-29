@@ -26,7 +26,7 @@ use OpenEMR\Core\Header;
  * Purpose:  assetsTemplate in OpenEMR - Smarty templates<br />
  *
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  */
 function smarty_function_assetsTemplate($params, &$smarty)
 {

@@ -23,7 +23,7 @@
  *       'scope' => local/parent/global
  *       'global' => overrides scope, setting to parent if true)
  * </pre>
- * @param Smarty
+ * @param mixed $smarty
  */
 function smarty_function_config_load($params, &$smarty): void
 {

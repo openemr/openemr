@@ -377,7 +377,7 @@ function csv_edih_tmpdir()
  * @uses csv_edih_basedir()
  *
  * @param string &$out_str  referenced, should be created in calling function
- * @return boolean
+ * @return bool
  */
 function csv_setup()
 {
@@ -1397,7 +1397,7 @@ function csv_convert_bytes($bytes)
 /**
  * Determine whether an array is multidimensional
  *
- * @param array
+ * @param mixed $array
  * @return bool   false if arrayis multidimensional
  */
 function csv_singlerecord_test($array)
@@ -1734,7 +1734,7 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
  * @uses csv_parameters()
  * @uses csv_pid_enctr_parse()
  * @param string                     patient control-- pid-encounter, encounter, or pid
- * @param string                     filetype -- x12 type or f837, f277, etc
+ * @param string $filetype filetype -- x12 type or f837, f277, etc
  * @param string                     search type encounter, pid, or clm01
  * @return array|bool                [i] data row array  or empty on error
  */
@@ -1880,7 +1880,7 @@ function csv_file_by_controlnum($type, $control_num)
  * Note: the 997/999 trace is the ISA13 of a batch file
  *
  *
- * @param string     trace value (TRN02, TA101, or BHT03)
+ * @param string $trace trace value (TRN02, TA101, or BHT03)
  * @param string     from type (default is f835)
  * @param string     to type (default is f835)
  * @return string    file name or empty string

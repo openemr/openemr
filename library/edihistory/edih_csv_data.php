@@ -282,7 +282,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
  * @uses csv_table_select_list()
  * @uses csv_search_record()
  *
- * @param string       encounter number
+ * @param string $encounter encounter number
  *
  * @return string
  */

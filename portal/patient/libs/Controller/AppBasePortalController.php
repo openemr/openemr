@@ -82,7 +82,7 @@ class AppBasePortalController extends PortalController
 
     /**
      * Helper utility that calls RenderErrorJSON
-     * @param Exception
+     * @param mixed $exception
      */
     protected function RenderExceptionJSON(Exception $exception)
     {

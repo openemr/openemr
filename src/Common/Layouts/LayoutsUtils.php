@@ -28,7 +28,7 @@ class LayoutsUtils
      *
      * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
      * @param string $test
-     * @return boolean
+     * @return bool
      */
     public static function isOption($options, string $test): bool
     {

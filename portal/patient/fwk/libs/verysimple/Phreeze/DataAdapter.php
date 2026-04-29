@@ -292,7 +292,7 @@ class DataAdapter implements IObservable
     /**
      * Return true if a transaction is in progress
      *
-     * @return boolean
+     * @return bool
      */
     function IsTransactionInProgress()
     {

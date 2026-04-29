@@ -31,7 +31,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
- * @param Smarty
+ * @param mixed $smarty
  */
 
 

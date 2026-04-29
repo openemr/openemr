@@ -185,7 +185,7 @@ class Gacl {
     /**
     * Prints debug text if debug is enabled.
     * @param string THe text to output
-    * @return boolean Always returns true
+    * @return bool Always returns true
     */
     function debug_text($text) {
 
@@ -222,9 +222,9 @@ class Gacl {
     * @param string $aro_value The ARO value
     * @param string $axo_section_value The AXO section value (optional)
     * @param string $axo_value The AXO section value (optional)
-    * @param integer $root_aro_group The group id of the ARO (optional)
-    * @param integer $root_axo_group The group id of the AXO (optional)
-    * @return boolean true if the check succeeds, false if not.
+    * @param int $root_aro_group The group id of the ARO (optional)
+    * @param int $root_axo_group The group id of the AXO (optional)
+    * @return bool true if the check succeeds, false if not.
     */
     function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
@@ -300,7 +300,7 @@ class Gacl {
     * @param string The AXO value (optional)
     * @param string The value of the ARO group (optional)
     * @param string The value of the AXO group (optional)
-    * @param boolean Debug the operation if true (optional)
+    * @param bool $debug Debug the operation if true (optional)
         * @param boolean Option to return all applicable ACL's rather than just one. (optional) (Added by OpenEMR)
     * @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
     */

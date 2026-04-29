@@ -1559,7 +1559,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
  *
  * @param string  $filename the filename
  * @param string  TRN02 identifier from 835 check ir EFT
- * @param string  CLM01 identifier from 837 CLM
+ * @param string $clm01 CLM01 identifier from 837 CLM
  *
  * @return string  error message or a table with file information
  */

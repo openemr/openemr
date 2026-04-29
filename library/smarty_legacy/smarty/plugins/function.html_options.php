@@ -24,7 +24,7 @@
  *      (Smarty online manual)
  * @author Monte Ohrt <monte at ohrt dot com>
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  * @return string
  * @uses smarty_function_escape_special_chars()
  */

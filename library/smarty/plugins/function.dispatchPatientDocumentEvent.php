@@ -31,7 +31,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  * {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
  *
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  */
 
 

@@ -28,7 +28,7 @@ class Thumbnail
     public $thumbnail_type = 'jpg';
     /**
      * Enable to set max size of thumbnail
-     * @param (int) $max_size
+     * @param int $max_size
      */
     public function __construct($max_size = null)
     {
@@ -121,7 +121,7 @@ class Thumbnail
      * @param (resource) file resource from create_thumbnail()
      * @param (string) file name (pull path with wanted name)
      * @param (optional) (int) quality for 'jpeg' type
-     * @return boolean
+     * @return bool
      */
     public function image_to_file($resource_file, $fileName, $quality = 80)
     {

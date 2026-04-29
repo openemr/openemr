@@ -658,9 +658,9 @@ abstract class Phreezable
      * if necessary
      *
      * @access protected
-     * @param boolean $is_insert
+     * @param bool $is_insert
      *          true if Phreezer considers this a new record
-     * @return boolean
+     * @return bool
      */
     public function OnSave($is_insert)
     {

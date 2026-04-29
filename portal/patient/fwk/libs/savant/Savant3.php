@@ -1202,7 +1202,7 @@ class Savant3 implements \Stringable
      * @param object $obj
      *          The object to be tested.
      *
-     * @return boolean True if $obj is an error object of the type
+     * @return bool True if $obj is an error object of the type
      *         Savant3_Error, or is a subclass that Savant3_Error. False if not.
      *
      */

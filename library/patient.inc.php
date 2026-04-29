@@ -863,7 +863,7 @@ function getPatientName($pid)
  * would be "John B Doe Jr". No additional punctuation is added. Spaces are
  * correctly omitted if the middle name of suffix does not apply.
  *
- * @var $pid int The Patient ID
+ * @var int $pid The Patient ID
  * @returns string The Full Name
  */
 function getPatientFullNameAsString($pid): string

@@ -132,7 +132,7 @@ abstract class BaseValidator
      * @param $code The code which needs to be verified
      * @param $table The table in database
      * @param $valueset Name of the particular Valueset
-     * @return boolean
+     * @return bool
      */
     public function validateCode($code, $table, $valueset)
     {

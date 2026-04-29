@@ -24,7 +24,7 @@ use OpenEMR\Core\Header;
  * Purpose:  headerTemplate in OpenEMR - Smarty templates<br />
  *
  * @param array
- * @param Smarty
+ * @param mixed $smarty
  */
 function smarty_function_headerTemplate($params, &$smarty)
 {

@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string optional \\$desc description of the timer\\)\\: Unexpected token "optional", expected variable at offset 173 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/profiler.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(lookup group string \\$group\\)\\: Unexpected token "group", expected variable at offset 37 on line 3$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_helpers.php',
@@ -32,17 +27,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(integer rows is the number of rows you want to display\\)\\: Unexpected token "rows", expected variable at offset 171 on line 4$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(option string min_height to set min height for the row\\)\\: Unexpected token "string", expected variable at offset 345 on line 6$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(option string min_height to set min height for the row\\)\\: Unexpected token "string", expected variable at offset 343 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(option string view defaults to white on beige, versus right sliding panel \\(text on beige only\\)\\.\\)\\: Unexpected token "string", expected variable at offset 236 on line 5$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(option string view defaults to white on beige, versus right sliding panel \\(text on beige only\\)\\.\\)\\: Unexpected token "string", expected variable at offset 238 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -52,22 +42,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$display_PMSFH HTML pane when PMSFH is expanded to two panes\\.\\)\\: Unexpected token "\\$display_PMSFH", expected type at offset 403 on line 7$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(\\$display_PMSFH HTML pane when PMSFH is expanded to two panes\\.\\)\\: Unexpected token "\\$display_PMSFH", expected type at offset 405 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(\\$right_panel html\\)\\: Unexpected token "\\$right_panel", expected type at offset 199 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array\\(\\$documents\\)\\)\\: Unexpected token "\\(", expected TOKEN_HORIZONTAL_WS at offset 320 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array\\(\\$imaging,\\$episode\\)\\)\\: Unexpected token "\\(", expected TOKEN_HORIZONTAL_WS at offset 468 on line 9$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -90,12 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(nothing, outputs directly to screen\\)\\: Unexpected token ",", expected TOKEN_HORIZONTAL_WS at offset 739 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(form_id
- optional id of a form in the EMR, to populate data from\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 126 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(EventDispatcher;\\)\\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 27 on line 2$#',
@@ -258,16 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean onOrAfter if true and days are same, returns current day\\)\\: Unexpected token "onOrAfter", expected variable at offset 361 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean onOrBefore if true and days are same, returns current day\\)\\: Unexpected token "onOrBefore", expected variable at offset 365 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int day of week, 0\\=Sunday\\)\\: Unexpected token "day", expected variable at offset 114 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
@@ -293,17 +257,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int optional length of abbreviation, default is 3\\)\\: Unexpected token "optional", expected variable at offset 131 on line 5$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(int optional length of abbreviation, default is 3\\)\\: Unexpected token "optional", expected variable at offset 138 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int optional length of abbreviation, default is 3\\)\\: Unexpected token "optional", expected variable at offset 295 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string  month name\\)\\: Unexpected token "month", expected variable at offset 191 on line 7$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(int optional length of abbreviation, default is 3\\)\\: Unexpected token "optional", expected variable at offset 313 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -313,117 +272,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 211 on line 6$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 308 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 215 on line 6$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 312 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 216 on line 6$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 316 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 220 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 226 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 228 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 233 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 235 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 240 on line 6$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 254 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 264 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 295 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 299 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 303 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 307 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 311 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 313 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 314 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 317 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default is current local day\\)\\: Unexpected token "day", expected variable at offset 228 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default is current local day\\)\\: Unexpected token "day", expected variable at offset 251 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 105 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 1488 on line 32$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD, default current local day\\)\\: Unexpected token "day", expected variable at offset 320 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -433,262 +297,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 170 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 172 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 173 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 196 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string day in format DD\\)\\: Unexpected token "day", expected variable at offset 287 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string dayOfWeek\\: 0\\=Sunday, 1\\=Monday, etc\\.\\)\\: Unexpected token "dayOfWeek", expected variable at offset 210 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 128 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 1526 on line 33$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 187 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 226 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 257 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 276 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 280 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 281 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 293 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 300 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 305 on line 7$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 319 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 329 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 348 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 368 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 372 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 376 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 378 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 379 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 382 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 439 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string format for returned date\\)\\: Unexpected token "format", expected variable at offset 444 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 142 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 146 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 147 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 151 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 157 on line 5$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 159 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 164 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 166 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 171 on line 5$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 185 on line 6$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 188 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 195 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 226 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 230 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 234 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 238 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 242 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 244 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 245 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 248 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default current local month\\)\\: Unexpected token "month", expected variable at offset 83 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default is current local month\\)\\: Unexpected token "month", expected variable at offset 156 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default is current local month\\)\\: Unexpected token "month", expected variable at offset 179 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM, default to current local month\\)\\: Unexpected token "month", expected variable at offset 178 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -698,57 +307,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 130 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 132 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 133 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 143 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 1448 on line 31$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 156 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 247 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 308 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 87 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string month in format MM\\)\\: Unexpected token "month", expected variable at offset 94 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string occurrence\\: 1\\=first, 2\\=second, 3\\=third, etc\\.\\)\\: Unexpected token "occurrence", expected variable at offset 144 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -758,147 +317,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 102 on line 4$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 116 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 118 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 119 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 126 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 157 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 161 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 165 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 169 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 173 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 175 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 176 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 179 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 73 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 77 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 78 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 82 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 88 on line 4$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 90 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 95 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default current local year\\)\\: Unexpected token "year", expected variable at offset 97 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default is current local year\\)\\: Unexpected token "year", expected variable at offset 107 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default is current local year\\)\\: Unexpected token "year", expected variable at offset 84 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY, default to current local year\\)\\: Unexpected token "year", expected variable at offset 106 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 115 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 1407 on line 30$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 183 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 206 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 267 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -906,31 +325,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 87 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 89 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 91 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format CCYY\\)\\: Unexpected token "year", expected variable at offset 92 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string year in format YYCC, default current local year\\)\\: Unexpected token "year", expected variable at offset 254 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 18 on line 2$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/FacilityProperties.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 15 on line 2$#',
@@ -947,96 +341,6 @@ $ignoreErrors[] = [
 Defined in globals\\.php\\)\\: Unexpected token "/Core/ModulesApplication", expected TOKEN_HORIZONTAL_WS at offset 16 on line 1$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/public/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$colname    the column name of the data to change\\.\\)\\: Unexpected token "\\[", expected type at offset 207 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$colname    the column used for the query\\.\\)\\: Unexpected token "\\[", expected type at offset 196 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$colname    the column used for the query\\.\\)\\: Unexpected token "\\[", expected type at offset 242 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$event_type  the type of db change \\(update,delete,etc\\.\\)\\)\\: Unexpected token "\\[", expected type at offset 154 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$log_message the message to log\\)\\: Unexpected token "\\[", expected type at offset 235 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$source_pid the data to be changed from\\.\\)\\: Unexpected token "\\[", expected type at offset 283 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$source_pid the source patient id\\.\\)\\: Unexpected token "\\[", expected type at offset 264 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$source_pid the source patient id\\.\\)\\: Unexpected token "\\[", expected type at offset 310 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$target_pid  the target patient id\\.\\)\\: Unexpected token "\\[", expected type at offset 93 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$target_pid the data to be changed to\\.\\)\\: Unexpected token "\\[", expected type at offset 349 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$target_pid the target patient id\\.\\)\\: Unexpected token "\\[", expected type at offset 324 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$target_pid the target patient id\\.\\)\\: Unexpected token "\\[", expected type at offset 370 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$tblname    the name of the table to operate on\\.\\)\\: Unexpected token "\\[", expected type at offset 122 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$tblname    the name of the table to operate on\\.\\)\\: Unexpected token "\\[", expected type at offset 168 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$tblname    the table to operate on\\.\\)\\: Unexpected token "\\[", expected type at offset 145 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n ", expected type at offset 147 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$pid string Patient ID\\)\\: Unexpected token "\\$pid", expected type at offset 82 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$type string Issue Type\\)\\: Unexpected token "\\$type", expected type at offset 113 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(sha1\\(or sha3\\-512\\)\\|empty string\\)\\: Unexpected token "\\(", expected TOKEN_HORIZONTAL_WS at offset 181 on line 7$#',
@@ -1096,13 +400,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array  Options to set\\. Any options taken by
-               the presentation class can be specified
-               here\\.\\)\\: Unexpected token "Options", expected variable at offset 177 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(\\(optional\\) \\(int\\) quality for \'jpeg\' type\\)\\: Unexpected token "\\(", expected variable at offset 221 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
@@ -1153,52 +450,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1506 on line 19$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1490 on line 19$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1553 on line 19$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1537 on line 19$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1580 on line 19$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string/array \\$dateTarget    target date \\(format Y\\-m\\-d H\\:i\\:s\\)\\. If blank then will test with current date as target\\. If an array, then is holding two dates \\(\'dateBegin\' and \'dateTarget\'\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 1564 on line 19$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/boolean           Array of allergy alerts or FALSE is empty\\.\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 479 on line 8$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/boolean           Array of allergy alerts or FALSE is empty\\.\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 469 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 1043 on line 11$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 676 on line 9$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 735 on line 9$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 696 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 755 on line 10$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer                Array of patient pid values or number total pertinent patients \\(if \\$onlyCount is TRUE\\)\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 954 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(boolean/string              if pass filter then TRUE; if excluded then \'EXCLUDED\'; if not pass filter then FALSE\\)\\: Unexpected token "/string", expected TOKEN_HORIZONTAL_WS at offset 338 on line 7$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(boolean/string              if pass filter then TRUE; if excluded then \'EXCLUDED\'; if not pass filter then FALSE\\)\\: Unexpected token "/string", expected TOKEN_HORIZONTAL_WS at offset 325 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(Array\\(doc_id,URL\\) of the file as stored in documents table, false \\= failure\\)\\: Unexpected token "\\(", expected TOKEN_HORIZONTAL_WS at offset 113 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/boolean                          Array\\(doc_id,url\\) of the file as stored in documents table, false \\= failure\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 1150 on line 15$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/boolean                          Array\\(doc_id,url\\) of the file as stored in documents table, false \\= failure\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 1131 on line 15$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/documents.php',
 ];
@@ -1228,17 +520,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string   bht03 or clm01 reference for transaction\\)\\: Unexpected token "bht03", expected variable at offset 293 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(object   edih_x12_file type 271\\)\\: Unexpected token "edih_x12_file", expected variable at offset 251 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string   bht03 or clm01 reference for transaction\\)\\: Unexpected token "bht03", expected variable at offset 293 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
@@ -1308,11 +590,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string  CLM01 identifier from 837 CLM\\)\\: Unexpected token "CLM01", expected variable at offset 220 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string  TRN02 identifier from 835 check ir EFT\\)\\: Unexpected token "TRN02", expected variable at offset 163 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
@@ -1368,12 +645,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array   filename array\\)\\: Unexpected token "filename", expected variable at offset 195 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array   parameters array for type\\)\\: Unexpected token "parameters", expected variable at offset 151 on line 5$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(array   filename array\\)\\: Unexpected token "filename", expected variable at offset 205 on line 6$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
@@ -1399,11 +671,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string    optional filepath\\)\\: Unexpected token "optional", expected variable at offset 148 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string   period from select list e\\.g\\. 6m, 12m\\)\\: Unexpected token "period", expected variable at offset 65 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
@@ -1463,11 +730,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string       encounter number\\)\\: Unexpected token "encounter", expected variable at offset 235 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 203 on line 9$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
@@ -1489,11 +751,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array   data_ar    data array from edih_XXX_csv_data\\(\\)\\)\\: Unexpected token "data_ar", expected variable at offset 329 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 72 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -1529,17 +786,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string                     filetype \\-\\- x12 type or f837, f277, etc\\)\\: Unexpected token "filetype", expected variable at offset 472 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string                     patient control\\-\\- pid\\-encounter, encounter, or pid\\)\\: Unexpected token "patient", expected variable at offset 384 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string                     search type encounter, pid, or clm01\\)\\: Unexpected token "search", expected variable at offset 549 on line 12$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string                     search type encounter, pid, or clm01\\)\\: Unexpected token "search", expected variable at offset 539 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -1549,17 +801,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string     from type \\(default is f835\\)\\)\\: Unexpected token "from", expected variable at offset 249 on line 9$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string     from type \\(default is f835\\)\\)\\: Unexpected token "from", expected variable at offset 252 on line 9$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string     to type \\(default is f835\\)\\)\\: Unexpected token "to", expected variable at offset 298 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string     trace value \\(TRN02, TA101, or BHT03\\)\\)\\: Unexpected token "trace", expected variable at offset 191 on line 8$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string     to type \\(default is f835\\)\\)\\: Unexpected token "to", expected variable at offset 301 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -1644,17 +891,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(bool     false\\: \\$claimid is pt transaction, true\\: \\$claimid is trace from 835 or 999\\)\\: Unexpected token "false", expected variable at offset 382 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string   optional \\$claimid CLM01, or BHT03 to identify a transaction or a trace value\\)\\: Unexpected token "optional", expected variable at offset 286 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string   optional \\$err_info  the prepared error info from a 997/999 response\\)\\: Unexpected token "optional", expected variable at offset 476 on line 9$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(bool     false\\: \\$claimid is pt transaction, true\\: \\$claimid is trace from 835 or 999\\)\\: Unexpected token "false", expected variable at offset 371 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
@@ -1781,29 +1018,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$pid int The Patient ID\\)\\: Unexpected token "\\$pid", expected type at offset 317 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(integer/array  \\$patient_id  pid\\(s\\) of patient\\(s\\)\\.\\)\\: Unexpected token "/array", expected variable at offset 57 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer               Array list or a count\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 510 on line 10$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(array/integer               Array list or a count\\)\\: Unexpected token "/integer", expected TOKEN_HORIZONTAL_WS at offset 444 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(string/boolean              Rule title for itemization display \\(false if nothing found\\)\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 258 on line 7$#',
+    'message' => '#^PHPDoc tag @return has invalid value \\(string/boolean              Rule title for itemization display \\(false if nothing found\\)\\)\\: Unexpected token "/boolean", expected TOKEN_HORIZONTAL_WS at offset 226 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 333 on line 16$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array
@@ -1811,11 +1038,6 @@ $ignoreErrors[] = [
 use OpenEMR\\\\Core\\\\OEGlobalsBag;\\)\\: Unexpected token "\\\\n", expected variable at offset 283 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 278 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetsTemplate.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 261 on line 10$#',
@@ -1833,19 +1055,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 391 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.dispatchPatientDocumentEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 374 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.dispatchPatientDocumentEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 212 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 195 on line 8$#',
@@ -1853,29 +1065,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 252 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 235 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 245 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlj.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 228 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.xlj.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 227 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 210 on line 12$#',
@@ -1898,19 +1095,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 212 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array Format\\: null\\)\\: Unexpected token "Format", expected variable at offset 183 on line 7$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 210 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array Format\\: null\\)\\: Unexpected token "Format", expected variable at offset 181 on line 7$#',
@@ -1951,20 +1138,10 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/compiler.assign.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 392 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array unused in this plugin, this plugin uses \\{@link Smarty\\:\\:\\$_config\\},
              \\{@link Smarty\\:\\:\\$_tpl_vars\\} and \\{@link Smarty\\:\\:\\$_smarty_debug_info\\}\\)\\: Unexpected token "unused", expected variable at offset 227 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 656 on line 18$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array Format\\:
@@ -1978,19 +1155,9 @@ array\\(\'file\' \\=\\> required config file name,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 335 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array parameters\\)\\: Unexpected token "parameters", expected variable at offset 308 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1265 on line 34$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1248 on line 33$#',
@@ -1998,19 +1165,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 358 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 341 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 333 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 316 on line 10$#',
@@ -2018,19 +1175,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 329 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 312 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1250 on line 29$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1233 on line 28$#',
@@ -2038,29 +1185,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1089 on line 28$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1072 on line 27$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 753 on line 18$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 736 on line 17$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1216 on line 29$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1199 on line 28$#',
@@ -2088,19 +1220,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1577 on line 38$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1560 on line 37$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1644 on line 39$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1624 on line 38$#',
@@ -2108,34 +1230,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\*", expected variable at offset 376 on line 12$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 335 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 318 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 334 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 317 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 341 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 402 on line 14$#',
@@ -2148,29 +1250,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.cat.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean include whitespace in the character count\\)\\: Unexpected token "include", expected variable at offset 380 on line 11$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(boolean include whitespace in the character count\\)\\: Unexpected token "include", expected variable at offset 387 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 361 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 360 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_paragraphs.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 352 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_sentences.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 335 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_words.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 495 on line 14$#',
@@ -2213,12 +1295,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.default.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(html\\|htmlall\\|url\\|quotes\\|hex\\|hexentity\\|javascript\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 385 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 326 on line 10$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(html\\|htmlall\\|url\\|quotes\\|hex\\|hexentity\\|javascript\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 392 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
 ];
@@ -2238,27 +1315,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 303 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.lower.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 517 on line 17$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.nl2br.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 341 on line 10$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string\\|array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 371 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\|array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 364 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\|array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 387 on line 12$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string\\|array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 394 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
 ];
@@ -2308,12 +1370,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 339 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 321 on line 10$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(boolean\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 346 on line 11$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
 ];
@@ -2343,11 +1400,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 303 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.upper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(boolean\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 380 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
@@ -2368,24 +1420,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 765 on line 19$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 748 on line 18$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 278 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.escape_special_chars.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 199 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(type audit array params for portal audits
@@ -2401,7 +1438,7 @@ $ignoreErrors[] = [
         \\$audit\\[\'table_args\'\\]\\=""; //auth user action data to run after review
         \\$audit\\[\'action_user\'\\]\\="";
         \\$audit\\[\'action_taken_time\'\\]\\="";
-        \\$audit\\[\'checksum\'\\]\\="";\\)\\: Unexpected token "audit", expected variable at offset 622 on line 17$#',
+        \\$audit\\[\'checksum\'\\]\\="";\\)\\: Unexpected token "audit", expected variable at offset 616 on line 17$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
@@ -2630,7 +1667,7 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
          bool set to true to set the image to the exact size given \\(stretching if necessary\\)
          filename the resulting file should be written to\\. This is optional and if not specified
-         will send a jpg to the browser\\.\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 572 on line 13$#',
+         will send a jpg to the browser\\.\\)\\: Unexpected token "\\\\n     \\* ", expected type at offset 564 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
 ];
@@ -2993,11 +2030,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(array\\(\\$controller,\\$method\\)\\)\\: Unexpected token "\\(", expected TOKEN_HORIZONTAL_WS at offset 191 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(
          array assoc array of options\\. This is passed through from Controller\\-\\>RenderJSON
          props \\(array\\) array of props to return \\(if null then use all public props\\)
@@ -3289,19 +2321,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/VsDateUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Exception\\)\\: Unexpected token "\\\\n     ", expected variable at offset 76 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array key/value pairs where the key is the fieldname and the value is the error\\)\\: Unexpected token "key", expected variable at offset 104 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Criteria\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 99 on line 3$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 140 on line 6$#',
@@ -3339,11 +2361,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 126 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/AbstractModuleActionListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @property has invalid value \\(string\\|null For backwards compatibility\\)\\: Unexpected token "For", expected variable at offset 33 on line 2$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/QDMBaseType.php',
@@ -3352,11 +2369,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\$array The list of accepted mime types\\)\\: Unexpected token "\\$array", expected type at offset 16 on line 2$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/Sanitize/IsAcceptedFileFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\[type\\] \\$opts\\)\\: Unexpected token "\\[", expected type at offset 698 on line 20$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 23 on line 2$#',
@@ -3369,12 +2381,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean Debug the operation if true \\(optional\\)\\)\\: Unexpected token "Debug", expected variable at offset 458 on line 12$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(boolean Option to return all applicable ACL\'s rather than just one\\. \\(optional\\) \\(Added by OpenEMR\\)\\)\\: Unexpected token "Option", expected variable at offset 522 on line 13$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(boolean Option to return all applicable ACL\'s rather than just one\\. \\(optional\\) \\(Added by OpenEMR\\)\\)\\: Unexpected token "Option", expected variable at offset 526 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
@@ -3515,11 +2522,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(ADORecordSet ADODB recordset\\.\\)\\: Unexpected token "ADODB", expected variable at offset 148 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string URL to return to\\.\\)\\: Unexpected token "URL", expected variable at offset 96 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
 ];
@@ -3674,11 +2676,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n     \\*", expected variable at offset 109 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(bool Erases all referencing objects if TRUE, leaves them alone otherwise\\.\\)\\: Unexpected token "Erases", expected variable at offset 362 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -3694,7 +2691,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int ACL ID \\# Specific Request\\)\\: Unexpected token "ACL", expected variable at offset 932 on line 18$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(int ACL ID \\# Specific Request\\)\\: Unexpected token "ACL", expected variable at offset 954 on line 18$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -3724,16 +2721,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Allow flag\\)\\: Unexpected token "Allow", expected variable at offset 773 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Allow flag\\)\\: Unexpected token "Allow", expected variable at offset 797 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int Current level of depth\\)\\: Unexpected token "Current", expected variable at offset 495 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -3755,16 +2742,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int Display Order\\)\\: Unexpected token "Display", expected variable at offset 295 on line 12$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Enabled flag\\)\\: Unexpected token "Enabled", expected variable at offset 802 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Enabled flag\\)\\: Unexpected token "Enabled", expected variable at offset 826 on line 15$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -3799,13 +2776,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Group ID \\#\\)\\: Unexpected token "Group", expected variable at offset 228 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int Group ID \\#\\)\\: Unexpected token "Group", expected variable at offset 235 on line 9$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -3820,36 +2792,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int Group Type, either \'ARO\' or \'AXO\'\\)\\: Unexpected token "Group", expected variable at offset 196 on line 9$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Hidden Flag, either 1 to hide, or 0 to show\\)\\: Unexpected token "Hidden", expected variable at offset 327 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Hidden Flag, either 1 to hide, or 0 to show\\.\\)\\: Unexpected token "Hidden", expected variable at offset 317 on line 12$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Hidden Flag, hide object section if 1, show if 0\\)\\: Unexpected token "Hidden", expected variable at offset 325 on line 12$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Hidden flag, hides section if 1, shows section if 0\\)\\: Unexpected token "Hidden", expected variable at offset 255 on line 11$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Left value of Group\\)\\: Unexpected token "Left", expected variable at offset 257 on line 10$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(int Left value of Group\\)\\: Unexpected token "Left", expected variable at offset 264 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -3919,12 +2861,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string ACL Section Value\\)\\: Unexpected token "ACL", expected variable at offset 896 on line 17$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string ACL Section Value\\)\\: Unexpected token "ACL", expected variable at offset 918 on line 17$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string ACL Section Value\\)\\: Unexpected token "ACL", expected variable at offset 920 on line 18$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string ACL Section Value\\)\\: Unexpected token "ACL", expected variable at offset 942 on line 18$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -4094,16 +3036,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Note\\)\\: Unexpected token "Note", expected variable at offset 870 on line 16$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Note\\)\\: Unexpected token "Note", expected variable at offset 894 on line 17$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string Object Name\\)\\: Unexpected token "Object", expected variable at offset 159 on line 8$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -4164,7 +3096,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', \'AXO\', or \'ACL\'\\)\\: Unexpected token "Object", expected variable at offset 328 on line 12$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', \'AXO\', or \'ACL\'\\)\\: Unexpected token "Object", expected variable at offset 336 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -4174,7 +3106,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', \'AXO\', or \'ACL\'\\)\\: Unexpected token "Object", expected variable at offset 395 on line 13$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', \'AXO\', or \'ACL\'\\)\\: Unexpected token "Object", expected variable at offset 403 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -4209,12 +3141,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', or \'AXO\'\\)\\: Unexpected token "Object", expected variable at offset 383 on line 13$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', or \'AXO\'\\)\\: Unexpected token "Object", expected variable at offset 391 on line 13$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', or \'AXO\'\\)\\: Unexpected token "Object", expected variable at offset 392 on line 14$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Object Type, either \'ACO\', \'ARO\', or \'AXO\'\\)\\: Unexpected token "Object", expected variable at offset 400 on line 14$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -4269,16 +3201,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Option, either \'RECURSE\' or \'NO_RECURSE\'\\)\\: Unexpected token "Option", expected variable at offset 492 on line 14$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Option, either \'RECURSE\', or \'NO_RECURSE\'\\)\\: Unexpected token "Option", expected variable at offset 386 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string Return Value of ACL\\)\\: Unexpected token "Return", expected variable at offset 861 on line 20$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -4289,12 +3211,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Return Value\\)\\: Unexpected token "Return", expected variable at offset 836 on line 15$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Return Value\\)\\: Unexpected token "Return", expected variable at offset 852 on line 15$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Return Value\\)\\: Unexpected token "Return", expected variable at offset 860 on line 16$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(string Return Value\\)\\: Unexpected token "Return", expected variable at offset 876 on line 16$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -4304,19 +3226,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string Table name of group type\\)\\: Unexpected token "Table", expected variable at offset 185 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(@searchParams\\)\\: Unexpected token "@searchParams", expected type at offset 105 on line 3$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 73 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\$service BaseService\\)\\: Unexpected token "\\$service", expected type at offset 20 on line 2$#',

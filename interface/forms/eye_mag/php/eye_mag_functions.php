@@ -2042,7 +2042,7 @@ function build_PMSFH($pid)
 /**
  *  This function uses the complete PMSFH array for a given patient, including the ROS for this encounter
  *  and returns the PMSFH display square.
- *  @param integer rows is the number of rows you want to display
+ *  @param int $rows rows is the number of rows you want to display
  *  @param option string view defaults to white on beige, versus right sliding panel (text on beige only).
  *  @param option string min_height to set min height for the row
  *  @return $display_PMSFH HTML pane when PMSFH is expanded to two panes.
@@ -3804,7 +3804,7 @@ function build_CODING_items($pid, $encounter)
  *  Each document info from documents table is added to these as arrays
  *
  *  @param string $pid patient_id
- *  @return array($documents)
+ *  @return array
  */
 function document_engine($pid)
 {
@@ -3880,7 +3880,7 @@ function document_engine($pid)
  *  @param string $category_value options EXT,ANTSEG,RETINA,NEURO,OTHER
  *                These values are taken from the "value" field in the Documents' table "categories".
  *                They allow us to regroup the categories how we like them.
- *  @return array($imaging,$episode)
+ *  @return array
  */
 function display($pid, $encounter, $category_value)
 {
