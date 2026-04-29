@@ -237,10 +237,10 @@ if (isset($_POST['new_login_session_management'])) {
                 } else {
                     // Log failed TOTP authentication attempt
                     $ip = collectIpAddresses();
-                    $username = $_POST['authUser'] ?? '';
-                    $userInfo = privQuery("SELECT id FROM users WHERE BINARY username = ?", [$username]);
+                    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
+                    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
                     $authGroup = '';
-                    if (!empty($userInfo['id'])) {
+                    if (!empty($username)) {
                         $userService = new \OpenEMR\Services\UserService();
                         $authGroup = $userService->getAuthGroupForUser($username);
                     }
@@ -285,10 +285,10 @@ if (isset($_POST['new_login_session_management'])) {
                     $form_response = '';
                     // Log failed U2F authentication attempt
                     $ip = collectIpAddresses();
-                    $username = $_POST['authUser'] ?? '';
-                    $userInfo = privQuery("SELECT id FROM users WHERE BINARY username = ?", [$username]);
+                    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
+                    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
                     $authGroup = '';
-                    if (!empty($userInfo['id'])) {
+                    if (!empty($username)) {
                         $userService = new \OpenEMR\Services\UserService();
                         $authGroup = $userService->getAuthGroupForUser($username);
                     }
