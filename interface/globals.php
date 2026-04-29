@@ -42,6 +42,10 @@ if (!defined('IS_WINDOWS')) {
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.
 $webserver_root = dirname(__FILE__, 2);
+if (IS_WINDOWS) {
+ // convert windows path separators
+    $webserver_root = str_replace("\\", "/", $webserver_root);
+}
 
 /**
  * Allow a `.env` file to be read in and applied as $_SERVER variables.
