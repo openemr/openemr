@@ -70,6 +70,9 @@ class CalendarInjectionListener
         if (!$this->isNativeCalendarEntryRequest($requestUri)) {
             return;
         }
+        if (strtolower(trim((string)($_GET['medex_prefer'] ?? ''))) === 'openemr') {
+            return;
+        }
 
         // Only inject when module is truly active (enabled + configured).
         try {

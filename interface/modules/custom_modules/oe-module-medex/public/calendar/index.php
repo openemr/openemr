@@ -15,14 +15,26 @@ require_once(__DIR__ . "/../../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Check calendar access
 if (!AclMain::aclCheckCore('patients', 'appt')) {
     die('Access denied. You do not have permission to access the calendar.');
 }
 
-// Verify user is authenticated
-if (!isset($_SESSION['authUserID'])) {
+// Verify user is authenticated (support both native $_SESSION and session wrapper backends)
+$sessionWrapper = null;
+try {
+    $sessionWrapper = SessionWrapperFactory::getInstance()->getActiveSession();
+} catch (\Throwable $e) {
+    $sessionWrapper = null;
+}
+
+$authUserId = $_SESSION['authUserID'] ?? null;
+if (empty($authUserId) && $sessionWrapper) {
+    $authUserId = $sessionWrapper->get('authUserID') ?: $sessionWrapper->get('authUser');
+}
+if (empty($authUserId)) {
     die('Access denied. Please log in to OpenEMR.');
 }
 
@@ -118,8 +130,8 @@ try {
 require_once($GLOBALS['incdir'] . "/../library/calendar.inc.php");
 require_once($GLOBALS['incdir'] . "/../library/patient.inc.php");
 
-$userId = $_SESSION['authUserID'] ?? null;
-$userAuthorized = $_SESSION['userauthorized'] ?? 0;
+$userId = $authUserId;
+$userAuthorized = $_SESSION['userauthorized'] ?? ($sessionWrapper ? (int)($sessionWrapper->get('userauthorized') ?? 0) : 0);
 
 // Get user info
 $userInfo = sqlQuery("SELECT id, username, facility_id FROM users WHERE id = ?", [$userId]);
@@ -226,6 +238,9 @@ $prefDefaultProviders = array_values(array_intersect($prefDefaultProviders, $vis
 $prefDefaultFacilities = array_values(array_intersect($prefDefaultFacilities, $visibleFacilityIds));
 $usePrefProviders = !empty($prefDefaultProviders);
 $usePrefFacilities = !empty($prefDefaultFacilities);
+
+// Allow explicit hand-off back to native OpenEMR calendar.
+$openEmrCalendarCompatible = true;
 ?>
 <!DOCTYPE html>
 <html>
@@ -269,6 +284,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             'defaultProviders' => $prefDefaultProviders,
             'defaultFacilities' => $prefDefaultFacilities
         ]); ?>;
+        window.medexOpenEmrCalendarCompatible = <?php echo $openEmrCalendarCompatible ? 'true' : 'false'; ?>;
     </script>
 
     <!-- Calendar initialization -->
@@ -720,6 +736,13 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         }
         .fc-event-time {
             color: inherit;
+        }
+        .fc-timegrid-event.has-slot-type-color .fc-event-time {
+            background: var(--medex-slot-type-color, transparent);
+            border-radius: 3px;
+            padding: 0 4px;
+            margin-right: 6px;
+            display: inline-block;
         }
 
         /* Style for availability blocks (In Office / Out of Office) */
@@ -1306,7 +1329,8 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
 
             // Get current view state
             const savedView = localStorage.getItem('medexCalendarView') || 'timeGridWeek';
-            let savedDate = localStorage.getItem('medexCalendarDate');
+            const activeCalendar = (typeof calendarInstances !== 'undefined' && calendarInstances.length > 0) ? calendarInstances[0] : null;
+            let savedDate = activeCalendar ? activeCalendar.getDate().toISOString().split('T')[0] : localStorage.getItem('medexCalendarDate');
 
             // Normalize savedDate to YYYY-MM-DD format if it's an ISO timestamp
             if (savedDate) {
@@ -1337,14 +1361,14 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
 
             // Add date (OpenEMR uses jumpdate parameter in YYYY-MM-DD format)
             if (savedDate) {
+                const compactDate = savedDate.replace(/-/g, '');
+                url += '&Date=' + encodeURIComponent(compactDate);
                 url += '&jumpdate=' + encodeURIComponent(savedDate);
             }
 
-            // Add selected providers (OpenEMR uses pc_username[] array notation for multiple)
+            // Add selected provider (single explicit provider avoids empty first render states).
             if (selectedProviders.length > 0) {
-                selectedProviders.forEach(providerId => {
-                    url += '&pc_username[]=' + encodeURIComponent(providerId);
-                });
+                url += '&pc_username=' + encodeURIComponent(selectedProviders[0]);
             }
 
             // Add facility (OpenEMR calendar typically shows one facility at a time)
