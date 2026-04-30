@@ -245,8 +245,17 @@ function make_document($task)
 {
     global $providerNAME;
     global $encounter;
-    global $form_id;
     global $facilityService;
+
+    // Resolve the eye_mag form row for this (patient, encounter). The taskman
+    // entry points (AJAX from js/eye_base.php and CLI cron) do not set $form_id
+    // in any scope make_document() can read, so look it up from the data the
+    // $task row already carries.
+    $form_row = sqlQuery(
+        "SELECT form_id FROM forms WHERE pid = ? AND encounter = ? AND formdir = 'eye_mag' AND deleted != '1' ORDER BY id DESC LIMIT 1",
+        [$task['PATIENT_ID'], $task['ENC_ID']]
+    );
+    $form_id = $form_row['form_id'] ?? null;
 
     /**
      * We want to store the current PDF version of this task.
