@@ -42,6 +42,7 @@ function medexBootstrapState(): array
     ];
 
     try {
+        $demoEntitledServices = [];
         $moduleRow = sqlQuery(
             "SELECT mod_active, mod_ui_active
                FROM modules
@@ -102,7 +103,6 @@ function medexBootstrapState(): array
                 $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
                 $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
                 if (in_array($customerGroupId, [3, 7], true) && !empty($pricingCache['services']) && is_array($pricingCache['services'])) {
-                    $demoServices = [];
                     foreach ($pricingCache['services'] as $serviceKey => $serviceMeta) {
                         if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
                             continue;
@@ -114,14 +114,8 @@ function medexBootstrapState(): array
                             $normalized = 'calendar_full';
                         }
                         if ($normalized !== '') {
-                            $demoServices[$normalized] = true;
+                            $demoEntitledServices[$normalized] = true;
                         }
-                    }
-                    if (!empty($demoServices)) {
-                        $state['enabled_services'] = array_values(array_unique(array_merge(
-                            array_map('strval', (array)$state['enabled_services']),
-                            array_keys($demoServices)
-                        )));
                     }
                 }
             }
@@ -156,6 +150,12 @@ function medexBootstrapState(): array
 
         if (!$state['has_credentials']) {
             $state['enabled_services'] = [];
+        }
+        if (!empty($demoEntitledServices)) {
+            $state['enabled_services'] = array_values(array_unique(array_merge(
+                array_map('strval', (array)$state['enabled_services']),
+                array_keys($demoEntitledServices)
+            )));
         }
     } catch (\Throwable $e) {
         error_log('[MedEx] Bootstrap state lookup failed: ' . $e->getMessage());
