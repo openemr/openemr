@@ -14,6 +14,8 @@ namespace OpenEMR\Modules\MedEx\Listeners;
 
 class CalendarInjectionListener
 {
+    private static bool $nativeReturnControlRegistered = false;
+
     private function normalizeServiceKey(string $serviceKey): string
     {
         $normalized = strtolower(str_replace([' ', '-'], '_', trim($serviceKey)));
@@ -60,6 +62,151 @@ class CalendarInjectionListener
             || preg_match('#/interface/main/calendar/?(?:\?|$)#', $requestUri) === 1;
     }
 
+    private function isExplicitOpenEMRRequest(): bool
+    {
+        return strtolower(trim((string)($_GET['medex_prefer'] ?? ''))) === 'openemr';
+    }
+
+    private function hasSessionNativeCalendarPreference(): bool
+    {
+        $value = $_SESSION['medex_use_openemr_calendar'] ?? false;
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return ((int)$value) === 1;
+        }
+
+        if (is_string($value)) {
+            return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+        }
+
+        return false;
+    }
+
+    private function buildMedExCalendarRedirectUrl(): string
+    {
+        $webroot = (string)($GLOBALS['webroot'] ?? '');
+        $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+
+        $params = ['site' => $siteId];
+
+        $jumpDate = trim((string)($_GET['jumpdate'] ?? ''));
+        $date = trim((string)($_GET['Date'] ?? ''));
+        if ($jumpDate !== '') {
+            $params['date'] = $jumpDate;
+        } elseif (preg_match('/^\d{8}$/', $date) === 1) {
+            $params['date'] = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
+        }
+
+        $viewType = trim((string)($_GET['viewtype'] ?? ''));
+        if ($viewType !== '') {
+            $params['view'] = $viewType;
+        }
+
+        $provider = trim((string)($_GET['pc_username'] ?? $_GET['providers'] ?? ''));
+        if ($provider !== '') {
+            $params['providers'] = $provider;
+        }
+
+        $facility = trim((string)($_GET['pc_facility'] ?? $_GET['facilities'] ?? ''));
+        if ($facility !== '') {
+            $params['facilities'] = $facility;
+        }
+
+        return $webroot
+            . '/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php?'
+            . http_build_query($params);
+    }
+
+    private function registerNativeCalendarReturnControl(string $preferenceUrl): void
+    {
+        if (self::$nativeReturnControlRegistered) {
+            return;
+        }
+        self::$nativeReturnControlRegistered = true;
+
+        ob_start(function (string $html) use ($preferenceUrl): string {
+            return $this->injectNativeCalendarReturnControl($html, $preferenceUrl);
+        });
+    }
+
+    private function injectNativeCalendarReturnControl(string $html, string $preferenceUrl): string
+    {
+        if ($html === '' || stripos($html, 'medex-native-calendar-return') !== false) {
+            return $html;
+        }
+
+        $script = <<<HTML
+<script id="medex-native-calendar-return">
+(function () {
+    var redirectUrl = %s;
+
+    function goToMedExCalendar(event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+            top.restoreSession();
+            window.setTimeout(function () {
+                window.location.href = redirectUrl;
+            }, 100);
+            return false;
+        }
+
+        window.location.href = redirectUrl;
+        return false;
+    }
+
+    function ensureReturnButton() {
+        if (document.getElementById('medex-native-calendar-return-link')) {
+            return;
+        }
+
+        var host = document.createElement('div');
+        host.id = 'medex-native-calendar-return-host';
+        host.style.position = 'fixed';
+        host.style.top = '12px';
+        host.style.right = '16px';
+        host.style.zIndex = '10050';
+
+        var link = document.createElement('a');
+        link.id = 'medex-native-calendar-return-link';
+        link.href = redirectUrl;
+        link.className = 'btn btn-primary btn-sm';
+        link.style.boxShadow = '0 8px 20px rgba(14, 41, 84, 0.18)';
+        link.style.borderRadius = '999px';
+        link.style.padding = '8px 14px';
+        link.style.fontWeight = '600';
+        link.textContent = 'MedEx Full Calendar';
+        link.addEventListener('click', goToMedExCalendar);
+
+        host.appendChild(link);
+        document.body.appendChild(host);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureReturnButton);
+    } else {
+        ensureReturnButton();
+    }
+})();
+</script>
+HTML;
+
+        $markup = sprintf($script, json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP));
+
+        $count = 0;
+        $updated = preg_replace('/<\/body>/i', $markup . "\n</body>", $html, 1, $count);
+        if ($count > 0 && is_string($updated)) {
+            return $updated;
+        }
+
+        return $html . $markup;
+    }
+
     /**
      * Inject MedEx calendar replacement
      * Called from bootstrap shutdown function when calendar page is detected
@@ -70,9 +217,7 @@ class CalendarInjectionListener
         if (!$this->isNativeCalendarEntryRequest($requestUri)) {
             return;
         }
-        if (strtolower(trim((string)($_GET['medex_prefer'] ?? ''))) === 'openemr') {
-            return;
-        }
+        $explicitOpenEMRRequest = $this->isExplicitOpenEMRRequest();
 
         // Only inject when module is truly active (enabled + configured).
         try {
@@ -113,6 +258,7 @@ class CalendarInjectionListener
 
         // Check user preferences - allow individual users to opt out
         $userId = $_SESSION['authUserID'] ?? null;
+        $isDisabled = false;
         if ($userId) {
             try {
                 $userPrefRows = sqlStatement(
@@ -135,7 +281,6 @@ class CalendarInjectionListener
                     }
                 }
 
-                $isDisabled = false;
                 if ($nativePref !== null) {
                     $normalized = strtolower(trim($nativePref));
                     $isDisabled = in_array($normalized, ['0', 'false', 'off', 'no', 'n', 'disabled'], true);
@@ -152,14 +297,30 @@ class CalendarInjectionListener
                     }
                 }
 
-                if ($isDisabled) {
-                    error_log('[MedEx Calendar] User ' . $userId . ' has disabled Full Calendar - skipping injection');
-                    return;
-                }
             } catch (\Exception $e) {
                 error_log('[MedEx Calendar] Error checking user preferences: ' . $e->getMessage());
                 // Continue with injection if there's an error reading preferences
             }
+        }
+
+        $stayOnNativeCalendar = $explicitOpenEMRRequest
+            || $this->hasSessionNativeCalendarPreference()
+            || $isDisabled;
+
+        if ($stayOnNativeCalendar) {
+            error_log('[MedEx Calendar] Native calendar requested - injecting MedEx return control');
+            $medexUrl = $this->buildMedExCalendarRedirectUrl();
+            $webroot = (string)($GLOBALS['webroot'] ?? '');
+            $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+            $preferenceUrl = $webroot
+                . '/interface/modules/custom_modules/oe-module-medex/public/calendar/set_calendar_preference.php?'
+                . http_build_query([
+                    'site' => $siteId,
+                    'preference' => 'medex',
+                    'redirect' => $medexUrl,
+                ]);
+            $this->registerNativeCalendarReturnControl($preferenceUrl);
+            return;
         }
 
         error_log('[MedEx Calendar] Calendar subscription detected - injecting redirect');
