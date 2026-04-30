@@ -3117,6 +3117,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/dashboard_header.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method addCard\\(\\) on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method canAdd\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
@@ -3137,13 +3142,28 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getAppendedInjection\\(\\) on mixed\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getBackgroundColorClass\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getCards\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getPrependedInjection\\(\\) on mixed\\.$#',
+    'count' => 14,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [

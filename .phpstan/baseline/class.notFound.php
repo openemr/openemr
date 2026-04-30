@@ -167,6 +167,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcher\\.$#',
+    'count' => 17,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var contains unknown class EventDispatcher\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\$encounterId of method ESign\\\\Encounter_Log\\:\\:__construct\\(\\) has invalid type ESign\\\\unknown\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
