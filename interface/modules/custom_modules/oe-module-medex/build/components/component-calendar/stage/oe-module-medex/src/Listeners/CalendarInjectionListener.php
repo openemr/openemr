@@ -14,6 +14,38 @@ namespace OpenEMR\Modules\MedEx\Listeners;
 
 class CalendarInjectionListener
 {
+    private function normalizeServiceKey(string $serviceKey): string
+    {
+        $normalized = strtolower(str_replace([' ', '-'], '_', trim($serviceKey)));
+        if ($normalized === 'calendar_service' || $normalized === 'calendar_services') {
+            return 'calendar_ai';
+        }
+        if ($normalized === 'fullcalendar') {
+            return 'calendar_full';
+        }
+        return $normalized;
+    }
+
+    private function hasDemoCalendarEntitlement(array $status): bool
+    {
+        $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
+        $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
+        $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
+        if (!in_array($customerGroupId, [3, 7], true)) {
+            return false;
+        }
+        foreach ((array)($pricingCache['services'] ?? []) as $serviceKey => $serviceMeta) {
+            if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
+                continue;
+            }
+            $normalized = $this->normalizeServiceKey((string)$serviceKey);
+            if (in_array($normalized, ['calendar_full', 'calendar_ai', 'calendar_services', 'calendar_export'], true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function isNativeCalendarEntryRequest(string $requestUri): bool
     {
         if ($requestUri === '') {
@@ -36,6 +68,9 @@ class CalendarInjectionListener
     {
         $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
         if (!$this->isNativeCalendarEntryRequest($requestUri)) {
+            return;
+        }
+        if (strtolower(trim((string)($_GET['medex_prefer'] ?? ''))) === 'openemr') {
             return;
         }
 
@@ -62,6 +97,9 @@ class CalendarInjectionListener
                 };
                 // Full calendar redirect requires explicit calendar_full entitlement.
                 $hasCalendarSubscription = $svcOn('calendar_full');
+                if (!$hasCalendarSubscription && is_array($status)) {
+                    $hasCalendarSubscription = $this->hasDemoCalendarEntitlement($status);
+                }
             }
         } catch (\Exception $e) {
             error_log('[MedEx Calendar] Error checking calendar subscription: ' . $e->getMessage());
