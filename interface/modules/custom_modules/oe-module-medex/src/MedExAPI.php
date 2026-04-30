@@ -769,6 +769,38 @@ class MedExAPI
     }
 
     /**
+     * @return array<int,string>
+     */
+    private function getDemoEntitledServicesFromStatusCache(): array
+    {
+        $status = $this->readStatusCache();
+        $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
+        $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
+        $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
+        if (!in_array($customerGroupId, [3, 7], true)) {
+            return [];
+        }
+
+        $services = [];
+        foreach ((array)($pricingCache['services'] ?? []) as $serviceKey => $serviceMeta) {
+            if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
+                continue;
+            }
+            $normalized = strtolower(str_replace([' ', '-'], '_', trim((string)$serviceKey)));
+            if ($normalized === 'calendar_service' || $normalized === 'calendar_services') {
+                $normalized = 'calendar_ai';
+            } elseif ($normalized === 'fullcalendar') {
+                $normalized = 'calendar_full';
+            }
+            if ($normalized !== '') {
+                $services[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique($services));
+    }
+
+    /**
      * Verify entitlement for one service using authoritative server refresh.
      */
     public function hasServiceEntitlement(string $service): bool
@@ -788,6 +820,11 @@ class MedExAPI
                 continue;
             }
             if (in_array($candidate, $enabled, true)) {
+                return true;
+            }
+        }
+        foreach ($this->getDemoEntitledServicesFromStatusCache() as $demoService) {
+            if (in_array($demoService, $candidates, true)) {
                 return true;
             }
         }
