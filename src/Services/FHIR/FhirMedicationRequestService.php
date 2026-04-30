@@ -480,13 +480,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (isset($dataRecord['category'])) {
-            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
+            $code = $dataRecord['category'];
+            $display = self::CATEGORY_DISPLAY[$code] ?? $dataRecord['category_title'] ?? '';
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
-                            ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $code => [
+                        'code' => $code,
+                        'description' => $display,
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
+                    ]
                 ]
             ));
         } else {
