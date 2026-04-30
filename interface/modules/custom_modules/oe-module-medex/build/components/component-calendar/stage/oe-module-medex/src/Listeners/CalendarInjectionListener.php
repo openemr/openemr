@@ -15,6 +15,8 @@ namespace OpenEMR\Modules\MedEx\Listeners;
 class CalendarInjectionListener
 {
     private static bool $nativeReturnControlRegistered = false;
+    private static ?int $nativeReturnControlBufferLevel = null;
+    private static ?string $nativeReturnControlPreferenceUrl = null;
 
     private function normalizeServiceKey(string $serviceKey): string
     {
@@ -126,10 +128,41 @@ class CalendarInjectionListener
             return;
         }
         self::$nativeReturnControlRegistered = true;
+        self::$nativeReturnControlPreferenceUrl = $preferenceUrl;
+        self::$nativeReturnControlBufferLevel = ob_get_level();
 
-        ob_start(function (string $html) use ($preferenceUrl): string {
-            return $this->injectNativeCalendarReturnControl($html, $preferenceUrl);
+        ob_start();
+        register_shutdown_function(function (): void {
+            $this->flushNativeCalendarReturnControl();
         });
+    }
+
+    private function flushNativeCalendarReturnControl(): void
+    {
+        if (!self::$nativeReturnControlRegistered) {
+            return;
+        }
+
+        $preferenceUrl = self::$nativeReturnControlPreferenceUrl;
+        $bufferLevel = self::$nativeReturnControlBufferLevel;
+        if ($preferenceUrl === null || $bufferLevel === null) {
+            return;
+        }
+
+        $html = '';
+        while (ob_get_level() > $bufferLevel) {
+            $chunk = ob_get_clean();
+            if ($chunk === false) {
+                break;
+            }
+            $html = $chunk . $html;
+        }
+
+        if ($html === '') {
+            return;
+        }
+
+        echo $this->injectNativeCalendarReturnControl($html, $preferenceUrl);
     }
 
     private function injectNativeCalendarReturnControl(string $html, string $preferenceUrl): string
