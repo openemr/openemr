@@ -89,6 +89,11 @@ initialize_openemr() {
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
+    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
+    # Snapshot predates commit 4af4c827f which added username/abook_type filtering
+    # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
