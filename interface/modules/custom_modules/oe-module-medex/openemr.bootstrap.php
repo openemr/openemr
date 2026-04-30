@@ -274,6 +274,124 @@ function medexCalendarFeedsVisibleForCurrentUser(array $state, array $aclPair): 
     return \OpenEMR\Common\Acl\AclMain::aclCheckCore((string)$aclPair[0], (string)$aclPair[1]);
 }
 
+function medexCanAutoloadMainTabs(array $state): bool
+{
+    return !empty($state['module_installed'])
+        && !empty($state['module_enabled'])
+        && !empty($state['has_credentials']);
+}
+
+function medexShouldAutoloadCalendarTab(array $enabledServices): bool
+{
+    return medexHasEnabledService($enabledServices, ['calendar_full', 'calendar_ai', 'calendar_services']);
+}
+
+function medexShouldAutoloadMessagingTab(array $enabledServices): bool
+{
+    return medexHasEnabledService($enabledServices, ['appointment_reminders', 'reminders_campaigns', 'gogreen', 'recalls', 'announcements']);
+}
+
+function medexRenderMainTabsAutoloadScript(): void
+{
+    $state = medexBootstrapState();
+    if (!medexCanAutoloadMainTabs($state)) {
+        return;
+    }
+
+    $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
+    if (strpos($requestUri, '/interface/main/tabs/main.php') === false) {
+        return;
+    }
+
+    $enabledServices = (array)($state['enabled_services'] ?? []);
+    $calendarUrl = null;
+    if (medexShouldAutoloadCalendarTab($enabledServices)) {
+        $calendarUrl = medexBuildModuleUrl('/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php');
+    }
+
+    $messagesUrl = null;
+    if (medexShouldAutoloadMessagingTab($enabledServices)) {
+        $messagesUrl = medexBuildModuleUrl('/interface/main/messages/messages.php', ['form_active' => 1]);
+    }
+
+    if ($calendarUrl === null && $messagesUrl === null) {
+        return;
+    }
+
+    $siteId = (string)($state['site_id'] ?? 'default');
+    ?>
+    <script>
+    (function () {
+        var config = {
+            siteId: <?php echo js_escape($siteId); ?>,
+            calendarUrl: <?php echo js_escape($calendarUrl ?? ''); ?>,
+            messagesUrl: <?php echo js_escape($messagesUrl ?? ''); ?>
+        };
+
+        function getSessionKey() {
+            var token = '';
+            try {
+                token = String(new URLSearchParams(window.location.search).get('token_main') || '');
+            } catch (e) {}
+            return ['medex', 'main-tabs', config.siteId, token].join(':');
+        }
+
+        function frameNeedsLoad(frameName) {
+            try {
+                var frame = window.frames[frameName];
+                if (!frame || !frame.location) {
+                    return true;
+                }
+                var href = String(frame.location.href || '');
+                if (!href || href === 'about:blank') {
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function openTab(frameName, url) {
+            if (!url || typeof navigateTab !== 'function') {
+                return;
+            }
+            restoreSession();
+            navigateTab(url, frameName);
+        }
+
+        function run() {
+            var key = getSessionKey();
+            try {
+                if (window.sessionStorage && window.sessionStorage.getItem(key) === '1') {
+                    return;
+                }
+            } catch (e) {}
+
+            if (config.calendarUrl && frameNeedsLoad('cal')) {
+                openTab('cal', config.calendarUrl);
+            }
+            if (config.messagesUrl && frameNeedsLoad('msg')) {
+                openTab('msg', config.messagesUrl);
+            }
+
+            try {
+                if (window.sessionStorage) {
+                    window.sessionStorage.setItem(key, '1');
+                }
+            } catch (e) {}
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', run);
+        } else {
+            window.setTimeout(run, 0);
+        }
+    })();
+    </script>
+    <?php
+}
+
 /**
  * @param array<string,mixed> $definition
  */
@@ -580,6 +698,9 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         $eventDispatcher->addListener(ModuleManagerEvent::EVENT_ENABLE, [$moduleListener, 'onModuleEnable']);
         $eventDispatcher->addListener(ModuleManagerEvent::EVENT_DISABLE, [$moduleListener, 'onModuleDisable']);
         $eventDispatcher->addListener(ModuleManagerEvent::EVENT_UNINSTALL, [$moduleListener, 'onModuleUninstall']);
+    }
+    if (class_exists(RenderEvent::class)) {
+        $eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, 'medexRenderMainTabsAutoloadScript');
     }
 
     register_shutdown_function(function (): void {
