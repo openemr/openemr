@@ -47,6 +47,36 @@ $medexApiUrl = rtrim($medexApiUrl, '/');
 $medexPrefs = sqlQuery("SELECT * FROM medex_prefs LIMIT 1");
 $apiKey = $medexPrefs['MedEx_apikey'] ?? '';
 
+// If a patient is currently active in OpenEMR session, preload them.
+$initialPid = intval($_GET['pid'] ?? 0);
+if ($initialPid <= 0) {
+    $initialPid = intval($_SESSION['pid'] ?? 0);
+}
+
+$initialPatient = null;
+if ($initialPid > 0) {
+    $initialRow = sqlQuery(
+        "SELECT pid, fname, lname, mname, DOB, phone_cell, email, sex
+         FROM patient_data
+         WHERE pid = ?
+         LIMIT 1",
+        [$initialPid]
+    );
+
+    if (!empty($initialRow)) {
+        $initialPatient = [
+            'pid' => (int)($initialRow['pid'] ?? 0),
+            'fname' => (string)($initialRow['fname'] ?? ''),
+            'lname' => (string)($initialRow['lname'] ?? ''),
+            'mname' => (string)($initialRow['mname'] ?? ''),
+            'dob' => (string)($initialRow['DOB'] ?? ''),
+            'phone' => (string)($initialRow['phone_cell'] ?? ''),
+            'email' => (string)($initialRow['email'] ?? ''),
+            'sex' => (string)($initialRow['sex'] ?? '')
+        ];
+    }
+}
+
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
@@ -63,18 +93,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 echo json_encode(['success' => true, 'patients' => []]);
                 exit;
             }
-            
-            // Search patients by name, phone, or DOB
+
+            // Search patients by name (both orders), phone, DOB, or PID.
+            $normalized = preg_replace('/\s+/', ' ', trim(str_replace(',', ' ', $searchTerm)));
+            $searchLike = '%' . $normalized . '%';
+
+            $whereClauses = [];
+            $params = [];
+
+            $whereClauses[] = "p.fname LIKE ?";
+            $params[] = $searchLike;
+
+            $whereClauses[] = "p.lname LIKE ?";
+            $params[] = $searchLike;
+
+            $whereClauses[] = "p.phone_cell LIKE ?";
+            $params[] = '%' . $searchTerm . '%';
+
+            $whereClauses[] = "p.phone_home LIKE ?";
+            $params[] = '%' . $searchTerm . '%';
+
+            $whereClauses[] = "p.DOB LIKE ?";
+            $params[] = '%' . $searchTerm . '%';
+
+            $whereClauses[] = "CONCAT(p.fname, ' ', p.lname) LIKE ?";
+            $params[] = $searchLike;
+
+            $whereClauses[] = "CONCAT(p.lname, ' ', p.fname) LIKE ?";
+            $params[] = $searchLike;
+
+            $whereClauses[] = "CONCAT(p.lname, ', ', p.fname) LIKE ?";
+            $params[] = '%' . $searchTerm . '%';
+
+            if (ctype_digit($searchTerm)) {
+                $whereClauses[] = "p.pid = ?";
+                $params[] = (int)$searchTerm;
+            }
+
+            $parts = array_values(array_filter(explode(' ', $normalized), function ($v) {
+                return $v !== '';
+            }));
+
+            if (count($parts) >= 2) {
+                $first = '%' . $parts[0] . '%';
+                $second = '%' . $parts[1] . '%';
+                $whereClauses[] = "((p.fname LIKE ? AND p.lname LIKE ?) OR (p.fname LIKE ? AND p.lname LIKE ?))";
+                $params[] = $first;
+                $params[] = $second;
+                $params[] = $second;
+                $params[] = $first;
+            }
+
             $query = "SELECT p.pid, p.fname, p.lname, p.mname, p.DOB, p.phone_cell, p.email, p.sex
                       FROM patient_data p
-                      WHERE p.fname LIKE ? OR p.lname LIKE ? 
-                         OR p.phone_cell LIKE ? OR p.phone_home LIKE ?
-                         OR CONCAT(p.fname, ' ', p.lname) LIKE ?
+                      WHERE " . implode(' OR ', $whereClauses) . "
                       ORDER BY p.lname, p.fname
                       LIMIT 50";
-            $searchLike = '%' . $searchTerm . '%';
+
             $patients = [];
-            $result = sqlStatement($query, [$searchLike, $searchLike, $searchLike, $searchLike, $searchLike]);
+            $result = sqlStatement($query, $params);
             while ($row = sqlFetchArray($result)) {
                 $patients[] = [
                     'pid' => $row['pid'],
@@ -262,33 +339,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <title><?php echo xlt('MedEx Secure Chat'); ?></title>
     <?php Header::setupHeader(['common', 'datetime-picker']); ?>
     <style>
+        body {
+            background: radial-gradient(circle at 8% 8%, rgba(14, 165, 233, 0.18) 0%, rgba(14, 165, 233, 0) 35%), linear-gradient(180deg, #f5fbff 0%, #f2f8fe 100%);
+        }
         .secure-chat-container {
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px;
+            font-family: "Avenir Next", "Segoe UI", sans-serif;
         }
         .search-box {
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #d9e7f5;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 10px 28px rgba(15, 74, 123, 0.08);
         }
         .patient-card {
             background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
+            border: 1px solid #d9e7f5;
+            border-radius: 12px;
             padding: 15px;
             margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.2s;
         }
         .patient-card:hover {
-            border-color: #007bff;
-            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+            border-color: #0e83cd;
+            box-shadow: 0 8px 18px rgba(14, 131, 205, 0.16);
         }
         .patient-card.selected {
-            border-color: #007bff;
-            background: #f0f7ff;
+            border-color: #0e83cd;
+            background: #ecf7ff;
         }
         .patient-details {
             display: none;
@@ -303,22 +386,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             margin-top: 20px;
         }
         .send-option {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+            background: #f6fbff;
+            border: 2px solid #d9e7f5;
+            border-radius: 12px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
         }
         .send-option:hover {
-            border-color: #007bff;
-            background: #e9f4ff;
+            border-color: #0e83cd;
+            background: #e8f6ff;
         }
         .send-option i {
             font-size: 2rem;
             margin-bottom: 10px;
-            color: #007bff;
+            color: #0e83cd;
         }
         .send-option.disabled {
             opacity: 0.5;
@@ -375,6 +458,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             padding: 40px;
             color: #6c757d;
         }
+        .session-patient-banner {
+            border: 1px solid #b9dbf4;
+            background: #eaf6ff;
+            color: #0a4b78;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
         /* Chat Bubble Styles */
         .chat-container {
             max-height: 400px;
@@ -429,6 +520,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <div class="secure-chat-container">
         <h2><i class="fa fa-comment-medical"></i> <?php echo xlt('Secure Patient Chat'); ?></h2>
         <p class="text-muted"><?php echo xlt('Search for a patient and send them a secure chat link via SMS, email, or copy the link manually.'); ?></p>
+
+        <?php if (!empty($initialPatient)) { ?>
+        <div class="session-patient-banner">
+            <strong><?php echo xlt('Current patient in session:'); ?></strong>
+            <?php echo text(trim(($initialPatient['fname'] ?? '') . ' ' . ($initialPatient['lname'] ?? ''))); ?>
+            (PID: <?php echo attr((string)($initialPatient['pid'] ?? '')); ?>).
+            <?php echo xlt('You can still search and switch to a different patient below.'); ?>
+        </div>
+        <?php } ?>
         
         <!-- Search Box -->
         <div class="search-box">
@@ -534,6 +634,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     var selectedPatient = null;
     var currentHistoryPage = 1;
     var totalHistoryPages = 1;
+    var initialPatient = <?php echo json_encode($initialPatient); ?>;
     
     // Search on enter key
     document.getElementById('patientSearch').addEventListener('keypress', function(e) {
@@ -579,6 +680,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         .catch(error => {
             console.error('Search error:', error);
         });
+    }
+
+    // Initialize from active OpenEMR patient context, if available.
+    if (initialPatient && initialPatient.pid) {
+        displayPatientResults([initialPatient]);
+        selectPatient(initialPatient);
     }
     
     function displayPatientResults(patients) {
