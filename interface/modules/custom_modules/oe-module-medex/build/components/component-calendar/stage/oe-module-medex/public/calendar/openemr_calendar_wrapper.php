@@ -96,7 +96,6 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
 ></iframe>
 <script>
 (function () {
-    var webroot = <?php echo json_encode($webroot, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     var medexPreferenceUrl = <?php echo json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     var frame = document.getElementById('calendar-frame');
 
@@ -148,19 +147,6 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
 
                 return true;
             };
-
-            try {
-                Object.defineProperty(window, 'top', {
-                    configurable: true,
-                    get: function () {
-                        return {
-                            restoreSession: window.restoreSession,
-                            location: window.location
-                        };
-                    }
-                });
-            } catch (error) {
-            }
         }.toString() + ")();";
 
         iframeDoc.head.insertBefore(script, iframeDoc.head.firstChild);
@@ -218,7 +204,7 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
             var style = iframeDoc.createElement('style');
             style.id = 'medex-native-calendar-switcher-style';
             style.textContent = ''
-                + '#medex-native-calendar-switcher{margin:12px 0 14px 0;padding:0;box-sizing:border-box;max-width:180px;}'
+                + '#medex-native-calendar-switcher{margin:12px auto 14px auto;padding:0;box-sizing:border-box;max-width:180px;width:100%;}'
                 + '#medex-native-calendar-switcher-label{font-size:10px;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}'
                 + '#medex-native-calendar-switcher .view-selector{display:flex;flex-direction:column;gap:1px;border:1px solid #0099cc;border-radius:3px;overflow:hidden;background:#fff;}'
                 + '#medex-native-calendar-switcher .view-option{padding:8px;font-size:11px;border:none;text-align:left;transition:background .2s;}'
@@ -250,7 +236,7 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         medexButton.addEventListener('click', function (event) {
             event.preventDefault();
             restoreSessionThen(function () {
-                window.top.location.href = medexPreferenceUrl;
+                window.location.href = medexPreferenceUrl;
             });
         });
 
@@ -277,21 +263,6 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         injectContainmentScript(iframeDoc);
         normalizeCalendarNavigation(iframeDoc);
         buildSwitcher(iframeDoc);
-
-        if (!iframeDoc.body || iframeDoc.body.getAttribute('data-medex-observed') === '1') {
-            return;
-        }
-
-        iframeDoc.body.setAttribute('data-medex-observed', '1');
-        var observer = new MutationObserver(function () {
-            normalizeCalendarNavigation(iframeDoc);
-            buildSwitcher(iframeDoc);
-        });
-
-        observer.observe(iframeDoc.body, {
-            childList: true,
-            subtree: true
-        });
     }
 
     frame.addEventListener('load', refreshIframeEnhancements);

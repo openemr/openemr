@@ -354,10 +354,11 @@ function medexRenderMainTabsAutoloadScript(): void
 
         function openTab(frameName, url) {
             if (!url || typeof navigateTab !== 'function') {
-                return;
+                return false;
             }
             restoreSession();
             navigateTab(url, frameName);
+            return true;
         }
 
         function run() {
@@ -368,11 +369,17 @@ function medexRenderMainTabsAutoloadScript(): void
                 }
             } catch (e) {}
 
+            var openedAny = false;
             if (config.calendarUrl && frameNeedsLoad('cal')) {
-                openTab('cal', config.calendarUrl);
+                openedAny = openTab('cal', config.calendarUrl) || openedAny;
             }
             if (config.messagesUrl && frameNeedsLoad('msg')) {
-                openTab('msg', config.messagesUrl);
+                openedAny = openTab('msg', config.messagesUrl) || openedAny;
+            }
+
+            if (!openedAny) {
+                window.setTimeout(run, 300);
+                return;
             }
 
             try {
