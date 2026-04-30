@@ -6,6 +6,60 @@ use GuzzleHttp\Client;
 use OpenEMR\Tests\Api\ApiTestClient;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * These are best-effort representations of the Inferno output based on
+ * trawling through the logs. I wasn't able to find concrete documentation on
+ * the shape, and this is an approximation regardless (the results are more of
+ * a sum type that can't be easily expressed to PHPStan)
+ *
+ * @phpstan-type Message array{
+ *   message: string,
+ *   type: string,
+ * }
+ *
+ * @phpstan-type Input array{
+ *   name: string,
+ *   label: string,
+ *   description: string,
+ *   value: string,
+ *   type: string,
+ * }
+ *
+ * @phpstan-type Output array{
+ *   name: string,
+ *   type: string,
+ *   value: string,
+ * }
+ *
+ * @phpstan-type Request array{
+ *   id: string,
+ *   direction: string,
+ *   index: int,
+ *   result_id: string,
+ *   status: int,
+ *   timestamp: string,
+ *   url: string,
+ *   verb: string,
+ * }
+ *
+ * @phpstan-type TestResult array{
+ *   id: string,
+ *   created_at: string,
+ *   inputs: Input[],
+ *   messages?: Message[],
+ *   optional: bool,
+ *   outputs: Output[],
+ *   requests: Request[],
+ *   result: 'pass'|'skip'|'omit'|'error',
+ *   result_message?: string,
+ *   test_id?: string,
+ *   test_group_id?: string,
+ *   test_run_id: string,
+ *   test_session_id: string,
+ *   updated_at: string,
+ * }
+ *
+ */
 class InfernoSinglePatientAPITest extends TestCase
 {
     // Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995),
@@ -273,6 +327,10 @@ class InfernoSinglePatientAPITest extends TestCase
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
         }
     }
+
+    /**
+     * @param TestResult[] $results
+     */
     protected function assertResultsPassed(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {
         foreach ($results as $result) {
@@ -286,6 +344,7 @@ class InfernoSinglePatientAPITest extends TestCase
                     if (in_array($result['test_id'], $testIdsToSkipFailures)) {
                         continue; // skip this test if it's in the skip list
                     } else {
+                        assert(array_key_exists('result_message', $result), 'Message should be respent for non-pass results');
                         $failMessage = $assertMessage . " for test " . $result['test_id'] . ' ' . $result['result_message'];
                     }
                 } elseif (!empty($result['test_group_id'])) {
@@ -295,6 +354,7 @@ class InfernoSinglePatientAPITest extends TestCase
                         $failMessage = $assertMessage . " for test group " . $result['test_group_id'];
                     }
                 } else {
+                    assert(array_key_exists('result_message', $result), 'Message should be respent for non-pass results');
                     $failMessage = $assertMessage . ' ' . $result['result_message'];
                 }
                 if (!empty($result['requests'])) {
@@ -333,7 +393,11 @@ class InfernoSinglePatientAPITest extends TestCase
         }
     }
 
-
+    /**
+     * @return array{
+     *   results: TestResult[],
+     * }
+     */
     protected function getTestGroupResponse(string $testGroupId, $credentialsKeyName = 'smart_credentials'): array
     {
         $accessToken = self::$testClient->getAccessToken();
@@ -377,6 +441,7 @@ class InfernoSinglePatientAPITest extends TestCase
         $this->assertEquals(200, $finalTestRunResponse->getStatusCode(), "Failed to get final test run results for " . $testGroupId);
         $finalTestRunJson = json_decode($finalTestRunResponse->getBody(), true);
         $this->assertNotEmpty($finalTestRunJson['results'], "Test run results are empty for " . $testGroupId);
+        /** @var array{results: TestResult[]} $finalTestRunJson */
         return $finalTestRunJson;
     }
 }
