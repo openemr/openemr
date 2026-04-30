@@ -69,6 +69,9 @@ class Controller extends Smarty implements ControllerInterface
          $this->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
          $this->setCompileCheck(true);
          $this->setPluginsDir([__DIR__ . "/../smarty/plugins", OEGlobalsBag::getInstance()->getKernel()->getVendorDir() . "/smarty/smarty/libs/plugins"]);
+         // Register {$x|text} explicitly so Smarty does not fall back to the
+         // deprecated unregistered-function path when escaping for text nodes.
+         $this->registerPlugin('modifier', 'text', self::escapeForTextNode(...));
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
@@ -273,6 +276,23 @@ class Controller extends Smarty implements ControllerInterface
     {
         return method_exists($controllerObj, $method)
             && is_callable([$controllerObj, $method]);
+    }
+
+    private static function escapeForTextNode(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+        if (is_string($value)) {
+            return htmlspecialchars($value, ENT_NOQUOTES);
+        }
+        if (is_int($value) || is_float($value) || is_bool($value)) {
+            return htmlspecialchars((string) $value, ENT_NOQUOTES);
+        }
+        if (is_object($value) && method_exists($value, '__toString')) {
+            return htmlspecialchars((string) $value, ENT_NOQUOTES);
+        }
+        return '';
     }
 
     public function _link($action = "default", $inlining = false)

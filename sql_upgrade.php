@@ -377,7 +377,7 @@ header('Content-type: text/html; charset=utf-8');
         <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
             <div class='col-md bg-light text-dark'>
                 <?php if (!empty($_POST['form_submit']) || $cliFromVersion !== null) {
-                    $form_old_version = $cliFromVersion ?? $_POST['form_old_version'];
+                    $form_old_version = $cliFromVersion ?? ($_POST['form_old_version'] ?? '');
 
                     foreach ($versions as $version => $filename) {
                         if (strcmp($version, (string) $form_old_version) < 0) {
