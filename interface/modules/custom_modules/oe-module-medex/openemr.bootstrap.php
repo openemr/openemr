@@ -97,6 +97,34 @@ function medexBootstrapState(): array
             if (is_array($status) && !empty($status['enabled_services']) && is_array($status['enabled_services'])) {
                 $state['enabled_services'] = $status['enabled_services'];
             }
+            if (is_array($status)) {
+                $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
+                $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
+                $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
+                if (in_array($customerGroupId, [3, 7], true) && !empty($pricingCache['services']) && is_array($pricingCache['services'])) {
+                    $demoServices = [];
+                    foreach ($pricingCache['services'] as $serviceKey => $serviceMeta) {
+                        if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
+                            continue;
+                        }
+                        $normalized = strtolower(str_replace([' ', '-'], '_', trim((string)$serviceKey)));
+                        if ($normalized === 'calendar_service' || $normalized === 'calendar_services') {
+                            $normalized = 'calendar_ai';
+                        } elseif ($normalized === 'fullcalendar') {
+                            $normalized = 'calendar_full';
+                        }
+                        if ($normalized !== '') {
+                            $demoServices[$normalized] = true;
+                        }
+                    }
+                    if (!empty($demoServices)) {
+                        $state['enabled_services'] = array_values(array_unique(array_merge(
+                            array_map('strval', (array)$state['enabled_services']),
+                            array_keys($demoServices)
+                        )));
+                    }
+                }
+            }
         }
 
         if ($state['has_credentials']) {
