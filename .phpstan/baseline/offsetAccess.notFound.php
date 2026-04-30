@@ -62,6 +62,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'restype\' might not exist on array\\{resnote\\: string, restype\\: string, resdate\\: string, reslist\\?\\: string\\}\\|array\\{resnote\\: string\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'ODDISC\'\\|\'OSDISC\' does not exist on string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -100,6 +105,11 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'restype\' might not exist on array\\{title\\: string, status\\: mixed, begdate\\: mixed, enddate\\: mixed, returndate\\: mixed, occurrence\\: mixed, classification\\: mixed, referredby\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'address\' does not exist on array\\{name\\: non\\-falsy\\-string\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'form_id\' might not exist on array\\|null\\.$#',

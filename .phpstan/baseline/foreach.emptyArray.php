@@ -3,6 +3,11 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Empty array passed to foreach\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/js/eye_base.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Empty array passed to foreach\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/templates/linked_documents.php',
 ];

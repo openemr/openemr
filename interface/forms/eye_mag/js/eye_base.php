@@ -13,9 +13,11 @@
  */
 
     require_once("../../../globals.php");
-    require_once("$srcdir/api.inc.php");
-    require_once("$srcdir/forms.inc.php");
-    require_once("$srcdir/patient.inc.php");
+
+    $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+    require_once($srcdir . "/api.inc.php");
+    require_once($srcdir . "/forms.inc.php");
+    require_once($srcdir . "/patient.inc.php");
 
     $providerID = $_REQUEST['providerID'];
 
@@ -3497,6 +3499,13 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
                                             $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
+                                            // Pre-initialize the dynamic accumulator arrays the loop below
+                                            // populates via ${$row['notes']}[...] — PHPStan cannot infer the
+                                            // names assigned through a variable variable.
+                                            $EXT = [];
+                                            $ANTSEG = [];
+                                            $RETINA = [];
+                                            $NEURO = [];
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name

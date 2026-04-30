@@ -49,6 +49,7 @@ function make_task($ajax_req): void
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
     $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
 
+    $sent_date = '';
     if (!empty($task['COMPLETED_DATE'])) {
         $dated = new DateTime($task['COMPLETED_DATE']);
         $dated = $dated->format('Y/m/d');
@@ -244,8 +245,8 @@ function make_document($task)
 {
     global $providerNAME;
     global $encounter;
+    global $form_id;
     global $facilityService;
-    global $web_root, $webserver_root;
 
     /**
      * We want to store the current PDF version of this task.
@@ -308,6 +309,7 @@ function make_document($task)
 
     $encounter_data = sqlQuery($query, [$encounter,$task['PATIENT_ID']]);
     @extract($encounter_data);
+    $encounter_date ??= '';
     $providerID     = getProviderIdOfEncounter($encounter);
     $providerNAME   = getProviderName($providerID);
     $dated          = new DateTime($encounter_date);//encounter_date comes from the @extract above
@@ -378,7 +380,7 @@ function make_document($task)
                 padding:10px;
             }
         </style>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getProjectDir(); ?>/interface/themes/style_pdf.css" type="text/css">
     </head>
     <body>
     <?php

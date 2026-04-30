@@ -41,10 +41,15 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
 
-$pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = (int) ($_REQUEST['pid'] ?? $session->get('pid', 0));
 $info_msg = "";
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+// $ISSUE_TYPES and $ISSUE_CLASSIFICATIONS are populated by lists.inc.php
+// (required above) at file scope; declare defaults so PHPStan can verify the
+// reads below.
+$ISSUE_TYPES ??= [];
+$ISSUE_CLASSIFICATIONS ??= [];
 
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?
@@ -54,9 +59,6 @@ $encounter = 0 + (empty($_REQUEST['encounter']) ? $session->get('encounter') : $
 $issue = $_REQUEST['issue'] ?? '';
 $deletion = $_REQUEST['deletion'] ?? '';
 $form_save = $_REQUEST['form_save'] ?? '';
-if (!$pid) {
-    $pid = $session->get('pid');
-}
 
 $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
@@ -83,6 +85,7 @@ if (!($session->get('providerID') ?? '') && $providerID) {
 }
 
 $irow = [];
+$subtype = '';
 if ($issue) {
     $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", [
         $issue
@@ -92,6 +95,7 @@ if ($issue) {
     $irow['subtype'] = $subtype;
 }
 
+$type_index = 0;
 if (!empty($irow['type'])) {
     foreach ($ISSUE_TYPES as $key => $value) {
         if ($key == $irow['type']) {
@@ -101,6 +105,21 @@ if (!empty($irow['type'])) {
     }
 }
 
+// Pre-initialize the ROS columns the loop below populates via ${$item};
+// PHPStan cannot infer the names assigned through a variable variable.
+$ROSGENERAL = '';
+$ROSHEENT = '';
+$ROSCV = '';
+$ROSPULM = '';
+$ROSGI = '';
+$ROSGU = '';
+$ROSDERM = '';
+$ROSNEURO = '';
+$ROSPSYCH = '';
+$ROSMUSCULO = '';
+$ROSIMMUNO = '';
+$ROSENDOCRINE = '';
+$ROSCOMMENTS = '';
 $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
 $query = "SELECT $given from form_eye_ros where id=? and pid=?";
 $rres = sqlQuery($query, [
@@ -621,6 +640,7 @@ foreach (explode(',', $given) as $item) {
                 global $counter_header;
                 $count_header = '0';
                 $output = [];
+                $HELLO = [];
                 foreach ($PMSFH[0] as $key => $value) {
                     $checked = '';
                     if ($key == "POH") {
@@ -830,6 +850,7 @@ foreach (explode(',', $given) as $item) {
                     }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " . "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " . "ORDER BY seq");
+                    $result2 = [];
                     while ($group_fields = sqlFetchArray($group_fields_query)) {
                         $titlecols = $group_fields['titlecols'];
                         $datacols = $group_fields['datacols'];
@@ -871,8 +892,8 @@ foreach (explode(',', $given) as $item) {
 
                             $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
                             $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
-                            $result2[$field_id]['resnote'] = htmlspecialchars((string) $result2[$field_id]['resnote'], ENT_QUOTES);
-                            $result2[$field_id]['resdate'] = htmlspecialchars((string) $result2[$field_id]['resdate'], ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
                         } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
