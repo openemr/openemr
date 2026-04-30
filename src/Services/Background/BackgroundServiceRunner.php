@@ -286,7 +286,16 @@ class BackgroundServiceRunner
         try {
             $this->executeService($service);
             return ['name' => $name, 'status' => 'executed'];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // Without this log the orchestrator records status=error with
+            // no exception class, message, file, line, or trace anywhere.
+            // Diagnosing a service failure then requires attaching to a
+            // pod and running an instrumented one-shot script. See #11827
+            // for the silent regression that made this gap visible.
+            $this->logger->error('Background service execution failed.', [
+                'service' => $name,
+                'exception' => $e,
+            ]);
             return ['name' => $name, 'status' => 'error'];
         } finally {
             $this->safeReleaseLock($name);
