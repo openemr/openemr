@@ -194,21 +194,37 @@ class CalendarInjectionListener
     }
 
     function ensureReturnSwitcher() {
-        if (document.getElementById('medex-native-calendar-switcher')) {
+        if (document.getElementById('medex-native-calendar-layout')) {
             return;
         }
 
         var style = document.createElement('style');
         style.id = 'medex-native-calendar-return-style';
         style.textContent = ''
-            + '#medex-native-calendar-switcher{position:fixed;left:14px;top:96px;width:164px;z-index:10050;padding:12px;background:#ffffff;border:1px solid #d6e2eb;border-radius:4px;box-shadow:0 8px 22px rgba(15,23,42,.10);}'
+            + 'body.medex-native-calendar-layout-active{margin:0 !important;padding:0 !important;}'
+            + '#medex-native-calendar-layout{display:flex;align-items:stretch;min-height:100vh;width:100%;}'
+            + '#medex-native-calendar-switcher{width:180px;flex:0 0 180px;padding:14px 12px;background:#f8fafc;border-right:1px solid #d6e2eb;box-sizing:border-box;}'
+            + '#medex-native-calendar-body{flex:1 1 auto;min-width:0;padding:0;box-sizing:border-box;}'
             + '#medex-native-calendar-switcher-label{font-size:10px;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}'
-            + '#medex-native-calendar-switcher .view-selector{display:flex;flex-direction:column;gap:1px;border:1px solid #0f4b8f;border-radius:3px;overflow:hidden;background:#fff;}'
+            + '#medex-native-calendar-switcher .view-selector{display:flex;flex-direction:column;gap:1px;border:1px solid #0099CC;border-radius:3px;overflow:hidden;background:#fff;}'
             + '#medex-native-calendar-switcher .view-option{padding:8px;font-size:11px;border:none;text-align:left;transition:background .2s;}'
-            + '#medex-native-calendar-switcher .view-option.active{background:#0f4b8f;color:#fff;cursor:default;font-weight:600;border-bottom:1px solid #0f4b8f;}'
-            + '#medex-native-calendar-switcher .view-option:not(.active){background:#fff;color:#0f4b8f;cursor:pointer;border-top:1px solid #0f4b8f;}'
+            + '#medex-native-calendar-switcher .view-option.active{background:#0099CC;color:#fff;cursor:default;font-weight:500;border-bottom:1px solid #0099CC;}'
+            + '#medex-native-calendar-switcher .view-option:not(.active){background:#fff;color:#0099CC;cursor:pointer;border-top:1px solid #0099CC;}'
             + '#medex-native-calendar-switcher .view-option:not(.active):hover{background:#e8f4f8 !important;}';
         document.head.appendChild(style);
+
+        var body = document.body;
+        var scriptNode = document.getElementById('medex-native-calendar-return');
+        var nodesToMove = [];
+        Array.prototype.slice.call(body.childNodes).forEach(function (node) {
+            if (node === scriptNode || node === style) {
+                return;
+            }
+            nodesToMove.push(node);
+        });
+
+        var layout = document.createElement('div');
+        layout.id = 'medex-native-calendar-layout';
 
         var host = document.createElement('div');
         host.id = 'medex-native-calendar-switcher';
@@ -231,11 +247,26 @@ class CalendarInjectionListener
         nativeButton.className = 'view-option active';
         nativeButton.textContent = 'OpenEMR Calendar';
 
+        var content = document.createElement('div');
+        content.id = 'medex-native-calendar-body';
+
+        nodesToMove.forEach(function (node) {
+            content.appendChild(node);
+        });
+
         selector.appendChild(medexButton);
         selector.appendChild(nativeButton);
         host.appendChild(label);
         host.appendChild(selector);
-        document.body.appendChild(host);
+        layout.appendChild(host);
+        layout.appendChild(content);
+
+        body.classList.add('medex-native-calendar-layout-active');
+        if (scriptNode && scriptNode.parentNode === body) {
+            body.insertBefore(layout, scriptNode);
+        } else {
+            body.appendChild(layout);
+        }
     }
 
     if (document.readyState === 'loading') {
