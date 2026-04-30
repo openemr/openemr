@@ -53,6 +53,7 @@ require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid');
 
 $returnurl = 'encounter_top.php';
 
@@ -262,8 +263,6 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
 /**
  * Create, update or retrieve a form and its values
  */
-$pid = $_REQUEST['pid'] ?? $session->get('pid');
-
 $userauthorized = $session->get('userauthorized');
 if ($encounter == "") {
     $encounter = date("Ymd");
