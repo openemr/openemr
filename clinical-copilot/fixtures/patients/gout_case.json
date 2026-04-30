@@ -102,10 +102,22 @@
       "abnormal_flag": "H",
       "observed_at": "2026-03-10T08:30:00Z",
       "provenance": {"table": "procedure_result", "row_id": "lab01"}
+    },
+    {
+      "id": "Observation/lab02",
+      "loinc": "1988-5",
+      "label": "C-reactive protein",
+      "value": 42.0,
+      "unit": "mg/L",
+      "reference_low": 0.0,
+      "reference_high": 5.0,
+      "abnormal_flag": "H",
+      "observed_at": "2026-04-27T08:30:00Z",
+      "provenance": {"table": "procedure_result", "row_id": "lab02"}
     }
   ],
   "presenting": {
-    "symptoms": ["right toe pain", "swelling", "body aches"],
+    "symptoms": ["right toe pain", "swollen toe", "body aches"],
     "since": "3 days",
     "source": "patient portal pre-visit form"
   },

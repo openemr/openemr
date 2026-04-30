@@ -180,6 +180,21 @@ _SEED_PAIR_A: dict[tuple[str, str], tuple[Likelihood, str, str | None]] = {
         "Edema from atrial fibrillation is typically bilateral lower-extremity, not focal toe swelling",
         None,
     ),
+    ("swollen toe", "gout"): (
+        "high",
+        "Acute monoarticular swelling at the first MTP joint is the classic gout flare presentation",
+        "joint aspirate for monosodium urate crystals",
+    ),
+    ("toe pain", "c-reactive protein"): (
+        "moderate",
+        "Elevated CRP supports an active inflammatory process; with monoarticular toe pain this is consistent with crystal arthropathy (e.g. gout) or septic arthritis",
+        "joint aspirate (rules in/out infection vs crystals)",
+    ),
+    ("swollen toe", "c-reactive protein"): (
+        "moderate",
+        "Elevated CRP plus acute monoarticular swelling supports an inflammatory arthritis; gout is the leading explanation when chart already documents gout",
+        "joint aspirate for crystals + Gram stain",
+    ),
 }
 
 
