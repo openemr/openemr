@@ -2167,6 +2167,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function log_failed_mfa_attempt may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/main_screen.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function generate_html_middle may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',

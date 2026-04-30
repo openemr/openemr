@@ -138,15 +138,18 @@ function generate_html_end()
     return 0;
 }
 
-function log_failed_mfa_attempt(int $userid, string $reason): void
+function log_failed_mfa_attempt(int|string $userid, string $reason): void
 {
     $ip = collectIpAddresses();
-    $userRow = privQuery('SELECT username FROM users WHERE id = ?', [$userid]);
-    $username = (is_array($userRow) && isset($userRow['username'])) ? (string) $userRow['username'] : '';
+    $userService = new \OpenEMR\Services\UserService();
+    $userRow = $userService->getUser($userid);
+    $username = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : '';
     $authGroup = '';
     if ($username !== '') {
-        $userService = new \OpenEMR\Services\UserService();
-        $authGroup = $userService->getAuthGroupForUser($username) ?: '';
+        $resolvedGroup = $userService->getAuthGroupForUser($username);
+        if (is_string($resolvedGroup)) {
+            $authGroup = $resolvedGroup;
+        }
     }
     EventAuditLogger::getInstance()->newEvent(
         'login',
@@ -254,7 +257,9 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
-                    log_failed_mfa_attempt($userid, 'TOTP code incorrect');
+                    if (is_int($userid) || is_string($userid)) {
+                        log_failed_mfa_attempt($userid, 'TOTP code incorrect');
+                    }
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -287,7 +292,9 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
-                    log_failed_mfa_attempt($userid, 'U2F authentication error: ' . $e->getMessage());
+                    if (is_int($userid) || is_string($userid)) {
+                        log_failed_mfa_attempt($userid, 'U2F authentication error: ' . $e->getMessage());
+                    }
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }

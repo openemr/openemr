@@ -884,8 +884,8 @@ class AuthorizationController
                     $rawMfaType = (string) $request->request->get('mfa_type', '');
                     $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
                     $userService = new UserService();
-                    $userRow = $userService->getUser($this->userId);
-                    $username = ($userRow !== false && isset($userRow['username'])) ? (string) $userRow['username'] : '';
+                    $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                    $username = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : '';
                     $authGroup = '';
                     if ($username !== '') {
                         $resolvedGroup = $userService->getAuthGroupForUser($username);
