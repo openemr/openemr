@@ -79,7 +79,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY = "community";
 
-    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
+    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Community";
 
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
