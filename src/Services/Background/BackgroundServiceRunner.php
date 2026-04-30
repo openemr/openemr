@@ -290,8 +290,9 @@ class BackgroundServiceRunner
             // Without this log the orchestrator records status=error with
             // no exception class, message, file, line, or trace anywhere.
             // Diagnosing a service failure then requires attaching to a
-            // pod and running an instrumented one-shot script. See #11827
-            // for the silent regression that made this gap visible.
+            // pod and running an instrumented one-shot script. The cron
+            // regression in #11827 shipped undetected because this catch
+            // swallowed the exception.
             $this->logger->error('Background service execution failed.', [
                 'service' => $name,
                 'exception' => $e,

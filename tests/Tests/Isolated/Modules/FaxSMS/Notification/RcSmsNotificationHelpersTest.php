@@ -11,9 +11,9 @@
  * helpers file did not pull `appointments.inc.php` itself, the CLI
  * path threw `Call to undefined function fetchEvents()` from
  * `faxsms_getAlertPatientData()` — and the orchestrator's silent
- * catch (see `BackgroundServiceRunner::runOne` before #11827 follow-up)
- * recorded `status=error` with no log line, so the regression shipped
- * undetected. See issue #11827.
+ * catch in `BackgroundServiceRunner::runOne` (fixed in the sibling
+ * commit) recorded `status=error` with no log line, so the regression
+ * shipped undetected. See issue #11827.
  *
  * @package   OpenEMR
  *
