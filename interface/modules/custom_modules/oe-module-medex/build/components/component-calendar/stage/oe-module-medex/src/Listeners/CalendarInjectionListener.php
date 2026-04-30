@@ -56,6 +56,10 @@ class CalendarInjectionListener
             return false;
         }
 
+        if (!empty($_GET['medex_wrapper'])) {
+            return false;
+        }
+
         if (strpos($requestUri, '/interface/modules/custom_modules/oe-module-medex/public/calendar/') !== false) {
             return false;
         }
@@ -119,6 +123,30 @@ class CalendarInjectionListener
 
         return $webroot
             . '/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php?'
+            . http_build_query($params);
+    }
+
+    private function buildOpenEMRWrapperRedirectUrl(): string
+    {
+        $webroot = (string)($GLOBALS['webroot'] ?? '');
+        $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+
+        $params = [
+            'site' => $siteId,
+            'module' => 'PostCalendar',
+            'func' => trim((string)($_GET['func'] ?? '')) ?: 'view',
+            'viewtype' => trim((string)($_GET['viewtype'] ?? '')) ?: 'week',
+        ];
+
+        foreach (['Date', 'jumpdate', 'pc_username', 'pc_facility'] as $key) {
+            $value = trim((string)($_GET[$key] ?? ''));
+            if ($value !== '') {
+                $params[$key] = $value;
+            }
+        }
+
+        return $webroot
+            . '/interface/modules/custom_modules/oe-module-medex/public/calendar/openemr_calendar_wrapper.php?'
             . http_build_query($params);
     }
 
@@ -391,19 +419,9 @@ HTML;
             || $isDisabled;
 
         if ($stayOnNativeCalendar) {
-            error_log('[MedEx Calendar] Native calendar requested - injecting MedEx return control');
-            $medexUrl = $this->buildMedExCalendarRedirectUrl();
-            $webroot = (string)($GLOBALS['webroot'] ?? '');
-            $siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
-            $preferenceUrl = $webroot
-                . '/interface/modules/custom_modules/oe-module-medex/public/calendar/set_calendar_preference.php?'
-                . http_build_query([
-                    'site' => $siteId,
-                    'preference' => 'medex',
-                    'redirect' => $medexUrl,
-                ]);
-            $this->registerNativeCalendarReturnControl($preferenceUrl);
-            return;
+            error_log('[MedEx Calendar] Native calendar requested - routing through wrapper');
+            header('Location: ' . $this->buildOpenEMRWrapperRedirectUrl());
+            exit;
         }
 
         error_log('[MedEx Calendar] Calendar subscription detected - injecting redirect');

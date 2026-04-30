@@ -239,16 +239,8 @@ $prefDefaultFacilities = array_values(array_intersect($prefDefaultFacilities, $v
 $usePrefProviders = !empty($prefDefaultProviders);
 $usePrefFacilities = !empty($prefDefaultFacilities);
 
-// Guard native PostCalendar hand-off when runtime lacks required session API.
-$openEmrCalendarCompatible = false;
-if (class_exists(SessionWrapperFactory::class) && method_exists(SessionWrapperFactory::class, 'getInstance')) {
-    try {
-        $sessionWrapper = SessionWrapperFactory::getInstance();
-        $openEmrCalendarCompatible = is_object($sessionWrapper) && method_exists($sessionWrapper, 'getActiveSession');
-    } catch (\Throwable $ignored) {
-        $openEmrCalendarCompatible = false;
-    }
-}
+// Allow explicit hand-off back to native OpenEMR calendar.
+$openEmrCalendarCompatible = true;
 ?>
 <!DOCTYPE html>
 <html>
@@ -1365,7 +1357,7 @@ if (class_exists(SessionWrapperFactory::class) && method_exists(SessionWrapperFa
             const selectedFacilities = Array.from(document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')).map(cb => cb.value);
 
             // Build URL with all parameters
-            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=' + viewtype + '&medex_prefer=openemr';
+            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/openemr_calendar_wrapper.php?module=PostCalendar&func=view&viewtype=' + viewtype;
 
             // Add date (OpenEMR uses jumpdate parameter in YYYY-MM-DD format)
             if (savedDate) {
@@ -1384,6 +1376,10 @@ if (class_exists(SessionWrapperFactory::class) && method_exists(SessionWrapperFa
                 url += '&pc_facility=' + encodeURIComponent(selectedFacilities[0]);
             }
 
+            const preferenceUrl =
+                '<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/set_calendar_preference.php' +
+                '?site=<?php echo urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')); ?>&preference=openemr&redirect=' + encodeURIComponent(url);
+
             console.log('[MedEx] Switching to OpenEMR calendar with params:', {viewtype, date: savedDate, providers: selectedProviders, facilities: selectedFacilities});
             console.log('[MedEx] URL:', url);
 
@@ -1393,10 +1389,10 @@ if (class_exists(SessionWrapperFactory::class) && method_exists(SessionWrapperFa
                 top.restoreSession();
                 // Give session restoration time to complete
                 setTimeout(function() {
-                    window.location.href = url;
+                    window.location.href = preferenceUrl;
                 }, 100);
             } else {
-                window.location.href = url;
+                window.location.href = preferenceUrl;
             }
         }
 

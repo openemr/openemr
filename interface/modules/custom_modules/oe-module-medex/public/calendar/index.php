@@ -1357,7 +1357,7 @@ $openEmrCalendarCompatible = true;
             const selectedFacilities = Array.from(document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')).map(cb => cb.value);
 
             // Build URL with all parameters
-            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=' + viewtype + '&medex_prefer=openemr';
+            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/openemr_calendar_wrapper.php?module=PostCalendar&func=view&viewtype=' + viewtype;
 
             // Add date (OpenEMR uses jumpdate parameter in YYYY-MM-DD format)
             if (savedDate) {
@@ -1376,6 +1376,10 @@ $openEmrCalendarCompatible = true;
                 url += '&pc_facility=' + encodeURIComponent(selectedFacilities[0]);
             }
 
+            const preferenceUrl =
+                '<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/set_calendar_preference.php' +
+                '?site=<?php echo urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')); ?>&preference=openemr&redirect=' + encodeURIComponent(url);
+
             console.log('[MedEx] Switching to OpenEMR calendar with params:', {viewtype, date: savedDate, providers: selectedProviders, facilities: selectedFacilities});
             console.log('[MedEx] URL:', url);
 
@@ -1385,10 +1389,10 @@ $openEmrCalendarCompatible = true;
                 top.restoreSession();
                 // Give session restoration time to complete
                 setTimeout(function() {
-                    window.location.href = url;
+                    window.location.href = preferenceUrl;
                 }, 100);
             } else {
-                window.location.href = url;
+                window.location.href = preferenceUrl;
             }
         }
 
