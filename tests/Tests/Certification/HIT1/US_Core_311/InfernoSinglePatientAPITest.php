@@ -182,7 +182,7 @@ class InfernoSinglePatientAPITest extends TestCase
 
     public function testBodyHeight(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_height', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bodyheight', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Height Observation Resource test failed");
     }
 
@@ -200,7 +200,7 @@ class InfernoSinglePatientAPITest extends TestCase
 
     public function testBodyWeight(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_weight', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bodyweight', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Weight Observation Resource test failed");
     }
 
