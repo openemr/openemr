@@ -260,7 +260,7 @@ class InfernoSinglePatientAPITest extends TestCase
     }
 
 
-    protected function getTestSuitePrefix()
+    protected function getTestSuitePrefix(): string
     {
         if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
             return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
