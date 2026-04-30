@@ -79,8 +79,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY = "community";
 
-    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Community";
+    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
 
+    /**
+     * Official display values for medication request category codes.
+     * @see http://terminology.hl7.org/CodeSystem/medicationrequest-category
+     */
+    private const CATEGORY_DISPLAY = [
+        'community' => 'Community',
+        'inpatient' => 'Inpatient',
+        'outpatient' => 'Outpatient',
+        'discharge' => 'Discharge',
+    ];
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
     /**
