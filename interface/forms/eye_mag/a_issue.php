@@ -105,30 +105,24 @@ if (!empty($irow['type'])) {
     }
 }
 
-// Pre-initialize the ROS columns the loop below populates via ${$item};
-// PHPStan cannot infer the names assigned through a variable variable.
-$ROSGENERAL = '';
-$ROSHEENT = '';
-$ROSCV = '';
-$ROSPULM = '';
-$ROSGI = '';
-$ROSGU = '';
-$ROSDERM = '';
-$ROSNEURO = '';
-$ROSPSYCH = '';
-$ROSMUSCULO = '';
-$ROSIMMUNO = '';
-$ROSENDOCRINE = '';
-$ROSCOMMENTS = '';
-$given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
-$query = "SELECT $given from form_eye_ros where id=? and pid=?";
-$rres = sqlQuery($query, [
-    $form_id,
-    $pid
-]);
-foreach (explode(',', $given) as $item) {
-    ${$item} = $rres[$item];
-}
+$rres = sqlQuery(
+    "SELECT ROSGENERAL, ROSHEENT, ROSCV, ROSPULM, ROSGI, ROSGU, ROSDERM, ROSNEURO, ROSPSYCH, ROSMUSCULO, ROSIMMUNO, ROSENDOCRINE, ROSCOMMENTS"
+    . " FROM form_eye_ros WHERE id = ? AND pid = ?",
+    [$form_id, $pid]
+);
+$ROSGENERAL    = $rres['ROSGENERAL']    ?? '';
+$ROSHEENT      = $rres['ROSHEENT']      ?? '';
+$ROSCV         = $rres['ROSCV']         ?? '';
+$ROSPULM       = $rres['ROSPULM']       ?? '';
+$ROSGI         = $rres['ROSGI']         ?? '';
+$ROSGU         = $rres['ROSGU']         ?? '';
+$ROSDERM       = $rres['ROSDERM']       ?? '';
+$ROSNEURO      = $rres['ROSNEURO']      ?? '';
+$ROSPSYCH      = $rres['ROSPSYCH']      ?? '';
+$ROSMUSCULO    = $rres['ROSMUSCULO']    ?? '';
+$ROSIMMUNO     = $rres['ROSIMMUNO']     ?? '';
+$ROSENDOCRINE  = $rres['ROSENDOCRINE']  ?? '';
+$ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
 ?>
 <html>
 <head>

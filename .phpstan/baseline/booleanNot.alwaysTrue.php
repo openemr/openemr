@@ -13,7 +13,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always true\\.$#',
-    'count' => 13,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
