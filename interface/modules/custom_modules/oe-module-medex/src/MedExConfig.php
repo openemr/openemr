@@ -131,6 +131,9 @@ class MedExConfig
         if (!empty($GLOBALS['medex_callback_base_url'])) {
             return rtrim((string)$GLOBALS['medex_callback_base_url'], '/');
         }
+        if (!empty($GLOBALS['medex_preview_tunnel_public_base_url'])) {
+            return rtrim((string)$GLOBALS['medex_preview_tunnel_public_base_url'], '/');
+        }
 
         $fallback = $publicBaseUrl
             ?? ($GLOBALS['site_addr_oath'] ?? null)
