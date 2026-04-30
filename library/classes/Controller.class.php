@@ -280,17 +280,8 @@ class Controller extends Smarty implements ControllerInterface
 
     private static function escapeForTextNode(mixed $value): string
     {
-        if ($value === null) {
-            return '';
-        }
-        if (is_string($value)) {
-            return htmlspecialchars($value, ENT_NOQUOTES);
-        }
-        if (is_int($value) || is_float($value) || is_bool($value)) {
-            return htmlspecialchars((string) $value, ENT_NOQUOTES);
-        }
-        if (is_object($value) && method_exists($value, '__toString')) {
-            return htmlspecialchars((string) $value, ENT_NOQUOTES);
+        if (is_string($value) || is_int($value) || is_float($value) || is_bool($value) || $value instanceof \Stringable) {
+            return \text((string) $value);
         }
         return '';
     }
