@@ -171,7 +171,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 id="PRIOR_' . attr($zone) . '"
                 style="padding:0 0;font-size:1.2em;"
                 class="PRIORS">
-                ' . ($output ?? '') . '
+                ' . $output . '
         </select>
                   &nbsp;
         <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later]['id']) . '").trigger("change");\'
@@ -5071,10 +5071,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
     //can't merge empty arrays
     $list = [];
-    $arrs[] = $OCT_date ?? '';
-    $arrs[] = $VF_date ?? '';
-    $arrs[] = $GONIO_date ?? '';
-    $arrs[] = $VISITS_date ?? '';
+    $arrs[] = $OCT_date;
+    $arrs[] = $VF_date;
+    $arrs[] = $GONIO_date;
+    $arrs[] = $VISITS_date;
 
     foreach ($arrs as $arr) {
         if (is_array($arr)) {
@@ -5227,17 +5227,17 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         <?php  ($no_drugs ?? null) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
                     <?php
-                    if ($FAILED_drugs ?? null) {
+                    if ($FAILED_drugs !== '') {
                         echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     } ?>
                 </tr>
                 <?php
                 echo $current_drugs ?? '';
-                if ($FAILED_drugs ?? null) {
+                if ($FAILED_drugs !== '') {
                     echo '<tr class="' . $hideme . '"><td class="GFS_title" colspan="1">' . xlt('Prior Eye Meds') . '</td><td class="GFS_title" style="text-align:center;">' . xlt('Start') . '</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
                 }
 
-                echo $FAILED_drugs ?? '';
+                echo $FAILED_drugs;
 
                 //start VF section
                 if ($count_VF > '0') { //need to decide how many to show on open, and hide the rest?  For now the first only.
@@ -5266,12 +5266,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                 <tr class="GFS_tr">
                     <td colspan="3" class="GFS_title"><?php echo xlt('Visual Fields'); ?>:
                     <?php
-                    if ($old_VFs ?? null) {
+                    if ($old_VFs !== '') {
                         echo '<td><span class="top right" id="toggle_VFs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     }
                     ?>
                 </tr>
-                <?php echo $current_VF . ($old_VFs ?? '');
+                <?php echo $current_VF . $old_VFs;
                 //end VF section
 
                 //start Optic Nerve section
@@ -5306,12 +5306,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                             $current_OCT = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                         }
 
-                        if ($old_OCTs ?? null) {
+                        if ($old_OCTs !== '') {
                             echo '<td><span class="top right " id="toggle_OCTs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                         }
 
                         echo "</tr>";
-                        echo $current_OCT . ($old_OCTs ?? '');
+                        echo $current_OCT . $old_OCTs;
 
                         $count = 0;
                         $hideme = '';

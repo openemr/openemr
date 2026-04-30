@@ -1001,7 +1001,7 @@ if ($REFTYPE == "CTL") {
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
-                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal ?? ''); ?> />
+                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
@@ -1009,7 +1009,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
-                                                   name="RXTYPE" <?php echo attr($Trifocal ?? ''); ?>>
+                                                   name="RXTYPE" <?php echo attr($Trifocal); ?>>
                                         </span>
                                         <br/>
                                         <span id="Progressive_span">
@@ -1019,7 +1019,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Progressive" id="RXTYPE_Progressive"
-                                                   name="RXTYPE" <?php echo attr($Progressive ?? ''); ?>>
+                                                   name="RXTYPE" <?php echo attr($Progressive); ?>>
                                         </span>
                                         <br/>
                                     </td>
