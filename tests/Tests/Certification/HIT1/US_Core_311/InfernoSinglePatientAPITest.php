@@ -251,6 +251,8 @@ class InfernoSinglePatientAPITest extends TestCase
         // data_absent_reason is not a standalone runnable in US Core 3.1.1 suite
         // It's tested as part of the G10 certification suite (test 4.32)
         $this->markTestSkipped('data_absent_reason test group is only available in G10 certification suite');
+        // $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'data_absent_reason', 'smart_auth_info');
+        // $this->assertResultsPassed($response['results'], "Us Core Data Absent Reason test failed");
     }
 
     // we do provenance last as it is the most complex test and can take a while to run
