@@ -174,7 +174,7 @@ class CalendarInjectionListener
         $script = <<<HTML
 <script id="medex-native-calendar-return">
 (function () {
-    var redirectUrl = %s;
+    var redirectUrl = "__MEDEX_REDIRECT_URL__";
 
     function goToMedExCalendar(event) {
         if (event) {
@@ -275,7 +275,11 @@ class CalendarInjectionListener
 </script>
 HTML;
 
-        $markup = sprintf($script, json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP));
+        $markup = str_replace(
+            '"__MEDEX_REDIRECT_URL__"',
+            json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
+            $script
+        );
 
         $count = 0;
         $updated = preg_replace('/<\/body>/i', $markup . "\n</body>", $html, 1, $count);
