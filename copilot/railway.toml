@@ -1,0 +1,12 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Use sh -c so $PORT (injected by Railway) is expanded; otherwise the literal
+# string is passed to uvicorn which rejects it as a non-integer port.
+startCommand = "sh -c 'uvicorn app.main:app --host 0.0.0.0 --port ${PORT}'"
+healthcheckPath = "/healthz"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
