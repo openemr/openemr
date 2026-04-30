@@ -742,7 +742,7 @@ switch ($action) {
         });
 
         $facilities = [];
-        $facilityStmt = sqlStatement("SELECT id, name FROM facility ORDER BY id ASC");
+        $facilityStmt = sqlStatement("SELECT id, name, city FROM facility ORDER BY id ASC");
         while ($frow = sqlFetchArray($facilityStmt)) {
             $fid = (string)($frow['id'] ?? '');
             if ($fid === '') {
@@ -750,7 +750,8 @@ switch ($action) {
             }
             $facilities[] = [
                 'id' => $fid,
-                'name' => (string)($frow['name'] ?? ('Facility ' . $fid))
+                'name' => (string)($frow['name'] ?? ('Facility ' . $fid)),
+                'city' => trim((string)($frow['city'] ?? ''))
             ];
         }
 
