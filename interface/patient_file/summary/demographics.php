@@ -27,6 +27,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since this script writes disablePreviousNameAdds to the session
+// on every load, alert_notify_pid whenever CDR is enabled, and pid + encounter when ?set_pid is provided.
+$sessionAllowWrite = true;
 require_once("../../globals.php");
 
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
