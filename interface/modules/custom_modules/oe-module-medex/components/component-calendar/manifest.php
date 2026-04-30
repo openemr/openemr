@@ -8,6 +8,7 @@ return [
     'title' => 'Calendar Services',
     'description' => 'Calendar views, calendar feeds, and scheduling extensions for subscribed practices.',
     'bootstrap' => ['bootstrap.php'],
+    'bootstrap_always' => true,
     'user_settings' => [
         [
             'key' => 'medex_use_full_calendar',
