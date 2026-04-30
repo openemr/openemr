@@ -50,7 +50,7 @@ use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
 // is undefined and the task throws "Call to undefined function fetchEvents()".
 // Co-locate the require with the function that needs it so any future
 // caller of this helpers file gets the dependency for free.
-require_once OEGlobalsBag::getInstance()->getString('srcdir') . '/appointments.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php';
 
 if (!function_exists('rc_sms_notification_cron_update_entry')) {
     /**
