@@ -193,37 +193,55 @@ class CalendarInjectionListener
         return false;
     }
 
-    function ensureReturnButton() {
-        if (document.getElementById('medex-native-calendar-return-link')) {
+    function ensureReturnSwitcher() {
+        if (document.getElementById('medex-native-calendar-switcher')) {
             return;
         }
 
+        var style = document.createElement('style');
+        style.id = 'medex-native-calendar-return-style';
+        style.textContent = ''
+            + '#medex-native-calendar-switcher{position:fixed;left:14px;top:96px;width:164px;z-index:10050;padding:12px;background:#ffffff;border:1px solid #d6e2eb;border-radius:4px;box-shadow:0 8px 22px rgba(15,23,42,.10);}'
+            + '#medex-native-calendar-switcher-label{font-size:10px;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}'
+            + '#medex-native-calendar-switcher .view-selector{display:flex;flex-direction:column;gap:1px;border:1px solid #0f4b8f;border-radius:3px;overflow:hidden;background:#fff;}'
+            + '#medex-native-calendar-switcher .view-option{padding:8px;font-size:11px;border:none;text-align:left;transition:background .2s;}'
+            + '#medex-native-calendar-switcher .view-option.active{background:#0f4b8f;color:#fff;cursor:default;font-weight:600;border-bottom:1px solid #0f4b8f;}'
+            + '#medex-native-calendar-switcher .view-option:not(.active){background:#fff;color:#0f4b8f;cursor:pointer;border-top:1px solid #0f4b8f;}'
+            + '#medex-native-calendar-switcher .view-option:not(.active):hover{background:#e8f4f8 !important;}';
+        document.head.appendChild(style);
+
         var host = document.createElement('div');
-        host.id = 'medex-native-calendar-return-host';
-        host.style.position = 'fixed';
-        host.style.top = '12px';
-        host.style.right = '16px';
-        host.style.zIndex = '10050';
+        host.id = 'medex-native-calendar-switcher';
 
-        var link = document.createElement('a');
-        link.id = 'medex-native-calendar-return-link';
-        link.href = redirectUrl;
-        link.className = 'btn btn-primary btn-sm';
-        link.style.boxShadow = '0 8px 20px rgba(14, 41, 84, 0.18)';
-        link.style.borderRadius = '999px';
-        link.style.padding = '8px 14px';
-        link.style.fontWeight = '600';
-        link.textContent = 'MedEx Full Calendar';
-        link.addEventListener('click', goToMedExCalendar);
+        var label = document.createElement('div');
+        label.id = 'medex-native-calendar-switcher-label';
+        label.textContent = 'Calendar View';
 
-        host.appendChild(link);
+        var selector = document.createElement('div');
+        selector.className = 'view-selector';
+
+        var medexButton = document.createElement('button');
+        medexButton.type = 'button';
+        medexButton.className = 'view-option';
+        medexButton.textContent = 'Full Calendar';
+        medexButton.addEventListener('click', goToMedExCalendar);
+
+        var nativeButton = document.createElement('button');
+        nativeButton.type = 'button';
+        nativeButton.className = 'view-option active';
+        nativeButton.textContent = 'OpenEMR Calendar';
+
+        selector.appendChild(medexButton);
+        selector.appendChild(nativeButton);
+        host.appendChild(label);
+        host.appendChild(selector);
         document.body.appendChild(host);
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ensureReturnButton);
+        document.addEventListener('DOMContentLoaded', ensureReturnSwitcher);
     } else {
-        ensureReturnButton();
+        ensureReturnSwitcher();
     }
 })();
 </script>
