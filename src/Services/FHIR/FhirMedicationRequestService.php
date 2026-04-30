@@ -493,12 +493,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             ));
         } else {
             // if no category has been sent then the default is home usage
+            $code = self::MEDICATION_REQUEST_CATEGORY_COMMUNITY;
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => [
-                        'code' => self::MEDICATION_REQUEST_CATEGORY_COMMUNITY,
-                        'description' => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),
-                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    $code => [
+                        'code' => $code,
+                        'description' => self::CATEGORY_DISPLAY[$code],
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
                     ]
                 ],
             ));
