@@ -54,7 +54,11 @@ class RcSmsNotificationHelpersTest extends TestCase
     {
         $tempDir = sys_get_temp_dir() . '/oce_helpers_dep_' . uniqid('', true);
         if (!mkdir($tempDir, 0700, true) && !is_dir($tempDir)) {
+            // @codeCoverageIgnoreStart
+            // Defensive — only fires if the OS refuses to create a fresh
+            // tempdir, which is not a path real CI exercises.
             $this->fail("could not create temp dir {$tempDir}");
+            // @codeCoverageIgnoreEnd
         }
 
         try {
