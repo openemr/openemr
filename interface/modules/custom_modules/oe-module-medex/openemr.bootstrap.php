@@ -336,28 +336,16 @@ function medexRenderMainTabsAutoloadScript(): void
             return ['medex', 'main-tabs', config.siteId, token].join(':');
         }
 
-        function frameNeedsLoad(frameName) {
-            try {
-                var frame = window.frames[frameName];
-                if (!frame || !frame.location) {
-                    return true;
-                }
-                var href = String(frame.location.href || '');
-                if (!href || href === 'about:blank') {
-                    return true;
-                }
-                return false;
-            } catch (e) {
-                return false;
-            }
-        }
-
         function openTab(frameName, url) {
             if (!url || typeof navigateTab !== 'function') {
                 return false;
             }
             restoreSession();
-            navigateTab(url, frameName);
+            navigateTab(url, frameName, function () {
+                if (typeof activateTabByName === 'function') {
+                    activateTabByName(frameName, true);
+                }
+            });
             return true;
         }
 
@@ -370,10 +358,10 @@ function medexRenderMainTabsAutoloadScript(): void
             } catch (e) {}
 
             var openedAny = false;
-            if (config.calendarUrl && frameNeedsLoad('cal')) {
+            if (config.calendarUrl) {
                 openedAny = openTab('cal', config.calendarUrl) || openedAny;
             }
-            if (config.messagesUrl && frameNeedsLoad('msg')) {
+            if (config.messagesUrl) {
                 openedAny = openTab('msg', config.messagesUrl) || openedAny;
             }
 
