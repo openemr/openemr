@@ -86,7 +86,7 @@ class SphereRevert
             }
         } catch (CryptoGenException $e) {
             $this->logger->error("SphereRevert failed to decrypt credentials", ['exception' => $e]);
-            exit;
+            throw $e;
         }
 
         $this->client = new Client(['base_uri' => Sphere::TRUSTEE_API_URL]);
