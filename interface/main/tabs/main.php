@@ -411,7 +411,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 
     <script>
         <?php
-        if ($session->get('default_open_tabs')) :
+        if ($session->get('default_open_tabs')) {
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
             $default_open_tabs = $session->get('default_open_tabs');
@@ -420,34 +420,45 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             // segments collapsed to the actual filesystem location, matching
             // what `realpath()` returns for the candidate. If the project
             // root itself doesn't resolve (should never happen in normal
-            // operation) every tab will fall through to the reject branch.
+            // operation) every tab is rejected up front.
             $fileroot = realpath(OEGlobalsBag::getInstance()->getKernel()->getProjectDir());
-            foreach ($default_open_tabs as $i => $tab) :
-                $notes = is_array($tab) ? ($tab['notes'] ?? null) : null;
-                // Resolve the candidate via realpath so symlinks pointing
-                // outside the project resolve to their real location, and so
-                // `..` segments in `notes` resolve before the prefix check.
-                // Append DIRECTORY_SEPARATOR to both sides so a sibling dir
-                // whose name shares a prefix with the project root (e.g.
-                // `<parent>/openemr_old/...` next to `<parent>/openemr/`)
-                // cannot slip through.
-                $relative = is_string($notes) ? (preg_replace('/\?.*$/', '', $notes) ?? '') : null;
-                $resolved = ($fileroot !== false && is_string($relative))
-                    ? realpath($fileroot . DIRECTORY_SEPARATOR . $relative)
-                    : false;
-                if ($fileroot === false || $resolved === false || !str_starts_with($resolved . DIRECTORY_SEPARATOR, $fileroot . DIRECTORY_SEPARATOR)) {
-                    unset($default_open_tabs[$i]);
-                    $session->set('default_open_tabs', $default_open_tabs);
-                    continue;
+            if ($fileroot === false) {
+                // Project root must resolve; without it no candidate can
+                // pass the prefix check, so reject everything up front
+                // and skip the loop.
+                $session->set('default_open_tabs', []);
+            } else {
+                $tabs_changed = false;
+                foreach ($default_open_tabs as $i => $tab) {
+                    $notes = is_array($tab) ? ($tab['notes'] ?? null) : null;
+                    // Resolve the candidate via realpath so symlinks pointing
+                    // outside the project resolve to their real location, and so
+                    // `..` segments in `notes` resolve before the prefix check.
+                    // Append DIRECTORY_SEPARATOR to both sides so a sibling dir
+                    // whose name shares a prefix with the project root (e.g.
+                    // `<parent>/openemr_old/...` next to `<parent>/openemr/`)
+                    // cannot slip through.
+                    $relative = is_string($notes) ? (preg_replace('/\?.*$/', '', $notes) ?? '') : null;
+                    $resolved = is_string($relative)
+                        ? realpath($fileroot . DIRECTORY_SEPARATOR . $relative)
+                        : false;
+                    if ($resolved === false || !str_starts_with($resolved . DIRECTORY_SEPARATOR, $fileroot . DIRECTORY_SEPARATOR)) {
+                        unset($default_open_tabs[$i]);
+                        $tabs_changed = true;
+                        continue;
+                    }
+                    $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
+                    $target = json_encode($tab['option_id']);
+                    $label = json_encode(xl("Loading") . " " . $tab['title']);
+                    $loading = xlj("Loading");
+                    echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+                    $visible = "false";
                 }
-                $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
-                $target = json_encode($tab['option_id']);
-                $label = json_encode(xl("Loading") . " " . $tab['title']);
-                $loading = xlj("Loading");
-                echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
-                $visible = "false";
-            endforeach;
-        endif;
+                if ($tabs_changed) {
+                    $session->set('default_open_tabs', $default_open_tabs);
+                }
+            }
+        }
         ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($session->get("authUser"))
