@@ -16,8 +16,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Set $sessionAllowWrite to true since pc_facility, pc_username, and viewtype are written to the session below.
-$sessionAllowWrite = true;
 require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;

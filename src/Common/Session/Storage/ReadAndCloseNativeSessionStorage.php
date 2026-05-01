@@ -133,7 +133,7 @@ class ReadAndCloseNativeSessionStorage extends NativeSessionStorage
             return;
         }
 
-        ServiceContainer::getLogger()->warning(
+        ServiceContainer::getLogger()->debug(
             'Session reopened for writing after read_and_close',
             ['session_name' => session_name(), 'script' => $_SERVER['SCRIPT_NAME'] ?? 'unknown']
         );
