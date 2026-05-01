@@ -14,6 +14,7 @@
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Http\oeHttpRequest;
@@ -74,7 +75,11 @@ function downloadAndStoreFaxMedia(
         }
 
         $crypto = ServiceContainer::getCrypto();
-        $decrypted = $crypto->decryptStandard(is_string($credentials['credentials']) ? $credentials['credentials'] : null);
+        try {
+            $decrypted = $crypto->decryptFromDatabase(is_string($credentials['credentials']) ? $credentials['credentials'] : null);
+        } catch (CryptoGenException) {
+            return;
+        }
         $creds = json_decode($decrypted, true);
 
         $projectId = $creds['project_id'] ?? '';
