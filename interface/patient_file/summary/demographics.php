@@ -1084,6 +1084,43 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
         ?>
         <div class="main mb-1">
+            <!-- ─── Clinical Co-Pilot launch button ─────────────────────────
+                Renders a single button at the top of the patient summary
+                that opens the sidecar in a popup/tab pre-selected to this
+                patient. The URL host comes from a global so deployments
+                can point at their own sidecar origin.
+
+                In production this should be replaced with a Smart-on-FHIR
+                EHR launch (BFF mints a 5-min task token bound to the
+                current Patient compartment per ARCHITECTURE.md §3.2). The
+                demo URL ships the patient ID in the fragment, which keeps
+                it out of HTTP request logs but does persist in browser
+                history — acceptable for dev only.
+            ─────────────────────────────────────────────────────────────── -->
+            <?php
+                $copilotBase = OEGlobalsBag::getInstance()->getString('clinical_copilot_url')
+                    ?: 'http://127.0.0.1:8801';
+                // The sidecar's demo fixtures use FHIR-style Patient/{uuid}.
+                // Prefer the patient's UUID; fall back to the legacy pid for
+                // installs that haven't backfilled UUIDs.
+                $copilotPatientRef = !empty($newPatient['uuid'])
+                    ? 'Patient/' . urlencode((string) \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($newPatient['uuid']))
+                    : 'Patient/' . urlencode((string) $pid);
+                $copilotUrl = $copilotBase . '/#patient=' . $copilotPatientRef;
+            ?>
+            <div class="d-flex align-items-center mb-2 px-1" style="gap: 10px;">
+                <a href="<?php echo attr($copilotUrl); ?>"
+                   target="copilot_<?php echo attr($pid); ?>"
+                   class="btn btn-primary btn-sm"
+                   onclick="top.restoreSession();"
+                   title="<?php echo xla('Open the AI diagnostic cross-check and chart-error scan for this patient'); ?>">
+                    <i class="fa fa-stethoscope mr-1" aria-hidden="true"></i>
+                    <?php echo xlt('Clinical Co-Pilot (AI)'); ?>
+                </a>
+                <small class="text-muted">
+                    <?php echo xlt('Diagnostic considerations + chart-error review. Read-only. Citations required.'); ?>
+                </small>
+            </div>
             <!-- start main content div -->
             <div class="row">
                 <?php

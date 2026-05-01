@@ -1,0 +1,14 @@
+# pip constraints for Python 3.9 (Apple Xcode CLT default).
+# Recent uvicorn / fastapi / pydantic releases use PEP 604 unions and
+# `dataclass(slots=True)` at module top level, both of which require 3.10+.
+# These pins keep the sidecar runnable on 3.9 without forcing the user to
+# install a newer interpreter.
+pip<24.1
+uvicorn<0.31
+fastapi<0.116
+pydantic<2.10
+pydantic-settings<2.7
+starlette<0.42
+httpx<0.28
+anyio<4.6
+typing-extensions<4.13

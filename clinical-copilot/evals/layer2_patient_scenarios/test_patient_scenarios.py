@@ -56,15 +56,13 @@ async def test_osteoporosis_then_osteopenia_flagged(fixture_dir: Path) -> None:
     response = await run_graph(snapshot, _config("chart_error_scan"))
     flags = response.chart_error_flags
     assert flags, "Engine should surface at least one chart-error flag"
-    # The osteoporosis × osteopenia pair must appear with temporal kind.
     matches = [
         f for f in flags
         if "osteoporosis" in f["label_a"].lower() and "osteopenia" in f["label_b"].lower()
     ]
     assert matches, f"Osteoporosis × osteopenia pair should be flagged; got {flags!r}"
-    assert matches[0]["inconsistency"] == "temporal"
-    assert matches[0]["confidence"] >= 0.7
-    # Source attribution must point at the row ids in the fixture.
+    assert matches[0]["inconsistency_kind"] == "temporal"
+    assert 70 <= matches[0]["inconsistency_pct"] <= 100
     assert matches[0]["provenance_a"]["row_id"] == "4001"
     assert matches[0]["provenance_b"]["row_id"] == "4002"
 
@@ -80,8 +78,8 @@ async def test_penicillin_amoxicillin_pharmacological_flag(fixture_dir: Path) ->
         if "penicillin" in f["label_a"].lower() and "amoxicillin" in f["label_b"].lower()
     ]
     assert matches, f"Penicillin × amoxicillin pair should be flagged; got {flags!r}"
-    assert matches[0]["inconsistency"] == "pharmacological"
-    # Verifier should warn (the rule store fires) — acceptable.
+    assert matches[0]["inconsistency_kind"] == "pharmacological"
+    assert 70 <= matches[0]["inconsistency_pct"] <= 100
     assert response.verdict in {"warned", "passed"}
 
 

@@ -10,7 +10,7 @@ from functools import lru_cache
 
 from sidecar._compat import StrEnum
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,13 +37,31 @@ class Settings(BaseSettings):
     )
 
     # ─── LLM ────────────────────────────────────────────────────────────
-    llm_provider: LLMProvider = LLMProvider.MOCK
-    openai_model: str = "gpt-5"
+    # Default to live OpenAI; mock is opt-in and gated by allow_mock so the
+    # OpenEMR launch button can never accidentally route through it.
+    llm_provider: LLMProvider = LLMProvider.OPENAI
+    openai_model: str = "gpt-4o-mini"
+    allow_mock: bool = False
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_base_url: str | None = Field(default=None, alias="OPENAI_BASE_URL")
     azure_openai_endpoint: str | None = Field(default=None, alias="AZURE_OPENAI_ENDPOINT")
     azure_openai_api_key: str | None = Field(default=None, alias="AZURE_OPENAI_API_KEY")
     azure_openai_deployment: str | None = Field(default=None, alias="AZURE_OPENAI_DEPLOYMENT")
+
+    @field_validator(
+        "openai_api_key", "openai_base_url",
+        "azure_openai_endpoint", "azure_openai_api_key", "azure_openai_deployment",
+        mode="before",
+    )
+    @classmethod
+    def _empty_string_is_none(cls, v: object) -> object:
+        """An empty .env value (``KEY=``) is loaded as ``""`` by pydantic-
+        settings. The OpenAI SDK breaks if ``base_url=""`` is passed (it
+        builds requests against the empty origin → ``APIConnectionError``).
+        Treat empty strings as missing for every URL/key field."""
+        if isinstance(v, str) and v.strip() == "":
+            return None
+        return v
 
     # Per-pair LLM settings.
     pair_judge_max_concurrency: int = 20

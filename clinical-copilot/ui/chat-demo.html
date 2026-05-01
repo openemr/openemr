@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clinical Co-Pilot</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --ink: #1a1f2c;
+    --muted: #6c7280;
+    --accent: #2c5282;
+    --warn: #b7791f;
+    --block: #c53030;
+    --pass: #2f855a;
+    --border: #e2e8f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --panel: #181b22;
+      --ink: #e7e9ee;
+      --muted: #9aa0aa;
+      --accent: #82a9d6;
+      --border: #283041;
+    }
+  }
+  html, body { background: var(--bg); color: var(--ink); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; }
+  .wrap { max-width: 920px; margin: 24px auto; padding: 0 16px; }
+  h1 { margin: 0 0 4px 0; font-size: 22px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .controls { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 16px; }
+  select, button { background: var(--panel); border: 1px solid var(--border); color: var(--ink); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  button { cursor: pointer; background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.55; }
+  .verdict { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+  .verdict.passed { background: color-mix(in srgb, var(--pass) 18%, transparent); color: var(--pass); }
+  .verdict.warned { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+  .verdict.blocked { background: color-mix(in srgb, var(--block) 18%, transparent); color: var(--block); }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 12px; }
+  .pill { display: inline-block; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 2px 8px; border-radius: 99px; font-size: 11px; margin-right: 4px; }
+</style>
+<script>window.__COPILOT_DEMO__ = {"_demo": true, "patients": ["Patient/87413", "Patient/87414", "Patient/87415"], "responses": {"Patient/87413|diagnostic_cross_check": {"text": "Top candidate explanations from the chart:\n  1. Gout, unspecified (high) \u2014 Gout flares classically present as podagra (sudden monoarticular MTP-joint pain) [source: lists#3018] \u2014 differentiating test: serum uric acid; joint aspirate for monosodium urate crystals\n  2. C-reactive protein = 42.0 mg/L (moderate) \u2014 Elevated CRP supports an active inflammatory process; with monoarticular toe pain this is consistent with crystal arthropathy (e.g. gout) or septic arthritis [source: procedure_result#lab02] \u2014 differentiating test: joint aspirate (rules in/out infection vs crystals)\n\nData gaps:\n  - no recent uric acid measured \u2014 would resolve gout vs infection\n  - no HbA1c measured in the recent labs window\n\nNotes from the rule store:\n  - [gout_present_toe_pain_anchor] When the chart already documents gout and the patient presents with monoarticular toe pain, do not anchor on infection without joint aspirate or uric acid.", "verdict": "warned", "candidates": [{"label": "Gout, unspecified", "kind": "problem", "likelihood": "high", "mechanism": "Gout flares classically present as podagra (sudden monoarticular MTP-joint pain)", "differentiating_test": "serum uric acid; joint aspirate for monosodium urate crystals", "provenance": {"table": "lists", "row_id": "3018", "fhir_resource": "Condition/3018"}, "pair_count": 3}, {"label": "C-reactive protein = 42.0 mg/L", "kind": "lab", "likelihood": "moderate", "mechanism": "Elevated CRP supports an active inflammatory process; with monoarticular toe pain this is consistent with crystal arthropathy (e.g. gout) or septic arthritis", "differentiating_test": "joint aspirate (rules in/out infection vs crystals)", "provenance": {"table": "procedure_result", "row_id": "lab02", "fhir_resource": null}, "pair_count": 2}], "chart_error_flags": [], "annotations": ["[gout_present_toe_pain_anchor] When the chart already documents gout and the patient presents with monoarticular toe pain, do not anchor on infection without joint aspirate or uric acid."], "data_gaps": ["no recent uric acid measured \u2014 would resolve gout vs infection", "no HbA1c measured in the recent labs window"], "dropped": ["('right toe pain' \u00d7 'Essential hypertension'): no evidence row", "('right toe pain' \u00d7 'Metformin 500 mg'): no evidence row", "('right toe pain' \u00d7 'Lisinopril 10 mg'): no evidence row", "('right toe pain' \u00d7 'Hemoglobin A1c = 7.2 %'): no evidence row", "('swollen toe' \u00d7 'Type 2 diabetes mellitus'): no evidence row", "('swollen toe' \u00d7 'Essential hypertension'): no evidence row", "('swollen toe' \u00d7 'Metformin 500 mg'): no evidence row", "('swollen toe' \u00d7 'Lisinopril 10 mg'): no evidence row", "('swollen toe' \u00d7 'Hemoglobin A1c = 7.2 %'): no evidence row", "('body aches' \u00d7 'Type 2 diabetes mellitus'): no evidence row", "('body aches' \u00d7 'Metformin 500 mg'): no evidence row", "('body aches' \u00d7 'Lisinopril 10 mg'): no evidence row", "('body aches' \u00d7 'Hemoglobin A1c = 7.2 %'): no evidence row", "('body aches' \u00d7 'C-reactive protein = 42.0 mg/L'): no evidence row"], "telemetry": {"total_pair_count": 21, "total_dollar_cost": 0.0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}, "Patient/87413|chart_error_scan": {"text": "Chart-error scan: no inconsistencies surfaced above the confidence threshold.", "verdict": "passed", "candidates": [], "chart_error_flags": [], "annotations": [], "data_gaps": [], "dropped": [], "telemetry": {"total_pair_count": 12, "total_dollar_cost": 0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}, "Patient/87414|chart_error_scan": {"text": "Likely chart errors flagged for review:\n  1. Osteoporosis \u00d7 Osteopenia (temporal, confidence 0.92) \u2014 osteopenia normally precedes osteoporosis on bone-density progression [sources: lists#4001, lists#4002]\n     Suggested clarification: Confirm onset dates; if osteoporosis truly preceded osteopenia, document the intervening treatment (e.g. zoledronic acid).\n\nNotes from the rule store:\n  - [osteo_progression_backward] Osteoporosis followed by osteopenia in the chart timeline is biologically backward; osteoporosis does not regress to osteopenia without intervening treatment.", "verdict": "warned", "candidates": [], "chart_error_flags": [{"label_a": "Osteoporosis", "label_b": "Osteopenia", "inconsistency": "temporal", "confidence": 0.92, "rule_cited": "osteopenia normally precedes osteoporosis on bone-density progression", "suggested_clarification": "Confirm onset dates; if osteoporosis truly preceded osteopenia, document the intervening treatment (e.g. zoledronic acid).", "provenance_a": {"table": "lists", "row_id": "4001"}, "provenance_b": {"table": "lists", "row_id": "4002"}}], "annotations": ["[osteo_progression_backward] Osteoporosis followed by osteopenia in the chart timeline is biologically backward; osteoporosis does not regress to osteopenia without intervening treatment."], "data_gaps": [], "dropped": [], "telemetry": {"total_pair_count": 12, "total_dollar_cost": 0.0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}, "Patient/87414|diagnostic_cross_check": {"text": "No candidate from the chart explains the presenting symptoms with sufficient evidence.", "verdict": "passed", "candidates": [], "chart_error_flags": [], "annotations": [], "data_gaps": [], "dropped": [], "telemetry": {"total_pair_count": 12, "total_dollar_cost": 0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}, "Patient/87415|chart_error_scan": {"text": "Likely chart errors flagged for review:\n  1. Penicillin allergy \u00d7 Amoxicillin 500 mg (pharmacological, confidence 0.90) \u2014 documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without re-exposure note [sources: lists#al01, prescriptions#9201]\n     Suggested clarification: Either remove the allergy if tolerated, or add a penicillin-allergy-confirmed note and stop amoxicillin.\n\nNotes from the rule store:\n  - [penicillin_allergy_amoxicillin] Documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without a re-exposure-tolerated note.", "verdict": "warned", "candidates": [], "chart_error_flags": [{"label_a": "Penicillin allergy", "label_b": "Amoxicillin 500 mg", "inconsistency": "pharmacological", "confidence": 0.9, "rule_cited": "documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without re-exposure note", "suggested_clarification": "Either remove the allergy if tolerated, or add a penicillin-allergy-confirmed note and stop amoxicillin.", "provenance_a": {"table": "lists", "row_id": "al01"}, "provenance_b": {"table": "prescriptions", "row_id": "9201"}}], "annotations": ["[penicillin_allergy_amoxicillin] Documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without a re-exposure-tolerated note."], "data_gaps": [], "dropped": [], "telemetry": {"total_pair_count": 6, "total_dollar_cost": 0.0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}, "Patient/87415|diagnostic_cross_check": {"text": "No candidate from the chart explains the presenting symptoms with sufficient evidence.", "verdict": "passed", "candidates": [], "chart_error_flags": [], "annotations": [], "data_gaps": [], "dropped": [], "telemetry": {"total_pair_count": 6, "total_dollar_cost": 0, "total_prompt_tokens": 0, "total_completion_tokens": 0}}}};</script>
+
+<script>
+(function() {
+  if (!window.__COPILOT_DEMO__) return;
+  const originalFetch = window.fetch;
+  window.fetch = async function(input, init) {
+    const url = typeof input === 'string' ? input : input.url;
+    if (url.endsWith('/patients')) {
+      return new Response(JSON.stringify(window.__COPILOT_DEMO__.patients), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (url.endsWith('/chat')) {
+      const body = JSON.parse(init.body);
+      const key = body.patient_id + '|' + body.purpose;
+      const r = window.__COPILOT_DEMO__.responses[key];
+      if (!r) return new Response(JSON.stringify({ detail: 'no demo data for ' + key }), { status: 404 });
+      // Simulate ~250 ms latency for realism.
+      await new Promise(res => setTimeout(res, 250));
+      return new Response(JSON.stringify(r), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    return originalFetch(input, init);
+  };
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <h1>Clinical Co-Pilot <span style="font-size:11px; vertical-align:middle; padding:2px 8px; border-radius:99px; background:#fde68a; color:#92400e; margin-left:8px;">DEMO (baked responses)</span></h1>
+  <div class="sub">Pairwise comparison engine for OpenEMR. Read-only. Citations required.</div>
+
+  <div class="controls">
+    <select id="patient" aria-label="Patient">
+      <option value="">Loading patients…</option>
+    </select>
+    <select id="purpose" aria-label="Purpose">
+      <option value="diagnostic_cross_check">Pre-visit cross-check (Use Case A)</option>
+      <option value="chart_error_scan">Chart-error scan (Use Case B)</option>
+    </select>
+    <button id="run">Run</button>
+  </div>
+
+  <div id="output" class="panel" aria-live="polite">
+    <pre>Pick a patient and a purpose, then press Run.</pre>
+  </div>
+
+  <div class="meta" id="meta"></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const sidecarBase = window.location.origin;
+
+async function loadPatients() {
+  const res = await fetch(`${sidecarBase}/patients`);
+  const items = await res.json();
+  const sel = $('patient');
+  sel.innerHTML = '';
+  if (!items.length) {
+    sel.innerHTML = '<option value="">(no fixtures bundled)</option>';
+    return;
+  }
+  for (const id of items) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    sel.appendChild(opt);
+  }
+}
+
+async function run() {
+  const patient = $('patient').value;
+  const purpose = $('purpose').value;
+  if (!patient) return;
+  $('run').disabled = true;
+  $('output').innerHTML = '<pre>Running pairwise engine…</pre>';
+  $('meta').textContent = '';
+  try {
+    const res = await fetch(`${sidecarBase}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient_id: patient,
+        purpose: purpose,
+        user_id: 'dr.m@example.org',
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      $('output').innerHTML = `<pre>HTTP ${res.status}: ${data.detail || JSON.stringify(data)}</pre>`;
+      return;
+    }
+    const verdictClass = data.verdict || 'passed';
+    const head = `<div><strong>Result</strong><span class="verdict ${verdictClass}">${verdictClass.toUpperCase()}</span></div>`;
+    $('output').innerHTML = head + `<pre>${escapeHtml(data.text)}</pre>`;
+    const t = data.telemetry || {};
+    const dropped = (data.dropped || []).length;
+    $('meta').innerHTML = [
+      `<span class="pill">${t.total_pair_count ?? 0} pairs</span>`,
+      `<span class="pill">${t.total_prompt_tokens ?? 0} prompt tok</span>`,
+      `<span class="pill">${t.total_completion_tokens ?? 0} completion tok</span>`,
+      `<span class="pill">$${(t.total_dollar_cost ?? 0).toFixed(4)}</span>`,
+      `<span class="pill">${dropped} dropped</span>`,
+    ].join(' ');
+  } catch (err) {
+    $('output').innerHTML = `<pre>Error: ${escapeHtml(String(err))}</pre>`;
+  } finally {
+    $('run').disabled = false;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+$('run').addEventListener('click', run);
+loadPatients();
+</script>
+</body>
+</html>

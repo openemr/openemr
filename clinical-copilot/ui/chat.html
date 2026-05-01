@@ -6,139 +6,594 @@
 <title>Clinical Co-Pilot</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f6f7fb;
+    color-scheme: light;
+    --bg: #f3f6fa;
     --panel: #ffffff;
-    --ink: #1a1f2c;
-    --muted: #6c7280;
-    --accent: #2c5282;
-    --warn: #b7791f;
-    --block: #c53030;
-    --pass: #2f855a;
-    --border: #e2e8f0;
+    --ink: #1f2933;
+    --muted: #5b6573;
+    --primary: #0f3a5f;
+    --accent: #1a78c2;
+    --accent-soft: #e8f1f9;
+    --highlight-bg: #fff3cd;
+    --highlight-text: #856404;
+    --highlight-border: #ffeeba;
+    --pass-bg: #d4edda;
+    --pass-text: #155724;
+    --shadow-card: 0 1px 2px rgba(15,58,95,.04), 0 4px 12px rgba(15,58,95,.05);
+    --row-target: #fff8c4;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f1115;
-      --panel: #181b22;
-      --ink: #e7e9ee;
-      --muted: #9aa0aa;
-      --accent: #82a9d6;
-      --border: #283041;
-    }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--ink); margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+
+  header.app {
+    background: var(--primary); color: #fff; padding: 14px 28px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 2px 12px rgba(15,58,95,.18);
+    position: sticky; top: 0; z-index: 10;
   }
-  html, body { background: var(--bg); color: var(--ink); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; }
-  .wrap { max-width: 920px; margin: 24px auto; padding: 0 16px; }
-  h1 { margin: 0 0 4px 0; font-size: 22px; font-weight: 600; }
-  .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-  .controls { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 16px; }
-  select, button { background: var(--panel); border: 1px solid var(--border); color: var(--ink); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
-  button { cursor: pointer; background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
-  button:disabled { opacity: 0.6; cursor: not-allowed; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.55; }
-  .verdict { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-left: 8px; }
-  .verdict.passed { background: color-mix(in srgb, var(--pass) 18%, transparent); color: var(--pass); }
-  .verdict.warned { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
-  .verdict.blocked { background: color-mix(in srgb, var(--block) 18%, transparent); color: var(--block); }
-  .meta { color: var(--muted); font-size: 12px; margin-top: 12px; }
-  .pill { display: inline-block; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 2px 8px; border-radius: 99px; font-size: 11px; margin-right: 4px; }
+  .back-btn {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    color: #fff; border-radius: 8px; padding: 7px 14px; cursor: pointer;
+    font-size: 13px; font-weight: 500; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px; transition: background .15s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,.22); }
+  header.app .title-block { flex: 1; min-width: 0; }
+  header.app h1 { margin: 0 0 2px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+  header.app .ctx { font-size: 13px; opacity: .82; font-weight: 400; }
+  header.app select {
+    background: rgba(255,255,255,.95); border: 1px solid rgba(255,255,255,.4);
+    color: var(--ink); border-radius: 8px; padding: 7px 10px;
+    font-size: 13px; min-width: 160px; font-weight: 500;
+  }
+
+  .wrap { max-width: 920px; margin: 28px auto 96px; padding: 0 24px; }
+
+  section.card {
+    background: var(--panel); border-radius: 12px; margin-bottom: 22px;
+    overflow: hidden; box-shadow: var(--shadow-card);
+  }
+  section.card > header {
+    padding: 18px 24px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  section.card > header h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+  section.card > header .ai-tag {
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; letter-spacing: .04em;
+  }
+  section.card > .body { padding: 4px 24px 22px; }
+
+  .verdict { display: inline-block; padding: 3px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 600; margin-left: auto; letter-spacing: .04em; text-transform: uppercase; }
+  .verdict.passed  { background: var(--pass-bg);  color: var(--pass-text); }
+  .verdict.warned  { background: var(--highlight-bg);  color: var(--highlight-text); }
+  .verdict.blocked { background: #f8d7da; color: #721c24; }
+  .verdict:empty   { display: none; }
+
+  /* View toggle */
+  .view-toggle {
+    display: inline-flex; background: #eef2f6; border-radius: 99px; padding: 3px; margin-left: auto; margin-right: 0;
+  }
+  .view-toggle button {
+    border: none; background: transparent; padding: 4px 12px; font-size: 12px;
+    border-radius: 99px; cursor: pointer; color: var(--muted); font-weight: 500;
+  }
+  .view-toggle button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+  /* Candidate card */
+  .finding {
+    background: #fafcff; border: 1px solid #e5edf5; padding: 16px 18px;
+    border-radius: 10px; margin-top: 14px; position: relative;
+  }
+  .finding.tier-highlight { border-left: 4px solid #d97706; background: #fffbf2; }
+  .finding.tier-show     { border-left: 4px solid var(--accent); }
+  .finding:first-child { margin-top: 6px; }
+
+  .finding .top-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .finding .title  { font-weight: 600; font-size: 15px; color: var(--ink); }
+  .finding .kind-tag {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+    padding: 2px 8px; border-radius: 99px; background: #eef2f6; color: var(--muted);
+  }
+  .finding .pct {
+    margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 3px 12px; border-radius: 99px; font-size: 13px;
+  }
+  .finding.tier-highlight .pct { background: #fef3c7; color: #92400e; }
+  .finding .rationale  { color: var(--ink); margin-top: 8px; line-height: 1.6; }
+  .finding .meta  { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .finding .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .source-btn {
+    border: 1px solid #d6dde6; background: #fff; color: var(--accent);
+    border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;
+    font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+  }
+  .source-btn::before { content: "↓"; font-weight: 700; }
+  .source-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .per-symptom-toggle {
+    background: none; border: none; color: var(--accent); font-size: 12px;
+    cursor: pointer; font-weight: 500; padding: 4px 0;
+  }
+  .per-symptom-toggle:hover { text-decoration: underline; }
+
+  .per-symptom-list { margin: 8px 0 0; padding: 0; list-style: none; display: none; }
+  .per-symptom-list.open { display: block; }
+  .per-symptom-list li {
+    display: grid; grid-template-columns: 140px 60px 1fr; gap: 10px;
+    padding: 6px 0; border-top: 1px dashed #e5edf5; align-items: center;
+  }
+  .per-symptom-list li:first-child { border-top: 0; }
+  .per-symptom-list .sym { font-weight: 500; color: var(--ink); font-size: 13px; }
+  .per-symptom-list .bar {
+    height: 8px; background: #eef2f6; border-radius: 99px; overflow: hidden; position: relative;
+  }
+  .per-symptom-list .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+  .per-symptom-list .pct-num { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .per-symptom-list .reason { color: var(--muted); font-size: 13px; grid-column: 1 / -1; padding-top: 4px; }
+
+  details.less-likely {
+    margin-top: 18px; padding: 10px 14px; background: #f7f9fc; border-radius: 10px;
+    border: 1px dashed #d6dde6;
+  }
+  details.less-likely > summary {
+    cursor: pointer; color: var(--accent); font-weight: 500; font-size: 13px; list-style: none;
+  }
+  details.less-likely > summary::-webkit-details-marker { display: none; }
+  details.less-likely > summary::before { content: "▸ "; }
+  details.less-likely[open] > summary::before { content: "▾ "; }
+  details.less-likely .row {
+    display: grid; grid-template-columns: 140px 60px 1fr auto; gap: 10px;
+    padding: 8px 0; border-top: 1px dashed #d6dde6; align-items: center; font-size: 13px;
+  }
+  details.less-likely .row:first-of-type { margin-top: 6px; }
+  details.less-likely .row .label { font-weight: 500; }
+  details.less-likely .row .pct { color: var(--muted); font-variant-numeric: tabular-nums; }
+  details.less-likely .row .why { color: var(--muted); }
+
+  /* Per-symptom view sections */
+  .symptom-section { margin-top: 22px; }
+  .symptom-section:first-child { margin-top: 0; }
+  .symptom-section h3 {
+    font-size: 14px; font-weight: 600; color: var(--ink); margin: 0 0 10px;
+    border-bottom: 1px solid #e5edf5; padding-bottom: 6px;
+  }
+
+  .empty { color: var(--muted); padding: 6px 0 2px; }
+
+  .gap {
+    background: #e8f4fd; color: #084b87; border: 1px solid #b8dcf6;
+    padding: 12px 16px; margin-top: 14px; border-radius: 10px; font-size: 14px; line-height: 1.5;
+  }
+  .gap .lead { font-weight: 600; margin-right: 6px; }
+
+  table.chart { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.chart th {
+    text-align: left; color: var(--muted); font-weight: 600;
+    padding: 10px 14px 8px; border-bottom: 1px solid #e5e9ef;
+    font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+  }
+  table.chart td { padding: 12px 14px; border-bottom: 1px solid #f1f3f6; vertical-align: top; color: var(--ink); }
+  table.chart tr:last-child td { border-bottom: 0; }
+  table.chart tr.target td { background: var(--row-target); transition: background-color 1.6s ease-out; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .pill.confirmed, .pill.active { background: var(--pass-bg); color: var(--pass-text); }
+  .pill.high { background: #f8d7da; color: #721c24; }
+  .pill.muted { background: #eef0f3; color: var(--muted); }
+
+  .loading { color: var(--muted); padding: 14px 0 4px; display: flex; align-items: center; gap: 10px; }
+  .loading::before {
+    content: ""; width: 14px; height: 14px;
+    border: 2px solid #e5edf5; border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-meta {
+    color: var(--muted); font-size: 12px; padding: 12px 24px;
+    background: #f7f9fc; border-top: 1px solid #eaeef3;
+    display: flex; gap: 18px; flex-wrap: wrap;
+  }
+  .footer-meta:empty { display: none; }
+
+  .presenting-source { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .symptom-list { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+  .symptom-list li {
+    background: var(--accent-soft); color: var(--accent);
+    padding: 4px 12px; border-radius: 99px; font-size: 13px; font-weight: 500;
+  }
+
+  @media (max-width: 700px) {
+    header.app { flex-wrap: wrap; padding: 12px 16px; }
+    header.app h1 { font-size: 16px; }
+    .wrap { padding: 0 16px; }
+    section.card > header { padding: 16px 18px 12px; }
+    section.card > .body { padding: 0 18px 18px; }
+    .per-symptom-list li, details.less-likely .row { grid-template-columns: 1fr 60px 1fr; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Clinical Co-Pilot</h1>
-  <div class="sub">Pairwise comparison engine for OpenEMR. Read-only. Citations required.</div>
-
-  <div class="controls">
-    <select id="patient" aria-label="Patient">
-      <option value="">Loading patients…</option>
-    </select>
-    <select id="purpose" aria-label="Purpose">
-      <option value="diagnostic_cross_check">Pre-visit cross-check (Use Case A)</option>
-      <option value="chart_error_scan">Chart-error scan (Use Case B)</option>
-    </select>
-    <button id="run">Run</button>
+<header class="app">
+  <a class="back-btn" href="javascript:history.back()" title="Back to OpenEMR">&larr; Back</a>
+  <div class="title-block">
+    <h1>Clinical Co-Pilot</h1>
+    <div class="ctx" id="ctx-line">Loading patient context…</div>
   </div>
+  <select id="patient" aria-label="Patient" title="Patient"></select>
+</header>
 
-  <div id="output" class="panel" aria-live="polite">
-    <pre>Pick a patient and a purpose, then press Run.</pre>
-  </div>
+<main class="wrap">
+  <section class="card" id="ai-diagnostic">
+    <header>
+      <h2>Diagnostic considerations</h2>
+      <span class="ai-tag">AI</span>
+      <div class="view-toggle" role="tablist" aria-label="View">
+        <button data-view="aggregated" class="active">By candidate</button>
+        <button data-view="per-symptom">By symptom</button>
+      </div>
+      <span class="verdict" id="dx-verdict"></span>
+    </header>
+    <div class="body" id="dx-body"><div class="loading">Generating per-pair probabilities…</div></div>
+    <div class="footer-meta" id="dx-meta"></div>
+  </section>
 
-  <div class="meta" id="meta"></div>
-</div>
+  <section class="card" id="ai-chart-error">
+    <header>
+      <h2>Chart-error review</h2>
+      <span class="ai-tag">AI</span>
+      <span class="verdict" id="ce-verdict"></span>
+    </header>
+    <div class="body" id="ce-body"><div class="loading">Scanning datapoint pairs for inconsistencies…</div></div>
+    <div class="footer-meta" id="ce-meta"></div>
+  </section>
+
+  <section class="card" id="sec-presenting"><header><h2>Presenting</h2></header><div class="body" id="presenting-body"><div class="loading">Loading…</div></div></section>
+  <section class="card" id="sec-problems"><header><h2>Active problems and diagnoses</h2></header><div class="body" id="problems-body"><div class="loading">Loading…</div></div></section>
+  <section class="card" id="sec-medications"><header><h2>Medications</h2></header><div class="body" id="medications-body"><div class="loading">Loading…</div></div></section>
+  <section class="card" id="sec-allergies"><header><h2>Allergies</h2></header><div class="body" id="allergies-body"><div class="loading">Loading…</div></div></section>
+  <section class="card" id="sec-labs"><header><h2>Recent labs</h2></header><div class="body" id="labs-body"><div class="loading">Loading…</div></div></section>
+  <section class="card" id="sec-vitals"><header><h2>Recent vitals</h2></header><div class="body" id="vitals-body"><div class="loading">Loading…</div></div></section>
+</main>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const sidecarBase = window.location.origin;
+const escape = (s) => String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const rowId = (table, id) => `row-${String(table || '').replace(/[^A-Za-z0-9_-]/g,'_')}-${String(id).replace(/[^A-Za-z0-9_-]/g,'_')}`;
+const VIEW_KEY = 'copilot.dxView';
+
+// State
+let lastDxResp = null;
+
+function scrollToSource(table, id) {
+  const el = document.getElementById(rowId(table, id));
+  if (!el) return;
+  document.querySelectorAll('table.chart tr.target').forEach(t => t.classList.remove('target'));
+  el.classList.add('target');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => el.classList.remove('target'), 2400);
+}
 
 async function loadPatients() {
-  const res = await fetch(`${sidecarBase}/patients`);
-  const items = await res.json();
-  const sel = $('patient');
-  sel.innerHTML = '';
-  if (!items.length) {
-    sel.innerHTML = '<option value="">(no fixtures bundled)</option>';
-    return;
-  }
-  for (const id of items) {
-    const opt = document.createElement('option');
-    opt.value = id;
-    opt.textContent = id;
-    sel.appendChild(opt);
-  }
-}
-
-async function run() {
-  const patient = $('patient').value;
-  const purpose = $('purpose').value;
-  if (!patient) return;
-  $('run').disabled = true;
-  $('output').innerHTML = '<pre>Running pairwise engine…</pre>';
-  $('meta').textContent = '';
   try {
-    const res = await fetch(`${sidecarBase}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        patient_id: patient,
-        purpose: purpose,
-        user_id: 'dr.m@example.org',
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      $('output').innerHTML = `<pre>HTTP ${res.status}: ${data.detail || JSON.stringify(data)}</pre>`;
-      return;
+    const res = await fetch(`${sidecarBase}/patients`);
+    const items = await res.json();
+    const sel = $('patient');
+    sel.innerHTML = '';
+    if (!items.length) { sel.innerHTML = '<option value="">(none)</option>'; return; }
+    for (const id of items) {
+      const opt = document.createElement('option');
+      opt.value = id; opt.textContent = id;
+      sel.appendChild(opt);
     }
-    const verdictClass = data.verdict || 'passed';
-    const head = `<div><strong>Result</strong><span class="verdict ${verdictClass}">${verdictClass.toUpperCase()}</span></div>`;
-    $('output').innerHTML = head + `<pre>${escapeHtml(data.text)}</pre>`;
-    const t = data.telemetry || {};
-    const dropped = (data.dropped || []).length;
-    $('meta').innerHTML = [
-      `<span class="pill">${t.total_pair_count ?? 0} pairs</span>`,
-      `<span class="pill">${t.total_prompt_tokens ?? 0} prompt tok</span>`,
-      `<span class="pill">${t.total_completion_tokens ?? 0} completion tok</span>`,
-      `<span class="pill">$${(t.total_dollar_cost ?? 0).toFixed(4)}</span>`,
-      `<span class="pill">${dropped} dropped</span>`,
-    ].join(' ');
-  } catch (err) {
-    $('output').innerHTML = `<pre>Error: ${escapeHtml(String(err))}</pre>`;
-  } finally {
-    $('run').disabled = false;
+  } catch (e) { $('patient').innerHTML = '<option>error</option>'; }
+}
+
+function renderTable(rows, columns, provenanceOf, emptyMsg) {
+  if (!rows.length) return `<div class="empty">${emptyMsg}</div>`;
+  const head = `<tr>${columns.map(c => `<th>${c.label}</th>`).join('')}</tr>`;
+  const body = rows.map(r => {
+    const prov = provenanceOf(r) || {};
+    const id = rowId(prov.table, prov.row_id);
+    return `<tr id="${id}">${columns.map(c => `<td>${c.get(r)}</td>`).join('')}</tr>`;
+  }).join('');
+  return `<table class="chart">${head}${body}</table>`;
+}
+
+function renderSnapshot(snap) {
+  const d = snap.demographics || {};
+  $('ctx-line').textContent = `${snap.patient_id} · ${d.age ?? '?'} y/o · ${d.sex_at_birth ?? '?'}`;
+
+  const pres = snap.presenting || {};
+  const sym = (pres.symptoms || []).map(s => `<li>${escape(s)}</li>`).join('');
+  $('presenting-body').innerHTML = sym
+    ? `<div class="presenting-source"><strong>Source:</strong> ${escape(pres.source || '—')} · <em>${escape(pres.since || '?')}</em></div><ul class="symptom-list">${sym}</ul>`
+    : '<div class="empty">No presenting symptoms documented.</div>';
+
+  $('problems-body').innerHTML = renderTable(snap.active_problems || [], [
+    { label: 'Problem', get: r => escape(r.label) },
+    { label: 'ICD-10', get: r => escape(r.icd10 || '—') },
+    { label: 'Onset',  get: r => escape(r.onset || '—') },
+    { label: 'Status', get: r => `<span class="pill confirmed">${escape(r.verification || 'documented')}</span>` },
+  ], r => r.provenance, 'No active problems on file.');
+
+  $('medications-body').innerHTML = renderTable(snap.medications || [], [
+    { label: 'Medication', get: r => escape(r.label) },
+    { label: 'Dose',       get: r => escape(r.dose || '—') },
+    { label: 'Started',    get: r => escape(r.started || '—') },
+    { label: 'Status',     get: r => `<span class="pill ${r.active ? 'active' : 'muted'}">${r.active ? 'active' : 'inactive'}</span>` },
+  ], r => r.provenance, 'No active medications.');
+
+  $('allergies-body').innerHTML = renderTable(snap.allergies || [], [
+    { label: 'Allergen',  get: r => escape(r.label) },
+    { label: 'Reaction',  get: r => escape(r.reaction || '—') },
+    { label: 'Severity',  get: r => `<span class="pill ${r.severity === 'high' ? 'high' : 'muted'}">${escape(r.severity || '—')}</span>` },
+    { label: 'Recorded',  get: r => escape(r.recorded || '—') },
+  ], r => r.provenance, 'No known allergies.');
+
+  $('labs-body').innerHTML = renderTable(snap.recent_labs || [], [
+    { label: 'Lab',       get: r => escape(r.label) },
+    { label: 'Value',     get: r => `${r.value ?? '—'} ${escape(r.unit || '')}` },
+    { label: 'Reference', get: r => `${r.reference_low ?? '?'}–${r.reference_high ?? '?'}` },
+    { label: 'Flag',      get: r => r.abnormal_flag ? `<span class="pill high">${escape(r.abnormal_flag)}</span>` : '<span class="pill muted">—</span>' },
+    { label: 'Observed',  get: r => escape((r.observed_at || '').replace('T',' ').replace(/:00\.?0*Z?$/, '')) },
+  ], r => r.provenance, 'No recent labs.');
+
+  $('vitals-body').innerHTML = renderTable(snap.recent_vitals || [], [
+    { label: 'Vital',    get: r => escape(r.label) },
+    { label: 'Value',    get: r => `${r.value ?? '—'} ${escape(r.unit || '')}` },
+    { label: 'Observed', get: r => escape((r.observed_at || '').replace('T',' ').replace(/:00\.?0*Z?$/, '')) },
+  ], r => r.provenance, 'No recent vitals.');
+}
+
+function candidateCard(c, opts = {}) {
+  const prov = c.provenance || {};
+  const tier = c.tier || 'show';
+  const sourceBtn = prov.row_id != null
+    ? `<button class="source-btn" onclick="scrollToSource('${prov.table}', '${prov.row_id}')">Source</button>` : '';
+  const diff = c.differentiating_test ? `<div class="meta">Suggested differentiating test: ${escape(c.differentiating_test)}</div>` : '';
+  const hasMulti = (c.per_symptom || []).length > 1;
+  const symListId = `psym-${Math.random().toString(36).slice(2)}`;
+  const symList = hasMulti ? `
+    <ul class="per-symptom-list" id="${symListId}">
+      ${c.per_symptom.map(s => `
+        <li>
+          <span class="sym">${escape(s.symptom)}</span>
+          <span class="pct-num">${s.likelihood_pct}%</span>
+          <span class="bar"><span style="width:${s.likelihood_pct}%;"></span></span>
+          <span class="reason">${escape(s.rationale)}</span>
+        </li>`).join('')}
+    </ul>` : '';
+  const symToggle = hasMulti ? `
+    <button class="per-symptom-toggle" onclick="this.previousElementSibling?.classList?.toggle?.('open');
+      this.parentNode.querySelector('.per-symptom-list')?.classList?.toggle?.('open');
+      this.textContent = (this.textContent.startsWith('Show') ? 'Hide' : 'Show') + ' all ${c.per_symptom.length} symptoms';
+    ">Show all ${c.per_symptom.length} symptoms</button>` : '';
+  const symContext = opts.symptomContext
+    ? `<span class="kind-tag">explains ${escape(opts.symptomContext)}</span>` : '';
+  return `
+    <div class="finding tier-${tier}">
+      <div class="top-row">
+        <span class="title">${escape(c.label)}</span>
+        <span class="kind-tag">${escape(c.kind)}</span>
+        ${symContext}
+        <span class="pct">${opts.pctOverride ?? c.max_likelihood_pct}%</span>
+      </div>
+      <div class="rationale">${escape(c.rationale)}</div>
+      ${diff}
+      ${symList}
+      <div class="actions">${sourceBtn}${symToggle}</div>
+    </div>`;
+}
+
+function renderDxAggregated(resp) {
+  const cands = resp.candidates || [];
+  const top  = cands.filter(c => c.tier !== 'less_likely');
+  const tail = cands.filter(c => c.tier === 'less_likely');
+  let html = '';
+  if (!top.length && !tail.length) {
+    html = '<div class="empty">No candidate from the chart explains the presenting symptoms with sufficient evidence.</div>';
+  } else {
+    html = top.map(c => candidateCard(c)).join('');
+    if (tail.length) {
+      html += `
+        <details class="less-likely">
+          <summary>${tail.length} less-likely consideration${tail.length === 1 ? '' : 's'}</summary>
+          ${tail.map(c => `
+            <div class="row">
+              <span class="label">${escape(c.label)}</span>
+              <span class="pct">${c.max_likelihood_pct}%</span>
+              <span class="why">${escape(c.rationale)}</span>
+              ${c.provenance?.row_id != null
+                ? `<button class="source-btn" onclick="scrollToSource('${c.provenance.table}', '${c.provenance.row_id}')">Source</button>`
+                : ''}
+            </div>`).join('')}
+        </details>`;
+    }
+  }
+  for (const gap of (resp.data_gaps || [])) {
+    html += `<div class="gap"><span class="lead">Data gap:</span>${escape(gap)}</div>`;
+  }
+  html += renderDroppedDetails(resp.dropped);
+  $('dx-body').innerHTML = html;
+}
+
+function renderDxPerSymptom(resp) {
+  // Bucket per-symptom scores from every candidate, per symptom.
+  const buckets = {};
+  for (const c of (resp.candidates || [])) {
+    for (const ps of (c.per_symptom || [])) {
+      (buckets[ps.symptom] ||= []).push({ candidate: c, score: ps });
+    }
+  }
+  const symptoms = Object.keys(buckets);
+  if (!symptoms.length) { $('dx-body').innerHTML = '<div class="empty">No probabilities to display.</div>'; return; }
+
+  let html = '';
+  for (const sym of symptoms) {
+    const rows = buckets[sym].sort((a, b) => b.score.likelihood_pct - a.score.likelihood_pct);
+    const top  = rows.filter(r => r.score.likelihood_pct >= 30);
+    const tail = rows.filter(r => r.score.likelihood_pct < 30);
+    html += `<div class="symptom-section"><h3>${escape(sym)}</h3>`;
+    html += top.map(r => candidateCard(r.candidate, {
+      pctOverride: r.score.likelihood_pct,
+      symptomContext: sym,
+    })).join('');
+    if (!top.length) html += '<div class="empty">No candidate above 30% for this symptom.</div>';
+    if (tail.length) {
+      html += `
+        <details class="less-likely">
+          <summary>${tail.length} less-likely consideration${tail.length === 1 ? '' : 's'} for this symptom</summary>
+          ${tail.map(r => `
+            <div class="row">
+              <span class="label">${escape(r.candidate.label)}</span>
+              <span class="pct">${r.score.likelihood_pct}%</span>
+              <span class="why">${escape(r.score.rationale)}</span>
+              ${r.candidate.provenance?.row_id != null
+                ? `<button class="source-btn" onclick="scrollToSource('${r.candidate.provenance.table}', '${r.candidate.provenance.row_id}')">Source</button>`
+                : ''}
+            </div>`).join('')}
+        </details>`;
+    }
+    html += `</div>`;
+  }
+  for (const gap of (resp.data_gaps || [])) {
+    html += `<div class="gap"><span class="lead">Data gap:</span>${escape(gap)}</div>`;
+  }
+  html += renderDroppedDetails(resp.dropped);
+  $('dx-body').innerHTML = html;
+}
+
+function setView(view) {
+  localStorage.setItem(VIEW_KEY, view);
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (lastDxResp) {
+    if (view === 'per-symptom') renderDxPerSymptom(lastDxResp);
+    else renderDxAggregated(lastDxResp);
   }
 }
 
-function escapeHtml(s) {
-  return String(s)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+document.querySelectorAll('.view-toggle button').forEach(b =>
+  b.addEventListener('click', () => setView(b.dataset.view)));
+
+function renderDx(resp) {
+  lastDxResp = resp;
+  $('dx-verdict').className = `verdict ${resp.verdict || 'passed'}`;
+  $('dx-verdict').textContent = (resp.verdict || 'passed');
+  setMeta('dx-meta', resp);
+  const view = localStorage.getItem(VIEW_KEY) || 'aggregated';
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (view === 'per-symptom') renderDxPerSymptom(resp);
+  else renderDxAggregated(resp);
 }
 
-$('run').addEventListener('click', run);
-loadPatients();
+function flagCard(f) {
+  const a = f.provenance_a || {}, b = f.provenance_b || {};
+  const tier = f.inconsistency_pct >= 70 ? 'highlight' : 'show';
+  const srcA = a.row_id != null ? `<button class="source-btn" onclick="scrollToSource('${a.table}', '${a.row_id}')">Source A</button>` : '';
+  const srcB = b.row_id != null ? `<button class="source-btn" onclick="scrollToSource('${b.table}', '${b.row_id}')">Source B</button>` : '';
+  const clar = f.suggested_clarification ? `<div class="meta">Suggested clarification: ${escape(f.suggested_clarification)}</div>` : '';
+  return `
+    <div class="finding tier-${tier}">
+      <div class="top-row">
+        <span class="title">${escape(f.label_a)} × ${escape(f.label_b)}</span>
+        <span class="kind-tag">${escape(f.inconsistency_kind)}</span>
+        <span class="pct">${f.inconsistency_pct}%</span>
+      </div>
+      <div class="rationale">${escape(f.rationale)}</div>
+      ${clar}
+      <div class="actions">${srcA} ${srcB}</div>
+    </div>`;
+}
+
+function renderCe(resp) {
+  $('ce-verdict').className = `verdict ${resp.verdict || 'passed'}`;
+  $('ce-verdict').textContent = (resp.verdict || 'passed');
+  const flags = resp.chart_error_flags || [];
+  let html = flags.length
+    ? flags.map(flagCard).join('')
+    : '<div class="empty">No inconsistencies surfaced above the confidence threshold.</div>';
+  html += renderDroppedDetails(resp.dropped);
+  $('ce-body').innerHTML = html;
+  setMeta('ce-meta', resp);
+}
+
+function setMeta(elId, resp) {
+  const t = resp.telemetry || {};
+  $(elId).innerHTML = [
+    `<span>${t.total_pair_count ?? 0} pairs</span>`,
+    `<span>${t.total_prompt_tokens ?? 0} prompt tok</span>`,
+    `<span>${t.total_completion_tokens ?? 0} completion tok</span>`,
+    `<span>$${(t.total_dollar_cost ?? 0).toFixed(4)}</span>`,
+    `<span>${(resp.dropped || []).length} dropped</span>`,
+  ].join('');
+}
+
+function renderDroppedDetails(dropped) {
+  const list = dropped || [];
+  if (!list.length) return '';
+  const items = list.slice(0, 30).map(d => `<li>${escape(String(d))}</li>`).join('');
+  const more = list.length > 30 ? `<li>… and ${list.length - 30} more</li>` : '';
+  return `<details style="margin-top:14px;color:var(--muted);font-size:13px;">
+    <summary style="cursor:pointer;color:var(--accent);font-weight:500;">${list.length} pair${list.length === 1 ? '' : 's'} dropped — show reasons</summary>
+    <ul style="margin:8px 0 0 18px;padding:0;">${items}${more}</ul>
+  </details>`;
+}
+
+async function runForPatient(patientId) {
+  if (!patientId) return;
+  // Reset AI cards.
+  $('dx-verdict').textContent = ''; $('dx-verdict').className = 'verdict';
+  $('ce-verdict').textContent = ''; $('ce-verdict').className = 'verdict';
+  $('dx-body').innerHTML = '<div class="loading">Generating per-pair probabilities…</div>';
+  $('ce-body').innerHTML = '<div class="loading">Scanning datapoint pairs for inconsistencies…</div>';
+  $('dx-meta').innerHTML = ''; $('ce-meta').innerHTML = '';
+  ['presenting','problems','medications','allergies','labs','vitals'].forEach(s => $(`${s}-body`).innerHTML = '<div class="loading">Loading…</div>');
+
+  const uuid = patientId.replace(/^Patient\//, '');
+  const useMock = new URLSearchParams(window.location.search).get('mock') === '1' || window.__COPILOT_DEMO__;
+  const chatPath = useMock ? '/chat?mock=1' : '/chat';
+
+  // Snapshot fires its own request and renders the moment it lands —
+  // AI latency does not block chart sections.
+  fetch(`${sidecarBase}/snapshot/${encodeURIComponent(uuid)}`)
+    .then(r => r.json())
+    .then(renderSnapshot)
+    .catch(err => { $('ctx-line').textContent = 'snapshot unavailable'; });
+
+  // AI calls run in parallel but independently — dx and ce render as
+  // each one returns rather than waiting on the slower of the two.
+  fetch(`${sidecarBase}${chatPath}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ patient_id: patientId, purpose: 'diagnostic_cross_check', user_id: 'dr.m@example.org' })
+  }).then(r => r.json()).then(renderDx)
+    .catch(err => { $('dx-body').innerHTML = `<div class="empty">Diagnostic cross-check failed: ${escape(String(err))}</div>`; });
+
+  fetch(`${sidecarBase}${chatPath}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ patient_id: patientId, purpose: 'chart_error_scan', user_id: 'dr.m@example.org' })
+  }).then(r => r.json()).then(renderCe)
+    .catch(err => { $('ce-body').innerHTML = `<div class="empty">Chart-error scan failed: ${escape(String(err))}</div>`; });
+}
+
+async function applyHashAndLoad() {
+  await loadPatients();
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  let patient = params.get('patient');
+  if (!patient) patient = $('patient').options[0]?.value;
+  else if ([...$('patient').options].some(o => o.value === patient)) $('patient').value = patient;
+  if (patient) runForPatient(patient);
+}
+
+$('patient').addEventListener('change', e => runForPatient(e.target.value));
+window.addEventListener('hashchange', applyHashAndLoad);
+applyHashAndLoad();
 </script>
 </body>
 </html>

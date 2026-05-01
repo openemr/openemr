@@ -12,11 +12,14 @@ license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "Scott Lydon" }]
 
 dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
+    # Lower bounds are the oldest releases that still ship the APIs we use.
+    # The 3.9-safe upper bounds live in constraints-py39.txt; production
+    # environments on Python ≥ 3.11 install the latest minor unconstrained.
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.30.0",
     "httpx>=0.27.0",
-    "pydantic>=2.9.0",
-    "pydantic-settings>=2.5.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.4.0",
     "structlog>=24.4.0",
     "PyYAML>=6.0.2",
     "tenacity>=9.0.0",

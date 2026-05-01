@@ -75,11 +75,9 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    text: str
     verdict: str
     candidates: list[dict] = Field(default_factory=list)
     chart_error_flags: list[dict] = Field(default_factory=list)
-    annotations: list[str] = Field(default_factory=list)
     data_gaps: list[str] = Field(default_factory=list)
     dropped: list[str] = Field(default_factory=list)
     telemetry: dict = Field(default_factory=dict)
@@ -89,20 +87,33 @@ class ChatResponse(BaseModel):
 async def chat(
     body: ChatRequest,
     authorization: str | None = Header(default=None),
+    mock: int = 0,
 ) -> ChatResponse:
     """Handle one turn of the conversation.
 
     In production this endpoint requires a BFF-minted task token in the
     Authorization header. Demo mode accepts an empty header so the
     bundled HTML chat UI can talk to it directly.
+
+    ``?mock=1`` forces the deterministic mock provider, but is rejected
+    unless ``COPILOT_ALLOW_MOCK=true`` (production deployments leave it
+    unset; the OpenEMR launch button never sends the flag).
     """
+    from sidecar.agent.graph import make_provider
     settings = get_settings()
     snapshot = _snapshot_for(body.patient_id)
+    force_mock = bool(mock) and getattr(settings, "allow_mock", False)
+    if mock and not force_mock:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="?mock=1 requires COPILOT_ALLOW_MOCK=true",
+        )
     cfg = GraphConfig(
         purpose=body.purpose,
         user_id=body.user_id,
         settings=settings,
         audit_log=_AUDIT_LOG,
+        provider=make_provider(settings, force_mock=force_mock),
     )
     response = await run_graph(snapshot, cfg)
     logger.info(
@@ -113,18 +124,30 @@ async def chat(
             "verdict": response.verdict,
             "pair_count": response.telemetry.get("total_pair_count"),
             "auth_present": bool(authorization),
+            "mock": force_mock,
         },
     )
     return ChatResponse(
-        text=response.text,
         verdict=response.verdict,
         candidates=response.candidates,
         chart_error_flags=response.chart_error_flags,
-        annotations=response.annotations,
         data_gaps=response.data_gaps,
         dropped=response.dropped,
         telemetry=response.telemetry,
     )
+
+
+@router.get("/snapshot/{patient_uuid}")
+def get_snapshot(patient_uuid: str) -> dict:
+    """Return the deterministically-reconciled patient snapshot as JSON.
+
+    Demo path: load the matching fixture. Production path: this endpoint is
+    kept identical, but is fronted by the BFF which mints a 5-minute task
+    token bound to ``Patient/{uuid}`` (ARCHITECTURE.md §3.2). Without a
+    valid token the BFF refuses to proxy.
+    """
+    snapshot = _snapshot_for(f"Patient/{patient_uuid}")
+    return snapshot.model_dump(mode="json")
 
 
 @router.get("/audit/head")
@@ -139,6 +162,35 @@ def audit_head() -> dict[str, str | int]:
     return {"head_hash": head, "length": length, "chain_intact": chain_ok}
 
 
+@router.get("/audit/list")
+def audit_list(limit: int = 50) -> list[dict]:
+    """Return the most recent audit entries (newest first).
+
+    Each entry is one ``/chat`` invocation with prompt fingerprint,
+    redacted summary, verdict, telemetry, and the chain-of-custody hash
+    that proves it hasn't been tampered with. Demo-mode visibility for
+    eyeballing what the LLM saw and decided. In production this would
+    require admin-tier auth and would page via a cursor.
+    """
+    entries = list(_AUDIT_LOG)
+    entries.reverse()
+    out: list[dict] = []
+    for e in entries[:limit]:
+        out.append({
+            "ts": e.ts.isoformat() if hasattr(e.ts, "isoformat") else str(e.ts),
+            "patient_id": e.patient_id,
+            "user_id": e.user_id,
+            "purpose": e.purpose,
+            "verdict": e.verdict,
+            "prompt_fingerprint": e.prompt_fingerprint,
+            "summary": e.redacted_summary,
+            "telemetry": e.telemetry,
+            "row_hash": e.row_hash.hex() if isinstance(e.row_hash, (bytes, bytearray)) else str(e.row_hash),
+            "prev_hash": e.prev_hash.hex() if isinstance(e.prev_hash, (bytes, bytearray)) else str(e.prev_hash),
+        })
+    return out
+
+
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -151,6 +203,41 @@ def root_ui() -> HTMLResponse:
     if not ui_path.exists():
         return HTMLResponse("<html><body><p>UI not bundled.</p></body></html>")
     return HTMLResponse(ui_path.read_text(encoding="utf-8"))
+
+
+@router.get("/demo", response_class=HTMLResponse)
+@router.get("/demo/", response_class=HTMLResponse)
+def demo_ui() -> HTMLResponse:
+    """Serve the chat UI in deterministic-mock mode for demo recordings.
+
+    Same UI, same patient picker, but every ``/chat`` call goes through
+    ``?mock=1`` so the seed-table answers fire regardless of OpenAI
+    availability. Requires ``COPILOT_ALLOW_MOCK=true`` in the env;
+    otherwise the inner ``/chat?mock=1`` calls 403.
+    """
+    settings = get_settings()
+    if not getattr(settings, "allow_mock", False):
+        return HTMLResponse(
+            "<html><body style='font-family:system-ui;max-width:540px;margin:48px auto;'>"
+            "<h2>/demo is disabled</h2>"
+            "<p>Set <code>COPILOT_ALLOW_MOCK=true</code> in your <code>.env</code> "
+            "and restart the sidecar to enable the demo route.</p>"
+            "</body></html>",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+    ui_path = Path(__file__).resolve().parent.parent.parent / "ui" / "chat.html"
+    if not ui_path.exists():
+        return HTMLResponse("<html><body><p>UI not bundled.</p></body></html>")
+    html = ui_path.read_text(encoding="utf-8")
+    # Inject a flag the JS reads to route every /chat call to /chat?mock=1.
+    inject = (
+        "<script>window.__COPILOT_DEMO__ = true;</script>"
+        "<style>header.app::after{content:'DEMO (deterministic mock data)';"
+        "background:#fde68a;color:#92400e;padding:3px 10px;border-radius:99px;"
+        "font-size:11px;font-weight:700;margin-left:auto;letter-spacing:.04em;}</style>"
+    )
+    html = html.replace("</head>", inject + "</head>", 1)
+    return HTMLResponse(html)
 
 
 @router.get("/patients", response_model=list[str])

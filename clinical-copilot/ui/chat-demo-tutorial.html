@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><title>Clinical Co-Pilot Tutorial Demo</title>
+<style>
+  :root { --bg:#f6f7fb; --panel:#fff; --ink:#1a1f2c; --muted:#6c7280; --accent:#2c5282; --warn:#b7791f; --block:#c53030; --pass:#2f855a; --border:#e2e8f0; }
+  body { background:var(--bg); color:var(--ink); margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
+  h1 { margin:0 0 4px; font-size:24px; font-weight:600; }
+  h2.step { margin:32px 0 8px; font-size:18px; color:var(--accent); border-left:4px solid var(--accent); padding-left:10px; scroll-margin-top:16px; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .controls { display:grid; grid-template-columns:2fr 1fr auto; gap:8px; margin-bottom:16px; }
+  select, button { background:var(--panel); border:1px solid var(--border); color:var(--ink); border-radius:8px; padding:10px 12px; font-size:14px; }
+  button { cursor:pointer; background:var(--accent); border-color:var(--accent); color:#fff; font-weight:500; }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+  pre { white-space:pre-wrap; word-break:break-word; margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; line-height:1.55; }
+  .verdict { display:inline-block; padding:2px 10px; border-radius:99px; font-size:12px; font-weight:600; margin-left:8px; }
+  .verdict.passed { background:rgba(47,133,90,.18); color:var(--pass); }
+  .verdict.warned { background:rgba(183,121,31,.18); color:var(--warn); }
+  .verdict.blocked { background:rgba(197,48,48,.18); color:var(--block); }
+  .meta { color:var(--muted); font-size:12px; margin-top:12px; }
+  .pill { display:inline-block; background:rgba(44,82,130,.12); color:var(--accent); padding:2px 8px; border-radius:99px; font-size:11px; margin-right:4px; }
+  .badge { font-size:11px; vertical-align:middle; padding:2px 8px; border-radius:99px; background:#fde68a; color:#92400e; margin-left:8px; }
+  .legend { background:#f1f5f9; border:1px dashed #cbd5e1; padding:8px 12px; border-radius:8px; font-size:12px; color:#475569; margin-bottom:8px; }
+</style></head><body>
+<div class="wrap">
+<h1>Clinical Co-Pilot <span class="badge">SIDECAR DEMO</span></h1>
+<div class="sub">Pairwise comparison engine for OpenEMR. Read-only. Citations required. Tutorial view shows the UI in each successive state.</div>
+
+<h2 class="step" id="step1">Step 1 &mdash; Initial state of the chat UI</h2>
+<div class="legend">After visiting <code>http://localhost:8801/</code>, the UI loads the patient list from <code>/patients</code>.</div>
+<div class="controls">
+  <select aria-label="Patient"><option>Patient/87413</option><option>Patient/87414</option><option>Patient/87415</option></select>
+  <select aria-label="Purpose">
+    <option>Pre-visit cross-check (Use Case A)</option>
+    <option>Chart-error scan (Use Case B)</option>
+  </select>
+  <button>Run</button>
+</div>
+<div class="panel"><pre>Pick a patient and a purpose, then press Run.</pre></div>
+
+<h2 class="step" id="step2">Step 2 &mdash; Use Case A: pre-visit cross-check on the gout patient (Patient/87413)</h2>
+<div class="legend">71 y/o female with diabetes, gout, and hypertension; presenting with right toe pain, swollen toe, body aches, and elevated CRP (42 mg/L).</div>
+<div class="controls">
+  <select><option selected>Patient/87413</option></select>
+  <select><option selected>Pre-visit cross-check (Use Case A)</option></select>
+  <button>Run</button>
+</div>
+<div class="panel"><div><strong>Result</strong><span class="verdict warned">WARNED</span></div><pre>Top candidate explanations from the chart:
+  1. Gout, unspecified (high) — Gout flares classically present as podagra (sudden monoarticular MTP-joint pain) [source: lists#3018] — differentiating test: serum uric acid; joint aspirate for monosodium urate crystals
+  2. C-reactive protein = 42.0 mg/L (moderate) — Elevated CRP supports an active inflammatory process; with monoarticular toe pain this is consistent with crystal arthropathy (e.g. gout) or septic arthritis [source: procedure_result#lab02] — differentiating test: joint aspirate (rules in/out infection vs crystals)
+
+Data gaps:
+  - no recent uric acid measured — would resolve gout vs infection
+  - no HbA1c measured in the recent labs window
+
+Notes from the rule store:
+  - [gout_present_toe_pain_anchor] When the chart already documents gout and the patient presents with monoarticular toe pain, do not anchor on infection without joint aspirate or uric acid.</pre><div class="meta"><span class="pill">21 pairs</span> <span class="pill">0 prompt tok</span> <span class="pill">0 completion tok</span> <span class="pill">$0.0000</span> <span class="pill">14 dropped</span></div></div>
+
+<h2 class="step" id="step3">Step 3 &mdash; Use Case B: chart-error scan on the osteoporosis patient (Patient/87414)</h2>
+<div class="legend">71 y/o female with osteoporosis charted in 2013, then osteopenia charted in 2017 &mdash; biologically backward.</div>
+<div class="controls">
+  <select><option selected>Patient/87414</option></select>
+  <select><option selected>Chart-error scan (Use Case B)</option></select>
+  <button>Run</button>
+</div>
+<div class="panel"><div><strong>Result</strong><span class="verdict warned">WARNED</span></div><pre>Likely chart errors flagged for review:
+  1. Osteoporosis × Osteopenia (temporal, confidence 0.92) — osteopenia normally precedes osteoporosis on bone-density progression [sources: lists#4001, lists#4002]
+     Suggested clarification: Confirm onset dates; if osteoporosis truly preceded osteopenia, document the intervening treatment (e.g. zoledronic acid).
+
+Notes from the rule store:
+  - [osteo_progression_backward] Osteoporosis followed by osteopenia in the chart timeline is biologically backward; osteoporosis does not regress to osteopenia without intervening treatment.</pre><div class="meta"><span class="pill">12 pairs</span> <span class="pill">0 prompt tok</span> <span class="pill">0 completion tok</span> <span class="pill">$0.0000</span> <span class="pill">0 dropped</span></div></div>
+
+<h2 class="step" id="step4">Step 4 &mdash; Use Case B (bonus): penicillin allergy plus active amoxicillin (Patient/87415)</h2>
+<div class="legend">Pharmacological inconsistency: documented penicillin allergy with subsequent amoxicillin (penicillin-class) Rx.</div>
+<div class="controls">
+  <select><option selected>Patient/87415</option></select>
+  <select><option selected>Chart-error scan (Use Case B)</option></select>
+  <button>Run</button>
+</div>
+<div class="panel"><div><strong>Result</strong><span class="verdict warned">WARNED</span></div><pre>Likely chart errors flagged for review:
+  1. Penicillin allergy × Amoxicillin 500 mg (pharmacological, confidence 0.90) — documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without re-exposure note [sources: lists#al01, prescriptions#9201]
+     Suggested clarification: Either remove the allergy if tolerated, or add a penicillin-allergy-confirmed note and stop amoxicillin.
+
+Notes from the rule store:
+  - [penicillin_allergy_amoxicillin] Documented penicillin-class allergy with subsequent amoxicillin (penicillin-class) exposure without a re-exposure-tolerated note.</pre><div class="meta"><span class="pill">6 pairs</span> <span class="pill">0 prompt tok</span> <span class="pill">0 completion tok</span> <span class="pill">$0.0000</span> <span class="pill">0 dropped</span></div></div>
+
+</div></body></html>

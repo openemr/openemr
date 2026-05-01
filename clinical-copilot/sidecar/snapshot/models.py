@@ -156,6 +156,99 @@ class LabObservation(BaseModel):
         return False
 
 
+class Procedure(BaseModel):
+    """A procedure / surgery / intervention performed on the patient."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    label: str
+    cpt: str | None = None
+    snomed: str | None = None
+    performed: date | None = None
+    status: str | None = None
+    provenance: Provenance
+
+
+class Immunization(BaseModel):
+    """A vaccine administered to the patient."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    label: str
+    cvx: str | None = None
+    administered: date | None = None
+    dose_number: int | None = None
+    series_total: int | None = None
+    provenance: Provenance
+
+
+class FamilyHistoryEntry(BaseModel):
+    """An entry from the patient's family-history section."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    relationship: str  # "father" | "mother" | "sibling" | …
+    condition: str
+    relative_onset_age: int | None = None
+    status: str | None = None  # "living" | "deceased" | etc.
+    provenance: Provenance
+
+
+class SocialHistoryEntry(BaseModel):
+    """An entry from the patient's social-history section."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    category: str  # "smoking" | "alcohol" | "occupation" | …
+    value: str
+    recorded: date | None = None
+    provenance: Provenance
+
+
+class ImagingFinding(BaseModel):
+    """An imaging-study report (X-ray, CT, MRI, US, etc.)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    modality: str  # "MRI" | "CT" | "X-ray" | …
+    body_part: str
+    findings: str
+    performed: date | None = None
+    provenance: Provenance
+
+
+class DiagnosticTest(BaseModel):
+    """A diagnostic study other than a routine lab — EKG, biopsy, sleep
+    study, stress test, PFT, EEG, endoscopy result, etc."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    label: str
+    study_type: str  # "EKG" | "biopsy" | "sleep_study" | …
+    result: str
+    performed: date | None = None
+    provenance: Provenance
+
+
+class EncounterEntry(BaseModel):
+    """A recent encounter (clinic visit, ED visit, hospitalization)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    encounter_type: str  # "ambulatory" | "ed" | "inpatient" | …
+    reason: str
+    start: datetime | date | None = None
+    end: datetime | date | None = None
+    provenance: Provenance
+
+
 class Presenting(BaseModel):
     """The chief complaint / symptoms for the upcoming or current visit.
 
@@ -181,26 +274,59 @@ class PatientSnapshot(BaseModel):
     allergies: list[Allergy] = Field(default_factory=list)
     recent_vitals: list[VitalObservation] = Field(default_factory=list)
     recent_labs: list[LabObservation] = Field(default_factory=list)
+    procedures: list[Procedure] = Field(default_factory=list)
+    immunizations: list[Immunization] = Field(default_factory=list)
+    family_history: list[FamilyHistoryEntry] = Field(default_factory=list)
+    social_history: list[SocialHistoryEntry] = Field(default_factory=list)
+    imaging: list[ImagingFinding] = Field(default_factory=list)
+    diagnostic_tests: list[DiagnosticTest] = Field(default_factory=list)
+    recent_encounters: list[EncounterEntry] = Field(default_factory=list)
     presenting: Presenting = Field(default_factory=Presenting)
     quality_flags: list[QualityFlag] = Field(default_factory=list)
     free_text_notes_index: str | None = None  # pgvector pointer e.g. "vector://patient-87413"
 
-    def all_findings(self) -> list[tuple[str, Provenance, str]]:
-        """Flatten every documented finding to ``(label, provenance, kind)``.
+    def all_findings(self) -> list[tuple[str, Provenance, str, object]]:
+        """Flatten every documented finding to
+        ``(label, provenance, kind, original_object)``.
 
-        Used by the Pair Generator for Use Case B and as the candidate pool
-        for Use Case A.
+        ``original_object`` is the source pydantic model (Problem,
+        Medication, …) so the per-kind prompt renderer can pull
+        kind-specific fields (icd10, dose, severity, etc.) from it.
+
+        Used by the Pair Generator for Use Case B and as the candidate
+        pool for Use Case A.
         """
-        out: list[tuple[str, Provenance, str]] = []
+        out: list[tuple[str, Provenance, str, object]] = []
         for p in self.active_problems:
-            out.append((p.label, p.provenance, "problem"))
+            out.append((p.label, p.provenance, "diagnosis", p))
         for m in self.medications:
             if m.active:
-                out.append((m.label, m.provenance, "medication"))
+                out.append((m.label, m.provenance, "medication", m))
         for a in self.allergies:
-            out.append((a.label, a.provenance, "allergy"))
+            out.append((a.label, a.provenance, "allergy", a))
         for lab in self.recent_labs:
             if lab.is_abnormal:
-                out.append((f"{lab.label} = {lab.value} {lab.unit or ''}".strip(),
-                            lab.provenance, "lab"))
+                label = f"{lab.label} = {lab.value} {lab.unit or ''}".strip()
+                out.append((label, lab.provenance, "lab", lab))
+        for v in self.recent_vitals:
+            label = f"{v.label} = {v.value} {v.unit or ''}".strip()
+            out.append((label, v.provenance, "vital", v))
+        for proc in self.procedures:
+            out.append((proc.label, proc.provenance, "procedure", proc))
+        for imm in self.immunizations:
+            out.append((imm.label, imm.provenance, "immunization", imm))
+        for fh in self.family_history:
+            label = f"{fh.relationship}: {fh.condition}"
+            out.append((label, fh.provenance, "family_history", fh))
+        for sh in self.social_history:
+            label = f"{sh.category}: {sh.value}"
+            out.append((label, sh.provenance, "social_history", sh))
+        for img in self.imaging:
+            label = f"{img.modality} {img.body_part}: {img.findings}"
+            out.append((label, img.provenance, "imaging", img))
+        for t in self.diagnostic_tests:
+            out.append((t.label, t.provenance, "test", t))
+        for e in self.recent_encounters:
+            label = f"{e.encounter_type}: {e.reason}"
+            out.append((label, e.provenance, "encounter", e))
         return out
