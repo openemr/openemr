@@ -19,7 +19,6 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
-use Symfony\Component\Filesystem\Path;
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
@@ -711,7 +710,10 @@ function temp_dir_cleanup($type): void
     if (is_link($resolvedTarget)) {
         return;
     }
-    if (!Path::isBasePath($resolvedBase, $resolvedTarget)) {
+    // Require an immediate subdirectory of the base. This is stricter than
+    // isBasePath() (which allows nesting) and rules out values like '' or '.'
+    // that would otherwise resolve to the base itself and delete it whole.
+    if (dirname($resolvedTarget) !== $resolvedBase) {
         return;
     }
     rmdir_recursive($resolvedTarget);
@@ -742,8 +744,15 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
 }
 
 // Function to delete an entire directory
-function rmdir_recursive($dir): void
+function rmdir_recursive(string $dir): void
 {
+    // Refuse a symlinked root: scandir() follows symlinks, so without this
+    // guard a TOCTOU swap of the directory for a symlink could redirect
+    // deletion outside the intended tree. Unlink the link itself instead.
+    if (is_link($dir)) {
+        unlink($dir);
+        return;
+    }
     $files = scandir($dir);
     array_shift($files);    // remove '.' from array
     array_shift($files);    // remove '..' from array
