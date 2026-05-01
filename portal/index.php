@@ -26,6 +26,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
@@ -177,9 +178,14 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $token_one_time = $crypto->decryptStandard($forwardEmailVerify, minimumVersion: 6);
-    if (empty($token_one_time)) {
+    $token_one_time = null;
+    try {
+        $token_one_time = $crypto->decryptFromDatabase($forwardEmailVerify, minimumVersion: 6);
+    } catch (CryptoGenException) {
         ServiceContainer::getLogger()->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
+    }
+    if (empty($token_one_time)) {
+        ServiceContainer::getLogger()->debug("empty token after decryption, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
@@ -260,9 +266,13 @@ if (!empty($_GET['forward_email_verify'])) {
         $crypto = ServiceContainer::getCrypto();
         $forwardToken = is_string($_GET['forward']) ? $_GET['forward'] : null;
         if ($crypto->cryptCheckStandard($forwardToken)) {
-            $one_time = $crypto->decryptStandard($forwardToken, minimumVersion: 6);
-            if (!empty($one_time)) {
-                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
+            try {
+                $one_time = $crypto->decryptFromDatabase($forwardToken, minimumVersion: 6);
+                if (!empty($one_time)) {
+                    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
+                }
+            } catch (CryptoGenException) {
+                // Let $auth remain false - error handling below will catch it
             }
         }
     }
