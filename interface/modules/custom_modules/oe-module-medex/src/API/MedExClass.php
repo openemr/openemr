@@ -51,10 +51,9 @@ class MedEx
             $sessionFile = $tmpDir . '/cookiejar_MedExAPI';
         }
 
-        // Use http:// for localhost, docker-internal, or k8s cluster-internal URLs; https:// otherwise
+        // Use http:// only for explicit local development hosts; https:// otherwise.
         $isLocal = str_contains($url, 'localhost')
-            || str_contains($url, 'host.docker.internal')
-            || str_contains($url, '.svc.cluster.local');
+            || str_contains($url, 'host.docker.internal');
         $protocol = $isLocal ? 'http://' : 'https://';
         $cleanUrl = rtrim(preg_replace('/^https?\:\/\//', '', $url), '/');
         if (str_contains($cleanUrl, '/cart/upload')) {
