@@ -17,11 +17,13 @@
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @author  Robert Down <robertdown@live.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -62,7 +64,11 @@ $secondaryLogo = $logoService->getLogo("core/login/secondary");
 $smallLogoOne = $logoService->getLogo("core/login/small_logo_1");
 $smallLogoTwo = $logoService->getLogo("core/login/small_logo_2");
 
-$layout = $globalsBag->get('login_page_layout');
+// Fall back to the documented default (see library/globals.inc.php) when the
+// `login_page_layout` row is absent — happens on freshly seeded databases that
+// haven't run the 7.0.0 → 7.0.1 upgrade. Without this the next line passes
+// null into TemplatePageEvent and the login page 500s with no way to recover.
+$layout = $globalsBag->getString('login_page_layout') ?: 'login/layouts/vertical_band.html.twig';
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
 // If this script is called with app parameter, validate it without showing other apps.

@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -921,7 +923,10 @@ class AuthorizationController
         return $this->createServerResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $redirect);
     }
 
-    private function renderTwigPage($pageName, $template, $templateVars): ResponseInterface
+    /**
+     * @param array<string, mixed> $templateVars
+     */
+    private function renderTwigPage(string $pageName, string $template, array $templateVars): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
