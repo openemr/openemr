@@ -32,7 +32,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
+require_once("$srcdir/csv_like_join.php");
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\ListService;

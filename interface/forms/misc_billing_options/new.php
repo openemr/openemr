@@ -22,6 +22,8 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -30,9 +32,9 @@ use OpenEMR\OeUI\OemrUI;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-$rootdir = OEGlobalsBag::getInstance()->get('rootdir');
-$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
-$encounter = SessionWrapperFactory::getInstance()->getActiveSession()->get('encounter');
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc.php");

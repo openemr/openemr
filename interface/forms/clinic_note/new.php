@@ -17,17 +17,18 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-$rootdir = OEGlobalsBag::getInstance()->get('rootdir');
-$top_bg_line = ' bgcolor="#dddddd" ';
-$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
-$encounter = SessionWrapperFactory::getInstance()->getActiveSession()->get('encounter');
-$userauthorized = SessionWrapperFactory::getInstance()->getActiveSession()->get('userauthorized');
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
 
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
@@ -85,7 +86,7 @@ if ($formid) {
 
 </head>
 
-<body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
+<body bgcolor="#dddddd" topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/clinic_note/new.php?id=<?php echo attr_url($formid) ?>"
  onsubmit="return top.restoreSession()">

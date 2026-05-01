@@ -19,14 +19,14 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-$rootdir = OEGlobalsBag::getInstance()->get('rootdir');
-$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
