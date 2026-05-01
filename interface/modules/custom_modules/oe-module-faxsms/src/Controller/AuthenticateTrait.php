@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Exception;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\SDK;
 
@@ -87,7 +88,12 @@ trait AuthenticateTrait
     {
         if (file_exists($authBack)) {
             $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth !== false ? $cachedAuth : null), true);
+            try {
+                $cachedAuth = json_decode($this->crypto->decryptFromDatabase($cachedAuth !== false ? $cachedAuth : null), true);
+            } catch (CryptoGenException) {
+                unlink($authBack);
+                return [];
+            }
 
             // Don't delete cache immediately - validate first
             if ($this->isValidCachedAuth($cachedAuth)) {
@@ -149,7 +155,7 @@ trait AuthenticateTrait
     {
         $data = $platform->auth()->data();
         $jsonData = json_encode($data);
-        $encryptedData = $this->crypto->encryptStandard($jsonData !== false ? $jsonData : null);
+        $encryptedData = $this->crypto->encryptForDatabase($jsonData !== false ? $jsonData : null);
         file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
     }
 

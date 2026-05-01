@@ -3,6 +3,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -67,7 +68,11 @@ class VoiceClient extends AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        try {
+            $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
+        } catch (CryptoGenException) {
+            return [];
+        }
         return json_decode($decrypt, true);
     }
 
