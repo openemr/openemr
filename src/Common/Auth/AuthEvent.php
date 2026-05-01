@@ -47,7 +47,6 @@ final readonly class AuthEvent
     {
         return new self('auth');
     }
-<<<<<<< HEAD
 
     public static function api(): self
     {
@@ -58,6 +57,4 @@ final readonly class AuthEvent
     {
         return new self('portalapi');
     }
-=======
->>>>>>> master
 }
