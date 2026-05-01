@@ -1817,7 +1817,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method decryptStandard\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method decryptFromDatabase\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',
 ];

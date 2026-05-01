@@ -422,11 +422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_int\\(\\) with int will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
