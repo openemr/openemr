@@ -14,6 +14,7 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -52,27 +53,31 @@ SessionUtil::setSession('portal_init', false);
 
 if ($_POST['mode'] == 'Sphere') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $dataTrans = $cryptoGen->decryptStandard(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
-    $dataTrans = json_decode($dataTrans, true);
+    try {
+        $dataTransRaw = $cryptoGen->decryptFromDatabase(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
+        $dataTrans = json_decode($dataTransRaw, true);
 
-    $form_pid = $dataTrans['get']['patient_id_cc'];
+        $form_pid = $dataTrans['get']['patient_id_cc'];
 
-    $cc = [];
-    $cc["cardHolderName"] = $dataTrans['post']['name'];
-    $cc['status'] = $dataTrans['post']['status_name'];
-    $cc['authCode'] = $dataTrans['post']['authcode'];
-    $cc['transId'] = $dataTrans['post']['transid'];
-    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
-    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
-    $cc['zip'] = '';
-    $ccaudit = json_encode($cc);
-    $invoice = $_POST['invValues'] ?? '';
+        $cc = [];
+        $cc["cardHolderName"] = $dataTrans['post']['name'];
+        $cc['status'] = $dataTrans['post']['status_name'];
+        $cc['authCode'] = $dataTrans['post']['authcode'];
+        $cc['transId'] = $dataTrans['post']['transid'];
+        $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
+        $cc['cc_type'] = $dataTrans['post']['ccBrand'];
+        $cc['zip'] = '';
+        $ccaudit = json_encode($cc);
+        $invoice = $_POST['invValues'] ?? '';
 
-    SessionUtil::setSession('whereto', '#paymentcard');
+        SessionUtil::setSession('whereto', '#paymentcard');
 
-    SaveAudit($form_pid, $invoice, $ccaudit);
+        SaveAudit($form_pid, $invoice, $ccaudit);
 
-    echo 'ok';
+        echo 'ok';
+    } catch (CryptoGenException) {
+        echo 'Decryption failed';
+    }
 }
 
 if ($_POST['mode'] == 'AuthorizeNet') {
@@ -199,7 +204,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -233,7 +238,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
