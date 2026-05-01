@@ -697,9 +697,18 @@ function temp_dir_cleanup($type): void
     }
     // Defense in depth: ensure the resolved target is contained within
     // $temporary_files_dir to prevent traversal via untrusted $type.
+    // Also refuse to delete a symlinked root, which would let an attacker
+    // who can swap the directory for a symlink between this check and the
+    // recursive delete escape containment via TOCTOU.
+    if (is_link($target)) {
+        return;
+    }
     $resolvedBase = realpath($tempBase);
     $resolvedTarget = realpath($target);
     if ($resolvedBase === false || $resolvedTarget === false) {
+        return;
+    }
+    if (is_link($resolvedTarget)) {
         return;
     }
     if (!Path::isBasePath($resolvedBase, $resolvedTarget)) {
