@@ -24,6 +24,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
@@ -138,28 +139,6 @@ function generate_html_end()
     return 0;
 }
 
-function log_failed_mfa_attempt(int|string $userid, string $reason): void
-{
-    $ip = collectIpAddresses();
-    $userService = new \OpenEMR\Services\UserService();
-    $userRow = $userService->getUser($userid);
-    $username = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : '';
-    $authGroup = '';
-    if ($username !== '') {
-        $resolvedGroup = $userService->getAuthGroupForUser($username);
-        if (is_string($resolvedGroup)) {
-            $authGroup = $resolvedGroup;
-        }
-    }
-    EventAuditLogger::getInstance()->newEvent(
-        'login',
-        $username,
-        $authGroup,
-        0,
-        "failure: " . $ip['ip_string'] . ". " . $reason
-    );
-}
-
 if (isset($_POST['new_login_session_management'])) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
@@ -257,9 +236,14 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
-                    if (is_int($userid) || is_string($userid)) {
-                        log_failed_mfa_attempt($userid, 'TOTP code incorrect');
-                    }
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'TOTP code incorrect'
+                    );
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -292,9 +276,14 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
-                    if (is_int($userid) || is_string($userid)) {
-                        log_failed_mfa_attempt($userid, 'U2F authentication error: ' . $e->getMessage());
-                    }
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'U2F authentication error: ' . $e->getMessage()
+                    );
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }

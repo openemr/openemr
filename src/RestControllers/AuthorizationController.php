@@ -47,6 +47,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
@@ -880,26 +881,19 @@ class AuthorizationController
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
                 if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     // Log failed MFA authentication attempt
-                    $ip = collectIpAddresses();
                     $rawMfaType = (string) $request->request->get('mfa_type', '');
                     $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
                     $userService = new UserService();
                     $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
-                    $username = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : '';
-                    $authGroup = '';
-                    if ($username !== '') {
-                        $resolvedGroup = $userService->getAuthGroupForUser($username);
+                    $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                    $mfaAuthGroup = '';
+                    if ($mfaUsername !== null) {
+                        $resolvedGroup = $userService->getAuthGroupForUser($mfaUsername);
                         if (is_string($resolvedGroup)) {
-                            $authGroup = $resolvedGroup;
+                            $mfaAuthGroup = $resolvedGroup;
                         }
                     }
-                    EventAuditLogger::getInstance()->newEvent(
-                        'login',
-                        $username,
-                        $authGroup,
-                        0,
-                        "failure: " . $ip['ip_string'] . ". OAuth2 MFA ($mfaType) code incorrect"
-                    );
+                    EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
