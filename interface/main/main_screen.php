@@ -21,10 +21,10 @@ $sessionAllowWrite = true;
 require_once('../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
-use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
