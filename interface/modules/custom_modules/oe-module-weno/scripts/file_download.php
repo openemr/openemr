@@ -6,6 +6,7 @@
 require_once dirname(__DIR__, 4) . "/globals.php";
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -20,8 +21,13 @@ $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
 $cryptoGen = ServiceContainer::getCrypto();
 $weno_username = OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
-$weno_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
-$encryption_key = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
+try {
+    $weno_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+    $encryption_key = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
+} catch (CryptoGenException) {
+    $weno_password = '';
+    $encryption_key = '';
+}
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();
