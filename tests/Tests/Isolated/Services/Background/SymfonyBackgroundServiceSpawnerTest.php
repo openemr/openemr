@@ -473,6 +473,91 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
         $this->assertSame('sleeps_forever', $this->logger->warnings[0]['context']['service'] ?? null);
         $this->assertSame(1, $this->logger->warnings[0]['context']['timeout_seconds'] ?? null);
     }
+
+    public function testNullBinaryResolvesViaPhpExecutableFinder(): void
+    {
+        // Production code path: the BackgroundServiceRunner constructs
+        // the spawner with no $phpBinary argument, so resolution falls
+        // through to PhpExecutableFinder. Under the CLI test runner
+        // the finder returns PHP_BINARY (the test suite's own PHP
+        // binary); the assertion is that the resolved value is a
+        // non-empty executable path, not the empty string the bug
+        // surfaced as under Apache mod_php (openemr/openemr#11932).
+        $spawner = new SymfonyBackgroundServiceSpawner(
+            $this->fakeProjectDir,
+            $this->logger,
+            null,
+        );
+
+        $resolved = $this->readPhpBinary($spawner);
+        $this->assertNotSame('', $resolved);
+        $this->assertTrue(
+            is_executable($resolved),
+            'Resolved PHP binary must be executable: ' . $resolved,
+        );
+    }
+
+    public function testEmptyStringBinaryIsTreatedAsNullAndResolves(): void
+    {
+        // openemr/openemr#11932 reproduction at the constructor layer:
+        // Apache mod_php on Alpine evaluates the PHP_BINARY constant to
+        // "" (empty string, not null), which the previous default
+        // forwarded straight to Symfony Process and produced
+        // "First element must contain a non-empty program name". The
+        // constructor now treats "" the same as null and resolves via
+        // PhpExecutableFinder.
+        $spawner = new SymfonyBackgroundServiceSpawner(
+            $this->fakeProjectDir,
+            $this->logger,
+            '',
+        );
+
+        $resolved = $this->readPhpBinary($spawner);
+        $this->assertNotSame('', $resolved);
+    }
+
+    public function testConstructorThrowsWhenNoPhpBinaryCanBeResolved(): void
+    {
+        // PhpExecutableFinder honors the PHP_BINARY env var first; a
+        // non-existent path forces the finder's early-return-false
+        // branch even under the CLI SAPI, which exercises the
+        // spawner's RuntimeException guard. Without the guard the
+        // failure would manifest later inside Process::run() as the
+        // same opaque "non-empty program name" exception this fix
+        // exists to prevent.
+        $previous = getenv('PHP_BINARY');
+        putenv('PHP_BINARY=/nonexistent/__php_binary_for_test_' . uniqid('', true) . '__');
+
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('Cannot locate a PHP CLI binary');
+            new SymfonyBackgroundServiceSpawner(
+                $this->fakeProjectDir,
+                $this->logger,
+                null,
+            );
+        } finally {
+            if ($previous === false) {
+                putenv('PHP_BINARY');
+            } else {
+                putenv('PHP_BINARY=' . $previous);
+            }
+        }
+    }
+
+    private function readPhpBinary(SymfonyBackgroundServiceSpawner $spawner): string
+    {
+        // Reflection peek: the resolved binary is a private property and
+        // there's no public accessor, but the alternative (actually
+        // spawning a child) requires a real PHP fixture and is covered
+        // by SymfonyBackgroundServiceSpawnerPhpChildTest. This test
+        // only needs to confirm the constructor populated a non-empty
+        // path.
+        $reflect = new \ReflectionProperty($spawner, 'phpBinary');
+        $value = $reflect->getValue($spawner);
+        self::assertIsString($value);
+        return $value;
+    }
 }
 
 /**
