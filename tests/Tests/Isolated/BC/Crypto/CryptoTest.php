@@ -44,7 +44,11 @@ final class CryptoTest extends TestCase
     {
         $this->fixtures = new CryptoFixtureManager('/dev/null');
         $this->keychain = $this->buildKeychain();
-        $this->crypto = new Crypto($this->keychain, new NullLogger());
+        $this->crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: true,
+        );
     }
 
     private function buildKeychain(): Keychain
@@ -314,5 +318,71 @@ final class CryptoTest extends TestCase
         $decrypted = $this->crypto->decryptFromDatabase($encrypted);
 
         self::assertSame($plaintext, $decrypted);
+    }
+
+    public function testEncryptForDatabaseReturnsPlaintextWhenOptedOut(): void
+    {
+        $crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: false,
+        );
+        $plaintext = 'test data should not be encrypted';
+
+        $result = $crypto->encryptForDatabase($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNullWhenOptedOut(): void
+    {
+        $crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: false,
+        );
+
+        self::assertSame('', $crypto->encryptForDatabase(null));
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyStringWhenOptedOut(): void
+    {
+        $crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: false,
+        );
+
+        self::assertSame('', $crypto->encryptForDatabase(''));
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintextWhenOptedOut(): void
+    {
+        $crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: false,
+        );
+        $plaintext = 'unencrypted data from database';
+
+        $result = $crypto->decryptFromDatabase($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testRoundTripWhenOptedOutPreservesPlaintext(): void
+    {
+        $crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForDatabase: false,
+        );
+        $plaintext = 'plaintext round trip test';
+
+        $stored = $crypto->encryptForDatabase($plaintext);
+        $retrieved = $crypto->decryptFromDatabase($stored);
+
+        self::assertSame($plaintext, $stored);
+        self::assertSame($plaintext, $retrieved);
     }
 }
