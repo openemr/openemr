@@ -32,6 +32,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $db = $_GET['db'] ?? '0';
+// Restrict $db to the known set of supported standardized tables. The value
+// flows into filesystem paths (contrib/<db>, temporary_files_dir/<db>); an
+// unconstrained value enables directory traversal in temp_dir_cleanup().
+if (!in_array($db, ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET'], true)) {
+    throw new \InvalidArgumentException('Invalid database type');
+}
 $version = $_GET['version'] ?? '0';
 $rf = $_GET['rf'] ?? '0';
 $file_revision_date = $_GET['file_revision_date'] ?? '0';

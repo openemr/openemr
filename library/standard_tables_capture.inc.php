@@ -19,6 +19,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
+use Symfony\Component\Filesystem\Path;
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
@@ -689,9 +690,22 @@ function valueset_import($type)
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type): void
 {
-    if (is_dir(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type)) {
-        rmdir_recursive(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type);
+    $tempBase = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+    $target = $tempBase . "/" . $type;
+    if (!is_dir($target)) {
+        return;
     }
+    // Defense in depth: ensure the resolved target is contained within
+    // $temporary_files_dir to prevent traversal via untrusted $type.
+    $resolvedBase = realpath($tempBase);
+    $resolvedTarget = realpath($target);
+    if ($resolvedBase === false || $resolvedTarget === false) {
+        return;
+    }
+    if (!Path::isBasePath($resolvedBase, $resolvedTarget)) {
+        return;
+    }
+    rmdir_recursive($resolvedTarget);
 }
 
 // Function to update version tracker table if successful
