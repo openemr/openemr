@@ -1075,8 +1075,15 @@ final class CryptoGenTest extends TestCase
     public function testDecryptFromDatabaseThrowsOnCorruptedCiphertext(): void
     {
         $encrypted = $this->cryptoGen->encryptForDatabase('test data');
-        // Tamper with the ciphertext (after the 3-byte prefix)
-        $tampered = substr($encrypted, 0, 10) . 'X' . substr($encrypted, 11);
+
+        // Corrupt the actual binary data by decoding, flipping a bit, and re-encoding.
+        // This guarantees corruption regardless of the random encryption output.
+        $prefix = substr($encrypted, 0, 3);
+        $base64Part = substr($encrypted, 3);
+        $binary = base64_decode($base64Part, true);
+        self::assertIsString($binary);
+        $binary[10] = chr(ord($binary[10]) ^ 0x01);
+        $tampered = $prefix . base64_encode($binary);
 
         $this->expectException(CryptoGenException::class);
 
