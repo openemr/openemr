@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 
@@ -142,7 +143,11 @@ class MfaUtils
         // Decrypt the secret
         // First, try standard method that uses standard key
         $cryptoGen = ServiceContainer::getCrypto();
-        $secret = $cryptoGen->decryptStandard(is_string($registrationSecret) ? $registrationSecret : null);
+        try {
+            $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
+        } catch (CryptoGenException) {
+            $secret = null;
+        }
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(
@@ -159,7 +164,7 @@ class MfaUtils
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                     // Re-encrypt with the more secure standard key
-                    $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                    $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
                     privStatement(
                         "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                         [$secretEncrypt, $this->uid]
