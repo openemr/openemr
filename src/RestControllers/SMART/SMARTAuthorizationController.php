@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -323,7 +325,10 @@ class SMARTAuthorizationController
         return $this->twig;
     }
 
-    private function renderTwigPage($pageName, $template, $templateVars): ResponseInterface
+    /**
+     * @param array<string, mixed> $templateVars
+     */
+    private function renderTwigPage(string $pageName, string $template, array $templateVars): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
@@ -345,7 +350,10 @@ class SMARTAuthorizationController
         }
     }
 
-    private function renderTwigJson($pageName, $template, $templateVars, $defaultTemplate = null): ResponseInterface
+    /**
+     * @param array<string, mixed> $templateVars
+     */
+    private function renderTwigJson(string $pageName, string $template, array $templateVars, ?string $defaultTemplate = null): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
