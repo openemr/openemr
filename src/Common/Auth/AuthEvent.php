@@ -47,4 +47,14 @@ final readonly class AuthEvent
     {
         return new self('auth');
     }
+
+    public static function api(): self
+    {
+        return new self('api');
+    }
+
+    public static function portalapi(): self
+    {
+        return new self('portalapi');
+    }
 }
