@@ -5,8 +5,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Aanand SJ
- * @copyright Copyright (c) 2026 Aanand SJ
+ * @author    Aanand Sreekumaran Nair Jayakumari
+ * @copyright Copyright (c) 2026 Aanand Sreekumaran Nair Jayakumari
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
