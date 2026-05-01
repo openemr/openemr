@@ -21,6 +21,7 @@ namespace OpenEMR\Services\Background;
 use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServiceProcessSpawner
@@ -80,22 +81,52 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
 
     private LoggerInterface $logger;
 
+    private string $phpBinary;
+
     /**
      * @param string      $projectDir Absolute path to the OpenEMR project
      *                                root (used to locate bin/console).
-     * @param string      $phpBinary  Absolute path to the PHP binary the
-     *                                child should run under. Defaults to
-     *                                PHP_BINARY, which matches the PHP
-     *                                currently running the parent,
-     *                                aligning FPM/CLI extensions, INI
-     *                                settings, and version.
+     * @param string|null $phpBinary  Absolute path to the PHP CLI binary
+     *                                the child should run under. When
+     *                                null or empty, resolves via
+     *                                PhpExecutableFinder so production
+     *                                works under SAPIs where PHP_BINARY
+     *                                is empty (Apache mod_php on Alpine,
+     *                                where the constant is "", not the
+     *                                CLI path). Test fixtures inject an
+     *                                explicit binary (e.g. /bin/sh).
      */
     public function __construct(
         private string $projectDir,
         ?LoggerInterface $logger = null,
-        private string $phpBinary = PHP_BINARY,
+        ?string $phpBinary = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->phpBinary = $phpBinary !== null && $phpBinary !== ''
+            ? $phpBinary
+            : self::resolvePhpBinary();
+    }
+
+    /**
+     * Find a PHP CLI binary suitable for the child subprocess.
+     *
+     * PhpExecutableFinder walks PHP_BINARY env, the PHP_BINARY constant
+     * (only when the parent is itself running CLI/cli-server/phpdbg),
+     * PHP_PATH, PHP_BINDIR, and finally $PATH. Under Apache mod_php the
+     * constant is empty and the SAPI is `apache2handler`, so the finder
+     * falls through to PHP_BINDIR / PATH and locates the bundled CLI.
+     */
+    private static function resolvePhpBinary(): string
+    {
+        $binary = (new PhpExecutableFinder())->find(false);
+        if ($binary === false || $binary === '') {
+            throw new \RuntimeException(
+                'Cannot locate a PHP CLI binary for background service subprocesses. '
+                . 'Set the PHP_BINARY or PHP_PATH environment variable, or place a '
+                . 'php executable on PATH.',
+            );
+        }
+        return $binary;
     }
 
     public function spawn(string $name, bool $force, int $timeoutSeconds): array
