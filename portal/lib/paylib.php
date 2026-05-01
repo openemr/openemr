@@ -14,6 +14,7 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -49,6 +50,10 @@ if ($session->get('portal_init') !== true) {
 }
 
 SessionUtil::setSession('portal_init', false);
+
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
 
 if ($_POST['mode'] == 'Sphere') {
     $cryptoGen = ServiceContainer::getCrypto();
