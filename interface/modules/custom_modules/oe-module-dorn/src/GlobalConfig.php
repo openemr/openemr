@@ -13,6 +13,7 @@
  namespace OpenEMR\Modules\Dorn;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 
@@ -59,7 +60,11 @@ class GlobalConfig
     public function getClientSecret()
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
-        return $this->cryptoGen->decryptStandard(is_string($encryptedValue) ? $encryptedValue : null);
+        try {
+            return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
+        } catch (CryptoGenException) {
+            return '';
+        }
     }
 
     public function getClientScope()
