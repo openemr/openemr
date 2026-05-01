@@ -281,14 +281,18 @@ class MedExAPI
 
         // Check if we have a valid cached session token (unless forcing refresh)
         if (!$forceRefresh && $this->hasValidSessionToken()) {
-            return $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken];
+            return $this->attachCallbackMetadata(
+                $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken]
+            );
         }
 
         // Try to load cached session token from database (unless forcing refresh)
         if (!$forceRefresh) {
             $this->loadCachedSessionToken();
             if ($this->hasValidSessionToken()) {
-                return $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken];
+                return $this->attachCallbackMetadata(
+                    $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken]
+                );
             }
         }
 
@@ -296,23 +300,13 @@ class MedExAPI
         $url = $this->baseUrl . '/index.php?route=api/oemr/login';
 
         try {
-            $callbackToken = QueryUtils::fetchSingleValue(
-                "SELECT gl_value FROM globals WHERE gl_name = ?",
-                'gl_value',
-                ['medex_callback_token']
-            ) ?? '';
+            $callbackToken = $this->getStoredCallbackToken();
             $callbackBase = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
             $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
             if ($callbackSiteId === '') {
                 $callbackSiteId = 'default';
             }
-            $callbackUrl = '';
-            if (trim((string)$callbackToken) !== '' && $callbackBase !== '') {
-                $callbackUrl = rtrim($callbackBase, '/')
-                    . '/interface/modules/custom_modules/oe-module-medex/public/callback.php'
-                    . '?token=' . rawurlencode((string)$callbackToken)
-                    . '&site=' . rawurlencode($callbackSiteId);
-            }
+            $callbackUrl = $this->buildStoredCallbackUrl($callbackToken);
 
             $http = oeHttp::setOptions([
                 'timeout' => 5,
@@ -352,12 +346,12 @@ class MedExAPI
             $this->cacheSessionToken();
 
             // Store enabled services for later use
-            $this->sessionData = $data;
+            $this->sessionData = $this->attachCallbackMetadata($data);
 
             error_log("[MedEx] Login successful - got session token");
             error_log("[MedEx] customer_group_id from API: " . ($data['customer_group_id'] ?? 'NOT SET'));
             error_log("[MedEx] sessionData keys: " . implode(', ', array_keys($data)));
-            return $data;
+            return $this->sessionData;
 
         } catch (\Exception $e) {
             error_log("[MedEx] Login error: " . $e->getMessage());
@@ -385,11 +379,11 @@ class MedExAPI
                         error_log("[MedEx] Network error — using stale cached session token as fallback");
                         $this->sessionToken = $stale['session_token'];
                         $this->sessionExpiry = time() + 300; // 5-min grace period
-                        return [
+                        return $this->attachCallbackMetadata([
                             'success'        => true,
                             'token'          => $this->sessionToken,
                             'stale_fallback' => true,
-                        ];
+                        ]);
                     }
                 } catch (\Exception $dbErr) {
                     // ignore DB error during fallback
@@ -408,6 +402,61 @@ class MedExAPI
         return !empty($this->sessionToken) &&
                $this->sessionExpiry !== null &&
                time() < $this->sessionExpiry;
+    }
+
+    private function getStoredCallbackToken(): string
+    {
+        return trim((string)(QueryUtils::fetchSingleValue(
+            "SELECT gl_value FROM globals WHERE gl_name = ?",
+            'gl_value',
+            ['medex_callback_token']
+        ) ?? ''));
+    }
+
+    private function buildStoredCallbackUrl(string $callbackToken): string
+    {
+        $callbackToken = trim($callbackToken);
+        if ($callbackToken === '') {
+            return '';
+        }
+
+        $callbackBase = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
+        if ($callbackBase === '') {
+            return '';
+        }
+
+        $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
+        if ($callbackSiteId === '') {
+            $callbackSiteId = 'default';
+        }
+
+        return rtrim($callbackBase, '/')
+            . '/interface/modules/custom_modules/oe-module-medex/public/callback.php'
+            . '?token=' . rawurlencode($callbackToken)
+            . '&site=' . rawurlencode($callbackSiteId);
+    }
+
+    private function attachCallbackMetadata(array $data): array
+    {
+        $callbackToken = trim((string)($data['callback_token'] ?? ''));
+        if ($callbackToken === '') {
+            $callbackToken = $this->getStoredCallbackToken();
+        }
+
+        if ($callbackToken !== '') {
+            $data['callback_token'] = $callbackToken;
+        }
+
+        $callbackUrl = trim((string)($data['callback_url'] ?? ''));
+        if ($callbackUrl === '' && $callbackToken !== '') {
+            $callbackUrl = $this->buildStoredCallbackUrl($callbackToken);
+        }
+
+        if ($callbackUrl !== '') {
+            $data['callback_url'] = $callbackUrl;
+        }
+
+        return $data;
     }
 
     /**
