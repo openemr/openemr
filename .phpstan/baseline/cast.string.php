@@ -258,11 +258,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/code_systems/standard_tables_manage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 36,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
 ];
