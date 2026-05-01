@@ -49,10 +49,25 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
+    /**
+     * Installations using databases backed with external security measures
+     * like TDE may opt-out of column-level encryption, in order to rely on
+     * external key management and other security considerations.
+     *
+     * Using this without database-managed encryption technologies will reduce
+     * security and can lead to non-compliance.
+     *
+     * Caveat: this will only impact code that uses the `encryptForDatabase`
+     * path. Not all code does at this time.
+     */
+    private readonly bool $shouldEncryptForDatabase;
+
     public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
     {
+        $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
+        $this->shouldEncryptForDatabase = $bag->getBoolean('database_encryption');
     }
 
     /**
@@ -139,6 +154,9 @@ class CryptoGen implements CryptoInterface
     {
         if ($value === null || $value === '') {
             return '';
+        }
+        if (!$this->shouldEncryptForDatabase) {
+            return $value;
         }
         return $this->encryptStandard($value, keySource: KeySource::Drive);
     }
