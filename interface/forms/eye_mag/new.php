@@ -13,10 +13,12 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

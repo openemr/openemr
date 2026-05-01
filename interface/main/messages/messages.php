@@ -21,12 +21,6 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/gprelations.inc.php");
-require_once "$srcdir/user.inc.php";
-require_once("$srcdir/MedEx/API.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -38,7 +32,23 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once("$srcDir/pnotes.inc.php");
+require_once("$srcDir/patient.inc.php");
+require_once("$srcDir/options.inc.php");
+require_once("$srcDir/gprelations.inc.php");
+require_once "$srcDir/user.inc.php";
+require_once("$srcDir/MedEx/API.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var int|null $userauthorized */
+$userauthorized ??= null;
+$background = '';
+$body = '';
+$cursor = '';
+$message_legend = '';
+$result = null;
+$sortlink = [];
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -59,7 +69,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 //use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
-$uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
+$uspfx = substr(__FILE__, strlen(OEGlobalsBag::getInstance()->getString('webserver_root'))) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
@@ -87,15 +97,15 @@ if (
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/css/reminder_style.css?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>">
 
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
-        <?php require_once "$srcdir/restoreSession.php"; ?>
+        <?php require_once "$srcDir/restoreSession.php"; ?>
     </script>
 
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {

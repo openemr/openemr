@@ -38,8 +38,7 @@ class VsDateUtil
     /**
      * Returns the timestamp for the beginning of DST for specified year
      *
-     * @param
-     *          int the 4-digit year (if not provide then the current year is used)
+     * @param int $year the 4-digit year (if not provide then the current year is used)
      */
     static function DstStartNorthAmerica($year = null)
     {
@@ -53,8 +52,7 @@ class VsDateUtil
     /**
      * Returns the timestamp for the end of DST for the specified year
      *
-     * @param
-     *          int the 4-digit year (if not provide then the current year is used)
+     * @param int $year the 4-digit year (if not provide then the current year is used)
      */
     static function DstEndNorthAmerica($year = null)
     {

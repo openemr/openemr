@@ -58,7 +58,7 @@ class InstModuleTable
 
     /**
      * @param string $dir
-     * @return boolean
+     * @return bool
      */
     public function installSQL($modId, $mod_type, $dir)
     {
@@ -223,7 +223,7 @@ class InstModuleTable
     /**
      * this will be used to register a module
      *
-     * @return boolean
+     * @return bool
      */
     public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
     {
@@ -302,7 +302,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function allModules()
     {
@@ -313,7 +313,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function getInstalledModules()
     {
@@ -1017,7 +1017,7 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return boolean Nickname available or not.
+     * @return bool Nickname available or not.
      **/
     public function validateNickName($name)
     {

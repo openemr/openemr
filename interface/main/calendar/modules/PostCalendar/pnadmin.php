@@ -69,6 +69,8 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
 function postcalendar_admin_categoriesConfirm()
 {
+    $msg = '';
+    $dels = '';
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     $header = <<<EOF
@@ -200,7 +202,7 @@ EOF;
     }
     if (!empty($newname)) {
         if (empty($newconstantid)) {
-            $body .= $output->generateText(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
             return $output->GetOutput($body);
         }
         if (strpos(trim((string) $newconstantid), ' ')) {
@@ -402,7 +404,7 @@ function postcalendar_admin_categoriesUpdate()
                 'addCategories',
                 ['name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
                 'repeat' => $new_event_repeat,'spec' => $new_event_recurrspec,
-                'recurrfreq' => $new_recurrfreq ?? '','duration' => $new_duration,'limitid' => $new_dailylimitid,
+                'recurrfreq' => '','duration' => $new_duration,'limitid' => $new_dailylimitid,
                 'end_date_flag' => $new_end_date_flag,'end_date_type' => $new_end_date_flag,
                 'end_date_freq' => $new_end_date_freq,
                 'end_all_day' => $new_end_all_day]
@@ -810,7 +812,8 @@ function postcalendar_admin_testSystem()
     array_push($infos, ['WebServer', $__SERVER['SERVER_SOFTWARE']]);
     array_push($infos, ['Module dir', "modules/$pcDir"]);
 
-    $modversion = [];
+    /** @var array{version: string} $modversion */
+    $modversion = ['version' => ''];
     include  "modules/$pcDir/pnversion.php";
 
     $error = '';

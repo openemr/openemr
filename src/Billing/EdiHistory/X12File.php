@@ -1307,7 +1307,7 @@ class X12File
      * The return value will be an array of one or more segments.
      * The 'search' parameter results in one or more segments containing
      * the search string.  The
-     * @param array    note: all element values except 'keys' are strings
+     * @param array $arg_array note: all element values except 'keys' are strings
      * @return array
      */
     function edih_x12_slice($arg_array, $file_text = '')

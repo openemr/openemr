@@ -38,7 +38,7 @@ require_once(__DIR__ . "/maviq_phone_api.php");
 /**
  * Display the patient reminder widget.
  *
- * @param  integer  $patient_id  pid of selected patient
+ * @param int $patient_id pid of selected patient
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  */
 function patient_reminder_widget($patient_id, $dateTarget = ''): void
@@ -99,9 +99,9 @@ function patient_reminder_widget($patient_id, $dateTarget = ''): void
  * </pre>
  *
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
- * @param  integer  $batchSize   number of patients to batch (default is 25; plan to optimize this default setting in the future)
- * @param  integer  $report_id   id of report in database (if already bookmarked)
- * @param  boolean  $also_send   if TRUE, then will also call send_reminder when done
+ * @param int $batchSize number of patients to batch (default is 25; plan to optimize this default setting in the future)
+ * @param int $report_id id of report in database (if already bookmarked)
+ * @param bool $also_send if TRUE, then will also call send_reminder when done
  * @return array                 see above for data structure of returned array
  */
 function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $report_id = null, $also_send = false)
@@ -198,9 +198,9 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
  * </pre>
  *
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
- * @param  integer  $patient_id  pid of patient. If blank then will check all patients.
- * @param  integer  $start       applicable patient to start at (when batching process)
- * @param  integer  $batchSize   number of patients to batch (when batching process)
+ * @param int $patient_id pid of patient. If blank then will check all patients.
+ * @param int $start applicable patient to start at (when batching process)
+ * @param int $batchSize number of patients to batch (when batching process)
  * @return array                 see above for data structure of returned array
  */
 function update_reminders($dateTarget = '', $patient_id = '', $start = null, $batchSize = null)
@@ -437,7 +437,7 @@ function send_reminders()
 /**
  * Function to fetch reminders.
  *
- * @param  integer/array  $patient_id  pid(s) of patient(s).
+ * @param int|array $patient_id pid(s) of patient(s).
  * @param  string         $type        Can choose unsent ('unsent') vs all active (BLANK) reminders
  * @param  string         $due_status  due status of reminders (soon_due,due,past_due). If blank, then will return all.
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.

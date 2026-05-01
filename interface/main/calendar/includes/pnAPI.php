@@ -131,7 +131,7 @@ function pnConfigInit(): bool
 
 /**
  * get a configuration variable
- * @param name the name of the variable
+ * @param mixed $name the name of the variable
  * @returns data
  * @return value of the variable, or false on failure
  */
@@ -239,8 +239,8 @@ function pnDBGetTables()
  * <br />
  * Gets a global variable, cleaning it up to try to ensure that
  * hack attacks don't work
- * @param var name of variable to get
- * @param ...
+ * @param mixed $name of variable to get
+ * @param mixed ...$args
  * @return mixed prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarCleanFromInput()
@@ -292,8 +292,8 @@ function pnVarCleanFromInput()
  * <br />
  * Gets a variable, cleaning it up such that the text is
  * shown exactly as expected
- * @param var variable to prepare
- * @param ...
+ * @param mixed $variable to prepare
+ * @param mixed ...$args
  * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForDisplay()
@@ -342,8 +342,8 @@ function pnVarPrepForDisplay()
  * Gets a variable, cleaning it up such that the text is
  * shown exactly as expected, except for allowed HTML tags which
  * are allowed through
- * @param var variable to prepare
- * @param ...
+ * @param mixed $variable to prepare
+ * @param mixed ...$args
  * @return list<string|null>|string|null prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepHTMLDisplay()
@@ -408,8 +408,8 @@ function pnVarPrepHTMLDisplay()
  * <br />
  * Gets a variable, cleaning it up such that the text is
  * stored in a database exactly as expected
- * @param var variable to prepare
- * @param ...
+ * @param mixed $variable to prepare
+ * @param mixed ...$args
  * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForStore()
@@ -437,8 +437,8 @@ function pnVarPrepForStore()
  * Gets a variable, cleaning it up such that any attempts
  * to access files outside of the scope of the PostNuke
  * system is not allowed
- * @param var variable to prepare
- * @param ...
+ * @param mixed $variable to prepare
+ * @param mixed ...$args
  * @return list<string>|string prepared variable if only one variable passed in, otherwise an array of prepared variables
  */
 function pnVarPrepForOS()

@@ -24,11 +24,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -105,6 +100,11 @@ $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Negated boolean expression is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',

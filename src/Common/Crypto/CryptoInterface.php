@@ -41,4 +41,27 @@ interface CryptoInterface
      * @return bool True if valid, false otherwise
      */
     public function cryptCheckStandard(?string $value): bool;
+
+    /**
+     * Encrypts data for storage in the database.
+     *
+     * Uses KeySource::Drive explicitly for database field encryption.
+     *
+     * @param ?string $value The value to encrypt
+     * @return string The encrypted value, or empty string if input is null/empty
+     */
+    public function encryptForDatabase(?string $value): string;
+
+    /**
+     * Decrypts data retrieved from the database.
+     *
+     * If the value is not encrypted (no valid prefix), returns it unchanged (plaintext passthrough).
+     * If decryption fails, throws CryptoGenException.
+     *
+     * @param ?string $value The value to decrypt
+     * @param ?int $minimumVersion Minimum encryption version required
+     * @return string The decrypted value, or original value if not encrypted
+     * @throws CryptoGenException If decryption of encrypted data fails
+     */
+    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string;
 }

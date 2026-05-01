@@ -52,16 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on list\\<string\\>\\|string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
@@ -135,16 +125,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',

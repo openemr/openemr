@@ -62,6 +62,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'restype\' might not exist on array\\{resnote\\: string, restype\\: string, resdate\\: string, reslist\\?\\: string\\}\\|array\\{resnote\\: string\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'ODDISC\'\\|\'OSDISC\' does not exist on string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -102,6 +107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'address\' does not exist on array\\{name\\: non\\-falsy\\-string\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'form_id\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/group_attendance/new.php',
@@ -130,26 +140,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'DOB\' might not exist on \'\'\\|array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 3 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'version\' does not exist on array\\{\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{1\\: non\\-falsy\\-string\\}\\.$#',
@@ -502,12 +492,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\: non\\-empty\\-array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'desc\' might not exist on array\\{name\\?\\: string\\|false, mime\\: non\\-empty\\-list\\<string\\>, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: non\\-empty\\-array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
@@ -522,12 +512,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'mime\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'mime\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: non\\-empty\\-array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: mixed\\}\\.$#',
+    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string\\|false, mime\\?\\: non\\-empty\\-list\\<string\\>\\|string\\|false, desc\\?\\: string\\|false, file\\: string, doc_id\\?\\: non\\-empty\\-array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];

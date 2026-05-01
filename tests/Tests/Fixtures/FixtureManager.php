@@ -34,7 +34,7 @@ class FixtureManager
     private $contactAddressFixtures;
 
     /**
-     * @var
+     * @var mixed
      */
     private $fhirAllergyIntoleranceFixtures;
 
@@ -77,7 +77,7 @@ class FixtureManager
      * This will return a recorded uuid (recorded in uuid_registry)
      *
      * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @return string uuid
      */
     private function getUuid($tableName)
     {
@@ -153,7 +153,7 @@ class FixtureManager
     }
 
     /**
-     * @return single/random fhir patient fixture
+     * @return array<string, mixed> a single random fhir patient fixture
      */
     public function getSingleFhirPatientFixture()
     {

@@ -20,8 +20,8 @@
  *          (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @version 1.0
- * @param string
- * @param string
+ * @param string $string
+ * @param string $cat
  * @return string
  */
 function smarty_modifier_cat($string, $cat)

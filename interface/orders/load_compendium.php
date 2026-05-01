@@ -46,7 +46,7 @@ $lab_npi = [
  * Get lab's ID from the users table given its NPI.  If none return 0.
  *
  * @param  string  $npi           The lab's NPI number as known to the system
- * @return integer                The numeric value of the lab's address book entry
+ * @return int The numeric value of the lab's address book entry
  */
 function getLabID($npi)
 {

@@ -34,8 +34,8 @@ class Documents extends AbstractPlugin
 
     /**
      * getDocument Retrieve Documents from Couch/HDD
-     * @param Integer $documentId Document ID
-     * @param Boolean $doEncryption Download Encrypted File
+     * @param int $documentId Document ID
+     * @param bool $doEncryption Download Encrypted File
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */

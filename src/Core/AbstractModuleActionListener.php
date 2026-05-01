@@ -71,7 +71,7 @@ abstract class AbstractModuleActionListener
      * Required method to return this class object,
      * so it is instantiated in Laminas Manager.
      *
-     * @return
+     * @return mixed
      */
     abstract protected static function initListenerSelf();
 

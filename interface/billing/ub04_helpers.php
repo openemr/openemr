@@ -108,8 +108,8 @@ function lookup_codes($group, $term): void
 }
 /**
  * Lookup lists
- * @param lookup group string $group
- * @param search string $term
+ * @param string $group lookup group
+ * @param string $term search
  */
 function get_codes_list($group, $term): void
 {

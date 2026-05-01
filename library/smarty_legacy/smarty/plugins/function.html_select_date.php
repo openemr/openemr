@@ -32,8 +32,8 @@
  * @version 1.3.4
  * @author Andrei Zmievski
  * @author Monte Ohrt <monte at ohrt dot com>
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param Smarty $smarty
  * @return string
  */
 

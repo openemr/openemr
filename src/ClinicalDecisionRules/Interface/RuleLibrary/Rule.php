@@ -267,7 +267,7 @@ class Rule
     /**
      *
      * @param RuleType $ruleType
-     * @return boolean
+     * @return bool
      */
     function hasRuleType($ruleType)
     {

@@ -69,7 +69,7 @@ abstract class DbRow_Signable implements SignableIF
      * This is used for comparison with a current hash to
      * verify data integrity.
      *
-     * @return sha1(or sha3-512)|empty string
+     * @return string sha1 or sha3-512 hash, or empty string
      */
     protected function getLastLockHash()
     {

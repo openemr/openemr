@@ -458,7 +458,7 @@ class DocumentTemplateService extends QuestionnaireService
     /**
      * @param null  $category
      * @param mixed $pid
-     * @return
+     * @return mixed
      */
     public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {

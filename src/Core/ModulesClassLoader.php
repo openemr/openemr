@@ -54,7 +54,7 @@ class ModulesClassLoader
      * @param string          $prefix  The prefix/namespace, with trailing '\\'
      * @param string[]|string $paths   The PSR-4 base directories to
      *
-     * @return boolean
+     * @return bool
      * @throws \InvalidArgumentException
      *
      */

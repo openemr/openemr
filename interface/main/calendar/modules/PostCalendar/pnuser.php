@@ -259,33 +259,33 @@ function postcalendar_user_search()
     $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
     $output = new pnHTML();
     if (_SETTING_USE_INT_DATES) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_startday]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_startday]);
         $formdata = $output->generateFormSelectMultiple('event_startday', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_startmonth]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_startmonth]);
         $formdata .= $output->generateFormSelectMultiple('event_startmonth', $sel_data);
     } else {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_startmonth]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_startmonth]);
         $formdata = $output->generateFormSelectMultiple('event_startmonth', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_startday]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_startday]);
         $formdata .= $output->generateFormSelectMultiple('event_startday', $sel_data);
     }
 
-    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_startyear]);
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => null,'selected' => $event_startyear]);
     $formdata .= $output->generateFormSelectMultiple('event_startyear', $sel_data);
     $tpl->assign('SelectDateTimeStart', $formdata);
     if (_SETTING_USE_INT_DATES) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_endday]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_endday]);
         $formdata = $output->generateFormSelectMultiple('event_endday', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_endmonth]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_endmonth]);
         $formdata .= $output->generateFormSelectMultiple('event_endmonth', $sel_data);
     } else {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_endmonth]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_endmonth]);
         $formdata = $output->generateFormSelectMultiple('event_endmonth', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_endday ]);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_endday ]);
         $formdata .= $output->generateFormSelectMultiple('event_endday', $sel_data);
     }
 
-    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_endyear]);
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => null,'selected' => $event_endyear]);
     $formdata .= $output->generateFormSelectMultiple('event_endyear', $sel_data);
     $tpl->assign('SelectDateTimeEnd', $formdata);
     $output = null;
@@ -302,10 +302,7 @@ function postcalendar_user_search()
     //=================================================================
     //  Find out what Template we're using
     //=================================================================
-    $template_name = _SETTING_TEMPLATE;
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
+    $template_name = _SETTING_TEMPLATE !== '' ? _SETTING_TEMPLATE : 'default';
 
     //=================================================================
     //  Output the search form
@@ -351,7 +348,7 @@ function postcalendar_user_search()
         $searchargs['patient_id'] = pnVarCleanFromInput("patient_id");
         $searchargs['listappsFlag'] = true;
 
-        $sqlKeywords .= "(a.pc_pid = '" . add_escape_custom(pnVarCleanFromInput("patient_id")) . "' )";
+        $sqlKeywords = "(a.pc_pid = '" . add_escape_custom(pnVarCleanFromInput("patient_id")) . "' )";
 
         $searchargs['s_keywords'] = $sqlKeywords;
         //print_r($searchargs);

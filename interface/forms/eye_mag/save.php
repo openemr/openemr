@@ -31,16 +31,6 @@ $form_folder = "eye_mag";
 
 require_once(__DIR__ . "/../../globals.php");
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("php/" . $form_name . "_functions.php");
-require_once($srcdir . "/../controllers/C_Document.class.php");
-require_once($srcdir . "/documents.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/report.inc.php");
-
 use Mpdf\Mpdf;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
@@ -51,7 +41,19 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
 
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/api.inc.php");
+require_once($srcdir . "/forms.inc.php");
+require_once("php/" . $form_name . "_functions.php");
+require_once($srcdir . "/../controllers/C_Document.class.php");
+require_once($srcdir . "/documents.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/report.inc.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid');
 
 $returnurl = 'encounter_top.php';
 
@@ -261,10 +263,6 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
 /**
  * Create, update or retrieve a form and its values
  */
-if (!$pid) {
-    $pid = $session->get('pid');
-}
-
 $userauthorized = $session->get('userauthorized');
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -350,7 +348,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     foreach ($tables as $table_name) {
         $query = "INSERT INTO " . $table_name . " ('id','pid') VALUES (?,?)";
-        $result = sqlStatement($query, [$new_id,$pid]);
+        $result = sqlStatement($query, [$newid, $pid]);
     }
 } elseif (($_REQUEST["mode"]  ?? '') == "update") {
     // The user has write privileges to work with...
@@ -367,7 +365,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $query = "select id from categories where name = 'Encounters'";
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
-        $category_id = $ID['id'];
+        $category_id = $ID['id'] ?? null;
         $PDF_OUTPUT = '1';
 
         $filename = $pid . "_" . $encounter . ".pdf";
@@ -386,9 +384,15 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         if ($session->get('language_direction') === 'rtl') {
             $pdf->SetDirectionality('rtl');
         }
+        // The form-level globals below are populated by globals.php / extract()
+        // earlier in the request; pre-init keeps PHPStan happy in the static path.
+        $form_encounter ??= $encounter;
+        $N ??= 0;
+        $printable ??= false;
+        $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
         ob_start();
         ?>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
+        <link rel="stylesheet" href="<?php echo $projectDir; ?>/interface/themes/style_pdf.css">
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
@@ -402,7 +406,6 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
         <?php
 
-        global $web_root, $webserver_root;
         $content = ob_get_clean();
         // Below is for including style sheet for report specific styles. Left here for future use.
         //$styles = file_get_contents('../css/report.css');
@@ -451,6 +454,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $query = "update patient_data set ref_providerID=?,providerID=? where pid =?";
         sqlQuery($query, [$_POST['rDOC'], $_POST['pcp'], $pid]);
 
+        $DOCS = [];
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
         if ($_POST['pcp']) {
             //return PCP's data to end user to update their form
             $query = "SELECT * FROM users WHERE id =?";
@@ -471,7 +476,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
                 $DOCS['pcp']['fax_info'] = "&nbsp;&nbsp;
                                             <span id='status_Fax_pcp'>
-                                                <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
+                                                <a href='" . $webRoot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
                                                     <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
@@ -510,7 +515,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             if ($FAX_REF['ID'] > '') { //it is here already, make them print and manually fax it.  Show icon
                 $DOCS['ref']['fax_info'] = "&nbsp;&nbsp;
                                             <span id='status_Fax_ref'>
-                                                <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_REF['DOC_ID'] . "'
+                                                <a href='" . $webRoot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_REF['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_REF['COMPLETED_DATE'] . ".'>
                                                     <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
@@ -534,6 +539,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     /*** START CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
     if (($_REQUEST['PMSFH_save'] ?? '') == '1') {
+        $PMSFH ??= null;
         if (!$PMSFH) {
             $PMSFH = build_PMSFH($pid);
         }
@@ -646,7 +652,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     }
 
                     if ($_REQUEST['form_begin'] == '') {
-                        $_REQUEST['form_begin'] = $visit_date;
+                        $_REQUEST['form_begin'] = $visit_date ?? date('Y-m-d');
                     }
                 }
 
@@ -654,6 +660,13 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 $form_begin = DateToYYYYMMDD($_REQUEST['form_begin']);
                 $form_end   = DateToYYYYMMDD($_REQUEST['form_end']);
                 $form_return = DateToYYYYMMDD($_REQUEST['form_return'] ?? '');
+                // The injury_part / injury_type / text_type values aren't set
+                // anywhere in this branch; pre-init so PHPStan can verify the
+                // SQL parameter list (passing null preserves prior runtime
+                // behavior, which silently coerced "undefined" to null).
+                $form_injury_part ??= null;
+                $form_injury_type ??= null;
+                $text_type ??= null;
 
                 /**
                  *  When adding an issue, see if the issue is already here.
@@ -821,8 +834,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $CODING = json_decode((string) $_REQUEST['parameter'], true);
         $query = "delete from billing where encounter =?";
         sqlStatement($query, [$encounter]);
+        $dups = [];
+        $ndc_info = '';
         foreach ($CODING as $item) { //need toremove duplicate codes
-            if ($dups[$item["code"]] == '1') {
+            if (($dups[$item["code"]] ?? '') == '1') {
                 continue;
             }
 
@@ -1189,6 +1204,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     $send['IMPPLAN_items'] = build_IMPPLAN_items($pid, $form_id);
     $send['Clinical'] = start_your_engines($_REQUEST);
     $send['PMH_panel'] = display_PMSFH('2');
+    $PMSFH = build_PMSFH($pid);
     $send['right_panel'] = show_PMSFH_panel($PMSFH);
     $send['PMSFH'] = $PMSFH[0];
     $send['Coding'] = build_CODING_items($pid, $encounter);
@@ -1256,6 +1272,7 @@ if ($_REQUEST['canvas'] ?? '') {
 
     $sql = "SELECT * from documents where documents.name like ?";
     $ans1 = sqlQuery($sql, ['%' . $base_name . '%']);
+    $category_id = null;
     if ($ans1['id'] ?? '') {  //it is new, add it
         $file = substr((string) $ans1['url'], 7);
         foreach (glob($file) as $file_to_delete) {

@@ -39,7 +39,18 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
+
+// faxsms_getAlertPatientData() calls fetchEvents(), which lives in
+// library/appointments.inc.php. The popup entry rc_sms_notification.php
+// requires that file before requiring us; the CLI entry point in
+// run_notifications.php does not, so when this file is loaded from the
+// background-services orchestrator (Notification_Email_Task), fetchEvents
+// is undefined and the task throws "Call to undefined function fetchEvents()".
+// Co-locate the require with the function that needs it so any future
+// caller of this helpers file gets the dependency for free.
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php';
 
 if (!function_exists('rc_sms_notification_cron_update_entry')) {
     /**

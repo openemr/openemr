@@ -42,8 +42,7 @@ abstract class Phreezable
      * Returns true if the current object has been loaded
      *
      * @access public
-     * @param
-     *          bool (optional) if provided will change the value
+     * @param bool $value (optional) if provided will change the value
      * @return bool
      */
     public function IsLoaded($value = null)
@@ -59,8 +58,7 @@ abstract class Phreezable
      * Returns true if the current object has been partially loaded
      *
      * @access public
-     * @param
-     *          bool (optional) if provided will change the value
+     * @param bool $value (optional) if provided will change the value
      * @return bool
      */
     public function IsPartiallyLoaded($value = null)
@@ -76,8 +74,7 @@ abstract class Phreezable
      * Returns 0 if this was loaded from the DB, 1 if from 1st level cache and 2 if 2nd level cache
      *
      * @access public
-     * @param
-     *          bool (optional) if provided will change the value
+     * @param bool $value (optional) if provided will change the value
      * @return bool
      */
     public function CacheLevel($value = null)
@@ -93,8 +90,7 @@ abstract class Phreezable
      * Returns true if the current object should never be cached
      *
      * @access public
-     * @param
-     *          bool (optional) if provided will change the value
+     * @param bool $value (optional) if provided will change the value
      * @return bool
      */
     public function NoCache($value = null)
@@ -157,8 +153,7 @@ abstract class Phreezable
      * This can be overridden per class for custom JSON output. The overridden method may accept
      * additional option parameters that are not supported by the base Phreezable class
      *
-     * @param
-     *          array assoc array of options. This is passed through from Controller->RenderJSON
+     * @param array $options assoc array of options. This is passed through from Controller->RenderJSON
      *          props (array) array of props to return (if null then use all public props)
      *          omit (array) array of props to omit
      *          camelCase (bool) if true then first letter of each property is made lowercase
@@ -291,10 +286,8 @@ abstract class Phreezable
     /**
      * Add a validation error to the error array
      *
-     * @param
-     *          string property name
-     * @param
-     *          string error message
+     * @param string $prop property name
+     * @param string $msg error message
      */
     protected function AddValidationError($prop, $msg)
     {
@@ -658,9 +651,9 @@ abstract class Phreezable
      * if necessary
      *
      * @access protected
-     * @param boolean $is_insert
+     * @param bool $is_insert
      *          true if Phreezer considers this a new record
-     * @return boolean
+     * @return bool
      */
     public function OnSave($is_insert)
     {

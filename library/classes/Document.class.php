@@ -924,13 +924,13 @@ class Document extends ORDataObject
    * This is a mix of new code and code moved from C_Document.class.php.
    *
    * @param  string  $patient_id   Patient pid; if not known then this may be a simple directory name
-   * @param  integer $category_id  The desired document category ID
+   * @param int $category_id The desired document category ID
    * @param  string  $filename     The desired filename
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
    * @param  int     $path_depth   Number of directory levels in $higher_level_path, if specified
-   * @param  integer $owner        Owner/user/service that is requesting this action
+   * @param int $owner Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
    * @param  string  $foreign_reference_id The table id to another table record in OpenEMR
@@ -1239,7 +1239,7 @@ class Document extends ORDataObject
    * Post a patient note that is linked to this document.
    *
    * @param  string  $provider     Login name of the provider to receive this note.
-   * @param  integer $category_id  The desired document category ID
+   * @param int $category_id The desired document category ID
    * @param  string  $message      Any desired message text for the note.
    */
     function postPatientNote($provider, $category_id, $message = '')

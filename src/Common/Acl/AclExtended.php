@@ -767,7 +767,7 @@ class AclExtended
     /**
      * Returns the current access control version.
      *
-     * @return  integer  The current access control version.
+     * @return int The current access control version.
      */
     public static function getAclVersion()
     {
@@ -779,7 +779,7 @@ class AclExtended
     /**
      * Records the access control version.
      *
-     * @param  integer  $acl_version  access control version
+     * @param int $acl_version access control version
      */
     public static function setAclVersion($acl_version)
     {
@@ -1120,7 +1120,7 @@ class AclExtended
      * Test if the logged-in user has all of the permissions of the specified user.
      *
      * @param  string  $username              Name of user
-     * @return boolean
+     * @return bool
      */
     public static function iHavePermissionsOf($username)
     {
@@ -1145,7 +1145,7 @@ class AclExtended
      * Test if the logged-in user has all of the permissions of the specified group.
      *
      * @param  string  $group_name            Name of group
-     * @return boolean
+     * @return bool
      */
     public static function iHaveGroupPermissions($group_name)
     {

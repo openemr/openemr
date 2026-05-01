@@ -408,10 +408,10 @@ class EncounterService extends BaseService
                 $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
                 $processingResult->setData([$record]);
             } else {
-                $processingResult->addProcessingResult("Failed to retrieve record after insert");
+                $processingResult->addInternalError("Failed to retrieve record after insert");
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -479,7 +479,7 @@ class EncounterService extends BaseService
                 $processingResult->setData([$record]);
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;

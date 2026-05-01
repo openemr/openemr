@@ -34,9 +34,9 @@ $need_head = true;
 /**
  * Return an array of list data for a given issue type and patient
  *
- * @var $pid string Patient ID
- * @var $type string Issue Type
- * @return
+ * @var string $pid Patient ID
+ * @var string $type Issue Type
+ * @return mixed
  */
 function getListData($pid, $type)
 {

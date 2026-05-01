@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.modifier.escape.php
  *          escape (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param html|htmlall|url|quotes|hex|hexentity|javascript
+ * @param mixed $string
+ * @param string $esc_type one of: html, htmlall, url, quotes, hex, hexentity, javascript
  * @return string
  */
 function smarty_modifier_escape($string, $esc_type = 'html', $char_set = 'ISO-8859-1')

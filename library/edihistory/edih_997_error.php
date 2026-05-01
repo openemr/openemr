@@ -35,8 +35,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 /**
  * Look up file name by control number
  *
- * @param string
- * @param string
+ * @param string $icn
+ * @param string $filetype
  *
  * @return string
  */
@@ -62,7 +62,7 @@ function edih_997_sbmtfile($icn, $filetype)
 /**
  * Extract information on rejected files or transactions
  *
- * @param object
+ * @param mixed $obj997
  * @return array
  */
 function edih_997_errdata($obj997)
@@ -224,7 +224,7 @@ function edih_997_errdata($obj997)
  * @uses edih_997_code_text()
  * @uses edih_rsp_st_match()
  *
- * @param object
+ * @param mixed $err_array
  * @return array
  */
 function edih_997_err_report($err_array)
@@ -341,7 +341,7 @@ function edih_997_err_report($err_array)
  * @uses edih_997_errdata()
  * @uses edih_997_err_report()
  *
- * @param string
+ * @param string $filepath
  * @return string
  */
 function edih_997_error($filepath)

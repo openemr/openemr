@@ -17,14 +17,15 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once "$srcdir/user.inc.php";
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;

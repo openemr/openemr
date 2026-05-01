@@ -14,11 +14,12 @@
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it further down)
 require_once(__DIR__ . '/../../globals.php');
-require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

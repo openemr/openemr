@@ -73,7 +73,7 @@ class Form_Controller extends Abstract_Controller
 
     /**
      *
-     * @return multitype:string
+     * @return string[]
      */
     public function esign_form_submit()
     {

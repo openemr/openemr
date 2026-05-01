@@ -17,13 +17,14 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/group.inc.php");
-require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/group.inc.php");
+require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
@@ -31,6 +32,7 @@ if (!empty($_POST)) {
 }
 
 $info_msg = "";
+$result = [];
 $group_types = TherapyGroupsController::prepareGroupTypesList();
 // If we are searching, search.
 //

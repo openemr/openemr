@@ -627,6 +627,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationVitalsService\\:\\:searchForOpenEMRRecords\\(\\) should be contravariant with parameter \\$openEMRSearchParameters \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:searchForOpenEMRRecords\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Organization\\\\FhirOrganizationFacilityService\\:\\:searchForOpenEMRRecords\\(\\) should be contravariant with parameter \\$openEMRSearchParameters \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:searchForOpenEMRRecords\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationFacilityService.php',

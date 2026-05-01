@@ -347,7 +347,7 @@ class UuidRegistry
 
     /**
      * Check if UUID String is Valid
-     * @return boolean
+     * @return bool
      */
     public static function isValidStringUUID($uuidString)
     {
@@ -356,7 +356,7 @@ class UuidRegistry
 
     /**
      * Check if UUID Brinary is Empty
-     * @return boolean
+     * @return bool
      */
     public static function isEmptyBinaryUUID($uuidString)
     {

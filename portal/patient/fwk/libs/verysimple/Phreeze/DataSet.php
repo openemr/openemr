@@ -176,7 +176,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * directly may fire a database query, this method can be used to tell if
      * the number of records is known without actually firing any queries
      *
-     * @return boolean
+     * @return bool
      */
     function CountIsKnown()
     {
@@ -242,10 +242,8 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * Phreezable object (the default is a stdClass with all public properties)
      *
      * @access public
-     * @param
-     *          bool asSimpleObject if true then populate the array with ToObject()
-     * @param
-     *          array options (only relevant if asSimpleObject is true) passed through to ToObject
+     * @param bool $asSimpleObject asSimpleObject if true then populate the array with ToObject()
+     * @param array $options options (only relevant if asSimpleObject is true) passed through to ToObject
      * @return array
      */
     function ToObjectArray($asSimpleObject = false, $options = null)
@@ -300,8 +298,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * If the count parameter is provided then the returned array may be
      * a fixed-size array (depending on php version)
      *
-     * @param
-     *          int count (if known)
+     * @param int $count count (if known)
      * @return Array or SplFixedArray
      */
     private function GetEmptyArray($count = 0)
@@ -493,8 +490,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
 
     /**
      *
-     * @param
-     *          $cachekey
+     * @param $cachekey
      */
     private function IsLocked($cachekey)
     {
@@ -503,8 +499,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
 
     /**
      *
-     * @param
-     *          $cachekey
+     * @param $cachekey
      */
     private function LockCache($cachekey)
     {
@@ -515,8 +510,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
 
     /**
      *
-     * @param
-     *          $cachekey
+     * @param $cachekey
      */
     private function UnlockCache($cachekey)
     {

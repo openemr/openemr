@@ -78,7 +78,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Class VARIANT referenced with incorrect case\\: variant\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [

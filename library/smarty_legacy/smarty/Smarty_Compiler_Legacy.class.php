@@ -607,7 +607,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * @param string $tag_command
      * @param string $tag_args
      * @param string $output
-     * @return boolean
+     * @return bool
      */
     function _compile_compiler_tag($tag_command, $tag_args, &$output)
     {
@@ -676,7 +676,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * @param string $tag_args
      * @param string $tag_modifier
      * @param string $output
-     * @return boolean
+     * @return bool
      */
     function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output)
     {
@@ -1215,7 +1215,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     /**
      * Compile {capture} .. {/capture} tags
      *
-     * @param boolean $start true if this is the {capture} tag
+     * @param bool $start true if this is the {capture} tag
      * @param string $tag_args
      * @return string
      */
@@ -1250,7 +1250,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * Compile {if ...} tag
      *
      * @param string $tag_args
-     * @param boolean $elseif if true, uses elseif instead of if
+     * @param bool $elseif if true, uses elseif instead of if
      * @return string
      */
     function _compile_if_tag($tag_args, $elseif = false)
@@ -1970,7 +1970,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      *
      * @param string $type
      * @param string $name
-     * @param boolean? $delayed_loading
+     * @param ?boolean $delayed_loading
      */
     function _add_plugin($type, $name, $delayed_loading = null)
     {
@@ -2246,9 +2246,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * display Smarty syntax error
      *
      * @param string $error_msg
-     * @param integer $error_type
+     * @param int $error_type
      * @param string $file
-     * @param integer $line
+     * @param int $line
      */
     function _syntax_error($error_msg, $error_type = E_USER_ERROR, $file=null, $line=null)
     {
@@ -2292,7 +2292,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
     /**
      * push opening tag-name, file-name and line-number on the tag-stack
-     * @param string the opening tag's name
+     * @param string $open_tag the opening tag's name
      */
     function _push_tag($open_tag)
     {
@@ -2302,7 +2302,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     /**
      * pop closing tag-name
      * raise an error if this stack-top doesn't match with the closing tag
-     * @param string the closing tag's name
+     * @param string $close_tag the closing tag's name
      * @return string the opening tag's name
      */
     function _pop_tag($close_tag)
