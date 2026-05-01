@@ -62,12 +62,15 @@ class CryptoGen implements CryptoInterface
      */
     private readonly bool $shouldEncryptForDatabase;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
-    {
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        ?string $siteDir = null,
+        ?bool $shouldEncryptForDatabase = null,
+    ) {
         $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
-        $this->shouldEncryptForDatabase = $bag->getBoolean('database_encryption');
+        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase ?? $bag->getBoolean('database_encryption');
     }
 
     /**
