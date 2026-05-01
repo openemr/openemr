@@ -50,7 +50,7 @@ function phimail_connect(&$phimail_error)
     $phimail_server = @parse_url(OEGlobalsBag::getInstance()->getString('phimail_server_address'));
     $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
     if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
@@ -158,7 +158,7 @@ function phimail_check(): void
 {
     $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     if (!($notifyUsername = OEGlobalsBag::getInstance()->getString('phimail_notify'))) {
         $notifyUsername = 'admin'; //fallback
