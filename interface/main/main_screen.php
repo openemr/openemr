@@ -21,10 +21,12 @@ $sessionAllowWrite = true;
 require_once('../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -234,6 +236,14 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'TOTP code incorrect'
+                    );
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -266,6 +276,14 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'U2F authentication error: ' . $e->getMessage()
+                    );
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }

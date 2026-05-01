@@ -77,7 +77,7 @@ jobs:
 
       - name: Start server (bg)
         env:
-          ENVIRONMENT: ci
+          PHP_CLI_SERVER_WORKERS: '8'
         run: |
           php -S 0.0.0.0:8080 -t . public/index.php \
             > "${RUNNER_TEMP}/php-server.out.log" \
