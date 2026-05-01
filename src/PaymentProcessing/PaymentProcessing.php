@@ -13,6 +13,7 @@
 namespace OpenEMR\PaymentProcessing;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class PaymentProcessing
@@ -24,7 +25,7 @@ class PaymentProcessing
     {
         $uuid = (new UuidRegistry(['table_name' => 'payment_processing_audit']))->createUuid();
         $auditData = json_encode($auditData);
-        $auditData = (ServiceContainer::getCrypto())->encryptStandard($auditData !== false ? $auditData : null);
+        $auditData = (ServiceContainer::getCrypto())->encryptForDatabase($auditData !== false ? $auditData : null);
         sqlStatement(
             "INSERT INTO `payment_processing_audit` (`uuid`, `service`, `pid`, `success`, `action_name`, `amount`, `ticket`, `transaction_id`, `audit_data`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
             [
@@ -47,7 +48,7 @@ class PaymentProcessing
     public static function saveRevertAudit(string $uuidUpdate, string $actionName, array $auditData, int $success, ?string $transactionId = null)
     {
         $auditData = json_encode($auditData);
-        $auditData = (ServiceContainer::getCrypto())->encryptStandard($auditData !== false ? $auditData : null);
+        $auditData = (ServiceContainer::getCrypto())->encryptForDatabase($auditData !== false ? $auditData : null);
         $uuidUpdate = UuidRegistry::uuidToBytes($uuidUpdate);
 
         // Update the audit log to show the charge was reverted (if successful)
@@ -141,8 +142,12 @@ class PaymentProcessing
             }
 
             // decrypt the audit data
-            $auditData = $cryptoGen->decryptStandard(is_string($row['audit_data']) ? $row['audit_data'] : null);
-            $auditData = json_decode($auditData, true);
+            try {
+                $auditDataRaw = $cryptoGen->decryptFromDatabase(is_string($row['audit_data']) ? $row['audit_data'] : null);
+            } catch (CryptoGenException) {
+                continue;
+            }
+            $auditData = json_decode($auditDataRaw, true);
 
             // Collect the error message if not success
             if ($row['success'] != 1) {
