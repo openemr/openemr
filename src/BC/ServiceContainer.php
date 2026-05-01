@@ -124,7 +124,9 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             Crypto\CryptoInterface::class,
-            static fn() => new Crypto\CryptoGen(),
+            static fn() => new Crypto\CryptoGen(
+                shouldEncryptForDatabase: OEGlobalsBag::getInstance()->getBoolean('database_encryption'),
+            ),
         );
     }
 
