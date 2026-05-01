@@ -741,6 +741,14 @@ function rmdir_recursive($dir): void
 
     foreach ($files as $file) {
         $file = $dir . '/' . $file;
+        // Treat symlinks as leaf nodes — unlink the link itself rather than
+        // recursing through it. is_dir() follows symlinks, so without this
+        // guard a symlink to an external directory would cause the recursion
+        // to delete files outside the intended tree.
+        if (is_link($file)) {
+            unlink($file);
+            continue;
+        }
         if (is_dir($file)) {
             rmdir_recursive($file);
             continue;
