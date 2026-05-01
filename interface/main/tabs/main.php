@@ -37,6 +37,7 @@ use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Tabs\DefaultTabsFilter;
 use OpenEMR\Telemetry\TelemetryService;
 
 const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
@@ -412,66 +413,26 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <script>
         <?php
         $default_open_tabs = $session->get('default_open_tabs');
-        if (is_array($default_open_tabs) && $default_open_tabs !== []) {
-            // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
-            $visible = "true";
-            // Resolve the project root through realpath so the prefix check
-            // below operates on a path that has had symlinks resolved and `..`
-            // segments collapsed to the actual filesystem location, matching
-            // what `realpath()` returns for the candidate. If the project
-            // root itself doesn't resolve (should never happen in normal
-            // operation) every tab is rejected up front.
-            $fileroot = realpath(OEGlobalsBag::getInstance()->getKernel()->getProjectDir());
-            if ($fileroot === false) {
-                // Project root must resolve; without it no candidate can
-                // pass the prefix check, so reject everything up front
-                // and skip the loop.
-                $session->set('default_open_tabs', []);
-            } else {
-                $tabs_changed = false;
-                foreach ($default_open_tabs as $i => $tab) {
-                    // Validate every field used to build the tab entry up
-                    // front so a malformed list_options row (missing key
-                    // or non-array entry) is dropped instead of raising
-                    // PHP warnings when the tabStatus args are assembled.
-                    if (!is_array($tab)) {
-                        unset($default_open_tabs[$i]);
-                        $tabs_changed = true;
-                        continue;
-                    }
-                    $notes = $tab['notes'] ?? null;
-                    $option_id = $tab['option_id'] ?? null;
-                    $title = $tab['title'] ?? null;
-                    if (!is_string($notes) || !is_string($option_id) || !is_string($title)) {
-                        unset($default_open_tabs[$i]);
-                        $tabs_changed = true;
-                        continue;
-                    }
-                    // Resolve the candidate via realpath so symlinks pointing
-                    // outside the project resolve to their real location, and so
-                    // `..` segments in `notes` resolve before the prefix check.
-                    // Append DIRECTORY_SEPARATOR to both sides so a sibling dir
-                    // whose name shares a prefix with the project root (e.g.
-                    // `<parent>/openemr_old/...` next to `<parent>/openemr/`)
-                    // cannot slip through.
-                    $relative = preg_replace('/\?.*$/', '', $notes) ?? '';
-                    $resolved = realpath($fileroot . DIRECTORY_SEPARATOR . $relative);
-                    if ($resolved === false || !str_starts_with($resolved . DIRECTORY_SEPARATOR, $fileroot . DIRECTORY_SEPARATOR)) {
-                        unset($default_open_tabs[$i]);
-                        $tabs_changed = true;
-                        continue;
-                    }
-                    $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $notes);
-                    $target = json_encode($option_id);
-                    $label = json_encode(xl("Loading") . " " . $title);
-                    $loading = xlj("Loading");
-                    echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
-                    $visible = "false";
-                }
-                if ($tabs_changed) {
-                    $session->set('default_open_tabs', $default_open_tabs);
-                }
-            }
+        $valid_tabs = (new DefaultTabsFilter())->filter(
+            $default_open_tabs,
+            OEGlobalsBag::getInstance()->getKernel()->getProjectDir(),
+        );
+        // Persist the filtered/normalized list back to the session if any
+        // entries were dropped or the legacy `id`/`label` keys were
+        // rewritten to the modern `option_id`/`title` shape, so the next
+        // load doesn't have to redo the work.
+        if ($valid_tabs !== $default_open_tabs) {
+            $session->set('default_open_tabs', $valid_tabs);
+        }
+        // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
+        $visible = "true";
+        foreach ($valid_tabs as $tab) {
+            $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
+            $target = json_encode($tab['option_id']);
+            $label = json_encode(xl("Loading") . " " . $tab['title']);
+            $loading = xlj("Loading");
+            echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+            $visible = "false";
         }
         ?>
 
