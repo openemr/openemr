@@ -11,6 +11,12 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("$srcdir/api.inc.php");
 
 require("C_FormSOAP.class.php");

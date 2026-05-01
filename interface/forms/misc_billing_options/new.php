@@ -20,11 +20,6 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/user.inc.php");
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -32,6 +27,18 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->get('rootdir');
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+$encounter = SessionWrapperFactory::getInstance()->getActiveSession()->get('encounter');
+
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/user.inc.php");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

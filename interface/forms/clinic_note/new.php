@@ -15,12 +15,22 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->get('rootdir');
+$top_bg_line = ' bgcolor="#dddddd" ';
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+$encounter = SessionWrapperFactory::getInstance()->getActiveSession()->get('encounter');
+$userauthorized = SessionWrapperFactory::getInstance()->getActiveSession()->get('userauthorized');
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 $row = [];
 
