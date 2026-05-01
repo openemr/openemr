@@ -23,12 +23,11 @@
                 <form method="POST" id="autologinform" action="/portal/autologin">
             <input type="hidden" name="csrf_token" value="test-csrf-token" />
             <input type="hidden" name="service_auth" value="test-auth-value" />
-            <input type="hidden" name="target" value="https%3A%2F%2Fexample.com%2Ftelehealth" />
                         <label for="login_pin">PIN Required value</label>
             <input type="text" class="text-center m-1" maxlength="6" id="login_pin" name="login_pin" value="" />
             <input class="btn btn-sm btn-primary" type="submit" name="autoLoginSubmit" value="Authorize and Go To Destination" />
                     </form>
-                <p>You are Required to confirm access by entering the companion PIN. https://example.com/telehealth</p>
+                <p>You are Required to confirm access by entering the companion PIN.</p>
             </div>
     <script>
         const pinRequired = 1;

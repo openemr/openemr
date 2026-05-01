@@ -37,7 +37,6 @@
         <form method="POST" id="autologinform" action="{{ action|attr }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}" />
             <input type="hidden" name="service_auth" value="{{ service_auth|attr }}" />
-            <input type="hidden" name="target" value="{{ target|attr_url }}" />
             {% if pin_required %}
             <label for="login_pin">{{ "PIN Required value"|xlt }}</label>
             <input type="text" class="text-center m-1" maxlength="6" id="login_pin" name="login_pin" value="" />
@@ -47,10 +46,9 @@
             {% endif %}
         </form>
         {% if pin_required %}
-        <p>{{ "You are Required to confirm access by entering the companion PIN."|xlt }} {{ target|text }}</p>
+        <p>{{ "You are Required to confirm access by entering the companion PIN."|xlt }}</p>
         {% else %}
         <p>{{ "If you have not been redirected in a few seconds click the button above"|xlt }}</p>
-        <p>{{ "You will be sent to the following web page"|xlt }} {{ target|text }}</p>
         {% endif %}
     </div>
     <script>
