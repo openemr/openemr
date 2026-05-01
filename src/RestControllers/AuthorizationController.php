@@ -881,7 +881,7 @@ class AuthorizationController
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
                 if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     // Log failed MFA authentication attempt
-                    $rawMfaType = (string) $request->request->get('mfa_type', '');
+                    $rawMfaType = $request->request->getString('mfa_type');
                     $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
                     $userService = new UserService();
                     $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
