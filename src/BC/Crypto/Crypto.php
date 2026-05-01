@@ -46,6 +46,7 @@ final readonly class Crypto implements CryptoInterface
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
+        private readonly bool $shouldEncryptForDatabase,
     ) {
     }
 
@@ -134,6 +135,11 @@ final readonly class Crypto implements CryptoInterface
         if ($value === null || $value === '') {
             return '';
         }
+
+        if (!$this->shouldEncryptForDatabase) {
+            return $value;
+        }
+
         return $this->encryptStandard($value, keySource: KeySource::Drive);
     }
 
