@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Isolated\BC\Crypto;
 
 use OpenEMR\BC\Crypto\Crypto;
 use OpenEMR\BC\Crypto\Key;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
@@ -236,5 +237,74 @@ final class CryptoTest extends TestCase
         $encrypted = $this->crypto->encryptStandard('test data');
 
         self::assertTrue($this->crypto->cryptCheckStandard($encrypted));
+    }
+
+    public function testEncryptForDatabaseReturnsEncryptedString(): void
+    {
+        $plaintext = 'test data for encryption';
+
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+
+        self::assertNotSame($plaintext, $encrypted);
+        self::assertStringStartsWith('007', $encrypted);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->encryptForDatabase(null));
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->encryptForDatabase(''));
+    }
+
+    public function testDecryptFromDatabaseDecryptsEncryptedValue(): void
+    {
+        $plaintext = 'encrypted test data';
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+
+        $result = $this->crypto->decryptFromDatabase($encrypted);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintext(): void
+    {
+        $plaintext = 'this is not encrypted';
+
+        $result = $this->crypto->decryptFromDatabase($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromDatabase(null));
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromDatabase(''));
+    }
+
+    public function testDecryptFromDatabaseThrowsOnCorruptedCiphertext(): void
+    {
+        $encrypted = $this->crypto->encryptForDatabase('test data');
+        $tampered = substr($encrypted, 0, 10) . 'X' . substr($encrypted, 11);
+
+        $this->expectException(CryptoGenException::class);
+
+        $this->crypto->decryptFromDatabase($tampered);
+    }
+
+    public function testEncryptForDatabaseRoundTrip(): void
+    {
+        $plaintext = CryptoFixtureManager::PLAINTEXT;
+
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+        $decrypted = $this->crypto->decryptFromDatabase($encrypted);
+
+        self::assertSame($plaintext, $decrypted);
     }
 }
