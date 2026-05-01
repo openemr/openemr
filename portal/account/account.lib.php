@@ -19,6 +19,7 @@
 use GuzzleHttp\Client;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -58,7 +59,12 @@ function processRecaptcha($gRecaptchaResponse): bool
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    try {
+        $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    } catch (CryptoGenException) {
+        ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key decryption failed, so unable to verify recaptcha");
+        return false;
+    }
     if (empty($googleRecaptchaSecretKey)) {
         ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
@@ -138,7 +144,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
             $expiry = new DateTime('NOW');
             $expiry->add(new DateInterval('PT01H'));
             $token_raw = RandomGenUtils::createUniqueToken(32);
-            $token_encrypt = (ServiceContainer::getCrypto())->encryptStandard($token_raw);
+            $token_encrypt = (ServiceContainer::getCrypto())->encryptForDatabase($token_raw);
             if (empty($token_encrypt)) {
                 // Serious issue if this is case, so return that something bad happened.
                 ServiceContainer::getLogger()->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
@@ -392,7 +398,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
 
     // Will send a link to user with encrypted token
-    $token = (ServiceContainer::getCrypto())->encryptStandard($token_new);
+    $token = (ServiceContainer::getCrypto())->encryptForDatabase($token_new);
     if (empty($token)) {
         // Serious issue if this is case, so exit.
         if ($resetPass) {
