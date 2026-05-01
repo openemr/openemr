@@ -1108,4 +1108,69 @@ final class CryptoGenTest extends TestCase
         // v7 ciphertext should fail when minimumVersion=8 (tests the path)
         $this->cryptoGen->decryptFromDatabase($encrypted, minimumVersion: 8);
     }
+
+    public function testEncryptForDatabaseReturnsPlaintextWhenOptedOut(): void
+    {
+        $GLOBALS['database_encryption'] = false;
+        $cryptoGen = new CryptoGen();
+        $plaintext = 'test data should not be encrypted';
+
+        $result = $cryptoGen->encryptForDatabase($plaintext);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNullWhenOptedOut(): void
+    {
+        $GLOBALS['database_encryption'] = false;
+        $cryptoGen = new CryptoGen();
+
+        $this->assertSame('', $cryptoGen->encryptForDatabase(null));
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyStringWhenOptedOut(): void
+    {
+        $GLOBALS['database_encryption'] = false;
+        $cryptoGen = new CryptoGen();
+
+        $this->assertSame('', $cryptoGen->encryptForDatabase(''));
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintextWhenOptedOut(): void
+    {
+        $GLOBALS['database_encryption'] = false;
+        $cryptoGen = new CryptoGen();
+        $plaintext = 'unencrypted data from database';
+
+        $result = $cryptoGen->decryptFromDatabase($plaintext);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testRoundTripWhenOptedOutPreservesPlaintext(): void
+    {
+        $GLOBALS['database_encryption'] = false;
+        $cryptoGen = new CryptoGen();
+        $plaintext = 'plaintext round trip test';
+
+        $stored = $cryptoGen->encryptForDatabase($plaintext);
+        $retrieved = $cryptoGen->decryptFromDatabase($stored);
+
+        $this->assertSame($plaintext, $stored);
+        $this->assertSame($plaintext, $retrieved);
+    }
+
+    public function testEncryptForDatabaseDefaultsToEncryptionEnabled(): void
+    {
+        // When database_encryption is not set (defaults to true per globals.inc.php)
+        unset($GLOBALS['database_encryption']);
+        $cryptoGen = new CryptoGen();
+        $plaintext = 'test data';
+
+        $result = $cryptoGen->encryptForDatabase($plaintext);
+
+        // Should be encrypted (starts with version prefix)
+        $this->assertNotSame($plaintext, $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
+    }
 }
