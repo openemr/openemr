@@ -72,7 +72,7 @@ class AuthEventTest extends TestCase
             AuthEvent::logout()->value,
             AuthEvent::auth()->value,
         ];
-        $this->assertSame(count($values), count(array_unique($values)), 'Each factory must return a distinct value');
+        $this->assertCount(count($values), array_unique($values), 'Each factory must return a distinct value');
     }
 
     /**
