@@ -38,7 +38,6 @@ use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryService;
-use Symfony\Component\Filesystem\Path;
 
 const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
@@ -416,10 +415,27 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
             $default_open_tabs = $session->get('default_open_tabs');
-            $fileroot = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
+            // Resolve the project root through realpath so the prefix check
+            // below operates on a path that has had symlinks resolved and `..`
+            // segments collapsed to the actual filesystem location, matching
+            // what `realpath()` returns for the candidate. If the project
+            // root itself doesn't resolve (should never happen in normal
+            // operation) every tab will fall through to the reject branch.
+            $fileroot = realpath(OEGlobalsBag::getInstance()->getKernel()->getProjectDir());
             foreach ($default_open_tabs as $i => $tab) :
-                $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, $fileroot)) {
+                $notes = is_array($tab) ? ($tab['notes'] ?? null) : null;
+                // Resolve the candidate via realpath so symlinks pointing
+                // outside the project resolve to their real location, and so
+                // `..` segments in `notes` resolve before the prefix check.
+                // Append DIRECTORY_SEPARATOR to both sides so a sibling dir
+                // whose name shares a prefix with the project root (e.g.
+                // `<parent>/openemr_old/...` next to `<parent>/openemr/`)
+                // cannot slip through.
+                $relative = is_string($notes) ? (preg_replace('/\?.*$/', '', $notes) ?? '') : null;
+                $resolved = ($fileroot !== false && is_string($relative))
+                    ? realpath($fileroot . DIRECTORY_SEPARATOR . $relative)
+                    : false;
+                if ($fileroot === false || $resolved === false || !str_starts_with($resolved . DIRECTORY_SEPARATOR, $fileroot . DIRECTORY_SEPARATOR)) {
                     unset($default_open_tabs[$i]);
                     $session->set('default_open_tabs', $default_open_tabs);
                     continue;
