@@ -416,8 +416,8 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
             $default_open_tabs = $session->get('default_open_tabs');
+            $fileroot = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
             foreach ($default_open_tabs as $i => $tab) :
-                $fileroot = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot();
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
                 if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, $fileroot)) {
                     unset($default_open_tabs[$i]);
