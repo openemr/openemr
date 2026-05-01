@@ -18,6 +18,7 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -89,7 +90,7 @@ class OneTimeAuth
         $expiry = new DateTime($date_base);
         $expiry->add(new DateInterval($p['expiry_interval'] ?? 'PT15M'));
         $token_raw = RandomGenUtils::createUniqueToken(16);
-        $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
+        $token_encrypt = $this->cryptoGen->encryptForDatabase($token_raw);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
         if (empty($p['pid']) || empty($token_raw)) {
             $err = xlt("Onetime failed with missing PID or the token creation failed");
@@ -100,7 +101,7 @@ class OneTimeAuth
         $redirect_raw = trim((string)($p['redirect_link'] ?? null));
         if (!empty($redirect_raw) && $encrypt_redirect) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
-            $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
+            $redirect_token = $this->cryptoGen->encryptForDatabase($redirect_plus);
             if (empty($redirect_token)) {
                 // since redirect should be in database we can continue.
                 $this->systemLogger->error(xlt("Onetime redirect failed encryption."));
@@ -164,16 +165,16 @@ class OneTimeAuth
 
         if (strlen((string)$onetime_token) >= 64) {
             $onetimeTokenStr = is_string($onetime_token) ? $onetime_token : null;
-            if ($this->cryptoGen->cryptCheckStandard($onetimeTokenStr)) {
-                $one_time = $this->cryptoGen->decryptStandard($onetimeTokenStr, minimumVersion: 6);
+            try {
+                $one_time = $this->cryptoGen->decryptFromDatabase($onetimeTokenStr, minimumVersion: 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
                         $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
                     }
-                } else {
-                    $this->systemLogger->error("Onetime decrypt token failed. Empty!");
                 }
+            } catch (CryptoGenException $e) {
+                $this->systemLogger->error("Onetime decrypt token failed: " . $e->getMessage());
             }
         } else {
             $this->systemLogger->error("Onetime token invalid length.");
@@ -195,14 +196,18 @@ class OneTimeAuth
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
             $redirectTokenStr = is_string($redirect_token) ? $redirect_token : null;
-            if ($this->cryptoGen->cryptCheckStandard($redirectTokenStr)) {
-                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirectTokenStr, minimumVersion: 6);
-                $redirect_array = json_decode($redirect_decrypted, true);
-                $redirect = $redirect_array['to'];
-                if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
-                    throw new OneTimeAuthException(xlt("Error! credentials pid to and from don't match!"), $auth['pid']);
+            try {
+                $redirect_decrypted = $this->cryptoGen->decryptFromDatabase($redirectTokenStr, minimumVersion: 6);
+                if (!empty($redirect_decrypted)) {
+                    $redirect_array = json_decode($redirect_decrypted, true);
+                    $redirect = $redirect_array['to'];
+                    if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
+                        throw new OneTimeAuthException(xlt("Error! credentials pid to and from don't match!"), $auth['pid']);
+                    }
+                    $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
                 }
-                $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
+            } catch (CryptoGenException $e) {
+                $this->systemLogger->error("Redirect token decrypt failed: " . $e->getMessage());
             }
         }
 
