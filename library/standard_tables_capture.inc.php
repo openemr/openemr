@@ -707,9 +707,6 @@ function temp_dir_cleanup($type): void
     if ($resolvedBase === false || $resolvedTarget === false) {
         return;
     }
-    if (is_link($resolvedTarget)) {
-        return;
-    }
     // Require an immediate subdirectory of the base. This is stricter than
     // isBasePath() (which allows nesting) and rules out values like '' or '.'
     // that would otherwise resolve to the base itself and delete it whole.
@@ -754,6 +751,9 @@ function rmdir_recursive(string $dir): void
         return;
     }
     $files = scandir($dir);
+    if ($files === false) {
+        return;
+    }
     array_shift($files);    // remove '.' from array
     array_shift($files);    // remove '..' from array
 
