@@ -14,7 +14,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
