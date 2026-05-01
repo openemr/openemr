@@ -15,6 +15,7 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -51,33 +52,34 @@ if ($session->get('portal_init') !== true) {
 
 SessionUtil::setSession('portal_init', false);
 
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
+
 if ($_POST['mode'] == 'Sphere') {
     $cryptoGen = ServiceContainer::getCrypto();
-    try {
-        $dataTransRaw = $cryptoGen->decryptFromDatabase(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
-        $dataTrans = json_decode($dataTransRaw, true);
+    // Let decryption exceptions propagate
+    $dataTransRaw = $cryptoGen->decryptFromDatabase(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
+    $dataTrans = json_decode($dataTransRaw, true);
 
-        $form_pid = $dataTrans['get']['patient_id_cc'];
+    $form_pid = $dataTrans['get']['patient_id_cc'];
 
-        $cc = [];
-        $cc["cardHolderName"] = $dataTrans['post']['name'];
-        $cc['status'] = $dataTrans['post']['status_name'];
-        $cc['authCode'] = $dataTrans['post']['authcode'];
-        $cc['transId'] = $dataTrans['post']['transid'];
-        $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
-        $cc['cc_type'] = $dataTrans['post']['ccBrand'];
-        $cc['zip'] = '';
-        $ccaudit = json_encode($cc);
-        $invoice = $_POST['invValues'] ?? '';
+    $cc = [];
+    $cc["cardHolderName"] = $dataTrans['post']['name'];
+    $cc['status'] = $dataTrans['post']['status_name'];
+    $cc['authCode'] = $dataTrans['post']['authcode'];
+    $cc['transId'] = $dataTrans['post']['transid'];
+    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
+    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
+    $cc['zip'] = '';
+    $ccaudit = json_encode($cc);
+    $invoice = $_POST['invValues'] ?? '';
 
-        SessionUtil::setSession('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
 
-        SaveAudit($form_pid, $invoice, $ccaudit);
+    SaveAudit($form_pid, $invoice, $ccaudit);
 
-        echo 'ok';
-    } catch (CryptoGenException) {
-        echo 'Decryption failed';
-    }
+    echo 'ok';
 }
 
 if ($_POST['mode'] == 'AuthorizeNet') {

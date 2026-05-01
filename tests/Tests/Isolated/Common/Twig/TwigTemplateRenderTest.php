@@ -132,7 +132,6 @@ class TwigTemplateRenderTest extends TestCase
                 'action'                 => '/portal/autologin',
                 'csrf_token'             => 'test-csrf-token',
                 'service_auth'           => 'test-auth-value',
-                'target'                 => 'https://example.com/telehealth',
             ],
             $fixtureDir . '/autologin-pin-required.html',
         ];
@@ -146,7 +145,6 @@ class TwigTemplateRenderTest extends TestCase
                 'action'                 => '/portal/autologin',
                 'csrf_token'             => 'test-csrf-token',
                 'service_auth'           => 'test-auth-value',
-                'target'                 => 'https://example.com/telehealth',
             ],
             $fixtureDir . '/autologin-no-pin.html',
         ];
