@@ -102,6 +102,10 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
+
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
     $form_pid = $isPortal ? $pid : $_POST['form_pid'];
