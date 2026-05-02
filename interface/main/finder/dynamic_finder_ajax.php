@@ -30,10 +30,10 @@ use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
-$getSearchAny = filter_input(INPUT_GET, 'search_any') ?? '';
-$getSSearchRaw = filter_input(INPUT_GET, 'sSearch') ?? '';
-$getSColumns = filter_input(INPUT_GET, 'sColumns') ?? '';
-$getSearchType = filter_input(INPUT_GET, 'searchType') ?? '';
+$getSearchAny = (string) (filter_input(INPUT_GET, 'search_any') ?? '');
+$getSSearchRaw = (string) (filter_input(INPUT_GET, 'sSearch') ?? '');
+$getSColumns = (string) (filter_input(INPUT_GET, 'sColumns') ?? '');
+$getSearchType = (string) (filter_input(INPUT_GET, 'searchType') ?? '');
 $searchAny = ($getSearchAny !== '' && $getSSearchRaw === '') ? $getSearchAny : "";
 
 // With the ColReorder or ColReorderWithResize plug-in, the expected column

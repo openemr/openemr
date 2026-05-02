@@ -52,14 +52,14 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
     $limit = "LIMIT ? OFFSET ?";
     $limitBinds = [$iDisplayLength, $iDisplayStart];
 }
-$searchTerm = filter_input(INPUT_GET, 'sSearch') ?? '';
+$searchTerm = (string) (filter_input(INPUT_GET, 'sSearch') ?? '');
 
 // What we are picking from: codes, fields, lists or groups
-$what = filter_input(INPUT_GET, 'what') ?? '';
-$codetype = filter_input(INPUT_GET, 'codetype') ?? '';
-$inactive = filter_input(INPUT_GET, 'inactive') ?? '';
-$source = filter_input(INPUT_GET, 'source') ?? '';
-$layoutIdIn = filter_input(INPUT_GET, 'layout_id') ?? '';
+$what = (string) (filter_input(INPUT_GET, 'what') ?? '');
+$codetype = (string) (filter_input(INPUT_GET, 'codetype') ?? '');
+$inactive = (string) (filter_input(INPUT_GET, 'inactive') ?? '');
+$source = (string) (filter_input(INPUT_GET, 'source') ?? '');
+$layoutIdIn = (string) (filter_input(INPUT_GET, 'layout_id') ?? '');
 $layout_id = '';
 
 if ($what == 'codes') {
