@@ -335,7 +335,7 @@ if ($what == 'fields' && $source == 'V') {
      * @global $code_external_tables
      */
     $stopEmptySearch = $externalTableId && $code_external_tables[$externalTableId][SKIP_TOTAL_TABLE_COUNT] ?? false;
-    if (empty(trim((string) $searchTerm)) && $stopEmptySearch) {
+    if (empty(trim($searchTerm)) && $stopEmptySearch) {
         $out['iSearchEmptyError'] = xl('Search term is required for this code type.');
         echo json_encode($out);
         exit;
@@ -366,7 +366,7 @@ if ($what == 'fields' && $source == 'V') {
     if (!empty($res)) {
         while ($count < $number && $row = sqlFetchArray($res)) {// && $iFilteredTotal < $maxCount) {
             $dynCodeType = $codetype;
-            if (stripos((string) $codetype, 'VALUESET') !== false) {
+            if (stripos($codetype, 'VALUESET') !== false) {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
             $arow = ['DT_RowId' => genFieldIdString([
