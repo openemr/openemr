@@ -141,3 +141,20 @@ CREATE TABLE `mod_claimrev_patient_statements` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotTable mod_claimrev_version_check
+CREATE TABLE `mod_claimrev_version_check` (
+    `id` TINYINT(1) PRIMARY KEY DEFAULT 1 COMMENT 'singleton row, always 1',
+    `install_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'UUIDv4 generated on first check, sent so ClaimRev can dedupe install counts without identifying who they are',
+    `last_checked_at` DATETIME DEFAULT NULL,
+    `current_version` VARCHAR(40) NOT NULL DEFAULT '',
+    `is_current` TINYINT(1) NOT NULL DEFAULT 0,
+    `is_supported` TINYINT(1) NOT NULL DEFAULT 1,
+    `message` TEXT DEFAULT NULL,
+    `severity` VARCHAR(10) NOT NULL DEFAULT 'info' COMMENT 'info | warning | critical',
+    `download_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `disabled` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'when 1, claim send + eligibility checks no-op',
+    `disable_reason` TEXT DEFAULT NULL,
+    CONSTRAINT `chk_singleton` CHECK (`id` = 1)
+) ENGINE=InnoDB;
+#EndIf

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
@@ -58,6 +59,17 @@ class ClaimUpload extends BaseService
 
     public static function sendWaitingFiles(): void
     {
+        // Best-effort version check on the 24h throttle. ClaimRev may flag
+        // this version as must-not-run for a security or compliance reason.
+        $check = ModuleVersionCheckService::check();
+        if ($check !== null && $check->disabled) {
+            ServiceContainer::getLogger()->warning(
+                'ClaimRev disabled module-driven claim send by remote flag',
+                ['version' => Bootstrap::MODULE_VERSION, 'reason' => $check->disableReason]
+            );
+            return;
+        }
+
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
 

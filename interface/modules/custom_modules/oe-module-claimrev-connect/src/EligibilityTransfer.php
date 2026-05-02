@@ -41,6 +41,13 @@ class EligibilityTransfer extends BaseService
 
     public static function sendWaitingEligibility(): void
     {
+        // Best-effort version check on the 24h throttle. ClaimRev may flag
+        // this version as must-not-run for a security or compliance reason.
+        $check = ModuleVersionCheckService::check();
+        if ($check !== null && $check->disabled) {
+            return;
+        }
+
         $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $testMode = $bootstrap->getGlobalConfig()->isTestModeEnabled();
 
@@ -150,6 +157,12 @@ class EligibilityTransfer extends BaseService
         int|string|null $facilityId = null,
         int|string|null $providerId = null,
     ): array {
+        // Best-effort version check on the 24h throttle.
+        $check = ModuleVersionCheckService::check();
+        if ($check !== null && $check->disabled) {
+            return ['success' => false, 'message' => 'Module disabled by ClaimRev: ' . $check->disableReason];
+        }
+
         $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $testMode = $bootstrap->getGlobalConfig()->isTestModeEnabled();
 

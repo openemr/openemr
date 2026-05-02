@@ -20,14 +20,22 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 use OpenEMR\Modules\ClaimRevConnector\DashboardService;
+use OpenEMR\Modules\ClaimRevConnector\ModuleVersionCheckService;
 
 $tab = "home";
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: ClaimRev Connect - Home", xl("ClaimRev Connect - Home"));
 }
+
+// Read the cached version-check result for the dashboard banner. This
+// never makes a network call; the actual check fires from claim send /
+// eligibility paths on the 24h throttle.
+$versionCheck = ModuleVersionCheckService::getLastResult();
+$installedVersion = Bootstrap::MODULE_VERSION;
 
 $kpis = DashboardService::getKpis();
 $claims = $kpis['claims'];
@@ -60,6 +68,56 @@ $supportEmail = is_string($contactArr['supportEmail'] ?? null) ? $contactArr['su
         <div class="container-fluid">
             <?php require '../templates/navbar.php'; ?>
 
+            <?php if ($versionCheck === null) { ?>
+                <div class="alert alert-light border mt-3 py-2 small">
+                    <i class="fa fa-info-circle text-muted"></i>
+                    <?php echo xlt("Version"); ?>: <?php echo text($installedVersion); ?>.
+                    <?php echo xlt("Update status not yet checked — runs automatically with the next claim send or eligibility check."); ?>
+                </div>
+            <?php } elseif ($versionCheck->disabled) { ?>
+                <div class="alert alert-danger mt-3">
+                    <strong><i class="fa fa-ban"></i> <?php echo xlt("Module disabled by ClaimRev"); ?></strong>
+                    <div class="small mt-1">
+                        <?php echo xlt("Installed version"); ?>: <?php echo text($installedVersion); ?> &middot;
+                        <?php echo xlt("Latest version"); ?>: <?php echo text($versionCheck->currentVersion); ?>
+                    </div>
+                    <?php if ($versionCheck->disableReason !== '') { ?>
+                        <div class="mt-1"><?php echo text($versionCheck->disableReason); ?></div>
+                    <?php } ?>
+                    <?php if ($versionCheck->downloadUrl !== '') { ?>
+                        <div class="mt-1"><a href="<?php echo attr($versionCheck->downloadUrl); ?>" target="_blank"><?php echo xlt("Download the latest version"); ?></a></div>
+                    <?php } ?>
+                </div>
+            <?php } elseif (!$versionCheck->isCurrent) { ?>
+                <?php
+                $alertClass = match ($versionCheck->severity) {
+                    'critical' => 'alert-danger',
+                    'warning' => 'alert-warning',
+                    default => 'alert-info',
+                };
+                ?>
+                <div class="alert <?php echo attr($alertClass); ?> mt-3 py-2">
+                    <i class="fa fa-info-circle"></i>
+                    <?php echo xlt("A newer version of ClaimRev Connect is available"); ?>:
+                    <strong><?php echo text($installedVersion); ?> &rarr; <?php echo text($versionCheck->currentVersion); ?></strong>
+                    <?php if ($versionCheck->message !== '') { ?>
+                        &mdash; <?php echo text($versionCheck->message); ?>
+                    <?php } ?>
+                    <?php if ($versionCheck->downloadUrl !== '') { ?>
+                        &middot; <a href="<?php echo attr($versionCheck->downloadUrl); ?>" target="_blank"><?php echo xlt("Download"); ?></a>
+                    <?php } ?>
+                </div>
+            <?php } else { ?>
+                <div class="alert alert-success mt-3 py-2 small">
+                    <i class="fa fa-check-circle"></i>
+                    <?php echo xlt("Version"); ?>: <?php echo text($installedVersion); ?>
+                    &mdash; <?php echo xlt("up to date"); ?>
+                </div>
+            <?php } ?>
+
+            <?php if ($versionCheck !== null && $versionCheck->disabled) { ?>
+                <!-- Disabled — KPIs hidden until module is re-enabled. -->
+            <?php } else { ?>
             <!-- Claim Pipeline -->
             <div class="section-title mt-3"><?php echo xlt("Claim Pipeline"); ?></div>
             <div class="row">
@@ -241,6 +299,7 @@ $supportEmail = is_string($contactArr['supportEmail'] ?? null) ? $contactArr['su
                     </small>
                 </div>
             </div>
+            <?php } // end else block — module not disabled, show KPIs ?>
         </div>
     </body>
 </html>
