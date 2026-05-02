@@ -13,8 +13,6 @@ Categories covered (per ARCHITECTURE §6.3):
 """
 from __future__ import annotations
 
-import os
-
 import pytest
 import respx
 from httpx import Response

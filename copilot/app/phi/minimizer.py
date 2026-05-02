@@ -62,7 +62,6 @@ def _scrub_text(s: str | None, name_terms: list[str]) -> str | None:
 def strip_patient(resource: dict[str, Any], session: PseudonymMap) -> dict[str, Any]:
     real_id = resource.get("id", "")
     pseudo = session.pseudo_for("Patient", real_id)
-    name_list = resource.get("name") or []
     age = _age_from_birthdate(resource.get("birthDate"))
     return {
         "resourceType": "Patient",
