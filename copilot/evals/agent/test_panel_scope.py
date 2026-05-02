@@ -24,8 +24,8 @@ from app.tools.registry import dispatch
 
 
 PATIENT_ID = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-ALVAREZ_PRACTITIONER_UUID = "prac-alvarez-uuid"
-CHEN_PRACTITIONER_UUID = "prac-chen-uuid"
+ALVAREZ_PRACTITIONER_UUID = "11111111-aaaa-4bbb-8ccc-111111111111"
+CHEN_PRACTITIONER_UUID = "22222222-bbbb-4ccc-8ddd-222222222222"
 
 
 def _id_token(practitioner_uuid: str) -> str:
@@ -177,3 +177,76 @@ async def test_panel_bypassed_when_practitioner_uuid_absent(fhir):
 
     assert result.acl_check.allowed is True
     assert result.error is None
+
+
+def _id_token_with_sub_only(user_uuid: str) -> str:
+    """Forge an id_token with `sub` (UUID) but no `fhirUser` claim."""
+    header = base64.urlsafe_b64encode(b'{"alg":"none"}').rstrip(b"=").decode()
+    payload_obj = {"preferred_username": "doc", "sub": user_uuid}
+    payload = (
+        base64.urlsafe_b64encode(json.dumps(payload_obj).encode())
+        .rstrip(b"=")
+        .decode()
+    )
+    return f"{header}.{payload}.sig"
+
+
+@respx.mock
+async def test_panel_falls_back_to_sub_when_fhir_user_absent(fhir):
+    """Real demo path: OAuth client wasn't approved for `fhirUser` scope,
+    so the id_token only carries `sub`. For OpenEMR clinicians,
+    `users.uuid` IS the Practitioner FHIR id, so `sub` resolves the
+    panel correctly. Patient owned by dr_alvarez → allowed.
+    """
+    settings = get_settings()
+    respx.post(settings.openemr_oauth_base + "/token").mock(
+        return_value=Response(
+            200,
+            json={
+                "access_token": "tok-alvarez-no-fhiruser",
+                "expires_in": 300,
+                "id_token": _id_token_with_sub_only(ALVAREZ_PRACTITIONER_UUID),
+            },
+        )
+    )
+    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(
+            200, json=_patient_resource(ALVAREZ_PRACTITIONER_UUID)
+        )
+    )
+    respx.get(f"{settings.openemr_fhir_base}/Condition").mock(
+        return_value=Response(200, json=_empty_condition_bundle())
+    )
+
+    session = _make_session("dr_alvarez")
+    result = await dispatch("get_patient_summary", {}, fhir, session)
+
+    assert result.acl_check.allowed is True
+    assert result.error is None
+
+
+@respx.mock
+async def test_panel_denies_via_sub_fallback_on_mismatch(fhir):
+    """Same fallback path — but Patient owned by dr_chen → dr_alvarez denied."""
+    settings = get_settings()
+    respx.post(settings.openemr_oauth_base + "/token").mock(
+        return_value=Response(
+            200,
+            json={
+                "access_token": "tok-alvarez-no-fhiruser",
+                "expires_in": 300,
+                "id_token": _id_token_with_sub_only(ALVAREZ_PRACTITIONER_UUID),
+            },
+        )
+    )
+    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(
+            200, json=_patient_resource(CHEN_PRACTITIONER_UUID)
+        )
+    )
+
+    session = _make_session("dr_alvarez")
+    result = await dispatch("get_patient_summary", {}, fhir, session)
+
+    assert result.acl_check.allowed is False
+    assert result.acl_check.reason == "patient_out_of_panel"

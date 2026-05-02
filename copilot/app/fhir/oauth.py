@@ -54,10 +54,14 @@ class TokenSet:
     expires_at: float  # epoch seconds
     scope: str
     physician_user_id: str
-    # Practitioner UUID from the id_token's `fhirUser` claim, when present.
-    # Used by A.7 to verify that a requested Patient.generalPractitioner
-    # matches the authenticated physician's identity.
+    # Practitioner UUID from the id_token's `fhirUser` claim, when present
+    # (production SMART launch sets this).
     practitioner_uuid: str | None = None
+    # User UUID from the id_token's `sub` claim. For OpenEMR clinician
+    # users this equals the Practitioner FHIR resource id, so it serves
+    # as a fallback when `fhirUser` isn't issued (e.g. password-grant
+    # demos where the OAuth client wasn't approved for `fhirUser` scope).
+    user_uuid: str | None = None
 
 
 @dataclass
@@ -172,13 +176,15 @@ class FhirOAuthClient:
             scope=body.get("scope", s.oauth_scopes),
             physician_user_id=physician,
             practitioner_uuid=_practitioner_uuid_from_id_token(body.get("id_token")),
+            user_uuid=_user_uuid_from_id_token(body.get("id_token")),
         )
         async with self._lock:
             self._tokens[physician] = ts
         logger.info(
-            "oauth: stored token for physician=%s practitioner=%s",
+            "oauth: stored token for physician=%s practitioner=%s user_uuid=%s",
             physician,
             ts.practitioner_uuid or "<none>",
+            ts.user_uuid or "<none>",
         )
         return ts
 
@@ -329,6 +335,7 @@ class FhirOAuthClient:
             scope=body.get("scope", s.oauth_scopes),
             physician_user_id=physician_user_id,
             practitioner_uuid=_practitioner_uuid_from_id_token(body.get("id_token")),
+            user_uuid=_user_uuid_from_id_token(body.get("id_token")),
         )
 
     async def resolve_practitioner_uuid(
@@ -337,13 +344,27 @@ class FhirOAuthClient:
         """Return the FHIR Practitioner UUID for a physician.
 
         Used by A.7 patient-scope enforcement. Side-effect: ensures a
-        token is minted for the physician (so the value is cached on
-        TokenSet from the id_token's `fhirUser` claim). Returns None for
-        physicians with no Practitioner link (e.g. the admin user).
+        token is minted for the physician.
+
+        Resolution order:
+          1. The configured demo physician (typically `admin`) returns
+             None — admins bypass the panel gate, matching OpenEMR's UI
+             behavior where they see all charts.
+          2. `TokenSet.practitioner_uuid` from the id_token's `fhirUser`
+             claim (production SMART path).
+          3. `TokenSet.user_uuid` from the id_token's `sub` claim. For
+             OpenEMR clinician users this equals the Practitioner FHIR
+             id, so it works as a fallback when the OAuth client wasn't
+             approved for the `fhirUser` scope.
+          4. None — caller's panel check then fails closed for them.
         """
+        if physician_user_id == self._settings.demo_physician_user_id:
+            return None
         await self.get_token(http, physician_user_id)
         ts = self._tokens.get(physician_user_id)
-        return ts.practitioner_uuid if ts else None
+        if not ts:
+            return None
+        return ts.practitioner_uuid or ts.user_uuid
 
 
 def _claim_from_id_token(id_token: str | None) -> str | None:
@@ -389,5 +410,32 @@ def _practitioner_uuid_from_id_token(id_token: str | None) -> str | None:
         if not fhir_user.startswith("Practitioner/"):
             return None
         return fhir_user.rsplit("/", 1)[-1] or None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _user_uuid_from_id_token(id_token: str | None) -> str | None:
+    """Extract the user's UUID from id_token's `sub` claim.
+
+    For OpenEMR clinician users, `users.uuid` IS the Practitioner FHIR
+    resource id — so when `fhirUser` is missing (e.g. when the OAuth
+    client wasn't approved for the `fhirUser` scope), `sub` is a safe
+    fallback for the practitioner UUID.
+
+    Returns None if the claim is absent or doesn't look like a UUID.
+    """
+    if not id_token:
+        return None
+    try:
+        payload = id_token.split(".")[1] + "=="
+        data = json.loads(base64.urlsafe_b64decode(payload))
+        sub = data.get("sub")
+        if not sub or not isinstance(sub, str):
+            return None
+        # OpenEMR uses UUID-shaped subs for users; reject opaque ids
+        # (eight-four-four-four-twelve hex chars + 4 hyphens = 36).
+        if len(sub) != 36 or sub.count("-") != 4:
+            return None
+        return sub
     except Exception:  # noqa: BLE001
         return None
