@@ -25,8 +25,14 @@ require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.
 
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = filter_input(INPUT_GET, 'iDisplayStart', FILTER_VALIDATE_INT) ?: -1;
-$iDisplayLength = filter_input(INPUT_GET, 'iDisplayLength', FILTER_VALIDATE_INT) ?: -1;
+$iDisplayStart  = filter_input(INPUT_GET, 'iDisplayStart', FILTER_VALIDATE_INT);
+$iDisplayLength = filter_input(INPUT_GET, 'iDisplayLength', FILTER_VALIDATE_INT);
+if (!is_int($iDisplayStart)) {
+    $iDisplayStart = -1;
+}
+if (!is_int($iDisplayLength)) {
+    $iDisplayLength = -1;
+}
 $limit = '';
 $limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {

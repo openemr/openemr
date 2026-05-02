@@ -104,7 +104,12 @@ if (isset($_GET['deletelid'])) {
         <div class="col-12 jumbotron mt-3 p-4">
             <?php
             $N = 15;
-            $offset = filter_input(INPUT_GET, 'offset', FILTER_VALIDATE_INT) ?: filter_input(INPUT_POST, 'offset', FILTER_VALIDATE_INT) ?: 0;
+            $offsetGet = filter_input(INPUT_GET, 'offset', FILTER_VALIDATE_INT);
+            $offsetPost = filter_input(INPUT_POST, 'offset', FILTER_VALIDATE_INT);
+            $offset = is_int($offsetGet) ? $offsetGet : (is_int($offsetPost) ? $offsetPost : 0);
+            if ($offset < 0) {
+                $offset = 0;
+            }
 
             $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user " .
