@@ -80,13 +80,19 @@ class EligibilityMockService
         $individual = [];
 
         if (in_array(1, $productsToRun, true)) {
-            $individual['eligibility'] = [self::buildEligibilityEntry(
-                $patient,
-                $insurancePolicyNumber,
-                $insurancePayerName,
-                $insurancePayerId,
-                $insuranceGroupNumber,
-            )];
+            // Two eligibility entries: a current Active Coverage record
+            // and a prior Inactive (terminated) record, so the demo
+            // exercises the multi-entry template path.
+            $individual['eligibility'] = [
+                self::buildActiveEntry(
+                    $patient,
+                    $insurancePolicyNumber,
+                    $insurancePayerName,
+                    $insurancePayerId,
+                    $insuranceGroupNumber,
+                ),
+                self::buildInactiveEntry($patient),
+            ];
         }
         if (in_array(2, $productsToRun, true)) {
             $individual['demographicInfo'] = self::buildDemographics($patient);
@@ -111,12 +117,14 @@ class EligibilityMockService
     }
 
     /**
-     * Build the eligibility[] entry that drives the ClaimRev eligibility card.
+     * Build an Active Coverage eligibility entry — the patient's current
+     * primary insurance, with a current-year policy window and a full
+     * benefits list.
      *
      * @param  array<string, mixed> $patient
      * @return array<string, mixed>
      */
-    private static function buildEligibilityEntry(
+    private static function buildActiveEntry(
         array $patient,
         string $policyNumber,
         string $payerName,
@@ -175,6 +183,83 @@ class EligibilityMockService
                 'subscriber' => $subscriberInfo,
             ],
             // raw271 deliberately omitted — see class docblock.
+        ];
+    }
+
+    /**
+     * Build an Inactive (terminated) eligibility entry — a prior carrier
+     * the patient was on, with a policy that ended a few months ago.
+     *
+     * Returned alongside the Active entry so the demo exercises the
+     * multi-eligibility template path (one tab per entry, one shows
+     * "Active Coverage" in green, one shows the terminated status in red).
+     *
+     * @param  array<string, mixed> $patient
+     * @return array<string, mixed>
+     */
+    private static function buildInactiveEntry(array $patient): array
+    {
+        // Terminated 90 days ago, ran for 1 year before that.
+        $terminationDate = date('Y-m-d', strtotime('-90 days'));
+        $priorStartDate = date('Y-m-d', strtotime('-1 year -90 days'));
+
+        $priorMemberId = 'OLD-' . substr(
+            md5(TypeCoerce::asString($patient['lname'] ?? '') . '-prior'),
+            0,
+            8
+        );
+
+        return [
+            'status' => 'Inactive',
+            'subscriberId' => $priorMemberId,
+            'insuranceType' => 'HMO',
+            'planSponsor' => 'Mock Previous Employer',
+            'planCode' => 'MOCK-PRIOR',
+            'insurancePlan' => 'Mock Terminated HMO',
+            'groupNumber' => 'MOCK-OLDGRP',
+            'groupName' => 'Mock Previous Employer Group',
+            'policyDate' => [
+                'startDate' => $priorStartDate,
+                'endDate' => $terminationDate,
+                'addedDate' => $priorStartDate,
+            ],
+            'payerInfo' => [
+                'payerName' => 'Prior Mock Insurance Co',
+                'payerCode' => '88888',
+            ],
+            'mapped271' => [
+                'informationSourceName' => 'Prior Mock Insurance Co',
+                'receiver' => [
+                    'name' => 'Demo Provider Group',
+                    'identifier' => '1234567890',
+                ],
+                'subscriber' => [
+                    'firstName' => TypeCoerce::asString($patient['fname'] ?? 'Demo'),
+                    'lastName' => TypeCoerce::asString($patient['lname'] ?? 'Patient'),
+                    'dateOfBirth' => TypeCoerce::asString($patient['dob'] ?? '1980-01-01'),
+                    'gender' => TypeCoerce::asString($patient['sex'] ?? 'U'),
+                    'memberId' => $priorMemberId,
+                    'address' => [
+                        'address1' => TypeCoerce::asString($patient['street'] ?? ''),
+                        'city' => TypeCoerce::asString($patient['city'] ?? ''),
+                        'state' => TypeCoerce::asString($patient['state'] ?? ''),
+                        'zip' => TypeCoerce::asString($patient['postal_code'] ?? ''),
+                    ],
+                    // Inactive coverage typically reports the cancellation
+                    // status code (6) rather than a full benefits breakdown.
+                    'benefits' => [
+                        [
+                            'code' => '6',
+                            'codeDesc' => 'Inactive',
+                            'coverageLevel' => 'IND',
+                            'coverageLevelDesc' => 'Individual',
+                            'serviceType' => '30',
+                            'serviceTypeDesc' => 'Health Benefit Plan Coverage',
+                            'message' => 'Coverage terminated ' . $terminationDate,
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
