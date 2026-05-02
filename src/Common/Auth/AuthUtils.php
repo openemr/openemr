@@ -363,7 +363,7 @@ class AuthUtils
         }
 
         // Check to ensure user is in a acl group
-        if (AclExtended::aclGetGroupTitles($username) == 0) {
+        if (AclExtended::aclGetGroupTitles($username) === []) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
@@ -1496,7 +1496,7 @@ class AuthUtils
         }
 
         // Check to ensure user is in a acl group
-        if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
+        if (AclExtended::aclGetGroupTitles($user['username']) === []) {
             EventAuditLogger::getInstance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user with Google mail '" . $payload['email'] . "' is not in any phpGACL groups");
             return false;
         }
