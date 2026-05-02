@@ -20,8 +20,53 @@ require_once __DIR__ . '/../src/MedExAPI.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExAPI;
+
+/**
+ * Ensure Secure Chat storage exists for this service footprint.
+ */
+function medexSecureChatEnsureTables(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_secure_chat_tokens` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `pid` int(11) NOT NULL,
+          `token` varchar(64) NOT NULL,
+          `expires_at` datetime NOT NULL,
+          `created_by` int(11) NOT NULL,
+          `method` varchar(20) DEFAULT NULL,
+          `is_provider` tinyint(1) DEFAULT 0,
+          `user_initials` varchar(4) DEFAULT NULL,
+          `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+          `used_at` datetime DEFAULT NULL,
+          PRIMARY KEY (`id`),
+          UNIQUE KEY `unique_token` (`token`),
+          KEY `idx_pid` (`pid`),
+          KEY `idx_expires` (`expires_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+        []
+    );
+
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_secure_chat_log` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `pid` int(11) NOT NULL,
+          `action` varchar(50) NOT NULL,
+          `method` varchar(20) DEFAULT NULL,
+          `created_by` int(11) DEFAULT NULL,
+          `user_initials` varchar(4) DEFAULT NULL,
+          `details` text DEFAULT NULL,
+          `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+          PRIMARY KEY (`id`),
+          KEY `idx_pid` (`pid`),
+          KEY `idx_action` (`action`),
+          KEY `idx_created_at` (`created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+        []
+    );
+}
 
 // Check ACL - must have patient access
 if (!AclMain::aclCheckCore('patients', 'demo')) {
@@ -77,21 +122,39 @@ if ($initialPid > 0) {
     }
 }
 
+// Ensure csrf_private_key exists — may be absent when arriving via MedEx SSO
+// without going through the normal OpenEMR login flow.
+if ($session && empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
-        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+    header('Content-Type: application/json');
+    ob_start();
+    $sendJson = static function (array $payload, int $statusCode = 200): void {
+        $buffer = ob_get_clean();
+        if ($buffer !== false && trim($buffer) !== '') {
+            error_log('[MedEx Secure Chat] Suppressed non-JSON output: ' . trim($buffer));
+        }
+        http_response_code($statusCode);
+        echo json_encode($payload);
         exit;
+    };
+
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
+        $sendJson(['success' => false, 'error' => 'Invalid CSRF token'], 403);
     }
-    
-    $action = $_POST['action'];
-    
-    switch ($action) {
+
+    try {
+        medexSecureChatEnsureTables();
+        $action = $_POST['action'];
+
+        switch ($action) {
         case 'search_patients':
             $searchTerm = trim($_POST['search'] ?? '');
             if (strlen($searchTerm) < 2) {
-                echo json_encode(['success' => true, 'patients' => []]);
-                exit;
+                $sendJson(['success' => true, 'patients' => []]);
             }
 
             // Search patients by name (both orders), phone, DOB, or PID.
@@ -164,23 +227,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     'sex' => $row['sex']
                 ];
             }
-            echo json_encode(['success' => true, 'patients' => $patients]);
-            exit;
+            $sendJson(['success' => true, 'patients' => $patients]);
             
         case 'send_chat_link':
             $pid = intval($_POST['pid'] ?? 0);
             $method = $_POST['method'] ?? ''; // sms, email, or copy
             
             if (!$pid) {
-                echo json_encode(['success' => false, 'error' => 'Invalid patient ID']);
-                exit;
+                $sendJson(['success' => false, 'error' => 'Invalid patient ID'], 400);
             }
             
             // Get patient data
             $patient = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", [$pid]);
             if (!$patient) {
-                echo json_encode(['success' => false, 'error' => 'Patient not found']);
-                exit;
+                $sendJson(['success' => false, 'error' => 'Patient not found'], 404);
             }
             
             // Generate secure chat token
@@ -200,8 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     [$pid, $providerToken, $expiresAt, $_SESSION['authUserID'] ?? 0, 'provider']);
             } catch (Exception $e) {
                 error_log("[MedEx Secure Chat] Database error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'error' => 'Failed to create chat tokens']);
-                exit;
+                $sendJson(['success' => false, 'error' => 'Failed to create chat tokens'], 500);
             }
             
             // Build secure chat URLs using the canonical rewrite path.
@@ -284,8 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     [$pid, $_SESSION['authUserID'] ?? 0, $userInitials, json_encode(['url' => $chatUrl])]);
             }
             
-            echo json_encode($result);
-            exit;
+            $sendJson($result);
             
         case 'get_chat_history':
             $pid = intval($_POST['pid'] ?? 0);
@@ -293,8 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $perPage = intval($_POST['per_page'] ?? 25);
             
             if (!$pid) {
-                echo json_encode(['success' => false, 'error' => 'Invalid patient ID']);
-                exit;
+                $sendJson(['success' => false, 'error' => 'Invalid patient ID'], 400);
             }
             
             $offset = ($page - 1) * $perPage;
@@ -320,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             // Get total count
             $totalCount = sqlQuery("SELECT COUNT(*) as cnt FROM medex_secure_chat_log WHERE pid = ?", [$pid]);
             
-            echo json_encode([
+            $sendJson([
                 'success' => true,
                 'history' => $history,
                 'logs' => $logs,
@@ -328,7 +385,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'page' => $page,
                 'per_page' => $perPage
             ]);
-            exit;
+        default:
+            $sendJson(['success' => false, 'error' => 'Unsupported action'], 400);
+        }
+    } catch (\Throwable $e) {
+        error_log('[MedEx Secure Chat] AJAX failure: ' . $e->getMessage());
+        $sendJson(['success' => false, 'error' => 'Secure Chat request failed right now.'], 500);
     }
 }
 
@@ -630,7 +692,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
     
     <script>
-    var csrfToken = <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>;
+    var csrfToken = <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     var selectedPatient = null;
     var currentHistoryPage = 1;
     var totalHistoryPages = 1;
