@@ -19,14 +19,11 @@
 // Minimal bootstrap - we need auth without full session (calendar apps don't support cookies)
 $ignoreAuth = true;
 require_once(__DIR__ . '/../../../../globals.php');
-require_once(__DIR__ . '/../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Modules\MedEx\MedExAPI;
 
-applyCalendarFeedCors();
 header('Content-Type: text/calendar; charset=utf-8');
 
 // Get feed token
@@ -38,17 +35,11 @@ if (empty($feedToken) || strlen($feedToken) !== 64) {
     exit;
 }
 
-$feedSecurityMode = getCalendarFeedSecurityMode();
-$allowAnonymous = ($feedSecurityMode === 'insecure');
-
 // Get HTTP Basic Auth credentials
 $username = $_SERVER['PHP_AUTH_USER'] ?? '';
 $password = $_SERVER['PHP_AUTH_PW'] ?? '';
-$sessionUserId = (int)($_SESSION['authUserID'] ?? 0);
-$sessionUsername = trim((string)($_SESSION['authUser'] ?? ''));
-$hasSessionAuth = ($sessionUserId > 0 && $sessionUsername !== '');
 
-if (!$allowAnonymous && (empty($username) || empty($password)) && !$hasSessionAuth) {
+if (empty($username) || empty($password)) {
     header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
     logCalendarAccess(null, null, $feedToken, false, 'No credentials provided');
     http_response_code(401);
@@ -56,39 +47,23 @@ if (!$allowAnonymous && (empty($username) || empty($password)) && !$hasSessionAu
     exit;
 }
 
-// Validate credentials against OpenEMR user database or reuse active OpenEMR session.
-$userId = 0;
-if (!empty($username) && !empty($password)) {
-    $userId = (int)validateOpenEMRCredentials($username, $password);
-    if (!$userId) {
-        header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
-        logCalendarAccess(null, $username, $feedToken, false, 'Invalid credentials');
-        http_response_code(401);
-        echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Invalid username or password\r\nEND:VCALENDAR";
-        exit;
-    }
-} else {
-    $userId = $sessionUserId;
-    $username = $sessionUsername;
+// Validate credentials against OpenEMR user database
+$userId = validateOpenEMRCredentials($username, $password);
+if (!$userId) {
+    header('WWW-Authenticate: Basic realm="OpenEMR Calendar Feed"');
+    logCalendarAccess(null, $username, $feedToken, false, 'Invalid credentials');
+    http_response_code(401);
+    echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Invalid username or password\r\nEND:VCALENDAR";
+    exit;
 }
 
-// Get feed configuration.
-if ($allowAnonymous && !$hasSessionAuth && (empty($username) || empty($password))) {
-    $feedConfig = getFeedConfigByToken($feedToken);
-    if (!$feedConfig['valid']) {
-        logCalendarAccess(null, null, $feedToken, false, 'Feed not found');
-        http_response_code(404);
-        echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Feed not found\r\nEND:VCALENDAR";
-        exit;
-    }
-} else {
-    $feedConfig = verifyFeedOwnership($feedToken, $userId, $username);
-    if (!$feedConfig['valid']) {
-        logCalendarAccess($userId, $username, $feedToken, false, 'Feed not owned by user or not found');
-        http_response_code(403);
-        echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Access denied to this feed\r\nEND:VCALENDAR";
-        exit;
-    }
+// Get/verify user owns this feed and get feed configuration
+$feedConfig = verifyFeedOwnership($feedToken, $userId, $username);
+if (!$feedConfig['valid']) {
+    logCalendarAccess($userId, $username, $feedToken, false, 'Feed not owned by user or not found');
+    http_response_code(403);
+    echo "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-ERROR:Access denied to this feed\r\nEND:VCALENDAR";
+    exit;
 }
 
 // Generate iCal directly from OpenEMR appointments
@@ -113,11 +88,7 @@ function generateIcalFromOpenEMR(array $feedConfig, int $userId): string
     $lines[] = "X-WR-CALNAME:OpenEMR Appointments";
     
     // Build WHERE clause based on feed configuration
-    $where = [
-        "e.pc_recurrtype = 0", // Non-recurring only for simplicity
-        "e.pc_pid IS NOT NULL",
-        "e.pc_pid > 0"
-    ];
+    $where = ["e.pc_recurrtype = 0"]; // Non-recurring only for simplicity
     $params = [];
     
     // Filter by providers if specified
@@ -266,55 +237,6 @@ function escapeIcal(string $text): string
     return $text;
 }
 
-function applyCalendarFeedCors(): void
-{
-    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
-    if ($origin === '') {
-        return;
-    }
-    $allowedOrigins = [
-        'https://api.hipaabank.net',
-        'https://medexbank.com',
-        'https://www.medexbank.com',
-    ];
-    if (!in_array($origin, $allowedOrigins, true)) {
-        return;
-    }
-    header('Access-Control-Allow-Origin: ' . $origin);
-    header('Access-Control-Allow-Credentials: true');
-    header('Vary: Origin');
-    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
-        header('Access-Control-Allow-Methods: GET, OPTIONS');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type');
-        http_response_code(204);
-        exit;
-    }
-}
-
-function getCalendarFeedSecurityMode(): string
-{
-    $globalRaw = strtolower(trim((string)($GLOBALS['medex_calendar_feed_security'] ?? '')));
-    if (in_array($globalRaw, ['secure', 'insecure'], true)) {
-        return $globalRaw;
-    }
-    $globalRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ? LIMIT 1", ['medex_calendar_feed_security']);
-    $storedRaw = strtolower(trim((string)($globalRow['gl_value'] ?? '')));
-    if (in_array($storedRaw, ['secure', 'insecure'], true)) {
-        return $storedRaw;
-    }
-    try {
-        $medexApi = new MedExAPI();
-        $prefs = $medexApi->getServicePreferences('calendar_export');
-        $raw = strtolower(trim((string)($prefs['feed_security'] ?? 'secure')));
-        if (in_array($raw, ['secure', 'insecure'], true)) {
-            return $raw;
-        }
-    } catch (\Throwable $e) {
-        error_log('[MedEx Calendar Feed] Preference lookup failed: ' . $e->getMessage());
-    }
-    return 'secure';
-}
-
 /**
  * Validate OpenEMR credentials
  * @return int|false User ID on success, false on failure
@@ -380,23 +302,6 @@ function verifyFeedOwnership(string $token, int $userId, string $username): arra
         'feed_id' => $feed['id'],
         'provider_ids' => $providerIds,
         'facility_ids' => $facilityIds
-    ];
-}
-
-function getFeedConfigByToken(string $token): array
-{
-    $feed = sqlQuery(
-        "SELECT id, providers, facilities FROM medex_calendar_feeds WHERE token = ? LIMIT 1",
-        [$token]
-    );
-    if (empty($feed)) {
-        return ['valid' => false, 'reason' => 'Feed not found'];
-    }
-    return [
-        'valid' => true,
-        'feed_id' => (int)($feed['id'] ?? 0),
-        'provider_ids' => parseIdList($feed['providers'] ?? ''),
-        'facility_ids' => parseIdList($feed['facilities'] ?? ''),
     ];
 }
 
