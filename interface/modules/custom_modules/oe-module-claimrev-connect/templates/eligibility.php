@@ -12,6 +12,8 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
 use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
@@ -25,6 +27,9 @@ if ($pid === null) {
 }
 $insurance = EligibilityData::getInsuranceData($pid);
 $eligibilityCsrfToken = CsrfHelper::collectCsrfToken('eligibility');
+$eligTestMode = (new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()))
+    ->getGlobalConfig()
+    ->isTestModeEnabled();
 
 //check if form was submitted
 if (ModuleInput::postExists('checkElig')) {
@@ -56,6 +61,14 @@ if (ModuleInput::postExists('checkElig')) {
 }
 
 ?>
+
+<?php if ($eligTestMode) { ?>
+    <div class="alert alert-warning mt-2 py-2">
+        <i class="fa fa-flask"></i>
+        <strong><?php echo xlt("Test Mode"); ?></strong> &mdash;
+        <?php echo xlt("ClaimRev test mode is on. Eligibility checks return simulated data fabricated from the patient's local insurance row, not a real payer response. Do not rely on these results clinically."); ?>
+    </div>
+<?php } ?>
 
 <div class="row">
     <div class="col">
