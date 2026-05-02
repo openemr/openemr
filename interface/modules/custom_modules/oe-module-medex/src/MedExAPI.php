@@ -2183,7 +2183,40 @@ class MedExAPI
             // Get practice info
             $config = $this->getConfig();
             $practiceId = $config['practice_id'] ?? null;
-            $practiceName = $GLOBALS['openemr_name'] ?? 'Your Healthcare Provider';
+            $facility = sqlQuery(
+                "SELECT name, email, website FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1"
+            );
+            if (empty($facility)) {
+                $facility = sqlQuery("SELECT name, email, website FROM facility ORDER BY id LIMIT 1");
+            }
+            $currentUser = sqlQuery(
+                "SELECT fname, lname, email FROM users WHERE id = ?",
+                [$_SESSION['authUserID'] ?? 0]
+            );
+
+            $practiceName = trim((string)($facility['name'] ?? ''));
+            if ($practiceName === '') {
+                $practiceName = trim((string)($GLOBALS['openemr_name'] ?? 'Your Healthcare Provider'));
+            }
+            $senderEmail = trim((string)($facility['email'] ?? ''));
+            if ($senderEmail === '') {
+                $senderEmail = trim((string)($currentUser['email'] ?? ''));
+            }
+            $senderName = $practiceName;
+            $websiteUrl = trim((string)($facility['website'] ?? ''));
+            $baseSiteUrl = rtrim($this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? '')), '/');
+            if ($websiteUrl === '' && $baseSiteUrl !== '') {
+                $websiteUrl = $baseSiteUrl;
+            }
+            $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? 'default'));
+            if ($siteId === '') {
+                $siteId = 'default';
+            }
+            $logoUrl = '';
+            $practiceLogoPath = rtrim((string)($GLOBALS['OE_SITE_DIR'] ?? ''), '/') . '/images/practice_logo.gif';
+            if ($practiceLogoPath !== '' && is_file($practiceLogoPath) && $baseSiteUrl !== '') {
+                $logoUrl = $baseSiteUrl . '/sites/' . rawurlencode($siteId) . '/images/practice_logo.gif';
+            }
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured");
@@ -2196,16 +2229,55 @@ class MedExAPI
                 $message = "Hello {$patient['fname']}, {$practiceName} has sent you a secure message. Click here to view: {$chatUrl}";
                 $htmlMessage = '';
             } else {
+                $safePatientName = htmlspecialchars((string)$patient['fname'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $safePracticeName = htmlspecialchars((string)$practiceName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $safeChatUrl = htmlspecialchars($chatUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $safeSenderEmail = htmlspecialchars((string)$senderEmail, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $safeWebsiteUrl = htmlspecialchars((string)$websiteUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $message = "Hello {$patient['fname']},\n\n"
                     . "{$practiceName} has sent you a secure message.\n\n"
-                    . "Open your secure message:\n{$chatUrl}\n\n"
-                    . "This link expires in 72 hours.";
-                $htmlMessage = '<p>Hello ' . htmlspecialchars((string)$patient['fname'], ENT_QUOTES | ENT_HTML5, 'UTF-8') . ',</p>'
-                    . '<p>' . htmlspecialchars((string)$practiceName, ENT_QUOTES | ENT_HTML5, 'UTF-8') . ' has sent you a secure message.</p>'
-                    . '<p><a href="' . $safeChatUrl . '" style="display:inline-block;background:#007bff;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:5px;">View Message</a></p>'
-                    . '<p>Open your secure message:<br><a href="' . $safeChatUrl . '">' . $safeChatUrl . '</a></p>'
-                    . '<p><small>This link expires in 72 hours.</small></p>';
+                    . "Open your secure message:\n{$chatUrl}\n\n";
+                if ($senderEmail !== '') {
+                    $message .= "Questions? Reply to {$senderEmail}.\n\n";
+                }
+                $message .= "This link expires in 72 hours.";
+                $logoBlock = '';
+                if ($logoUrl !== '') {
+                    $logoBlock = '<img src="' . htmlspecialchars($logoUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '" alt="' . $safePracticeName . ' logo" style="display:block;max-width:180px;max-height:56px;height:auto;width:auto;margin:0 auto 18px;">';
+                }
+                $contactBlock = '';
+                if ($senderEmail !== '') {
+                    $contactBlock = '<p style="margin:18px 0 0;color:#475569;font-size:14px;">Questions? Reply to <a href="mailto:' . $safeSenderEmail . '" style="color:#0f4b8f;text-decoration:none;">' . $safeSenderEmail . '</a>.</p>';
+                }
+                $websiteBlock = '';
+                if ($websiteUrl !== '') {
+                    $websiteBlock = '<p style="margin:8px 0 0;color:#64748b;font-size:13px;"><a href="' . $safeWebsiteUrl . '" style="color:#64748b;text-decoration:none;">' . $safeWebsiteUrl . '</a></p>';
+                }
+                $htmlMessage = '<div style="margin:0;padding:32px 0;background:#f4f7fb;">'
+                    . '<div style="max-width:640px;margin:0 auto;padding:0 16px;">'
+                    . '<div style="background:#ffffff;border:1px solid #dbe4f0;border-radius:18px;overflow:hidden;box-shadow:0 12px 32px rgba(15,75,143,0.10);">'
+                    . '<div style="padding:28px 28px 12px;background:linear-gradient(135deg,#f7fbff 0%,#edf5ff 100%);text-align:center;">'
+                    . $logoBlock
+                    . '<div style="font:600 24px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;color:#10233f;">' . $safePracticeName . '</div>'
+                    . '<div style="margin-top:8px;font:400 14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;color:#52627a;">Secure message notification</div>'
+                    . '</div>'
+                    . '<div style="padding:28px;font:400 16px/1.65 -apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;color:#1f2937;">'
+                    . '<p style="margin:0 0 16px;">Hello ' . $safePatientName . ',</p>'
+                    . '<p style="margin:0 0 16px;">' . $safePracticeName . ' has sent you a secure message.</p>'
+                    . '<div style="margin:24px 0;text-align:center;">'
+                    . '<a href="' . $safeChatUrl . '" style="display:inline-block;background:#0f4b8f;color:#ffffff;padding:14px 26px;text-decoration:none;border-radius:999px;font-weight:600;">Open Secure Message</a>'
+                    . '</div>'
+                    . '<p style="margin:0 0 8px;color:#475569;font-size:14px;">If the button does not open, copy and paste this link into your browser:</p>'
+                    . '<div style="word-break:break-all;background:#f8fafc;border:1px solid #dbe4f0;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.6;">'
+                    . '<a href="' . $safeChatUrl . '" style="color:#0f4b8f;text-decoration:none;">' . $safeChatUrl . '</a>'
+                    . '</div>'
+                    . '<p style="margin:18px 0 0;color:#64748b;font-size:13px;">This secure link expires in 72 hours.</p>'
+                    . $contactBlock
+                    . $websiteBlock
+                    . '</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>';
             }
 
             // Send via MedEx API
@@ -2217,6 +2289,12 @@ class MedExAPI
                 'message' => $message,
                 'html_message' => $htmlMessage,
                 'subject' => 'Secure Message from ' . $practiceName,
+                'from_name' => $senderName,
+                'from_email' => $senderEmail,
+                'reply_to' => $senderEmail,
+                'practice_name' => $practiceName,
+                'logo_url' => $logoUrl,
+                'website_url' => $websiteUrl,
                 'type' => 'secure_chat_link',
                 'token' => $token,  // Pass token if provided
                 'user_initials' => $userInitials  // Pass user initials for message tracking
