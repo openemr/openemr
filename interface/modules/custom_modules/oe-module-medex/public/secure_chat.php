@@ -1074,7 +1074,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             data.history.forEach(function(msg) {
                 var isPatient = (msg.is_from_patient == 1); // Ensure boolean comparison
                 var directionClass = isPatient ? 'from-patient' : 'from-provider';
-                var senderName = isPatient ? 'Patient' : (msg.provider_fname ? msg.provider_fname : 'Provider');
+                var senderName = msg.sender_name ? msg.sender_name : (isPatient ? 'Patient' : 'Provider');
                 
                 // Determine Channel Badge
                 var channel = msg.channel_type ? msg.channel_type.toLowerCase() : 'sms';
@@ -1091,9 +1091,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 html += '<div class="message-bubble ' + directionClass + '">';
                 html += '<div><strong>' + escapeHtml(senderName) + '</strong></div>';
-                html += '<div>' + escapeHtml(msg.msg_body).replace(/\n/g, '<br>') + '</div>';
+                html += '<div>' + escapeHtml(msg.message || '').replace(/\n/g, '<br>') + '</div>';
                 html += '<div class="message-meta">';
-                html += '<span>' + escapeHtml(msg.msg_date) + '</span>';
+                html += '<span>' + escapeHtml(msg.created_at || '') + '</span>';
                 html += '<span class="channel-badge ' + badgeClass + '"><i class="fa ' + iconClass + '"></i> ' + escapeHtml(channel.toUpperCase()) + '</span>';
                 html += '</div></div>';
             });
