@@ -13,7 +13,7 @@ return [
             'label' => 'PDF Manager',
             'path' => '/interface/modules/custom_modules/oe-module-medex/admin/pdf/index.php',
             'locations' => ['top'],
-            'acl' => ['admin', 'super'],
+            'acl' => ['patients', 'demo'],
         ],
     ],
 ];

@@ -13,7 +13,7 @@ return [
             'label' => 'Secure Chat',
             'path' => '/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php',
             'locations' => ['top'],
-            'acl' => ['admin', 'super'],
+            'acl' => ['patients', 'demo'],
         ],
     ],
 ];

@@ -11,9 +11,9 @@ return [
         [
             'menu_id' => 'medex_sms_bot',
             'label' => 'SMS Bot',
-            'path' => '/interface/modules/custom_modules/oe-module-medex/public/sms_bot.php',
+            'path' => '/interface/modules/custom_modules/oe-module-medex/public/sms_bot_list.php',
             'locations' => ['top'],
-            'acl' => ['admin', 'super'],
+            'acl' => ['patients', 'demo'],
         ],
         [
             'menu_id' => 'medex_recall_board',
