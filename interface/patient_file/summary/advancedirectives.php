@@ -11,16 +11,15 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 
@@ -54,10 +53,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $userService = new UserService();
     $userRecord = $userService->getUser($session->get('authUserID'));
     $myrow = sqlQuery($sql, [$pid]);
+    $form_completedad = '';
+    $form_adreviewed = '';
     if ($myrow) {
         $form_completedad = $myrow['completed_ad'];
         $form_adreviewed = $myrow['ad_reviewed'];
     }
+    $web_root = OEGlobalsBag::getInstance()->getWebRoot();
     ?>
 
     <script>

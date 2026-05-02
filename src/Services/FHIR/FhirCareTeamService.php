@@ -97,7 +97,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * Compliant with US Core 8.0 and USCDI v5 requirements
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCareTeam|string|false
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

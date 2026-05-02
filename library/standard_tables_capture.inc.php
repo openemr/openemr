@@ -689,9 +689,31 @@ function valueset_import($type)
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type): void
 {
-    if (is_dir(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type)) {
-        rmdir_recursive(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type);
+    $tempBase = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+    $target = $tempBase . "/" . $type;
+    if (!is_dir($target)) {
+        return;
     }
+    // Defense in depth: ensure the resolved target is contained within
+    // $temporary_files_dir to prevent traversal via untrusted $type.
+    // Also refuse to delete a symlinked root, which would let an attacker
+    // who can swap the directory for a symlink between this check and the
+    // recursive delete escape containment via TOCTOU.
+    if (is_link($target)) {
+        return;
+    }
+    $resolvedBase = realpath($tempBase);
+    $resolvedTarget = realpath($target);
+    if ($resolvedBase === false || $resolvedTarget === false) {
+        return;
+    }
+    // Require an immediate subdirectory of the base. This is stricter than
+    // isBasePath() (which allows nesting) and rules out values like '' or '.'
+    // that would otherwise resolve to the base itself and delete it whole.
+    if (dirname($resolvedTarget) !== $resolvedBase) {
+        return;
+    }
+    rmdir_recursive($resolvedTarget);
 }
 
 // Function to update version tracker table if successful
@@ -719,14 +741,32 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
 }
 
 // Function to delete an entire directory
-function rmdir_recursive($dir): void
+function rmdir_recursive(string $dir): void
 {
+    // Refuse a symlinked root: scandir() follows symlinks, so without this
+    // guard a TOCTOU swap of the directory for a symlink could redirect
+    // deletion outside the intended tree. Unlink the link itself instead.
+    if (is_link($dir)) {
+        unlink($dir);
+        return;
+    }
     $files = scandir($dir);
+    if ($files === false) {
+        return;
+    }
     array_shift($files);    // remove '.' from array
     array_shift($files);    // remove '..' from array
 
     foreach ($files as $file) {
         $file = $dir . '/' . $file;
+        // Treat symlinks as leaf nodes — unlink the link itself rather than
+        // recursing through it. is_dir() follows symlinks, so without this
+        // guard a symlink to an external directory would cause the recursion
+        // to delete files outside the intended tree.
+        if (is_link($file)) {
+            unlink($file);
+            continue;
+        }
         if (is_dir($file)) {
             rmdir_recursive($file);
             continue;

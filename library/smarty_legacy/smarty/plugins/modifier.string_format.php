@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.modifier.string.format.php
  *          string_format (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param string
+ * @param string $string
+ * @param string $format
  * @return string
  */
 function smarty_modifier_string_format($string, $format)

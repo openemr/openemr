@@ -42,6 +42,7 @@ foreach ($pid_list as $pid) {
         "FROM patient_data AS p " .
         "WHERE p.pid = ? LIMIT 1", [$pid]);
     $prov = sqlQuery("SELECT * FROM users WHERE id IN (SELECT r_provider  FROM `medex_recalls` WHERE `r_pid`=?)", [$pid]);
+    $prov_name = '';
     if (isset($prov['fname']) && isset($prov['lname'])) {
         $prov_name = ": " . $prov['fname'] . " " . $prov['lname'];
         if (isset($prov['suffix'])) {

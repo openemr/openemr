@@ -292,7 +292,7 @@ class DataAdapter implements IObservable
     /**
      * Return true if a transaction is in progress
      *
-     * @return boolean
+     * @return bool
      */
     function IsTransactionInProgress()
     {
@@ -357,8 +357,7 @@ class DataAdapter implements IObservable
     /**
      * Return true if the error with the given message is a communication/network error
      *
-     * @param
-     *          variant string or Exception $msg
+     * @param Exception $msg variant string or
      * @return bool
      */
     public function IsCommunicationError($error)
@@ -370,8 +369,7 @@ class DataAdapter implements IObservable
     /**
      * Returns an array of all table names in the current database
      *
-     * @param
-     *          bool true to omit tables that are empty (default = false)
+     * @param bool $ommitEmptyTables true to omit tables that are empty (default = false)
      * @return array
      */
     public function GetTableNames($ommitEmptyTables = false)

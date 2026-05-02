@@ -318,11 +318,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
-        if (empty($data['alt_content'] ?? '')) {
-            xl("Please follow below link to complete the requested document.");
-        } else {
-            $message = $data['alt_content'];
-        }
+        $message = ($data['alt_content'] ?? '') ?: xl("Please follow below link to complete the requested document.");
 
         if ($patient['hipaa_allowsms'] == 'YES') {
             $clientApp = AppDispatch::getApiService('sms');
@@ -332,11 +328,7 @@ class NotificationEventListener implements EventSubscriberInterface
                 $message,
                 null // will get the "from" phone # from credentials
             );
-            if ($status_api !== true) {
-                $status .= text($status_api);
-            } else {
-                $status .= xlt("Message sent.");
-            }
+            $status .= $status_api === true ? xlt("Message sent.") : text($status_api);
         }
 
         if (!empty($patient['email']) && ($data['include_email'] ?? false) && ($patient['hipaa_allowemail'] == 'YES')) {

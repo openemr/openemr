@@ -105,14 +105,13 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
         $token = $_GET['service_auth'];
-        $ot = $oneTime->decodePortalOneTime($token, null, false);
+        $ot = $oneTime->decodePortalOneTime($token, logUpdate: false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session);
         $twig = new TwigContainer(null, $globalsBag->getKernel());
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => text($_GET['service_auth']),
-            'target' => text($_GET['target'] ?? null),
             'csrf_token' => CsrfUtils::collectCsrfToken($session, 'autologin'),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
@@ -121,13 +120,12 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
         $token = $_POST['service_auth'];
-        $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
             if (!CsrfUtils::verifyCsrfToken($csrfToken, $session, 'autologin')) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
-            $auth = $oneTime->processOnetime($token, $redirect_token);
+            $auth = $oneTime->processOnetime($token);
             $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
             exit();
         } catch (OneTimeAuthExpiredException $exception) {

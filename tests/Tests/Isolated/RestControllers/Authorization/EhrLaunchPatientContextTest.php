@@ -55,6 +55,23 @@ class EhrLaunchPatientContextTest extends TestCase
             {
                 return $value !== null && str_starts_with($value, 'ENC:');
             }
+
+            public function encryptForDatabase(?string $value): string
+            {
+                return $this->encryptStandard($value);
+            }
+
+            public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
+            {
+                if ($value === null || $value === '') {
+                    return '';
+                }
+                if (!$this->cryptCheckStandard($value)) {
+                    return $value;
+                }
+                $result = $this->decryptStandard($value, minimumVersion: $minimumVersion);
+                return $result === false ? '' : $result;
+            }
         };
         ServiceContainer::override(CryptoInterface::class, $crypto);
     }

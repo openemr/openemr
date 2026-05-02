@@ -676,7 +676,7 @@ class C_EncounterVisitForm
         $posOptions = $this->getPosOptionsForTemplate($facilityPosCode);
 // END AI GENERATED CODE
 
-        if (Utilities::isDateEmpty($encounter['onset_date'])) {
+        if (Utilities::isDateEmpty($encounter['onset_date'] ?? null)) {
             $encounter['onset_date'] = null;
         }
 

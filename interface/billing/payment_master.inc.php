@@ -60,6 +60,8 @@ function generate_list_payment_category(string $tag_name, string $list_id, strin
 }
 
 // ================================================================================================
+$payment_id ??= 0;
+$screen ??= '';
 $CheckNumber = '';
 $CheckDate = '';
 $PaymentMethod = '';
@@ -70,6 +72,9 @@ $DepositDate = '';
 $Description = '';
 $TypeCode = '';
 $UndistributedAmount = 0;
+$PayTotal = '';
+$PostToDate = '';
+$global_amount = 0;
 if ($payment_id > 0) {
     $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$payment_id]);
     $row = sqlFetchArray($rs);

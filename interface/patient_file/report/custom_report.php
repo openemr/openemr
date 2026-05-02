@@ -15,16 +15,19 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/report.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/pnotes.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
+require_once $srcdir . '/ESign/Api.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
-require_once("$srcdir/appointments.inc.php");
+require_once($srcdir . "/appointments.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 use ESign\Api;
@@ -32,14 +35,12 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Custom Report", xl("Custom Report"));
@@ -47,8 +48,17 @@ if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
 
 $facilityService = new FacilityService();
 
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+/** @var array<string, mixed> $insurance_data_array */
+$insurance_data_array = OEGlobalsBag::getInstance()->get('insurance_data_array', []);
+
 $staged_docs = [];
 $archive_name = '';
+$tback = '';
+$tmp_files_remove = [];
+$prevIssueType = '';
+$v_js_includes = OEGlobalsBag::getInstance()->getString('v_js_includes');
 
 // For those who care that this is the patient report.
 OEGlobalsBag::getInstance()->set('PATIENT_REPORT_ACTIVE', true);
@@ -189,7 +199,7 @@ function getContent()
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid
                 $practice_logo = "";
-                $plogo = glob("$OE_SITE_DIR/images/*");// let's give the user a little say in image format.
+                $plogo = glob(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/*");// let's give the user a little say in image format.
                 $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
                 if (!empty($plogo)) {
                     $k = current(array_keys($plogo));

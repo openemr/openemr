@@ -17,7 +17,7 @@
  *
  * @param $lptest   the prospective loop value
  * @param &$lpval    the present loop value -- reassigned here
- * @return integer  value from strcmp()
+ * @return int value from strcmp()
  */
 function edih_change_loop($lptest, &$lpval)
 {
@@ -103,6 +103,8 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     $segnum = 0;
     $stsegct = 0;
     $bterr = 'btseg';
+    $stn = '';
+    $has_eb = false;
     //
     foreach ($segments as $key => $seg) {
         $idx++;
@@ -359,6 +361,9 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     $hasst = false;
     $idx = 0;
     $stsegct = 0;
+    $stn = '';
+    $has_eb = false;
+    $has_iii = false;
     //
     // to highlight identified errors listed in 999/997 ack (for 270)
     if ($err_seg) {
@@ -848,6 +853,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $err_ar = [];
     $idx = 0;
     $stsegct = 0;
+    $stn = '';
     //
     // to highlight identified errors listed in 999/997 ack
     if ($err_seg) {
@@ -993,6 +999,8 @@ function edih_997_text($segments, $delimiter)
     //
     $de = $delimiter;
     $loopid = "0";
+    $rspicn = '';
+    $rspfile = '';
     //
     //echo 'edih_997_text() foreach segment count: '.count($segments).PHP_EOL;
     //
@@ -1074,9 +1082,9 @@ function edih_997_text($segments, $delimiter)
  *
  * @param string   $filepath path to desired file
  * @param string   $filetype used when filepath is just filename
- * @param string   optional $claimid CLM01, or BHT03 to identify a transaction or a trace value
- * @param bool     false: $claimid is pt transaction, true: $claimid is trace from 835 or 999
- * @param string   optional $err_info  the prepared error info from a 997/999 response
+ * @param string $claimid CLM01, or BHT03 to identify a transaction or a trace value
+ * @param bool   $trace    false: $claimid is pt transaction, true: $claimid is trace from 835 or 999
+ * @param string $err_info the prepared error info from a 997/999 response
  * @return string  html for display of file segments
  */
 function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = false, $err_info = '')

@@ -13,16 +13,16 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 
 //ensure user has proper access
@@ -107,6 +107,8 @@ if (isset($_POST['mode'])) {
 }
 
 $amendment_id ??= $_REQUEST['id'] ?? '';
+$amendment_desc = '';
+$resultSet = false;
 if (!empty($amendment_id)) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
     $resultSet = sqlQuery($query, [$amendment_id]);
@@ -247,7 +249,7 @@ $(function () {
                 </thead>
                 <tbody>
                 <?php
-                if (sqlNumRows($resultSet)) {
+                if ($resultSet !== false && sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
                         $created_date = date('Y-m-d', strtotime((string) $row['created_time']));
                         echo "<tr>";

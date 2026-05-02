@@ -39,7 +39,7 @@ $oNoteService = new ONoteService();
             <div class="col-12">
                 <a class="my-3" href="office_comments_full.php" onclick='top.restoreSession()'>
                     <span class="h2"><?php echo xlt('Office Notes'); ?></span>
-                    <span class="text"><?php echo text($tmore); ?></span>
+                    <span class="text"><?php echo text($tmore ?? ''); ?></span>
                 </a>
             </div>
         </div>

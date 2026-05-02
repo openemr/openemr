@@ -23,8 +23,7 @@ interface ISqlFunction
     /**
      * Return the quoted SQL that will be used for the insert/update/select
      *
-     * @param
-     *          Phreezer
+     * @param Phreezer $phreezer
      * @return string
      */
     public function GetQuotedSql($phreezer);

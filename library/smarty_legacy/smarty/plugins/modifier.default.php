@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.modifier.default.php
  *          default (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param string
+ * @param string $string
+ * @param string $default
  * @return string
  */
 function smarty_modifier_default($string, $default = '')

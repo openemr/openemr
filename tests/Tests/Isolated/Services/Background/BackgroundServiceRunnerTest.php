@@ -20,6 +20,9 @@ use OpenEMR\Services\Background\BackgroundServiceRunner;
 use OpenEMR\Services\Background\SymfonyBackgroundServiceSpawner;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
 /**
@@ -99,6 +102,45 @@ class BackgroundServiceRunnerTest extends TestCase
 
         $this->assertSame('error', $results[0]['status']);
         $this->assertContains('svc1', $runner->releasedLocks);
+    }
+
+    public function testRunOneLogsExceptionWhenExecuteServiceThrows(): void
+    {
+        // Without this log line the orchestrator records status=error
+        // with no exception class, message, file, line, or trace anywhere
+        // in the cron logs. Operators have no way to diagnose the
+        // failure without attaching to a pod and re-running the
+        // service under instrumentation. The catch is intentionally
+        // broad (\Throwable) — process-boundary cleanup must happen
+        // no matter what — but the diagnostic information must not
+        // be discarded along with the exception.
+        $logger = new RecordingLogger();
+        $thrown = new \RuntimeException('Service failure');
+        $runner = new BackgroundServiceRunnerStub(
+            services: [self::makeService('svc1')],
+            executeCallback: function (array $service) use ($thrown): void {
+                throw $thrown;
+            },
+            logger: $logger,
+        );
+
+        $results = $runner->run('svc1');
+
+        $this->assertSame('error', $results[0]['status']);
+
+        $errorRecords = array_values(array_filter(
+            $logger->records,
+            fn(array $record): bool => $record['level'] === LogLevel::ERROR,
+        ));
+        $this->assertCount(1, $errorRecords, 'exactly one error log line must be emitted on service failure');
+        $record = $errorRecords[0];
+        $this->assertSame('Background service execution failed.', (string) $record['message']);
+        $this->assertSame('svc1', $record['context']['service'] ?? null);
+        $this->assertSame(
+            $thrown,
+            $record['context']['exception'] ?? null,
+            "the thrown exception must be passed via the 'exception' context key so PSR-3 processors can format the trace and class name",
+        );
     }
 
     public function testRunAllDelegatesActiveServicesToSpawnerInOrder(): void
@@ -413,8 +455,9 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         ?BackgroundServiceProcessSpawner $spawner = null,
         private readonly bool $orchestratorLockAcquirable = true,
         private readonly ?\Throwable $acquireLockThrows = null,
+        ?LoggerInterface $logger = null,
     ) {
-        parent::__construct(new NullLogger(), $spawner);
+        parent::__construct($logger ?? new NullLogger(), $spawner);
     }
 
     protected function getServices(?string $serviceName, bool $force): array
@@ -491,5 +534,28 @@ class RecordingSpawner implements BackgroundServiceProcessSpawner
         $this->forceArgs[] = $force;
         $this->timeoutArgs[] = $timeoutSeconds;
         return ['name' => $name, 'status' => $this->statusByName[$name] ?? 'error'];
+    }
+}
+
+/**
+ * Minimal PSR-3 logger that records every log call so tests can assert
+ * on level, message, and context without bringing in a Monolog handler.
+ */
+class RecordingLogger extends AbstractLogger
+{
+    // PSR-3 leaves the context array open: any keys, any values. Mirror
+    // that here so PHPStan doesn't reject callers that pass mixed-keyed
+    // context (which is legal under the interface even if our own call
+    // sites use string keys).
+    /** @var list<array{level: mixed, message: string|\Stringable, context: array<mixed>}> */
+    public array $records = [];
+
+    public function log($level, string|\Stringable $message, array $context = []): void
+    {
+        $this->records[] = [
+            'level' => $level,
+            'message' => $message,
+            'context' => $context,
+        ];
     }
 }

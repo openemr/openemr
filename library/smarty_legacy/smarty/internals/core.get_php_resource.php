@@ -13,7 +13,7 @@
  * @param string $resource
  * @param string $resource_type
  * @param  $php_resource
- * @return boolean
+ * @return bool
  */
 
 function smarty_core_get_php_resource(&$params, &$smarty)

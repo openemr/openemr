@@ -76,7 +76,7 @@ class Header
      * bring in the requested assets from config.yaml
      *
      * @param array|string $assets Asset(s) to include
-     * @param boolean $echoOutput - if true then echo
+     * @param bool $echoOutput - if true then echo
      *                              if false then return string
      * @throws ParseException If unable to parse the config file
      * @return string
@@ -144,9 +144,9 @@ class Header
      *  if do not want to include the autoloaded assets.
      *
      * @param array $assets Asset(s) to include
-     * @param boolean $headerMode - if true, then include autoloaded assets
+     * @param bool $headerMode - if true, then include autoloaded assets
      *                              if false, then do not include autoloaded assets
-     * @param boolean $echoOutput - if true then echo
+     * @param bool $echoOutput - if true then echo
      *                              if false then return string
      */
     public static function setupAssets($assets = [], $headerMode = false, $echoOutput = true)
@@ -280,7 +280,7 @@ class Header
      * Build an html element from config options.
      *
      * @var array $opts Options
-     * @var boolean $alreadyBuilt - This means the path with cache busting segment has already been built
+     * @var bool $alreadyBuilt - This means the path with cache busting segment has already been built
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
     private static function buildAsset($opts = [], $alreadyBuilt = false)

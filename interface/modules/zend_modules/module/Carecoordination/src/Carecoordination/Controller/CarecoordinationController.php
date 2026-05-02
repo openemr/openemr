@@ -686,6 +686,7 @@ class CarecoordinationController extends AbstractActionController
     <tbody>';
                     foreach ($social_history_audit['social_history'] as $val) {
                         $array_his_tobacco = explode("|", (string) $val['smoking']);
+                        $his_tob_date = '';
                         if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                             $his_tob_date = substr($array_his_tobacco[2], 0, 4) . "-" . substr($array_his_tobacco[2], 4, 2) . "-" . substr($array_his_tobacco[2], 6, 2);
                         }

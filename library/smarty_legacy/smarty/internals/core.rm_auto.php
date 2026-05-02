@@ -12,8 +12,8 @@
  * @param string $auto_base
  * @param string $auto_source
  * @param string $auto_id
- * @param integer $exp_time
- * @return boolean
+ * @param int $exp_time
+ * @return bool
  */
 
 // $auto_base, $auto_source = null, $auto_id = null, $exp_time = null

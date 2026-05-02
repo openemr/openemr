@@ -17,14 +17,15 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/daysheet.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -98,16 +99,21 @@ if ($code_type === 'all') {
     $code_type = '%';
 }
 
+$list = [];
 if (isset($_GET["mode"]) && $_GET["mode"] === 'bill') {
     BillingReport::billCodesList($list);
 }
 
 $res_count = 0;
 $N = 1;
-$k = 1;
 $anypats = 0;
 $the_first_time = 1;
 $itero = [];
+$totals_only = 0;
+$user = '';
+$first_user = '';
+/** @var array<string, array{user: string, fee: float, inspay: float, insadj: float, patadj: float, patpay: float}> */
+$user_totals = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
 // checking to see if there is any information in the array if not display a message (located after this if statement)
@@ -120,188 +126,36 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
 // $iter has encounter information
 
-// this loop gathers the user numbers
-    foreach ($ret as $iter) {
-          $catch_user[] = $iter['user'];
-    }
-
-//This statement uniques the array removing duplicates
-    $user_list = array_unique($catch_user);
-// reorder the list starting with array element zero
-    $final_list = array_values($user_list);
-// sort array in ascending order
-    sort($final_list);
-
     $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
-    if ($_POST['end_of_day_totals_only'] == 1) {
+    if (filter_input(INPUT_POST, 'end_of_day_totals_only', FILTER_VALIDATE_INT) === 1) {
         $totals_only = 1;
     }
 
     foreach ($all4 as $iter) {
-        // Case statement to tally information by user
-        switch ($iter['user']) {
-            case $final_list[0]:
-                $us0_user = $iter['user'];
-                $us0_fee += $iter['fee'];
-                $us0_inspay += $iter['ins_code'];
-                $us0_insadj += $iter['ins_adjust_dollar'];
-                $us0_patadj += $iter['pat_adjust_dollar'];
-                $us0_patpay += $iter['pat_code'];
-                break;
-            case $final_list[1]:
-                $us1_user = $iter['user'];
-                $us1_fee += $iter['fee'];
-                $us1_inspay += $iter['ins_code'];
-                $us1_insadj += $iter['ins_adjust_dollar'];
-                $us1_patadj += $iter['pat_adjust_dollar'];
-                $us1_patpay += $iter['pat_code'];
-                break;
-            case $final_list[2]:
-                $us2_user = $iter['user'];
-                $us2_fee += $iter['fee'];
-                $us2_inspay += $iter['ins_code'];
-                $us2_insadj += $iter['ins_adjust_dollar'];
-                $us2_patadj += $iter['pat_adjust_dollar'];
-                $us2_patpay += $iter['pat_code'];
-                break;
-            case $final_list[3]:
-                $us3_user = $iter['user'];
-                $us3_fee += $iter['fee'];
-                $us3_inspay += $iter['ins_code'];
-                $us3_insadj += $iter['ins_adjust_dollar'];
-                $us3_patadj += $iter['pat_adjust_dollar'];
-                $us3_patpay += $iter['pat_code'];
-                break;
-            case $final_list[4]:
-                $us4_user = $iter['user'];
-                $us4_fee += $iter['fee'];
-                $us4_inspay += $iter['ins_code'];
-                $us4_insadj += $iter['ins_adjust_dollar'];
-                $us4_patadj += $iter['pat_adjust_dollar'];
-                $us4_patpay += $iter['pat_code'];
-                break;
-            case $final_list[5]:
-                $us5_user = $iter['user'];
-                $us5_fee += $iter['fee'];
-                $us5_inspay += $iter['ins_code'];
-                $us5_insadj += $iter['ins_adjust_dollar'];
-                $us5_patadj += $iter['pat_adjust_dollar'];
-                $us5_patpay += $iter['pat_code'];
-                break;
-            case $final_list[6]:
-                $us6_user = $iter['user'];
-                $us6_fee += $iter['fee'];
-                $us6_inspay += $iter['ins_code'];
-                $us6_insadj += $iter['ins_adjust_dollar'];
-                $us6_patadj += $iter['pat_adjust_dollar'];
-                $us6_patpay += $iter['pat_code'];
-                break;
-            case $final_list[7]:
-                $us7_user = $iter['user'];
-                $us7_fee += $iter['fee'];
-                $us7_inspay += $iter['ins_code'];
-                $us7_insadj += $iter['ins_adjust_dollar'];
-                $us7_patadj += $iter['pat_adjust_dollar'];
-                $us7_patpay += $iter['pat_code'];
-                break;
-            case $final_list[8]:
-                $us8_user = $iter['user'];
-                $us8_fee += $iter['fee'];
-                $us8_inspay += $iter['ins_code'];
-                $us8_insadj += $iter['ins_adjust_dollar'];
-                $us8_patadj += $iter['pat_adjust_dollar'];
-                $us8_patpay += $iter['pat_code'];
-                break;
-            case $final_list[9]:
-                $us9_user = $iter['user'];
-                $us9_fee += $iter['fee'];
-                $us9_inspay += $iter['ins_code'];
-                $us9_insadj += $iter['ins_adjust_dollar'];
-                $us9_patadj += $iter['pat_adjust_dollar'];
-                $us9_patpay += $iter['pat_code'];
-                break;
-            case $final_list[10]:
-                $us10_user = $iter['user'];
-                $us10_fee += $iter['fee'];
-                $us10_inspay += $iter['ins_code'];
-                $us10_insadj += $iter['ins_adjust_dollar'];
-                $us10_patadj += $iter['pat_adjust_dollar'];
-                $us10_patpay += $iter['pat_code'];
-                break;
-            case $final_list[11]:
-                $us11_user = $iter['user'];
-                $us11_fee += $iter['fee'];
-                $us11_inspay += $iter['ins_code'];
-                $us11_insadj += $iter['ins_adjust_dollar'];
-                $us11_patadj += $iter['pat_adjust_dollar'];
-                $us11_patpay += $iter['pat_code'];
-                break;
-            case $final_list[12]:
-                $us12_user = $iter['user'];
-                $us12_fee += $iter['fee'];
-                $us12_inspay += $iter['ins_code'];
-                $us12_insadj += $iter['ins_adjust_dollar'];
-                $us12_patadj += $iter['pat_adjust_dollar'];
-                $us12_patpay += $iter['pat_code'];
-                break;
-            case $final_list[13]:
-                $us13_user = $iter['user'];
-                $us13_fee += $iter['fee'];
-                $us13_inspay += $iter['ins_code'];
-                $us13_insadj += $iter['ins_adjust_dollar'];
-                $us13_patadj += $iter['pat_adjust_dollar'];
-                $us13_patpay += $iter['pat_code'];
-                break;
-            case $final_list[14]:
-                $us14_user = $iter['user'];
-                $us14_fee += $iter['fee'];
-                $us14_inspay += $iter['ins_code'];
-                $us14_insadj += $iter['ins_adjust_dollar'];
-                $us14_patadj += $iter['pat_adjust_dollar'];
-                $us14_patpay += $iter['pat_code'];
-                break;
-            case $final_list[15]:
-                $us15_user = $iter['user'];
-                $us15_fee += $iter['fee'];
-                $us15_inspay += $iter['ins_code'];
-                $us15_insadj += $iter['ins_adjust_dollar'];
-                $us15_patadj += $iter['pat_adjust_dollar'];
-                $us15_patpay += $iter['pat_code'];
-                break;
-            case $final_list[16]:
-                $us16_user = $iter['user'];
-                $us16_fee += $iter['fee'];
-                $us16_inspay += $iter['ins_code'];
-                $us16_insadj += $iter['ins_adjust_dollar'];
-                $us16_patadj += $iter['pat_adjust_dollar'];
-                $us16_patpay += $iter['pat_code'];
-                break;
-            case $final_list[17]:
-                $us17_user = $iter['user'];
-                $us17_fee += $iter['fee'];
-                $us17_inspay += $iter['ins_code'];
-                $us17_insadj += $iter['ins_adjust_dollar'];
-                $us17_patadj += $iter['pat_adjust_dollar'];
-                $us17_patpay += $iter['pat_code'];
-                break;
-            case $final_list[18]:
-                $us18_user = $iter['user'];
-                $us18_fee += $iter['fee'];
-                $us18_inspay += $iter['ins_code'];
-                $us18_insadj += $iter['ins_adjust_dollar'];
-                $us18_patadj += $iter['pat_adjust_dollar'];
-                $us18_patpay += $iter['pat_code'];
-                break;
-            case $final_list[19]:
-                $us19_user = $iter['user'];
-                $us19_fee += $iter['fee'];
-                $us19_inspay += $iter['ins_code'];
-                $us19_insadj += $iter['ins_adjust_dollar'];
-                $us19_patadj += $iter['pat_adjust_dollar'];
-                $us19_patpay += $iter['pat_code'];
-                break;
-        }
+        // Tally information by user. Legacy code capped at the first 20
+        // distinct users (a per-slot $us0..$us19 accumulator); this map
+        // accumulates every distinct user.
+        $userVal = $iter['user'] ?? null;
+        $u = is_string($userVal) ? $userVal : '';
+        $feeVal = $iter['fee'] ?? null;
+        $insCodeVal = $iter['ins_code'] ?? null;
+        $insAdjVal = $iter['ins_adjust_dollar'] ?? null;
+        $patAdjVal = $iter['pat_adjust_dollar'] ?? null;
+        $patCodeVal = $iter['pat_code'] ?? null;
+        $user_totals[$u] ??= [
+            'user' => $u,
+            'fee' => 0.0,
+            'inspay' => 0.0,
+            'insadj' => 0.0,
+            'patadj' => 0.0,
+            'patpay' => 0.0,
+        ];
+        $user_totals[$u]['fee']    += is_numeric($feeVal) ? (float) $feeVal : 0.0;
+        $user_totals[$u]['inspay'] += is_numeric($insCodeVal) ? (float) $insCodeVal : 0.0;
+        $user_totals[$u]['insadj'] += is_numeric($insAdjVal) ? (float) $insAdjVal : 0.0;
+        $user_totals[$u]['patadj'] += is_numeric($patAdjVal) ? (float) $patAdjVal : 0.0;
+        $user_totals[$u]['patpay'] += is_numeric($patCodeVal) ? (float) $patCodeVal : 0.0;
 
         if ($the_first_time == 1) {
               $user = $iter['user'];
@@ -478,249 +332,71 @@ if ($anypats == 0) {
     ?><font size = 5 ><?php echo xlt('No Data to Process')?></font><?php
 }
 
-// TEST TO SEE IF THERE IS INFORMATION IN THE VARIABLES THEN ADD TO AN ARRAY FOR PRINTING
+// Filter to only users with non-zero totals, then render and accumulate
+// grand totals.
 
-if ($us0_fee != 0 || $us0_inspay != 0 || $us0_insadj != 0 || $us0_patadj != 0 || $us0_patpay != 0) {
-    $user_info['user'][$k] = $us0_user;
-    $user_info['fee'][$k]  = $us0_fee;
-    $user_info['inspay'][$k]  = $us0_inspay;
-    $user_info['insadj'][$k]  = $us0_insadj;
-    $user_info['patadj'][$k]  = $us0_patadj;
-    $user_info['patpay'][$k]  = $us0_patpay;
-    ++$k;
-}
-
-if ($us1_fee != 0 || $us1_inspay != 0 || $us1_insadj != 0 || $us1_patadj != 0 || $us1_patpay != 0) {
-    $user_info['user'][$k] = $us1_user;
-    $user_info['fee'][$k]  = $us1_fee;
-    $user_info['inspay'][$k]  = $us1_inspay;
-    $user_info['insadj'][$k]  = $us1_insadj;
-    $user_info['patadj'][$k]  = $us1_patadj;
-    $user_info['patpay'][$k]  = $us1_patpay;
-    ++$k;
-}
-
-if ($us2_fee != 0 || $us2_inspay != 0 || $us2_insadj != 0 || $us2_patadj != 0 || $us2_patpay != 0) {
-    $user_info['user'][$k] = $us2_user;
-    $user_info['fee'][$k]  = $us2_fee;
-    $user_info['inspay'][$k]  = $us2_inspay;
-    $user_info['insadj'][$k]  = $us2_insadj;
-    $user_info['patadj'][$k]  = $us2_patadj;
-    $user_info['patpay'][$k]  = $us2_patpay;
-    ++$k;
-}
-
-if ($us3_fee != 0 || $us3_inspay != 0 || $us3_insadj != 0 || $us3_patadj != 0 || $us3_patpay != 0) {
-    $user_info['user'][$k] = $us3_user;
-    $user_info['fee'][$k]  = $us3_fee;
-    $user_info['inspay'][$k]  = $us3_inspay;
-    $user_info['insadj'][$k]  = $us3_insadj;
-    $user_info['patadj'][$k]  = $us3_patadj;
-    $user_info['patpay'][$k]  = $us3_patpay;
-    ++$k;
-}
-
-if ($us4_fee != 0 || $us4_inspay != 0 || $us4_insadj != 0 || $us4_patadj != 0 || $us4_patpay != 0) {
-    $user_info['user'][$k] = $us4_user;
-    $user_info['fee'][$k]  = $us4_fee;
-    $user_info['inspay'][$k]  = $us4_inspay;
-    $user_info['insadj'][$k]  = $us4_insadj;
-    $user_info['patadj'][$k]  = $us4_patadj;
-    $user_info['patpay'][$k]  = $us4_patpay;
-    ++$k;
-}
-
-if ($us5_fee != 0 || $us5_inspay != 0 || $us5_insadj != 0 || $us5_patadj != 0 || $us5_patpay != 0) {
-    $user_info['user'][$k] = $us5_user;
-    $user_info['fee'][$k]  = $us5_fee;
-    $user_info['inspay'][$k]  = $us5_inspay;
-    $user_info['insadj'][$k]  = $us5_insadj;
-    $user_info['patadj'][$k]  = $us5_patadj;
-    $user_info['patpay'][$k]  = $us5_patpay;
-    ++$k;
-}
-
-if ($us6_fee != 0 || $us6_inspay != 0 || $us6_insadj != 0 || $us6_patadj != 0 || $us6_patpay != 0) {
-    $user_info['user'][$k] = $us6_user;
-    $user_info['fee'][$k]  = $us6_fee;
-    $user_info['inspay'][$k]  = $us6_inspay;
-    $user_info['insadj'][$k]  = $us6_insadj;
-    $user_info['patadj'][$k]  = $us6_patadj;
-    $user_info['patpay'][$k]  = $us6_patpay;
-    ++$k;
-}
-
-if ($us7_fee != 0 || $us7_inspay != 0 || $us7_insadj != 0 || $us7_patadj != 0 || $us7_patpay != 0) {
-    $user_info['user'][$k] = $us7_user;
-    $user_info['fee'][$k]  = $us7_fee;
-    $user_info['inspay'][$k]  = $us7_inspay;
-    $user_info['insadj'][$k]  = $us7_insadj;
-    $user_info['patadj'][$k]  = $us7_patadj;
-    $user_info['patpay'][$k]  = $us7_patpay;
-    ++$k;
-}
-
-if ($us8_fee != 0 || $us8_inspay != 0 || $us8_insadj != 0 || $us8_patadj != 0 || $us8_patpay != 0) {
-    $user_info['user'][$k] = $us8_user;
-    $user_info['fee'][$k]  = $us8_fee;
-    $user_info['inspay'][$k]  = $us8_inspay;
-    $user_info['insadj'][$k]  = $us8_insadj;
-    $user_info['patadj'][$k]  = $us8_patadj;
-    $user_info['patpay'][$k]  = $us8_patpay;
-    ++$k;
-}
-
-if ($us9_fee != 0 || $us9_inspay != 0 || $us9_insadj != 0 || $us9_patadj != 0 || $us9_patpay != 0) {
-    $user_info['user'][$k] = $us9_user;
-    $user_info['fee'][$k]  = $us9_fee;
-    $user_info['inspay'][$k]  = $us9_inspay;
-    $user_info['insadj'][$k]  = $us9_insadj;
-    $user_info['patadj'][$k]  = $us9_patadj;
-    $user_info['patpay'][$k]  = $us9_patpay;
-    ++$k;
-}
-
-if ($us10_fee != 0 || $us10_inspay != 0 || $us10_insadj != 0 || $us10_patadj != 0 || $us10_patpay != 0) {
-    $user_info['user'][$k] = $us10_user;
-    $user_info['fee'][$k]  = $us10_fee;
-    $user_info['inspay'][$k]  = $us10_inspay;
-    $user_info['insadj'][$k]  = $us10_insadj;
-    $user_info['patadj'][$k]  = $us10_patadj;
-    $user_info['patpay'][$k]  = $us10_patpay;
-    ++$k;
-}
-
-if ($us11_fee != 0 || $us11_inspay != 0 || $us11_insadj != 0 || $us11_patadj != 0 || $us11_patpay != 0) {
-    $user_info['user'][$k] = $us11_user;
-    $user_info['fee'][$k]  = $us11_fee;
-    $user_info['inspay'][$k]  = $us11_inspay;
-    $user_info['insadj'][$k]  = $us11_insadj;
-    $user_info['patadj'][$k]  = $us11_patadj;
-    $user_info['patpay'][$k]  = $us11_patpay;
-    ++$k;
-}
-
-if ($us12_fee != 0 || $us12_inspay != 0 || $us12_insadj != 0 || $us12_patadj != 0 || $us12_patpay != 0) {
-    $user_info['user'][$k] = $us12_user;
-    $user_info['fee'][$k]  = $us12_fee;
-    $user_info['inspay'][$k]  = $us12_inspay;
-    $user_info['insadj'][$k]  = $us12_insadj;
-    $user_info['patadj'][$k]  = $us12_patadj;
-    $user_info['patpay'][$k]  = $us12_patpay;
-    ++$k;
-}
-
-if ($us13_fee != 0 || $us13_inspay != 0 || $us13_insadj != 0 || $us13_patadj != 0 || $us13_patpay != 0) {
-    $user_info['user'][$k] = $us13_user;
-    $user_info['fee'][$k]  = $us13_fee;
-    $user_info['inspay'][$k]  = $us13_inspay;
-    $user_info['insadj'][$k]  = $us13_insadj;
-    $user_info['patadj'][$k]  = $us13_patadj;
-    $user_info['patpay'][$k]  = $us13_patpay;
-    ++$k;
-}
-
-if ($us14_fee != 0 || $us14_inspay != 0 || $us14_insadj != 0 || $us14_patadj != 0 || $us14_patpay != 0) {
-    $user_info['user'][$k] = $us14_user;
-    $user_info['fee'][$k]  = $us14_fee;
-    $user_info['inspay'][$k]  = $us14_inspay;
-    $user_info['insadj'][$k]  = $us14_insadj;
-    $user_info['patadj'][$k]  = $us14_patadj;
-    $user_info['patpay'][$k]  = $us14_patpay;
-    ++$k;
-}
-
-if ($us15_fee != 0 || $us15_inspay != 0 || $us15_insadj != 0 || $us15_patadj != 0 || $us15_patpay != 0) {
-    $user_info['user'][$k] = $us15_user;
-    $user_info['fee'][$k]  = $us15_fee;
-    $user_info['inspay'][$k]  = $us15_inspay;
-    $user_info['insadj'][$k]  = $us15_insadj;
-    $user_info['patadj'][$k]  = $us15_patadj;
-    $user_info['patpay'][$k]  = $us15_patpay;
-    ++$k;
-}
-
-if ($us16_fee != 0 || $us16_inspay != 0 || $us16_insadj != 0 || $us16_patadj != 0 || $us16_patpay != 0) {
-    $user_info['user'][$k] = $us16_user;
-    $user_info['fee'][$k]  = $us16_fee;
-    $user_info['inspay'][$k]  = $us16_inspay;
-    $user_info['insadj'][$k]  = $us16_insadj;
-    $user_info['patadj'][$k]  = $us16_patadj;
-    $user_info['patpay'][$k]  = $us16_patpay;
-    ++$k;
-}
-
-if ($us17_fee != 0 || $us17_inspay != 0 || $us17_insadj != 0 || $us17_patadj != 0 || $us17_patpay != 0) {
-    $user_info['user'][$k] = $us17_user;
-    $user_info['fee'][$k]  = $us17_fee;
-    $user_info['inspay'][$k]  = $us17_inspay;
-    $user_info['insadj'][$k]  = $us17_insadj;
-    $user_info['patadj'][$k]  = $us17_patadj;
-    $user_info['patpay'][$k]  = $us17_patpay;
-    ++$k;
-}
-
-if ($us18_fee != 0 || $us18_inspay != 0 || $us18_insadj != 0 || $us18_patadj != 0 || $us18_patpay != 0) {
-    $user_info['user'][$k] = $us18_user;
-    $user_info['fee'][$k]  = $us18_fee;
-    $user_info['inspay'][$k]  = $us18_inspay;
-    $user_info['insadj'][$k]  = $us18_insadj;
-    $user_info['patadj'][$k]  = $us18_patadj;
-    $user_info['patpay'][$k]  = $us18_patpay;
-    ++$k;
-}
-
-if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 0 || $us19_patpay != 0) {
-    $user_info['user'][$k] = $us19_user;
-    $user_info['fee'][$k]  = $us19_fee;
-    $user_info['inspay'][$k]  = $us19_inspay;
-    $user_info['insadj'][$k]  = $us19_insadj;
-    $user_info['patadj'][$k]  = $us19_patadj;
-    $user_info['patpay'][$k]  = $us19_patpay;
-    ++$k;
-}
+$user_info = array_values(array_filter(
+    $user_totals,
+    static fn (array $t): bool => $t['fee'] != 0
+        || $t['inspay'] != 0
+        || $t['insadj'] != 0
+        || $t['patadj'] != 0
+        || $t['patpay'] != 0,
+));
 
 if ($totals_only == 1) {
-    $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
-    $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));
+    $query_part_day = OEGlobalsBag::getInstance()->getString('query_part_day');
+    $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
+    $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
     print "<br /><br />";
     ?><font size = 5 ><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }
 
-for ($i = 1; $i < $k;) {
-    print "<table border=1><tr>\n";
-    print "<br /><br />";
+$gtotal_fee = 0.0;
+$gtotal_insadj = 0.0;
+$gtotal_inspay = 0.0;
+$gtotal_patadj = 0.0;
+$gtotal_patpay = 0.0;
 
-    Printf("<td width=70><span class=text><b>" . xlt("User ") . "</center></b><center>" . text($user_info['user'][$i])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Charges") . ' ' . "</center></b><center>" . " %1\$.2f", text($user_info['fee'][$i])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($user_info['insadj'][$i])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($user_info['inspay'][$i])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Patient Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($user_info['patadj'][$i])) . "</center>";
-    Printf("<td width=140><span class=text><b><center>" . xlt("Patient Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($user_info['patpay'][$i])) . "</center>";
+$userLabel = xlt('User ');
+$chargesLabel = xlt('Charges');
+$insadjLabel = xlt('Insurance Adj');
+$inspayLabel = xlt('Insurance Payments');
+$patadjLabel = xlt('Patient Adj');
+$patpayLabel = xlt('Patient Payments');
 
-    $gtotal_fee += $user_info['fee'][$i];
-    $gtotal_insadj += $user_info['insadj'][$i];
-    $gtotal_inspay += $user_info['inspay'][$i];
-    $gtotal_patadj += $user_info['patadj'][$i];
-    $gtotal_patpay += $user_info['patpay'][$i];
+foreach ($user_info as $row) {
+    $user = text($row['user']);
+    $fee = sprintf('%.2f', $row['fee']);
+    $insadj = sprintf('%.2f', $row['insadj']);
+    $inspay = sprintf('%.2f', $row['inspay']);
+    $patadj = sprintf('%.2f', $row['patadj']);
+    $patpay = sprintf('%.2f', $row['patpay']);
 
-    ++$i;
+    echo <<<HTML
+        <table border=1><tr>
+        <br /><br /><td width=70><span class=text><b>{$userLabel}</center></b><center>{$user}<td width=140><span class=text><b><center>{$chargesLabel} </center></b><center> {$fee}<td width=140><span class=text><b><center>{$insadjLabel}. </center></b><center>{$insadj}<td width=140><span class=text><b><center>{$inspayLabel} </center></b><center>{$inspay}<td width=140><span class=text><b><center>{$patadjLabel}. </center></b><center>{$patadj}<td width=140><span class=text><b><center>{$patpayLabel} </center></b><center>{$patpay}<br /></td>
+        HTML;
 
-    print "<br /></td>";
+    $gtotal_fee += $row['fee'];
+    $gtotal_insadj += $row['insadj'];
+    $gtotal_inspay += $row['inspay'];
+    $gtotal_patadj += $row['patadj'];
+    $gtotal_patpay += $row['patpay'];
 }
 
-print "<table border=1><tr>\n";
-print "<br /><br />";
+$grandTotalsLabel = xlt('Grand Totals');
+$totalChargesLabel = xlt('Total Charges');
+$gtotalFee = sprintf('%.2f', $gtotal_fee);
+$gtotalInsadj = sprintf('%.2f', $gtotal_insadj);
+$gtotalInspay = sprintf('%.2f', $gtotal_inspay);
+$gtotalPatadj = sprintf('%.2f', $gtotal_patadj);
+$gtotalPatpay = sprintf('%.2f', $gtotal_patpay);
 
-Printf("<td width=70><span class=text><b><center>" . xlt("Grand Totals") . ' ');
-Printf("<td width=140><span class=text><b><center>" . xlt("Total Charges") . ' ' . "</center></b><center>" . " %1\$.2f", text($gtotal_fee)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($gtotal_insadj)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Insurance Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($gtotal_inspay)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Patient Adj") . '. ' . "</center></b><center>" . "%1\$.2f", text($gtotal_patadj)) . "</center>";
-Printf("<td width=140><span class=text><b><center>" . xlt("Patient Payments") . ' ' . "</center></b><center>" . "%1\$.2f", text($gtotal_patpay)) . "</center>";
-
-print "<br /></td>";
-print "</table>";
+echo <<<HTML
+    <table border=1><tr>
+    <br /><br /><td width=70><span class=text><b><center>{$grandTotalsLabel} <td width=140><span class=text><b><center>{$totalChargesLabel} </center></b><center> {$gtotalFee}<td width=140><span class=text><b><center>{$insadjLabel}. </center></b><center>{$gtotalInsadj}<td width=140><span class=text><b><center>{$inspayLabel} </center></b><center>{$gtotalInspay}<td width=140><span class=text><b><center>{$patadjLabel}. </center></b><center>{$gtotalPatadj}<td width=140><span class=text><b><center>{$patpayLabel} </center></b><center>{$gtotalPatpay}<br /></td></table>
+    HTML;
 
 ?>
 </body>

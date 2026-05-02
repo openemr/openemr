@@ -34,21 +34,24 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once("../../../library/options.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Labs", xl("Labs"));
 }
+
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
 
 // Set the path to this script
 $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";
@@ -247,6 +250,7 @@ function checkAll(bx) {
                 //-------------------------------------------
                 $mode = $_POST['mode'] ?? null;
                 $value_select = $_POST['value_code'] ?? null;
+                $nothing = false;
                 // are some Items selected?
                 if ($value_select) {
                     // print in List-Mode
@@ -277,6 +281,7 @@ function checkAll(bx) {
                             // get data from db
                             $spell  = $main_spell;
                             $query  = sqlStatement($spell, [$this_value,$pid]);
+                            $the_item = '';
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_array[0][$value_count]   = $myrow['result'];
                                 $date_array[$value_count]   = $myrow['date_collected'];
@@ -409,6 +414,8 @@ function checkAll(bx) {
                         rsort($datelist);
 
                         // sort item-data
+                        $result_code = [];
+                        $date_collected = [];
                         foreach ($value_matrix as $key => $row) {
                             $result_code[$key] = $row['result_code'];
                             $date_collected[$key] = $row['date_collected'];

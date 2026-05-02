@@ -328,7 +328,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

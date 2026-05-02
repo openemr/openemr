@@ -21,17 +21,19 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/forms.inc.php');
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/calendar.inc.php');
+require_once($srcDir . '/appointments.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

@@ -68,7 +68,7 @@ class InsuranceCompany extends ORDataObject
     public $X12Partner;
 
     /**
-     * @var Integer CQM SOP, Source of Payment, from HL7
+     * @var int CQM SOP, Source of Payment, from HL7
      */
     public $cqm_sop;
 

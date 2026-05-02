@@ -17,7 +17,8 @@
 set_time_limit(0);
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -28,7 +29,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -81,10 +81,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         /**
          * Deletes rows from the given table that are no longer needed due to the merge.
          *
-         * @param [type] $tblname    the name of the table to operate on.
-         * @param [type] $colname    the column used for the query.
-         * @param [type] $source_pid the source patient id.
-         * @param [type] $target_pid the target patient id.
+         * @param mixed $tblname the name of the table to operate on.
+         * @param mixed $colname the column used for the query.
+         * @param mixed $source_pid the source patient id.
+         * @param mixed $target_pid the target patient id.
          *
          * @return void
          */
@@ -117,10 +117,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * Updates rows in the given table, where the given column's value
          * is the source_pid to the given target_pid value.
          *
-         * @param [type] $tblname    the name of the table to operate on.
-         * @param [type] $colname    the column used for the query.
-         * @param [type] $source_pid the source patient id.
-         * @param [type] $target_pid the target patient id.
+         * @param mixed $tblname the name of the table to operate on.
+         * @param mixed $colname the column used for the query.
+         * @param mixed $source_pid the source patient id.
+         * @param mixed $target_pid the target patient id.
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
@@ -152,10 +152,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * Merge rows by changing the given column of the given table
          * from source_pid to target_pid.
          *
-         * @param [type] $tblname    the table to operate on.
-         * @param [type] $colname    the column name of the data to change.
-         * @param [type] $source_pid the data to be changed from.
-         * @param [type] $target_pid the data to be changed to.
+         * @param mixed $tblname the table to operate on.
+         * @param mixed $colname the column name of the data to change.
+         * @param mixed $source_pid the data to be changed from.
+         * @param mixed $target_pid the data to be changed to.
          *
          * @return void
          */
@@ -178,6 +178,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     " WHERE `pid` = ?";
                 $target_res = sqlStatement($target_sel, [$target_pid]);
 
+                $source_row = [];
                 while ($source_row = sqlFetchArray($source_res)) {
                     while ($target_row = sqlFetchArray($target_res)) {
                         if ($source_row['type'] == $target_row['type']) {
@@ -281,9 +282,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         /**
          * Add a line into the audit log for a merge event.
          *
-         * @param [type] $target_pid  the target patient id.
-         * @param [type] $event_type  the type of db change (update,delete,etc.)
-         * @param [type] $log_message the message to log
+         * @param mixed $target_pid the target patient id.
+         * @param mixed $event_type the type of db change (update,delete,etc.)
+         * @param mixed $log_message the message to log
          *
          * @return void
          */
@@ -347,6 +348,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
                 $res = sqlStatement($sql, [OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
+                $tables = [];
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -453,8 +455,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 }
             }
 
-            $tdocdir = "$OE_SITE_DIR/documents/" . check_file_dir_name($target_pid);
-            $sdocdir = "$OE_SITE_DIR/documents/" . check_file_dir_name($source_pid);
+            $tdocdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/" . check_file_dir_name($target_pid);
+            $sdocdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/" . check_file_dir_name($source_pid);
             $sencdir = "$sdocdir/encounters";
             $tencdir = "$tdocdir/encounters";
 

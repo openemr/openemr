@@ -18,8 +18,6 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\ReferenceSearchField;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
@@ -85,10 +83,6 @@ class DrugService extends BaseService
         $search = [
             'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, false)])
         ];
-        // so if we have a puuid we need to make sure we only return drugs that are connected to the current patient.
-        if (isset($puuid)) {
-            $search['puuid'] = new ReferenceSearchField('puuid', [new ReferenceSearchValue($puuid, 'Patient', true)]);
-        }
         return $this->search($search);
     }
 

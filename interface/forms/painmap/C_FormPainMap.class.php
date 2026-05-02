@@ -47,7 +47,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief Called by C_AbstractClickmap's members to instantiate a Model object on demand.
      *
-     * @param form_id
+     * @param mixed $form_id
      *  optional id of a form in the EMR, to populate data from.
      */
     public function createModel($form_id = "")

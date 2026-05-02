@@ -20,8 +20,8 @@
 /**
  * callback to round floats to 2 digit precision
  *
- * @param float
- * @param string
+ * @param float $v
+ * @param string $k
  * @return float
  */
 function edih_round_cb(&$v, $k)
@@ -32,11 +32,11 @@ function edih_round_cb(&$v, $k)
 /**
  * Create summary html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $trans_array
+ * @param mixed $codes27x
+ * @param mixed $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string
  */
@@ -104,6 +104,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
+        $cls = '';
         foreach ($trans as $seg) {
             //
             $test_str = substr((string) $seg, 0, 3);
@@ -292,11 +293,11 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 /**
  * Create html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $trans_array
+ * @param mixed $codes27x
+ * @param mixed $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string
  */
@@ -363,6 +364,11 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $svc_html = "";
     $sbr_html = "";
     $moa_html = "";
+    $cls = '';
+    $loopid = '';
+    $cur03 = '';
+    $cur04 = '';
+    $n405 = '';
     //
     foreach ($clp_ar as $trans) {
         $lq_ar = [];
@@ -800,6 +806,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     }
 
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
+                    $cd = $cr = $ca = $cq = '';
                     foreach ($trp as $tr) {
                         // debug
                         //echo '==== cas_ar unwind trp as tr '.PHP_EOL;
@@ -865,11 +872,11 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  * Create an HTML rendition of the 835 check payment transaction.
  *
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array $segments
+ * @param mixed $codes27x
+ * @param mixed $codes835
+ * @param array $delimiters
+ * @param string $fname
  *
  * @return string     HTML table
  */
@@ -944,6 +951,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         $lxkey = '';
         $capstr = "Remittance ";
         $tblid = "";
+        $loopid = '';
+        $cls = '';
+        $cur03 = '';
+        $cur04 = '';
+        $n405 = '';
         //
         foreach ($trans as $seg) {
             //
@@ -1338,6 +1350,10 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 $plbar = array_slice($sar, 2);
                 $plbar = array_chunk($plbar, 2);
+                $plb_rc = '';
+                $plb_tr = '';
+                $plb_rt = '';
+                $plb_amt = '';
                 // reason code and amount
                 foreach ($plbar as $plb) {
                     foreach ($plb as $k => $p) {
@@ -1484,6 +1500,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = '2110';
                 $sar = explode($de, (string) $seg);
                 $pmtm = $pmts = 1;
+                $svcfee = 0;
+                $svcpmt = 0;
                 foreach ($sar as $k => $v) {
                     if ($k == 2) {
                         $svcfee = ($v) ? (float)$v : 0;
@@ -1558,8 +1576,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
  * @uses csv_check_x12_obj()
  *
  * @param string  $filename the filename
- * @param string  TRN02 identifier from 835 check ir EFT
- * @param string  CLM01 identifier from 837 CLM
+ * @param string $trace TRN02 identifier from 835 check ir EFT
+ * @param string $clm01 CLM01 identifier from 837 CLM
  *
  * @return string  error message or a table with file information
  */

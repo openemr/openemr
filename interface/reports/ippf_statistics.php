@@ -1066,6 +1066,7 @@ $(function () {
 <td valign='top' class='detail' colspan='3'>
  <select name='form_report' title='Predefined reports' onchange='selreport()'>
     <?php
+    $form_report = $_POST['form_report'] ?? '';
     echo "    <option value=''>" . xlt('Custom') . "</option>\n";
     foreach ($arr_report as $key => $value) {
         echo "    <option value='" . attr($key) . "'";

@@ -41,7 +41,7 @@ class Authenticator
      * Returns the currently authenticated user or null
      *
      * @access public
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
     public static function GetCurrentUser(string $guid = "CURRENT_USER")
     {

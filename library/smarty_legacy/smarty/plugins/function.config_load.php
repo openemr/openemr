@@ -16,14 +16,14 @@
  *       (Smarty online manual)
  * @author Monte Ohrt <monte at ohrt dot com>
  * @author messju mohr <messju at lammfellpuschen dot de> (added use of resources)
- * @param array Format:
+ * @param array $params Format:
  * <pre>
  * array('file' => required config file name,
  *       'section' => optional config file section to load
  *       'scope' => local/parent/global
  *       'global' => overrides scope, setting to parent if true)
  * </pre>
- * @param Smarty
+ * @param mixed $smarty
  */
 function smarty_function_config_load($params, &$smarty): void
 {

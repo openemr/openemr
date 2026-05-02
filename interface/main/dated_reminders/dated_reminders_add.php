@@ -12,12 +12,13 @@
   */
 
 require_once("../../globals.php");
-require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
 
 $dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
@@ -70,6 +71,7 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 
 // --- add reminders
+$ReminderSent = false;
 if ($_POST) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
@@ -119,7 +121,7 @@ if ($_POST) {
         } else {
       // --------- echo javascript
             echo '<html><body>'
-            . "<script src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
+            . "<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/js/include_opener.js\"></script>"
             . '<script>';
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
@@ -330,7 +332,7 @@ if (isset($this_message['pid'])) {
                                     <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
                                 </label>
                                 <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
-                                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
+                                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo attr($patientID) ?>" />
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
                                     <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>
                                 </button>

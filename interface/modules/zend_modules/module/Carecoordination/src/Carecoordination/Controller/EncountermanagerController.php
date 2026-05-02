@@ -113,6 +113,8 @@ class EncountermanagerController extends AbstractActionController
             || ($downloadqrda3_consolidated == 'download_qrda3_consolidated')
         ) {
             $pids = '';
+            $combination = null;
+            $pid = null;
             if ($request->getQuery('pid_ccda')) {
                 $pid = $request->getQuery('pid_ccda');
                 if ($pid != '') {

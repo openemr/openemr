@@ -4443,7 +4443,7 @@ function generate_layout_validation($form_id): void
  *                           use '0' for "unspecified facility"
  *                           use '' for "All facilities" (the default)
  * @param string $name - the name/id for select form (defaults to "form_facility")
- * @param boolean $allow_unspecified - include an option for "unspecified" facility
+ * @param bool $allow_unspecified - include an option for "unspecified" facility
  *                                     defaults to true
  * @return void - just echo the html encoded string
  *
@@ -4554,16 +4554,16 @@ function dropdown_facility(
  * This forms the header and functionality component of the widget. The information that is displayed
  * then follows this function followed by a closing div tag
  *
- * @var $title is the title of the section (already translated)
- * @var $label is identifier used in the tag id's and sql columns
- * @var $buttonLabel is the button label text (already translated)
- * @var $buttonLink is the button link information
- * @var $buttonClass is any additional needed class elements for the button tag
- * @var $linkMethod is the button link method ('javascript' vs 'html')
- * @var $bodyClass is to set class(es) of the body
- * @var $auth is a flag to decide whether to show the button
- * @var $fixedWidth is to flag whether width is fixed
- * @var $forceExpandAlways is a flag to force the widget to always be expanded
+ * @param mixed $title is the title of the section (already translated)
+ * @param mixed $label is identifier used in the tag id's and sql columns
+ * @param mixed $buttonLabel is the button label text (already translated)
+ * @param mixed $buttonLink is the button link information
+ * @param mixed $buttonClass is any additional needed class elements for the button tag
+ * @param mixed $linkMethod is the button link method ('javascript' vs 'html')
+ * @param mixed $bodyClass is to set class(es) of the body
+ * @param mixed $auth is a flag to decide whether to show the button
+ * @param mixed $fixedWidth is to flag whether width is fixed
+ * @param mixed $forceExpandAlways is a flag to force the widget to always be expanded
  *
  * @todo Convert to a modern layout
  */
@@ -4859,9 +4859,9 @@ EOD;
 /**
  *  Test if modifier($test) is in array of options for data type.
  * @deprecated use LayoutsUtils::isOption
- * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
+ * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
- * @return boolean
+ * @return bool
  */
 function isOption($options, string $test): bool
 {

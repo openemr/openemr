@@ -18,7 +18,7 @@ The Edit/Create template of the clinical note form.
 #}
 {% extends "core/base.html.twig" %}
 {% block head %}
-    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker','datetime-picker-translated']) }}
+    {{ setupHeader(['i18next', 'i18formatting', 'datetime-picker','datetime-picker-translated']) }}
     <script src="{{ webroot }}/interface/forms/clinical_notes/clinical-notes.js?v={{ assetVersion|url_encode }}"></script>
     <script>
         if (window.oeFormsClinicalNotes) {

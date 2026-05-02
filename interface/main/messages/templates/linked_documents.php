@@ -240,7 +240,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         Count = 0;
         <?php
         if (!empty($enc_list)) {
-            foreach ($row as $enc_list) {
+            foreach ($enc_list as $row) {
                 ?>
         EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
         EncounterDateArray[Count] = '<?php echo attr($row['date']); ?>';

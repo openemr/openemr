@@ -23,8 +23,8 @@
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @author Contributions from Lars Noschinski <lars@usenet.noschinski.de>
  * @version  1.3
- * @param string
- * @param Smarty
+ * @param string $source
+ * @param mixed $smarty
  */
 function smarty_outputfilter_trimwhitespace($source, &$smarty)
 {

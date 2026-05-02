@@ -12,8 +12,8 @@
  * Type:     core<br>
  * Name:     assign_smarty_interface<br>
  * Purpose:  assign the $smarty interface variable
- * @param array Format: null
- * @param Smarty
+ * @param array $params Format: null
+ * @param mixed $smarty
  */
 function smarty_core_assign_smarty_interface($params, &$smarty): void
 {

@@ -25,14 +25,14 @@ abstract class RuleCriteria
     /**
      * if true, then criteria is optional; required otherwise
      *
-     * @var boolean
+     * @var bool
      */
     public $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
      *
-     * @var boolean
+     * @var bool
      */
     public $inclusion = true;
 

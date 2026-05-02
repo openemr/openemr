@@ -470,7 +470,7 @@ function hl7Phone($s, bool $formatted)
 }
 
 /**
- * @param string
+ * @param string $s
  * @return string
  */
 function hl7Priority($s)

@@ -602,7 +602,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

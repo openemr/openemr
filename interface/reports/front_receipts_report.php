@@ -13,8 +13,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -228,6 +228,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     if (true || $_POST['form_refresh']) {
         $total1 = 0.00;
         $total2 = 0.00;
+        $total1_by_method = [];
+        $total2_by_method = [];
 
         $inputArray = [$from_date . ' 00:00:00', $to_date . ' 23:59:59'];
         $query = "SELECT r.pid, r.dtime, " .
@@ -293,6 +295,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             $total1 += $row['amount1'];
             $total2 += $row['amount2'];
             $method = $row['method'];
+            if (!is_string($method)) {
+                continue;
+            }
             if (empty($total1_by_method[$method])) {
                 $total1_by_method[$method] = 0;
             }

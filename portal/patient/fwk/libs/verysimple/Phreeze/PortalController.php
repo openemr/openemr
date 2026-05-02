@@ -77,10 +77,8 @@ abstract class PortalController
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param
-     *          Context (optional) a context object for persisting the state of the current page
-     * @param
-     *          Router (optional) a custom writer for URL formatting
+     * @param Context $context (optional) a context object for persisting the state of the current page
+     * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
     final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
@@ -169,14 +167,10 @@ abstract class PortalController
      * If authentication fails, this function
      * terminates with a 401 header. If success, sets CurrentUser and returns null.
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string http realm (basically the login message shown to the user)
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $realm http realm (basically the login message shown to the user)
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      */
     protected function Require401Authentication(IAuthenticatable $authenticatable, $realm = "Login Required", $qs_username_field = "", $qs_password_field = "")
     {
@@ -232,8 +226,7 @@ abstract class PortalController
      * If no exception is thrown then the token
      * is verified.
      *
-     * @param
-     *          string the name of the header variable that contains the token
+     * @param string $headerName the name of the header variable that contains the token
      * @throws Exception if token is not provided or does not match
      */
     protected function VerifyCSRFToken($headerName = 'X-CSRFToken')
@@ -312,12 +305,9 @@ abstract class PortalController
      * - The user was not logged in and valid login credentials were provided = SetCurrentUser is called and IAuthenticatable is returned
      * - The user was not logged in and invalid (or no) credentials were provided = NULL is returned
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      * @return IAuthenticatable or NULL
      */
     protected function Get401Authentication(IAuthenticatable $authenticatable, $qs_username_field = "", $qs_password_field = "")
@@ -362,10 +352,8 @@ abstract class PortalController
     /**
      * Use as an alternative to print in order to capture debug output
      *
-     * @param
-     *          string text to print
-     * @param
-     *          mime content type (example text/plain)
+     * @param string $text text to print
+     * @param string|null $contentType content type (example text/plain)
      */
     protected function PrintOut($text, $contentType = null)
     {
@@ -445,8 +433,7 @@ abstract class PortalController
      *          (In the format Array("GetObjName1"=>"PropName","GetObjName2"=>"PropName1,PropName2")
      * @param Array $supressProps
      *          (In the format Array("PropName1","PropName2")
-     * @param
-     *          bool noMap set to true to render this DataPage regardless of whether there is a FieldMap
+     * @param bool $noMap noMap set to true to render this DataPage regardless of whether there is a FieldMap
      */
     protected function RenderXML($page, $additionalProps = null, $supressProps = null, $noMap = false)
     {
@@ -661,8 +648,7 @@ abstract class PortalController
     /**
      * Sets the given user as the authenticatable user for this session.
      *
-     * @param
-     *          IAuthenticatable The user object that has authenticated
+     * @param IAuthenticatable $user The user object that has authenticated
      */
     protected function SetCurrentUser(IAuthenticatable $user)
     {
@@ -676,7 +662,7 @@ abstract class PortalController
     /**
      * Returns the currently authenticated user, or null if a user has not been authenticated.
      *
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
     protected function GetCurrentUser()
     {
@@ -811,16 +797,11 @@ abstract class PortalController
     /**
      * Renders the given value as JSON
      *
-     * @param
-     *          variant the variable, array, object, etc to be rendered as JSON
-     * @param
-     *          string if a callback is provided, this will be rendered as JSONP
-     * @param
-     *          bool if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
-     * @param
-     *          array (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
-     * @param
-     *          bool set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
+     * @param variant $var the variable, array, object, etc to be rendered as JSON
+     * @param string $callback if a callback is provided, this will be rendered as JSONP
+     * @param bool $useSimpleObject if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
+     * @param array $options (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
+     * @param bool $forceUTF8 set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
      */
     protected function RenderJSON($var, $callback = "", $useSimpleObject = false, $options = null, $forceUTF8 = 0)
     {

@@ -231,7 +231,7 @@ GET FACILITIES
 returns all facilities or just the id for the first one
 (FACILITY FILTERING (lemonsoftware))
 
-@param string - if 'first' return first facility ordered by id
+@param string $first if 'first' return first facility ordered by id
 @return array | int for 'first' case
 */
 function getFacilities($first = '')
@@ -863,7 +863,7 @@ function getPatientName($pid)
  * would be "John B Doe Jr". No additional punctuation is added. Spaces are
  * correctly omitted if the middle name of suffix does not apply.
  *
- * @var $pid int The Patient ID
+ * @var int $pid The Patient ID
  * @returns string The Full Name
  */
 function getPatientFullNameAsString($pid): string
@@ -1468,8 +1468,8 @@ function dateToDB($date)
  * Get up to 3 insurances (primary, secondary, tertiary) that are effective
  * for the given patient on the given date.
  *
- * @param int     The PID of the patient.
- * @param string  Date in yyyy-mm-dd format.
+ * @param int $patient_id The PID of the patient.
+ * @param string $encdate Date in yyyy-mm-dd format.
  * @return array  Array of 0-3 insurance_data rows.
  */
 function getEffectiveInsurances($patient_id, $encdate)
@@ -1523,9 +1523,9 @@ function getAllinsurances($pid)
  * to insurance.  If you want to include what insurance owes, set the second
  * parameter to true.
  *
- * @param int     The PID of the patient.
- * @param boolean Indicates if amounts owed by insurance are to be included.
- * @param int     Optional encounter id. If value is passed, will fetch only bills from specified encounter.
+ * @param int $pid The PID of the patient.
+ * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.
+ * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
 function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)

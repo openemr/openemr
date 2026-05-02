@@ -19,7 +19,7 @@
  * @author   Monte Ohrt <monte at ohrt dot com>
  *
  * @param array                    $params   parameters
- * @param Smarty
+ * @param mixed $smarty
  *
  * @return string|null
  */

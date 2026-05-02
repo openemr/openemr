@@ -385,8 +385,6 @@ jobs:
           coverage.inferno-phpunit.clover.xml
           coverage.inferno-http.clover.xml
 
-    - name: Cleanup Docker resources
-      if: always()
-      run: |
-        docker compose -f ci/inferno/compose.yml down --volumes --remove-orphans || true
-        docker system prune -f || true
+    - name: Show Docker logs
+      if: ${{ !cancelled() }}
+      run: docker compose -f ci/inferno/compose.yml logs

@@ -43,7 +43,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * Get array of insurance payers for the specified patient as of the specified
  * date. If no date is passed then the current date is used.
  *
- * @param  integer $pid             Patient ID.
+ * @param int $pid Patient ID.
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
@@ -394,7 +394,7 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
 /**
  * Transmit HL7 for the specified lab.
  *
- * @param  integer $ppid  Procedure provider ID.
+ * @param int $ppid Procedure provider ID.
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */

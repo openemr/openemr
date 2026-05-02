@@ -2,16 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Call to function printf\\(\\) with incorrect case\\: Printf$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function printf\\(\\) with incorrect case\\: Printf$#',
-    'count' => 16,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function sqlQuery\\(\\) with incorrect case\\: sqlquery$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxStore.php',
