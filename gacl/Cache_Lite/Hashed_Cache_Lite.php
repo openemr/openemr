@@ -132,7 +132,7 @@ class Hashed_Cache_Lite extends Cache_Lite
     * else only cache files of the specified group will be destroyed
     *
     * @param string $group name of the cache group
-    * @return boolean true if no problem
+    * @return bool true if no problem
     * @access public
     */
     function clean($group = false)

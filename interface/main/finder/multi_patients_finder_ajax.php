@@ -13,16 +13,19 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $type = $_GET['type'];
 $search = $_GET['search'] ?? '';
+$results = [];
 
 switch ($type) {
     case 'by-id':

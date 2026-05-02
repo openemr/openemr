@@ -135,7 +135,7 @@ class LogoService
      *
      * @param array   $directory Array of directories to search
      * @param string  $filename  File to look for
-     * @param boolean $timestamp Will return with a query string of the last modified time
+     * @param bool $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
     private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
@@ -146,14 +146,13 @@ class LogoService
 
         $this->finder->files()->in($directory)->name($filename);
 
+        $return = "";
         if ($this->finder->hasResults()) {
             // There is at least 1 file in the sites directory for the given logo
             foreach ($this->finder as $f) {
                 $return = $f->getRealPath();
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
-        } else {
-            $return = "";
         }
 
         return $return;

@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -169,7 +169,7 @@ $info_msg = "";
     if (empty($optionsStr) && $ppid) {
         $org_name = $row['name'] ?? '';
         $selected = "selected";
-        $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" . text($org_name) . "</option>";
+        $optionsStr .= "<option value='" . attr($row['lab_director'] ?? '') . "' $selected>" . text($org_name) . "</option>";
     }
     ?>
     <div class="page-header" name="form_legend" id="form_legend">

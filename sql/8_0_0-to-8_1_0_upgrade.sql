@@ -140,12 +140,21 @@ ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'pro
 
 --
 -- Rename the misspelled list_options option_id from 'declne_to_specfy' to 'decline_to_specify',
--- and update any patient_data.race records that reference the old value.
+-- and update any patient_data.race, patient_data.language, and patient_data.ethnicity
+-- records that reference the old value.
 -- See: https://github.com/openemr/openemr/issues/10385
 --
 
-#IfColumn patient_data race
+#IfRow patient_data race declne_to_specfy
 UPDATE `patient_data` SET `race` = 'decline_to_specify' WHERE `race` = 'declne_to_specfy';
+#EndIf
+
+#IfRow patient_data language declne_to_specfy
+UPDATE `patient_data` SET `language` = 'decline_to_specify' WHERE `language` = 'declne_to_specfy';
+#EndIf
+
+#IfRow patient_data ethnicity declne_to_specfy
+UPDATE `patient_data` SET `ethnicity` = 'decline_to_specify' WHERE `ethnicity` = 'declne_to_specfy';
 #EndIf
 
 #IfRow2D list_options list_id race option_id declne_to_specfy
@@ -259,4 +268,52 @@ SET sql_mode = '';
 UPDATE `document_templates` SET `send_date` = CURRENT_TIMESTAMP WHERE `send_date` = '0000-00-00 00:00:00';
 UPDATE `document_templates` SET `end_date` = NULL WHERE `end_date` = '0000-00-00 00:00:00';
 SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnType form_eye_antseg OSCONJ text
+ALTER TABLE `form_eye_antseg`
+  MODIFY COLUMN OSCONJ text;
+#EndIf
+
+#IfMissingColumn background_services lock_expires_at
+ALTER TABLE `background_services`
+  ADD COLUMN `lock_expires_at` datetime DEFAULT NULL COMMENT 'Lease expiration. Compared with NOW() on acquire, so the stored value uses whatever session timezone is in effect (OpenEMR syncs it to gbl_time_zone). Set on acquire, cleared on release. Expired leases are automatically stolen by the next worker.';
+#EndIf
+
+#IfNotColumnType questionnaire_repository active tinyint(1)
+ALTER TABLE `questionnaire_repository` MODIFY `active` tinyint(1) NOT NULL DEFAULT 1;
+#EndIf
+
+--
+-- Fix openemr_postcalendar_events date defaults for MySQL strict mode.
+-- The zero date values are incompatible with NO_ZERO_DATE mode.
+-- pc_eventDate: NOT NULL, no default - every event must have a start date.
+--   Rows with 0000-00-00 are orphaned (invisible in queries) and deleted.
+-- pc_endDate: NULL allowed - non-recurring or open-ended events have no end.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+-- Delete orphaned events with invalid zero dates (these never appeared in
+-- calendar views since date range queries filtered them out)
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+DELETE FROM `openemr_postcalendar_events` WHERE `pc_eventDate` = '0000-00-00';
+UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+
+-- Remove the zero-date default from pc_eventDate (keep NOT NULL)
+-- This ALTER is idempotent - safe to run even if already applied
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date NOT NULL;
+
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
+#EndIf
+
+#IfNotTable migrations
+CREATE TABLE `migrations` (
+    `version` varchar(191) NOT NULL,
+    `executed_at` datetime DEFAULT NULL,
+    `execution_duration_ms` int DEFAULT NULL,
+    PRIMARY KEY (`version`)
+) ENGINE=InnoDB;
 #EndIf

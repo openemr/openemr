@@ -166,7 +166,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <script>
     function previewCCDADocument(event, documentId) {
         event.preventDefault();
-        let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
+        let url = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
         try {
             window.open(url);
         }
@@ -186,7 +186,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
-            let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>
+            let url = "<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>
 
             window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
@@ -240,7 +240,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         Count = 0;
         <?php
         if (!empty($enc_list)) {
-            foreach ($row as $enc_list) {
+            foreach ($enc_list as $row) {
                 ?>
         EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
         EncounterDateArray[Count] = '<?php echo attr($row['date']); ?>';
@@ -253,7 +253,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         top.restoreSession();
         $.ajax({
             type: 'get',
-            url: '<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/set_pt.php";?>',
+            url: '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/library/ajax/set_pt.php";?>',
             data: {
                 set_pid: pid,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>

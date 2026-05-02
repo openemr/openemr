@@ -1011,11 +1011,11 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 <?php
 if (!$out_of_encounter) {
     ?>
-    f2.action = '<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
     <?php
 } else {
     ?>
-    f2.action = '<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/forms/CAMOS/new.php?mode=external';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/CAMOS/new.php?mode=external';
     <?php
 }
 ?>
@@ -1037,7 +1037,7 @@ if (!$out_of_encounter) {
     myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
-    processajax ('<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+    processajax ('<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
 //    alert("submitted!");
 //ajax code
 }
@@ -1075,7 +1075,7 @@ $(function (body) {
 </head>
 <body class="body_top">
 <div name="form_container" onKeyPress="gotoOne(event)">
-<form method='post' action="<?php echo OEGlobalsBag::getInstance()->getString('rootdir');?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
+<form method='post' action="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir();?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 if (!$out_of_encounter) {
@@ -1235,7 +1235,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
     echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('webroot') . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
+    echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>

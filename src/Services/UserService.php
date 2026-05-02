@@ -120,8 +120,8 @@ class UserService
 
         if (!empty($user)) {
             if (empty($user['uuid'])) {
-                // we should always have this setup, but create them just in case.
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                // we should always have this setup, but create it just in case.
+                UuidRegistry::createMissingUuidForRow('users', 'id', $user['id']);
             }
         }
         return $user;

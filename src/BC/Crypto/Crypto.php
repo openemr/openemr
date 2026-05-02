@@ -14,6 +14,7 @@ namespace OpenEMR\BC\Crypto;
 
 use BadMethodCallException;
 use OpenEMR\Common\Crypto\{
+    CryptoGenException,
     CryptoInterface,
     KeySource,
     KeyVersion,
@@ -126,5 +127,28 @@ final readonly class Crypto implements CryptoInterface
         } catch (Throwable) {
             return false;
         }
+    }
+
+    public function encryptForDatabase(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        return $this->encryptStandard($value, keySource: KeySource::Drive);
+    }
+
+    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->cryptCheckStandard($value)) {
+            return $value;
+        }
+        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
+        if ($result === false) {
+            throw new CryptoGenException('Decryption failed');
+        }
+        return $result;
     }
 }

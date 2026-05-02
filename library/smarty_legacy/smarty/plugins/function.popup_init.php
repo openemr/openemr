@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.function.popup.init.php {popup_init}
  *          (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string
  */
 function smarty_function_popup_init($params, &$smarty)
@@ -29,11 +29,12 @@ function smarty_function_popup_init($params, &$smarty)
     }
 
     if (!empty($params['src'])) {
-        return '<div id="overDiv" style="position:absolute; visibility:hidden; z-index:'.$zindex.';"></div>' . "\n"
-         . '<script type="text/javascript" language="JavaScript" src="'.$params['src'].'"></script>' . "\n";
-    } else {
-        $smarty->trigger_error("popup_init: missing src parameter");
+        return '<div id="overDiv" style="position:absolute; visibility:hidden; z-index:' . $zindex . ';"></div>' . "\n"
+         . '<script type="text/javascript" language="JavaScript" src="' . $params['src'] . '"></script>' . "\n";
     }
+
+    $smarty->trigger_error("popup_init: missing src parameter");
+    return '';
 }
 
 /* vim: set expandtab: */

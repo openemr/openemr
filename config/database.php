@@ -23,11 +23,23 @@ use Doctrine\Migrations\Configuration\{
     Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
+use Doctrine\ORM\{
+    Configuration,
+    EntityManager,
+    EntityManagerInterface,
+    Events,
+    Mapping\DefaultTypedFieldMapper,
+    Mapping\NamingStrategy,
+    Mapping\TypedFieldMapper,
+    Mapping\UnderscoreNamingStrategy,
+    ORMSetup,
+};
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 return [
     // Connection Manager - manages named connections with different middleware
@@ -66,4 +78,37 @@ return [
         $c->get(LoggerInterface::class),
     ),
 
+    // ORM
+    Configuration::class => function (TC $c) {
+        $paths = [
+            'src/Entities',
+            // Future: load additional paths from modules?
+            // this may need a ClassLoader instead.
+        ];
+        // FIXME: before this gets integrated, isDevMode needs to be derived
+        // and an appropriate cache adapter provided (probably apcu for web and
+        // still array for cli)
+        $isDevMode = true;
+        $config = ORMSetup::createAttributeMetadataConfig(
+            paths: $paths,
+            isDevMode: $isDevMode,
+            cache: new ArrayAdapter(),
+        );
+
+        // Automatically translates classes and properties from UpperCamelCase
+        // in PHP to snake_case in the database.
+        $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
+        // Future: TypedFieldMapper for custom types.
+
+        // These are only used in PHP <= 8.3 where native lazy objects aren't
+        // supported or enabled.
+        $config->enableNativeLazyObjects(version_compare(PHP_VERSION, '8.4.0', '>='));
+        $config->setProxyDir(sys_get_temp_dir());
+        $config->setProxyNamespace('DoctrineProxies');
+        $config->setAutoGenerateProxyClasses($isDevMode);
+        return $config;
+    },
+
+    EntityManager::class,
+    EntityManagerInterface::class => EntityManager::class,
 ];

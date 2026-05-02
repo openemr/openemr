@@ -28,34 +28,21 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Documents\Plugin\Documents Documents()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CarecoordinationController extends AbstractActionController
 {
-    /**
-     * @var Carecoordination\Model\CarecoordinationTable
-     */
-    private $carecoordinationTable;
+    private readonly Listener $listenerObject;
 
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    private readonly string $date_format;
 
-    /**
-     * @var Application\Listener\Listener
-     */
-    private $listenerObject;
-
-    /**
-     * @var string
-     */
-    private $date_format;
-
-    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
+    public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
-        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
         $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
-        $this->documentsController = $documentsController;
     }
 
     /**
@@ -699,6 +686,7 @@ class CarecoordinationController extends AbstractActionController
     <tbody>';
                     foreach ($social_history_audit['social_history'] as $val) {
                         $array_his_tobacco = explode("|", (string) $val['smoking']);
+                        $his_tob_date = '';
                         if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                             $his_tob_date = substr($array_his_tobacco[2], 0, 4) . "-" . substr($array_his_tobacco[2], 4, 2) . "-" . substr($array_his_tobacco[2], 6, 2);
                         }

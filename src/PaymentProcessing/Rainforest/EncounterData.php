@@ -51,7 +51,7 @@ readonly class EncounterData implements JsonSerializable
     }
 
     /**
-     * @param array{
+     * @param mixed $data array{
      *   id: string,
      *   code: string,
      *   codeType: string,

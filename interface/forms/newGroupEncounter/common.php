@@ -65,9 +65,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <?php
 //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
 $use_validate_js = 1;
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php"); ?>
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/facility_ajax_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/facility_ajax_jav.inc.php"); ?>
 <script>
 
 /*
@@ -104,7 +104,7 @@ require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validatio
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 

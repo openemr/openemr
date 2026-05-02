@@ -1,10 +1,21 @@
 services:
   redis-master:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
     container_name: redis-master
-    command: ["redis-server", "/etc/redis/redis.conf"]
-    volumes:
-    - ./redis/redis.conf:/etc/redis/redis.conf
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replica-announce-ip
+      - redis-master
     ports:
     - "${WT_REDIS_PORT:-6379}:6379"
     healthcheck:
@@ -13,32 +24,82 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
     container_name: redis-replica-1
-    command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
-    volumes:
-    - ./redis/redis.conf:/etc/redis/redis.conf
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-announce-ip
+      - redis-replica-1
   redis-replica-2:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
     container_name: redis-replica-2
-    command: ["redis-server", "/etc/redis/redis.conf", "--replicaof", "redis-master", "6379"]
-    volumes:
-    - ./redis/redis.conf:/etc/redis/redis.conf
+    command:
+      - redis-server
+      - --bind
+      - "0.0.0.0"
+      - --protected-mode
+      - "no"
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - strongpassword
+      - --masterauth
+      - strongpassword
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-announce-ip
+      - redis-replica-2
   sentinel-1:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
     container_name: sentinel-1
-    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
-    volumes:
-    - ./sentinel/sentinel-1.conf:/etc/redis/sentinel.conf
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 26379' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.6@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
+    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
     container_name: sentinel-2
-    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
-    volumes:
-    - ./sentinel/sentinel-2.conf:/etc/redis/sentinel.conf
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          'port 26379' \
+          'daemonize no' \
+          'sentinel resolve-hostnames yes' \
+          'sentinel announce-hostnames yes' \
+          'sentinel monitor redis-master redis-master 6379 2' \
+          'sentinel auth-pass redis-master strongpassword' \
+          'sentinel down-after-milliseconds redis-master 5000' \
+          'sentinel failover-timeout redis-master 60000' \
+          'sentinel parallel-syncs redis-master 1' \
+          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
@@ -138,9 +199,9 @@ services:
       OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'
       SESSION_STORAGE_MODE: 'predis-sentinel'
       REDIS_SENTINELS: sentinel-1|||sentinel-2
-      #Note this is the typical sentinel configuration
       REDIS_MASTER: redis-master
-      REDIS_SENTINELS_PASSWORD: strongpassword
+      # REDIS_SENTINELS_PASSWORD is omitted: sentinels have no requirepass.
+      # sentinel auth-pass in the sentinel config handles master authentication.
       REDIS_MASTER_PASSWORD: strongpassword
     depends_on:
       redis-master:
@@ -184,7 +245,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:latest@sha256:96096b1a03f287e424506646200d27a8a8f8e2e1fb9d4bd750ca2e2294b2e909
+    image: phpmyadmin:latest@sha256:0480a7583f876944d10c112177309d1d7bd4f1bf76770c6e7cb04706d4e36375
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -194,7 +255,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.1@sha256:297cd556c7ba358a408fd009e7b8e3b91318ccfc4d57c9b0264a2fb051ad9ef7
+    image: couchdb:3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"

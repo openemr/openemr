@@ -9,7 +9,7 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/$directory/info.txt");
+        $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
         if ($lines) {
             $name = $lines[0];
             $category ??= $lines[1] ?? 'Miscellaneous';

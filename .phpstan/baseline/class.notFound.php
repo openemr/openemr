@@ -27,11 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:\\$loggedInUserId has unknown class Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\The as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\TeleHealthUser\\:\\:getDateRegistered\\(\\) has invalid return type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
@@ -60,46 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Application\\\\Listener\\\\Listener\\:\\:\\$listeners has unknown class Laminas\\\\Stdlib\\\\CallbackHandler as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getDocumentsTable\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method isZipUpload\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method uploadAction\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$carecoordinationTable has unknown class Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$documentsController has unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$listenerObject has unknown class Carecoordination\\\\Controller\\\\Application\\\\Listener\\\\Listener as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method uploadAction\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$documentsController has unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Iterating over an object of an unknown class Installer\\\\Controller\\\\unknown_type\\.$#',
@@ -168,7 +123,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Caught class MpdfException not found\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -277,66 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/secure_chat.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method assign\\(\\) on an unknown class specify\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class specify not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$APP_ROOT has unknown class app as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$CONVERT_NULL_TO_EMPTYSTRING has unknown class Setting as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$DEBUG_MODE has unknown class set as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$DEFAULT_ACTION has unknown class default as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$ROOT_URL has unknown class root as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$ROUTE_MAP has unknown class routemap as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$TEMPLATE_CACHE_PATH has unknown class template as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$TEMPLATE_ENGINE has unknown class specify as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$TEMPLATE_PATH has unknown class template as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$WEB_ROOT has unknown class root as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) has invalid return type Processed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -442,41 +337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method getActiveSheet\\(\\) on an unknown class PHPExcel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getDefaultStyle\\(\\) on an unknown class PHPExcel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getProperties\\(\\) on an unknown class PHPExcel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method setActiveSheetIndex\\(\\) on an unknown class PHPExcel\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method createWriter\\(\\) on an unknown class PHPExcel_IOFactory\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class PHPExcel not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method IDaoMap2\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IDaoMap2.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$value of method MockRouter\\:\\:SetUri\\(\\) has invalid type unknown_type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
@@ -500,66 +360,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Phreezer\\:\\:\\$CacheQueryObjectLevel2 has unknown class set as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSAuthor\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSDescription\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSGUID\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSLink\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSPublishDate\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method GetRSSTitle\\(\\) on an unknown class IRSSFeedItem\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method addCategory\\(\\) on an unknown class RSS_Writer\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method addItem\\(\\) on an unknown class RSS_Writer\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method setLanguage\\(\\) on an unknown class RSS_Writer\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method writeOut\\(\\) on an unknown class RSS_Writer\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class IRSSFeedItem not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class RSS_Writer not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Reporter\\:\\:\\$NoCacheProperties has unknown class these as its type\\.$#',
@@ -615,166 +415,6 @@ $ignoreErrors[] = [
     'message' => '#^Property VerySimpleStringUtil\\:\\:\\$INVALID_CODE_CHARS has unknown class common as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$ActionTakenTime has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$Checksum has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$Date has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$Dob has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$Narrative has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$TableAction has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewDAO\\:\\:\\$TableArgs has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method OnsiteActivityViewMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$AuthorizeSignedTime has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$CreateDate has unknown class timestamp as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$FullDocument has unknown class blob as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$PatientSignedTime has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$ReviewDate has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method OnsiteDocumentMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$ActionTakenTime has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Checksum has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Date has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Narrative has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableAction has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableArgs has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method OnsitePortalActivityMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Date has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Dob has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Occupation has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Regdate has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method PatientMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property UserDAO\\:\\:\\$Info has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property UserDAO\\:\\:\\$Password has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property UserDAO\\:\\:\\$PwdExpirationDate has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property UserDAO\\:\\:\\$PwdHistory1 has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property UserDAO\\:\\:\\$PwdHistory2 has unknown class longtext as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$property of method UserMap\\:\\:SetFetchingStrategy\\(\\) has invalid type unknown\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserMap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function report_header_2\\(\\) has invalid return type outputs\\.$#',
@@ -890,16 +530,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object\\(\\) has invalid return type OpenEMR\\\\Gacl\\\\ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method dispatch\\(\\) on an unknown class OpenEMR\\\\Menu\\\\EventDispatcher\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:\\$dispatcher has unknown class OpenEMR\\\\Menu\\\\EventDispatcher as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$APP_ROOT has unknown class OpenEMR\\\\RestControllers\\\\Config\\\\app as its type\\.$#',

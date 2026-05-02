@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
@@ -315,7 +315,7 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
-    $formsBaseDir = OEGlobalsBag::getInstance()->getString('incdir') . "/forms";
+    $formsBaseDir = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms";
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
         $formDir = $result["formdir"];

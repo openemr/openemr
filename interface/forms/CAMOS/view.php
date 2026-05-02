@@ -78,7 +78,7 @@ function show_edit(t) {
 </script>
 </head>
 <body class="body_top">
-<form method=post action="<?php echo OEGlobalsBag::getInstance()->getString('rootdir'); ?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url(filter_input(INPUT_GET, 'id') ?: ''); ?>" name="my_form">
+<form method=post action="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url(filter_input(INPUT_GET, 'id') ?: ''); ?>" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <h1> <?php echo xlt('CAMOS'); ?> </h1>
 <input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />

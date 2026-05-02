@@ -185,7 +185,7 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

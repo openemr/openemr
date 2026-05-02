@@ -16,9 +16,9 @@
  * @link http://smarty.php.net/manual/en/language.modifier.replace.php
  *          replace (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param string
- * @param string
+ * @param string $string
+ * @param string $search
+ * @param string $replace
  * @return string
  */
 function smarty_modifier_replace($string, $search, $replace)

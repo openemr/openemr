@@ -33,8 +33,8 @@ use OpenEMR\Core\OEGlobalsBag;
 
  *           in repository, helped with lots of functionality
  * @version  1.0
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string
  * @uses smarty_function_escape_special_chars()
  */

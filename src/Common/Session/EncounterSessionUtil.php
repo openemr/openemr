@@ -19,6 +19,18 @@ use OpenEMR\Services\FormService;
 
 class EncounterSessionUtil
 {
+    /**
+     * Read the active encounter from the session, normalized to int.
+     *
+     * Mirrors `interface/globals.php`: an unset, empty, or "0" encounter
+     * collapses to 0 — callers rely on that to mean "no current encounter".
+     */
+    public static function getEncounter(): int
+    {
+        $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('encounter');
+        return is_numeric($raw) ? (int) $raw : 0;
+    }
+
     public static function setEncounter(string $enc): int
     {
         global $encounter;

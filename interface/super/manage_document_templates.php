@@ -34,7 +34,7 @@ $cryptoGen = ServiceContainer::getCrypto();
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename'] ?? '');
 
-$templatedir = "$OE_SITE_DIR/documents/doctemplates";
+$templatedir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/doctemplates";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // If downloading a file, do the download and nothing else.

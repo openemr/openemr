@@ -61,7 +61,7 @@ class Profiler {
     *   Start an individual timer
     *   This will pause the running timer and place it on a stack.
     *   @param string $name name of the timer
-    *   @param string optional $desc description of the timer
+    *   @param string $desc description of the timer
     */
     function startTimer($name, $desc="" ){
         $this->trace.="start   $name\n";

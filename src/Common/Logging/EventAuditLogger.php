@@ -19,6 +19,7 @@ use OpenEMR\BC\{
     DatabaseConnectionOptions,
     ServiceContainer,
 };
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -225,6 +226,30 @@ class EventAuditLogger
         } else {
             $this->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, $category);
         }
+    }
+
+    /**
+     * Log a failed authentication event.
+     *
+     * Collects the client IP internally so callers do not need to repeat the
+     * collectIpAddresses() + comment-formatting boilerplate.
+     *
+     * @param AuthEvent                      $event      The auth event type (e.g. AuthEvent::mfa())
+     * @param string|null                    $username   Username, or null when not yet resolved
+     * @param string                         $authGroup  Auth group name, or '' when not resolved
+     * @param non-empty-string               $reason     Human-readable failure reason
+     * @param int|null                       $patientId  Patient ID for portal auth paths; null otherwise
+     */
+    public function logAuthFailure(
+        AuthEvent $event,
+        ?string $username,
+        string $authGroup,
+        string $reason,
+        ?int $patientId = null,
+    ): void {
+        $ip = collectIpAddresses();
+        $comments = "failure: " . $ip['ip_string'] . ". " . $reason;
+        $this->newEvent($event->value, $username ?? '', $authGroup, 0, $comments, $patientId);
     }
 
     /******************

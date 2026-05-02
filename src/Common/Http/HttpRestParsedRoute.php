@@ -86,7 +86,7 @@ class HttpRestParsedRoute
     /**
      * Returns true if the
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid()
     {

@@ -18,13 +18,13 @@
   "homepage": "https://github.com/openemr/cda-schematron#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "grunt": "^1.0.1",
+    "grunt": "^1.6.2",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-mocha-test": "^0.13.2",
     "mocha": "^11.7.5"
   },
   "dependencies": {
-    "@xmldom/xmldom": "0.9.9",
+    "@xmldom/xmldom": "0.9.10",
     "compression": "1.8.1",
     "cqm-execution": "4.4.1",
     "cqm-models": "4.3.1",

@@ -15,21 +15,22 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$results = [];
 // for editing selected patients
 if (isset($_GET['patients'])) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
-    $results = [];
     foreach ($patients as $patient) {
         $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
@@ -185,7 +186,7 @@ $('#by-id, #by-name').select2({
         },
         dataType: 'json',
     },
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient

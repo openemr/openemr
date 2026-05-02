@@ -70,26 +70,27 @@ function smarty_core_write_cache_file($params, &$smarty)
         // use cache_handler function
         ($smarty->cache_handler_func)(
                              'write', $smarty, $params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], $smarty->_cache_info['expires']);
-    } else {
-        // use local cache file
+        return null;
+    }
 
-        if(!@is_writable($smarty->cache_dir)) {
-            // cache_dir not writable, see if it exists
-            if(!@is_dir($smarty->cache_dir)) {
-                $smarty->trigger_error('the $cache_dir \'' . $smarty->cache_dir . '\' does not exist, or is not a directory.', E_USER_ERROR);
-                return false;
-            }
-            $smarty->trigger_error('unable to write to $cache_dir \'' . realpath($smarty->cache_dir) . '\'. Be sure $cache_dir is writable by the web server user.', E_USER_ERROR);
+    // use local cache file
+
+    if (!@is_writable($smarty->cache_dir)) {
+        // cache_dir not writable, see if it exists
+        if (!@is_dir($smarty->cache_dir)) {
+            $smarty->trigger_error('the $cache_dir \'' . $smarty->cache_dir . '\' does not exist, or is not a directory.', E_USER_ERROR);
             return false;
         }
-
-        $_auto_id = $smarty->_get_auto_id($params['cache_id'], $params['compile_id']);
-        $_cache_file = $smarty->_get_auto_filename($smarty->cache_dir, $params['tpl_file'], $_auto_id);
-        $_params = ['filename' => $_cache_file, 'contents' => $params['results'], 'create_dirs' => true];
-        require_once(SMARTY_CORE_DIR . 'core.write_file.php');
-        smarty_core_write_file($_params, $smarty);
-        return true;
+        $smarty->trigger_error('unable to write to $cache_dir \'' . realpath($smarty->cache_dir) . '\'. Be sure $cache_dir is writable by the web server user.', E_USER_ERROR);
+        return false;
     }
+
+    $_auto_id = $smarty->_get_auto_id($params['cache_id'], $params['compile_id']);
+    $_cache_file = $smarty->_get_auto_filename($smarty->cache_dir, $params['tpl_file'], $_auto_id);
+    $_params = ['filename' => $_cache_file, 'contents' => $params['results'], 'create_dirs' => true];
+    require_once(SMARTY_CORE_DIR . 'core.write_file.php');
+    smarty_core_write_file($_params, $smarty);
+    return true;
 }
 
 /* vim: set expandtab: */

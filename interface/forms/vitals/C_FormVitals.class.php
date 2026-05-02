@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -339,7 +339,7 @@ class C_FormVitals
         $data = [
             'vitals' => $vitals
             ,'vitalFields' => $vitalFields
-            ,'FORM_ACTION' => OEGlobalsBag::getInstance()->get('web_root')
+            ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
             ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')
             ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement

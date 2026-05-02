@@ -580,7 +580,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             if ($tmp_form_id) {
                 // Contraceptive method does not match existing contraception data for this visit,
                 // or there is no such data.  Open a new or existing Contraception Summary form.
-                $tmpurl = OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/encounter/view_form.php" .
+                $tmpurl = OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/encounter/view_form.php" .
                     "?formname=LBFcontra&id=" . ($tmp_form_id < 0 ? 0 : urlencode((string) $tmp_form_id));
                 if (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges'])) {
                     $tmpurl .= "&from_save_and_checkout=1";
@@ -594,7 +594,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         if ($rapid_data_entry || (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges']))) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
-            formJump(OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/pos_checkout.php?framed=1" .
+            formJump(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/pos_checkout.php?framed=1" .
             "&ptid=" . urlencode((string) $fs->pid) . "&enid=" . urlencode((string) $fs->encounter) . "&rde=" . urlencode((string) $rapid_data_entry));
         } else {
             // Otherwise return to the normal encounter summary frameset.
@@ -697,7 +697,7 @@ function reinitForm(){
                 response( cache[ term ] );
                 return;
             }
-            $.getJSON( "<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+            $.getJSON( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
                 cache[ term ] = data;
                 response( data );
             })

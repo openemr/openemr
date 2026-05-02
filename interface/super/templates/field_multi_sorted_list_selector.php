@@ -26,6 +26,7 @@ if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
 }
 
 $i ??= 0;
+$userMode ??= false;
 
 if ($userMode) {
     $globalTitle = $globalValue;

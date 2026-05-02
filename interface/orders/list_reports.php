@@ -20,10 +20,11 @@
 $orphanLog = '';
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
-    require_once("$include_root/procedure_tools/quest/QuestResultClient.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+$includeRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot();
+if (file_exists("$includeRoot/procedure_tools/quest/QuestResultClient.php")) {
+    require_once("$includeRoot/procedure_tools/quest/QuestResultClient.php");
 }
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
@@ -145,7 +146,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $("#wait").addClass('d-none');
@@ -471,7 +472,7 @@ function doWait(e){
 
             if ($form_patient) {
                 $where .= " AND po.patient_id = ?";
-                $sqlBindArray[] = $pid;
+                $sqlBindArray[] = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
             }
 
             if ($form_provider) {
@@ -575,7 +576,7 @@ function doWait(e){
                     echo "</a></td>\n";
                     echo "  <td>";
                     // Order ID comes with a link to open the manifest in a new window/tab.
-                    echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot');
+                    echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot();
                     echo "/interface/orders/order_manifest.php?orderid=";
                     echo attr_url($order_id);
                     echo "' target='_blank' onclick='top.restoreSession()' ";

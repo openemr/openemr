@@ -290,7 +290,7 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 });
 </script>

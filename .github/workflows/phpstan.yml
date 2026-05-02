@@ -35,14 +35,43 @@ jobs:
     # (it bundles some type-incomplete polyfills which can throw off results)
     - name: Remove Rector
       run: composer remove --dev --optimize-autoloader rector/rector
-    - name: PHPStan Cache
+    # Resolve the installed phpstan version so the cache key invalidates on
+    # tool bumps but survives unrelated dependency changes. Hashing the whole
+    # composer.lock over-invalidates; fallback restore would otherwise serve
+    # a cache produced by a different phpstan, silently corrupting results.
+    - name: Resolve PHPStan version
+      id: phpstan-version
+      run: |
+        version=$(jq -r '
+          (.packages + .["packages-dev"])[]
+          | select(.name == "phpstan/phpstan")
+          | .version
+        ' composer.lock)
+        printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+    - name: Restore PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
-      uses: actions/cache@v5
+      id: phpstan-cache
+      uses: actions/cache/restore@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: phpstan-result-cache-${{ github.run_id }}
+        key: phpstan-result-cache-${{ steps.phpstan-version.outputs.version }}-${{ hashFiles('phpstan.neon.dist', '.phpstan/**', 'tests/PHPStan/**') }}-${{ github.run_id }}
         restore-keys: |
-          phpstan-result-cache-
+          phpstan-result-cache-${{ steps.phpstan-version.outputs.version }}-${{ hashFiles('phpstan.neon.dist', '.phpstan/**', 'tests/PHPStan/**') }}-
+    # PHPStan's container cache uses file mtimes for validation. Git doesn't
+    # preserve mtimes, so without restoration every cached file looks stale
+    # and the cache is effectively useless. Only worth doing when we actually
+    # restored a cache - on a cold miss this is pure overhead.
+    - name: Restore file timestamps
+      if: steps.phpstan-cache.outputs.cache-matched-key != ''
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y --no-install-recommends git-restore-mtime
+        # Guard against running on a non-shallow checkout - --unshallow errors
+        # with "does not make sense" if history is already complete.
+        if [ -f .git/shallow ]; then
+          git fetch --unshallow --quiet
+        fi
+        git restore-mtime --skip-missing --quiet
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     # Use CI config which sets reportUnmatchedIgnoredErrors: false so this step
@@ -73,6 +102,15 @@ jobs:
     - name: Regenerate PHPStan Baseline
       if: always()
       run: composer phpstan-baseline
+    # Save after baseline regeneration so the cache captures the full set of
+    # PHPStan invocations for the run. Even on failure - partial cache still
+    # speeds up the next run.
+    - name: Save PHPStan Cache
+      if: always()
+      uses: actions/cache/save@v5
+      with:
+        path: tmp-phpstan
+        key: ${{ steps.phpstan-cache.outputs.cache-primary-key }}
     # Check for baseline drift. Only meaningful when analysis passed - if analysis
     # failed, the baseline will differ due to the new errors.
     - name: Ensure baseline is stable
@@ -105,10 +143,12 @@ jobs:
           echo 'Or run `composer phpstan-baseline` to regenerate the baseline locally.'
         } >> "$GITHUB_STEP_SUMMARY"
         exit 1
-    # Upload the resulting baseline as an artifact. This is intended mostly for
-    # debugging and isn't actively used by GH workflows.
+    # Upload the resulting baseline as an artifact. On PR events this runs on
+    # every outcome so the `phpstan-baseline-diff.yml` workflow can download
+    # the regenerated baseline and post a comparison vs master. On push events
+    # it only runs on failure, matching the prior debugging-oriented behavior.
     - name: Upload PHPStan Baseline
-      if: failure()
+      if: always() && (github.event_name == 'pull_request' || failure())
       uses: actions/upload-artifact@v7
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}

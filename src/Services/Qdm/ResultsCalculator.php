@@ -241,6 +241,9 @@ class ResultsCalculator
              */
             $pop_set = $measure->population_set_for_key($key);
             $pop_set = reset($pop_set); // grab the first item
+            if ($pop_set === false) {
+                continue;
+            }
             $observation = null;
             foreach ($pop_set->observations as $obs) {
                 if ($obs['observation_parameter']['statement_name'] == $observation_map['statement_name']) {

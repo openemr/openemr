@@ -17,7 +17,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
@@ -43,6 +43,7 @@ $searchAny = ($getSearchAny !== '' && $getSSearchRaw === '') ? $getSearchAny : "
 // Probably could have used a session var here because datatable server url
 // persists not allowing easy way to unset any for normal search but opted not.
 //
+$aColumns = [];
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(

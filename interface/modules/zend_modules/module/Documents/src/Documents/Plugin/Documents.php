@@ -17,7 +17,7 @@ use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 class Documents extends AbstractPlugin
 {
@@ -34,8 +34,8 @@ class Documents extends AbstractPlugin
 
     /**
      * getDocument Retrieve Documents from Couch/HDD
-     * @param Integer $documentId Document ID
-     * @param Boolean $doEncryption Download Encrypted File
+     * @param int $documentId Document ID
+     * @param bool $doEncryption Download Encrypted File
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */

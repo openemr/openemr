@@ -54,9 +54,9 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/group.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/encounter_events.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
@@ -76,6 +76,10 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
+    $cacheid ??= null;
+    $starting_date ??= '';
+    $ending_date ??= '';
+    $viewtype ??= '';
     $schedule_start = OEGlobalsBag::getInstance()->getInt('schedule_start');
     $schedule_end = OEGlobalsBag::getInstance()->getInt('schedule_end');
 
@@ -613,6 +617,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     $end = '0000-00-00';
     extract($args);
+    $event_status ??= null;
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
     $eventstatus = 1;
     if (is_numeric($event_status)) {
         $eventstatus = $event_status;
@@ -648,7 +656,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid " .
     "WHERE a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
-    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate = '0000-00-00') " .
+    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate IS NULL) " .
     "AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "' " .
     "AND (a.pc_aid = '" . pnVarPrepForStore($provider_id) . "' OR a.pc_aid = '')";
 
@@ -837,6 +845,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
 {
     $end = '0000-00-00';
     extract($args);
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
 
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
@@ -902,7 +913,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
-    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
+    "(a.pc_endDate IS NULL AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
     // Custom filtering
@@ -931,7 +942,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
 
   // The above 3 lines replaced these:
-  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate IS NULL)
   //   AND a.pc_eventDate <= '$end' ";
 
     if (!empty($providerID)) {
@@ -1210,6 +1221,12 @@ function &postcalendar_userapi_pcGetEvents($args)
 {
     $s_keywords = $s_category = $s_topic = '';
     extract($args);
+    $viewtype ??= '';
+    $provider_id ??= '';
+    $event_status ??= null;
+    $stime ??= '';
+    $etime ??= '';
+    $patient_id ??= 0;
 
     $date = postcalendar_getDate();
     $cy = substr((string) $date, 0, 4);
@@ -1288,7 +1305,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
     $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    return $result->getEventsByDays();
+    $eventsByDays = $result->getEventsByDays();
+    return $eventsByDays;
 }
 
 //===========================

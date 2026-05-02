@@ -23,7 +23,7 @@ function CAMOS_report($pid, $encounter, $cols, $id): void
     /** @var array{content: ?string}|false $data */
     $data = formFetch("form_CAMOS", $id);
     if ($data) {
-        $webroot = OEGlobalsBag::getInstance()->getString('webroot');
+        $webroot = OEGlobalsBag::getInstance()->getWebRoot();
         echo "<div class='navigateLink'><a href='{$webroot}/interface/forms/CAMOS/rx_print.php?sigline=embossed' target=_new>" . xlt('Rx') . "</a>\n";
         echo " | ";
         echo "<a href='{$webroot}/interface/forms/CAMOS/rx_print.php?sigline=signed' target=_new>" . xlt('Signed Rx') . "</a>\n";

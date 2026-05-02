@@ -45,7 +45,7 @@ class OnsiteDocumentDAO extends Phreezable
     /** @var int */
     public $Encounter;
 
-    /** @var timestamp */
+    /** @var string */
     public $CreateDate;
 
     /** @var string */
@@ -54,10 +54,10 @@ class OnsiteDocumentDAO extends Phreezable
     /** @var int */
     public $PatientSignedStatus;
 
-    /** @var date */
+    /** @var string */
     public $PatientSignedTime;
 
-    /** @var date */
+    /** @var string */
     public $AuthorizeSignedTime;
 
     /** @var int */
@@ -66,7 +66,7 @@ class OnsiteDocumentDAO extends Phreezable
     /** @var string */
     public $AuthorizingSignator;
 
-    /** @var date */
+    /** @var string */
     public $ReviewDate;
 
     /** @var string */
@@ -78,7 +78,7 @@ class OnsiteDocumentDAO extends Phreezable
     /** @var string */
     public $PatientSignature;
 
-    /** @var blob */
+    /** @var string */
     public $FullDocument;
 
     /** @var string */

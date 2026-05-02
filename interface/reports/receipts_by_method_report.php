@@ -22,8 +22,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -184,7 +184,7 @@ function showLineItem(
                 "p.pid = ? AND fe.pid = p.pid AND " .
                 "fe.encounter = ? LIMIT 1", [$patient_id, $encounter_id]);
             if (!empty($irnumber)) {
-                echo text($invnumber);
+                echo text($irnumber);
             } else {
                 echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
                       attr($patient_id) . "-" . attr($encounter_id) .
@@ -313,7 +313,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -651,6 +651,7 @@ if (!empty($_POST['form_refresh'])) {
             }
 
           // Compute reporting key: insurance company name or payment method.
+            $rowmethod = '';
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting

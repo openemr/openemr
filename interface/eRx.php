@@ -18,10 +18,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/globals.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxGlobals.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxXMLBuilder.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxPage.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBuilder.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
 
 set_time_limit(0);
 
@@ -88,7 +88,7 @@ if (count($missingExtensions) > 0) {
         ?>
         <script>
             window.setTimeout(function() {
-                window.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics_full.php";
+                window.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics_full.php";
             }, <?php echo (count($messages) * 2000) + 3000; ?>);
         </script>
         <?php
@@ -138,7 +138,7 @@ if (count($missingExtensions) > 0) {
 
             ?>
         <script>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/restoreSession.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/restoreSession.php'); ?>
         </script>
         <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->getString('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">

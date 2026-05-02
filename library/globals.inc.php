@@ -2178,10 +2178,10 @@ $GLOBALS_METADATA = [
         ],
 
         'password_expiration_days' => [
-            xl('Default Password Expiration Days'),
+            xl('Password Expiration Days'),
             'num',                            // data type
             '180',                            // default
-            xl('Default password expiration period in days. 0 means this feature is disabled.')
+            xl('Password expiration period in days. 0 means this feature is disabled.')
         ],
 
         'password_grace_time' => [

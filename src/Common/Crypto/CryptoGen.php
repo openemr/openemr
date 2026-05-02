@@ -133,6 +133,35 @@ class CryptoGen implements CryptoInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function encryptForDatabase(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        return $this->encryptStandard($value, keySource: KeySource::Drive);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->cryptCheckStandard($value)) {
+            return $value;
+        }
+        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
+        if ($result === false) {
+            throw new CryptoGenException('Decryption failed');
+        }
+        return $result;
+    }
+
+    /**
      * Core encryption function
      *
      * @param  ?string   $sValue     Raw data to be encrypted

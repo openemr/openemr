@@ -41,6 +41,9 @@
  *     is to use the standard php session locking on code that works on critical session variables during
  *     authorization related scripts and in cases of single process use (such as with command line scripts
  *     and non-local api calls) since there is no performance benefit in single process use.
+ *     This no-lock mechanism (via read_and_close) works for both the native file session handler and
+ *     the predis-sentinel session handler — the read_and_close option causes PHP to call open/read/close
+ *     on the handler immediately, releasing any lock the handler holds.
  *  10. For OpenEMR 6.0.0 added a oauth2 session, which requires following settings:
  *      cookie_samesite = None (In theory, should just need Lax (since just GET requests), however, need None for Smart Apps used
  *                              within OpenEMR to work)

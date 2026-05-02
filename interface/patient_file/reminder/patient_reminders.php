@@ -13,10 +13,11 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/reminders.php");
-require_once("$srcdir/clinical_rules.php");
-require_once "$srcdir/report_database.inc.php";
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/reminders.php");
+require_once($srcdir . "/clinical_rules.php");
+require_once($srcdir . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -65,6 +66,7 @@ if (!empty($patient_id)) {
     $update_rem_log = update_reminders('', $patient_id);
 }
 
+$rules_default = [];
 if ($mode == "simple") {
     // Collect the rules for the per patient rules selection tab
     $rules_default = resolve_rules_sql('', '0', true);
@@ -136,6 +138,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if ($sortorder == "") {
                     $sortorder = "asc";
                 }
+                $sortlink = [];
                 for ($i = 0; $i < count($sort); $i++) {
                     $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
                     "<i class='fa fa-sort-desc fa-lg'></i></a>";

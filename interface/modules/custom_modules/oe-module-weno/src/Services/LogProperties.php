@@ -26,7 +26,7 @@ class LogProperties
      */
     public $rxsynclog;
     /**
-     * @var
+     * @var mixed
      */
     public $messageid;
     /**

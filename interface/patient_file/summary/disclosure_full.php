@@ -13,16 +13,16 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Control access
 if (!AclMain::aclCheckCore('patients', 'disclosure')) {
@@ -74,6 +74,8 @@ if (isset($_GET['deletelid'])) {
     //function to delete the recorded disclosures
     EventAuditLogger::getInstance()->deleteDisclosure($deletelid);
 }
+
+$active = $_GET['active'] ?? '';
 ?>
 <html>
 <head>

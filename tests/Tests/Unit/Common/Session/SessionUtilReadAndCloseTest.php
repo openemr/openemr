@@ -47,6 +47,12 @@ class SessionUtilReadAndCloseTest extends TestCase
             session_write_close();
         }
 
+        // Clear stale session data from the previous test or from the
+        // bootstrap (interface/globals.php).  Without this, $_SESSION may
+        // carry keys from the OpenEMR core session into a test's loadSession()
+        // call, polluting the test's bag data.
+        $_SESSION = [];
+
         // Reset session name to default
         session_name('PHPSESSID');
 
@@ -79,6 +85,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      * Helper: creates a ReadAndCloseNativeSessionStorage + Session, starts it,
      * and wires it into the SessionWrapperFactory singleton.
      *
+     * Writes a sentinel value in the setup session so the saved session data is
+     * non-empty. Without this, AbstractSessionHandler::write() sees empty data
+     * and calls destroy() instead — which, combined with use_strict_mode=1 on
+     * the follow-up read_and_close open, causes PHP to silently regenerate the
+     * session ID and desync from $ctx['sessionId'] used by the verify step.
+     *
      * @return array{storage: ReadAndCloseNativeSessionStorage, session: Session, sessionId: string}
      */
     private function createReadAndCloseSession(): array
@@ -91,6 +103,8 @@ class SessionUtilReadAndCloseTest extends TestCase
         ]);
         $setupSession = new Session($setupStorage, new AttributeBag('TestSessionUtil'));
         $setupSession->start();
+        // Sentinel value prevents write() from short-circuiting to destroy()
+        $setupSession->set('__test_sentinel', 1);
         $sessionId = $setupSession->getId();
         $setupSession->save();
 

@@ -63,13 +63,9 @@ abstract class BaseValidator
     /**
      * Performs a data validation using the configured rules and requirements.
      *
-     * Validation results are conveyed by an array with the following keys:
-     * - isValid => true|false
-     * - messages => array(validationMessage, validationMessage, etc)
-     *
      * @param $dataFields -  The fields to validate.
      * @param $context - The validation context to utilize. This is simply a "handle" for the rules.
-     * @return $validationResult array
+     * @return ProcessingResult containing any validation messages from the configured rules.
      */
     public function validate($dataFields, $context)
     {
@@ -132,7 +128,7 @@ abstract class BaseValidator
      * @param $code The code which needs to be verified
      * @param $table The table in database
      * @param $valueset Name of the particular Valueset
-     * @return boolean
+     * @return bool
      */
     public function validateCode($code, $table, $valueset)
     {

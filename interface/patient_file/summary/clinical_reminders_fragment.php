@@ -11,12 +11,13 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/clinical_rules.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 

@@ -44,7 +44,7 @@ $allowEmail = (OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null);
 $allowVoice = (OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null);
 
 /**
- * @global OpenEMR\Core\ModulesClassLoader $classLoader
+ * @var \OpenEMR\Core\ModulesClassLoader $classLoader
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 

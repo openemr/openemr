@@ -132,6 +132,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between string\\|null and false will always evaluate to true\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between non\\-falsy\\-string and \'\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Health/Check/CacheCheck.php',

@@ -33,8 +33,8 @@
 // Include standard libraries/classes
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Gacl\GaclAdminApi;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -62,7 +62,7 @@ $db = &$gacl->db;
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
 $smarty->setTemplateDir($gacl_options['smarty_template_dir'] ?? '');
-$smarty->setCompileDir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/gacl');
+$smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
 
 /*
  * Email address used in setup.php, please do not change.
