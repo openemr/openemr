@@ -43,6 +43,50 @@ class MedExAPI
     // Pricing DB cache TTL (7 days) — pricing changes rarely; cached on initial connect
     private const PRICING_CACHE_TTL = 604800;
 
+    /**
+     * @param mixed $services
+     * @return array<int,string>
+     */
+    private function normalizeEnabledServiceList($services): array
+    {
+        $normalized = [];
+        if (is_array($services)) {
+            foreach ($services as $key => $value) {
+                if (is_int($key)) {
+                    $serviceKey = strtolower(trim((string)$value));
+                    if ($serviceKey !== '') {
+                        $normalized[$serviceKey] = $serviceKey;
+                    }
+                    continue;
+                }
+                if ($value === true || $value === 1 || $value === '1') {
+                    $serviceKey = strtolower(trim((string)$key));
+                    if ($serviceKey !== '') {
+                        $normalized[$serviceKey] = $serviceKey;
+                    }
+                }
+            }
+        }
+        return array_values($normalized);
+    }
+
+    /**
+     * @param array<string,mixed> $dbCache
+     * @return array<int,string>
+     */
+    private function getCachedEnabledServices(array $dbCache = []): array
+    {
+        if (empty($dbCache)) {
+            $dbCache = $this->readStatusCache();
+        }
+        $cached = $dbCache['enabled_services'] ?? [];
+        $normalized = $this->normalizeEnabledServiceList($cached);
+        if (!empty($normalized)) {
+            return $normalized;
+        }
+        return $this->normalizeEnabledServiceList($dbCache['last_services_result'] ?? []);
+    }
+
     private function resolveForwardedClientIp(): string
     {
         $candidateHeaders = [
@@ -773,9 +817,9 @@ class MedExAPI
         // DB-level cache (6h TTL): throttles login/network calls for idle/unsubscribed practices.
         // Even an empty result is cached so practices with no subscriptions don't call login() on every session.
         $dbCache   = $this->readStatusCache();
+        $cachedServices = $this->getCachedEnabledServices($dbCache);
         $dbCheckTs = $dbCache['last_services_check_ts'] ?? 0;
         if (!$forceRefresh && (time() - $dbCheckTs) < self::SERVICES_DB_CACHE_TTL) {
-            $cachedServices = $dbCache['last_services_result'] ?? [];
             // Warm the inner session cache from the DB result
             $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
             return $cachedServices;
@@ -787,7 +831,17 @@ class MedExAPI
             // early on a valid cached token without setting sessionData, leaving enabled_services empty.
             $this->login(true);
         } catch (\Exception $e) {
-            // On connection failure, write a timestamp so we don't hammer the server on every request
+            // On connection failure, preserve last known entitlements instead of collapsing the module
+            // to an unsubscribed state. This keeps menus/injection alive while SaaS auth recovers.
+            if (!empty($cachedServices)) {
+                $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
+                $this->updateStatusCache([
+                    'last_services_check_ts' => time(),
+                    'last_services_result'   => $cachedServices,
+                    'enabled_services'       => $cachedServices,
+                ]);
+                return $cachedServices;
+            }
             $this->updateStatusCache(['last_services_check_ts' => time(), 'last_services_result' => []]);
             return [];
         }
@@ -797,7 +851,10 @@ class MedExAPI
         // (WHERE status='active') on the server — it reflects real subscription orders only.
         // Do NOT fall back to pricing/available flags: pricing tells us what's purchasable,
         // not what the practice has actually subscribed to.
-        $services = array_values((array)($this->sessionData['enabled_services'] ?? []));
+        $services = $this->normalizeEnabledServiceList($this->sessionData['enabled_services'] ?? []);
+        if (empty($services) && !empty($this->sessionData['stale_fallback']) && !empty($cachedServices)) {
+            $services = $cachedServices;
+        }
 
         // Always write DB cache (even empty result) so future calls skip the network for 6h.
         // Also always write enabled_services — the menu function reads this key exclusively and
@@ -855,7 +912,7 @@ class MedExAPI
     public function hasServiceEntitlement(string $service): bool
     {
         $service = strtolower(trim($service));
-        $enabled = $this->getEnabledServices(true);
+        $enabled = $this->getEnabledServices(false);
         $bundleAliases = [
             'calendar_export' => ['calendar_export', 'calendar_ai', 'calendar_services'],
             'calendar_ai' => ['calendar_ai', 'calendar_services'],
@@ -887,7 +944,7 @@ class MedExAPI
      */
     public function hasAnyServiceEntitlement(array $services): bool
     {
-        $enabled = $this->getEnabledServices(true);
+        $enabled = $this->getEnabledServices(false);
         foreach ($services as $service) {
             if (isset($enabled[$service]) && ($enabled[$service] === true || $enabled[$service] === 1)) {
                 return true;
