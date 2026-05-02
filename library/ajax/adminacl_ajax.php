@@ -266,7 +266,7 @@ function username_listings_xml($err)
         }
 
         $message .= "\t<user>\n" .
-          "\t\t<username>" . $iter["username"] . "</username>\n";
+          "\t\t<username>" . xmlEscape($iter["username"]) . "</username>\n";
         $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
         if (!$username_acl_groups) {
             //not joined to any group, so send alert
@@ -278,7 +278,7 @@ function username_listings_xml($err)
 
     if (isset($err)) {
         foreach ($err as $value) {
-            $message .= "\t<error>" . $value . "</error>\n";
+            $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
         }
     }
 
@@ -304,10 +304,10 @@ function user_group_listings_xml($username, $err)
     foreach ($list_acl_groups as $value) {
         if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . $value . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -318,10 +318,10 @@ function user_group_listings_xml($username, $err)
     if ($username_acl_groups) {
         foreach ($username_acl_groups as $value) {
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . $value . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -330,7 +330,7 @@ function user_group_listings_xml($username, $err)
     $message .= "\t</active>\n";
     if (isset($err)) {
         foreach ($err as $value) {
-            $message .= "\t<error>" . $value . "</error>\n";
+            $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
         }
     }
 
@@ -348,10 +348,10 @@ function error_xml($err)
     "<response>\n";
     if (is_array($err)) {
         foreach ($err as $value) {
-            $message .= "\t<error>" . $value . "</error>\n";
+            $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
         }
     } else {
-        $message .= "\t<error>" . $err . "</error>\n";
+        $message .= "\t<error>" . xmlEscape($err) . "</error>\n";
     }
 
     $message .= "</response>\n";

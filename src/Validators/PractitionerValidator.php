@@ -37,6 +37,11 @@ class PractitionerValidator extends BaseValidator
                     fn($value) => $this->validateId("id", "facility", $value)
                 );
                 $context->optional("email", "Email")->email();
+                $context->optional("username", "Username")->callback(
+                    function ($value): bool {
+                        return preg_match('/[&<>"\'\x00-\x1F]/', (string) $value) === 0;
+                    }
+                );
             }
         );
 
