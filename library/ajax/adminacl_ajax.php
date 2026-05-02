@@ -64,50 +64,52 @@ if ($_POST["control"] === "username") {
 
 //PROCESS MEMBERSHIP REQUESTS
 if ($_POST["control"] === "membership") {
+    $postName = is_string($_POST["name"]) ? $_POST["name"] : '';
+
     if ($_POST["action"] === "list") {
         //return membership data
-        echo user_group_listings_xml($_POST["name"], $error);
+        echo user_group_listings_xml($postName, $error);
     }
 
     if ($_POST["action"] === "add") {
         if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return membership data
             $error[] = (xl('No group was selected') . "!");
-            echo user_group_listings_xml($_POST["name"], $error);
+            echo user_group_listings_xml($postName, $error);
             exit;
         }
 
         //add the group, then log it, then return updated membership data
-        AclExtended::addUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
-        echo user_group_listings_xml($_POST["name"], $error);
+        AclExtended::addUserAros($postName, $_POST["selection"]);
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Added " . $postName . " to following access group(s): " . implode(', ', $_POST["selection"]));
+        echo user_group_listings_xml($postName, $error);
     }
 
     if ($_POST["action"] === "remove") {
         if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return membership data
             $error[] = (xl('No group was selected') . "!");
-            echo user_group_listings_xml($_POST["name"], $error);
+            echo user_group_listings_xml($postName, $error);
             exit;
         }
 
         // check if user is protected. If so, then state message unable to remove from admin group.
-        $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin" ? true : false;
+        $userNametoID = (new UserService())->getIdByUsername($postName);
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $postName === "admin" ? true : false;
 
         if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,
             // send soft error, then return data
             $error[] = (xl('Not allowed to remove this user from the Administrators group') . "!");
-            AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
-            echo user_group_listings_xml($_POST["name"], $error);
+            AclExtended::removeUserAros($postName, $_POST["selection"]);
+            echo user_group_listings_xml($postName, $error);
             exit;
         }
 
         //remove the group(s), then log it, then return updated membership data
-        AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
-        echo user_group_listings_xml($_POST["name"], $error);
+        AclExtended::removeUserAros($postName, $_POST["selection"]);
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Removed " . $postName . " from following access group(s): " . implode(', ', $_POST["selection"]));
+        echo user_group_listings_xml($postName, $error);
     }
 }
 
@@ -268,9 +270,10 @@ function username_listings_xml(array $err): string
             continue;
         }
 
+        $iterUsername = is_string($iter["username"]) ? $iter["username"] : '';
         $message .= "\t<user>\n" .
-          "\t\t<username>" . xmlEscape((string) $iter["username"]) . "</username>\n";
-        $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
+          "\t\t<username>" . xmlEscape($iterUsername) . "</username>\n";
+        $username_acl_groups = AclExtended::aclGetGroupTitles($iterUsername);
         if (!$username_acl_groups) {
             //not joined to any group, so send alert
             $message .= "\t\t<alert>no membership</alert>\n";
@@ -279,10 +282,8 @@ function username_listings_xml(array $err): string
         $message .= "\t</user>\n";
     }
 
-    if (isset($err)) {
-        foreach ($err as $value) {
-            $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
-        }
+    foreach ($err as $value) {
+        $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
     }
 
     $message .= "</response>\n";
@@ -308,12 +309,14 @@ function user_group_listings_xml(string $username, array $err): string
     "<response>\n" .
     "\t<inactive>\n";
     foreach ($list_acl_groups as $value) {
-        if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
+        $groupValue = is_string($value) ? $value : '';
+        if ((!$username_acl_groups) || (!(in_array($groupValue, $username_acl_groups)))) {
+            $groupLabel = xl_gacl_group($groupValue);
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($groupValue) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape((string) xl_gacl_group((string) $value)) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(is_string($groupLabel) ? $groupLabel : '') . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -323,21 +326,21 @@ function user_group_listings_xml(string $username, array $err): string
     "\t<active>\n";
     if ($username_acl_groups) {
         foreach ($username_acl_groups as $value) {
+            $groupValue = is_string($value) ? $value : '';
+            $groupLabel = xl_gacl_group($groupValue);
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($groupValue) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape((string) xl_gacl_group((string) $value)) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(is_string($groupLabel) ? $groupLabel : '') . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
     }
 
     $message .= "\t</active>\n";
-    if (isset($err)) {
-        foreach ($err as $value) {
-            $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
-        }
+    foreach ($err as $value) {
+        $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
     }
 
     $message .= "</response>\n";
