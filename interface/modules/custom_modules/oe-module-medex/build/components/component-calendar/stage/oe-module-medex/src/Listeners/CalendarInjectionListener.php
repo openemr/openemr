@@ -50,6 +50,48 @@ class CalendarInjectionListener
         return false;
     }
 
+    /**
+     * @param array<string,mixed> $status
+     * @return array<int,string>
+     */
+    private function extractEnabledServicesFromStatus(array $status): array
+    {
+        $candidates = [
+            $status['enabled_services'] ?? null,
+            $status['practice']['enabled_services'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (!is_array($candidate)) {
+                continue;
+            }
+
+            $services = [];
+            foreach ($candidate as $key => $value) {
+                if (is_int($key)) {
+                    $normalized = $this->normalizeServiceKey((string)$value);
+                    if ($normalized !== '') {
+                        $services[$normalized] = $normalized;
+                    }
+                    continue;
+                }
+
+                if ($value === true || $value === 1 || $value === '1') {
+                    $normalized = $this->normalizeServiceKey((string)$key);
+                    if ($normalized !== '') {
+                        $services[$normalized] = $normalized;
+                    }
+                }
+            }
+
+            if (!empty($services)) {
+                return array_values($services);
+            }
+        }
+
+        return [];
+    }
+
     private function isNativeCalendarEntryRequest(string $requestUri): bool
     {
         if ($requestUri === '') {
@@ -346,7 +388,7 @@ HTML;
             $statusRecord = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
             if (!empty($statusRecord['status'])) {
                 $status = json_decode($statusRecord['status'], true);
-                $services = $status['enabled_services'] ?? [];
+                $services = is_array($status) ? $this->extractEnabledServicesFromStatus($status) : [];
                 // enabled_services is an assoc array {"calendar_full": true} — use isset, not in_array
                 $svcOn = function($k) use ($services) {
                     return (isset($services[$k]) && $services[$k]) || in_array($k, $services);

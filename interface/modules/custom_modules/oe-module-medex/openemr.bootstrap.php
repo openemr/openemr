@@ -95,10 +95,11 @@ function medexBootstrapState(): array
 
         if (!empty($prefs['status'])) {
             $status = json_decode((string)$prefs['status'], true);
-            if (is_array($status) && !empty($status['enabled_services']) && is_array($status['enabled_services'])) {
-                $state['enabled_services'] = $status['enabled_services'];
-            }
             if (is_array($status)) {
+                $statusServices = medexExtractEnabledServicesFromStatus($status);
+                if (!empty($statusServices)) {
+                    $state['enabled_services'] = $statusServices;
+                }
                 $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
                 $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
                 $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
@@ -170,6 +171,50 @@ function medexBuildModuleUrl(string $path, array $params = []): string
     $params = array_merge(['site' => $state['site_id']], $params);
     $query = http_build_query($params);
     return $state['webroot'] . $path . ($query !== '' ? ('?' . $query) : '');
+}
+
+/**
+ * @param array<int|string,mixed> $enabledServices
+ */
+function medexNormalizeEnabledServices($services): array
+{
+    $normalized = [];
+    if (is_array($services)) {
+        foreach ($services as $key => $value) {
+            if (is_int($key)) {
+                $serviceKey = strtolower(trim((string)$value));
+                if ($serviceKey !== '') {
+                    $normalized[$serviceKey] = $serviceKey;
+                }
+                continue;
+            }
+            if ($value === true || $value === 1 || $value === '1') {
+                $serviceKey = strtolower(trim((string)$key));
+                if ($serviceKey !== '') {
+                    $normalized[$serviceKey] = $serviceKey;
+                }
+            }
+        }
+    }
+
+    return array_values($normalized);
+}
+
+function medexExtractEnabledServicesFromStatus(array $status): array
+{
+    $candidates = [
+        $status['enabled_services'] ?? null,
+        $status['practice']['enabled_services'] ?? null,
+    ];
+
+    foreach ($candidates as $candidate) {
+        $normalized = medexNormalizeEnabledServices($candidate);
+        if (!empty($normalized)) {
+            return $normalized;
+        }
+    }
+
+    return [];
 }
 
 /**

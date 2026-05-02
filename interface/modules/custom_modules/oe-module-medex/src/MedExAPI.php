@@ -71,6 +71,50 @@ class MedExAPI
     }
 
     /**
+     * @param array<string,mixed> $payload
+     * @return array<int,string>
+     */
+    private function extractEnabledServicesFromPayload(array $payload): array
+    {
+        $candidates = [
+            $payload['enabled_services'] ?? null,
+            $payload['practice']['enabled_services'] ?? null,
+            $payload['status']['enabled_services'] ?? null,
+            $payload['status']['practice']['enabled_services'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $normalized = $this->normalizeEnabledServiceList($candidate);
+            if (!empty($normalized)) {
+                return $normalized;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     * @return array<string,mixed>
+     */
+    private function normalizeStatusPayload(array $payload): array
+    {
+        $enabledServices = $this->extractEnabledServicesFromPayload($payload);
+        if (!empty($enabledServices) || array_key_exists('enabled_services', $payload)) {
+            $payload['enabled_services'] = $enabledServices;
+        }
+
+        if (empty($payload['customer_group_id'])) {
+            $customerGroupId = (int)($payload['practice']['customer_group_id'] ?? $payload['status']['customer_group_id'] ?? 0);
+            if ($customerGroupId > 0) {
+                $payload['customer_group_id'] = $customerGroupId;
+            }
+        }
+
+        return $payload;
+    }
+
+    /**
      * @param array<string,mixed> $dbCache
      * @return array<int,string>
      */
@@ -79,8 +123,7 @@ class MedExAPI
         if (empty($dbCache)) {
             $dbCache = $this->readStatusCache();
         }
-        $cached = $dbCache['enabled_services'] ?? [];
-        $normalized = $this->normalizeEnabledServiceList($cached);
+        $normalized = $this->extractEnabledServicesFromPayload($dbCache);
         if (!empty($normalized)) {
             return $normalized;
         }
@@ -482,6 +525,7 @@ class MedExAPI
 
     private function attachCallbackMetadata(array $data): array
     {
+        $data = $this->normalizeStatusPayload($data);
         $callbackToken = trim((string)($data['callback_token'] ?? ''));
         if ($callbackToken === '') {
             $callbackToken = $this->getStoredCallbackToken();
@@ -2319,7 +2363,10 @@ class MedExAPI
                 []
             );
             if ($row && !empty($row['status'])) {
-                return json_decode($row['status'], true) ?? [];
+                $decoded = json_decode($row['status'], true) ?? [];
+                if (is_array($decoded)) {
+                    return $this->normalizeStatusPayload($decoded);
+                }
             }
         } catch (\Exception $e) {
             // Non-fatal; callers fall through to network
