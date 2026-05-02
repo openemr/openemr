@@ -174,6 +174,12 @@ class EligibilityMockService
                 'payerName' => $payerName,
                 'payerCode' => $payerId,
             ],
+            // Top-level deductible summary the Deductibles tab renders.
+            'deductible' => 1500.00,
+            'deductibleRemaining' => 750.00,
+            'outOfPocket' => 5000.00,
+            'outOfPocketRemaining' => 3200.00,
+            'deductibles' => self::buildDeductibles(),
             'mapped271' => [
                 'informationSourceName' => $payerName,
                 'receiver' => [
@@ -248,15 +254,12 @@ class EligibilityMockService
                     // Inactive coverage typically reports the cancellation
                     // status code (6) rather than a full benefits breakdown.
                     'benefits' => [
-                        [
-                            'code' => '6',
-                            'codeDesc' => 'Inactive',
-                            'coverageLevel' => 'IND',
-                            'coverageLevelDesc' => 'Individual',
-                            'serviceType' => '30',
-                            'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                            'message' => 'Coverage terminated ' . $terminationDate,
-                        ],
+                        self::benefit(
+                            code: '6',
+                            desc: 'Inactive',
+                            serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                            planDesc: 'Coverage terminated ' . $terminationDate,
+                        ),
                     ],
                 ],
             ],
@@ -264,91 +267,199 @@ class EligibilityMockService
     }
 
     /**
-     * Build a benefits list covering the common Service Type Codes the
-     * eligibility templates render: 30 (health benefit), 88 (pharmacy),
-     * AL (vision), MH (mental health), UC (urgent care).
+     * Build a benefits list using the X12 271 EB-segment shape the eligibility
+     * templates render. Each entry uses `benefitInformation` (EB01 code) plus
+     * the surrounding fields (serviceTypes[], coverageLevel, planCoverageDescription,
+     * timePeriodQualifierDesc, benefitAmount, benefitPercent, etc.) so the
+     * benefit_code_filter setting works against real EB01 codes (1, 6, A, B,
+     * C, F, G, J, etc.).
      *
      * @return list<array<string, mixed>>
      */
     private static function buildBenefits(): array
     {
         return [
+            self::benefit(
+                code: '1',
+                desc: 'Active Coverage',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                planDesc: 'Mock Active PPO Plan',
+                insuranceTypeCodeDesc: 'Preferred Provider Organization',
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'C',
+                desc: 'Deductible',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                timePeriodDesc: 'Calendar Year',
+                amount: 1500.00,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'C',
+                desc: 'Deductible Remaining',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                timePeriodDesc: 'Remaining',
+                amount: 750.00,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'B',
+                desc: 'Co-Payment',
+                serviceTypes: [['serviceTypeCode' => 'BV', 'serviceTypeDesc' => 'Office Visit']],
+                amount: 25.00,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'B',
+                desc: 'Co-Payment',
+                serviceTypes: [['serviceTypeCode' => 'UC', 'serviceTypeDesc' => 'Urgent Care']],
+                amount: 75.00,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'A',
+                desc: 'Co-Insurance',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                percent: 20.0,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'G',
+                desc: 'Out of Pocket (Stop Loss)',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                timePeriodDesc: 'Calendar Year',
+                amount: 5000.00,
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: '1',
+                desc: 'Active Coverage',
+                serviceTypes: [['serviceTypeCode' => '88', 'serviceTypeDesc' => 'Pharmacy']],
+                planDesc: 'Mock Pharmacy Benefit',
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: '1',
+                desc: 'Active Coverage',
+                serviceTypes: [['serviceTypeCode' => 'AL', 'serviceTypeDesc' => 'Vision (Optometry)']],
+                planDesc: 'Mock Vision Benefit',
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'F',
+                desc: 'Limitations',
+                serviceTypes: [['serviceTypeCode' => 'MH', 'serviceTypeDesc' => 'Mental Health']],
+                planDesc: '20 visits per calendar year',
+                quantity: 20.0,
+                quantityQualifierDesc: 'Visits',
+                inPlanNetwork: 'Y',
+            ),
+            self::benefit(
+                code: 'J',
+                desc: 'Cost Containment',
+                serviceTypes: [['serviceTypeCode' => '30', 'serviceTypeDesc' => 'Health Benefit Plan Coverage']],
+                planDesc: 'Prior authorization required for certain services',
+                authIndicator: 'Y',
+            ),
+        ];
+    }
+
+    /**
+     * Helper: build a single EB-segment-shaped benefit. Keeps the
+     * benefit list above readable and consistent.
+     *
+     * @param  list<array{serviceTypeCode: string, serviceTypeDesc: string}> $serviceTypes
+     * @return array<string, mixed>
+     */
+    private static function benefit(
+        string $code,
+        string $desc,
+        array $serviceTypes,
+        string $coverageLevel = 'Individual',
+        string $planDesc = '',
+        string $insuranceTypeCodeDesc = '',
+        string $timePeriodDesc = '',
+        ?float $amount = null,
+        ?float $percent = null,
+        ?float $quantity = null,
+        string $quantityQualifierDesc = '',
+        string $authIndicator = '',
+        string $inPlanNetwork = '',
+    ): array {
+        $row = [
+            'benefitInformation' => $code,
+            'benefitInformationDesc' => $desc,
+            'coverageLevel' => $coverageLevel,
+            'serviceTypes' => $serviceTypes,
+            'planCoverageDescription' => $planDesc,
+            'insuranceTypeCodeDesc' => $insuranceTypeCodeDesc,
+            'timePeriodQualifierDesc' => $timePeriodDesc,
+            'inPlanNetworkIndicator' => $inPlanNetwork,
+        ];
+        if ($amount !== null) {
+            $row['benefitAmount'] = $amount;
+        }
+        if ($percent !== null) {
+            $row['benefitPercent'] = $percent;
+        }
+        if ($quantity !== null) {
+            $row['benefitQuantity'] = $quantity;
+            $row['quantityQualifierDesc'] = $quantityQualifierDesc;
+        }
+        if ($authIndicator !== '') {
+            $row['certificationIndicator'] = $authIndicator;
+        }
+        return $row;
+    }
+
+    /**
+     * Build the deductibles[] table the Deductibles tab renders.
+     * One row per service type so the demo shows multiple line items.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function buildDeductibles(): array
+    {
+        return [
             [
-                'code' => '1',
-                'codeDesc' => 'Active Coverage',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '30',
-                'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                'insuranceType' => 'PPO',
-                'insuranceTypeDesc' => 'Preferred Provider Organization',
+                'serviceTypeCode' => '30',
+                'serviceTypeDescription' => 'Health Benefit Plan Coverage',
+                'coverageLevelCode' => 'IND',
+                'coverageLevelDescription' => 'Individual',
+                'insuranceTypeCode' => 'PPO',
+                'insuranceTypeDescription' => 'Preferred Provider Organization',
+                'inPlanNetwork' => 'Y',
+                'annualAmount' => '1500.00',
+                'episodeAmount' => '',
+                'remainingAmount' => '750.00',
+                'planName' => 'Mock Active PPO',
             ],
             [
-                'code' => 'C',
-                'codeDesc' => 'Deductible',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '30',
-                'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                'timePeriod' => '23',
-                'timePeriodDesc' => 'Calendar Year',
-                'monetaryAmount' => 1500.00,
+                'serviceTypeCode' => '30',
+                'serviceTypeDescription' => 'Health Benefit Plan Coverage',
+                'coverageLevelCode' => 'FAM',
+                'coverageLevelDescription' => 'Family',
+                'insuranceTypeCode' => 'PPO',
+                'insuranceTypeDescription' => 'Preferred Provider Organization',
+                'inPlanNetwork' => 'Y',
+                'annualAmount' => '3000.00',
+                'episodeAmount' => '',
+                'remainingAmount' => '1500.00',
+                'planName' => 'Mock Active PPO',
             ],
             [
-                'code' => 'C',
-                'codeDesc' => 'Deductible',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '30',
-                'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                'timePeriod' => '29',
-                'timePeriodDesc' => 'Remaining',
-                'monetaryAmount' => 750.00,
-            ],
-            [
-                'code' => 'B',
-                'codeDesc' => 'Co-Payment',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => 'BV',
-                'serviceTypeDesc' => 'Office Visit',
-                'monetaryAmount' => 25.00,
-            ],
-            [
-                'code' => 'A',
-                'codeDesc' => 'Co-Insurance',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '30',
-                'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                'percent' => 0.20,
-            ],
-            [
-                'code' => 'G',
-                'codeDesc' => 'Out of Pocket (Stop Loss)',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '30',
-                'serviceTypeDesc' => 'Health Benefit Plan Coverage',
-                'timePeriod' => '23',
-                'timePeriodDesc' => 'Calendar Year',
-                'monetaryAmount' => 5000.00,
-            ],
-            [
-                'code' => '1',
-                'codeDesc' => 'Active Coverage',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => '88',
-                'serviceTypeDesc' => 'Pharmacy',
-            ],
-            [
-                'code' => '1',
-                'codeDesc' => 'Active Coverage',
-                'coverageLevel' => 'IND',
-                'coverageLevelDesc' => 'Individual',
-                'serviceType' => 'AL',
-                'serviceTypeDesc' => 'Vision (Optometry)',
+                'serviceTypeCode' => 'AL',
+                'serviceTypeDescription' => 'Vision (Optometry)',
+                'coverageLevelCode' => 'IND',
+                'coverageLevelDescription' => 'Individual',
+                'insuranceTypeCode' => 'PPO',
+                'insuranceTypeDescription' => 'Preferred Provider Organization',
+                'inPlanNetwork' => 'Y',
+                'annualAmount' => '50.00',
+                'episodeAmount' => '',
+                'remainingAmount' => '50.00',
+                'planName' => 'Mock Vision Add-on',
             ],
         ];
     }

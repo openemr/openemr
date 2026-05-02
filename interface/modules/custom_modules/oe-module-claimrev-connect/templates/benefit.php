@@ -10,15 +10,30 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\ClaimRevConnector\GlobalConfig;
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 /** @var iterable<\stdClass> $benefits */
 
 $benefitPatResponse = ["B","C","G","J","Y"];
 
+// Optional EB01 filter: comma-separated benefit information codes from
+// the global (oe_claimrev_benefit_code_filter). When non-empty, only
+// benefits whose benefitInformation matches are rendered. Filtering is
+// purely local; the upstream 271 still carries everything.
+$benefitFilterRaw = OEGlobalsBag::getInstance()->getString(GlobalConfig::CONFIG_BENEFIT_CODE_FILTER);
+$benefitFilter = $benefitFilterRaw !== ''
+    ? array_map('trim', array_filter(explode(',', $benefitFilterRaw), static fn(string $s): bool => trim($s) !== ''))
+    : [];
+
 foreach ($benefits as $benefit) {
     $benefitInfoDesc = property_exists($benefit, 'benefitInformationDesc') && is_string($benefit->benefitInformationDesc) ? $benefit->benefitInformationDesc : '';
     $benefitInfo = property_exists($benefit, 'benefitInformation') && is_string($benefit->benefitInformation) ? $benefit->benefitInformation : '';
+
+    if ($benefitFilter !== [] && !in_array($benefitInfo, $benefitFilter, true)) {
+        continue;
+    }
     $serviceTypes = property_exists($benefit, 'serviceTypes') && is_iterable($benefit->serviceTypes) ? $benefit->serviceTypes : [];
     $quantityQualifierDesc = property_exists($benefit, 'quantityQualifierDesc') && is_string($benefit->quantityQualifierDesc) ? $benefit->quantityQualifierDesc : '';
     ?>
