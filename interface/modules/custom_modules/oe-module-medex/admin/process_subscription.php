@@ -65,7 +65,90 @@ try {
     $paymentNonce = $input['payment_nonce'] ?? null;
     $useExistingPayment = $input['use_existing_payment'] ?? false;
     $providerSelections = $input['providers'] ?? [];
+    $facilitySelections = $input['facilities'] ?? [];
     $devBypass = $input['dev_bypass'] ?? false; // TODO: Remove for production
+
+    if (is_array($providerSelections)) {
+        $normalizedProviderSelections = [];
+        foreach ($providerSelections as $rawKey => $providerIds) {
+            $serviceKey = trim((string)$rawKey);
+            if ($serviceKey === '') {
+                continue;
+            }
+            if (!isset($normalizedProviderSelections[$serviceKey])) {
+                $normalizedProviderSelections[$serviceKey] = [];
+            }
+            if (is_array($providerIds)) {
+                foreach ($providerIds as $pid) {
+                    $pid = (int)$pid;
+                    if ($pid > 0 && !in_array($pid, $normalizedProviderSelections[$serviceKey], true)) {
+                        $normalizedProviderSelections[$serviceKey][] = $pid;
+                    }
+                }
+            }
+        }
+        $providerSelections = $normalizedProviderSelections;
+    }
+
+    if (is_array($facilitySelections)) {
+        $normalizedFacilitySelections = [];
+        foreach ($facilitySelections as $rawKey => $facilityIds) {
+            $serviceKey = trim((string)$rawKey);
+            if ($serviceKey === '') {
+                continue;
+            }
+            if (!isset($normalizedFacilitySelections[$serviceKey])) {
+                $normalizedFacilitySelections[$serviceKey] = [];
+            }
+            if (is_array($facilityIds)) {
+                foreach ($facilityIds as $facilityId) {
+                    $facilityId = (int)$facilityId;
+                    if ($facilityId > 0 && !in_array($facilityId, $normalizedFacilitySelections[$serviceKey], true)) {
+                        $normalizedFacilitySelections[$serviceKey][] = $facilityId;
+                    }
+                }
+            }
+        }
+        $facilitySelections = $normalizedFacilitySelections;
+    }
+
+    if (is_array($removeServices)) {
+        $normalizedRemovals = [];
+        foreach ($removeServices as $rawKey) {
+            $serviceKey = trim((string)$rawKey);
+            if ($serviceKey !== '') {
+                $normalizedRemovals[] = $serviceKey;
+            }
+        }
+        $removeServices = array_values(array_unique($normalizedRemovals));
+    }
+
+    if (is_array($addServices)) {
+        $normalizedAdds = [];
+        foreach ($addServices as $item) {
+            if (is_array($item)) {
+                $serviceKey = trim((string)($item['serviceId'] ?? $item['service'] ?? ''));
+                if ($serviceKey === '') {
+                    continue;
+                }
+                $item['serviceId'] = $serviceKey;
+                $item['service'] = $serviceKey;
+                if (empty($item['providerIds']) && !empty($providerSelections[$serviceKey])) {
+                    $item['providerIds'] = $providerSelections[$serviceKey];
+                }
+                if (empty($item['facilityIds']) && !empty($facilitySelections[$serviceKey])) {
+                    $item['facilityIds'] = $facilitySelections[$serviceKey];
+                }
+                $normalizedAdds[$serviceKey] = $item;
+            } else {
+                $serviceKey = trim((string)$item);
+                if ($serviceKey !== '') {
+                    $normalizedAdds[$serviceKey] = $serviceKey;
+                }
+            }
+        }
+        $addServices = array_values($normalizedAdds);
+    }
 
     error_log("[MedEx] Parsed input - addServices: " . json_encode($addServices) . ", removeServices: " . json_encode($removeServices));
 
@@ -206,20 +289,23 @@ try {
         ] : null
     ];
 
-    // Add services with provider details
-    // Supports both old string format ["appointment_reminders"] and
-    // new object format [{serviceId, quantity, providerIds}] from provider picker
+    // Add services with provider/facility details.
+    // Supports both old string format ["service_key"] and
+    // new object format [{serviceId, quantity, providerIds, facilityIds}] from onboarding.
     foreach ($addServices as $item) {
         if (is_array($item)) {
             // New object format from provider picker modal
             $serviceKey  = $item['serviceId'] ?? $item['service'] ?? '';
             $providerIds = $item['providerIds'] ?? [];
+            $facilityIds = $item['facilityIds'] ?? [];
             $quantity    = $item['quantity'] ?? max(count($providerIds), 1);
         } else {
             // Legacy string format
             $serviceKey  = $item;
             $providerIds = isset($providerSelections[$serviceKey]) && is_array($providerSelections[$serviceKey])
                             ? $providerSelections[$serviceKey] : [];
+            $facilityIds = isset($facilitySelections[$serviceKey]) && is_array($facilitySelections[$serviceKey])
+                            ? $facilitySelections[$serviceKey] : [];
             $quantity    = count($providerIds) ?: 1;
         }
 
@@ -230,7 +316,9 @@ try {
         $serviceData = [
             'service'        => $serviceKey,
             'providers'      => $providerIds,
+            'facilities'     => $facilityIds,
             'provider_count' => $quantity,
+            'facility_count' => count($facilityIds),
             'quantity'       => $quantity,
         ];
 
@@ -262,7 +350,7 @@ try {
             // Don't fail the subscription - just log the warning
         }
 
-// Update local medex_prefs.status with new enabled_services.
+        // Update local medex_prefs.status with new enabled_services.
         // IMPORTANT: merge into existing status JSON so pricing_cache and other fields are preserved.
         if (!empty($response['subscriptions'])) {
             $enabledServices = array_keys($response['subscriptions']);
@@ -275,8 +363,17 @@ try {
             $currentStatus = [];
             if (!empty($currentStatusRow['status'])) {
                 $currentStatus = json_decode($currentStatusRow['status'], true) ?? [];
+                if (!is_array($currentStatus)) {
+                    $currentStatus = [];
+                }
             }
             $currentStatus['enabled_services'] = $enabledServices;
+            if (empty($currentStatus['practice']) || !is_array($currentStatus['practice'])) {
+                $currentStatus['practice'] = [];
+            }
+            $currentStatus['practice']['enabled_services'] = $enabledServices;
+            $currentStatus['last_services_result'] = $enabledServices;
+            $currentStatus['last_services_check_ts'] = time();
             \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
                 "UPDATE medex_prefs SET status = ? WHERE MedEx_id = ?",
                 [json_encode($currentStatus), $practiceId]

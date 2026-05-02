@@ -15,10 +15,97 @@ use OpenEMR\Core\OEGlobalsBag;
 class PracticeService
 {
     private \OpenEMR\Modules\MedEx\MedExAPI $medexApi;
+    private const EXCLUDED_PROVIDER_USERNAMES = ['admin', 'oe-system', 'phimail-service', 'portal-user'];
+    private const EXCLUDED_PROVIDER_NAMES = ['admin', 'administrator', 'system operation user', 'patient portal user'];
 
     public function __construct(\OpenEMR\Modules\MedEx\MedExAPI $medexApi)
     {
         $this->medexApi = $medexApi;
+    }
+
+    private function resolveCallbackBaseUrl(string $siteAddr): string
+    {
+        if (method_exists(\OpenEMR\Modules\MedEx\MedExConfig::class, 'callbackBaseUrl')) {
+            return \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl($siteAddr);
+        }
+
+        $fallback = trim($siteAddr);
+        if ($fallback === '') {
+            $fallback = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
+        }
+        if ($fallback === '') {
+            $host = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+            $fallback = $host !== '' ? ('https://' . $host) : '';
+        }
+
+        return rtrim($fallback, '/');
+    }
+
+    /**
+     * Persist enabled services returned by MedEx so the next module assembly/menu load
+     * sees the same service truth without waiting for another successful login refresh.
+     *
+     * @param array<string,mixed> $response
+     */
+    private function persistEnabledServicesFromResponse(array $response): void
+    {
+        $enabledServices = [];
+        foreach ([
+            $response['enabled_services'] ?? null,
+            $response['practice']['enabled_services'] ?? null,
+        ] as $candidate) {
+            if (!is_array($candidate)) {
+                continue;
+            }
+            foreach ($candidate as $serviceKey => $serviceValue) {
+                if (is_int($serviceKey)) {
+                    $normalized = trim((string)$serviceValue);
+                    if ($normalized !== '') {
+                        $enabledServices[$normalized] = $normalized;
+                    }
+                    continue;
+                }
+                if ($serviceValue === true || $serviceValue === 1 || $serviceValue === '1') {
+                    $normalized = trim((string)$serviceKey);
+                    if ($normalized !== '') {
+                        $enabledServices[$normalized] = $normalized;
+                    }
+                }
+            }
+            if (!empty($enabledServices)) {
+                break;
+            }
+        }
+
+        if (empty($enabledServices)) {
+            return;
+        }
+
+        $statusRow = QueryUtils::querySingleRow(
+            "SELECT status FROM medex_prefs WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1",
+            []
+        );
+        $status = [];
+        if (!empty($statusRow['status'])) {
+            $decoded = json_decode((string)$statusRow['status'], true);
+            if (is_array($decoded)) {
+                $status = $decoded;
+            }
+        }
+
+        $services = array_values($enabledServices);
+        $status['enabled_services'] = $services;
+        if (empty($status['practice']) || !is_array($status['practice'])) {
+            $status['practice'] = [];
+        }
+        $status['practice']['enabled_services'] = $services;
+        $status['last_services_result'] = $services;
+        $status['last_services_check_ts'] = time();
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE medex_prefs SET status = ? WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1",
+            [json_encode($status)]
+        );
     }
 
     /**
@@ -53,6 +140,7 @@ class PracticeService
             );
 
             if (!empty($response['success'])) {
+                $this->persistEnabledServicesFromResponse((array)$response);
                 // Update last sync time — second arg is required (even if empty)
                 QueryUtils::sqlStatementThrowException("UPDATE medex_prefs SET MedEx_lastupdated = NOW() WHERE ME_username IS NOT NULL", []);
 
@@ -94,7 +182,7 @@ class PracticeService
         if ($siteId === '') {
             $siteId = 'default';
         }
-        $callback_base = \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl((string)$site_addr);
+        $callback_base = $this->resolveCallbackBaseUrl((string)$site_addr);
         $callback_url = $callback_base . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token . '&site=' . rawurlencode($siteId);
         $data['callback_url'] = $callback_url;
 
@@ -102,7 +190,8 @@ class PracticeService
         $data['providers'] = [];
         if (!empty($prefs['ME_providers'])) {
             // Use configured providers
-            $providers = explode('|', $prefs['ME_providers']);
+            $providers = array_filter(array_map('trim', explode('|', (string)$prefs['ME_providers'])));
+            $providerSeen = [];
             foreach ($providers as $provider_id) {
                 if (empty($provider_id)) continue;
 
@@ -113,17 +202,24 @@ class PracticeService
                     [$provider_id]
                 );
                 $provider = $providerRecords[0] ?? null;
-                if ($provider) {
+                if ($provider && $this->shouldIncludeProvider($provider, $providerSeen)) {
                     $data['providers'][] = $provider;
                 }
             }
         } else {
-            // Default to all active providers (authorized=1, calendar=1, active=1)
-            $data['providers'] = QueryUtils::fetchRecords(
+            // Default to all active providers, filtered and deduped by username.
+            $providerCandidates = QueryUtils::fetchRecords(
                 "SELECT id, fname, lname, username, specialty, npi, email, phonecell, suffix, active, facility_id, facility
                  FROM users
-                 WHERE authorized = 1 AND calendar = 1 AND active = 1"
+                 WHERE calendar = 1 AND active = 1
+                 ORDER BY username, id DESC"
             );
+            $providerSeen = [];
+            foreach ($providerCandidates as $provider) {
+                if ($this->shouldIncludeProvider((array)$provider, $providerSeen)) {
+                    $data['providers'][] = $provider;
+                }
+            }
         }
 
         // Get enabled facilities
@@ -174,6 +270,27 @@ class PracticeService
 
         // Sanitize all data to ensure valid UTF-8 encoding
         return $this->sanitizeUtf8($data);
+    }
+
+    private function shouldIncludeProvider(array $provider, array &$providerSeen): bool
+    {
+        $username = strtolower(trim((string)($provider['username'] ?? '')));
+        $fname = trim((string)($provider['fname'] ?? ''));
+        $lname = trim((string)($provider['lname'] ?? ''));
+        $displayName = strtolower(trim((string)(preg_replace('/\s+/', ' ', trim($fname . ' ' . $lname)) ?? trim($fname . ' ' . $lname))));
+        if (
+            $username === ''
+            || in_array($username, self::EXCLUDED_PROVIDER_USERNAMES, true)
+            || $displayName === ''
+            || in_array($displayName, self::EXCLUDED_PROVIDER_NAMES, true)
+        ) {
+            return false;
+        }
+        if (isset($providerSeen[$username])) {
+            return false;
+        }
+        $providerSeen[$username] = true;
+        return true;
     }
 
     /**
