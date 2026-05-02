@@ -41,6 +41,28 @@ class EligibilityTransfer extends BaseService
 
     public static function sendWaitingEligibility(): void
     {
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+        $testMode = $bootstrap->getGlobalConfig()->isTestModeEnabled();
+
+        if ($testMode) {
+            // Resolve all queued requests via the mock; the cron service
+            // still drains the queue but never hits the live API.
+            /** @var array<int, array{id: int|string, request_json?: string, pid?: int|string, payer_responsibility?: string}> */
+            $waitingEligibility = EligibilityData::getEligibilityCheckByStatus(self::STATUS_WAITING);
+            foreach ($waitingEligibility as $row) {
+                $eid = $row['id'];
+                $rowPid = TypeCoerce::asInt($row['pid'] ?? 0);
+                $rowPr = TypeCoerce::asString($row['payer_responsibility'] ?? 'P');
+                if ($rowPid === 0) {
+                    self::saveEligibility(null, $eid);
+                    continue;
+                }
+                $result = EligibilityMockService::buildResponse($rowPid, $rowPr);
+                self::saveEligibility($result, $eid);
+            }
+            return;
+        }
+
         try {
             $api = ClaimRevApi::makeFromGlobals();
         } catch (ClaimRevAuthenticationException) {
@@ -128,10 +150,19 @@ class EligibilityTransfer extends BaseService
         int|string|null $facilityId = null,
         int|string|null $providerId = null,
     ): array {
-        try {
-            $api = ClaimRevApi::makeFromGlobals();
-        } catch (ClaimRevException) {
-            return ['success' => false, 'message' => 'Failed to connect to ClaimRev API'];
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+        $testMode = $bootstrap->getGlobalConfig()->isTestModeEnabled();
+
+        // In test mode skip the live API entirely; the mock builds a
+        // SharpRevenue-shaped response so the rest of the flow (saveEligibility,
+        // mappedData rendering, AI chat) works without a real payer.
+        $api = null;
+        if (!$testMode) {
+            try {
+                $api = ClaimRevApi::makeFromGlobals();
+            } catch (ClaimRevException) {
+                return ['success' => false, 'message' => 'Failed to connect to ClaimRev API'];
+            }
         }
 
         $pidInt = (int) $pid;
@@ -180,20 +211,24 @@ class EligibilityTransfer extends BaseService
             $eid = TypeCoerce::asString($eid);
         }
 
-        // Send immediately via the API
+        // Send immediately via the API (or build a mock response in test mode)
         $req = $requestObjects[0];
-        try {
-            $result = $api->uploadEligibility($req);
-        } catch (ClaimRevApiException) {
-            self::saveEligibility(null, $eid);
-            return ['success' => false, 'message' => 'API call failed', 'eid' => $eid];
-        }
+        if ($testMode) {
+            $result = EligibilityMockService::buildResponse($pidInt, $payerResponsibility, $productsToRun);
+        } else {
+            try {
+                $result = $api->uploadEligibility($req);
+            } catch (ClaimRevApiException) {
+                self::saveEligibility(null, $eid);
+                return ['success' => false, 'message' => 'API call failed', 'eid' => $eid];
+            }
 
-        // If retryLater, poll for results (like the portal does for coverage discovery)
-        if ($result['retryLater'] ?? false) {
-            $claimRevResultId = TypeCoerce::asString($result['claimRevResultId'] ?? '');
-            if ($claimRevResultId !== '') {
-                $result = self::pollForResults($api, $claimRevResultId, $result);
+            // If retryLater, poll for results (like the portal does for coverage discovery)
+            if ($result['retryLater'] ?? false) {
+                $claimRevResultId = TypeCoerce::asString($result['claimRevResultId'] ?? '');
+                if ($claimRevResultId !== '') {
+                    $result = self::pollForResults($api, $claimRevResultId, $result);
+                }
             }
         }
 
