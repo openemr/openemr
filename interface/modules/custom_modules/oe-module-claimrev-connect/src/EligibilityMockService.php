@@ -41,6 +41,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class EligibilityMockService
 {
     /**
@@ -537,7 +539,7 @@ class EligibilityMockService
     private static function lookupInsuranceCompany(int $pid, string $payerResponsibility): array
     {
         $pr = ValueMapping::mapPayerResponsibility($payerResponsibility);
-        $row = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+        $row = QueryUtils::querySingleRow(
             "SELECT i.policy_number, i.group_number,
                     c.name AS payer_name,
                     COALESCE(c.eligibility_id, c.cms_id) AS payer_number

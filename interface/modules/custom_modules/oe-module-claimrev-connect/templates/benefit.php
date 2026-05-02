@@ -24,7 +24,7 @@ $benefitPatResponse = ["B","C","G","J","Y"];
 // purely local; the upstream 271 still carries everything.
 $benefitFilterRaw = OEGlobalsBag::getInstance()->getString(GlobalConfig::CONFIG_BENEFIT_CODE_FILTER);
 $benefitFilter = $benefitFilterRaw !== ''
-    ? array_map('trim', array_filter(explode(',', $benefitFilterRaw), static fn(string $s): bool => trim($s) !== ''))
+    ? array_values(array_filter(array_map(trim(...), explode(',', $benefitFilterRaw)), static fn(string $s): bool => $s !== ''))
     : [];
 
 foreach ($benefits as $benefit) {

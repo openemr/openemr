@@ -153,18 +153,6 @@ class EligibilityTransfer extends BaseService
         $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $testMode = $bootstrap->getGlobalConfig()->isTestModeEnabled();
 
-        // In test mode skip the live API entirely; the mock builds a
-        // SharpRevenue-shaped response so the rest of the flow (saveEligibility,
-        // mappedData rendering, AI chat) works without a real payer.
-        $api = null;
-        if (!$testMode) {
-            try {
-                $api = ClaimRevApi::makeFromGlobals();
-            } catch (ClaimRevException) {
-                return ['success' => false, 'message' => 'Failed to connect to ClaimRev API'];
-            }
-        }
-
         $pidInt = (int) $pid;
         $formattedPr = ValueMapping::mapPayerResponsibility($payerResponsibility);
 
@@ -216,6 +204,12 @@ class EligibilityTransfer extends BaseService
         if ($testMode) {
             $result = EligibilityMockService::buildResponse($pidInt, $payerResponsibility, $productsToRun);
         } else {
+            try {
+                $api = ClaimRevApi::makeFromGlobals();
+            } catch (ClaimRevException) {
+                self::saveEligibility(null, $eid);
+                return ['success' => false, 'message' => 'Failed to connect to ClaimRev API', 'eid' => $eid];
+            }
             try {
                 $result = $api->uploadEligibility($req);
             } catch (ClaimRevApiException) {
