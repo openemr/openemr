@@ -116,6 +116,9 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
+    /**
+     * @return array<string>
+     */
     public static function aclGetGroupTitleList($include_superusers = true)
     {
         $gacl = self::collectGaclApiObject();
@@ -138,6 +141,9 @@ class AclExtended
     // Returns 0 if does not belong to any group yet.
     //   $user_name = Username, which is login name.
     //
+    /**
+     * @return array<string>|null
+     */
     public static function aclGetGroupTitles($user_name)
     {
         $gacl = self::collectGaclApiObject();
