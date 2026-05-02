@@ -102,17 +102,15 @@ if (!$api->hasServiceEntitlement('calendar_full')) {
 }
 
 // Authenticate with MedEx API (validates IP, etc)
-// On network failure: redirect to native OpenEMR calendar rather than showing a crippled view.
+// On network failure with a stale cached token: continue loading so Full Calendar
+// can still run against local OpenEMR data and cached entitlements.
 $_medexAuthError = null;
+$_medexUsingStaleAuth = false;
 try {
     $loginResult = $api->login();
     if (!empty($loginResult['stale_fallback'])) {
-        // DNS/network is down — only a stale cached token is available.
-        // Redirect to native OpenEMR calendar so users can still work.
-        error_log('[MedEx Calendar] Network down (stale token fallback), redirecting to native calendar');
-        $_SESSION['medex_calendar_skip'] = true;
-        header('Location: ' . $nativeCalendarFallbackUrl);
-        exit;
+        error_log('[MedEx Calendar] Network down (stale token fallback), continuing with cached MedEx session');
+        $_medexUsingStaleAuth = true;
     }
 } catch (\Exception $e) {
     // Also redirect on hard failure (e.g. no cached token at all).
