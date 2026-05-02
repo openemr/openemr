@@ -181,7 +181,7 @@ $active = $_GET['active'] ?? '';
                             <?php
                             if ($offset > ($N - 1) && $n != 0) {
                                 echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
+                                    "&offset=" . attr_url((string) ($offset - $N)) . "' onclick='top.restoreSession()'>[" .
                                     xlt('Previous') . "]</a>\n";
                             }
                             ?>
@@ -190,7 +190,7 @@ $active = $_GET['active'] ?? '';
 
                             if ($n >= $N && $noOfRecordsLeft != $N) {
                                 echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url($offset + $N)  . "&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
+                                    "&offset=" . attr_url((string) ($offset + $N))  . "&leftrecords=" . attr_url((string) $noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
                                     xlt('Next') . "]</a>\n";
                             }
                             ?>
