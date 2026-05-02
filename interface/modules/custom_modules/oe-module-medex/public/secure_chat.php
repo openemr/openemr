@@ -89,6 +89,8 @@ if (!$medex->hasServiceEntitlement('secure_chat')) {
 require_once __DIR__ . '/../src/MedExConfig.php';
 $medexApiUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl();
 $medexApiUrl = rtrim($medexApiUrl, '/');
+$medexConfig = $medex->getConfig();
+$practiceId = (string)($medexConfig['practice_id'] ?? '');
 $medexPrefs = sqlQuery("SELECT * FROM medex_prefs LIMIT 1");
 $apiKey = $medexPrefs['MedEx_apikey'] ?? '';
 
@@ -263,10 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $sendJson(['success' => false, 'error' => 'Failed to create chat tokens'], 500);
             }
             
-            // Build secure chat URLs using the canonical rewrite path.
-            // This works on public deployments where index.php route links may 404.
-            $chatUrl = $medexApiUrl . '/chat/secure/' . rawurlencode($chatToken);
-            $providerChatUrl = $medexApiUrl . '/chat/secure/' . rawurlencode($providerToken);
+            // Use the route-based public URL. The current rewrite path on api.hipaabank.net
+            // falls through to the storefront for Secure Chat tokens.
+            $chatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($chatToken);
+            $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($providerToken);
             
             // First, register the tokens on MedEx SaaS side
             try {
@@ -312,14 +314,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'token' => $chatToken, 
                 'provider_token' => $providerToken, 
                 'token_registered' => $tokenRegistered, 
+                'provider_token_registered' => $providerTokenRegistered,
+                'expires_at' => $expiresAt,
+                'practice_id' => $practiceId,
+                'medex_api_base' => $medexApiUrl,
                 'user_initials' => $userInitials,
-                'provider_name' => $providerName
+                'provider_name' => $providerName,
+                'provider_info' => $providerInfo
             ];
             
             if ($method === 'sms' && !empty($patient['phone_cell'])) {
                 // Send SMS via MedEx API
                 $smsResult = $medex->sendSecureChatLink($pid, $patient['phone_cell'], $chatUrl, 'sms', $chatToken, $userInitials);
                 $result['sms_sent'] = $smsResult;
+                if (!$smsResult) {
+                    $result['delivery_error'] = $medex->getLastError() ?: 'Unable to send SMS right now.';
+                }
                 if ($smsResult) {
                     // Log the activity with user information
                     sqlStatement("INSERT INTO medex_secure_chat_log (pid, action, method, created_by, user_initials, details) 
@@ -330,6 +340,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // Send email via MedEx API
                 $emailResult = $medex->sendSecureChatLink($pid, $patient['email'], $chatUrl, 'email', $chatToken, $userInitials);
                 $result['email_sent'] = $emailResult;
+                if (!$emailResult) {
+                    $result['delivery_error'] = $medex->getLastError() ?: 'Unable to send email right now.';
+                }
                 if ($emailResult) {
                     // Log the activity with user information
                     sqlStatement("INSERT INTO medex_secure_chat_log (pid, action, method, created_by, user_initials, details) 
@@ -693,6 +706,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     <script>
     var csrfToken = <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    var practiceName = <?php echo json_encode($GLOBALS['openemr_name'] ?? 'Your Healthcare Provider'); ?>;
+    var openEmrWebroot = <?php echo json_encode($GLOBALS['webroot'] ?? ''); ?>;
     var selectedPatient = null;
     var currentHistoryPage = 1;
     var totalHistoryPages = 1;
@@ -853,12 +868,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             body: formData
         })
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
             var resultDiv = document.getElementById('linkResult');
             var contentDiv = document.getElementById('linkResultContent');
             var statusDiv = document.getElementById('sendStatusMessage');
             
             if (data.success) {
+                if (!data.token_registered || !data.provider_token_registered || ((method === 'sms' || method === 'email') && !data[method + '_sent'])) {
+                    statusDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> ' +
+                        <?php echo json_encode(xl('Retrying MedEx delivery from the browser...')); ?> + '</div>';
+                    try {
+                        var fallbackResult = await retrySecureChatDeliveryFromBrowser(data, method);
+                        if (fallbackResult.patientRegistered) {
+                            data.token_registered = true;
+                        }
+                        if (fallbackResult.providerRegistered) {
+                            data.provider_token_registered = true;
+                        }
+                        if (method === 'sms' && fallbackResult.sent) {
+                            data.sms_sent = true;
+                        }
+                        if (method === 'email' && fallbackResult.sent) {
+                            data.email_sent = true;
+                        }
+                        if (fallbackResult.error) {
+                            data.delivery_error = fallbackResult.error;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Browser fallback error:', fallbackError);
+                        data.delivery_error = fallbackError && fallbackError.message ? fallbackError.message : <?php echo json_encode(xl('Unable to send the secure chat link right now.')); ?>;
+                    }
+                }
+
                 resultDiv.classList.remove('error');
                 
                 var statusMsg = '';
@@ -868,6 +909,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 } else if (method === 'email' && data.email_sent) {
                     statusMsg = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + 
                                 <?php echo json_encode(xl('Email sent successfully!')); ?> + '</div>';
+                } else if (data.delivery_error) {
+                    statusMsg = '<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> ' +
+                                escapeHtml(data.delivery_error) + '</div>';
                 } else if (method === 'copy' || (!data.sms_sent && !data.email_sent)) {
                     statusMsg = '<div class="alert alert-info"><i class="fa fa-info-circle"></i> ' + 
                                 <?php echo json_encode(xl('Link generated. Copy the link below.')); ?> + '</div>';
@@ -915,6 +959,142 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             document.getElementById('sendStatusMessage').innerHTML = '<div class="alert alert-danger"><i class="fa fa-times-circle"></i> ' + 
                 <?php echo json_encode(xl('Network error. Please try again.')); ?> + '</div>';
         });
+    }
+
+    function buildOpenEmrBaseUrl() {
+        return window.location.origin + openEmrWebroot;
+    }
+
+    function buildMedExApiBase(data) {
+        if (data && data.medex_api_base) {
+            return data.medex_api_base.replace(/\/$/, '');
+        }
+        if (data && data.url) {
+            try {
+                var url = new URL(data.url);
+                return (url.origin + url.pathname.replace(/\/index\.php$/, '')).replace(/\/$/, '');
+            } catch (e) {
+            }
+        }
+        return '';
+    }
+
+    function postMedExForm(url, params) {
+        var body = new URLSearchParams();
+        Object.keys(params).forEach(function(key) {
+            if (params[key] !== null && typeof params[key] !== 'undefined') {
+                body.append(key, params[key]);
+            }
+        });
+        return fetch(url, {
+            method: 'POST',
+            body: body
+        }).then(function(response) {
+            return response.json();
+        });
+    }
+
+    async function retrySecureChatDeliveryFromBrowser(data, method) {
+        var apiBase = buildMedExApiBase(data);
+        if (!apiBase || !data.practice_id) {
+            return {
+                sent: false,
+                patientRegistered: !!data.token_registered,
+                providerRegistered: !!data.provider_token_registered,
+                error: <?php echo json_encode(xl('Missing MedEx API routing details for Secure Chat.')); ?>
+            };
+        }
+
+        var providerInfo = data.provider_info || {};
+        var patientRegistered = !!data.token_registered;
+        var providerRegistered = !!data.provider_token_registered;
+
+        if (!patientRegistered) {
+            var registerPatient = await postMedExForm(apiBase + '/index.php?route=api/secure_chat/send_link', {
+                practice_id: data.practice_id,
+                pid: selectedPatient.pid,
+                token: data.token,
+                expires_at: data.expires_at,
+                is_provider: 0,
+                user_type: 'patient',
+                openemr_url: buildOpenEmrBaseUrl(),
+                provider_fname: providerInfo.fname || '',
+                provider_lname: providerInfo.lname || '',
+                provider_initials: providerInfo.initials || '',
+                provider_npi: providerInfo.npi || '',
+                provider_id: providerInfo.id || ''
+            });
+            if (!registerPatient.success) {
+                return {
+                    sent: false,
+                    patientRegistered: false,
+                    providerRegistered: providerRegistered,
+                    error: registerPatient.error || <?php echo json_encode(xl('Unable to register the patient secure chat link.')); ?>
+                };
+            }
+            patientRegistered = true;
+        }
+
+        if (!providerRegistered) {
+            var registerProvider = await postMedExForm(apiBase + '/index.php?route=api/secure_chat/send_link', {
+                practice_id: data.practice_id,
+                pid: selectedPatient.pid,
+                token: data.provider_token,
+                expires_at: data.expires_at,
+                is_provider: 1,
+                user_type: 'provider',
+                openemr_url: buildOpenEmrBaseUrl(),
+                provider_fname: providerInfo.fname || '',
+                provider_lname: providerInfo.lname || '',
+                provider_initials: providerInfo.initials || '',
+                provider_npi: providerInfo.npi || '',
+                provider_id: providerInfo.id || ''
+            });
+            if (!registerProvider.success) {
+                return {
+                    sent: false,
+                    patientRegistered: patientRegistered,
+                    providerRegistered: false,
+                    error: registerProvider.error || <?php echo json_encode(xl('Unable to register the provider secure chat link.')); ?>
+                };
+            }
+            providerRegistered = true;
+        }
+
+        if (method === 'copy') {
+            return {
+                sent: false,
+                patientRegistered: patientRegistered,
+                providerRegistered: providerRegistered,
+                error: ''
+            };
+        }
+
+        var destination = method === 'sms' ? (selectedPatient.phone || '') : (selectedPatient.email || '');
+        var greetingName = selectedPatient.fname || <?php echo json_encode(xl('there')); ?>;
+        var subject = 'Secure Message from ' + practiceName;
+        var message = method === 'sms'
+            ? ('Hello ' + greetingName + ', ' + practiceName + ' has sent you a secure message. Click here to view: ' + data.url)
+            : ('Hello ' + greetingName + ",\n\n" + practiceName + ' has sent you a secure message.\n\nView Message: ' + data.url + "\n\nThis link expires in 72 hours.");
+
+        var sendResult = await postMedExForm(apiBase + '/index.php?route=api/send_secure_chat_link', {
+            practice_id: data.practice_id,
+            pid: selectedPatient.pid,
+            destination: destination,
+            method: method,
+            message: message,
+            subject: subject,
+            type: 'secure_chat_link',
+            token: data.token,
+            user_initials: data.user_initials || ''
+        });
+
+        return {
+            sent: !!sendResult.success,
+            patientRegistered: patientRegistered,
+            providerRegistered: providerRegistered,
+            error: sendResult.success ? '' : (sendResult.error || <?php echo json_encode(xl('Unable to send the secure chat link right now.')); ?>)
+        };
     }
     
     function copyToClipboard() {

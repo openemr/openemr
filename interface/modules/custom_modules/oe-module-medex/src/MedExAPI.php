@@ -2166,6 +2166,7 @@ class MedExAPI
      */
     public function sendSecureChatLink(int $pid, string $destination, string $chatUrl, string $method = 'sms', string $token = '', string $userInitials = ''): bool
     {
+        $this->lastError = null;
         try {
             // Get patient data
             $patient = sqlQuery("SELECT fname, lname FROM patient_data WHERE pid = ?", [$pid]);
@@ -2183,6 +2184,7 @@ class MedExAPI
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured");
+                $this->lastError = 'Practice ID not configured';
                 return false;
             }
 
@@ -2218,10 +2220,12 @@ class MedExAPI
             }
 
             $errorMsg = $response['error'] ?? 'Unknown error sending secure chat link';
+            $this->lastError = $errorMsg;
             error_log("[MedEx Secure Chat] Failed to send: {$errorMsg}");
             return false;
 
         } catch (\Exception $e) {
+            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception: " . $e->getMessage());
             return false;
         }
@@ -2241,8 +2245,9 @@ class MedExAPI
      * @param string $userType 'patient', 'provider', or 'both'
      * @return bool Success status
      */
-    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient'): bool
+    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): bool
     {
+        $this->lastError = null;
         try {
             // Get practice info
             $config = $this->getConfig();
@@ -2250,6 +2255,7 @@ class MedExAPI
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured, cannot register token");
+                $this->lastError = 'Practice ID not configured';
                 return false;
             }
 
@@ -2303,10 +2309,12 @@ class MedExAPI
             }
 
             $errorMsg = $response['error'] ?? 'Unknown error registering token';
+            $this->lastError = $errorMsg;
             error_log("[MedEx Secure Chat] Failed to register token: {$errorMsg}");
             return false;
 
         } catch (\Exception $e) {
+            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception registering token: " . $e->getMessage());
             return false;
         }
@@ -2322,12 +2330,14 @@ class MedExAPI
      */
     public function getSecureChatHistory(int $pid, int $limit = 25, int $offset = 0): array
     {
+        $this->lastError = null;
         try {
             $config = $this->getConfig();
             $practiceId = $config['practice_id'] ?? null;
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured");
+                $this->lastError = 'Practice ID not configured';
                 return [];
             }
 
@@ -2345,10 +2355,12 @@ class MedExAPI
                 return $response['history'] ?? [];
             }
 
-            error_log("[MedEx Secure Chat] Failed to fetch history: " . ($response['error'] ?? 'Unknown error'));
+            $this->lastError = $response['error'] ?? 'Unknown error fetching secure chat history';
+            error_log("[MedEx Secure Chat] Failed to fetch history: " . $this->lastError);
             return [];
 
         } catch (\Exception $e) {
+            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception fetching history: " . $e->getMessage());
             return [];
         }
