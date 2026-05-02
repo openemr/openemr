@@ -265,10 +265,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $sendJson(['success' => false, 'error' => 'Failed to create chat tokens'], 500);
             }
             
-            // Use the route-based public URL. The current rewrite path on api.hipaabank.net
-            // falls through to the storefront for Secure Chat tokens.
+            // Canonical fallback URL if MedEx short link registration is unavailable.
             $chatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($chatToken);
             $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($providerToken);
+            $shareUrl = $chatUrl;
+            $providerShareUrl = $providerChatUrl;
             
             // First, register the tokens on MedEx SaaS side
             try {
@@ -285,8 +286,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     'id' => $_SESSION['authUserID'] ?? 0
                 ];
                 
-                $tokenRegistered = $medex->registerSecureChatToken($pid, $chatToken, $expiresAt, false, 'patient', $providerInfo);
-                $providerTokenRegistered = $medex->registerSecureChatToken($pid, $providerToken, $expiresAt, true, 'provider', $providerInfo);
+                $patientRegistration = $medex->registerSecureChatTokenDetailed($pid, $chatToken, $expiresAt, false, 'patient', $providerInfo);
+                $providerRegistration = $medex->registerSecureChatTokenDetailed($pid, $providerToken, $expiresAt, true, 'provider', $providerInfo);
+                $tokenRegistered = !empty($patientRegistration['success']);
+                $providerTokenRegistered = !empty($providerRegistration['success']);
+                if (!empty($patientRegistration['short_url'])) {
+                    $shareUrl = html_entity_decode((string)$patientRegistration['short_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                } elseif (!empty($patientRegistration['chat_url'])) {
+                    $shareUrl = html_entity_decode((string)$patientRegistration['chat_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                }
+                if (!empty($providerRegistration['short_url'])) {
+                    $providerShareUrl = html_entity_decode((string)$providerRegistration['short_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                } elseif (!empty($providerRegistration['chat_url'])) {
+                    $providerShareUrl = html_entity_decode((string)$providerRegistration['chat_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                }
                 if (!$tokenRegistered) {
                     error_log("[MedEx Secure Chat] Warning: Failed to register patient token on MedEx side, but continuing with send");
                 }
@@ -309,8 +322,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             $result = [
                 'success' => true, 
-                'url' => $chatUrl, 
-                'provider_url' => $providerChatUrl, 
+                'url' => $shareUrl,
+                'canonical_url' => $chatUrl,
+                'provider_url' => $providerShareUrl,
+                'provider_canonical_url' => $providerChatUrl,
                 'token' => $chatToken, 
                 'provider_token' => $providerToken, 
                 'token_registered' => $tokenRegistered, 
@@ -325,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             if ($method === 'sms' && !empty($patient['phone_cell'])) {
                 // Send SMS via MedEx API
-                $smsResult = $medex->sendSecureChatLink($pid, $patient['phone_cell'], $chatUrl, 'sms', $chatToken, $userInitials);
+                $smsResult = $medex->sendSecureChatLink($pid, $patient['phone_cell'], $shareUrl, 'sms', $chatToken, $userInitials);
                 $result['sms_sent'] = $smsResult;
                 if (!$smsResult) {
                     $result['delivery_error'] = $medex->getLastError() ?: 'Unable to send SMS right now.';
@@ -338,7 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             } elseif ($method === 'email' && !empty($patient['email'])) {
                 // Send email via MedEx API
-                $emailResult = $medex->sendSecureChatLink($pid, $patient['email'], $chatUrl, 'email', $chatToken, $userInitials);
+                $emailResult = $medex->sendSecureChatLink($pid, $patient['email'], $shareUrl, 'email', $chatToken, $userInitials);
                 $result['email_sent'] = $emailResult;
                 if (!$emailResult) {
                     $result['delivery_error'] = $medex->getLastError() ?: 'Unable to send email right now.';
@@ -353,7 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // Just return URL for copying - log it
                 sqlStatement("INSERT INTO medex_secure_chat_log (pid, action, method, created_by, user_initials, details) 
                               VALUES (?, 'link_copied', 'manual', ?, ?, ?)",
-                    [$pid, $_SESSION['authUserID'] ?? 0, $userInitials, json_encode(['url' => $chatUrl])]);
+                    [$pid, $_SESSION['authUserID'] ?? 0, $userInitials, json_encode(['url' => $shareUrl])]);
             }
             
             $sendJson($result);

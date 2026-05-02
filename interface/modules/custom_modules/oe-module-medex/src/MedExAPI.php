@@ -2168,6 +2168,8 @@ class MedExAPI
     {
         $this->lastError = null;
         try {
+            $chatUrl = html_entity_decode(trim($chatUrl), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
             // Get patient data
             $patient = sqlQuery("SELECT fname, lname FROM patient_data WHERE pid = ?", [$pid]);
             if (!$patient) {
@@ -2245,7 +2247,7 @@ class MedExAPI
      * @param string $userType 'patient', 'provider', or 'both'
      * @return bool Success status
      */
-    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): bool
+    public function registerSecureChatTokenDetailed(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): array
     {
         $this->lastError = null;
         try {
@@ -2256,7 +2258,7 @@ class MedExAPI
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured, cannot register token");
                 $this->lastError = 'Practice ID not configured';
-                return false;
+                return ['success' => false, 'error' => $this->lastError];
             }
 
             if (empty($expiresAt)) {
@@ -2305,19 +2307,32 @@ class MedExAPI
 
             if ($response && isset($response['success']) && $response['success']) {
                 error_log("[MedEx Secure Chat] Token registered successfully on MedEx SaaS for {$userType} with portal sync");
-                return true;
+                return [
+                    'success' => true,
+                    'chat_url' => $response['chat_url'] ?? '',
+                    'short_url' => $response['short_url'] ?? '',
+                    'x0_url' => $response['x0_url'] ?? '',
+                    'short_code' => $response['short_code'] ?? '',
+                    'expires_at' => $response['expires_at'] ?? $expiresAt,
+                ];
             }
 
             $errorMsg = $response['error'] ?? 'Unknown error registering token';
             $this->lastError = $errorMsg;
             error_log("[MedEx Secure Chat] Failed to register token: {$errorMsg}");
-            return false;
+            return ['success' => false, 'error' => $errorMsg];
 
         } catch (\Exception $e) {
             $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception registering token: " . $e->getMessage());
-            return false;
+            return ['success' => false, 'error' => $this->lastError];
         }
+    }
+
+    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): bool
+    {
+        $result = $this->registerSecureChatTokenDetailed($pid, $token, $expiresAt, $isProvider, $userType, $providerInfo);
+        return !empty($result['success']);
     }
 
     /**
