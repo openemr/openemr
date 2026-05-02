@@ -555,6 +555,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             border-radius: 12px;
             padding: 12px 16px;
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .session-patient-banner-copy {
+            flex: 1 1 320px;
+            min-width: 0;
+        }
+        .session-patient-banner .btn {
+            border-radius: 999px;
+            white-space: nowrap;
         }
         /* Chat Bubble Styles */
         .chat-container {
@@ -613,10 +626,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         <?php if (!empty($initialPatient)) { ?>
         <div class="session-patient-banner">
-            <strong><?php echo xlt('Current patient in session:'); ?></strong>
-            <?php echo text(trim(($initialPatient['fname'] ?? '') . ' ' . ($initialPatient['lname'] ?? ''))); ?>
-            (PID: <?php echo attr((string)($initialPatient['pid'] ?? '')); ?>).
-            <?php echo xlt('You can still search and switch to a different patient below.'); ?>
+            <div class="session-patient-banner-copy">
+                <strong><?php echo xlt('Current patient in session:'); ?></strong>
+                <?php echo text(trim(($initialPatient['fname'] ?? '') . ' ' . ($initialPatient['lname'] ?? ''))); ?>
+                (PID: <?php echo attr((string)($initialPatient['pid'] ?? '')); ?>).
+                <?php echo xlt('You can still search and switch to a different patient below.'); ?>
+            </div>
+            <button
+                type="button"
+                class="btn btn-outline-primary"
+                onclick='rejoinCurrentPatient(<?php echo json_encode($initialPatient, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'
+            >
+                <i class="fa fa-rotate-left"></i> <?php echo xlt('Rejoin'); ?>
+            </button>
         </div>
         <?php } ?>
         
@@ -779,6 +801,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         displayPatientResults([initialPatient]);
         selectPatient(initialPatient);
     }
+
+    function rejoinCurrentPatient(patient) {
+        if (!patient || !patient.pid) {
+            return;
+        }
+        displayPatientResults([patient]);
+        selectPatient(patient);
+    }
     
     function displayPatientResults(patients) {
         var resultsDiv = document.getElementById('searchResults');
@@ -816,7 +846,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         document.querySelectorAll('.patient-card').forEach(function(card) {
             card.classList.remove('selected');
         });
-        document.querySelector('.patient-card[data-pid="' + patient.pid + '"]').classList.add('selected');
+        var selectedCard = document.querySelector('.patient-card[data-pid="' + patient.pid + '"]');
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
+        }
         
         // Show patient details
         document.getElementById('selectedPatientName').textContent = patient.fname + ' ' + patient.lname;
