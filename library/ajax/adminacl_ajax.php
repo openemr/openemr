@@ -309,14 +309,12 @@ function user_group_listings_xml(string $username, array $err): string
     "<response>\n" .
     "\t<inactive>\n";
     foreach ($list_acl_groups as $value) {
-        $groupValue = is_string($value) ? $value : '';
-        if ((!$username_acl_groups) || (!(in_array($groupValue, $username_acl_groups)))) {
-            $groupLabel = xl_gacl_group($groupValue);
+        if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . xmlEscape($groupValue) . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape(is_string($groupLabel) ? $groupLabel : '') . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -326,13 +324,11 @@ function user_group_listings_xml(string $username, array $err): string
     "\t<active>\n";
     if ($username_acl_groups) {
         foreach ($username_acl_groups as $value) {
-            $groupValue = is_string($value) ? $value : '';
-            $groupLabel = xl_gacl_group($groupValue);
             $message .= "\t\t<group>\n";
-            $message .= "\t\t\t<value>" . xmlEscape($groupValue) . "</value>\n";
+            $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape(is_string($groupLabel) ? $groupLabel : '') . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
