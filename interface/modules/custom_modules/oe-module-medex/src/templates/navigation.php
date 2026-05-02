@@ -58,7 +58,8 @@ if (empty($enabledServices)) {
         }
     }
 }
-$hasSecureChat = !empty($enabledServices['secure_chat']);
+$hasSecureChat = !empty($enabledServices['secure_chat'])
+    || is_file(__DIR__ . '/../../public/secure_chat.php');
 
 if (class_exists('OpenEMR\Core\OEGlobalsBag')) {
     $globalsBag = OEGlobalsBag::getInstance();
