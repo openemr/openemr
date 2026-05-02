@@ -38,7 +38,7 @@ class PractitionerValidator extends BaseValidator
                 );
                 $context->optional("email", "Email")->email();
                 $context->optional("username", "Username")->callback(
-                    fn($value): bool => preg_match('/[&<>"\'\x00-\x1F]/', (string) $value) === 0
+                    fn($value): bool => preg_match('/[&<>"\'\x00-\x1F]/', is_string($value) ? $value : '') === 0
                 );
             }
         );
