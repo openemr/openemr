@@ -86,16 +86,18 @@ $fullCalendarDefaultView = $viewMapping[$calendarDefaultView] ?? 'timeGridWeek';
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
+$nativeCalendarFallbackUrl = ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php?medex_prefer=openemr';
+
 // Check if configured
 if (!$api->isConfigured()) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+    header('Location: ' . $nativeCalendarFallbackUrl);
     exit;
 }
 
 if (!$api->hasServiceEntitlement('calendar_full')) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+    header('Location: ' . $nativeCalendarFallbackUrl);
     exit;
 }
 
@@ -109,14 +111,14 @@ try {
         // Redirect to native OpenEMR calendar so users can still work.
         error_log('[MedEx Calendar] Network down (stale token fallback), redirecting to native calendar');
         $_SESSION['medex_calendar_skip'] = true;
-        header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+        header('Location: ' . $nativeCalendarFallbackUrl);
         exit;
     }
 } catch (\Exception $e) {
     // Also redirect on hard failure (e.g. no cached token at all).
     error_log('[MedEx Calendar] Login failed, redirecting to native calendar: ' . $e->getMessage());
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+    header('Location: ' . $nativeCalendarFallbackUrl);
     exit;
 }
 
