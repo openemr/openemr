@@ -44,155 +44,6 @@ class MedExAPI
     private const PRICING_CACHE_TTL = 604800;
 
     /**
-     * @param mixed $services
-     * @return array<int,string>
-     */
-    private function normalizeEnabledServiceList($services): array
-    {
-        $normalized = [];
-        if (is_array($services)) {
-            foreach ($services as $key => $value) {
-                if (is_int($key)) {
-                    $serviceKey = strtolower(trim((string)$value));
-                    if ($serviceKey !== '') {
-                        $normalized[$serviceKey] = $serviceKey;
-                    }
-                    continue;
-                }
-                if ($value === true || $value === 1 || $value === '1') {
-                    $serviceKey = strtolower(trim((string)$key));
-                    if ($serviceKey !== '') {
-                        $normalized[$serviceKey] = $serviceKey;
-                    }
-                }
-            }
-        }
-        return array_values($normalized);
-    }
-
-    /**
-     * @param array<string,mixed> $payload
-     * @return array<int,string>
-     */
-    private function extractEnabledServicesFromPayload(array $payload): array
-    {
-        $candidates = [
-            $payload['enabled_services'] ?? null,
-            $payload['practice']['enabled_services'] ?? null,
-            $payload['status']['enabled_services'] ?? null,
-            $payload['status']['practice']['enabled_services'] ?? null,
-        ];
-
-        foreach ($candidates as $candidate) {
-            $normalized = $this->normalizeEnabledServiceList($candidate);
-            if (!empty($normalized)) {
-                return $normalized;
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * @param array<string,mixed> $payload
-     * @return array<string,mixed>
-     */
-    private function normalizeStatusPayload(array $payload): array
-    {
-        $enabledServices = $this->extractEnabledServicesFromPayload($payload);
-        if (!empty($enabledServices) || array_key_exists('enabled_services', $payload)) {
-            $payload['enabled_services'] = $enabledServices;
-        }
-
-        if (empty($payload['customer_group_id'])) {
-            $customerGroupId = (int)($payload['practice']['customer_group_id'] ?? $payload['status']['customer_group_id'] ?? 0);
-            if ($customerGroupId > 0) {
-                $payload['customer_group_id'] = $customerGroupId;
-            }
-        }
-
-        return $payload;
-    }
-
-    /**
-     * @param array<string,mixed> $dbCache
-     * @return array<int,string>
-     */
-    private function getCachedEnabledServices(array $dbCache = []): array
-    {
-        if (empty($dbCache)) {
-            $dbCache = $this->readStatusCache();
-        }
-        $normalized = $this->extractEnabledServicesFromPayload($dbCache);
-        if (!empty($normalized)) {
-            return $normalized;
-        }
-        return $this->normalizeEnabledServiceList($dbCache['last_services_result'] ?? []);
-    }
-
-    private function resolveForwardedClientIp(): string
-    {
-        $candidateHeaders = [
-            'HTTP_CF_CONNECTING_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'HTTP_X_CLIENT_IP',
-            'REMOTE_ADDR',
-        ];
-
-        $parsedIps = [];
-        foreach ($candidateHeaders as $header) {
-            $raw = trim((string)($_SERVER[$header] ?? ''));
-            if ($raw === '') {
-                continue;
-            }
-            $parts = ($header === 'HTTP_X_FORWARDED_FOR') ? explode(',', $raw) : [$raw];
-            foreach ($parts as $part) {
-                $ip = trim($part);
-                if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP)) {
-                    $parsedIps[] = $ip;
-                }
-            }
-        }
-
-        foreach ($parsedIps as $ip) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                return $ip;
-            }
-        }
-
-        return $parsedIps[0] ?? '';
-    }
-
-    private function resolveCallbackBaseUrl(string $siteAddr): string
-    {
-        if (method_exists(\OpenEMR\Modules\MedEx\MedExConfig::class, 'callbackBaseUrl')) {
-            return \OpenEMR\Modules\MedEx\MedExConfig::callbackBaseUrl($siteAddr);
-        }
-
-        $fallback = trim($siteAddr);
-        if ($fallback === '') {
-            $fallback = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
-        }
-        if ($fallback === '') {
-            $host = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
-            $fallback = $host !== '' ? ('https://' . $host) : '';
-        }
-
-        $parts = parse_url($fallback);
-        if (is_array($parts) && !empty($parts['host'])) {
-            $host = strtolower((string)$parts['host']);
-            if (!in_array($host, ['localhost', '127.0.0.1'], true)) {
-                $path = isset($parts['path']) ? rtrim((string)$parts['path'], '/') : '';
-                $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
-                $fallback = 'https://' . $host . $port . $path;
-            }
-        }
-
-        return rtrim($fallback, '/');
-    }
-
-    /**
      * Constructor
      * Loads configuration from globals or database
      */
@@ -368,18 +219,14 @@ class MedExAPI
 
         // Check if we have a valid cached session token (unless forcing refresh)
         if (!$forceRefresh && $this->hasValidSessionToken()) {
-            return $this->attachCallbackMetadata(
-                $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken]
-            );
+            return $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken];
         }
 
         // Try to load cached session token from database (unless forcing refresh)
         if (!$forceRefresh) {
             $this->loadCachedSessionToken();
             if ($this->hasValidSessionToken()) {
-                return $this->attachCallbackMetadata(
-                    $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken]
-                );
+                return $this->sessionData ?? ['success' => true, 'token' => $this->sessionToken];
             }
         }
 
@@ -387,14 +234,6 @@ class MedExAPI
         $url = $this->baseUrl . '/index.php?route=api/oemr/login';
 
         try {
-            $callbackToken = $this->getStoredCallbackToken();
-            $callbackBase = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
-            $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
-            if ($callbackSiteId === '') {
-                $callbackSiteId = 'default';
-            }
-            $callbackUrl = $this->buildStoredCallbackUrl($callbackToken);
-
             $http = oeHttp::setOptions([
                 'timeout' => 5,
                 'verify' => false,
@@ -403,11 +242,7 @@ class MedExAPI
 
             $response = $http->asFormParams()->post($url, [
                 'site' => $this->practiceId,
-                'token' => $this->apiKey,
-                'callback_url' => $callbackUrl,
-                'openemr_base_url' => $callbackBase,
-                'site_url' => $callbackBase,
-                'site_id' => $callbackSiteId,
+                'token' => $this->apiKey
             ]);
 
             $httpCode = $response->getStatusCode();
@@ -433,12 +268,12 @@ class MedExAPI
             $this->cacheSessionToken();
 
             // Store enabled services for later use
-            $this->sessionData = $this->attachCallbackMetadata($data);
+            $this->sessionData = $data;
 
             error_log("[MedEx] Login successful - got session token");
             error_log("[MedEx] customer_group_id from API: " . ($data['customer_group_id'] ?? 'NOT SET'));
             error_log("[MedEx] sessionData keys: " . implode(', ', array_keys($data)));
-            return $this->sessionData;
+            return $data;
 
         } catch (\Exception $e) {
             error_log("[MedEx] Login error: " . $e->getMessage());
@@ -466,11 +301,11 @@ class MedExAPI
                         error_log("[MedEx] Network error — using stale cached session token as fallback");
                         $this->sessionToken = $stale['session_token'];
                         $this->sessionExpiry = time() + 300; // 5-min grace period
-                        return $this->attachCallbackMetadata([
+                        return [
                             'success'        => true,
                             'token'          => $this->sessionToken,
                             'stale_fallback' => true,
-                        ]);
+                        ];
                     }
                 } catch (\Exception $dbErr) {
                     // ignore DB error during fallback
@@ -489,62 +324,6 @@ class MedExAPI
         return !empty($this->sessionToken) &&
                $this->sessionExpiry !== null &&
                time() < $this->sessionExpiry;
-    }
-
-    private function getStoredCallbackToken(): string
-    {
-        return trim((string)(QueryUtils::fetchSingleValue(
-            "SELECT gl_value FROM globals WHERE gl_name = ?",
-            'gl_value',
-            ['medex_callback_token']
-        ) ?? ''));
-    }
-
-    private function buildStoredCallbackUrl(string $callbackToken): string
-    {
-        $callbackToken = trim($callbackToken);
-        if ($callbackToken === '') {
-            return '';
-        }
-
-        $callbackBase = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
-        if ($callbackBase === '') {
-            return '';
-        }
-
-        $callbackSiteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default')));
-        if ($callbackSiteId === '') {
-            $callbackSiteId = 'default';
-        }
-
-        return rtrim($callbackBase, '/')
-            . '/interface/modules/custom_modules/oe-module-medex/public/callback.php'
-            . '?token=' . rawurlencode($callbackToken)
-            . '&site=' . rawurlencode($callbackSiteId);
-    }
-
-    private function attachCallbackMetadata(array $data): array
-    {
-        $data = $this->normalizeStatusPayload($data);
-        $callbackToken = trim((string)($data['callback_token'] ?? ''));
-        if ($callbackToken === '') {
-            $callbackToken = $this->getStoredCallbackToken();
-        }
-
-        if ($callbackToken !== '') {
-            $data['callback_token'] = $callbackToken;
-        }
-
-        $callbackUrl = trim((string)($data['callback_url'] ?? ''));
-        if ($callbackUrl === '' && $callbackToken !== '') {
-            $callbackUrl = $this->buildStoredCallbackUrl($callbackToken);
-        }
-
-        if ($callbackUrl !== '') {
-            $data['callback_url'] = $callbackUrl;
-        }
-
-        return $data;
     }
 
     /**
@@ -767,30 +546,17 @@ class MedExAPI
 
             $response = $this->makeRequest('index.php?route=api/oemr/register', $data, 'POST');
 
-            $hasProvisionedCredentials = !empty($response['api_key']) && !empty($response['practice_id']);
-            $isProvisionallyRegistered = !empty($response['pending_review']) && $hasProvisionedCredentials;
-
-            if ((!empty($response['success']) || $isProvisionallyRegistered) && $hasProvisionedCredentials) {
+            if (!empty($response['success']) && !empty($response['api_key']) && !empty($response['practice_id'])) {
                 // Save credentials
                 $this->apiKey = $response['api_key'];
                 $this->practiceId = $response['practice_id'];
 
                 // Save to globals - use REPLACE to ensure values are saved
                 try {
-                    // medex_api_key can exceed globals.gl_value (varchar(255)).
-                    // medex_prefs.ME_api_key is the authoritative storage for the full key.
-                    // Keep globals non-authoritative here so registration does not fail on long keys.
-                    if (strlen((string)$this->apiKey) <= 255) {
-                        QueryUtils::sqlStatementThrowException(
-                            "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_api_key', 0, ?)",
-                            [$this->apiKey]
-                        );
-                    } else {
-                        QueryUtils::sqlStatementThrowException(
-                            "DELETE FROM globals WHERE gl_name = 'medex_api_key'",
-                            []
-                        );
-                    }
+                    QueryUtils::sqlStatementThrowException(
+                        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_api_key', 0, ?)",
+                        [$this->apiKey]
+                    );
                     QueryUtils::sqlStatementThrowException(
                         "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_practice_id', 0, ?)",
                         [$this->practiceId]
@@ -819,11 +585,8 @@ class MedExAPI
 
                 return [
                     'success' => true,
-                    'pending_review' => !empty($response['pending_review']),
                     'practice_id' => $this->practiceId,
-                    'message' => !empty($response['pending_review'])
-                        ? ((string)($response['message'] ?? 'Registration received and awaiting review'))
-                        : 'Registration successful'
+                    'message' => 'Registration successful'
                 ];
             }
 
@@ -861,9 +624,9 @@ class MedExAPI
         // DB-level cache (6h TTL): throttles login/network calls for idle/unsubscribed practices.
         // Even an empty result is cached so practices with no subscriptions don't call login() on every session.
         $dbCache   = $this->readStatusCache();
-        $cachedServices = $this->getCachedEnabledServices($dbCache);
         $dbCheckTs = $dbCache['last_services_check_ts'] ?? 0;
         if (!$forceRefresh && (time() - $dbCheckTs) < self::SERVICES_DB_CACHE_TTL) {
+            $cachedServices = $dbCache['last_services_result'] ?? [];
             // Warm the inner session cache from the DB result
             $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
             return $cachedServices;
@@ -875,17 +638,7 @@ class MedExAPI
             // early on a valid cached token without setting sessionData, leaving enabled_services empty.
             $this->login(true);
         } catch (\Exception $e) {
-            // On connection failure, preserve last known entitlements instead of collapsing the module
-            // to an unsubscribed state. This keeps menus/injection alive while SaaS auth recovers.
-            if (!empty($cachedServices)) {
-                $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
-                $this->updateStatusCache([
-                    'last_services_check_ts' => time(),
-                    'last_services_result'   => $cachedServices,
-                    'enabled_services'       => $cachedServices,
-                ]);
-                return $cachedServices;
-            }
+            // On connection failure, write a timestamp so we don't hammer the server on every request
             $this->updateStatusCache(['last_services_check_ts' => time(), 'last_services_result' => []]);
             return [];
         }
@@ -895,10 +648,7 @@ class MedExAPI
         // (WHERE status='active') on the server — it reflects real subscription orders only.
         // Do NOT fall back to pricing/available flags: pricing tells us what's purchasable,
         // not what the practice has actually subscribed to.
-        $services = $this->normalizeEnabledServiceList($this->sessionData['enabled_services'] ?? []);
-        if (empty($services) && !empty($this->sessionData['stale_fallback']) && !empty($cachedServices)) {
-            $services = $cachedServices;
-        }
+        $services = array_values((array)($this->sessionData['enabled_services'] ?? []));
 
         // Always write DB cache (even empty result) so future calls skip the network for 6h.
         // Also always write enabled_services — the menu function reads this key exclusively and
@@ -919,66 +669,15 @@ class MedExAPI
     }
 
     /**
-     * @return array<int,string>
-     */
-    private function getDemoEntitledServicesFromStatusCache(): array
-    {
-        $status = $this->readStatusCache();
-        $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
-        $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
-        $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
-        if (!in_array($customerGroupId, [3, 7], true)) {
-            return [];
-        }
-
-        $services = [];
-        foreach ((array)($pricingCache['services'] ?? []) as $serviceKey => $serviceMeta) {
-            if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
-                continue;
-            }
-            $normalized = strtolower(str_replace([' ', '-'], '_', trim((string)$serviceKey)));
-            if ($normalized === 'calendar_service' || $normalized === 'calendar_services') {
-                $normalized = 'calendar_ai';
-            } elseif ($normalized === 'fullcalendar') {
-                $normalized = 'calendar_full';
-            }
-            if ($normalized !== '') {
-                $services[] = $normalized;
-            }
-        }
-
-        return array_values(array_unique($services));
-    }
-
-    /**
      * Verify entitlement for one service using authoritative server refresh.
      */
     public function hasServiceEntitlement(string $service): bool
     {
-        $service = strtolower(trim($service));
-        $enabled = $this->getEnabledServices(false);
-        $bundleAliases = [
-            'calendar_export' => ['calendar_export', 'calendar_ai', 'calendar_services'],
-            'calendar_ai' => ['calendar_ai', 'calendar_services'],
-        ];
-        $candidates = $bundleAliases[$service] ?? [$service];
-        foreach ($candidates as $candidate) {
-            if (isset($enabled[$candidate])) {
-                if ($enabled[$candidate] === true || $enabled[$candidate] === 1) {
-                    return true;
-                }
-                continue;
-            }
-            if (in_array($candidate, $enabled, true)) {
-                return true;
-            }
+        $enabled = $this->getEnabledServices(true);
+        if (isset($enabled[$service])) {
+            return $enabled[$service] === true || $enabled[$service] === 1;
         }
-        foreach ($this->getDemoEntitledServicesFromStatusCache() as $demoService) {
-            if (in_array($demoService, $candidates, true)) {
-                return true;
-            }
-        }
-        return false;
+        return in_array($service, $enabled, true);
     }
 
     /**
@@ -988,7 +687,7 @@ class MedExAPI
      */
     public function hasAnyServiceEntitlement(array $services): bool
     {
-        $enabled = $this->getEnabledServices(false);
+        $enabled = $this->getEnabledServices(true);
         foreach ($services as $service) {
             if (isset($enabled[$service]) && ($enabled[$service] === true || $enabled[$service] === 1)) {
                 return true;
@@ -1012,10 +711,6 @@ class MedExAPI
     public function makeRequest(string $endpoint, array $params = [], string $method = 'POST'): array
     {
         $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
-        $usesLegacyApiToken = (
-            strpos($endpoint, 'index.php?route=api/custom/addpractice') !== false ||
-            strpos($endpoint, '/api/update_service_providers.php') !== false
-        );
 
         // Determine if this is a public endpoint (no auth required)
         $isPublicEndpoint = strpos($endpoint, 'register') !== false ||
@@ -1025,15 +720,8 @@ class MedExAPI
                            strpos($endpoint, 'send_secure_chat_link') !== false; // Public: onboarding OTP + external OpenEMR sends
 
         // Add authentication for non-public endpoints
-        // Legacy endpoints still require the MedEx API token in the query string.
-        if ($usesLegacyApiToken) {
-            if (empty($this->apiKey)) {
-                throw new \Exception('Missing MedEx API key for legacy endpoint auth');
-            }
-            $separator = (strpos($url, '?') !== false) ? '&' : '?';
-            $url .= $separator . 'token=' . urlencode($this->apiKey);
-        } elseif (!$isPublicEndpoint) {
-            // Uses session token (secure) obtained from login, not raw API key
+        // Uses session token (secure) obtained from login, not raw API key
+        if (!$isPublicEndpoint) {
             // Login first to get session token
             $sessionToken = $this->getSessionToken();
 
@@ -1062,16 +750,6 @@ class MedExAPI
                 'verify' => false, // Disable SSL verification (match old behavior)
                 'http_errors' => false // Don't throw on 4xx/5xx responses
             ]);
-
-            $forwardedClientIp = $this->resolveForwardedClientIp();
-            if ($forwardedClientIp !== '') {
-                $http = $http->usingHeaders([
-                    'X-Forwarded-For' => $forwardedClientIp,
-                    'X-Real-IP' => $forwardedClientIp,
-                    'CF-Connecting-IP' => $forwardedClientIp,
-                ]);
-                error_log("[MedEx] Forwarding client IP to API: " . $forwardedClientIp);
-            }
 
             // Debug logging - log params being sent
             error_log("[MedEx] Request endpoint: " . $endpoint);
@@ -1343,7 +1021,6 @@ class MedExAPI
             // which PHP sees as an array, breaking validateSessionToken() on the server.
             $response = $this->makeRequest('index.php?route=api/oemr/pricing', [], 'GET');
             if ($response && !empty($response['success']) && isset($response['services'])) {
-                $response = $this->normalizeFreeTierPricing($response, $currentGroup);
                 $this->updateStatusCache([
                     'pricing_cache'       => $response,
                     'pricing_cache_ts'    => time(),
@@ -1357,30 +1034,6 @@ class MedExAPI
 
         // Return empty fallback — do NOT cache so next request retries the API
         return $emptyFallback;
-    }
-
-    /**
-     * MedEx pricing should already be customer-group aware. When SaaS pricing
-     * temporarily falls back to public group 1, keep DEMO/free practices from
-     * seeing billable onboarding prices in the module.
-     */
-    private function normalizeFreeTierPricing(array $response, int $currentGroup): array
-    {
-        $reportedGroup = (int)($response['customer_group_id'] ?? 1);
-        $isFreeGroup = in_array($currentGroup, [3, 7], true);
-        if (!$isFreeGroup || $reportedGroup === $currentGroup) {
-            return $response;
-        }
-
-        foreach (($response['services'] ?? []) as $serviceKey => $service) {
-            if (!is_array($service) || empty($service['available'])) {
-                continue;
-            }
-            $response['services'][$serviceKey]['price'] = 0.0;
-        }
-
-        $response['customer_group_id'] = $currentGroup;
-        return $response;
     }
 
     /**
@@ -1634,12 +1287,41 @@ class MedExAPI
     }
 
     /**
-     * Get a SaaS URL for module handoff.
+     * Generate SSO token for embedding SaaS pages
+     * Creates a time-limited, signed token for secure iframe embedding
      *
-     * Dashboard-like destinations use the signed dashboard_sso.php bootstrap path.
-     * Non-authenticated destinations such as registration stay on direct SaaS routes.
+     * @param int $ttl Time-to-live in seconds (default: 3600 = 1 hour)
+     * @return string|null SSO token or null if not configured
+     */
+    public function generateSSOToken(int $ttl = 3600): ?string
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        $payload = [
+            'practice_id' => $this->practiceId,
+            'issued_at' => time(),
+            'expires_at' => time() + $ttl,
+            'nonce' => bin2hex(random_bytes(16))
+        ];
+
+        // Sign the payload with API key (HMAC-SHA256)
+        $signature = hash_hmac('sha256', json_encode($payload), $this->apiKey);
+
+        // Combine payload and signature
+        $token = base64_encode(json_encode([
+            'payload' => $payload,
+            'signature' => $signature
+        ]));
+
+        return $token;
+    }
+
+    /**
+     * Get SaaS dashboard URL with SSO token for embedding
      *
-     * @param string $page Page path (e.g., 'dashboard', 'settings', 'billing', 'register')
+     * @param string $page Page path (e.g., 'dashboard', 'settings', 'billing')
      * @param array $params Additional query parameters
      * @return string|null Full URL with SSO token or null if not configured
      */
@@ -1649,84 +1331,36 @@ class MedExAPI
             return null;
         }
 
-        $dashboardTabs = [
-            'dashboard' => 'overview',
-            'settings' => 'settings',
-            'billing' => 'billing',
-            'campaigns' => 'messaging',
-        ];
-
-        if (isset($dashboardTabs[$page])) {
-            $tab = $dashboardTabs[$page];
-            $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($params['site'] ?? ($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'))));
-            if ($siteId === '') {
-                $siteId = 'default';
-            }
-
-            $loginData = $this->login(false);
-            $sessionToken = trim((string)($loginData['token'] ?? ''));
-            $practiceId = trim((string)($loginData['practice_id'] ?? ($loginData['practice']['P_PID'] ?? $this->practiceId ?? '')));
-            if ($sessionToken === '' || $practiceId === '') {
-                return null;
-            }
-
-            $callbackToken = trim((string)($loginData['callback_token'] ?? ''));
-            if ($callbackToken === '') {
-                $callbackUrl = trim((string)($loginData['callback_url'] ?? ''));
-                if ($callbackUrl !== '' && preg_match('/[?&]token=([^&]+)/', $callbackUrl, $match)) {
-                    $callbackToken = trim((string)rawurldecode($match[1]));
-                }
-            }
-            if ($callbackToken === '') {
-                $loginData = $this->login(true);
-                $sessionToken = trim((string)($loginData['token'] ?? $sessionToken));
-                $practiceId = trim((string)($loginData['practice_id'] ?? $practiceId));
-                $callbackToken = trim((string)($loginData['callback_token'] ?? ''));
-                if ($callbackToken === '') {
-                    $callbackUrl = trim((string)($loginData['callback_url'] ?? ''));
-                    if ($callbackUrl !== '' && preg_match('/[?&]token=([^&]+)/', $callbackUrl, $match)) {
-                        $callbackToken = trim((string)rawurldecode($match[1]));
-                    }
-                }
-            }
-            if (trim((string)$callbackToken) === '') {
-                error_log('[MedEx] Refusing to build dashboard SSO URL without a current callback token');
-                return null;
-            }
-            $openEmrBaseUrl = $this->resolveCallbackBaseUrl((string)($GLOBALS['site_addr_oath'] ?? ''));
-            $payload = [
-                'practice_id' => $practiceId,
-                'session_token' => $sessionToken,
-                'timestamp' => time(),
-                'nonce' => bin2hex(random_bytes(16)),
-                'source' => 'openemr_dashboard',
-                'openemr_base_url' => $openEmrBaseUrl,
-                'site' => $siteId,
-            ];
-
-            $encodedPayload = base64_encode(json_encode($payload));
-            $url = rtrim(MedExConfig::publicBaseUrl(), '/') . '/dashboard_sso.php'
-                . '?site=' . urlencode($siteId)
-                . '&tab=' . urlencode($tab)
-                . '&sso_token=' . urlencode($encodedPayload);
-
-            $signature = hash_hmac('sha256', $encodedPayload, (string)$callbackToken);
-            $url .= '&sso_sig=' . urlencode($signature);
-
-            return $url;
+        // Generate SSO token
+        $ssoToken = $this->generateSSOToken();
+        if (!$ssoToken) {
+            return null;
         }
 
-        // Keep direct SaaS routing only for non-dashboard entry points such as registration.
+        // Build browser-facing URL using public endpoint rewrite (not internal k8s DNS).
+        $url = rtrim(MedExConfig::publicBaseUrl(), '/') . '/index.php';
+
+        // Map page names to MedEx routes
         $routes = [
+            'dashboard' => 'account/account',
+            'calendar' => 'information/calendar',
+            'settings' => 'account/account',
             'register' => 'account/register',
+            'campaigns' => 'information/campaigns',
+            'billing' => 'account/subscription'
         ];
-        $route = $routes[$page] ?? 'account/register';
+
+        $route = $routes[$page] ?? $routes['dashboard'];
+
+        // Build query parameters
         $queryParams = array_merge([
             'route' => $route,
             'embed' => '1',
+            'sso_token' => $ssoToken,
+            'practice_id' => $this->practiceId
         ], $params);
 
-        return rtrim(MedExConfig::publicBaseUrl(), '/') . '/index.php?' . http_build_query($queryParams);
+        return $url . '?' . http_build_query($queryParams);
     }
 
     /**
@@ -1944,10 +1578,9 @@ class MedExAPI
             // In K8s/reverse-proxy environments $_SERVER['SERVER_NAME'] is an internal
             // hostname; use the 'medex_callback_base_url' global (set to the public URL,
             // e.g. https://emr-704.hipaabank.net) to override it.
-            $callbackBase = $this->resolveCallbackBaseUrl(
-                $GLOBALS['site_addr_oath']
-                    ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'))
-            );
+            $callbackBase = $GLOBALS['medex_callback_base_url']
+                ?? $GLOBALS['site_addr_oath']
+                ?? ('https://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
             $callbackToken = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
                 "SELECT gl_value FROM globals WHERE gl_name = ?",
                 'gl_value',
@@ -2047,8 +1680,6 @@ class MedExAPI
                 // Sync succeeded — treat the server response as the authoritative source of truth.
                 // Wipe local service + pricing caches so the next page load re-fetches fresh
                 // data from MedEx (pricing TTL, service TTL both zeroed).
-                $dbCache = $this->readStatusCache();
-                $cachedEnabledServices = $this->getCachedEnabledServices($dbCache);
                 $cacheUpdate = [
                     'pricing_cache_ts'       => 0,  // force re-fetch of available services / pricing
                     'last_services_check_ts' => 0,  // force re-fetch of enabled_services on next load
@@ -2060,13 +1691,8 @@ class MedExAPI
                     $cacheUpdate['last_services_result']   = array_values($response['enabled_services']);
                     $cacheUpdate['last_services_check_ts'] = time(); // mark fresh so we don't re-hit server
                     error_log('[MedEx] Post-sync enabled_services from server: ' . implode(', ', $response['enabled_services']));
-                } elseif (!empty($cachedEnabledServices)) {
-                    $cacheUpdate['enabled_services'] = $cachedEnabledServices;
-                    $cacheUpdate['last_services_result'] = $cachedEnabledServices;
-                    $cacheUpdate['last_services_check_ts'] = time();
-                    error_log('[MedEx] Post-sync enabled_services missing; preserving cached services: ' . implode(', ', $cachedEnabledServices));
                 } else {
-                    error_log('[MedEx] Post-sync enabled_services missing and no cached services available; leaving existing service state unchanged');
+                    $cacheUpdate['enabled_services'] = [];
                 }
                 $this->updateStatusCache($cacheUpdate);
                 // Clear the PHP session-level services cache so the menu reflects the new state
@@ -2166,7 +1792,6 @@ class MedExAPI
      */
     public function sendSecureChatLink(int $pid, string $destination, string $chatUrl, string $method = 'sms', string $token = '', string $userInitials = ''): bool
     {
-        $this->lastError = null;
         try {
             $chatUrl = html_entity_decode(trim($chatUrl), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $chatUrl = str_replace('&amp;', '&', $chatUrl);
@@ -2187,7 +1812,6 @@ class MedExAPI
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured");
-                $this->lastError = 'Practice ID not configured';
                 return false;
             }
 
@@ -2230,12 +1854,10 @@ class MedExAPI
             }
 
             $errorMsg = $response['error'] ?? 'Unknown error sending secure chat link';
-            $this->lastError = $errorMsg;
             error_log("[MedEx Secure Chat] Failed to send: {$errorMsg}");
             return false;
 
         } catch (\Exception $e) {
-            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception: " . $e->getMessage());
             return false;
         }
@@ -2255,9 +1877,8 @@ class MedExAPI
      * @param string $userType 'patient', 'provider', or 'both'
      * @return bool Success status
      */
-    public function registerSecureChatTokenDetailed(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): array
+    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient'): bool
     {
-        $this->lastError = null;
         try {
             // Get practice info
             $config = $this->getConfig();
@@ -2265,8 +1886,7 @@ class MedExAPI
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured, cannot register token");
-                $this->lastError = 'Practice ID not configured';
-                return ['success' => false, 'error' => $this->lastError];
+                return false;
             }
 
             if (empty($expiresAt)) {
@@ -2315,32 +1935,17 @@ class MedExAPI
 
             if ($response && isset($response['success']) && $response['success']) {
                 error_log("[MedEx Secure Chat] Token registered successfully on MedEx SaaS for {$userType} with portal sync");
-                return [
-                    'success' => true,
-                    'chat_url' => $response['chat_url'] ?? '',
-                    'short_url' => $response['short_url'] ?? '',
-                    'x0_url' => $response['x0_url'] ?? '',
-                    'short_code' => $response['short_code'] ?? '',
-                    'expires_at' => $response['expires_at'] ?? $expiresAt,
-                ];
+                return true;
             }
 
             $errorMsg = $response['error'] ?? 'Unknown error registering token';
-            $this->lastError = $errorMsg;
             error_log("[MedEx Secure Chat] Failed to register token: {$errorMsg}");
-            return ['success' => false, 'error' => $errorMsg];
+            return false;
 
         } catch (\Exception $e) {
-            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception registering token: " . $e->getMessage());
-            return ['success' => false, 'error' => $this->lastError];
+            return false;
         }
-    }
-
-    public function registerSecureChatToken(int $pid, string $token, string $expiresAt = '', bool $isProvider = false, string $userType = 'patient', array $providerInfo = []): bool
-    {
-        $result = $this->registerSecureChatTokenDetailed($pid, $token, $expiresAt, $isProvider, $userType, $providerInfo);
-        return !empty($result['success']);
     }
 
     /**
@@ -2353,14 +1958,12 @@ class MedExAPI
      */
     public function getSecureChatHistory(int $pid, int $limit = 25, int $offset = 0): array
     {
-        $this->lastError = null;
         try {
             $config = $this->getConfig();
             $practiceId = $config['practice_id'] ?? null;
 
             if (empty($practiceId)) {
                 error_log("[MedEx Secure Chat] Practice ID not configured");
-                $this->lastError = 'Practice ID not configured';
                 return [];
             }
 
@@ -2378,12 +1981,10 @@ class MedExAPI
                 return $response['history'] ?? [];
             }
 
-            $this->lastError = $response['error'] ?? 'Unknown error fetching secure chat history';
-            error_log("[MedEx Secure Chat] Failed to fetch history: " . $this->lastError);
+            error_log("[MedEx Secure Chat] Failed to fetch history: " . ($response['error'] ?? 'Unknown error'));
             return [];
 
         } catch (\Exception $e) {
-            $this->lastError = $e->getMessage();
             error_log("[MedEx Secure Chat] Exception fetching history: " . $e->getMessage());
             return [];
         }
@@ -2405,10 +2006,7 @@ class MedExAPI
                 []
             );
             if ($row && !empty($row['status'])) {
-                $decoded = json_decode($row['status'], true) ?? [];
-                if (is_array($decoded)) {
-                    return $this->normalizeStatusPayload($decoded);
-                }
+                return json_decode($row['status'], true) ?? [];
             }
         } catch (\Exception $e) {
             // Non-fatal; callers fall through to network
