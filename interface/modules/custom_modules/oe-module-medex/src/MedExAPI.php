@@ -2047,6 +2047,8 @@ class MedExAPI
                 // Sync succeeded — treat the server response as the authoritative source of truth.
                 // Wipe local service + pricing caches so the next page load re-fetches fresh
                 // data from MedEx (pricing TTL, service TTL both zeroed).
+                $dbCache = $this->readStatusCache();
+                $cachedEnabledServices = $this->getCachedEnabledServices($dbCache);
                 $cacheUpdate = [
                     'pricing_cache_ts'       => 0,  // force re-fetch of available services / pricing
                     'last_services_check_ts' => 0,  // force re-fetch of enabled_services on next load
@@ -2058,8 +2060,13 @@ class MedExAPI
                     $cacheUpdate['last_services_result']   = array_values($response['enabled_services']);
                     $cacheUpdate['last_services_check_ts'] = time(); // mark fresh so we don't re-hit server
                     error_log('[MedEx] Post-sync enabled_services from server: ' . implode(', ', $response['enabled_services']));
+                } elseif (!empty($cachedEnabledServices)) {
+                    $cacheUpdate['enabled_services'] = $cachedEnabledServices;
+                    $cacheUpdate['last_services_result'] = $cachedEnabledServices;
+                    $cacheUpdate['last_services_check_ts'] = time();
+                    error_log('[MedEx] Post-sync enabled_services missing; preserving cached services: ' . implode(', ', $cachedEnabledServices));
                 } else {
-                    $cacheUpdate['enabled_services'] = [];
+                    error_log('[MedEx] Post-sync enabled_services missing and no cached services available; leaving existing service state unchanged');
                 }
                 $this->updateStatusCache($cacheUpdate);
                 // Clear the PHP session-level services cache so the menu reflects the new state
