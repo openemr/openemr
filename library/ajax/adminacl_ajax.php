@@ -249,7 +249,10 @@ if ($_POST["control"] === "aco") {
 // to a group yet
 //   $err = error strings (array)
 //
-function username_listings_xml($err)
+/**
+ * @param array<int, string> $err
+ */
+function username_listings_xml(array $err): string
 {
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
@@ -266,7 +269,7 @@ function username_listings_xml($err)
         }
 
         $message .= "\t<user>\n" .
-          "\t\t<username>" . xmlEscape($iter["username"]) . "</username>\n";
+          "\t\t<username>" . xmlEscape((string) $iter["username"]) . "</username>\n";
         $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
         if (!$username_acl_groups) {
             //not joined to any group, so send alert
@@ -292,7 +295,10 @@ function username_listings_xml($err)
 //   $username = username
 //   $err = error strings (array)
 //
-function user_group_listings_xml($username, $err)
+/**
+ * @param array<int, string> $err
+ */
+function user_group_listings_xml(string $username, array $err): string
 {
     $list_acl_groups = AclExtended::aclGetGroupTitleList();
     $username_acl_groups = AclExtended::aclGetGroupTitles($username);
@@ -307,7 +313,7 @@ function user_group_listings_xml($username, $err)
             $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape((string) xl_gacl_group((string) $value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -321,7 +327,7 @@ function user_group_listings_xml($username, $err)
             $message .= "\t\t\t<value>" . xmlEscape($value) . "</value>\n";
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
-            $message .= "\t\t\t<label>" . xmlEscape(xl_gacl_group($value)) . "</label>\n";
+            $message .= "\t\t\t<label>" . xmlEscape((string) xl_gacl_group((string) $value)) . "</label>\n";
 
             $message .= "\t\t</group>\n";
         }
@@ -342,7 +348,10 @@ function user_group_listings_xml($username, $err)
 // Returns error string(s) via xml
 //   $err = error (string or array)
 //
-function error_xml($err)
+/**
+ * @param string|array<int, string> $err
+ */
+function error_xml(string|array $err): string
 {
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
