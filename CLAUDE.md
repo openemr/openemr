@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # OpenEMR Development Guide
 
 ## Project Structure
@@ -49,8 +53,12 @@ docker compose exec openemr /root/devtools clean-sweep-tests
 # Individual test suites
 docker compose exec openemr /root/devtools unit-test
 docker compose exec openemr /root/devtools api-test
-docker compose exec openemr /root/devtools e2e-test
+docker compose exec openemr /root/devtools e2e-test        # live view at http://localhost:7900 (password: openemr123)
 docker compose exec openemr /root/devtools services-test
+docker compose exec openemr /root/devtools fixtures-test
+docker compose exec openemr /root/devtools validators-test
+docker compose exec openemr /root/devtools controllers-test
+docker compose exec openemr /root/devtools common-test
 
 # View PHP error log
 docker compose exec openemr /root/devtools php-log
@@ -64,7 +72,9 @@ for shorter commands (e.g., `openemr-cmd ut` for unit tests) from any directory.
 Isolated tests run on the host without a database or Docker:
 
 ```bash
-composer phpunit-isolated        # Run all isolated tests
+composer phpunit-isolated                                  # Run all isolated tests
+composer phpunit-isolated -- --filter ClassName            # Run a single test class
+composer phpunit-isolated -- --filter ClassName::testMethod  # Run a single test method
 ```
 
 ### Data providers: mark as `@codeCoverageIgnore`
@@ -151,6 +161,15 @@ npm run dev          # Development with file watching
 npm run gulp-build   # Build only (no watch)
 ```
 
+### First-time build from source (non-Docker)
+
+```bash
+composer install --no-dev
+npm install
+npm run build
+composer dump-autoload -o
+```
+
 ## Coding Standards
 
 ### Legacy Code Is Not the Standard
@@ -188,9 +207,10 @@ messages), [PSR-15](https://www.php-fig.org/psr/psr-15/) (middleware),
 
 ### Database and Global Settings
 
-- **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
-  Migrations. Do not instantiate database connections directly — use the
-  centralized `DatabaseConnectionFactory`.
+- **Database:** Use `QueryUtils` (`OpenEMR\Common\Database\QueryUtils`) for
+  queries. New schema changes use Doctrine Migrations. Do not instantiate
+  database connections directly — use the centralized `DatabaseConnectionFactory`
+  (`OpenEMR\BC\DatabaseConnectionFactory`).
 - **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
   of `$GLOBALS`. Prefer typed getters over `get()` + cast:
   - `getString($key)` instead of `(string) get($key)`
@@ -378,14 +398,15 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### AI Assistance Trailer
 
-If an AI assistant helped write a commit, add an `Assisted-by` trailer to that
-commit:
+Use `Generated-By` when AI produced the code directly, or `Assisted-By` when AI
+helped with tweaks, refactors, or fixes to human-written code:
 
 ```bash
-git commit --trailer "Assisted-by: Claude Code" -m "fix(calendar): correct date parsing"
+git commit --trailer "Generated-By: Claude Code" -m "feat(api): add patient endpoint"
+git commit --trailer "Assisted-By: Claude Code" -m "fix(calendar): correct date parsing"
 ```
 
-Use the name of the tool as the trailer value (e.g. `Claude Code`,
+Use the name of the specific tool as the trailer value (e.g. `Claude Code`,
 `GitHub Copilot`, `ChatGPT`). When the AI agent creates commits automatically,
 this trailer is typically added for you.
 

@@ -15,6 +15,7 @@ outside.
 """
 from __future__ import annotations
 
+import asyncio
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -68,6 +69,7 @@ async def _run_one_pass(
         trace.tokens_input += resp.usage.input_tokens
         trace.tokens_output += resp.usage.output_tokens
         trace.tokens_cached += resp.usage.cached_tokens
+        trace.tokens_cache_write += resp.usage.cache_write_tokens
 
         if not resp.tool_uses:
             # Provider returned plain text without calling submit_response.
@@ -94,14 +96,37 @@ async def _run_one_pass(
                 data_gaps=list(args.get("data_gaps") or []),
             )
 
-        # Dispatch the requested tools, attach results, loop
+        # Dispatch the requested tools concurrently. Tools are independent FHIR
+        # reads with no shared mutable state — running them via asyncio.gather
+        # turns sum-of-latencies into max-of-latencies. httpx.AsyncClient is
+        # concurrency-safe; the per-session PseudonymMap is RLock-guarded.
+        async def _one(use: ToolUseRequest) -> tuple[ToolUseRequest, Any, str | None, float]:
+            t0 = time.perf_counter()
+            try:
+                r = await dispatch(use.name, use.arguments, fhir, session)
+                return use, r, None, (time.perf_counter() - t0) * 1000
+            except Exception as exc:  # noqa: BLE001 — never let one tool fault the turn
+                return use, None, f"dispatch_exception: {exc}", (time.perf_counter() - t0) * 1000
+
+        gathered = await asyncio.gather(*[_one(u) for u in non_submit_uses])
+
         tool_payloads: list[dict] = []
         is_error_flags: list[bool] = []
-        for use in non_submit_uses:
-            t0 = time.perf_counter()
-            result = await dispatch(use.name, use.arguments, fhir, session)
-            elapsed_ms = (time.perf_counter() - t0) * 1000
+        for use, result, exc, elapsed_ms in gathered:
             trace.tool_latencies_ms[use.name] = elapsed_ms
+            if exc is not None:
+                payload = {
+                    "tool": use.name,
+                    "record_type": "",
+                    "data": [],
+                    "record_ids": [],
+                    "error": exc,
+                }
+                trace.tool_failures[use.name] = exc
+                raw_tool_results.append(payload)
+                tool_payloads.append(payload)
+                is_error_flags.append(True)
+                continue
             if result.error:
                 trace.tool_failures[use.name] = result.error
             payload = result.to_dict()

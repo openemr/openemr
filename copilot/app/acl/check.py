@@ -1,19 +1,19 @@
-"""ACL middleware — defense in depth on top of OpenEMR's GACL.
+"""ACL — diagnostic pre-flight, with the runtime probe as source of truth.
 
 OpenEMR enforces ACL server-side via `AclMain::aclCheckCore($section, $action, $user)`
-called inside the FHIR controllers. The agent does NOT replace that. This
-middleware mirrors a small subset of the GACL section/action map so we can
-*deny early* — before a FHIR call is made — when the requesting physician
-clearly lacks the scope.
+called inside the FHIR controllers. The agent does NOT replace that.
 
-If this layer says "allow" but OpenEMR's server-side ACL says "deny", the FHIR
-call returns 401/403 and the tool surfaces it (see ARCHITECTURE §7.1). If this
-layer says "deny", we never call FHIR. The FHIR call is the source of truth;
-this is the cheap pre-flight.
+As of A.4 (multi-physician hardening): the **runtime probe in
+`app/tools/_base.py:run_tool`** is the authoritative ACL decision —
+`GET /Patient/{active_patient_id}` is attempted with the physician's
+own OAuth token. 401/403 → ACL denied; success → allowed. The result
+is cached per session on `PseudonymMap.acl_decision`.
 
-For v1 the role→scope map is hard-coded for the demo physician role. Real
-multi-user deploys would fetch the user's GACL ARO assignments from OpenEMR
-via the Portal/Account API.
+The static `PHYSICIAN_GRANTS` map below is kept as a non-blocking
+diagnostic. If a physician's role doesn't show up here, we log it but
+still let the runtime probe decide. Real multi-user deploys can extend
+this map by reading GACL ARO assignments from OpenEMR's
+`gacl_aro_groups_map` table via the Portal/Account API.
 """
 from __future__ import annotations
 

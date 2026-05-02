@@ -7,6 +7,13 @@ them. If anything was stripped, the gate flags `verification_passed=False` so
 the orchestrator can retry once with feedback.
 
 This is purely deterministic — no LLM is involved in the check itself.
+
+Note on `Claim.display`: the `display` field is presentation-only and is NOT
+validated by this gate. The audit anchor is `record_id`; the `display` string
+is whatever human-readable label the model produced for the UI chip. Future
+readers — do not add a similarity check between `display` and tool data,
+because that would defeat the purpose of presenting a human-friendly label
+distinct from the audit anchor.
 """
 from __future__ import annotations
 

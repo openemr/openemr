@@ -11,7 +11,7 @@ dependencies = [
   "openai>=1.50",
   "pydantic>=2.9",
   "pydantic-settings>=2.5",
-  "langfuse>=2.50",
+  "langfuse>=2.50,<3",
   "python-dotenv>=1.0",
   "sse-starlette>=2.1",
 ]

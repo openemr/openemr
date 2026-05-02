@@ -6,6 +6,7 @@ this is what makes the verification gate's record_id model work.
 """
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Awaitable
@@ -13,6 +14,8 @@ from typing import Any, Callable, Awaitable
 from app.acl.check import AclResult, acl_check
 from app.fhir.client import FhirClient, FhirError
 from app.phi.session import PseudonymMap
+
+logger = logging.getLogger("copilot.tools._base")
 
 
 @dataclass
@@ -37,7 +40,7 @@ class ToolResult:
         }
 
 
-FetchFn = Callable[[FhirClient, str], Awaitable[list[dict[str, Any]]]]
+FetchFn = Callable[[FhirClient, str, str], Awaitable[list[dict[str, Any]]]]
 TransformFn = Callable[[list[dict[str, Any]], PseudonymMap], list[dict[str, Any]]]
 
 
@@ -63,7 +66,107 @@ async def run_tool(
     """
     started = time.perf_counter()
     user = session.physician_user_id
-    acl = acl_check(user, section, action)
+
+    # Hard-deny if there is no authenticated physician identity. Empty/None
+    # physician_user_id means the SMART launch / dev-launch path was bypassed
+    # — we refuse rather than fall through to the legacy global token.
+    if not user:
+        denied = AclResult(
+            allowed=False,
+            section=section,
+            action=action,
+            reason="no_physician_user_id",
+        )
+        return ToolResult(
+            name=name,
+            data=[],
+            record_ids=[],
+            record_type=record_type,
+            duration_ms=(time.perf_counter() - started) * 1000,
+            acl_check=denied,
+            error=f"acl_denied: {denied.reason}",
+        )
+
+    # Static GACL pre-flight (diagnostic only — informs logs but does NOT
+    # block; OpenEMR is the source of truth via the runtime probe below).
+    static_grant = acl_check(user, section, action)
+    if not static_grant.allowed:
+        logger.info(
+            "static GACL pre-flight: %s lacks %s|%s — proceeding to runtime probe",
+            user, section, action,
+        )
+
+    # Runtime ACL probe — cached per session. Asks OpenEMR (via the
+    # physician's token) whether they can read the active patient. 401/403
+    # → ACL denied; success → allowed. This replaces the hard-coded
+    # PHYSICIAN_GRANTS map with whatever OpenEMR's GACL/users_facility
+    # decides for this physician.
+    acl = session.acl_decision  # type: ignore[assignment]
+    if acl is None:
+        try:
+            patient_resource = await fhir.get_resource(
+                "Patient",
+                session.active_patient_id,
+                physician_user_id=user,
+            )
+            # A.7 defense-in-depth: even if OpenEMR's FHIR returns the
+            # patient (it currently doesn't filter by providerID), check
+            # generalPractitioner against the physician's Practitioner
+            # UUID. The /v1/sessions gate already ran the same check;
+            # this catches sessions created before the gate or by code
+            # paths that bypass it.
+            practitioner_uuid = await fhir._oauth.resolve_practitioner_uuid(
+                fhir._http, user
+            )
+            if practitioner_uuid:
+                refs = [
+                    (gp or {}).get("reference", "")
+                    for gp in (patient_resource.get("generalPractitioner") or [])
+                ]
+                owners = [
+                    r.rsplit("/", 1)[-1]
+                    for r in refs
+                    if r.startswith("Practitioner/")
+                ]
+                if practitioner_uuid not in owners:
+                    acl = AclResult(
+                        allowed=False,
+                        section=section,
+                        action=action,
+                        reason="patient_out_of_panel",
+                    )
+                else:
+                    acl = AclResult(allowed=True, section=section, action=action)
+            else:
+                # No Practitioner UUID for this user (e.g. admin) — bypass
+                # the panel check; admins see all patients by design.
+                acl = AclResult(allowed=True, section=section, action=action)
+        except FhirError as e:
+            if e.status in (401, 403):
+                acl = AclResult(
+                    allowed=False,
+                    section=section,
+                    action=action,
+                    reason=f"openemr_denied_patient_read:{e.status}",
+                )
+            else:
+                # Inconclusive (timeout, 5xx, etc.) — proceed and let the
+                # actual fetch surface the error in the tool result.
+                acl = AclResult(
+                    allowed=True,
+                    section=section,
+                    action=action,
+                    reason="probe_inconclusive_proceeding",
+                )
+        except Exception as e:  # noqa: BLE001 — network/oauth issues
+            acl = AclResult(
+                allowed=True,
+                section=section,
+                action=action,
+                reason=f"probe_inconclusive_proceeding:{e}",
+            )
+        session.acl_decision = acl
+
     if not acl.allowed:
         return ToolResult(
             name=name,
@@ -75,7 +178,7 @@ async def run_tool(
             error=f"acl_denied: {acl.reason}",
         )
     try:
-        raw = await fetch(fhir, session.active_patient_id)
+        raw = await fetch(fhir, session.active_patient_id, session.physician_user_id)
     except FhirError as e:
         return ToolResult(
             name=name,

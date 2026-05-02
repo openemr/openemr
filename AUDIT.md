@@ -1,4 +1,5 @@
 # OpenEMR Audit Report
+
 **Clinical Co-Pilot — AgentForge Project**
 *Audited: 2026-04-27 | Stack: OpenEMR (flex), PHP 8.5.4, MariaDB 11.8.6, Docker*
 *Audit environment: local Docker dev (MariaDB). Production deployment uses MySQL on Railway — findings apply identically to both engines (same SQL dialect, same PHP driver, same InnoDB storage).*
@@ -80,13 +81,14 @@ HIPAA's minimum necessary standard requires that access to PHI be limited to the
 
 **Role permission gaps vs. minimum necessary:**
 
-| Role | Required Access | Current Actual Access | Gap |
-|---|---|---|---|
-| Physician (attending) | Own patients' full record | ALL patients, full record | No provider scoping |
-| Clinician / Nurse | Nursing records + orders | ALL patients, addonly on most fields | No scoping |
-| Front Office | Contact info + appointments, no diagnosis | `patients|demo` write (full demographics) on ALL patients | Over-permissioned + no scoping |
-| Accounting / Billing | Billing codes + insurance | `encounters|coding_a` write — exposes diagnosis context | Billing requires diagnoses to code, creating unavoidable leakage |
-| Other-department physician | No access unless consult-authorized | No such mechanism exists | Entire concept missing from GACL |
+
+| Role                       | Required Access                           | Current Actual Access                | Gap                                             |
+| -------------------------- | ----------------------------------------- | ------------------------------------ | ----------------------------------------------- |
+| Physician (attending)      | Own patients' full record                 | ALL patients, full record            | No provider scoping                             |
+| Clinician / Nurse          | Nursing records + orders                  | ALL patients, addonly on most fields | No scoping                                      |
+| Front Office               | Contact info + appointments, no diagnosis | `patients                            | demo` write (full demographics) on ALL patients |
+| Accounting / Billing       | Billing codes + insurance                 | `encounters                          | coding_a` write — exposes diagnosis context    |
+| Other-department physician | No access unless consult-authorized       | No such mechanism exists             | Entire concept missing from GACL                |
 
 **Sensitivity enforcement is non-functional:**
 The `sensitivities|high` ACO exists to gate high-sensitivity records (mental health, HIV, substance abuse). The check fires only when `form_encounter.sensitivity` is non-null. Of 1,968 encounters in the database, **1,965 (99.8%) have `sensitivity = NULL`**. The gate is open for virtually every record in the system regardless of role.
@@ -98,17 +100,18 @@ The Emergency Login (break-glass) role has full Administrator permissions includ
 
 **PHI (Protected Health Information)** is any health information that can identify an individual. HIPAA defines 18 categories of PHI. OpenEMR stores and exposes all of them:
 
-| HIPAA Identifier | OpenEMR Field |
-|---|---|
-| Names | `fname`, `lname`, `mname` |
-| Geographic data (sub-state) | `street`, `city`, `postal_code` |
-| Dates related to individual | `DOB`, encounter dates, admission dates |
-| Phone numbers | `phone_home`, `phone_cell`, `phone_biz` |
-| Email addresses | `email`, `email_direct` |
-| Social Security Numbers | `ss` (stored **plaintext**) |
-| Medical record numbers | `pid` |
-| Certificate/license numbers | `drivers_license` |
-| Health plan beneficiary numbers | insurance tables |
+
+| HIPAA Identifier                | OpenEMR Field                           |
+| ------------------------------- | --------------------------------------- |
+| Names                           | `fname`, `lname`, `mname`               |
+| Geographic data (sub-state)     | `street`, `city`, `postal_code`         |
+| Dates related to individual     | `DOB`, encounter dates, admission dates |
+| Phone numbers                   | `phone_home`, `phone_cell`, `phone_biz` |
+| Email addresses                 | `email`, `email_direct`                 |
+| Social Security Numbers         | `ss` (stored **plaintext**)             |
+| Medical record numbers          | `pid`                                   |
+| Certificate/license numbers     | `drivers_license`                       |
+| Health plan beneficiary numbers | insurance tables                        |
 
 **The FHIR API returns all of these fields in a single Patient resource response**, including SSN as an `identifier` — despite a developer comment in `FhirPatientService.php` line 492 acknowledging that HL7 US Core advises SSNs *should not* be used as patient identifiers due to identity theft risk.
 
@@ -119,11 +122,12 @@ The Emergency Login (break-glass) role has full Administrator permissions includ
 
 **Required mitigation before agent deployment:**
 
-| Approach | Method | When to use |
-|---|---|---|
-| Pseudonymization | Replace direct identifiers with session tokens (`Patient-{pid_hash}`); map back after LLM response | Primary approach for clinical conversations |
-| Minimized transfer | Only pass clinical fields (medications, lab values, diagnoses) — no name/SSN/address in prompt | All agent queries |
-| Safe Harbor de-identification | Strip all 18 identifier categories | Population-level queries |
+
+| Approach                      | Method                                                                                             | When to use                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Pseudonymization              | Replace direct identifiers with session tokens (`Patient-{pid_hash}`); map back after LLM response | Primary approach for clinical conversations |
+| Minimized transfer            | Only pass clinical fields (medications, lab values, diagnoses) — no name/SSN/address in prompt    | All agent queries                           |
+| Safe Harbor de-identification | Strip all 18 identifier categories                                                                 | Population-level queries                    |
 
 The physician already knows which patient they are discussing. The agent's LLM prompt does not need to contain "Phil Belford, SSN 333-22-3333, DOB 1972-02-09" — it needs medication lists, lab values, and encounter summaries. The identifier stays in the session context on the server; only clinical content crosses the LLM boundary.
 
@@ -147,6 +151,7 @@ EXPLAIN SELECT pid, fname, lname FROM patient_data WHERE providerID = 1;
 At 53 demo patients this is invisible. At a 500-bed hospital with thousands of patients, this becomes a blocking latency issue for every agent session start.
 
 **Required fix before production:**
+
 ```sql
 ALTER TABLE patient_data ADD INDEX idx_provider (providerID);
 ```
@@ -161,12 +166,13 @@ The standard patient-encounter query uses a `pid_encounter` composite index on `
 
 ### 2.4 Key Table Index Coverage
 
-| Table | Indexed Columns | Agent Query Pattern | Assessment |
-|---|---|---|---|
-| `patient_data` | `pid` (PK), `uuid`, `lname+fname`, `DOB` | Lookup by pid or uuid | Good — missing `providerID` |
-| `form_encounter` | `pid+encounter` (composite), `date`, `uuid` | Patient encounter history | Good |
-| `prescriptions` | `patient_id`, `uuid` | Medication list by patient | Good |
-| `procedure_result` | (check needed) | Lab results | 8,172 rows — verify index |
+
+| Table              | Indexed Columns                             | Agent Query Pattern        | Assessment                  |
+| ------------------ | ------------------------------------------- | -------------------------- | --------------------------- |
+| `patient_data`     | `pid` (PK), `uuid`, `lname+fname`, `DOB`    | Lookup by pid or uuid      | Good — missing`providerID` |
+| `form_encounter`   | `pid+encounter` (composite), `date`, `uuid` | Patient encounter history  | Good                        |
+| `prescriptions`    | `patient_id`, `uuid`                        | Medication list by patient | Good                        |
+| `procedure_result` | (check needed)                              | Lab results                | 8,172 rows — verify index  |
 
 ### 2.5 CouchDB for Documents
 
@@ -214,13 +220,15 @@ OpenEMR is in an active multi-year migration from the legacy procedural layer to
 
 **Three distinct write paths to `patient_data`:**
 
-| Path | Validation | ACL Enforcement | Audit Trail |
-|---|---|---|---|
-| `src/Services/PatientService` | `PatientValidator` (fname, lname, DOB, sex required) | Caller-enforced | `sqlStatement` → logged |
-| `library/patient.inc.php::updatePatientData()` | Delegates to PatientService | Caller-enforced | Logged (via service) |
-| `interface/forms/*/save.php` (34 files) | **None** | Ad-hoc per-page | Uses `sqlQuery` — some use `sqlStatementNoLog` |
+
+| Path                                           | Validation                                           | ACL Enforcement | Audit Trail                                    |
+| ---------------------------------------------- | ---------------------------------------------------- | --------------- | ---------------------------------------------- |
+| `src/Services/PatientService`                  | `PatientValidator` (fname, lname, DOB, sex required) | Caller-enforced | `sqlStatement` → logged                       |
+| `library/patient.inc.php::updatePatientData()` | Delegates to PatientService                          | Caller-enforced | Logged (via service)                           |
+| `interface/forms/*/save.php` (34 files)        | **None**                                             | Ad-hoc per-page | Uses`sqlQuery` — some use `sqlStatementNoLog` |
 
 **Audit bypass scale:**
+
 - 43 uses of `sqlStatementNoLog`/`sqlQueryNoLog` in `interface/`
 - 47 uses in `library/`
 - **90 PHI write/read paths that intentionally skip the audit engine**
@@ -250,16 +258,17 @@ The cleanest integration point is the **FHIR R4 REST API** via **SMART on FHIR v
 
 Available FHIR resources relevant to the agent:
 
-| FHIR Resource | Clinical Data | OpenEMR Controller |
-|---|---|---|
-| `Patient` | Demographics, identifiers | `FhirPatientRestController` |
-| `Encounter` | Visit history | `FhirEncounterRestController` |
-| `MedicationRequest` | Prescriptions | `FhirMedicationRequestRestController` |
-| `Observation` | Lab results, vitals | `FhirObservationRestController` |
-| `Condition` | Problem list, diagnoses | `FhirConditionRestController` |
-| `AllergyIntolerance` | Allergies | `FhirAllergyIntoleranceRestController` |
-| `DiagnosticReport` | Lab panels | `FhirDiagnosticReportRestController` |
-| `Immunization` | Vaccination history | `FhirImmunizationRestController` |
+
+| FHIR Resource        | Clinical Data             | OpenEMR Controller                     |
+| -------------------- | ------------------------- | -------------------------------------- |
+| `Patient`            | Demographics, identifiers | `FhirPatientRestController`            |
+| `Encounter`          | Visit history             | `FhirEncounterRestController`          |
+| `MedicationRequest`  | Prescriptions             | `FhirMedicationRequestRestController`  |
+| `Observation`        | Lab results, vitals       | `FhirObservationRestController`        |
+| `Condition`          | Problem list, diagnoses   | `FhirConditionRestController`          |
+| `AllergyIntolerance` | Allergies                 | `FhirAllergyIntoleranceRestController` |
+| `DiagnosticReport`   | Lab panels                | `FhirDiagnosticReportRestController`   |
+| `Immunization`       | Vaccination history       | `FhirImmunizationRestController`       |
 
 The agent should register as an OAuth2 client with the minimum necessary scopes and use the FHIR API exclusively — not call the service layer or database directly.
 
@@ -275,12 +284,13 @@ OpenEMR ships an official sample dataset at `sql/example_patient_data.sql` conta
 
 The following fields are nullable with no database-level enforcement, despite being load-bearing for clinical decision making and access control:
 
-| Field | Table | Nullable | Default | Agent Impact |
-|---|---|---|---|---|
-| `providerID` | `patient_data` | YES | NULL | Provider scoping cannot be enforced when field is unset |
-| `sensitivity` | `form_encounter` | YES | NULL | `sensitivities\|high` ACL gate fires only when populated — records never tagged are visible to all roles |
-| `drug_id` | `prescriptions` | NO | 0 | Default `0` does not join to any `drugs` row — orphaned references |
-| `end_date` | `prescriptions` | YES | NULL | Active vs. discontinued medications cannot be distinguished by date alone |
+
+| Field         | Table            | Nullable | Default | Agent Impact                                                                                             |
+| ------------- | ---------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `providerID`  | `patient_data`   | YES      | NULL    | Provider scoping cannot be enforced when field is unset                                                  |
+| `sensitivity` | `form_encounter` | YES      | NULL    | `sensitivities|high` ACL gate fires only when populated — records never tagged are visible to all roles |
+| `drug_id`     | `prescriptions`  | NO       | 0       | Default`0` does not join to any `drugs` row — orphaned references                                       |
+| `end_date`    | `prescriptions`  | YES      | NULL    | Active vs. discontinued medications cannot be distinguished by date alone                                |
 
 The `providerID` and `sensitivity` nullability is the most serious: both are referenced by access control logic, but neither is enforced at write time. Any code path that creates a record without setting these fields silently bypasses the controls that depend on them.
 
@@ -332,13 +342,14 @@ HIPAA requires audit controls that record and examine activity in systems contai
 
 **Current audit coverage:**
 
-| Mechanism | What it captures | Gap |
-|---|---|---|
-| `log` table | Login events, admin actions — with checksum for tamper evidence | Checksums are NULL for some events (inconsistent) |
-| `audit_master` + `audit_details` | Patient record changes (approval workflow) | Scoped to specific approval flows, not all writes |
-| `api_log` | Full request + response for every API call (including PHI in response body) | No retention policy; response body stores raw PHI |
-| `extended_log` | Additional event logging | Limited scope |
-| `sqlStatementNoLog` paths | **Not captured** (90 call sites) | Clinical writes with zero audit trail |
+
+| Mechanism                        | What it captures                                                            | Gap                                               |
+| -------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------- |
+| `log` table                      | Login events, admin actions — with checksum for tamper evidence            | Checksums are NULL for some events (inconsistent) |
+| `audit_master` + `audit_details` | Patient record changes (approval workflow)                                  | Scoped to specific approval flows, not all writes |
+| `api_log`                        | Full request + response for every API call (including PHI in response body) | No retention policy; response body stores raw PHI |
+| `extended_log`                   | Additional event logging                                                    | Limited scope                                     |
+| `sqlStatementNoLog` paths        | **Not captured** (90 call sites)                                            | Clinical writes with zero audit trail             |
 
 **The `api_log` retention problem:** This table stores `response longtext` — the full JSON body of every API response. For FHIR Patient queries, this is a complete PHI record. HIPAA requires that audit logs themselves be protected and that PHI in logs be subject to the same access controls as the primary data. No configuration was found governing who can access `api_log` or how long records are retained.
 
@@ -358,34 +369,36 @@ An `src/Encryption/CipherSuite.php` module exists with a full AES key management
 
 ### 5.6 Compliance Summary Table
 
-| Requirement | Status | Detail |
-|---|---|---|
-| BAA with LLM provider | Not established | Must be in place before agent deployment |
-| PHI de-identification before LLM | **Not implemented** | Raw PHI including SSN flows to FHIR API response |
-| Minimum necessary access | **Violated** | No provider scoping; all roles access all patients |
-| Audit logging coverage | Partial | 90 write paths bypass audit engine |
-| Audit log tamper evidence | Inconsistent | Checksums NULL on some log entries |
-| SSN / PHI encryption at rest | **Not applied** | CipherSuite exists but unused on patient_data |
-| Data retention policy | Not defined | No purge policy in configuration |
-| Sensitivity flagging (mental health, HIV, etc.) | **Bypassable** | `sensitivity` field is nullable with no enforcement at write time — gate fires only on tagged records |
-| SMART on FHIR v2.2.0 / OAuth2 | Implemented | Solid foundation for agent integration |
-| CSRF protection | Implemented | 319 files covered |
-| SQL injection protection | Implemented | Parameterized queries throughout |
-| Security headers | Implemented | HSTS, X-Frame-Options, CSP, SameSite cookies |
+
+| Requirement                                     | Status              | Detail                                                                                                 |
+| ----------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------ |
+| BAA with LLM provider                           | Not established     | Must be in place before agent deployment                                                               |
+| PHI de-identification before LLM                | **Not implemented** | Raw PHI including SSN flows to FHIR API response                                                       |
+| Minimum necessary access                        | **Violated**        | No provider scoping; all roles access all patients                                                     |
+| Audit logging coverage                          | Partial             | 90 write paths bypass audit engine                                                                     |
+| Audit log tamper evidence                       | Inconsistent        | Checksums NULL on some log entries                                                                     |
+| SSN / PHI encryption at rest                    | **Not applied**     | CipherSuite exists but unused on patient_data                                                          |
+| Data retention policy                           | Not defined         | No purge policy in configuration                                                                       |
+| Sensitivity flagging (mental health, HIV, etc.) | **Bypassable**      | `sensitivity` field is nullable with no enforcement at write time — gate fires only on tagged records |
+| SMART on FHIR v2.2.0 / OAuth2                   | Implemented         | Solid foundation for agent integration                                                                 |
+| CSRF protection                                 | Implemented         | 319 files covered                                                                                      |
+| SQL injection protection                        | Implemented         | Parameterized queries throughout                                                                       |
+| Security headers                                | Implemented         | HSTS, X-Frame-Options, CSP, SameSite cookies                                                           |
 
 ---
 
 ## Appendix: Key Files Referenced
 
-| File | Relevance |
-|---|---|
-| `src/Common/Acl/AclMain.php` | phpGACL wrapper — `aclCheckCore()` implementation |
-| `src/Services/PatientService.php` | Patient CRUD — validation present, no ACL |
-| `src/Services/FHIR/FhirPatientService.php` | FHIR Patient mapper — includes SSN in response |
-| `library/patient.inc.php` | Legacy patient write wrapper — now delegates to PatientService |
-| `library/sql.inc.php` | SQL abstraction — `sqlStatement` vs `sqlStatementNoLog` |
-| `apis/dispatch.php` | REST API entry point |
-| `apis/routes/_rest_routes_standard.inc.php` | REST route definitions with per-route ACL checks |
-| `src/FHIR/SMART/SMARTLaunchToken.php` | SMART launch context — patient scope binding |
-| `src/Encryption/CipherSuite.php` | AES encryption module — exists but not applied to PHI fields |
-| `gacl/` | phpGACL library |
+
+| File                                        | Relevance                                                       |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| `src/Common/Acl/AclMain.php`                | phpGACL wrapper —`aclCheckCore()` implementation               |
+| `src/Services/PatientService.php`           | Patient CRUD — validation present, no ACL                      |
+| `src/Services/FHIR/FhirPatientService.php`  | FHIR Patient mapper — includes SSN in response                 |
+| `library/patient.inc.php`                   | Legacy patient write wrapper — now delegates to PatientService |
+| `library/sql.inc.php`                       | SQL abstraction —`sqlStatement` vs `sqlStatementNoLog`         |
+| `apis/dispatch.php`                         | REST API entry point                                            |
+| `apis/routes/_rest_routes_standard.inc.php` | REST route definitions with per-route ACL checks                |
+| `src/FHIR/SMART/SMARTLaunchToken.php`       | SMART launch context — patient scope binding                   |
+| `src/Encryption/CipherSuite.php`            | AES encryption module — exists but not applied to PHI fields   |
+| `gacl/`                                     | phpGACL library                                                 |

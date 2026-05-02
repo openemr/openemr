@@ -33,6 +33,9 @@ class PseudonymMap:
     _pseudo_to_real: dict[str, str] = field(default_factory=dict)
     _provider_letter_idx: int = 0
     _lock: RLock = field(default_factory=RLock)
+    # ACL probe result, cached for the session. None until the first tool
+    # call probes /Patient/{active_patient_id} with this physician's token.
+    acl_decision: object | None = None
 
     def patient_pseudonym(self) -> str:
         return self.pseudo_for("Patient", self.active_patient_id)

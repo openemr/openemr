@@ -16,11 +16,16 @@ from app.phi.session import PseudonymMap
 from app.tools._base import ToolResult, bundle_entries, run_tool
 
 
-async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
-    patient = await fhir.get_resource("Patient", patient_id)
+async def _fetch(
+    fhir: FhirClient, patient_id: str, physician_user_id: str
+) -> list[dict[str, Any]]:
+    patient = await fhir.get_resource(
+        "Patient", patient_id, physician_user_id=physician_user_id
+    )
     bundle = await fhir.search(
         "MedicationRequest",
         {"patient": patient_id, "status": "active", "_count": 100},
+        physician_user_id=physician_user_id,
     )
     return [{"_kind": "patient_for_terms", "resource": patient}] + [
         {"_kind": "medreq", "resource": m} for m in bundle_entries(bundle)

@@ -1,10 +1,10 @@
 # Implementation Status — Clinical Co-Pilot
 
-**Last updated:** 2026-04-29 evening
+**Last updated:** 2026-05-01 evening (post-final-optimization sprint)
 **Submission targets:**
 - ✅ MVP — Tuesday 2026-04-28 11:59 PM CT (audit + users + architecture docs + deployed OpenEMR)
-- ⏳ **Early Submission — Thursday 2026-04-30 11:59 PM CT** (deployed agent + eval + observability + demo video)
-- 📋 Final — Sunday 2026-05-03 12:00 PM CT (production-ready, AI cost analysis, social post, GitHub repo)
+- ✅ **Early Submission — Thursday 2026-04-30 11:59 PM CT** — agent deployed, iframe rail live in OpenEMR, eval+observability wired, demo video recorded. Submission form + AI Interview booking are the only steps left tonight.
+- 📋 Final — Sunday 2026-05-03 12:00 PM CT (production-ready, AI cost analysis, social post, secret rotation)
 
 This document tracks what's built, what's blocked, and what's left before each deadline.
 
@@ -21,9 +21,11 @@ A separate Python (FastAPI) service deployed alongside OpenEMR, integrated as a 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │  PHYSICIAN'S BROWSER                                             │
-│  https://copilot-production-b532.up.railway.app    ← deployed   │
+│  https://openemr-production-0c8c.up.railway.app/                 │
+│  → click patient → demographics page → Co-Pilot ▸ tab on right   │
+│  → 400px iframe rail → https://copilot-production-b532...        │
 └──────────────────────────────────────────────────────────────────┘
-           │  HTTPS, session token
+           │  HTTPS, session token (auto-bound to ?patient_id=<uuid>)
            ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  COPILOT SERVICE (Railway, this repo's /copilot dir)             │
@@ -33,7 +35,8 @@ A separate Python (FastAPI) service deployed alongside OpenEMR, integrated as a 
 │   • PHI minimizer (session-scoped pseudonyms)                    │
 │   • Two-layer verification gate                                  │
 │   • Langfuse wrapper (noop fallback when keys absent)            │
-│   • LLM adapter — OpenAI gpt-4o (Anthropic Claude as fallback)   │
+│   • LLM adapter — Anthropic Sonnet 4.6 primary + OpenAI fallback │
+│     (FallbackAdapter wraps both; per-turn swap on retryable err) │
 └──────────────────────────────────────────────────────────────────┘
            │                        │
            │ FHIR R4 over OAuth2    │ chat.completions.create
@@ -42,27 +45,31 @@ A separate Python (FastAPI) service deployed alongside OpenEMR, integrated as a 
 │ OPENEMR (Railway)       │  │ OPENAI gpt-4o                      │
 │ openemr-production-...  │  │ (primary; Anthropic adapter ready  │
 │ MySQL backing service   │  │  for switch via LLM_PROVIDER env)  │
-│ ⚠ ZERO PATIENT DATA     │  └────────────────────────────────────┘
+│ ✅ 10 SYNTHEA PATIENTS   │  └────────────────────────────────────┘
 └─────────────────────────┘
 ```
 
-The agent matches ARCHITECTURE.md exactly with one runtime substitution: **OpenAI gpt-4o is the active LLM**, not Anthropic Claude Sonnet. This was a forced fallback when Anthropic's billing rejected calls despite a $40 credited balance (workspace-vs-key mismatch we couldn't resolve before the deadline). The Anthropic adapter is fully wired and tested — switching back is one env var (`LLM_PROVIDER=anthropic`) once Anthropic is unblocked.
+The agent matches ARCHITECTURE.md, with **Anthropic Claude Sonnet 4.6 as the architectural primary and OpenAI gpt-4o as an automatic per-turn fallback**. Last night Anthropic's billing was rejecting calls (workspace-vs-key mismatch), so we ran the demo on OpenAI alone via `LLM_PROVIDER=openai`. The Anthropic key is working again now, and `app/agent/llm.py` has a new `FallbackAdapter` that wraps both adapters: tries Anthropic at the start of every turn; on a retryable SDK error (`APIStatusError` / `APIConnectionError` / `APITimeoutError`) before any conversation has been built, it transparently swaps to OpenAI for that turn and resets back to Anthropic at the next turn. **Live state on Railway is still `LLM_PROVIDER=openai` (env flip + deploy queued for the user's go-ahead);** once flipped to `anthropic` with the OpenAI key still configured, the wrapper activates and traffic moves to Sonnet 4.6 with OpenAI as the safety net.
+
+The agent is now **embedded inside OpenEMR** via an iframe rail injected into `interface/patient_file/summary/demographics.php`, so the physician never has to leave the chart. The dedicated `https://copilot-production-b532.up.railway.app` URL still works as a standalone surface (useful for the demo video / debugging), but the iframe rail is the production UX and the surface that satisfies the PRD's "AI agent embedded directly into OpenEMR" requirement.
 
 ### Architecture trace-back
 
 | ARCHITECTURE.md §  | Component                | Where it lives                                     | Status |
 |--------------------|--------------------------|----------------------------------------------------|--------|
 | §2.1 Framework     | Custom orchestration     | `app/agent/loop.py`                                | ✅      |
-| §2.2 LLM           | Adapter (OpenAI/Anthropic)| `app/agent/llm.py`                                 | ✅      |
+| §2.2 LLM           | Adapters + FallbackAdapter (Anthropic primary → OpenAI fallback) | `app/agent/llm.py`                                 | ✅      |
 | §3.1 Tools         | 8 tools, FHIR-backed     | `app/tools/` (8 files + `_base.py` + `registry.py`)| ✅      |
 | §3.2 5-step pattern| Shared helper            | `app/tools/_base.py:run_tool`                      | ✅      |
 | §3.3 PHI minimizer | Pseudonym + scrub        | `app/phi/minimizer.py`, `app/phi/session.py`       | ✅      |
 | §3.4 Trust boundaries| OAuth2 + ACL + verify  | `app/fhir/oauth.py`, `app/acl/check.py`            | ✅      |
 | §4.1 Layer-1 verify| Source attribution       | `app/verification/attribution.py`                  | ✅      |
 | §4.1 Layer-2 verify| Domain rules             | `app/verification/rules.py`                        | ✅ (2 of 4 rules) |
-| §5 Observability   | Langfuse wrapper         | `app/observability/trace.py`                       | ✅ (noop fallback active) |
+| §5 Observability   | Langfuse wrapper         | `app/observability/trace.py`                       | ✅ (cloud traces flowing) |
 | §6 Evaluation      | pytest harness           | `evals/`                                           | ✅      |
-| §10 Deployment     | Railway service `copilot`| `Dockerfile`, `railway.toml`                       | ✅      |
+| §10 Deployment     | Railway service `copilot`| `copilot/Dockerfile`, `copilot/railway.toml`       | ✅      |
+| §10 Embedding      | iframe rail in OpenEMR   | injected into stock `demographics.php` via awk in repo-root `Dockerfile` (fragment in `copilot-rail-fragment.php`) | ✅ (NEW today) |
+| §10 OpenEMR cert   | TLS cert idempotent gen  | `railway-entrypoint.sh` (wraps upstream `./openemr.sh`) | ✅ (NEW today) |
 
 ---
 
@@ -97,13 +104,30 @@ docker run --rm \
 
 | Format | Size/patient | Where we tried | Result |
 |---|---|---|---|
-| FHIR R4 bundles | ~200 KB | POST to OpenEMR FHIR API | ❌ HTTP 500 — Synthea's resource shapes (extensions, photo data, identifier systems) don't match what OpenEMR's FHIR receiver accepts. Known upstream issue. |
-| CCDA XML | 100 KB – 7 MB | OpenEMR Carecoordination UI | ❌ HTTP 200 returned but `mkdir(): Permission denied` in server logs — Railway volume mount blocks `documents/` writes for Apache user |
+| FHIR R4 bundles | ~200 KB | POST to OpenEMR FHIR API | ❌ HTTP 500 — Synthea's resource shapes don't match OpenEMR's FHIR receiver. Known upstream issue. |
+| CCDA XML | 100 KB – 7 MB | OpenEMR Carecoordination UI | ✅ Imports successfully on Railway after the volume-perms fix in §4. |
 | CSV | ~varies | (not attempted) | Future option for direct-DB load |
 
-We have **15 generated CCDA files** ready at `/tmp/synthea-ccda/ccda/` (10 alive + 5 deceased patients across MA towns). They are valid C-CDA R2.1 — they import successfully on the *local* OpenEMR (verified via Carecoordination upload there during earlier testing).
+**10 alive Synthea patients are imported on Railway OpenEMR** (verified via `GET /apis/default/fhir/Patient?_count=20` returning `total: 10` with name + birthDate + gender populated).
 
-### Eval suite uses synthetic data
+### Patient roster on Railway (post-import, 2026-04-30)
+
+| Name | Encounters | Last encounter | Last lab | Allergies | Notes |
+|---|---|---|---|---|---|
+| Mariela | 33 | 2026-04-24 | 2024-04-12 | 5 | **Best UC1/UC2 demo** — 47F, LDL 190, chlorpheniramine, creatinine 2.72 |
+| Kacie | 39 | 2026-04-15 | 2024-06-12 | 0 | |
+| Dana (2y) | 17 | 2026-04-11 | 2022-12-23 | 10 (incl Aspirin) | **UC3 hard-block demo** — Layer-2 fires cleanly on aspirin |
+| Kiera | 30 | 2026-04-05 | 2020-03-15 | 0 | |
+| Un | 39 | 2026-03-10 | 2019-10-27 | 0 | |
+| Qiana | 50 | 2025-09-03 | 2025-08-27 | 0 | |
+| Chris | 38 | 2025-06-25 | 2023-06-05 | 0 | |
+| Guillermo | 12 | 2024-07-25 | 2024-07-25 | 0 | |
+| Clair | 50 | 1999-06-09 | 1998-05-20 | 0 | |
+| Tracey | 7 | 1960-11-02 | 1960-11-02 | 0 | Deceased per Synthea |
+
+Vital-signs data is sparse — last vital across all 10 patients is 2017-03-03 (Mariela). Even with the 5-year tool window, most patients won't have current vitals; the agent gracefully reports `data_gaps: ["No recent vitals on file"]` and recommends in-room measurement.
+
+### Eval suite uses synthetic fixtures (not Synthea)
 
 The agent's `evals/agent/test_scenarios.py` uses hand-crafted FHIR fixtures (smaller and more targeted than Synthea output) to exercise the verification gate against specific failure modes. Synthea is the *demo* data source, not the *eval* data source — the architecture document calls this out at §6.2 ("hand-crafted synthetic patients designed to stress specific failure modes").
 
@@ -126,6 +150,8 @@ The agent's `evals/agent/test_scenarios.py` uses hand-crafted FHIR fixtures (sma
 - PHI minimizer strips name, birthDate→age, address, telecom, SSN, MRN; replaces with session pseudonym `Patient-XXXX` / `Provider-A`
 - ACL middleware mirrors OpenEMR's `aclCheckCore` — denies *before* hitting FHIR for missing scopes
 - Session pseudonym map in-memory (Redis-ready interface for multi-replica scaling)
+- **`get_recent_labs` + `get_recent_vitals` lookback window: 5 years (`LOOKBACK_DAYS = 1825`)**, not 90 days. Synthea generates patients with lifetime timelines; a 90-day window returned empty for every imported patient and made UC2 useless. Tool docstrings reflect "last 5 years"; the SCHEMA.description string still says "last 90 days" in both files — flagged for §6 cleanup but not blocking.
+- **Defensive `dosageInstruction` handling in `app/phi/minimizer.py`**: OpenEMR's FHIR returns `dosageInstruction = [[]]` (a list-of-list, non-spec) for some MedicationRequests, which broke the agent on the original `(resource.get("dosageInstruction") or [{}])[0].get("text")` access. Replaced with a `next(... isinstance(x, dict) ...)` defensive iteration. Other minimizer functions still use the old `[0].get(...)` pattern on similar fields (`reaction[0].manifestation`, `referenceRange[0]`, `category[0].coding[0]`); a defensive sweep across them is queued for Final Sunday in §6.
 
 ### Phase C — Agent loop + verification ✅
 
@@ -138,6 +164,7 @@ The agent's `evals/agent/test_scenarios.py` uses hand-crafted FHIR fixtures (sma
 ### Phase D — Observability + eval ✅
 
 - Langfuse wrapper (`app/observability/trace.py`) — emits one trace per turn including tool sequence, latencies, token counts, verification verdict, ACL checks. Falls back to stdout-structured logging when keys unset.
+- **Langfuse cloud now active** — `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` set on Railway copilot service; traces flowing to `https://cloud.langfuse.com` under the *AgentForge Co-Pilot* project. Each agent turn lands as one trace with the tool-call sequence as nested spans, LLM input/output, token counts, and verification metadata. **Important caveat from tonight**: the deps had `langfuse>=2.50` with no upper bound, so pip resolved to v3.x — the v3 SDK dropped the `Langfuse.trace()` method in favor of OpenTelemetry-style spans, which raised `'Langfuse' object has no attribute 'trace'` on every emit. Pinned to `langfuse>=2.50,<3` in both `pyproject.toml` and `Dockerfile` to match the v2 API the wrapper was written against. Updating the wrapper to v3's `start_as_current_span` API is queued for §6.
 - Eval harness — pytest with auto-generated `evals/RESULTS.md` summary, `make eval` and `make eval-live` targets
 - **17 tests passing**: 7 PHI minimizer, 3 tool integration, 4 verification gate, 3 live LLM scenarios (UC1 happy path, UC1 refusal-on-empty, prompt injection)
 
@@ -147,405 +174,407 @@ The agent's `evals/agent/test_scenarios.py` uses hand-crafted FHIR fixtures (sma
 - Real UC1 question against local OpenEMR returned a verified, cited response (Phil Belford patient): 4 tools chained, every claim with `record_id`, latency 8.9s, `verification_passed: true`
 - All three use cases manually tested in local chat UI
 
-### Phase E2 — Railway deployment ✅ (agent only)
+### Phase E2 — Railway deployment ✅
 
-- `copilot` service created in `refreshing-empathy` project alongside existing `MySQL` and `openemr`
+- `copilot` service deployed in `refreshing-empathy` project alongside `MySQL` and `openemr`
 - Public URL: **https://copilot-production-b532.up.railway.app**
-- All 17 env vars set including OAuth client `GZg2tYuf...` registered against Railway OpenEMR
-- `railway up` succeeded after fixing the `$PORT` shell-expansion bug in `railway.toml`
+- All env vars set including OAuth client (`<OAUTH_CLIENT_ID>` / `<OAUTH_CLIENT_SECRET>`) registered against Railway OpenEMR
 - `/healthz` returns 200; chat UI loads at root
+- Deploys triggered via `railway up` from laptop (planned switch to GitHub auto-deploy on Final Sunday — see §6)
+
+### Phase E3 — Iframe rail integration in OpenEMR ✅ (NEW today)
+
+The iframe rail is **surgically injected into the stock OpenEMR image's `demographics.php` at Docker build time** — not by file-overlay. Architecture:
+
+- **Fragment** at `copilot-rail-fragment.php` (repo root): ~52 lines of self-contained PHP+HTML — the `Co-Pilot ▸` toggle button, the `<iframe>`, and inline CSS for the slide-in animation. Uses only `sqlQuery()` + `\OpenEMR\Common\Uuid\UuidRegistry::uuidToString()`, both present in the upstream image.
+- **Build step** in `/Dockerfile` (repo root): `awk '/<\/body>/ && !done {while ((getline line < "/tmp/copilot-rail-fragment.php") > 0) print line; done=1} {print}' "$DEMO" > "${DEMO}.new"` — inserts the fragment immediately before `</body>`, sets `apache:apache` ownership and mode 444, then renames over the original. A `grep -q copilot-rail` post-check fails the build if injection didn't land.
+- **Patient context flow**: the fragment looks up `patient_data.uuid` for the current `$pid`, formats it, and constructs iframe src `https://copilot-production-b532.up.railway.app/?patient_id=<uuid>`. The copilot's `app/web/index.html` auto-fills the input from `?patient_id=` and fires `startSession()` after 50ms, so the rail opens pre-scoped to the patient. The UUID input + Open chart button are hidden in iframe mode (visible in standalone).
+- **Default UI state**: collapsed 36px-wide blue `Co-Pilot ▸` tab on the right edge. Click toggles `body.copilot-open` → 400px iframe slides in, body padding-right animates from 36px to 400px.
+- This satisfies PRD page 2's "AI agent embedded directly into OpenEMR".
+
+#### Why awk-injection, not full-file overlay (the version-mismatch detour)
+
+The first attempt was to COPY our fork's complete `interface/patient_file/summary/demographics.php` into the image. It crashed at runtime with:
+
+```
+PHP Fatal error: Uncaught Error: Call to undefined method
+  OpenEMR\Common\Session\SessionWrapperFactory::getActiveSession()
+  in demographics.php:67
+```
+
+Our fork's `SessionWrapperFactory.php` adds `getActiveSession()` (line 64); the version baked into `openemr/openemr:latest` doesn't have that method. Overlaying our PHP onto an image with an older PHP class library guarantees breakage everywhere our fork has diverged. The surgical awk-injection sidesteps this entirely: the upstream's demographics.php (compatible with the image's class library) is preserved; only our 52-line iframe fragment is appended. Deferred to §6: pin a specific upstream image tag that matches our fork's PHP, OR move the iframe injection to an event-listener hook so we never touch demographics.php directly.
+
+### Phase E4 — Smoke tests against deployed agent ✅ (NEW today)
+
+| Use Case | Patient | Result |
+|---|---|---|
+| **UC1** | Mariela | 5 claims all `record_id`-anchored, `verification_passed: true`, PHI pseudonym `Patient-Z3DU` substituted, 12-15s latency. Identifies LDL 190 + chlorpheniramine + missing RxNorm code. |
+| **UC2** | Mariela | 2 claims, identifies chlorpheniramine + creatinine 2.72 mg/dL → renal-aware reasoning. Honestly flags "no recent vitals on file — measure in-room". 8s. |
+| **UC3** | Dana + aspirin | 3 claims (now also surfacing other meds — cetirizine, epinephrine auto-injector). Layer-2 hard-block fires cleanly. 5-7s. |
+
+### Phase E5 — Railway deploy infrastructure ✅ (NEW today)
+
+Two pieces added at repo root to make OpenEMR redeploys reliable on Railway:
+
+- **`/Dockerfile`** — wraps `openemr/openemr:latest`. Adds the awk-injection step for the Co-Pilot iframe (§E3) and installs the cert-bootstrap entrypoint.
+- **`/railway-entrypoint.sh`** — idempotent self-signed TLS cert generator. Runs on every container boot before exec'ing the upstream `./openemr.sh`. Generates `/etc/ssl/certs/webserver.cert.pem` + `/etc/ssl/private/webserver.key.pem` only if missing. Why this exists: Railway redeploys mount the persistent OpenEMR volume on a fresh container instance; the upstream image generates the Apache TLS cert only on first-ever boot, so without this wrapper every redeploy hits `AH00526: SSLCertificateFile … does not exist or is empty` and crashes Apache in a tight restart loop. Discovered tonight when a routine push triggered a CRASHED deployment that wouldn't recover.
+
+### Phase E6 — Langfuse cloud ✅ (NEW today)
+
+Keys provisioned and set as Railway env vars on the copilot service. After the wrapper init, the noop fallback is no longer used; every chat turn lands as one trace under the *AgentForge Co-Pilot* project at `https://cloud.langfuse.com`. End-to-end verified with a UC1 probe against Mariela. The langfuse SDK is pinned to `>=2.50,<3` (v3 dropped the `.trace()` method).
+
+### Phase E7 — `FallbackAdapter` for LLM provider resilience ✅ code only — deploy queued
+
+`app/agent/llm.py` now ships a `FallbackAdapter` class wrapping a primary + secondary `LLMAdapter`. Behavior:
+
+- **Per-turn fallback.** On the first `call()` of every turn (detected by an empty `conversation` list) it tries the primary; on a retryable SDK error (`anthropic.APIStatusError`, `APIConnectionError`, `APITimeoutError`) it logs a warning and swaps to the secondary for the rest of that turn. The next turn (next empty-conversation `call()`) resets back to the primary.
+- **Format-safe.** Anthropic and OpenAI use different conversation message shapes (content blocks vs flat tool-call dicts). After the first successful `call()`, the conversation list is in the active provider's format, so the wrapper *never* swaps mid-turn — a retryable error after that point propagates instead of corrupting the message history.
+- **Conversation-mutation routing.** `append_assistant`, `append_tool_results`, `append_user_text`, `initial_user_message` all delegate to whichever adapter served the most recent successful `call()` — keeps the message list self-consistent.
+- **Factory wiring.** `get_adapter()` returns `FallbackAdapter(AnthropicAdapter, OpenAIAdapter)` when `LLM_PROVIDER=anthropic` *and* both keys are set; otherwise falls through to a single adapter as before. Single-key configs are unchanged.
+- **Verified locally.** A 7-case unit test against mocked adapters covered: happy path (primary alone), turn-start fallback, post-fallback method delegation to secondary, turn-boundary reset to primary, mid-turn-error propagation, secondary failure propagation, and non-retryable error propagation. All passed; the test file was deleted after the run since this isn't a regression-eligible behavior we expect to keep re-testing.
+
+**Live state**: Railway copilot still has `LLM_PROVIDER=openai` and `ANTHROPIC_MODEL=claude-sonnet-4-5-20250929`. Activating the new FallbackAdapter is two env-var changes (`LLM_PROVIDER=anthropic`, `ANTHROPIC_MODEL=claude-sonnet-4-6`) plus a `railway up` to ship the code. Queued for the user's explicit go-ahead — see §6 F5.
+
+### Phase F — Final Submission Optimization Sprint ✅ (2026-05-01 evening)
+
+Five workstreams shipped to local Docker (Railway redeploy queued for Saturday after manual setup §6.5):
+
+#### F1 — Latency: cache tool defs + parallelize dispatch + cache write/read trace
+
+- **B.1** `cache_control: {"type": "ephemeral"}` added to the LAST tool definition in `app/agent/llm.py:86-100` (`AnthropicAdapter.call`). System prompt was already cached; this caches the ~1,495 tokens of tool definitions too. 2nd of Anthropic's 4 allowed cache breakpoints.
+- **B.2** `app/agent/loop.py:100-130` — sequential `for use in non_submit_uses: await dispatch(...)` replaced with `asyncio.gather(*[_one(u) for u in non_submit_uses])`. `_one` wraps dispatch with timing + per-tool exception catching; exceptions become `is_error=True` payloads.
+- **B.3** `tokens_cache_write` field added to `Usage` (`llm.py:33`) and `TurnTrace` (`schemas.py:33`); populated from `usage.cache_creation_input_tokens` in AnthropicAdapter; surfaced in Langfuse via `app/observability/trace.py:75` as `cache_creation_input` alongside `cache_read_input`.
+- **Live verification (2026-05-01 evening, local stack):** turn 2 of a same-session conversation shows `tokens_cached=4224` (warm hit). All 3 tools dispatched concurrently — total_latency_ms 7996 vs sum-of-tool-latencies 2974, confirming overlap.
+
+#### F2 — Citation UX: human-readable `display` field
+
+- New optional `display: str | None` on `Claim` (`schemas.py:7-19`) and on `SUBMIT_RESPONSE_TOOL.input_schema` (`schemas.py:55-92`). Required fields stay `["text", "record_id"]`.
+- `app/agent/prompt.py` updated with new instruction + 6 examples for the `display` format ("Med: Lisinopril 10mg daily (2024-12-01)", "Lab: LDL 190 mg/dL (2024-04-12)", "Allergy: Aspirin (severe)", "Cond: Type 2 diabetes (active since 2019)", "Enc: Office visit 2026-04-15 — diabetes f/u", "Vital: BP 158/94 mmHg (2025-08-27)").
+- `app/web/index.html:222-237` renders `c.display || c.text || c.record_id` as the bold `.claim-label`, with the raw `record_id` shown small + dim in `.claim-rid` below.
+- `app/verification/attribution.py` docstring explicitly notes `display` is presentation-only and is NOT validated by the gate — the audit anchor is `record_id`.
+- **Live verification:** claims now render as `"Patient: 54yo male"` / `"Enc: Check-up - Sad (2014-02-01)"` / `"Med: Norvasc (no canonical code)"` instead of raw `MedicationRequest/a1ab628e-...`.
+
+#### F3 — CI/CD: GitHub Actions + Railway auto-deploy
+
+- New file `.github/workflows/copilot-ci.yml` (75 lines):
+  - **`test` job** (every PR + master push, path-filter `copilot/**`): Python 3.11, `pip install -e ".[dev]"`, `ruff check .`, `pytest evals -v` with dummy API keys (`evals/conftest.py:21` skips `live_llm` marker by default).
+  - **`deploy` job** (only on master push, only if `test` passes, with `concurrency: copilot-deploy`): installs Railway CLI via `npm i -g @railway/cli`, runs `railway up --service copilot --detach` with `RAILWAY_TOKEN` from GitHub Secrets.
+- `copilot/README.md` adds CI badge + new "Deploy (CI/CD)" section explaining the flow.
+- Manual setup (Saturday): add `RAILWAY_TOKEN` GitHub Secret, disable Railway native auto-deploy on the copilot service.
+
+#### F4 — COST.md (PRD page 8 deliverable)
+
+- New file `copilot/COST.md` (179 lines, verified date 2026-05-01).
+- Pricing inputs: Sonnet 4.6 $3/$15 per MTok, ephemeral cache write 1.25×, read 0.1×; GPT-4o $2.50/$10 (fallback); Langfuse Hobby/Pro; Railway ~$15/mo per replica.
+- Per-turn token model measured from `TurnTrace`: turn 1 (cache write) ~$0.025; turn 2+ (cache read) ~$0.018; avg ~$0.020/turn over a 5-turn session.
+- Projection table at 100 / 1k / 10k / 100k physicians (50 turns/day × 250 days), with $/physician/yr ≈ $275 in steady state. ROI framing: $275/physician/yr vs ~$10K/physician/yr saved on chart pre-review = 36×.
+- Architectural changes per tier (Pilot → Practice [Redis session store] → Network [SMART backend services / JWKS, multi-region, Haiku routing] → Enterprise [self-hosted Langfuse, Anthropic enterprise contract]).
+- Cost-bending levers (cache invalidation, conversation length, tool-result size, verification retry rate, fallback adapter usage).
+
+#### F5 — Multi-physician with SMART auth-code + PKCE (A.1–A.5)
+
+- **A.1** `app/fhir/oauth.py` rewritten. `FhirOAuthClient._tokens: dict[physician_user_id, TokenSet]` replaces the global `_cache`. New methods: `build_authorize_url` (PKCE S256 + state cache), `exchange_code`, `get_token` (with refresh + `_dev_launch` + `_legacy_password_grant` fallback chain), `_password_grant`, `resolve_practitioner_uuid`. New `TokenSet.practitioner_uuid` populated from id_token's `fhirUser` claim.
+- New `Settings` fields in `app/config.py`: `oauth_redirect_uri`, `oauth_authorize_path`, `oauth_token_path`, `oauth_refresh_skew_seconds`, `smart_dev_launch_enabled`, `smart_dev_credentials` (JSON map of physician → `{username, password}`).
+- **A.2** `app/fhir/client.py` — `get_resource` and `search` take required `physician_user_id` kwarg. Propagated through 5-step pattern in `_base.py` and 7 of 8 tools (check_drug_interactions doesn't touch FHIR). Also fixed §6 F3 in passing — SCHEMA descriptions in `get_recent_labs.py` and `get_recent_vitals.py` now say "last 5 years" not "last 90 days".
+- **A.3** `app/main.py` adds three SMART routes:
+  - `GET /v1/oauth/launch?iss=&launch=&physician_user_id=` — builds /authorize URL + 302 redirect
+  - `GET /v1/oauth/callback?code=&state=` — exchanges code, redirects to `/?physician_user_id=<resolved>`
+  - `GET /v1/oauth/dev-launch?physician_user_id=` — demo-safe direct token mint when `SMART_DEV_LAUNCH_ENABLED=true`
+- **A.4** `app/acl/check.py` — static `PHYSICIAN_GRANTS` map demoted to diagnostic-only (logged, not blocking). `_base.py:run_tool` runs a runtime probe: `GET /Patient/{active_patient_id}` with the physician's token. 401/403 → ACL denied; success → allowed. Cached on `PseudonymMap.acl_decision` (new field in `phi/session.py`). New: empty `physician_user_id` is hard-denied without probing (`no_physician_user_id` reason).
+- **A.5** `FallbackAdapter` docstring at `app/agent/llm.py:268` documents the per-turn concurrency contract — `get_adapter(settings)` is called per turn at `loop.py:126`, so each turn gets a fresh adapter and `_active` is naturally per-request. Do NOT cache adapters at module level (would require `contextvars.ContextVar`).
+
+#### F6 — Per-physician PATIENT scope enforcement (A.7, NEW)
+
+Added mid-execution after a Friday-night discovery: investigation of `src/Services/FHIR/FhirPatientService.php:943` and `src/Services/PatientService.php:418-523` confirmed OpenEMR's FHIR layer applies **zero** user-based filtering — any token with `user/Patient.read` returns every patient. `users_facility` is only consulted by the legacy UI when `pt_restrict_field` is set; FHIR ignores it. `patient_data.providerID` exists and is exposed as `Patient.generalPractitioner` but is not enforced server-side.
+
+Co-Pilot enforces it itself, deriving the panel from OpenEMR data at runtime (no static config):
+
+- New `_verify_patient_in_panel(fhir, physician, patient_id)` helper in `app/main.py` runs at `/v1/sessions` create:
+  - Resolves the physician's Practitioner UUID via `oauth.resolve_practitioner_uuid` (cached on `TokenSet.practitioner_uuid` from id_token's `fhirUser` claim)
+  - Fetches Patient resource, reads `Patient.generalPractitioner[].reference`, compares against the physician's UUID
+  - Mismatch → `HTTPException(403, "patient_out_of_panel")`. Admin (no Practitioner UUID) bypasses.
+- Tool-layer ACL probe in `_base.py` extended with the same `generalPractitioner` check (defense in depth for sessions created before the gate or via code paths that bypass it).
+- **Operational model:** `patient_data.providerID` is the single source of truth. Adding/transferring a patient is one SQL UPDATE; Co-Pilot picks it up on next session-create call. No env var or redeploy required.
+
+**No OpenEMR fork** — all enforcement lives in the Co-Pilot.
+
+#### F7 — Test suite expansion
+
+- All 14 prior mockable tests still pass.
+- 3 NEW tests in `evals/agent/test_panel_scope.py`:
+  - `test_panel_allows_when_general_practitioner_matches` — Patient owned by physician → allowed
+  - `test_panel_denies_when_general_practitioner_mismatches` — Patient owned by another physician → `acl_denied: patient_out_of_panel`
+  - `test_panel_bypassed_when_practitioner_uuid_absent` — admin (no fhirUser claim) → bypasses
+- Total: **17 passed / 3 skipped (live_llm)** in 0.19s.
 
 ---
 
-## 4. Source-of-Truth Gap — Local + Railway, *Not Yet on GitHub or GitLab*
+## 4. Patient Data on Railway OpenEMR — RESOLVED ✅
 
-**Submission rules update (per user):** every submission (MVP / Early / Final) requires three things together — **demo video link + repo link + deployed URL**. The repo is the **GitLab** link the user submits to Gauntlet, mirrored from a **GitHub fork** of OpenEMR (the GitHub fork is what Railway already auto-deploys the OpenEMR service from). So the publish requirement is **not** Final-only as I had it before — it applies to **tonight's Early Submission too**.
+**The agent is deployed, the iframe rail is live, and the Railway OpenEMR has 10 Synthea patients with full clinical histories.** This unblocks the demo video and the Early Submission.
 
-### Where things live right now
+### Root cause of the original block
 
-| Location | What's there | Status |
-|---|---|---|
-| Laptop `/Users/rikki/Desktop/Doc/OOD/openemr/` | Full OpenEMR fork + `copilot/` agent code + all updated docs | ✅ source of truth |
-| Railway `openemr` service | OpenEMR running, auto-deployed from your **GitHub** fork | ✅ live (no patient data — see §5) |
-| Railway `copilot` service | Agent running, deployed via `railway up` from laptop (NOT git-connected yet) | ✅ live |
-| **GitHub fork (your account)** | Frozen at MVP commit — has AUDIT.md / USERS.md / ARCHITECTURE.md / AGENTFORGE.md but **no `copilot/` directory and no IMPLEMENTATION.md** | ⚠ stale |
-| **GitLab repo** | Doesn't exist yet OR is also frozen at MVP commit | ❌ not done |
+The Synthea CCDA upload via Carecoordination was returning HTTP 200 in the browser but logging `mkdir(): Permission denied` server-side. Diagnosis via `railway ssh --service openemr`:
 
-The local laptop dir was never `git init`'d (we checked: "Is a git repository: false"). The MVP-era commits to the GitHub fork happened by editing files in the GitHub web UI directly, not by `git push` from this laptop. So even GitHub's record of MVP is the *web-edited* version, and we have no local git history — every change since must be committed in one big squash.
+- `sites/default/` and `sites/default/documents/` had mode `dr-x------` (read+execute only, no write bit).
+- The Apache process (which runs as user `apache` inside the container) **owned** the directory but had no write bit set.
+- This is why Carecoordination's `mkdir()` for the per-patient subfolder under `documents/` failed silently — Apache could `stat` the parent but not create children.
 
-### Why we deferred git publish until now (Path 3 recap)
-
-When we stood up Phase E (Tuesday evening), I called this **Path 3** — `railway up` from local now, GitHub publish later. The reasoning held up across this week's debugging cycles (Anthropic → OpenAI provider switch, OAuth flow debugging, failed Synthea FHIR import, failed Carecoordination CCDA upload, `$PORT` shell-expansion fix). A weekly squash commit beats five days of public WIP commits. But the user's submission requirement just collapsed the deferral window.
-
-### Dual-publish strategy: GitHub primary, GitLab mirror
-
-Submission asks for the GitLab link; Railway is wired to GitHub. We need both with identical content.
-
-```
-[laptop /openemr/]
-       │
-       │   git push origin main
-       │   git push gitlab main      ← single command sequence
-       ▼
-   ┌───────────────────────┐    ┌───────────────────────┐
-   │ GitHub fork           │    │ GitLab mirror         │
-   │ (Railway pulls from)  │    │ (submission link)     │
-   └───────────────────────┘    └───────────────────────┘
-       │
-       │  auto-deploy webhook
-       ▼
-   Railway openemr service       (Railway copilot service stays
-   (already wired)                on `railway up` for tonight,
-                                  re-wire to GitHub Sunday — see §7)
-```
-
-### Concrete steps for tonight (TIGHT — ~45 min)
-
-1. **Verify GitHub fork URL.** Confirm which GitHub repo Railway's `openemr` service is wired to (e.g., `https://github.com/<you>/openemr`). This is the canonical fork — do not create a new one.
-2. **Create matching GitLab repo** at gitlab.com with same name (e.g., `openemr`). Empty, no README/license init — we want the import to be clean.
-3. **`git init` locally** in `/Users/rikki/Desktop/Doc/OOD/openemr/` *only if* the laptop dir isn't already linked to GitHub. If it isn't, instead of `git init` from scratch:
-   ```bash
-   cd /Users/rikki/Desktop/Doc/OOD/openemr
-   git init
-   git remote add origin https://github.com/<you>/openemr.git
-   git fetch origin
-   git reset --soft origin/main      # bring local to parity with what GitHub has
-   git status                         # should now show all the new copilot/ files + IMPLEMENTATION.md as untracked
-   ```
-4. **Verify `.gitignore` is clean** — `copilot/.env` (with all the secrets), `copilot/.venv/`, `__pycache__/` already in `copilot/.gitignore`. Add a top-level `.gitignore` if missing.
-5. **Sanity check the diff** — `git status` should show only files we expect. No accidental edits to upstream OpenEMR PHP. Spot-check `git diff origin/main -- src/` and `interface/` come back empty.
-6. **First commit:** stage everything new (`git add copilot/ IMPLEMENTATION.md AGENTFORGE.md` and the doc updates), commit with a proper message:
-   ```
-   feat(copilot): add Clinical Co-Pilot agent service
-
-   - FastAPI agent with 8 FHIR-backed tools (5-step pattern per ARCHITECTURE.md §3.2)
-   - Two-layer verification gate (source attribution + domain rules)
-   - PHI minimizer, ACL middleware, Langfuse observability
-   - Anthropic + OpenAI LLM adapters with runtime switch
-   - 17/17 eval tests passing, deployed to Railway
-
-   Implementation status documented in copilot/IMPLEMENTATION.md
-   ```
-7. **Push to GitHub:** `git push origin main`
-8. **Add GitLab as second remote, push to it:**
-   ```bash
-   git remote add gitlab https://gitlab.com/<you>/openemr.git
-   git push gitlab main
-   ```
-9. **Verify both repos** show the new `copilot/` directory in their web UI and that the README pointer (`AGENTFORGE.md`) renders.
-10. **Submit the GitLab link** with the demo video + deployed URL.
-
-If step 3's `git reset --soft` doesn't behave (the laptop diverged from GitHub by more than just additions), the safer path is: clone the GitHub fork into a fresh dir, copy the new files in, commit, push. ~10 min more, zero risk of clobbering existing GitHub state.
-
-### What this means for each submission
-
-| Submission | Repo state required | Our plan |
-|---|---|---|
-| MVP (Tuesday — done) | AUDIT/USERS/ARCHITECTURE.md committed | ✅ done via web UI |
-| **Early (Thursday — tonight)** | All current code in the submitted GitLab link | ⚠ **must be pushed tonight** before submitting — moved into §6 checklist |
-| Final (Sunday) | Same, plus AI cost analysis, social post, polish, possibly Railway services switched to auto-deploy | 📋 §7 |
-
-### AI Interview framing if asked about commit cadence
-
-"This is one squash commit at submission time. We deliberately ran the iteration loop locally + on Railway via CLI deploy to keep the public commit log clean — five days of OAuth flow debugging, provider-switching, and Synthea import experiments would have been noise. The squash captures the architecture, not the 50 dead-ends. Final Sunday will switch the agent service to GitHub-auto-deploy so future commits are atomic and visible."
-
----
-
-## 5. Active Blocker — Patient Data on Railway OpenEMR
-
-**The agent is deployed and works. The Railway-deployed OpenEMR has zero patients, so the deployed agent has nothing to query.**
-
-Without patient data the demo video would show "I cannot find patient X" for every question — useless. This is the only thing standing between us and a complete Early Submission.
-
-### Why both Synthea import paths failed
-
-1. **FHIR POST path** — direct POST of Synthea's FHIR R4 Patient resources to OpenEMR's `/Patient` endpoint returned HTTP 500 with `Call to a member function getUrl() on array`. Root cause: Synthea generates resource shapes (photo arrays, extension blocks, identifier formats) that OpenEMR's FHIR ingest controller doesn't handle. Not solvable by retrying or simple field-stripping; would need a non-trivial Synthea→OpenEMR FHIR adapter.
-
-2. **CCDA UI path** — Carecoordination upload at `/interface/modules/zend_modules/public/carecoordination/upload` returns HTTP 200 (server-side warning visible in logs):
-   ```
-   PHP Warning: mkdir(): Permission denied
-     in /var/www/localhost/htdocs/openemr/library/classes/Document.class.php:1022
-   ```
-   The Apache user inside the Railway container can't write to the `documents/` directory inside the Railway volume mount. The upload appears to succeed in the browser (progress bar shows "done") but the file never lands on disk and no Pending Document is created.
-
-### Resolution paths (ordered by deadline-fit)
-
-| Option | Effort | Risk | When |
-|---|---|---|---|
-| **D — Manual patient creation in UI** | 15 min × 3 patients = ~45 min | Low — uses paths OpenEMR is documented to support | **Tonight (Thursday Early Submission)** |
-| E — Fix volume perms via `railway ssh` (`chown apache:apache documents/`) then retry CCDA | 20-30 min | Medium — wrong perms could break other OpenEMR features | Tonight if ahead of schedule, else Final Sunday |
-| F — Direct MySQL bulk load via Railway public proxy (Synthea CSV → OpenEMR INSERTs) | 60-90 min | Medium — foreign-key chain across patient_data + lists + prescriptions + form_encounter is non-trivial | Final Sunday |
-| G — railway ssh + `import_ccda.php` CLI | 30+ min | High — script docstring says "NOT WORKING IF DEV MODE OFF" | Final Sunday only if F fails |
-
-**Decision (revised after discussion):** the user wants Synthea-quality data on Railway, not hand-created stubs. We commit to **Option E first, Option G fallback** rather than the manual Option D. Detailed steps for both below.
-
-### Path forward — Option E (primary, ~20-30 min)
-
-Goal: fix the volume permission problem that's blocking Carecoordination's `mkdir()` so the existing Synthea CCDA files at `/tmp/synthea-ccda/ccda/` upload successfully.
-
-**Stage 1 — Diagnose perms inside the running container**
+### Fix applied (Option E from previous draft of this doc)
 
 ```bash
-cd /Users/rikki/Desktop/Doc/OOD/openemr/copilot   # so railway is linked
 railway ssh --service openemr
-# Inside container:
-whoami                          # likely 'root' on flex image, but Apache process runs as 'apache'
-id apache 2>&1
-ls -ld /var/www/localhost/htdocs/openemr/sites/default/documents
-ls -ld /var/www/localhost/htdocs/openemr/sites/default
-df -h /var/www/localhost/htdocs/openemr/sites/default      # confirm volume mount
-mount | grep openemr                                        # confirm volume is bind-mounted
+cd /var/www/localhost/htdocs/openemr
+chmod u+w sites/default
+chmod -R u+rwX,g+rX sites/default/documents
+# Sanity-checked with a write probe — returned OK_DOCS_WRITABLE.
 ```
 
-What we expect to find:
-- `documents/` either doesn't exist (mkdir fails because parent has wrong perms), OR
-- `documents/` exists but is owned by `root:root` with `755` (Apache can read but not create subdirs), OR
-- The volume is mounted with restrictive flags (rare on Railway)
+Idempotent and reversible — only flipped write bits on the documents subtree.
 
-**Stage 2 — Apply the fix**
+### Import flow that worked
 
-The Apache process inside the OpenEMR container runs as user `apache` (UID likely 100 or 1001 depending on base image). The fix is one of:
+1. User logged in to Carecoordination on `https://openemr-production-0c8c.up.railway.app/`.
+2. Uploaded each of the 10 alive Synthea CCDA files from `/tmp/synthea-ccda/ccda/` → Pending Documents.
+3. Clicked "Approve as new patient" on each one.
+4. Verified via FHIR:
+   ```bash
+   curl -s -H "Authorization: Bearer $TOK" \
+     'https://openemr-production-0c8c.up.railway.app/apis/default/fhir/Patient?_count=20'
+   # → total: 10, each with name + birthDate + gender populated
+   ```
+
+### Option G — direct MySQL bulk-load (documented but did NOT need to run)
+
+The previous draft of this doc planned a fallback "Option G": dump the 50 already-imported Synthea patients out of local MariaDB and restore them into Railway MySQL via the public proxy. The perm fix made that unnecessary. Keeping the steps below as a reference in case future patient-import work needs them.
 
 ```bash
-# Option E.1 — chown the documents dir (and ensure parent is writable)
-chown -R apache:apache /var/www/localhost/htdocs/openemr/sites/default/documents
-chmod -R u+rwX,g+rwX /var/www/localhost/htdocs/openemr/sites/default/documents
-
-# Option E.2 — if documents/ doesn't exist yet, create it first
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default/documents
-chown -R apache:apache /var/www/localhost/htdocs/openemr/sites/default/documents
-chmod 775 /var/www/localhost/htdocs/openemr/sites/default/documents
-```
-
-Idempotent and reversible — only touches the documents subtree.
-
-**Stage 3 — Smoke test the upload**
-
-1. Browser → `https://openemr-production-0c8c.up.railway.app` → login `EPU-admin-46` / `<OPENEMR_ADMIN_PASSWORD>`
-2. Carecoordination → Upload CCDA → select `Tracey100_DuBuque211_*.xml` (smallest at 108 KB) from `/tmp/synthea-ccda/ccda/`
-3. **In parallel terminal**: `railway logs --service openemr 2>&1 | grep -iE "permission|mkdir"` — should be quiet now
-4. Carecoordination → Pending Documents → the Tracey row should now appear (it didn't before the fix)
-5. Click → Approve as new patient → done
-
-**Stage 4 — Bulk import the remaining 9 alive patients**
-
-If Tracey lands successfully, repeat the upload+approve flow for the 9 other alive Synthea patients listed in §2:
-
-```
-Chris95_Flatley871_*.xml          (440 KB, 46M)
-Dana512_Fadel536_*.xml            (250 KB)
-Guillermo498_Grijalva82_*.xml     (132 KB, 32M)
-Kacie297_Crona259_*.xml           (323 KB, 30F)
-Kiera822_Torphy630_*.xml          (421 KB)
-Mariela993_Arlette667_*.xml       (446 KB, 47F)
-Maryann106_Marvin195_*.xml        (623 KB, 98F — exceptional age, drop if too old to be plausible)
-Pablo44_Montoya249_*.xml          (-, 50M — alive)
-Qiana980_Balistreri607_*.xml      (360 KB, 39F)
-Un745_Fahey393_*.xml              (504 KB, 62F)
-```
-
-Skip the 5 deceased CCDA files (Synthea generated CCDAs for the patients' lifetimes including their death).
-
-**Stage 5 — Verify via FHIR**
-
-```bash
-TOK=$(curl -s -X POST 'https://openemr-production-0c8c.up.railway.app/oauth2/default/token' \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  --data-urlencode 'grant_type=password' \
-  --data-urlencode 'client_id=<OAUTH_CLIENT_ID>' \    # actual values in copilot/.env (gitignored)
-  --data-urlencode 'client_secret=<OAUTH_CLIENT_SECRET>' \
-  --data-urlencode 'user_role=users' \
-  --data-urlencode 'username=EPU-admin-46' \
-  --data-urlencode 'password=<OPENEMR_ADMIN_PASSWORD>' \
-  --data-urlencode 'scope=openid offline_access api:fhir user/Patient.read user/Condition.read user/MedicationRequest.read' \
-  | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
-
-curl -s -H "Authorization: Bearer $TOK" \
-  'https://openemr-production-0c8c.up.railway.app/apis/default/fhir/Patient?_count=20' \
-  | python3 -c 'import json,sys; d=json.load(sys.stdin); print("total:", d.get("total")); [print("-", e["resource"]["id"], (e["resource"].get("name",[{}])[0].get("given",[""])[0]+" "+e["resource"].get("name",[{}])[0].get("family","")).strip(), e["resource"].get("birthDate","-")) for e in d.get("entry",[])[:15]]'
-```
-
-Expect `total: 10` (or 9, depending on whether you skipped one), each with a real name and birthdate. Pick one for the smoke test against the deployed agent.
-
-### Path forward — Option G (fallback if Option E doesn't work, ~30-45 min)
-
-If Option E hits a wall (e.g. `apache` user doesn't exist, container is read-only, perm fix doesn't actually unblock the upload), pivot to **direct MySQL transfer** of the existing Synthea data from local OpenEMR to Railway MySQL.
-
-**Why this works:** local OpenEMR already has 50 Synthea-imported patients (verified earlier — `patient_data` rows 4–53). They were imported via the same Carecoordination flow that's broken on Railway, so the data is in OpenEMR's expected schema shape. Transferring those rows + their dependent tables to Railway MySQL skips the import step entirely.
-
-**Stage 1 — Get Railway MySQL public connection URL**
-
-User pulls from Railway dashboard → MySQL service → Variables tab → copy `MYSQL_PUBLIC_URL` (format: `mysql://root:PASSWORD@shortline.proxy.rlwy.net:PORT/railway`). Paste here.
-
-**Stage 2 — Dump patient-related tables from local MariaDB**
-
-```bash
+# Dump from local MariaDB (limited to pids 4-53)
 docker exec development-easy-mysql-1 mariadb-dump \
   -uopenemr -popenemr openemr \
-  --no-create-info \
-  --single-transaction \
-  --skip-add-locks \
-  --skip-comments \
+  --no-create-info --single-transaction --skip-add-locks --skip-comments \
   --where="pid >= 4 AND pid <= 53" \
-  patient_data \
-  > /tmp/patient_data.sql
+  patient_data > /tmp/patient_data.sql
 
-# Other tables — these don't have direct pid columns but link via foreign keys.
-# Need a list of patient UUIDs first to filter properly.
-docker exec development-easy-mysql-1 mariadb -uopenemr -popenemr openemr \
-  -B -N -e "SELECT uuid FROM patient_data WHERE pid BETWEEN 4 AND 53" | \
-  while read uuid; do
-    # ... per-table extracts using patient_uuid filter
-  done
-```
-
-This is fiddly — OpenEMR's clinical data spans `lists` (problems/allergies/medications), `form_encounter` + `forms` (encounters), `prescriptions`, `observations`, `procedure_order` + `procedure_result` (labs), `history_data`. Each table joins to patient differently. Plan ~30 min just to write the right WHERE clauses.
-
-**Stage 3 — Restore into Railway MySQL**
-
-```bash
+# Restore into Railway via public proxy URL pulled from Railway dashboard
 mysql --host=shortline.proxy.rlwy.net --port=<PORT> \
-      --user=root --password=<PASSWORD> railway \
+      --user=root --password=<MYSQL_PASSWORD> railway \
       < /tmp/patient_data.sql
-# repeat for each per-table dump
 ```
 
-**Risks:**
-- Local schema is MariaDB 11.8.6, Railway is MySQL 8.x — column types compatible 99% of the time but not 100% (TIMESTAMP precision, ENUM coercion)
-- Foreign-key chain across `users` (provider IDs), `facility`, `lists_categories` may not match between environments
-- Patient UUIDs collide between local + Railway (unlikely for fresh Railway DB but worth checking)
-
-Mitigation: do an initial dump of just `patient_data`, restore that, verify FHIR can find one patient before continuing to the dependent tables. Iterative.
-
-### When to start
-
-The user wants to pause here and pick this up later. **Resume with Stage 1 of Option E.** All artifacts are staged:
-- Synthea JAR at `/tmp/synthea-with-dependencies.jar`
-- 15 CCDA files at `/tmp/synthea-ccda/ccda/`
-- Railway CLI is linked to the project
-- Option G fallback is documented but not started
+Risks if ever revived: local schema is MariaDB 11.8.6, Railway is MySQL 8.x — column type compatibility is 99%, not 100% (TIMESTAMP precision, ENUM coercion). Foreign-key chain across `users`, `facility`, `lists_categories` may not match between environments. Mitigation: dump+restore `patient_data` first, verify FHIR can find one patient before the dependent tables.
 
 ---
 
-## 6. What's Left — Pre-Early-Submission (Tonight)
+## 5. What's Left — Pre-Early-Submission (Tonight)
 
-Pre-deadline checklist, in order. Roughly 2.5 hours of user time + ~30 min agent-side checks.
-
-**Submission requires three artifacts together: GitLab repo link + deployed URL + demo video.** All three must be in place before submitting.
+Submission requires three artifacts together: **GitLab repo link + deployed URL + demo video.** Two of three are already in place.
 
 | # | Track | Task | Owner | Time | Status |
 |---|---|---|---|---|---|
-| 1 | Data | **Synthea data import** — run Option E (railway ssh + Carecoordination perms fix) per §5 stages 1-2 | Auto | 10 min | 📋 paused |
-| 2 | Data | Upload Tracey CCDA via Carecoordination UI to validate the perms fix (§5 stage 3) | User | 5 min | 📋 paused |
-| 3 | Data | Bulk-upload remaining 9 alive Synthea patients (§5 stage 4) | User | 15 min | 📋 paused |
-| 3a | Data | If Option E fails: pivot to Option G (mysqldump local → restore Railway), need MYSQL_PUBLIC_URL | User+Auto | 30-45 min | 📋 fallback |
-| 4 | Data | Verify via FHIR: `Patient?_count=20` returns 10 patients with names + birthDates (§5 stage 5) | Auto | 5 min | 📋 |
-| 5 | Smoke | UC1 against deployed agent + an imported Synthea patient — expect 3-5 line cited brief | Auto | 5 min | 📋 |
-| 6 | Smoke | UC2 — pick a patient with multiple conditions and ask a hypothesis-style question — agent should chain tools and cite | Auto | 5 min | 📋 |
-| 7 | Smoke | UC3 — pick a patient with documented allergy, ask "is X safe to add" with `proposed_drug=<allergen>` — Layer-2 allergy rule must hard-block | Auto | 5 min | 📋 |
-| 7 | Git | Confirm GitHub fork URL Railway pulls from (check Railway openemr service → Source repo) | User | 3 min | 📋 |
-| 8 | Git | Create empty GitLab project at `gitlab.com/<you>/openemr` (no README, no license init) | User | 3 min | 📋 |
-| 9 | Git | Pre-flight: `cat copilot/.gitignore` confirms `.env` excluded; secret-grep across copilot/ returns empty | Auto | 3 min | 📋 |
-| 10 | Git | `git init` + `remote add origin` (GitHub) + `git fetch` + `git reset --soft origin/main` to align with GitHub state | Auto | 5 min | 📋 |
-| 11 | Git | Sanity-diff: `git diff origin/main -- src/ interface/ library/` returns empty (no upstream PHP edits) | Auto | 2 min | 📋 |
-| 12 | Git | `git add` + `git commit` (squash message, see Section 4) | Auto | 2 min | 📋 |
-| 13 | Git | `git push origin main` to GitHub | Auto | 3 min | 📋 |
-| 14 | Git | `git remote add gitlab <gitlab-url>` + `git push gitlab main` | Auto | 5 min | 📋 |
-| 15 | Git | Verify both repos render `copilot/` directory + `IMPLEMENTATION.md` in their web UIs | User | 5 min | 📋 |
-| 16 | Demo | Record demo video (3–5 min): deployed URL → UC1 → fake-claim injection showing strip → UC2 → UC3 allergy block → trace expander → 30-sec architecture closing | User | 30 min | 📋 |
-| 17 | Submit | Submit (GitLab link + deployed URL + video link) to Gauntlet Early Submission form | User | 5 min | 📋 |
-| 18 | Interview | Schedule the AI Interview within 24h of submission (PRD page 4 hard gate) | User | 2 min | 📋 |
+| 1 | Data | Synthea data import via Carecoordination perm fix | Auto+User | 30 min | ✅ done — 10 patients |
+| 2 | Data | FHIR verification: `Patient?_count=20` returns 10 with names + birthDates | Auto | 5 min | ✅ done — `total: 10` |
+| 3 | Code | `dosageInstruction` defensive handling in `phi/minimizer.py` | Auto | 10 min | ✅ deployed in `d0600aa9e` |
+| 4 | Code | Lookback window 90d → 5y in `get_recent_labs` + `get_recent_vitals` | Auto | 5 min | ✅ deployed in `d0600aa9e` |
+| 5 | Code | iframe rail injection in `interface/patient_file/summary/demographics.php` | Auto | 30 min | ✅ deployed |
+| 6 | Code | Auto-bind `?patient_id=<uuid>` in `app/web/index.html` | Auto | 5 min | ✅ deployed |
+| 7 | Smoke | UC1 against Mariela on deployed agent | Auto | 5 min | ✅ 5 cited claims, verified |
+| 8 | Smoke | UC2 against Mariela on deployed agent | Auto | 5 min | ✅ 2 claims, renal-aware reasoning |
+| 9 | Smoke | UC3 against Dana + aspirin on deployed agent | Auto | 5 min | ✅ Layer-2 hard-block fires |
+| 10 | Git | Squash commit `feat(copilot): add Clinical Co-Pilot agent service` | Auto | 5 min | ✅ `d0600aa9e` |
+| 11 | Git | Push to GitHub master | Auto | 2 min | ✅ |
+| 12 | Git | Push to GitLab master (via dual-push origin remote) | Auto | 2 min | ✅ |
+| 13 | Git | Verify both repos render `copilot/` + this file in their web UIs | User | 3 min | ✅ both at `da8b10fe2` |
+| 14 | Live | End-to-end click test: open OpenEMR → patient → demographics → Co-Pilot tab → expanded → ask UC1 | User | 5 min | ✅ confirmed working in browser |
+| 15 | Demo | Decide whether to switch the demo physician from `admin` to a non-admin doctor user (defense-in-depth: ACL middleware should be exercised by a non-superuser; admin bypasses ACL) | User | 10 min | 📋 deferred to §6 — out of tonight's scope |
+| 16 | Demo | Record demo video (3–5 min) — see script below | User | 30 min | ✅ recorded |
+| 17 | Submit | Fill the Early Submission form (GitLab link + deployed URL + video link) | User | 5 min | 📋 **next** |
+| 18 | Interview | Schedule the AI Interview within 24h of submission (PRD page 4 hard gate) | User | 2 min | 📋 **after submit** |
 
-### What to do *during* the demo video
+### Demo video script (~3-5 min)
 
-- Open https://copilot-production-b532.up.railway.app
-- Paste P1's patient FHIR id (the 67M with HTN+T2DM+penicillin allergy)
-- **UC1**: ask "Brief me on this patient — who they are, why they're here, what's changed." Point at the cited-claims pills under the response and the "verified ✓" badge
-- **Hallucination demo**: ask "Is she also on simvastatin?" — when the agent answers, show that the response says "I cannot verify this" / "[unverified]" because no MedicationRequest record_id supports that claim
-- **UC2**: ask "He's complaining of dizziness — is this related to anything I should know about?" — agent should chain `get_active_medications` + `get_recent_vitals` and either flag lisinopril+BP or surface "no recent BP recorded — recommend in-room measurement"
-- **UC3**: ask "I'm thinking about prescribing penicillin VK for his sinus infection — any concerns?" — Layer-2 allergy rule must hard-block; the response should refuse the verdict, not say "safe"
-- Click the "full trace" expander on any response — show tool sequence + per-tool latencies + token counts
-- Closing 30 seconds: PHI minimization (pseudonyms in trace, no SSN/name to LLM), source-attribution gate (deterministic, not LLM self-grading), Anthropic primary / OpenAI fallback adapter
+- Open https://openemr-production-0c8c.up.railway.app/, login.
+- Click into Mariela's chart (the 47F with 33 encounters). Demographics page opens; the Co-Pilot tab is visible at the right edge.
+- Click `Co-Pilot ▸` — rail slides in pre-scoped to Mariela's UUID. Show the `Patient-XXXX` pseudonym in the session bar.
+- **UC1**: "Brief me on this patient — who they are, why they're here, what's changed." Point at the cited-claim pills under the response and the "verified ✓" badge.
+- **Hallucination demo (optional, 30s)**: ask "Is she also on simvastatin?" — agent should refuse / mark `[unverified]` because no MedicationRequest record_id supports that claim.
+- **UC2**: "She's complaining of dizziness — anything I should know?" — agent chains tools and surfaces creatinine 2.72 (renal-aware) plus the `data_gaps: ["No recent vitals on file"]` honesty.
+- **UC3**: switch to Dana's chart, ask "I'm thinking about adding aspirin for her — any concerns?" with `proposed_drug=aspirin` — Layer-2 allergy rule must hard-block.
+- Click the "full trace" expander on any response — show tool sequence + per-tool latencies + token counts + verification verdict.
+- Closing 30 seconds: PHI minimization (pseudonyms in trace, no SSN/name to LLM), source-attribution gate (deterministic, not LLM self-grading), Anthropic primary / OpenAI fallback adapter.
 
 ---
 
-## 7. What's Left — Pre-Final-Submission (Sunday)
+## 6. What's Left — Pre-Final-Submission (Sunday)
 
-Final adds production polish + AI cost analysis + social post + GitHub repo.
+Final adds production polish + AI cost analysis + social post + secret rotation + minor cleanup.
 
 | # | Task | Effort | Notes |
 |---|---|---|---|
-| F1 | Fix Synthea import (Option F: direct MySQL load) | 60-90 min | Replaces manual demo patients with 10+ Synthea patients with rich clinical histories |
-| F2 | Layer-2 domain rules: renal-dose check + QTc check | 60 min | ARCHITECTURE.md §4.1 says 4 rules; we have 2 |
-| F3 | SMART on FHIR app launch handshake (replace password-grant with auth-code + PKCE) | 90 min | Defends as "production integration" per ARCHITECTURE.md §10 |
-| F4 | Switch back to Anthropic Claude (resolve workspace/key issue, flip `LLM_PROVIDER`) | 5 min | Once billing is unblocked |
-| F5 | Write `COST.md` (extract from ARCHITECTURE.md §9, add 100/1K/10K/100K user projections + architectural changes per tier) | 30 min | PRD page 8 explicit deliverable |
-| F6 | Push the entire `/Users/rikki/Desktop/Doc/OOD/openemr/` to a GitHub fork | 30 min | PRD page 8 — "GitHub Repository: Forked from OpenEMR" hard gate |
-| F7 | Connect Railway `copilot` and `openemr` services to GitHub auto-deploy | 15 min | Convert from `railway up` (manual) to GitHub push (auto) |
-| F8 | Re-record demo video against the production-quality stack | 30 min | Replaces the Thursday recording |
-| F9 | Social media post on X/LinkedIn tagging @GauntletAI | 15 min | PRD page 8 final-only deliverable |
-| F10 | Schedule the second AI Interview within 24h of Final submission | 2 min | |
+| F1 | Layer-2 domain rules: renal-dose check + QTc check | 60 min | ARCHITECTURE.md §4.1 says 4 rules; we have 2 |
+| F2 | Defensive sweep across other minimizer functions (`reaction[0]`, `referenceRange[0]`, `category[0].coding[0]` etc.) — same `next(... isinstance(x, dict) ...)` pattern as `dosageInstruction` got today | 30 min | Belt-and-braces against more `[[]]` non-spec FHIR shapes from OpenEMR |
+| ~~F3~~ | ~~Align SCHEMA.description strings in `get_recent_labs.py` + `get_recent_vitals.py` to "last 5 years"~~ | ~~5 min~~ | ✅ DONE 2026-05-01 (in passing during A.2 propagation pass) |
+| ~~F4~~ | ~~SMART on FHIR app launch handshake (replace password-grant with auth-code + PKCE)~~ | ~~90 min~~ | ✅ DONE 2026-05-01 — Phase F5 §A.1–A.3. Code lives in `app/fhir/oauth.py` + `app/main.py` (`/v1/oauth/launch`, `/callback`, `/dev-launch`). Awaits Saturday OpenEMR-side SMART client registration §6.5. |
+| F5 | Activate the `FallbackAdapter` on Railway: set `LLM_PROVIDER=anthropic` + `ANTHROPIC_MODEL=claude-sonnet-4-6`, then `railway up` to ship the code from `app/agent/llm.py` | 5 min | Anthropic billing unblocked. Code merged (Phase E7); env flip + deploy queued for Saturday §6.5. |
+| F6 | **Rotate all credentials that touched chat history tonight** — OAuth client secret, OpenEMR admin password (`EPU-admin-46`), and the Langfuse public + secret keys. Re-issue, update `copilot/.env` and Railway env vars, redeploy. | 25 min | New: includes Langfuse keys (added when wiring cloud traces tonight) |
+| F7 | Switch the demo physician from `admin` to a non-admin doctor user so the ACL middleware is exercised by a non-superuser (admin bypasses ACL) | 10 min | Deferred from §5 row 15 — covered by the 3 doctor users in §6.5. |
+| F8 | Pin `openemr/openemr` image to a specific tag matching this fork's PHP class library — OR refactor iframe injection to an OpenEMR event-listener hook so we never touch `demographics.php` directly | 60 min | Removes the awk-injection workaround; root-cause fix for the version-mismatch failure mode |
+| F9 | Update `app/observability/trace.py` to Langfuse v3 SDK (`start_as_current_span` + `update_trace`) and bump pin to `>=3` | 30 min | Currently pinned to v2 because v3 dropped `Langfuse.trace()` |
+| ~~F10~~ | ~~Write `COST.md`~~ | ~~30 min~~ | ✅ DONE 2026-05-01 — Phase F4. 179 lines at `copilot/COST.md`. |
+| ~~F11~~ | ~~Connect Railway `copilot` service to GitHub auto-deploy~~ | ~~15 min~~ | ✅ DONE 2026-05-01 — Phase F3. `.github/workflows/copilot-ci.yml` with test + deploy jobs. Awaits Saturday `RAILWAY_TOKEN` GitHub Secret + Railway native auto-deploy disable §6.5. |
+| F12 | Re-record demo video against the production-quality stack | 30 min | Replaces the Thursday recording |
+| F13 | Social media post on X/LinkedIn tagging @GauntletAI | 15 min | PRD page 8 final-only deliverable |
+| F14 | Schedule the second AI Interview within 24h of Final submission | 2 min | |
+| **F15** | Per-physician PATIENT scope enforcement | ~~90 min~~ | ✅ DONE 2026-05-01 — Phase F6 §A.7. Co-Pilot enforces via `Patient.generalPractitioner` at `/v1/sessions` and tool-layer probe; OpenEMR FHIR layer enforces nothing. |
+| **F16** | Latency: cache tool defs + parallelize dispatch | ~~3h~~ | ✅ DONE 2026-05-01 — Phase F1. ~60-80% input cost reduction on turn 2+; tool dispatch sum→max. |
+| **F17** | Citation UX: human-readable `display` field on claims | ~~1.5h~~ | ✅ DONE 2026-05-01 — Phase F2. Claims now show "Med: Lisinopril 10mg daily" instead of raw FHIR ids. |
 
 ---
 
-## 8. Risk Log
+## 6.5 Manual Setup for Saturday 2026-05-02 (~1.5h)
+
+The Phase F code is shipped to local Docker; six manual steps remain before the Railway redeploy can verify multi-physician end-to-end.
+
+1. **Create 3 doctor users in Railway OpenEMR** via Admin → Users → New (`/interface/usergroup/user_admin.php?id=new`): `dr_alvarez`, `dr_chen`, `dr_kumar`. Each must have non-null `users.npi` so OpenEMR exposes them as `Practitioner` in FHIR (required for A.7 panel resolution). Suggested password: `Pilot-2026!`.
+
+   **Verify:** `SELECT id, username, npi FROM users WHERE username IN ('dr_alvarez','dr_chen','dr_kumar');` returns 3 rows, no NULL `npi`.
+
+2. **Set `users_facility` scope** (legacy UI scope only — FHIR ignores this, but it keeps the OpenEMR chart picker clean per doctor):
+   ```sql
+   INSERT INTO users_facility (tablename, table_id, facility_id)
+   VALUES ('users', <alvarez_id>, <facility_id>),
+          ('users', <chen_id>,    <facility_id>),
+          ('users', <kumar_id>,   <facility_id>);
+   ```
+
+3. **Reassign Synthea patients** — the **single source of truth** for the A.7 panel gate:
+   ```sql
+   UPDATE patient_data SET providerID = <alvarez_id> WHERE pid IN (1,2,3);  -- include Mariela
+   UPDATE patient_data SET providerID = <chen_id>    WHERE pid IN (4,5,6);  -- include Dana
+   UPDATE patient_data SET providerID = <kumar_id>   WHERE pid IN (7,8,9,10);
+   ```
+   Verify: `SELECT providerID, COUNT(*) FROM patient_data GROUP BY providerID;` shows 3 doctors with ~3-4 patients each. Future transfers are one UPDATE; Co-Pilot picks up the change on next session-create.
+
+4. **Register a SMART confidential client** with the new redirect URI and broader scopes (the existing client only allows password grant):
+   ```bash
+   curl -X POST https://openemr-production-0c8c.up.railway.app/oauth2/default/registration \
+     -H "Content-Type: application/json" \
+     -d '{
+       "application_type": "private",
+       "client_name": "Clinical Co-Pilot (SMART)",
+       "redirect_uris": ["https://copilot-production-b532.up.railway.app/v1/oauth/callback"],
+       "token_endpoint_auth_method": "client_secret_post",
+       "grant_types": ["authorization_code","refresh_token","password"],
+       "response_types": ["code"],
+       "scope": "launch openid fhirUser offline_access user/Patient.read user/Observation.read user/MedicationRequest.read user/Condition.read user/Encounter.read user/AllergyIntolerance.read user/DocumentReference.read user/Practitioner.read"
+     }'
+   ```
+   Save returned `client_id` + `client_secret`. Then OpenEMR Admin → System → API Clients → enable + approve all scopes.
+
+5. **Set Railway env vars on the `copilot` service** (Variables tab → Raw Editor, or `railway variables --set ...`):
+   ```
+   LLM_PROVIDER=anthropic
+   ANTHROPIC_MODEL=claude-sonnet-4-5-20250929   # confirm against app/agent/llm.py default
+   OAUTH_CLIENT_ID=<new client_id from step 4>
+   OAUTH_CLIENT_SECRET=<new client_secret from step 4>
+   OAUTH_REDIRECT_URI=https://copilot-production-b532.up.railway.app/v1/oauth/callback
+   SMART_DEV_LAUNCH_ENABLED=true
+   SMART_DEV_CREDENTIALS={"dr_alvarez":{"username":"dr_alvarez","password":"Pilot-2026!"},"dr_chen":{"username":"dr_chen","password":"Pilot-2026!"},"dr_kumar":{"username":"dr_kumar","password":"Pilot-2026!"}}
+   ```
+   Railway auto-redeploys (or `railway up` if native auto-deploy is already disabled per step 6).
+
+6. **CI/CD plumbing** (Phase F3):
+   - Mint Railway token at https://railway.app/account/tokens (scope to the `openemr` project).
+   - Add as `RAILWAY_TOKEN` in https://github.com/rikkiiwang/openemr/settings/secrets/actions/new.
+   - Disable Railway's native GitHub auto-deploy on the `copilot` service (Settings → Source → Disconnect, or toggle Auto Deploy off). The CI workflow now owns deploys.
+
+**Sunday verification commands** are in the plan file at `/Users/rikki/.claude/plans/read-copilot-folder-has-witty-shamir.md` §Verification. Key beats:
+- Two physicians, concurrent UC1 sessions
+- Cross-panel denial: `dr_alvarez` requesting `dr_chen`'s patient → `HTTP 403 patient_out_of_panel`
+- Patient transfer: one SQL UPDATE swaps ownership; next session-create reflects the change immediately (no Co-Pilot redeploy)
+- Cache hit visible: turn 2 shows `tokens_cached > 0`, `tokens_cache_write` populated on cold cache
+- Citations: every claim has non-null `display`
+
+---
+
+## 7. Risk Log
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | Anthropic billing not resolved by Final | Medium | Low | OpenAI adapter is shipped, defends as architecture-aware fallback |
-| Manual patient creation tonight produces clinically-naive data | Medium | Low | Use realistic combinations (HTN+T2DM+lisinopril+metformin) so UC2 has connections to find |
 | Railway free tier rate limits during demo recording | Low | Medium | Record demo while everything is warmed up; have a backup recording |
-| Synthea direct-MySQL import on Sunday hits foreign-key chain issues | Medium | Low | Already have Carecoordination perm-fix as backup |
+| Iframe rail blocked by browser due to mixed-content / X-Frame-Options on Railway | Low | High | Both OpenEMR and Copilot serve HTTPS; Copilot does not set X-Frame-Options DENY. Verified locally; verify on Railway during step 14. |
+| Demo recorded as `admin` user, ACL middleware never exercised in the video | Medium | Low | F-tier item is to switch to a doctor user; if not done, mention in voiceover that admin bypasses ACL by design and the ACL gate is exercised in eval `test_tool_integration.py` |
 | AI Interview not booked in 24h window | Low | High | Schedule immediately after submission, set a calendar reminder |
+| OAuth client secret + admin password were in chat history before redaction | Low | Medium | Rotate Sunday (F6); GitLab/GitHub repos never received literal secrets — `.env` is gitignored |
 
 ---
 
-## 9. File Map (where everything lives)
+## 8. File Map (where everything lives)
 
 ```
 /Users/rikki/Desktop/Doc/OOD/openemr/
 ├── AUDIT.md, USERS.md, ARCHITECTURE.md, AGENTFORGE.md  ← MVP deliverables (locked)
-├── README.md (upstream OpenEMR — unchanged except 1-line pointer at top)
+├── README.md (upstream OpenEMR — unchanged)
+├── .github/workflows/copilot-ci.yml        ← NEW (Phase F3): test + Railway deploy
+├── interface/patient_file/summary/demographics.php    ← +54 lines: Co-Pilot iframe rail
 └── copilot/                                ← THE AGENT (this directory)
     ├── IMPLEMENTATION.md                   ← THIS FILE
-    ├── README.md                           ← Setup quickstart
+    ├── README.md                           ← Setup quickstart (with CI badge)
+    ├── COST.md                             ← NEW (Phase F4): scaling cost analysis
     ├── pyproject.toml, Dockerfile, railway.toml, docker-compose.yml, Makefile
     ├── .env, .env.example                  ← .env contains live secrets, gitignored
     ├── app/
-    │   ├── main.py, config.py
-    │   ├── fhir/        client.py, oauth.py
-    │   ├── tools/       8 tool files + _base.py + registry.py
-    │   ├── agent/       loop.py, llm.py, prompt.py, schemas.py
-    │   ├── verification/ attribution.py, rules.py
-    │   ├── phi/         minimizer.py, session.py
-    │   ├── acl/         check.py
-    │   ├── observability/ trace.py
-    │   └── web/         index.html (chat UI)
+    │   ├── main.py, config.py              (main.py: +/v1/oauth/{launch,callback,dev-launch}, +panel gate)
+    │   ├── fhir/        client.py, oauth.py (oauth.py: per-physician token store, PKCE, dev-launch)
+    │   ├── tools/       8 tool files + _base.py + registry.py (_base.py: runtime ACL probe + panel re-check)
+    │   ├── agent/       loop.py, llm.py, prompt.py, schemas.py (loop: parallel dispatch; llm: cache_control on tools; schemas: display field)
+    │   ├── verification/ attribution.py, rules.py (attribution.py: display is presentation-only docstring)
+    │   ├── phi/         minimizer.py, session.py (session.py: +acl_decision cache)
+    │   ├── acl/         check.py (static grants demoted to diagnostic-only)
+    │   ├── observability/ trace.py (cache_creation_input alongside cache_read_input)
+    │   └── web/         index.html (chat UI + ?patient_id auto-bind + display rendering)
     └── evals/
         ├── conftest.py, RESULTS.md         ← auto-generated test summary
         ├── tools/      test_phi_minimizer.py, test_tool_integration.py
-        └── agent/      test_verification.py, test_scenarios.py
+        └── agent/      test_verification.py, test_scenarios.py, test_panel_scope.py  ← NEW (Phase F6)
+```
+
+### Test Suite Status (post-Phase F)
+
+```
+17 passed, 3 skipped (live_llm)  in 0.19s
+
+evals/agent/test_panel_scope.py        ← NEW: 3 tests (panel allow / deny / admin bypass)
+evals/agent/test_verification.py       4 tests (attribution + Layer-2 rules)
+evals/agent/test_scenarios.py          3 tests (live_llm — skipped unless ANTHROPIC_LIVE=1)
+evals/tools/test_phi_minimizer.py      7 tests (PHI strip per resource type)
+evals/tools/test_tool_integration.py   3 tests (tool fan-out + ACL deny)
 ```
 
 ---
 
-## 10. Quick Reference — Where Things Are Deployed
+## 9. Quick Reference — Where Things Are Deployed
 
 | Service | URL | Status |
 |---|---|---|
 | Co-Pilot agent (Railway) | https://copilot-production-b532.up.railway.app | ✅ live |
-| OpenEMR (Railway) | https://openemr-production-0c8c.up.railway.app | ✅ live (no patients yet) |
+| OpenEMR (Railway) | https://openemr-production-0c8c.up.railway.app | ✅ live, 10 Synthea patients |
 | MySQL (Railway, internal) | `mysql.railway.internal` | ✅ |
 | Local agent (dev) | http://localhost:8080 | ✅ |
-| Local OpenEMR (dev) | https://localhost:9300 | ✅ (50 Synthea patients pre-loaded) |
+| Local OpenEMR (dev) | https://localhost:9300 | ✅ |
+| GitHub repo | https://github.com/rikkiiwang/openemr | ✅ master @ d0600aa9e |
+| GitLab repo (submission link) | https://labs.gauntletai.com/ruijingwang/openemr | ✅ master @ d0600aa9e |
 
 OAuth clients registered:
 
 | Client | Where | client_id | Purpose |
 |---|---|---|---|
-| Clinical Co-Pilot (local) | Local OpenEMR | `E4ldTbWU...5yc` | Local agent → local OpenEMR |
-| Clinical Co-Pilot (Railway prod) | Railway OpenEMR | `GZg2tYuf...VjA` | Deployed agent → Railway OpenEMR |
-| Synthea Importer (one-shot) | Railway OpenEMR | `vsuaqsFM...on8` | Failed write attempt — keep registered for Final Sunday DB-load alternative |
+| Clinical Co-Pilot (local) | Local OpenEMR | `<OAUTH_CLIENT_ID>` | Local agent → local OpenEMR |
+| Clinical Co-Pilot (Railway prod) | Railway OpenEMR | `<OAUTH_CLIENT_ID>` | Deployed agent → Railway OpenEMR |
+
+OpenEMR admin password: `<OPENEMR_ADMIN_PASSWORD>` (rotate Sunday — see §6 F6). OAuth client secret: `<OAUTH_CLIENT_SECRET>` (same — rotate Sunday). Both live in `copilot/.env` and Railway service env vars; never committed.
 
 ---
 

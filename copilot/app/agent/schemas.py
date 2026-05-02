@@ -10,6 +10,14 @@ class Claim(BaseModel):
         ...,
         description="Record id supporting the claim, e.g. 'MedicationRequest/rx-22'.",
     )
+    display: str | None = Field(
+        default=None,
+        description=(
+            "Optional human-readable single-line label, e.g. "
+            "'Med: Lisinopril 10mg daily (2024-12-01)'. "
+            "Presentation-only: not validated by the verification gate."
+        ),
+    )
 
 
 class AgentResponse(BaseModel):
@@ -30,7 +38,8 @@ class TurnTrace(BaseModel):
     tool_failures: dict[str, str]
     tokens_input: int = 0
     tokens_output: int = 0
-    tokens_cached: int = 0
+    tokens_cached: int = 0          # cache_read_input_tokens — warm cache hit
+    tokens_cache_write: int = 0     # cache_creation_input_tokens — cold cache write
     verification_passed: bool = True
     verification_rejections: list[str] = Field(default_factory=list)
     domain_rule_rejections: list[str] = Field(default_factory=list)
@@ -60,6 +69,14 @@ SUBMIT_RESPONSE_TOOL = {
                     "properties": {
                         "text": {"type": "string"},
                         "record_id": {"type": "string"},
+                        "display": {
+                            "type": "string",
+                            "description": (
+                                "Human-readable single-line label, e.g. "
+                                "'Med: Lisinopril 10mg daily (2024-12-01)'. "
+                                "Shown to the physician; record_id is the audit anchor."
+                            ),
+                        },
                     },
                     "required": ["text", "record_id"],
                 },

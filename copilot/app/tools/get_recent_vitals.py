@@ -23,8 +23,12 @@ def _lookback_start() -> str:
     return (datetime.now(timezone.utc) - timedelta(days=LOOKBACK_DAYS)).date().isoformat()
 
 
-async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
-    patient = await fhir.get_resource("Patient", patient_id)
+async def _fetch(
+    fhir: FhirClient, patient_id: str, physician_user_id: str
+) -> list[dict[str, Any]]:
+    patient = await fhir.get_resource(
+        "Patient", patient_id, physician_user_id=physician_user_id
+    )
     bundle = await fhir.search(
         "Observation",
         {
@@ -34,6 +38,7 @@ async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
             "_count": 100,
             "_sort": "-date",
         },
+        physician_user_id=physician_user_id,
     )
     return [{"_kind": "patient_for_terms", "resource": patient}] + [
         {"_kind": "obs", "resource": o} for o in bundle_entries(bundle)
@@ -68,7 +73,7 @@ async def run(*, fhir: FhirClient, session: PseudonymMap) -> ToolResult:
 SCHEMA = {
     "name": "get_recent_vitals",
     "description": (
-        "Retrieve vital signs (BP, HR, weight, etc.) from the last 90 days. Use for "
+        "Retrieve vital signs (BP, HR, weight, etc.) from the last 5 years. Use for "
         "questions where the connecting evidence is a recent vital — e.g. 'is this "
         "dizziness orthostatic?' needs a recent BP. If no record exists in the window, "
         "say so explicitly; do not extrapolate from older data."

@@ -58,8 +58,10 @@
     .msg .role { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
     .claims, .gaps, .trace { margin-top: 10px; font-size: 12px; }
     .claims summary, .gaps summary, .trace summary { cursor: pointer; color: var(--muted); }
-    .claim { padding: 4px 0; border-top: 1px dashed var(--border); }
-    .claim code { color: var(--accent); }
+    .claim { padding: 6px 0; border-top: 1px dashed var(--border); }
+    .claim-label { font-weight: 500; color: var(--text); }
+    .claim-text { color: var(--muted); margin-top: 2px; font-size: 11px; }
+    .claim-rid { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; opacity: 0.7; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .gap { padding: 4px 0; color: var(--warn); }
     .trace pre {
       background: #0d1117; border: 1px solid var(--border); border-radius: 4px;
@@ -221,7 +223,13 @@
       if (response.claims && response.claims.length) {
         html += `<details class="claims" open><summary>${response.claims.length} cited claim${response.claims.length>1?"s":""}</summary>`;
         for (const c of response.claims) {
-          html += `<div class="claim">${escape(c.text)} → <code>${escape(c.record_id)}</code></div>`;
+          const label = c.display || c.text || c.record_id;
+          const showText = c.display && c.text && c.text !== c.display;
+          html += `<div class="claim">
+            <div class="claim-label">${escape(label)}</div>
+            ${showText ? `<div class="claim-text">${escape(c.text)}</div>` : ""}
+            <code class="claim-rid">${escape(c.record_id)}</code>
+          </div>`;
         }
         html += `</details>`;
       }
@@ -252,6 +260,10 @@
     if (_params.has("patient_id")) {
       patientIdEl.value = _params.get("patient_id").trim();
       setTimeout(startSession, 50);
+      // Hide the manual patient-id input + "Open chart" button in embedded
+      // mode — the iframe is already scoped via the URL param.
+      patientIdEl.style.display = "none";
+      startBtn.style.display = "none";
     }
   </script>
 </body>

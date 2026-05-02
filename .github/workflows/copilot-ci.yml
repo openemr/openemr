@@ -1,0 +1,75 @@
+name: copilot-ci
+
+# CI for the Clinical Co-Pilot agent service. Runs lint + tests on every PR
+# touching `copilot/**`, and on master push deploys to Railway.
+#
+# Tests run with dummy API keys; conftest.py skips `@pytest.mark.live_llm`
+# tests unless ANTHROPIC_LIVE=1, so no live LLM calls happen in CI.
+
+on:
+  pull_request:
+    paths:
+      - "copilot/**"
+      - ".github/workflows/copilot-ci.yml"
+  push:
+    branches: [master]
+    paths:
+      - "copilot/**"
+      - ".github/workflows/copilot-ci.yml"
+
+defaults:
+  run:
+    working-directory: copilot
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: copilot/pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Tests (mocked)
+        env:
+          ANTHROPIC_API_KEY: dummy-key
+          OPENAI_API_KEY: dummy-key
+          OAUTH_CLIENT_ID: dummy
+          OAUTH_CLIENT_SECRET: dummy
+          OPENEMR_FHIR_BASE: https://example.invalid/apis/default/fhir
+          OPENEMR_OAUTH_BASE: https://example.invalid/oauth2/default
+        run: pytest evals -v
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: copilot-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@latest
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN secret is not set"
+            exit 1
+          fi
+          railway up --service copilot --detach

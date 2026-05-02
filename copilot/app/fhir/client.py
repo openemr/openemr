@@ -38,14 +38,20 @@ class FhirClient:
     async def aclose(self) -> None:
         await self._http.aclose()
 
-    async def _headers(self) -> dict[str, str]:
-        token = await self._oauth.get_token(self._http)
+    async def _headers(self, physician_user_id: str) -> dict[str, str]:
+        token = await self._oauth.get_token(self._http, physician_user_id)
         return {"Authorization": f"Bearer {token}"}
 
-    async def get_resource(self, resource_type: str, resource_id: str) -> dict[str, Any]:
+    async def get_resource(
+        self,
+        resource_type: str,
+        resource_id: str,
+        *,
+        physician_user_id: str,
+    ) -> dict[str, Any]:
         url = f"{self._settings.openemr_fhir_base}/{resource_type}/{resource_id}"
         try:
-            r = await self._http.get(url, headers=await self._headers())
+            r = await self._http.get(url, headers=await self._headers(physician_user_id))
         except httpx.TimeoutException as e:
             raise FhirError(f"FHIR timeout on {resource_type}/{resource_id}") from e
         if r.status_code in (401, 403):
@@ -55,10 +61,20 @@ class FhirClient:
         r.raise_for_status()
         return r.json()
 
-    async def search(self, resource_type: str, params: dict[str, Any]) -> dict[str, Any]:
+    async def search(
+        self,
+        resource_type: str,
+        params: dict[str, Any],
+        *,
+        physician_user_id: str,
+    ) -> dict[str, Any]:
         url = f"{self._settings.openemr_fhir_base}/{resource_type}"
         try:
-            r = await self._http.get(url, headers=await self._headers(), params=params)
+            r = await self._http.get(
+                url,
+                headers=await self._headers(physician_user_id),
+                params=params,
+            )
         except httpx.TimeoutException as e:
             raise FhirError(f"FHIR timeout searching {resource_type}") from e
         if r.status_code in (401, 403):

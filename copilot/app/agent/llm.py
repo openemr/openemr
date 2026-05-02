@@ -16,8 +16,11 @@ Design notes:
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Protocol
+
+logger = logging.getLogger("copilot.agent.llm")
 
 
 @dataclass
@@ -31,7 +34,8 @@ class ToolUseRequest:
 class Usage:
     input_tokens: int = 0
     output_tokens: int = 0
-    cached_tokens: int = 0
+    cached_tokens: int = 0          # cache_read_input_tokens (warm cache)
+    cache_write_tokens: int = 0     # cache_creation_input_tokens (cold cache)
 
 
 @dataclass
@@ -80,13 +84,22 @@ class AnthropicAdapter:
     async def call(
         self, system_prompt: str, tool_defs: list[dict], conversation: list[Any]
     ) -> ProviderResponse:
+        # Cache the entire tool block by attaching cache_control to the LAST tool.
+        # Anthropic's ephemeral cache covers everything up to (and including) the
+        # breakpoint. Combined with the system-prompt breakpoint below, we have 2
+        # of the 4 allowed breakpoints — caches ~2.3K tokens of stable content.
+        tools_with_cache = list(tool_defs)
+        if tools_with_cache:
+            last = dict(tools_with_cache[-1])
+            last["cache_control"] = {"type": "ephemeral"}
+            tools_with_cache[-1] = last
         resp = await self._client.messages.create(
             model=self._model,
             max_tokens=2048,
             system=[
                 {"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}
             ],
-            tools=tool_defs,
+            tools=tools_with_cache,
             messages=conversation,
         )
         usage = getattr(resp, "usage", None)
@@ -95,6 +108,7 @@ class AnthropicAdapter:
             u.input_tokens = getattr(usage, "input_tokens", 0) or 0
             u.output_tokens = getattr(usage, "output_tokens", 0) or 0
             u.cached_tokens = getattr(usage, "cache_read_input_tokens", 0) or 0
+            u.cache_write_tokens = getattr(usage, "cache_creation_input_tokens", 0) or 0
 
         text_chunks: list[str] = []
         tool_uses: list[ToolUseRequest] = []
@@ -241,6 +255,95 @@ class OpenAIAdapter:
         return {"role": "user", "content": text}
 
 
+# ---------------------- fallback wrapper ----------------------
+
+
+class FallbackAdapter:
+    """Per-turn fallback wrapper.
+
+    Tries the primary adapter on the first call() of every turn; on a retryable
+    failure it swaps to the secondary adapter for the rest of that turn. At the
+    start of the next turn (detected by an empty `conversation` list) it resets
+    to primary.
+
+    Why per-turn and not mid-turn: Anthropic and OpenAI use different
+    conversation shapes (Anthropic = content-block lists; OpenAI = flat
+    messages with `tool_call` dicts). After the first successful call() the
+    `conversation` list has been mutated by `append_assistant` /
+    `append_tool_results` into one provider's format — feeding that to the
+    other provider would 400. So fallback is only safe before any mutation
+    has occurred (i.e. when `conversation` is empty). This still covers the
+    failure mode this wrapper was added for: a billing/auth rejection from
+    Anthropic that happens immediately on the first call of every turn.
+
+    Concurrency contract (A.5):
+      - `self._active` is per-INSTANCE state. The adapter must be constructed
+        per turn, NOT cached at module level.
+      - `app/agent/loop.py:run_turn` calls `get_adapter(settings)` on every
+        invocation, which builds a fresh FallbackAdapter for that request.
+        Two concurrent /v1/chat requests therefore have independent
+        `_active` state and cannot race.
+      - If you ever cache adapters at module/app level (e.g. into
+        `app.state.adapter` for performance), swap `self._active` for a
+        `contextvars.ContextVar` keyed per request. Otherwise physician A's
+        Anthropic→OpenAI fallback decision will corrupt physician B's mid-turn
+        provider, and the message-format invariant breaks.
+    """
+
+    def __init__(self, primary: LLMAdapter, secondary: LLMAdapter):
+        import anthropic
+        self._retryable = (
+            anthropic.APIStatusError,
+            anthropic.APIConnectionError,
+            anthropic.APITimeoutError,
+        )
+        self._primary = primary
+        self._secondary = secondary
+        self._active = primary
+        self.name = f"{primary.name}->{secondary.name}"
+
+    async def call(
+        self, system_prompt: str, tool_defs: list[dict], conversation: list[Any]
+    ) -> ProviderResponse:
+        if not conversation:
+            self._active = self._primary  # new turn — try primary again
+        try:
+            return await self._active.call(system_prompt, tool_defs, conversation)
+        except self._retryable as e:
+            if self._active is self._secondary or conversation:
+                # Already on secondary, OR mid-turn (format-incompatible swap).
+                raise
+            logger.warning(
+                "LLM primary (%s) failed at turn start, falling back to %s: %s",
+                self._primary.name,
+                self._secondary.name,
+                e,
+            )
+            self._active = self._secondary
+            return await self._active.call(system_prompt, tool_defs, conversation)
+
+    # Conversation-mutation methods delegate to whichever adapter served the
+    # most recent successful call() for this turn, so the message list stays
+    # in a self-consistent format.
+    def append_assistant(self, conversation: list[Any], resp: ProviderResponse) -> None:
+        return self._active.append_assistant(conversation, resp)
+
+    def append_tool_results(
+        self,
+        conversation: list[Any],
+        tool_uses: list[ToolUseRequest],
+        results: list[dict[str, Any]],
+        is_error: list[bool],
+    ) -> None:
+        return self._active.append_tool_results(conversation, tool_uses, results, is_error)
+
+    def append_user_text(self, conversation: list[Any], text: str) -> None:
+        return self._active.append_user_text(conversation, text)
+
+    def initial_user_message(self, text: str) -> Any:
+        return self._active.initial_user_message(text)
+
+
 # ---------------------- factory ----------------------
 
 
@@ -251,4 +354,8 @@ def get_adapter(settings) -> LLMAdapter:
         return OpenAIAdapter(settings.openai_api_key, settings.openai_model)
     if not settings.anthropic_api_key:
         raise RuntimeError("LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is unset")
-    return AnthropicAdapter(settings.anthropic_api_key, settings.anthropic_model)
+    primary = AnthropicAdapter(settings.anthropic_api_key, settings.anthropic_model)
+    if settings.openai_api_key:
+        secondary = OpenAIAdapter(settings.openai_api_key, settings.openai_model)
+        return FallbackAdapter(primary, secondary)
+    return primary

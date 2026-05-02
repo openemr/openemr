@@ -34,6 +34,7 @@ class _NoopTracer:
                     "input": trace.tokens_input,
                     "output": trace.tokens_output,
                     "cached": trace.tokens_cached,
+                    "cache_write": trace.tokens_cache_write,
                 },
                 "latency_ms": trace.total_latency_ms,
             },
@@ -73,6 +74,7 @@ class LangfuseTracer:
                     "input": trace.tokens_input,
                     "output": trace.tokens_output,
                     "cache_read_input": trace.tokens_cached,
+                    "cache_creation_input": trace.tokens_cache_write,
                 }
             )
             self._lf.flush()

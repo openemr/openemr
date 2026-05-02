@@ -30,10 +30,24 @@ class Settings(BaseSettings):
         "user/Condition.read user/Encounter.read user/AllergyIntolerance.read "
         "user/DocumentReference.read"
     )
-    # For password grant (local dev demo) — represents the acting physician
+    # Legacy single-physician demo (kept for backwards compat with .env)
     oauth_username: str = "admin"
     oauth_password: str = "pass"
     oauth_user_role: str = "users"  # OpenEMR distinguishes users vs portal patients
+
+    # --- SMART app launch (auth-code + PKCE) ---
+    # Used in production. Falls back to per-physician password grant when
+    # smart_dev_launch_enabled is True (demo-safe).
+    oauth_redirect_uri: str = "https://copilot-production-b532.up.railway.app/v1/oauth/callback"
+    oauth_authorize_path: str = "/authorize"
+    oauth_token_path: str = "/token"
+    oauth_refresh_skew_seconds: int = 30
+
+    smart_dev_launch_enabled: bool = True
+    # JSON map of physician_user_id -> {"username": "...", "password": "..."}
+    # Kept in env (not committed). Example:
+    #   SMART_DEV_CREDENTIALS='{"dr_alvarez":{"username":"dr_alvarez","password":"pass"}}'
+    smart_dev_credentials: str = "{}"
 
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""

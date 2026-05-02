@@ -23,8 +23,12 @@ def _lookback_start() -> str:
     return (datetime.now(timezone.utc) - timedelta(days=LOOKBACK_DAYS)).date().isoformat()
 
 
-async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
-    patient = await fhir.get_resource("Patient", patient_id)
+async def _fetch(
+    fhir: FhirClient, patient_id: str, physician_user_id: str
+) -> list[dict[str, Any]]:
+    patient = await fhir.get_resource(
+        "Patient", patient_id, physician_user_id=physician_user_id
+    )
     bundle = await fhir.search(
         "Observation",
         {
@@ -34,6 +38,7 @@ async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
             "_count": 100,
             "_sort": "-date",
         },
+        physician_user_id=physician_user_id,
     )
     return [{"_kind": "patient_for_terms", "resource": patient}] + [
         {"_kind": "obs", "resource": o} for o in bundle_entries(bundle)
@@ -68,7 +73,7 @@ async def run(*, fhir: FhirClient, session: PseudonymMap) -> ToolResult:
 SCHEMA = {
     "name": "get_recent_labs",
     "description": (
-        "Retrieve laboratory observations (LOINC-coded) from the last 90 days. Each "
+        "Retrieve laboratory observations (LOINC-coded) from the last 5 years. Each "
         "item includes value, unit, reference_range, and effective_datetime. Use this "
         "for 'what's changed since last visit' (UC1) and to ground hypotheses in "
         "multi-condition reasoning (UC2). If reference_range is null, do not assert "

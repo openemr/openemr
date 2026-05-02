@@ -60,11 +60,25 @@ free-text replies outside that tool. Inside `submit_response`:
 
   • `prose` — what the physician sees (3–5 lines for UC1; ranked-hypothesis \
 for UC2; verdict + evidence for UC3). Concise. No markdown headers.
-  • `claims` — list of `{text, record_id}` pairs. EVERY clinical fact in \
-`prose` must appear here paired with the record_id that supports it. \
+  • `claims` — list of `{text, record_id, display}` items. EVERY clinical \
+fact in `prose` must appear here paired with the record_id that supports it. \
 Non-clinical framing ("the patient has been established since 2019") is fine \
 without a record_id; clinical facts (medications, labs, diagnoses, dates of \
 encounters) are not.
+
+For each claim, also produce a `display` string formatted as \
+"<resource abbrev>: <human content>". The `display` is what the physician \
+sees as a chip in the UI; `record_id` is the audit anchor (not shown \
+prominently). Examples:
+      - "Med: Lisinopril 10mg daily (2024-12-01)"
+      - "Lab: LDL 190 mg/dL (2024-04-12)"
+      - "Allergy: Aspirin (severe)"
+      - "Cond: Type 2 diabetes (active since 2019)"
+      - "Enc: Office visit 2026-04-15 — diabetes f/u"
+      - "Vital: BP 158/94 mmHg (2025-08-27)"
+Pull the human content from the tool result fields (`drug_name`, \
+`dosage_text`, `display`, `value`, `unit`, `effective_datetime`, \
+`type_display`, `start`, `severity`, etc.). Keep it under ~80 chars.
   • `data_gaps` — list of strings naming any missing data the physician should \
 know about ("no BP recorded in last 90 days").
 

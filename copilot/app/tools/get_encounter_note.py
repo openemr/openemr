@@ -22,13 +22,20 @@ from app.tools._base import ToolResult, bundle_entries, run_tool
 
 
 async def _build_fetch(encounter_id: str):
-    async def _fetch(fhir: FhirClient, patient_id: str) -> list[dict[str, Any]]:
-        patient = await fhir.get_resource("Patient", patient_id)
-        encounter = await fhir.get_resource("Encounter", encounter_id)
+    async def _fetch(
+        fhir: FhirClient, patient_id: str, physician_user_id: str
+    ) -> list[dict[str, Any]]:
+        patient = await fhir.get_resource(
+            "Patient", patient_id, physician_user_id=physician_user_id
+        )
+        encounter = await fhir.get_resource(
+            "Encounter", encounter_id, physician_user_id=physician_user_id
+        )
         # DocumentReference linked to the encounter
         docs_bundle = await fhir.search(
             "DocumentReference",
             {"encounter": encounter_id, "_count": 10},
+            physician_user_id=physician_user_id,
         )
         return [
             {"_kind": "patient_for_terms", "resource": patient},
