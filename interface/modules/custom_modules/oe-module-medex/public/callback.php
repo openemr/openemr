@@ -650,6 +650,38 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'consume_slot':
+        // Mark an available slot as consumed when patient books
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->consumeSlot($data);
+        echo json_encode($result);
+        break;
+
+    case 'release_slot':
+        // Release a consumed slot back to available pool (move/cancel)
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->releaseSlot($data);
+        echo json_encode($result);
+        break;
+
+    case 'move_appointment':
+        // Atomic move: release old slot + consume new slot + update appointment
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->moveAppointment($data);
+        echo json_encode($result);
+        break;
+
+    case 'get_rescheduling_options':
+        // Get available slots for rescheduling with provider rules applied
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->getReschedulingOptions($data);
+        echo json_encode($result);
+        break;
+
     case 'get_recalls':
         // MedEx requesting recall data
         require_once(__DIR__ . '/../src/CallbackHandlers/RecallHandler.php');
