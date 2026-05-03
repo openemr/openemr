@@ -223,8 +223,12 @@ if ($medexActive) {
     }
 }
 
+$hasPortalAccess = AclMain::aclCheckCore('patients', 'portal');
+$portalManagerUrl = $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-medex/public/portal_messages.php';
+$portalInboxUrl = $GLOBALS['webroot'] . '/portal/messaging/messages.php';
+
 $activeTab = htmlspecialchars($_GET['tab'] ?? 'messages', ENT_QUOTES, 'UTF-8');
-if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
+if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true)) {
     $activeTab = 'messages';
 }
 ?>
@@ -334,6 +338,12 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
             </a>
         </li>
         <?php endif; ?>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $activeTab === 'portal' ? 'active' : ''; ?>"
+               href="?tab=portal" id="tab-portal" role="tab">
+                <?php echo xlt('Portal Messages'); ?>
+            </a>
+        </li>
         <?php if ($isAdmin): ?>
         <li class="nav-item ml-auto">
             <a class="nav-link <?php echo $activeTab === 'admin' ? 'active' : ''; ?>"
@@ -641,7 +651,46 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
         <?php endif; ?>
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             TAB 4 — ADMIN STATS
+             TAB 4 — PORTAL MESSAGES
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="tab-pane <?php echo $activeTab === 'portal' ? 'show active' : ''; ?>" id="pane-portal">
+            <div class="section-toolbar">
+                <span class="text-muted small"><?php echo xlt('Use this tab to review patient portal conversations synced from MedEx secure chat.'); ?></span>
+                <span class="ml-auto">
+                    <a href="<?php echo attr($portalManagerUrl); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <?php echo xlt('Open MedEx Portal Manager'); ?>
+                    </a>
+                    <a href="<?php echo attr($portalInboxUrl); ?>" target="_blank" class="btn btn-outline-secondary btn-sm">
+                        <?php echo xlt('Open OpenEMR Portal Inbox'); ?>
+                    </a>
+                </span>
+            </div>
+
+            <div class="p-3 border-bottom">
+                <h6 class="mb-2"><?php echo xlt('How Portal Messaging Works'); ?></h6>
+                <ol class="mb-0 pl-3">
+                    <li><?php echo xlt('Send a Secure Chat link to the patient from the Secure Chat tab.'); ?></li>
+                    <li><?php echo xlt('Messages are synced into OpenEMR portal messaging records.'); ?></li>
+                    <li><?php echo xlt('Use MedEx Portal Manager for sync status/history, or OpenEMR Portal Inbox for native thread view.'); ?></li>
+                </ol>
+            </div>
+
+            <?php if ($hasPortalAccess): ?>
+            <div class="embedded-pane m-3 mt-0" style="height:680px;">
+                <iframe src="<?php echo attr($portalManagerUrl); ?>"
+                        title="<?php echo xla('Portal Messages Manager'); ?>"></iframe>
+            </div>
+            <?php else: ?>
+            <div class="p-3">
+                <div class="alert alert-warning mb-0">
+                    <?php echo xlt('Portal access ACL is required to view embedded portal messages. Ask an admin to grant Patients → Portal permission.'); ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div><!-- /pane-portal -->
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             TAB 5 — ADMIN STATS
              ═══════════════════════════════════════════════════════════════════ -->
         <?php if ($isAdmin): ?>
         <div class="tab-pane <?php echo $activeTab === 'admin' ? 'show active' : ''; ?>" id="pane-admin">
