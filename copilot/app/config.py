@@ -49,6 +49,19 @@ class Settings(BaseSettings):
     #   SMART_DEV_CREDENTIALS='{"dr_alvarez":{"username":"dr_alvarez","password":"pass"}}'
     smart_dev_credentials: str = "{}"
 
+    # A.7 panel enforcement (workaround). OpenEMR's FHIR Patient resource
+    # does NOT expose Patient.generalPractitioner for the Co-Pilot's auth
+    # path even when patient_data.providerID is set — verified live on
+    # Railway 2026-05-02 (meta.lastUpdated reflects writes immediately,
+    # but generalPractitioner stays absent). We therefore maintain the
+    # panel in env as a JSON map of physician_user_id -> [patient FHIR
+    # uuid, ...]. Example:
+    #   PHYSICIAN_PATIENT_PANEL='{"dr_alvarez":["a1ab...","a1ab..."],"dr_chen":[...]}'
+    # When a physician has an entry, /v1/sessions enforces against it.
+    # Empty/missing → falls back to the FHIR Patient.generalPractitioner
+    # path (currently a no-op until OpenEMR fixes its FHIR transformer).
+    physician_patient_panel: str = "{}"
+
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"

@@ -250,3 +250,31 @@ async def test_panel_denies_via_sub_fallback_on_mismatch(fhir):
 
     assert result.acl_check.allowed is False
     assert result.acl_check.reason == "patient_out_of_panel"
+
+
+# --- env-driven panel (PHYSICIAN_PATIENT_PANEL) ---
+
+
+def test_env_panel_parses_and_filters(monkeypatch):
+    """The PHYSICIAN_PATIENT_PANEL env var → list lookup helper.
+
+    Workaround for OpenEMR FHIR not exposing Patient.generalPractitioner.
+    """
+    from app.config import Settings
+    from app.main import _env_panel_for
+
+    s = Settings(
+        physician_patient_panel=json.dumps(
+            {"dr_alvarez": ["uuid-a", "uuid-b"], "dr_chen": ["uuid-c"]}
+        )
+    )
+    assert _env_panel_for(s, "dr_alvarez") == ["uuid-a", "uuid-b"]
+    assert _env_panel_for(s, "dr_chen") == ["uuid-c"]
+    assert _env_panel_for(s, "dr_kumar") is None
+    # Missing / invalid env → None (caller falls back to FHIR path)
+    s2 = Settings(physician_patient_panel="{}")
+    assert _env_panel_for(s2, "dr_alvarez") is None
+    s3 = Settings(physician_patient_panel="not-json")
+    assert _env_panel_for(s3, "dr_alvarez") is None
+    s4 = Settings(physician_patient_panel=json.dumps({"dr_alvarez": "not-a-list"}))
+    assert _env_panel_for(s4, "dr_alvarez") is None

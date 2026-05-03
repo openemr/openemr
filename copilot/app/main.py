@@ -1,6 +1,7 @@
 """FastAPI entry — Clinical Co-Pilot."""
 from __future__ import annotations
 
+import json
 import logging
 import uuid
 from contextlib import asynccontextmanager
@@ -76,31 +77,73 @@ class StartSessionResponse(BaseModel):
     patient_pseudonym: str
 
 
+def _env_panel_for(settings: Settings, physician: str) -> list[str] | None:
+    """Parse PHYSICIAN_PATIENT_PANEL JSON for a physician's allowed UUIDs.
+
+    Returns the list of patient FHIR UUIDs this physician owns, or None
+    if the env is empty / the physician has no entry. Workaround for
+    OpenEMR's FHIR Patient.generalPractitioner not being exposed
+    server-side (verified absent on Railway 2026-05-02).
+    """
+    raw = (settings.physician_patient_panel or "").strip()
+    if not raw or raw == "{}":
+        return None
+    try:
+        panel_map = json.loads(raw)
+    except json.JSONDecodeError:
+        logger.warning("PHYSICIAN_PATIENT_PANEL is not valid JSON; ignoring")
+        return None
+    entry = panel_map.get(physician)
+    if not entry:
+        return None
+    if not isinstance(entry, list):
+        logger.warning(
+            "PHYSICIAN_PATIENT_PANEL[%s] is not a list; ignoring", physician
+        )
+        return None
+    return [str(p) for p in entry]
+
+
 async def _verify_patient_in_panel(
-    fhir: FhirClient, physician: str, patient_id: str
+    fhir: FhirClient, physician: str, patient_id: str, settings: Settings
 ) -> None:
     """A.7 panel gate: confirm the patient is assigned to this physician.
 
     Raises HTTPException(403, "patient_out_of_panel") on mismatch.
-    Mechanism:
-      1. Resolve the physician's Practitioner UUID from their id_token's
-         `fhirUser` claim (cached on TokenSet by oauth._password_grant).
-      2. Fetch the Patient resource using the physician's own token (the
-         FHIR layer doesn't filter by providerID, so this returns 200
-         regardless — but the response gives us `generalPractitioner`).
-      3. Compare `Patient.generalPractitioner[].reference` against the
-         physician's UUID; mismatch → deny.
 
-    A physician with no resolvable Practitioner UUID (e.g. admin) is
-    allowed unconditionally — admins bypass scope by design. A patient
-    with no `generalPractitioner` fails closed (no physician owns it).
+    Resolution order:
+      1. **PHYSICIAN_PATIENT_PANEL env (primary).** JSON map of
+         physician_user_id → list of patient FHIR uuids. Workaround for
+         OpenEMR's FHIR Patient.generalPractitioner not being exposed.
+         Membership in the list → allowed; outside the list → 403.
+      2. **Patient.generalPractitioner (secondary).** Resolve the
+         physician's Practitioner UUID via id_token, fetch the Patient
+         resource, compare against generalPractitioner. Currently a
+         no-op against Railway OpenEMR (the field is always absent),
+         but kept as a future-proof path.
+      3. **Admin bypass.** A physician with no resolvable Practitioner
+         UUID (e.g. demo_physician_user_id `admin`) is allowed
+         unconditionally — matches OpenEMR's UI behavior.
     """
+    # Primary: env-driven panel.
+    env_panel = _env_panel_for(settings, physician)
+    if env_panel is not None:
+        if patient_id in env_panel:
+            logger.info(
+                "panel allow (env): physician=%s patient=%s", physician, patient_id
+            )
+            return
+        logger.warning(
+            "panel deny (env): physician=%s patient=%s panel_size=%d",
+            physician, patient_id, len(env_panel),
+        )
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+
+    # Secondary: FHIR-derived panel (currently a no-op vs Railway OpenEMR).
     practitioner_uuid = await fhir._oauth.resolve_practitioner_uuid(
         fhir._http, physician
     )
     if not practitioner_uuid:
-        # Admin or system caller — unconditionally allowed (matches
-        # OpenEMR's UI behavior where admins see all patients).
         logger.info(
             "panel check: physician=%s has no Practitioner UUID — bypassing scope",
             physician,
@@ -125,7 +168,7 @@ async def _verify_patient_in_panel(
     owners = [r.rsplit("/", 1)[-1] for r in refs if r.startswith("Practitioner/")]
     if practitioner_uuid not in owners:
         logger.warning(
-            "panel deny: physician=%s practitioner=%s patient=%s owners=%s",
+            "panel deny (fhir): physician=%s practitioner=%s patient=%s owners=%s",
             physician, practitioner_uuid, patient_id, owners,
         )
         raise HTTPException(status_code=403, detail="patient_out_of_panel")
@@ -145,10 +188,11 @@ async def start_session(
             physician,
         )
 
-    # A.7 — panel gate. Verifies Patient.generalPractitioner before
-    # creating the session. Admin (no Practitioner UUID) bypasses.
+    # A.7 — panel gate. Checks PHYSICIAN_PATIENT_PANEL env first
+    # (workaround), then Patient.generalPractitioner (future-proof
+    # secondary). Admin (no Practitioner UUID) bypasses.
     fhir: FhirClient = app.state.fhir
-    await _verify_patient_in_panel(fhir, physician, body.patient_id)
+    await _verify_patient_in_panel(fhir, physician, body.patient_id, settings)
 
     pseudo = sessions.create(session_id, physician, body.patient_id)
     return StartSessionResponse(
