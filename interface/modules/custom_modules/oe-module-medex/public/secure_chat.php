@@ -250,6 +250,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $expiresAt = date('Y-m-d H:i:s', strtotime('+72 hours'));
             
             try {
+                // Expire any existing active tokens for this patient before creating new ones.
+                // This ensures "send new link" always starts a fresh session, not a rejoin.
+                sqlStatement(
+                    "UPDATE medex_secure_chat_tokens SET expires_at = NOW() WHERE pid = ? AND expires_at > NOW()",
+                    [$pid]
+                );
+
                 // Store token in database (no ON DUPLICATE KEY - token is unique)
                 sqlStatement("INSERT INTO medex_secure_chat_tokens (pid, token, expires_at, created_by, method) 
                               VALUES (?, ?, ?, ?, ?)",
@@ -413,6 +420,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'page' => $page,
                 'per_page' => $perPage
             ]);
+        case 'get_active_session':
+            $pid = intval($_POST['pid'] ?? 0);
+            if (!$pid) {
+                $sendJson(['success' => false, 'error' => 'Invalid patient ID'], 400);
+            }
+            // Find the most recent non-expired provider token for this patient
+            $activeToken = sqlQuery(
+                "SELECT token FROM medex_secure_chat_tokens
+                 WHERE pid = ? AND is_provider = 1 AND expires_at > NOW()
+                 ORDER BY created_at DESC LIMIT 1",
+                [$pid]
+            );
+            if (!empty($activeToken['token'])) {
+                $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($activeToken['token']);
+                $sendJson(['success' => true, 'provider_url' => $providerChatUrl]);
+            } else {
+                $sendJson(['success' => true, 'provider_url' => null]);
+            }
         default:
             $sendJson(['success' => false, 'error' => 'Unsupported action'], 400);
         }
@@ -808,6 +833,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
         displayPatientResults([patient]);
         selectPatient(patient);
+
+        var formData = new FormData();
+        formData.append('action', 'get_active_session');
+        formData.append('pid', patient.pid);
+        formData.append('csrf_token', csrfToken);
+
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success && data.provider_url) {
+                window.open(data.provider_url, '_blank');
+            } else {
+                alert(<?php echo json_encode(xl('No active chat session found for this patient. Use Send SMS/Email/Copy to start one.')); ?>);
+            }
+        })
+        .catch(function(err) {
+            console.error('Rejoin error:', err);
+        });
     }
     
     function displayPatientResults(patients) {
@@ -1074,7 +1121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             data.history.forEach(function(msg) {
                 var isPatient = (msg.is_from_patient == 1); // Ensure boolean comparison
                 var directionClass = isPatient ? 'from-patient' : 'from-provider';
-                var senderName = msg.sender_name ? msg.sender_name : (isPatient ? 'Patient' : 'Provider');
+                var senderName = isPatient ? 'Patient' : (msg.provider_fname ? msg.provider_fname : 'Provider');
                 
                 // Determine Channel Badge
                 var channel = msg.channel_type ? msg.channel_type.toLowerCase() : 'sms';
@@ -1091,9 +1138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 html += '<div class="message-bubble ' + directionClass + '">';
                 html += '<div><strong>' + escapeHtml(senderName) + '</strong></div>';
-                html += '<div>' + escapeHtml(msg.message || '').replace(/\n/g, '<br>') + '</div>';
+                html += '<div>' + escapeHtml(msg.msg_body).replace(/\n/g, '<br>') + '</div>';
                 html += '<div class="message-meta">';
-                html += '<span>' + escapeHtml(msg.created_at || '') + '</span>';
+                html += '<span>' + escapeHtml(msg.msg_date) + '</span>';
                 html += '<span class="channel-badge ' + badgeClass + '"><i class="fa ' + iconClass + '"></i> ' + escapeHtml(channel.toUpperCase()) + '</span>';
                 html += '</div></div>';
             });

@@ -420,6 +420,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'page' => $page,
                 'per_page' => $perPage
             ]);
+        case 'get_active_session':
+            $pid = intval($_POST['pid'] ?? 0);
+            if (!$pid) {
+                $sendJson(['success' => false, 'error' => 'Invalid patient ID'], 400);
+            }
+            // Find the most recent non-expired provider token for this patient
+            $activeToken = sqlQuery(
+                "SELECT token FROM medex_secure_chat_tokens
+                 WHERE pid = ? AND is_provider = 1 AND expires_at > NOW()
+                 ORDER BY created_at DESC LIMIT 1",
+                [$pid]
+            );
+            if (!empty($activeToken['token'])) {
+                $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($activeToken['token']);
+                $sendJson(['success' => true, 'provider_url' => $providerChatUrl]);
+            } else {
+                $sendJson(['success' => true, 'provider_url' => null]);
+            }
         default:
             $sendJson(['success' => false, 'error' => 'Unsupported action'], 400);
         }
@@ -815,6 +833,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
         displayPatientResults([patient]);
         selectPatient(patient);
+
+        var formData = new FormData();
+        formData.append('action', 'get_active_session');
+        formData.append('pid', patient.pid);
+        formData.append('csrf_token', csrfToken);
+
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success && data.provider_url) {
+                window.open(data.provider_url, '_blank');
+            } else {
+                alert(<?php echo json_encode(xl('No active chat session found for this patient. Use Send SMS/Email/Copy to start one.')); ?>);
+            }
+        })
+        .catch(function(err) {
+            console.error('Rejoin error:', err);
+        });
     }
     
     function displayPatientResults(patients) {
