@@ -1,6 +1,6 @@
 # Implementation Status — Clinical Co-Pilot
 
-**Last updated:** 2026-05-01 evening (post-final-optimization sprint)
+**Last updated:** 2026-05-02 evening (Railway A.7 panel live, CI/CD pipeline armed)
 **Submission targets:**
 - ✅ MVP — Tuesday 2026-04-28 11:59 PM CT (audit + users + architecture docs + deployed OpenEMR)
 - ✅ **Early Submission — Thursday 2026-04-30 11:59 PM CT** — agent deployed, iframe rail live in OpenEMR, eval+observability wired, demo video recorded. Submission form + AI Interview booking are the only steps left tonight.
