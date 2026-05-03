@@ -185,7 +185,11 @@ async def start_session(
     session_id = str(uuid.uuid4())
     physician = body.physician_user_id or settings.demo_physician_user_id
     if physician == settings.demo_physician_user_id and body.physician_user_id is None:
-        logger.warning(
+        # INFO, not WARNING — the iframe launch is the expected path here (no
+        # SMART handshake), so this fires on every session create and would
+        # otherwise spam Railway's log viewer as [error]. Real misconfig (e.g.
+        # rail fragment dropping authUser) is caught upstream in OpenEMR.
+        logger.info(
             "session %s started without physician_user_id — using demo fallback %s "
             "(SMART launch path is bypassed)",
             session_id,
