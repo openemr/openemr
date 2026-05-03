@@ -65,8 +65,14 @@ jobs:
         run: npm install -g @railway/cli@latest
 
       - name: Deploy to Railway
+        working-directory: copilot
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # Project + environment IDs are non-sensitive (visible in Railway URLs).
+          # Required when RAILWAY_TOKEN is an account-scoped token; harmless
+          # when it's project-scoped.
+          RAILWAY_PROJECT_ID: e31f848a-f496-40b3-91b5-302095158c00
+          RAILWAY_ENVIRONMENT_ID: production
         run: |
           if [ -z "$RAILWAY_TOKEN" ]; then
             echo "::error::RAILWAY_TOKEN secret is not set"
