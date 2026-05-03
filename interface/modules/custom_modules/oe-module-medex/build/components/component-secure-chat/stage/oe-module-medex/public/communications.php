@@ -249,6 +249,8 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
         .chat-badge { font-size: 0.7rem; }
         .section-toolbar { background: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .admin-stat-table th { background: #343a40; color: #fff; font-size: 0.75rem; }
+        .embedded-pane { height: 760px; border: 1px solid #dee2e6; border-radius: .25rem; overflow: hidden; background: #fff; }
+        .embedded-pane iframe { width: 100%; height: 100%; border: 0; }
         .flash-msg { position: sticky; top: 0; z-index: 200; }
         .pager-bar { display: flex; gap: 6px; align-items: center; }
         @media (max-width: 576px) {
@@ -351,8 +353,11 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
 
             <!-- Toolbar -->
             <div class="section-toolbar">
-                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#composeModal">
-                    <?php echo xlt('Compose'); ?>
+                <button class="btn btn-primary btn-sm" type="button"
+                        data-toggle="modal" data-target="#composeModal"
+                        data-bs-toggle="modal" data-bs-target="#composeModal"
+                        onclick="openComposeModal(); return false;">
+                    <?php echo xlt('Add New'); ?>
                 </button>
                 <form class="form-inline mb-0 ml-2" method="get" action="">
                     <input type="hidden" name="tab" value="messages">
@@ -517,8 +522,17 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
                    class="btn btn-primary btn-sm" onclick="top.restoreSession()">
                     <?php echo xlt('New Chat / Send Link'); ?>
                 </a>
+                <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
+                   class="btn btn-outline-secondary btn-sm" target="_blank" onclick="top.restoreSession()">
+                    <?php echo xlt('Open in New Window'); ?>
+                </a>
                 <span class="text-muted small ml-2"><?php echo xlt('Patients with recent Secure Chat activity'); ?></span>
                 <span class="ml-auto text-muted small"><?php echo xlt('Synced from MedEx portal mailbox'); ?></span>
+            </div>
+
+            <div class="embedded-pane m-3 mt-0">
+                <iframe src="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
+                        title="<?php echo xla('Secure Chat'); ?>"></iframe>
             </div>
 
             <?php if (empty($chatSessions)): ?>
@@ -599,6 +613,13 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
         <div class="tab-pane <?php echo $activeTab === 'sms' ? 'show active' : ''; ?>" id="pane-sms">
             <div class="section-toolbar">
                 <span class="text-muted small"><?php echo xlt('MedEx SMS Bot — select a patient in the main chart to launch their SMS thread, or open the full SMS dashboard below.'); ?></span>
+                <?php if ($ssoToken): ?>
+                <span class="ml-auto">
+                    <a href="<?php echo attr($medexBaseUrl . '/cart/upload/index.php?route=information/sms_zone&token=' . urlencode($ssoToken)); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <?php echo xlt('Open SMS Bot in New Window'); ?>
+                    </a>
+                </span>
+                <?php endif; ?>
             </div>
             <?php if ($ssoToken): ?>
             <?php
@@ -746,7 +767,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="composeModalLabel"><?php echo xlt('Compose Message'); ?></h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span>&times;</span></button>
       </div>
       <form method="post">
         <input type="hidden" name="csrf_token" value="<?php echo attr($csrf); ?>">
@@ -802,7 +823,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
             <button type="submit" class="btn btn-primary"><?php echo xlt('Send'); ?></button>
         </div>
       </form>
@@ -816,7 +837,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><?php echo xlt('Message Detail'); ?></h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
           <p class="mb-1"><strong id="nv_type"></strong> &nbsp; <span id="nv_status"></span></p>
@@ -824,7 +845,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
           <p id="nv_body" style="white-space:pre-wrap;"></p>
       </div>
       <div class="modal-footer">
-          <button class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Close'); ?></button>
+                    <button class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"><?php echo xlt('Close'); ?></button>
       </div>
     </div>
   </div>
@@ -832,6 +853,24 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
 
 <script>
 (function () {
+    function showModalById(id) {
+        var el = document.getElementById(id);
+        if (!el) {
+            return;
+        }
+        if (window.bootstrap && window.bootstrap.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(el).show();
+            return;
+        }
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+            window.jQuery('#' + id).modal('show');
+        }
+    }
+
+    window.openComposeModal = function () {
+        showModalById('composeModal');
+    };
+
     // ── Select all checkbox ──────────────────────────────────────────────────
     var selectAll = document.getElementById('selectAll');
     if (selectAll) {
@@ -847,7 +886,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'admin'], true)) {
         document.getElementById('nv_type').textContent = type;
         document.getElementById('nv_status').textContent = status;
         document.getElementById('nv_body').textContent = body;
-        $('#noteViewModal').modal('show');
+        showModalById('noteViewModal');
     };
 
     // ── Patient autocomplete in compose modal ────────────────────────────────

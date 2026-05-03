@@ -76,21 +76,15 @@ if (class_exists('OpenEMR\Core\OEGlobalsBag')) {
     <div class="collapse navbar-collapse" id="medexNavbar">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="<?php echo $webroot; ?>/interface/main/messages/messages.php">
-                    <i class="fas fa-envelope"></i> <?php echo xlt('Messages'); ?>
+                <a class="nav-link" href="<?php echo $webroot; ?>/interface/modules/custom_modules/oe-module-medex/public/communications.php">
+                    <i class="fas fa-comments"></i> <?php echo xlt('Communications'); ?>
                 </a>
             </li>
 
             <?php if ($disableRcb != '1'): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo $webroot; ?>/interface/main/messages/messages.php?go=Recalls">
-                    <i class="fas fa-calendar-check"></i> <?php echo xlt('Recall Board'); ?>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="<?php echo $webroot; ?>/interface/main/messages/messages.php?go=addRecall">
-                    <i class="fas fa-plus"></i> <?php echo xlt('New Recall'); ?>
+                    <i class="fas fa-calendar-check"></i> <?php echo xlt('Legacy Recall Board'); ?>
                 </a>
             </li>
             <?php endif; ?>
