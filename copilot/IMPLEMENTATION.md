@@ -1,6 +1,6 @@
 # Implementation Status — Clinical Co-Pilot
 
-**Last updated:** 2026-05-02 evening (Railway A.7 panel live, CI/CD pipeline armed, token refreshed)
+**Last updated:** 2026-05-03 (resume-previous-chat live on Railway: SQLite-backed conversation history on volume, /v1/sessions/recent + /v1/sessions/resume + /v1/sessions/{id}/end, "Resume previous chat?" banner in iframe verified working; demo-fallback session log demoted from WARNING to INFO so Railway stops painting it as `[error]`)
 **Submission targets:**
 - ✅ MVP — Tuesday 2026-04-28 11:59 PM CT (audit + users + architecture docs + deployed OpenEMR)
 - ✅ **Early Submission — Thursday 2026-04-30 11:59 PM CT** — agent deployed, iframe rail live in OpenEMR, eval+observability wired, demo video recorded. Submission form + AI Interview booking are the only steps left tonight.
@@ -285,18 +285,9 @@ Five workstreams shipped to local Docker (Railway redeploy queued for Saturday a
 
 #### F6 — Per-physician PATIENT scope enforcement (A.7, NEW)
 
-Added mid-execution after a Friday-night discovery: investigation of `src/Services/FHIR/FhirPatientService.php:943` and `src/Services/PatientService.php:418-523` confirmed OpenEMR's FHIR layer applies **zero** user-based filtering — any token with `user/Patient.read` returns every patient. `users_facility` is only consulted by the legacy UI when `pt_restrict_field` is set; FHIR ignores it. `patient_data.providerID` exists and is exposed as `Patient.generalPractitioner` but is not enforced server-side.
+The first cut shipped here was Layer 3 of what eventually became a three-layer defense. The original `Patient.generalPractitioner` approach was **abandoned** mid-execution — OpenEMR's FHIR endpoint never actually exposes that field on Railway (verified live 2026-05-02). The Layer-3 gate that runs in production reads `PHYSICIAN_PATIENT_PANEL` env JSON instead. The two OpenEMR-side gates (Layers 1 + 2) were added 2026-05-02 evening after live-demo testing showed dr_alvarez could still browse out-of-panel patients via the OpenEMR UI even though the agent itself was correctly refusing.
 
-Co-Pilot enforces it itself, deriving the panel from OpenEMR data at runtime (no static config):
-
-- New `_verify_patient_in_panel(fhir, physician, patient_id)` helper in `app/main.py` runs at `/v1/sessions` create:
-  - Resolves the physician's Practitioner UUID via `oauth.resolve_practitioner_uuid` (cached on `TokenSet.practitioner_uuid` from id_token's `fhirUser` claim)
-  - Fetches Patient resource, reads `Patient.generalPractitioner[].reference`, compares against the physician's UUID
-  - Mismatch → `HTTPException(403, "patient_out_of_panel")`. Admin (no Practitioner UUID) bypasses.
-- Tool-layer ACL probe in `_base.py` extended with the same `generalPractitioner` check (defense in depth for sessions created before the gate or via code paths that bypass it).
-- **Operational model:** `patient_data.providerID` is the single source of truth. Adding/transferring a patient is one SQL UPDATE; Co-Pilot picks it up on next session-create call. No env var or redeploy required.
-
-**No OpenEMR fork** — all enforcement lives in the Co-Pilot.
+**See §F18 for the full three-layer story.** This section is preserved for historical context only — F18 is the authoritative description of what runs in production.
 
 #### F7 — Test suite expansion
 
@@ -306,6 +297,121 @@ Co-Pilot enforces it itself, deriving the panel from OpenEMR data at runtime (no
   - `test_panel_denies_when_general_practitioner_mismatches` — Patient owned by another physician → `acl_denied: patient_out_of_panel`
   - `test_panel_bypassed_when_practitioner_uuid_absent` — admin (no fhirUser claim) → bypasses
 - Total: **17 passed / 3 skipped (live_llm)** in 0.19s.
+
+#### F18 — Three-Layer Per-Physician Scope Defense ✅ (2026-05-02 evening, commit `30d100af3`)
+
+The single most architecturally interesting piece of the project. Per-physician scope ended up being a defense-in-depth design with three independent layers, each catching a different failure mode of the layer below it. None of the layers trusts the others — pulling any one out still leaves the other two intact.
+
+**Why three layers, not one.** The original PRD only required Layer 3 (the AI agent itself refusing to load PHI for out-of-panel patients). Live demo testing on 2026-05-02 surfaced two production gaps that Layer 3 alone couldn't close:
+
+1. OpenEMR's FHIR layer applies **zero** user-based filtering server-side (`src/Services/FHIR/FhirPatientService.php:943`). Any token with `user/Patient.read` returns every patient.
+2. OpenEMR's modern patient finder bypasses the legacy `pt_restrict_field` mechanism — `interface/main/finder/dynamic_finder_ajax.php:258` runs raw `SELECT $sellist FROM patient_data WHERE $where` with no provider check. So even with `pt_restrict_field=usertext6` set globally, dr_alvarez could see every patient in the search list and click into Chen's chart directly.
+
+The fix was to extend the design beyond the agent: gate the OpenEMR UI itself, then defend the agent independently.
+
+**The three layers**
+
+| # | Where it lives | Files | What it prevents | Bypass |
+|---|---|---|---|---|
+| **L1 — UI patient finder scope** | OpenEMR-side, awk-injected at image build | `copilot-finder-scope.php` → `interface/main/finder/dynamic_finder_ajax.php` (line 230 marker). Mutates `$customWhere` to append `AND providerID = <users.id>` before COUNT + SELECT queries. | A logged-in physician can't even **see** out-of-panel patients in the search/finder list. | `admin` username bypasses (no filter applied). |
+| **L2 — Demographics chart gate** | OpenEMR-side, awk-injected at image build | `copilot-demographics-gate.php` → `interface/patient_file/summary/demographics.php` (immediately after `require_once globals.php`). Looks up `patient_data.providerID` for the requested `pid`, compares to the logged-in user's `users.id`; mismatch → styled `403` page. | Even if a physician URL-pokes a patient ID directly (or has a stale bookmark), the chart **won't render**. | `admin` bypasses. Patients with NULL providerID fall through (preserves stock behavior for legacy data). |
+| **L3 — Co-Pilot agent panel gate** | Co-Pilot-side, runtime | `_verify_patient_in_panel()` in `app/main.py` runs at `/v1/sessions` create, consulting `PHYSICIAN_PATIENT_PANEL` env JSON (`{"dr_alvarez":["uuid_1",...]}`). Mismatch → `HTTPException(403, "patient_out_of_panel")`. | Even if Layers 1 + 2 are bypassed (e.g. the Co-Pilot's standalone URL `?patient_id=<other_pat>`), the **AI agent itself** refuses to load any PHI — no FHIR fetches, no LLM reasoning, no tokens spent. | `admin` (no Practitioner UUID) bypasses. |
+
+**Why awk-injection over forking OpenEMR.** The first attempt (mid-April) was to overlay a forked `demographics.php` into the image, which crashed at runtime because the fork's PHP class library expected methods newer than what `openemr/openemr:latest` ships. The lesson: forking a complex upstream PHP app to add ~25 lines of behavior is the wrong trade — every upstream release has to be re-merged forever. The awk-injection at Docker build time touches only the specific lines we need to change, leaves the rest of the upstream class library intact, and reverts cleanly by removing the awk lines from the Dockerfile. ~25 lines of shell beat ~10k lines of PHP fork.
+
+**Operational model — adding a new physician requires 3 SQL writes + 1 env update.**
+
+1. Create the user via OpenEMR Admin UI (must have non-null `users.npi` for FHIR Practitioner exposure).
+2. SQL: `INSERT INTO users_facility (tablename, table_id, facility_id) VALUES ('users', <new_user_id>, <facility_id>);`
+3. SQL: `UPDATE patient_data SET providerID=<new_user_id> WHERE pid IN (...)` for their panel.
+4. Railway: append the physician's panel UUIDs to `PHYSICIAN_PATIENT_PANEL` env JSON.
+
+The two-write requirement (SQL + env) is the one operational smell. The single most obvious follow-up is a `/admin/sync-panel` endpoint in the Co-Pilot that reads `patient_data.providerID + uuid` directly via FHIR and rebuilds the env at runtime — eliminates the manual env step. Out of scope for this submission; flagged in §6 backlog.
+
+**Verification (post-deploy, against `https://openemr-production-0c8c.up.railway.app`):**
+
+```bash
+# Layer 1 — patient finder scope
+# Log in as dr_alvarez → click patient finder → list shows only her panel patients.
+# Log in as admin → list shows all 10 patients.
+
+# Layer 2 — demographics chart gate
+# Logged in as dr_alvarez, paste:
+#   /interface/patient_file/summary/demographics.php?set_pid=<chen_only_pid>
+# → styled 403 "Patient not in your panel" page.
+
+# Layer 3 — Co-Pilot agent panel gate
+curl -i -X POST https://copilot-production-b532.up.railway.app/v1/sessions \
+  -H 'content-type: application/json' \
+  -d '{"patient_id":"<chen-only-uuid>","physician_user_id":"dr_alvarez"}'
+# → HTTP/1.1 403 Forbidden, body {"detail":"patient_out_of_panel"}
+```
+
+#### F19 — Resume Previous Chat ✅ (2026-05-03, commits `34a30f6f0` + Dockerfile fix `01d308467` + log demotion `89cb9894e`)
+
+Conversations are now persistent and resumable. When a physician reopens a patient's dashboard within 24h of a prior chat, the iframe asks **"Resume previous chat?"** — Yes rehydrates the prior session (same pseudonyms, prior Q&A re-rendered + replayed into the LLM context), No ends the prior conversation and starts fresh.
+
+**Why it exists.** Physicians naturally interrupt encounters — phone, EHR navigation, cross-coverage. Before this, closing the iframe dropped everything: a fresh `session_id` + empty `conversation: list` per page load. The prior brief had to be rebuilt from scratch on every return. F19 closes that gap without forcing the physician to retype context.
+
+**Persistence model.** Tiny SQLite store (`aiosqlite`) at `/data/copilot.db` on a Railway volume. Two tables:
+
+- `conversations(conversation_id, physician_user_id, active_patient_id, patient_pseudonym, pseudonym_map_json, created_at, last_used_at, ended_at, turn_count)` indexed on `(physician_user_id, active_patient_id, ended_at, last_used_at DESC)`.
+- `messages(message_id, conversation_id, turn_index, role, content, claims_json, data_gaps_json, created_at)` ordered by `(turn_index, rowid)` so user→assistant pairs replay deterministically.
+
+`POST /v1/chat` appends each turn (user question + agent prose) and refreshes the `pseudonym_map_json` snapshot. The pseudonym snapshot is the load-bearing piece: without it, a resumed conversation would mint a new `Patient-X9YZ` while stored messages still reference `Patient-A1B2` and the LLM would lose anchoring.
+
+**New endpoints (`app/main.py`):**
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/v1/sessions/recent?physician_user_id=&patient_id=` | Probe for a resumable conversation. Returns `{found, conversation_id, last_used_at, turn_count, patient_pseudonym}`. Filter: `ended_at IS NULL` AND `last_used_at >= now - resume_window_hours` (default 24). |
+| `POST` | `/v1/sessions/resume` | Body `{conversation_id}`. Re-runs the A.7 panel gate (panel membership can change between sessions), rehydrates the in-memory `PseudonymMap` from `pseudonym_map_json`, bumps `last_used_at`, returns ordered prior messages with claims + data_gaps preserved. |
+| `POST` | `/v1/sessions/{session_id}/end` | Marks `ended_at` so the conversation stops being offered for resume. Called by the "No, start new" path. |
+
+**LLM history replay (compact, not full trace).** `run_turn(...)` accepts `prior_turns: list[PriorTurn]`. When provided, replays each prior turn as `(user_prefix(question) → assistant_text(prose))` pairs (capped at `settings.resume_replay_max_turns = 10` per ARCHITECTURE §9.4). We deliberately do **not** replay the tool_use loop — the verification gate must anchor THIS turn's claims to THIS turn's tool results, never inherit prior `record_id`s. Replayed prose is conversational context, not a citation source.
+
+**Frontend (`app/web/index.html`).** On iframe load with `patient_id` + `physician_user_id` query params, the page calls `probeRecent()` before auto-starting a session. If a hit is returned, `renderResumeBanner()` shows `[Yes, resume] [No, start new]`. Yes → `POST /v1/sessions/resume` then `replayHistory(messages)` re-renders prior turns via the existing `appendUser` / `renderAssistant` helpers (with a `verified ✓` pill but no latency/token metrics — those belong to the original Langfuse trace). No → `POST /v1/sessions/{old}/end` then the existing fresh-session path.
+
+**PHI / audit posture (ARCHITECTURE §3.3, §5.3, §8.1).** Conversation rows can contain physician-typed PHI in the question text (agent prose already uses pseudonyms). This is a new plaintext-at-rest surface, treated as a clinical record:
+
+- SQLite file on Railway volume (encrypted at rest by Railway), file mode 0600 on a 0700 directory, set during `ConversationStore.init()`.
+- Conversation content is **never** sent to Langfuse. `app/observability/trace.py:69` continues to log the per-turn question only (PHI-screened). The SQLite store is the resume substrate; Langfuse is the technical trace; OpenEMR's `api_log` remains the HIPAA audit trail.
+
+**Tests** (`evals/persistence/`, 12 new — full suite 28 passed / 3 skipped):
+
+- `test_persistence.py`: round-trip three turns (ordered user→assistant via `rowid`), `find_recent` returns latest unended, respects 24h window cutoff, skips ended conversations, isolated by `(physician, patient)` key, pseudonym snapshot/restore preserves patient + provider tokens, `SessionStore.rehydrate` replaces existing in-memory entry.
+- `test_resume_flow.py`: full E2E with FastAPI `TestClient` and a stubbed `run_turn` (so no live LLM cost). Confirms: start → chat → recent (`found:true`) → resume (same pseudonym, ordered messages) → next chat receives `prior_turns`. Plus `end` hides from recent, per-patient isolation, first-turn has no prior_turns, 404 on unknown conversation.
+
+**Infra changes.** `aiosqlite>=0.20` added to `pyproject.toml` and the builder pip line in `Dockerfile`. `/data` mounted via `railway.toml` `[[deploy.volumes]]` + `docker-compose.yml` named volume `copilot-data`. The Dockerfile originally had a `VOLUME ["/data"]` instruction; **Railway rejects `VOLUME` at build time** (`01d308467`) — the volume is wired via service config only, the Dockerfile just ensures the directory exists with `0700`.
+
+**Out of scope (explicit).**
+- Multi-replica deployment (one Railway replica per ARCHITECTURE §10.1; in-memory `SessionStore` + per-replica SQLite is fine for v1; Redis-backed sharding is post-MVP).
+- Cross-physician resume (keyed strictly on `(physician_user_id, patient_id)` — no shared resume across users).
+- Editing or branching prior conversations (read-then-extend only).
+- Application-layer encryption of `messages.content` (relies on Railway volume encryption for v1; flagged as a follow-up under ARCHITECTURE §8.1 row §5.5).
+
+**Live verification (post-deploy, 2026-05-03):**
+
+```bash
+curl -sS https://copilot-production-b532.up.railway.app/healthz
+# → {"status":"ok","service":"clinical-copilot"}
+
+curl -sS "https://copilot-production-b532.up.railway.app/v1/sessions/recent?physician_user_id=x&patient_id=y"
+# → {"found":false,"conversation_id":null,"last_used_at":null,"turn_count":null,"patient_pseudonym":null}
+```
+
+To trigger the banner end-to-end inside OpenEMR: open a patient's chart, ask one question, close the chart, reopen the same patient's chart with the same physician → "Resume previous chat?" appears (hard-refresh the iframe once if the browser cached the old `index.html`).
+
+**Live status (2026-05-03 post-deploy).** The banner appears and resume works end-to-end against Railway prod — confirmed against multiple patient chart reopens. Conversations persist across iframe reloads and rehydrate with the same patient pseudonym.
+
+**Known issue tracked alongside, not blocking F19.** The OpenEMR-side iframe URL is currently emitted without the `&physician_user_id=…` segment (verified via `GET /?patient_id=…` in `copilot` Railway logs — the param is absent, not just empty). Net effect: every iframe-launched session falls back to `demo_physician_user_id` (`EPU-admin-46`), so:
+
+- F19 conversations are bucketed under `EPU-admin-46` for now, not the actual clinician. Resume works *within* that bucket (which is why the feature looks correct in single-tester demos), but per-physician keying is not yet in effect on the iframe path.
+- F18 L3 is similarly neutered on the iframe path — admin bypasses panel enforcement, so L3's gate is effectively only enforcing for direct API hits, not the iframe.
+
+The fix is on the OpenEMR PHP side (`copilot-rail-fragment.php` already passes `&physician_user_id=' . urlencode($_SESSION['authUser'] ?? '')` since commit `efb5eb5f7`, 2026-05-02). Most likely cause: the deployed `openemr` Railway image predates that commit. Diagnostic = view-source the iframe in a logged-in OpenEMR session and inspect `<iframe id="copilot-rail" src="…">`. Fix = `railway up --service openemr --detach`. Tracked as a separate item, owned by the OpenEMR-PHP workstream — not a Co-Pilot bug.
+
+**Log noise fix (`89cb9894e`).** While the iframe-URL issue persists, every session create logs `session … started without physician_user_id — using demo fallback EPU-admin-46`. Railway's log viewer paints WARN as `[error]`, which made the steady-state demo path look like a fault. Demoted to `logger.info` in `app/main.py:start_session` so it's still visible at INFO+ but stops triggering the red `[error]` paint. Behavior unchanged — only the level changed.
 
 ---
 
@@ -426,9 +532,10 @@ Final adds production polish + AI cost analysis + social post + secret rotation 
 | F12 | Re-record demo video against the production-quality stack | 30 min | Replaces the Thursday recording |
 | F13 | Social media post on X/LinkedIn tagging @GauntletAI | 15 min | PRD page 8 final-only deliverable |
 | F14 | Schedule the second AI Interview within 24h of Final submission | 2 min | |
-| **F15** | Per-physician PATIENT scope enforcement | ~~90 min~~ | ✅ DONE 2026-05-01 — Phase F6 §A.7. Co-Pilot enforces via `Patient.generalPractitioner` at `/v1/sessions` and tool-layer probe; OpenEMR FHIR layer enforces nothing. |
+| **F15** | Per-physician PATIENT scope enforcement (Layer 3, Co-Pilot agent gate) | ~~90 min~~ | ✅ DONE 2026-05-01 — Phase F6. Pivoted from `Patient.generalPractitioner` (FHIR doesn't expose it) to `PHYSICIAN_PATIENT_PANEL` env JSON. See §F18 for full three-layer story. |
 | **F16** | Latency: cache tool defs + parallelize dispatch | ~~3h~~ | ✅ DONE 2026-05-01 — Phase F1. ~60-80% input cost reduction on turn 2+; tool dispatch sum→max. |
 | **F17** | Citation UX: human-readable `display` field on claims | ~~1.5h~~ | ✅ DONE 2026-05-01 — Phase F2. Claims now show "Med: Lisinopril 10mg daily" instead of raw FHIR ids. |
+| **F18** | OpenEMR-side scope gates (Layers 1 + 2): UI patient finder + demographics chart 403 | ~~75 min~~ | ✅ DONE 2026-05-02 evening — Phase F18, commit `30d100af3`. Two awk-injected PHP fragments in repo-root Dockerfile; closes the UI gap that Layer 3 alone couldn't reach. |
 
 ---
 

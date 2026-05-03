@@ -3,17 +3,26 @@
 // demographics.php, which is already inside an open PHP block.
 // Even if a clinician URL-pokes a patient ID outside their panel
 // (bypassing the patient-finder restriction), this aborts the chart
-// render with a 403. 'admin' bypasses. When the patient has no
-// providerID assigned (legacy data), we fall through unchanged so the
-// stock behavior is preserved.
+// render with a 403. Admin usernames bypass (sees everything). When
+// the patient has no providerID assigned (legacy data), we fall
+// through unchanged so the stock behavior is preserved.
+//
+// Admin list comes from COPILOT_ADMIN_USERS env (comma-separated).
+// Default covers literal 'admin' + EPU/Railway-template auto-admin.
+// Must match the same env contract as copilot-finder-scope.php.
 $copilotPanelGateUser = $_SESSION['authUser'] ?? '';
 $copilotPanelGatePid = $_GET['set_pid']
     ?? $_GET['pid']
     ?? $_SESSION['pid']
     ?? null;
+$copilotPanelGateAdmins = explode(
+    ',',
+    getenv('COPILOT_ADMIN_USERS') ?: 'admin,EPU-admin-46'
+);
+$copilotPanelGateAdmins = array_map('trim', $copilotPanelGateAdmins);
 if (
     $copilotPanelGateUser !== ''
-    && $copilotPanelGateUser !== 'admin'
+    && !in_array($copilotPanelGateUser, $copilotPanelGateAdmins, true)
     && !empty($copilotPanelGatePid)
 ) {
     $copilotPanelGateUserRow = sqlQuery(
