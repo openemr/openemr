@@ -112,6 +112,78 @@ def test_cross_patient_leakage_hard_blocks():
     assert any("Cross-patient leakage" in r for r in result.rejection_reasons)
 
 
+def test_attribution_with_no_claims_records_data_gap():
+    """Prose without any claims is vacuously 'passed' by Layer 1 today.
+
+    Lock in the current behavior so a future regression that makes prose-
+    only output the easy path for the LLM doesn't slip through unnoticed.
+    If we later decide claim-less responses must be rejected, this test
+    flips and is the single place to update.
+    """
+    pseudo = "Patient-AB12"
+    tool_results = _tool_results_for_patient(pseudo)
+    response = AgentResponse(
+        prose="Patient looks stable.",
+        claims=[],
+        data_gaps=[],
+    )
+    result = verify(response, tool_results)
+    # Vacuously passes — no claims means nothing to anchor.
+    assert result.passed
+    assert result.rejected_claims == []
+
+
+def test_cross_patient_blocks_fabricated_record_id():
+    """Layer 2 must reject a record_id the LLM invented out of thin air.
+
+    Layer 1 already filters unknown ids, but the rule code is a defense-
+    in-depth layer — verify it independently rejects any record_id not
+    present in tool_results, regardless of whether Layer 1 ran.
+    """
+    pseudo = "Patient-AB12"
+    tool_results = _tool_results_for_patient(pseudo)
+    response = AgentResponse(
+        prose="Patient is on apixaban.",
+        claims=[Claim(text="apixaban", record_id="MedicationRequest/does-not-exist")],
+    )
+    result = apply_rules(response, tool_results, active_patient_pseudonym=pseudo)
+    assert not result.passed
+    assert any("Cross-patient leakage" in r for r in result.rejection_reasons)
+
+
+def test_inactive_allergy_does_not_block_safe_verdict():
+    """Negative test: only `clinical_status == active` allergies contraindicate."""
+    pseudo = "Patient-AB12"
+    tool_results = _tool_results_for_patient(pseudo)
+    tool_results.append(
+        {
+            "tool": "get_allergies",
+            "record_type": "AllergyIntolerance",
+            "data": [
+                {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "all-old",
+                    "record_id": "AllergyIntolerance/all-old",
+                    "clinical_status": "resolved",
+                    "criticality": "high",
+                    "display": "penicillin",
+                    "subject_pseudonym": pseudo,
+                }
+            ],
+            "record_ids": ["AllergyIntolerance/all-old"],
+        }
+    )
+    response = AgentResponse(
+        prose="Verdict: safe to prescribe penicillin VK.",
+        claims=[Claim(text="penicillin VK", record_id="AllergyIntolerance/all-old")],
+    )
+    result = apply_rules(
+        response, tool_results, active_patient_pseudonym=pseudo, proposed_drug="penicillin VK"
+    )
+    assert result.passed
+    assert result.rejection_reasons == []
+
+
 def test_allergy_contraindication_blocks_safe_verdict():
     pseudo = "Patient-AB12"
     tool_results = _tool_results_for_patient(pseudo)

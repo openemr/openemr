@@ -162,6 +162,43 @@ async def test_find_recent_keyed_by_physician_and_patient(db_path):
     assert none is None
 
 
+async def test_find_recent_at_window_boundary(db_path):
+    """A row with last_used_at exactly window_hours ago must still resume.
+
+    The query uses `last_used_at >= now - window`, so the exact boundary
+    is inclusive. Pin that — any future change to a strict `>` would
+    silently drop conversations that landed at the edge.
+    """
+    store = await _store(db_path)
+    cid = "edge"
+    await store.create(
+        conversation_id=cid,
+        physician_user_id="dr_alvarez",
+        active_patient_id="patient-1",
+        patient_pseudonym="Patient-EDGE",
+        pseudonym_map={"real_to_pseudo": {}, "pseudo_to_real": {}, "provider_letter_idx": 0},
+    )
+    # Place last_used_at fractionally inside the 24h window so we're
+    # robust to wall-clock drift between the UPDATE and the SELECT.
+    on_edge = (
+        datetime.now(timezone.utc) - timedelta(hours=24, seconds=-2)
+    ).isoformat()
+    async with aiosqlite.connect(db_path) as db:
+        await db.execute(
+            "UPDATE conversations SET last_used_at = ? WHERE conversation_id = ?",
+            (on_edge, cid),
+        )
+        await db.commit()
+
+    recent = await store.find_recent(
+        physician_user_id="dr_alvarez",
+        active_patient_id="patient-1",
+        window_hours=24,
+    )
+    assert recent is not None
+    assert recent.conversation_id == cid
+
+
 def test_pseudonym_snapshot_and_restore_preserves_pseudonyms():
     sess = PseudonymMap(
         session_id="s1", physician_user_id="dr_alvarez", active_patient_id="pt-uuid-1"

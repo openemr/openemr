@@ -149,3 +149,25 @@ async def test_acl_denies_unknown_role(session, fhir, monkeypatch):
     assert result.acl_check.allowed is False
     assert result.error and result.error.startswith("acl_denied")
     assert result.record_ids == []
+
+
+@respx.mock
+async def test_tool_returns_acl_denied_on_fhir_401(session, fhir):
+    """If OpenEMR rejects the patient read with 401, the runtime ACL probe
+    must convert that into `acl_denied` — not a crash, not a partial
+    result, and not a leak of error details into the tool data.
+    """
+    base = get_settings().openemr_fhir_base
+    respx.post(get_settings().openemr_oauth_base + "/token").mock(
+        return_value=Response(200, json={"access_token": "test", "expires_in": 300})
+    )
+    respx.get(f"{base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(401, json={"error": "unauthorized"})
+    )
+
+    result = await dispatch("get_patient_summary", {}, fhir, session)
+    assert result.acl_check.allowed is False
+    assert result.error and result.error.startswith("acl_denied")
+    assert "openemr_denied_patient_read:401" in (result.acl_check.reason or "")
+    assert result.data == []
+    assert result.record_ids == []

@@ -167,6 +167,71 @@ def test_strip_encounter_pseudonymizes_provider():
     assert out["start"] == "2026-04-15T09:00:00Z"
 
 
+def test_strip_observation_scrubs_patient_name_in_value_string():
+    """Free-text valueString must not leak the patient's own name.
+
+    The provider-name case is already covered. Patient names appearing in
+    note-style observations (e.g. social history blurbs) are an equally
+    realistic leak vector and were not exercised before.
+    """
+    s = _new_session()
+    name_terms = collect_name_terms_from_patient(PATIENT_RAW)
+    obs = {
+        "resourceType": "Observation",
+        "id": "obs-2",
+        "status": "final",
+        "category": [{"coding": [{"code": "social-history"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "8552-7", "display": "Note"}]},
+        "valueString": "Patient John Public reports good adherence.",
+        "subject": {"reference": "Patient/abc-123"},
+    }
+    out = strip_observation(obs, s, name_terms)
+    assert "John" not in (out["value"] or "")
+    assert "Public" not in (out["value"] or "")
+    assert "[REDACTED]" in (out["value"] or "")
+
+
+def test_strip_patient_handles_missing_name_and_birthdate():
+    """A Patient resource with no name and no birthDate must not crash."""
+    s = _new_session()
+    bare = {"resourceType": "Patient", "id": "abc-bare", "active": True, "gender": "unknown"}
+    out = strip_patient(bare, s)
+    assert out["record_id"] == "Patient/abc-bare"
+    assert out["id"].startswith("Patient-")
+    # No DOB → age is None, not an exception
+    assert out["age"] is None
+    # Patient with no name → name_terms is an empty list, not a crash.
+    assert collect_name_terms_from_patient(bare) == []
+
+
+def test_pseudonyms_are_isolated_across_sessions():
+    """Each session owns an independent pseudonym map.
+
+    Patient pseudonyms (random 4-char tokens) for *different* patients in
+    different sessions must not collide, and ending one session must not
+    affect the other's ability to resolve. (Practitioner pseudonyms are
+    deterministic `Provider-A`, `Provider-B`, ... per session — they
+    collide across sessions by design, so are not asserted here.)
+    """
+    s_alpha = sessions.create("session-alpha", "dr_alvarez", "patient-real-1")
+    s_beta = sessions.create("session-beta", "dr_chen", "patient-real-2")
+
+    pat_a = s_alpha.patient_pseudonym()
+    pat_b = s_beta.patient_pseudonym()
+    # Different real patients → different random pseudonyms.
+    assert pat_a != pat_b
+    # Each session resolves only its own patient pseudonym.
+    assert s_alpha.resolve(pat_a) == "Patient/patient-real-1"
+    assert s_beta.resolve(pat_b) == "Patient/patient-real-2"
+    assert s_alpha.resolve(pat_b) is None
+    assert s_beta.resolve(pat_a) is None
+
+    # Ending session-alpha must not affect session-beta's map.
+    sessions.end("session-alpha")
+    assert s_beta.resolve(pat_b) == "Patient/patient-real-2"
+    sessions.end("session-beta")
+
+
 def test_pseudonym_stable_within_session():
     s = _new_session()
     a = s.pseudo_for("Practitioner", "prac-1")
