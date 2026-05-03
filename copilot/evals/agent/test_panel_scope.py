@@ -79,64 +79,13 @@ def _make_session(physician_user_id: str = "dr_alvarez"):
     return sessions.create(session_id, physician_user_id, PATIENT_ID)
 
 
-@respx.mock
-async def test_panel_allows_when_general_practitioner_matches(fhir):
-    """Patient.generalPractitioner matches dr_alvarez → tool runs."""
-    settings = get_settings()
-    respx.post(settings.openemr_oauth_base + "/token").mock(
-        return_value=Response(
-            200,
-            json={
-                "access_token": "tok-alvarez",
-                "expires_in": 300,
-                "id_token": _id_token(ALVAREZ_PRACTITIONER_UUID),
-            },
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
-        return_value=Response(
-            200, json=_patient_resource(ALVAREZ_PRACTITIONER_UUID)
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Condition").mock(
-        return_value=Response(200, json=_empty_condition_bundle())
-    )
-
-    session = _make_session("dr_alvarez")
-    result = await dispatch("get_patient_summary", {}, fhir, session)
-
-    assert result.acl_check.allowed is True
-    assert result.error is None
-    assert f"Patient/{PATIENT_ID}" in result.record_ids
-
-
-@respx.mock
-async def test_panel_denies_when_general_practitioner_mismatches(fhir):
-    """Patient is dr_chen's; dr_alvarez attempts → patient_out_of_panel."""
-    settings = get_settings()
-    respx.post(settings.openemr_oauth_base + "/token").mock(
-        return_value=Response(
-            200,
-            json={
-                "access_token": "tok-alvarez",
-                "expires_in": 300,
-                "id_token": _id_token(ALVAREZ_PRACTITIONER_UUID),
-            },
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
-        return_value=Response(
-            200, json=_patient_resource(CHEN_PRACTITIONER_UUID)
-        )
-    )
-
-    session = _make_session("dr_alvarez")
-    result = await dispatch("get_patient_summary", {}, fhir, session)
-
-    assert result.acl_check.allowed is False
-    assert result.acl_check.reason == "patient_out_of_panel"
-    assert result.error and "patient_out_of_panel" in result.error
-    assert result.record_ids == []
+# Note: tool-layer A.7 panel check was removed once it became clear OpenEMR's
+# FHIR Patient resource doesn't expose `generalPractitioner` in the response.
+# The /v1/sessions gate (in app/main.py) now owns A.7 enforcement using the
+# PHYSICIAN_PATIENT_PANEL env. Tests for that gate live in
+# `test_env_panel_parses_and_filters` below; the tool-layer probe just
+# confirms OpenEMR will let the physician read the patient at all (401/403),
+# which is covered by `test_acl_denies_unknown_role` in test_tool_integration.py.
 
 
 @respx.mock
@@ -191,65 +140,10 @@ def _id_token_with_sub_only(user_uuid: str) -> str:
     return f"{header}.{payload}.sig"
 
 
-@respx.mock
-async def test_panel_falls_back_to_sub_when_fhir_user_absent(fhir):
-    """Real demo path: OAuth client wasn't approved for `fhirUser` scope,
-    so the id_token only carries `sub`. For OpenEMR clinicians,
-    `users.uuid` IS the Practitioner FHIR id, so `sub` resolves the
-    panel correctly. Patient owned by dr_alvarez → allowed.
-    """
-    settings = get_settings()
-    respx.post(settings.openemr_oauth_base + "/token").mock(
-        return_value=Response(
-            200,
-            json={
-                "access_token": "tok-alvarez-no-fhiruser",
-                "expires_in": 300,
-                "id_token": _id_token_with_sub_only(ALVAREZ_PRACTITIONER_UUID),
-            },
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
-        return_value=Response(
-            200, json=_patient_resource(ALVAREZ_PRACTITIONER_UUID)
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Condition").mock(
-        return_value=Response(200, json=_empty_condition_bundle())
-    )
-
-    session = _make_session("dr_alvarez")
-    result = await dispatch("get_patient_summary", {}, fhir, session)
-
-    assert result.acl_check.allowed is True
-    assert result.error is None
-
-
-@respx.mock
-async def test_panel_denies_via_sub_fallback_on_mismatch(fhir):
-    """Same fallback path — but Patient owned by dr_chen → dr_alvarez denied."""
-    settings = get_settings()
-    respx.post(settings.openemr_oauth_base + "/token").mock(
-        return_value=Response(
-            200,
-            json={
-                "access_token": "tok-alvarez-no-fhiruser",
-                "expires_in": 300,
-                "id_token": _id_token_with_sub_only(ALVAREZ_PRACTITIONER_UUID),
-            },
-        )
-    )
-    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
-        return_value=Response(
-            200, json=_patient_resource(CHEN_PRACTITIONER_UUID)
-        )
-    )
-
-    session = _make_session("dr_alvarez")
-    result = await dispatch("get_patient_summary", {}, fhir, session)
-
-    assert result.acl_check.allowed is False
-    assert result.acl_check.reason == "patient_out_of_panel"
+# Sub-fallback tests were removed alongside the tool-layer A.7 check.
+# resolve_practitioner_uuid's sub-fallback is exercised at the
+# /v1/sessions gate (covered by test_env_panel_parses_and_filters and
+# the live Railway smoke matrix in IMPLEMENTATION.md §6.5).
 
 
 # --- env-driven panel (PHYSICIAN_PATIENT_PANEL) ---

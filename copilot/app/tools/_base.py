@@ -103,44 +103,21 @@ async def run_tool(
     # decides for this physician.
     acl = session.acl_decision  # type: ignore[assignment]
     if acl is None:
+        # Runtime ACL probe — checks whether OpenEMR will let this
+        # physician's token read the active patient at all (401/403).
+        # The A.7 panel gate ran at /v1/sessions create time using the
+        # PHYSICIAN_PATIENT_PANEL env (workaround for OpenEMR FHIR not
+        # exposing Patient.generalPractitioner). We do NOT re-check the
+        # panel here — it would always deny for non-admin physicians
+        # because Patient.generalPractitioner is always absent in the
+        # FHIR response. Trust the /v1/sessions gate.
         try:
-            patient_resource = await fhir.get_resource(
+            await fhir.get_resource(
                 "Patient",
                 session.active_patient_id,
                 physician_user_id=user,
             )
-            # A.7 defense-in-depth: even if OpenEMR's FHIR returns the
-            # patient (it currently doesn't filter by providerID), check
-            # generalPractitioner against the physician's Practitioner
-            # UUID. The /v1/sessions gate already ran the same check;
-            # this catches sessions created before the gate or by code
-            # paths that bypass it.
-            practitioner_uuid = await fhir._oauth.resolve_practitioner_uuid(
-                fhir._http, user
-            )
-            if practitioner_uuid:
-                refs = [
-                    (gp or {}).get("reference", "")
-                    for gp in (patient_resource.get("generalPractitioner") or [])
-                ]
-                owners = [
-                    r.rsplit("/", 1)[-1]
-                    for r in refs
-                    if r.startswith("Practitioner/")
-                ]
-                if practitioner_uuid not in owners:
-                    acl = AclResult(
-                        allowed=False,
-                        section=section,
-                        action=action,
-                        reason="patient_out_of_panel",
-                    )
-                else:
-                    acl = AclResult(allowed=True, section=section, action=action)
-            else:
-                # No Practitioner UUID for this user (e.g. admin) — bypass
-                # the panel check; admins see all patients by design.
-                acl = AclResult(allowed=True, section=section, action=action)
+            acl = AclResult(allowed=True, section=section, action=action)
         except FhirError as e:
             if e.status in (401, 403):
                 acl = AclResult(
