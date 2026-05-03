@@ -761,8 +761,9 @@ function getAuthPortalUsers()
                     document.getElementById('finputBody').value = $('#inputBody').summernote('code');
                 }
 
-                // Set replyid for message threading (replies and forwards)
-                document.getElementById('replyid').value = state.selected?.mail_chain || '';
+                // Set replyid for message threading (replies and forwards).
+                // Matches the original AngularJS ng-value='selected.reply_mail_chain'.
+                document.getElementById('replyid').value = state.selected?.reply_mail_chain || '';
 
                 // Let the form submit naturally with all values now populated
                 return true;
