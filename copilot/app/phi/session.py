@@ -12,9 +12,11 @@ from __future__ import annotations
 
 import secrets
 import string
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from threading import RLock
+from typing import Any
 
 
 def _rand_token(n: int = 4) -> str:
@@ -36,6 +38,12 @@ class PseudonymMap:
     # ACL probe result, cached for the session. None until the first tool
     # call probes /Patient/{active_patient_id} with this physician's token.
     acl_decision: object | None = None
+    # Pre-warm tool cache: tool_name → (timestamp, ToolResult). Populated
+    # by app.agent.prewarm.prewarm() on session create; consumed by
+    # app.tools._base.run_tool() to short-circuit the FHIR round-trip on
+    # the first turn (UC1/UC2/UC3 all start with the same 4-tool fan-out).
+    # Excluded from snapshot() — ephemeral, ~90s TTL, not worth persisting.
+    _tool_cache: dict[str, tuple[float, Any]] = field(default_factory=dict)
 
     def patient_pseudonym(self) -> str:
         return self.pseudo_for("Patient", self.active_patient_id)
@@ -64,6 +72,28 @@ class PseudonymMap:
 
     def is_active_patient(self, real_id: str) -> bool:
         return real_id == self.active_patient_id
+
+    def cache_put(self, name: str, result: Any) -> None:
+        """Store a prewarm tool result. Called from prewarm() only."""
+        with self._lock:
+            self._tool_cache[name] = (time.time(), result)
+
+    def cache_get(self, name: str, ttl_seconds: float = 90.0) -> Any | None:
+        """Return a still-warm prewarm result, or None if absent/expired.
+
+        Default TTL of 90s comfortably covers the typical 5-15s window
+        between iframe open and the clinician's first question, while
+        protecting against stale data if the panel sits idle.
+        """
+        with self._lock:
+            entry = self._tool_cache.get(name)
+            if entry is None:
+                return None
+            ts, result = entry
+            if time.time() - ts > ttl_seconds:
+                self._tool_cache.pop(name, None)
+                return None
+            return result
 
     def snapshot(self) -> dict:
         """Serialize the maps for persistence (resume feature).

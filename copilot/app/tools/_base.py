@@ -29,6 +29,10 @@ class ToolResult:
     duration_ms: float = 0.0
     acl_check: AclResult | None = None
     error: str | None = None
+    # True when this result was returned from the session prewarm cache
+    # (app.agent.prewarm) instead of a fresh FHIR fetch. Surfaces in
+    # logs + Langfuse so first-turn cache savings are observable.
+    cache_hit: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -66,6 +70,23 @@ async def run_tool(
     """
     started = time.perf_counter()
     user = session.physician_user_id
+
+    # Pre-warm short-circuit. The session may have a still-warm cached
+    # result for this tool from app.agent.prewarm (fired on
+    # /v1/sessions create). Cache key is just the tool name — the
+    # pre-warm tools are all zero-arg and patient-scoped via
+    # session.active_patient_id, so a per-session cache is correct
+    # without further keying. Skipping ACL probe is safe here: the
+    # cached result was produced by the same physician identity earlier
+    # in the same session.
+    cached = session.cache_get(name)
+    if cached is not None:
+        logger.info(
+            "tool cache hit name=%s session=%s purpose=clinician_query",
+            name, session.session_id,
+        )
+        cached.cache_hit = True
+        return cached
 
     # Hard-deny if there is no authenticated physician identity. Empty/None
     # physician_user_id means the SMART launch / dev-launch path was bypassed

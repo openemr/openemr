@@ -1,6 +1,7 @@
 """FastAPI entry — Clinical Co-Pilot."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -12,6 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from app.agent.loop import run_turn
+from app.agent.prewarm import prewarm
 from app.agent.schemas import PriorTurn
 from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
@@ -215,6 +217,12 @@ async def start_session(
         patient_pseudonym=pseudo.patient_pseudonym(),
         pseudonym_map=pseudo.snapshot(),
     )
+
+    # Pre-warm the high-frequency tools so the first turn skips ~3-4s of
+    # FHIR latency (UC1/UC2/UC3 all start with the same fan-out). Fired
+    # as a background task — does NOT block the session-create response.
+    # See app/agent/prewarm.py for the audit-trail trade-off.
+    asyncio.create_task(prewarm(pseudo, fhir))
 
     return StartSessionResponse(
         session_id=session_id, patient_pseudonym=pseudo.patient_pseudonym()
