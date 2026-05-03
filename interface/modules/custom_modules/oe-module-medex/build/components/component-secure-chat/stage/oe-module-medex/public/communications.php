@@ -224,11 +224,13 @@ if ($medexActive) {
 }
 
 $hasPortalAccess = AclMain::aclCheckCore('patients', 'portal');
+$portalSyncTableExists = (bool)sqlQuery("SHOW TABLES LIKE 'medex_chat_sync'");
+$portalTabVisible = $hasPortalAccess || $portalSyncTableExists;
 $portalManagerUrl = $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-medex/public/portal_messages.php';
 $portalInboxUrl = $GLOBALS['webroot'] . '/portal/messaging/messages.php';
 
 $activeTab = htmlspecialchars($_GET['tab'] ?? 'messages', ENT_QUOTES, 'UTF-8');
-if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true)) {
+if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) || ($activeTab === 'portal' && !$portalTabVisible)) {
     $activeTab = 'messages';
 }
 ?>
@@ -338,12 +340,14 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true))
             </a>
         </li>
         <?php endif; ?>
+        <?php if ($portalTabVisible): ?>
         <li class="nav-item">
             <a class="nav-link <?php echo $activeTab === 'portal' ? 'active' : ''; ?>"
                href="?tab=portal" id="tab-portal" role="tab">
                 <?php echo xlt('Portal Messages'); ?>
             </a>
         </li>
+        <?php endif; ?>
         <?php if ($isAdmin): ?>
         <li class="nav-item ml-auto">
             <a class="nav-link <?php echo $activeTab === 'admin' ? 'active' : ''; ?>"
@@ -653,6 +657,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true))
         <!-- ═══════════════════════════════════════════════════════════════════
              TAB 4 — PORTAL MESSAGES
              ═══════════════════════════════════════════════════════════════════ -->
+        <?php if ($portalTabVisible): ?>
         <div class="tab-pane <?php echo $activeTab === 'portal' ? 'show active' : ''; ?>" id="pane-portal">
             <div class="section-toolbar">
                 <span class="text-muted small"><?php echo xlt('Use this tab to review patient portal conversations synced from MedEx secure chat.'); ?></span>
@@ -673,21 +678,33 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true))
                     <li><?php echo xlt('Messages are synced into OpenEMR portal messaging records.'); ?></li>
                     <li><?php echo xlt('Use MedEx Portal Manager for sync status/history, or OpenEMR Portal Inbox for native thread view.'); ?></li>
                 </ol>
+                <?php if (!$portalSyncTableExists): ?>
+                <div class="alert alert-warning mt-3 mb-0">
+                    <?php echo xlt('Portal sync is not active for this customer yet. Enable portal sync to start recording entries in the portal manager.'); ?>
+                </div>
+                <?php endif; ?>
             </div>
 
-            <?php if ($hasPortalAccess): ?>
+            <?php if ($hasPortalAccess && $portalSyncTableExists): ?>
             <div class="embedded-pane m-3 mt-0" style="height:680px;">
                 <iframe src="<?php echo attr($portalManagerUrl); ?>"
                         title="<?php echo xla('Portal Messages Manager'); ?>"></iframe>
             </div>
-            <?php else: ?>
+            <?php elseif (!$hasPortalAccess): ?>
             <div class="p-3">
                 <div class="alert alert-warning mb-0">
                     <?php echo xlt('Portal access ACL is required to view embedded portal messages. Ask an admin to grant Patients → Portal permission.'); ?>
                 </div>
             </div>
+            <?php else: ?>
+            <div class="p-3">
+                <div class="alert alert-info mb-0">
+                    <?php echo xlt('Portal manager embed is hidden because portal sync is inactive on this site. You can still open the portal inbox using the button above.'); ?>
+                </div>
+            </div>
             <?php endif; ?>
         </div><!-- /pane-portal -->
+        <?php endif; ?>
 
         <!-- ═══════════════════════════════════════════════════════════════════
              TAB 5 — ADMIN STATS
