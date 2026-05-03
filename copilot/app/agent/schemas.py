@@ -26,6 +26,19 @@ class AgentResponse(BaseModel):
     data_gaps: list[str] = Field(default_factory=list)
 
 
+class PriorTurn(BaseModel):
+    """A previously-completed turn replayed into the LLM context on resume.
+
+    Only the user's question and the agent's final prose are replayed —
+    not the tool-use loop. Verification anchors (record_ids) belong to the
+    current turn's tool calls; replayed prose is treated as conversational
+    context, not a citation source.
+    """
+
+    question: str
+    assistant_prose: str
+
+
 class TurnTrace(BaseModel):
     """What the observability layer logs for one agent turn."""
 

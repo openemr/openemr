@@ -74,6 +74,18 @@ class Settings(BaseSettings):
     fhir_timeout_seconds: float = 5.0
     agent_max_tool_iterations: int = 8
 
+    # --- Conversation persistence (resume feature) ---
+    # SQLite file path. /data is mounted as a Railway volume in production
+    # so conversations survive container restarts. In dev (no volume) it
+    # falls back to a file in the working directory.
+    conversation_db_path: str = "/data/copilot.db"
+    # Window for "Resume previous chat?" prompt. A conversation older than
+    # this is treated as abandoned; the iframe starts a fresh session.
+    resume_window_hours: int = 24
+    # Cap on prior turns replayed into the LLM context. Mirrors
+    # ARCHITECTURE.md §9.4 (multi-turn cap).
+    resume_replay_max_turns: int = 10
+
 
 @lru_cache
 def get_settings() -> Settings:

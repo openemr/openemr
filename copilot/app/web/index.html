@@ -86,6 +86,13 @@
     }
     .pill.ok { color: var(--ok); border-color: rgba(63,185,80,0.4); }
     .pill.bad { color: var(--bad); border-color: rgba(248,81,73,0.4); }
+    .resume-banner {
+      padding: 14px 16px; border: 1px solid rgba(88,166,255,0.4);
+      background: rgba(88,166,255,0.08); border-radius: 8px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .resume-banner .label { flex: 1; min-width: 220px; color: var(--text); }
+    .resume-banner .meta { color: var(--muted); font-size: 12px; }
   </style>
 </head>
 <body>
@@ -166,6 +173,125 @@
       } finally {
         startBtn.disabled = false;
       }
+    }
+
+    async function probeRecent(physician, pid) {
+      // Returns {found, conversation_id, last_used_at, turn_count, patient_pseudonym}
+      // or {found:false}. Failures are treated as "no recent" — the iframe just
+      // proceeds with a fresh session.
+      try {
+        const url = `/v1/sessions/recent?physician_user_id=${encodeURIComponent(physician)}&patient_id=${encodeURIComponent(pid)}`;
+        const r = await fetch(url);
+        if (!r.ok) return {found: false};
+        return await r.json();
+      } catch (e) {
+        return {found: false};
+      }
+    }
+
+    function renderResumeBanner(recent) {
+      // Builds the "Resume previous chat?" banner. The user picks one of the
+      // two paths; on choice the banner is removed and the corresponding flow
+      // runs (resume or fresh-start).
+      convo.innerHTML = "";
+      const banner = document.createElement("div");
+      banner.className = "resume-banner";
+      const when = formatRelative(recent.last_used_at);
+      banner.innerHTML = `
+        <div class="label">
+          <strong>Resume previous chat?</strong>
+          <div class="meta">${recent.turn_count} turn${recent.turn_count === 1 ? "" : "s"} · last used ${escape(when)} · ${escape(recent.patient_pseudonym || "")}</div>
+        </div>
+        <button id="resume-yes" class="primary">Yes, resume</button>
+        <button id="resume-no">No, start new</button>
+      `;
+      convo.appendChild(banner);
+      document.getElementById("resume-yes").addEventListener("click", () => resumeSession(recent.conversation_id));
+      document.getElementById("resume-no").addEventListener("click", () => discardAndStartNew(recent.conversation_id));
+    }
+
+    async function resumeSession(conversationId) {
+      sessionStatus.textContent = "resuming…";
+      try {
+        const r = await fetch("/v1/sessions/resume", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({conversation_id: conversationId}),
+        });
+        if (r.status === 403) {
+          sessionStatus.innerHTML = `<span class="pill bad">out of panel</span>`;
+          convo.innerHTML = "";
+          appendNote("This patient is no longer in your panel. The previous conversation cannot be resumed.");
+          return;
+        }
+        if (!r.ok) throw new Error(`resume failed (${r.status})`);
+        const j = await r.json();
+        sessionId = j.session_id;
+        patientPseudonym = j.patient_pseudonym;
+        convo.innerHTML = "";
+        appendNote(`Resumed conversation for ${patientPseudonym}.`);
+        replayHistory(j.messages || []);
+        sessionStatus.innerHTML = `<span class="pill ok">${patientPseudonym}</span>`;
+        promptEl.disabled = false;
+        sendBtn.disabled = false;
+        promptEl.focus();
+      } catch (e) {
+        sessionStatus.innerHTML = `<span class="pill bad">${e.message}</span>`;
+      }
+    }
+
+    async function discardAndStartNew(oldConversationId) {
+      // Mark the prior conversation as ended so it won't be offered for
+      // resume next time, then start a fresh session as today.
+      try {
+        await fetch(`/v1/sessions/${encodeURIComponent(oldConversationId)}/end`, {method: "POST"});
+      } catch (e) {
+        // Non-fatal — the worst case is the banner shows again next load.
+      }
+      convo.innerHTML = "";
+      startSession();
+    }
+
+    function replayHistory(messages) {
+      // Re-render persisted (user, assistant) pairs into the existing DOM.
+      // Replayed assistant turns render with the verified pill (they passed
+      // the gate at original turn) but no latency/token metrics — those
+      // belong to the original Langfuse trace, not this session.
+      for (const m of messages) {
+        if (m.role === "user") {
+          appendUser(m.content);
+        } else if (m.role === "assistant") {
+          const el = appendAssistant(m.content, null, null);
+          renderAssistant(el, {
+            prose: m.content,
+            claims: m.claims || [],
+            data_gaps: m.data_gaps || [],
+          }, {
+            verification_passed: true,
+            tool_call_sequence: [],
+            tool_latencies_ms: {},
+            tool_failures: {},
+            verification_rejections: [],
+            domain_rule_rejections: [],
+            tokens_input: 0, tokens_output: 0, tokens_cached: 0,
+            total_latency_ms: 0,
+          });
+        }
+      }
+    }
+
+    function formatRelative(iso) {
+      if (!iso) return "recently";
+      const t = new Date(iso).getTime();
+      if (isNaN(t)) return "recently";
+      const ms = Date.now() - t;
+      const mins = Math.floor(ms / 60000);
+      if (mins < 1) return "just now";
+      if (mins < 60) return `${mins} min ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      return `${days}d ago`;
     }
 
     async function send() {
@@ -285,11 +411,22 @@
     }
     if (_params.has("patient_id")) {
       patientIdEl.value = _params.get("patient_id").trim();
-      setTimeout(startSession, 50);
       // Hide the manual patient-id input + "Open chart" button in embedded
       // mode — the iframe is already scoped via the URL param.
       patientIdEl.style.display = "none";
       startBtn.style.display = "none";
+      // Probe for a resumable conversation first. If found, the banner is
+      // shown and the user picks; if not, we start a fresh session as before.
+      (async () => {
+        if (physicianUserId) {
+          const recent = await probeRecent(physicianUserId, patientIdEl.value);
+          if (recent && recent.found) {
+            renderResumeBanner(recent);
+            return;
+          }
+        }
+        setTimeout(startSession, 50);
+      })();
     }
   </script>
 </body>

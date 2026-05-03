@@ -12,9 +12,11 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from app.agent.loop import run_turn
+from app.agent.schemas import PriorTurn
 from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
 from app.observability.trace import get_tracer
+from app.persistence.conversations import ConversationStore
 from app.phi.session import sessions
 
 logger = logging.getLogger("copilot.main")
@@ -25,6 +27,8 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     app.state.fhir = FhirClient(settings)
     app.state.tracer = get_tracer(settings)
+    app.state.conv_store = ConversationStore(settings.conversation_db_path)
+    await app.state.conv_store.init()
     yield
     await app.state.fhir.aclose()
 
@@ -195,6 +199,19 @@ async def start_session(
     await _verify_patient_in_panel(fhir, physician, body.patient_id, settings)
 
     pseudo = sessions.create(session_id, physician, body.patient_id)
+
+    # Persist the conversation skeleton so it can be looked up later by
+    # (physician_user_id, patient_id) for the resume prompt. The pseudonym
+    # snapshot is refreshed on every turn — see /v1/chat below.
+    store: ConversationStore = app.state.conv_store
+    await store.create(
+        conversation_id=session_id,
+        physician_user_id=physician,
+        active_patient_id=body.patient_id,
+        patient_pseudonym=pseudo.patient_pseudonym(),
+        pseudonym_map=pseudo.snapshot(),
+    )
+
     return StartSessionResponse(
         session_id=session_id, patient_pseudonym=pseudo.patient_pseudonym()
     )
@@ -273,16 +290,162 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
     if not session:
         raise HTTPException(status_code=404, detail="session not found or expired")
     fhir: FhirClient = app.state.fhir
+
+    # Build prior_turns from stored messages so a resumed conversation
+    # carries history into the LLM context. Pairs are (user, assistant) by
+    # turn_index. Capped downstream by settings.resume_replay_max_turns.
+    store: ConversationStore = app.state.conv_store
+    prior_turns: list[PriorTurn] = []
+    try:
+        stored = await store.get_messages(body.session_id)
+        pending_q: str | None = None
+        for m in stored:
+            if m.role == "user":
+                pending_q = m.content
+            elif m.role == "assistant" and pending_q is not None:
+                prior_turns.append(
+                    PriorTurn(question=pending_q, assistant_prose=m.content)
+                )
+                pending_q = None
+    except Exception:  # noqa: BLE001
+        logger.exception("failed to load prior turns; continuing without history")
+
     output = await run_turn(
         settings=settings,
         fhir=fhir,
         session=session,
         question=body.question,
         proposed_drug=body.proposed_drug,
+        prior_turns=prior_turns or None,
     )
     payload = {
         "response": output.response.model_dump(),
         "trace": output.trace.model_dump(),
     }
     app.state.tracer.emit(output.trace, payload["response"])
+
+    # Persist this turn for resume. The pseudonym snapshot is taken AFTER the
+    # turn so any provider pseudonyms minted during tool calls are captured.
+    # Best-effort — a DB hiccup must not fail the user's chat response.
+    try:
+        await store.append_turn(
+            conversation_id=body.session_id,
+            question=body.question,
+            assistant_prose=output.response.prose,
+            claims=[c.model_dump() for c in output.response.claims] or None,
+            data_gaps=list(output.response.data_gaps) or None,
+            pseudonym_map=session.snapshot(),
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("failed to persist conversation turn (non-fatal)")
+
     return payload
+
+
+# ---------------- Resume previous chat ----------------
+
+
+class RecentResponse(BaseModel):
+    found: bool
+    conversation_id: str | None = None
+    last_used_at: str | None = None
+    turn_count: int | None = None
+    patient_pseudonym: str | None = None
+
+
+@app.get("/v1/sessions/recent", response_model=RecentResponse)
+async def sessions_recent(
+    physician_user_id: str,
+    patient_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    """Probe for a resumable conversation for (physician, patient).
+
+    Frontend calls this on iframe load before starting a fresh session. If
+    a hit is returned, the iframe shows the "Resume previous chat?" banner.
+    """
+    store: ConversationStore = app.state.conv_store
+    recent = await store.find_recent(
+        physician_user_id=physician_user_id,
+        active_patient_id=patient_id,
+        window_hours=settings.resume_window_hours,
+    )
+    if recent is None:
+        return RecentResponse(found=False)
+    return RecentResponse(
+        found=True,
+        conversation_id=recent.conversation_id,
+        last_used_at=recent.last_used_at,
+        turn_count=recent.turn_count,
+        patient_pseudonym=recent.patient_pseudonym,
+    )
+
+
+class ResumeRequest(BaseModel):
+    conversation_id: str
+
+
+class ResumeMessage(BaseModel):
+    role: str
+    content: str
+    claims: list[dict] | None = None
+    data_gaps: list[str] | None = None
+
+
+class ResumeResponse(BaseModel):
+    session_id: str
+    patient_pseudonym: str
+    messages: list[ResumeMessage]
+
+
+@app.post("/v1/sessions/resume", response_model=ResumeResponse)
+async def sessions_resume(
+    body: ResumeRequest, settings: Settings = Depends(get_settings)
+):
+    """Rehydrate a previous conversation: same session_id, same pseudonyms.
+
+    Re-runs the A.7 panel gate — panel membership can change between
+    sessions, and a stale resumable conversation must not bypass that.
+    """
+    store: ConversationStore = app.state.conv_store
+    row = await store.get(body.conversation_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="conversation not found")
+
+    # Re-check panel membership before exposing prior messages.
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(
+        fhir, row.physician_user_id, row.active_patient_id, settings
+    )
+
+    # Rehydrate the in-memory PseudonymMap so the pseudonyms in stored
+    # messages stay consistent with the new turn's _user_prefix.
+    sessions.rehydrate(
+        session_id=row.conversation_id,
+        physician_user_id=row.physician_user_id,
+        active_patient_id=row.active_patient_id,
+        snapshot=row.pseudonym_map,
+    )
+    await store.touch(row.conversation_id)
+
+    stored = await store.get_messages(row.conversation_id)
+    messages = [
+        ResumeMessage(
+            role=m.role, content=m.content, claims=m.claims, data_gaps=m.data_gaps
+        )
+        for m in stored
+    ]
+    return ResumeResponse(
+        session_id=row.conversation_id,
+        patient_pseudonym=row.patient_pseudonym,
+        messages=messages,
+    )
+
+
+@app.post("/v1/sessions/{session_id}/end")
+async def sessions_end(session_id: str):
+    """Mark a conversation as ended so it stops being offered for resume."""
+    store: ConversationStore = app.state.conv_store
+    await store.end(session_id)
+    sessions.end(session_id)
+    return {"ok": True}

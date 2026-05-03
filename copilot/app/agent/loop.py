@@ -22,7 +22,7 @@ from typing import Any
 
 from app.agent.llm import LLMAdapter, ToolUseRequest, get_adapter
 from app.agent.prompt import SYSTEM_PROMPT
-from app.agent.schemas import AgentResponse, Claim, SUBMIT_RESPONSE_TOOL, TurnTrace
+from app.agent.schemas import AgentResponse, Claim, PriorTurn, SUBMIT_RESPONSE_TOOL, TurnTrace
 from app.config import Settings
 from app.fhir.client import FhirClient
 from app.phi.session import PseudonymMap
@@ -146,6 +146,7 @@ async def run_turn(
     session: PseudonymMap,
     question: str,
     proposed_drug: str | None = None,
+    prior_turns: list[PriorTurn] | None = None,
 ) -> AgentTurnOutput:
     started = time.perf_counter()
     adapter = get_adapter(settings)
@@ -162,7 +163,18 @@ async def run_turn(
     )
     raw_tool_results: list[dict] = []
 
-    conversation: list[Any] = [adapter.initial_user_message(_user_prefix(session, question))]
+    # Resume replay: prepend the last N turns as compact (user → assistant
+    # text) pairs. We do NOT replay tool_use / tool_result blocks — the
+    # verification gate must anchor THIS turn's claims to THIS turn's tool
+    # results. Replayed prose is conversational context, not a citation source.
+    conversation: list[Any] = []
+    if prior_turns:
+        for t in prior_turns[-settings.resume_replay_max_turns:]:
+            conversation.append(
+                adapter.initial_user_message(_user_prefix(session, t.question))
+            )
+            conversation.append(adapter.assistant_text_message(t.assistant_prose))
+    conversation.append(adapter.initial_user_message(_user_prefix(session, question)))
 
     # Pass 1
     response = await _run_one_pass(

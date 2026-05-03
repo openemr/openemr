@@ -22,6 +22,7 @@ dependencies = [
   "langfuse>=2.50,<3",
   "python-dotenv>=1.0",
   "sse-starlette>=2.1",
+  "aiosqlite>=0.20",
 ]
 
 [project.optional-dependencies]

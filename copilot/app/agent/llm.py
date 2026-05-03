@@ -68,6 +68,8 @@ class LLMAdapter(Protocol):
 
     def initial_user_message(self, text: str) -> Any: ...
 
+    def assistant_text_message(self, text: str) -> Any: ...
+
 
 # ---------------------- Anthropic ----------------------
 
@@ -152,6 +154,12 @@ class AnthropicAdapter:
 
     def initial_user_message(self, text: str) -> Any:
         return {"role": "user", "content": text}
+
+    def assistant_text_message(self, text: str) -> Any:
+        # Plain-text assistant turn for replaying prior conversations on resume.
+        # Anthropic accepts a string `content` for the assistant role; using a
+        # text block keeps the shape consistent with the rest of the loop.
+        return {"role": "assistant", "content": [{"type": "text", "text": text}]}
 
 
 # ---------------------- OpenAI ----------------------
@@ -254,6 +262,9 @@ class OpenAIAdapter:
     def initial_user_message(self, text: str) -> Any:
         return {"role": "user", "content": text}
 
+    def assistant_text_message(self, text: str) -> Any:
+        return {"role": "assistant", "content": text}
+
 
 # ---------------------- fallback wrapper ----------------------
 
@@ -342,6 +353,9 @@ class FallbackAdapter:
 
     def initial_user_message(self, text: str) -> Any:
         return self._active.initial_user_message(text)
+
+    def assistant_text_message(self, text: str) -> Any:
+        return self._active.assistant_text_message(text)
 
 
 # ---------------------- factory ----------------------

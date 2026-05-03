@@ -10,3 +10,10 @@ healthcheckPath = "/healthz"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+# Conversation-history persistence (resume feature). Mount a Railway volume
+# at /data so the SQLite file survives container restarts. Set
+# CONVERSATION_DB_PATH=/data/copilot.db on the service environment.
+[[deploy.volumes]]
+mountPath = "/data"
+name = "copilot-data"
