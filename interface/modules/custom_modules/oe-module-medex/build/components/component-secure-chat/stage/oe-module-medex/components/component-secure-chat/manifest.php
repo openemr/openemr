@@ -9,6 +9,13 @@ return [
     'description' => 'Patient and staff secure chat pages.',
     'menus' => [
         [
+            'menu_id' => 'medex_communications',
+            'label' => 'Communications',
+            'path' => '/interface/modules/custom_modules/oe-module-medex/public/communications.php',
+            'locations' => ['top'],
+            'acl' => ['patients', 'notes'],
+        ],
+        [
             'menu_id' => 'medex_secure_chat',
             'label' => 'Secure Chat',
             'path' => '/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php',
