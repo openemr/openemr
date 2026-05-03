@@ -121,6 +121,17 @@
 
     let sessionId = null;
     let patientPseudonym = null;
+    // Captured from ?physician_user_id=<authUser> at iframe-load time. The
+    // OpenEMR rail fragment passes the logged-in clinician's username so
+    // the session is created for the right physician (and the panel gate
+    // enforces accordingly). When absent (standalone dev surface),
+    // /v1/sessions falls back to the demo physician on the server side.
+    let physicianUserId = null;
+    // ?debug=1 toggles the per-turn full-trace expander (token counts,
+    // tool latencies, verification rejections). Hidden by default — the
+    // clinician surface stays clean. Admins/recordings append &debug=1
+    // to the iframe URL.
+    let debugMode = false;
 
     async function startSession() {
       const pid = patientIdEl.value.trim();
@@ -128,11 +139,18 @@
       startBtn.disabled = true;
       sessionStatus.textContent = "starting…";
       try {
+        const body = {patient_id: pid};
+        if (physicianUserId) body.physician_user_id = physicianUserId;
         const r = await fetch("/v1/sessions", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({patient_id: pid}),
+          body: JSON.stringify(body),
         });
+        if (r.status === 403) {
+          sessionStatus.innerHTML = `<span class="pill bad">out of panel</span>`;
+          appendNote("This patient is not in your panel. Co-Pilot will not load data for patients outside your assigned list.");
+          return;
+        }
         if (!r.ok) throw new Error(`session start failed (${r.status})`);
         const j = await r.json();
         sessionId = j.session_id;
@@ -223,13 +241,10 @@
       if (response.claims && response.claims.length) {
         html += `<details class="claims" open><summary>${response.claims.length} cited claim${response.claims.length>1?"s":""}</summary>`;
         for (const c of response.claims) {
+          // Show the human-readable display label only; record_id is the
+          // server-side audit anchor and not useful to a clinician.
           const label = c.display || c.text || c.record_id;
-          const showText = c.display && c.text && c.text !== c.display;
-          html += `<div class="claim">
-            <div class="claim-label">${escape(label)}</div>
-            ${showText ? `<div class="claim-text">${escape(c.text)}</div>` : ""}
-            <code class="claim-rid">${escape(c.record_id)}</code>
-          </div>`;
+          html += `<div class="claim"><div class="claim-label">${escape(label)}</div></div>`;
         }
         html += `</details>`;
       }
@@ -240,7 +255,11 @@
         }
         html += `</details>`;
       }
-      html += `<details class="trace"><summary>full trace</summary><pre>${escape(JSON.stringify({tools_called: trace.tool_call_sequence, latencies_ms: trace.tool_latencies_ms, failures: trace.tool_failures, verification_rejections: trace.verification_rejections, domain_rule_rejections: trace.domain_rule_rejections}, null, 2))}</pre></details>`;
+      // Full trace is debug-only — visible when iframe loaded with ?debug=1
+      // (admin/recording surface). Hidden by default for clinician UX.
+      if (debugMode) {
+        html += `<details class="trace"><summary>full trace</summary><pre>${escape(JSON.stringify({tools_called: trace.tool_call_sequence, latencies_ms: trace.tool_latencies_ms, failures: trace.tool_failures, verification_rejections: trace.verification_rejections, domain_rule_rejections: trace.domain_rule_rejections}, null, 2))}</pre></details>`;
+      }
       meta.innerHTML = html;
     }
 
@@ -255,8 +274,15 @@
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     });
 
-    // Auto-bind to ?patient_id=<uuid> so the OpenEMR iframe rail opens scoped.
+    // Auto-bind to ?patient_id=<uuid>&physician_user_id=<authUser> so the
+    // OpenEMR iframe rail opens scoped to the right doctor + patient.
     const _params = new URLSearchParams(location.search);
+    if (_params.has("physician_user_id")) {
+      physicianUserId = _params.get("physician_user_id").trim() || null;
+    }
+    if (_params.get("debug") === "1") {
+      debugMode = true;
+    }
     if (_params.has("patient_id")) {
       patientIdEl.value = _params.get("patient_id").trim();
       setTimeout(startSession, 50);

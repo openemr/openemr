@@ -1,21 +1,26 @@
-    <?php
-    // Clinical Co-Pilot iframe rail — injected by Railway build (see Dockerfile).
-    // Looks up the patient's FHIR UUID and passes it via query string so the
-    // agent session opens scoped. Compatible with the stock openemr/openemr:latest
-    // PHP — uses only sqlQuery() + UuidRegistry which both exist in the upstream.
-    $copilotAgentUrl = 'https://copilot-production-b532.up.railway.app';
-    $copilotPatientUuid = '';
-    if (!empty($pid)) {
-        $copilotRow = sqlQuery(
-            "SELECT uuid FROM patient_data WHERE pid = ?",
-            [$pid]
-        );
-        if (!empty($copilotRow['uuid'])) {
-            $copilotPatientUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($copilotRow['uuid']);
-        }
+<?php
+// Clinical Co-Pilot iframe rail — injected by Railway build (see Dockerfile).
+// Looks up the patient's FHIR UUID and the logged-in clinician's username
+// and passes both via query string so the agent session opens scoped to
+// the right physician AND the right patient. Compatible with the stock
+// openemr/openemr:latest PHP — uses only sqlQuery() + UuidRegistry +
+// $_SESSION['authUser'], all of which exist in upstream.
+$copilotAgentUrl = 'https://copilot-production-b532.up.railway.app';
+$copilotPatientUuid = '';
+$copilotPhysicianUser = $_SESSION['authUser'] ?? '';
+if (!empty($pid)) {
+    $copilotRow = sqlQuery(
+        "SELECT uuid FROM patient_data WHERE pid = ?",
+        [$pid]
+    );
+    if (!empty($copilotRow['uuid'])) {
+        $copilotPatientUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($copilotRow['uuid']);
     }
-    if (!empty($copilotPatientUuid)) :
-        $copilotIframeSrc = $copilotAgentUrl . '/?patient_id=' . urlencode($copilotPatientUuid);
+}
+if (!empty($copilotPatientUuid)) :
+    $copilotIframeSrc = $copilotAgentUrl
+        . '/?patient_id=' . urlencode($copilotPatientUuid)
+        . '&physician_user_id=' . urlencode($copilotPhysicianUser);
     ?>
     <style>
         body { transition: padding-right 0.2s ease; padding-right: 36px !important; }
@@ -49,4 +54,4 @@
     <iframe id="copilot-rail"
             src="<?php echo attr($copilotIframeSrc); ?>"
             title="Clinical Co-Pilot"></iframe>
-    <?php endif; ?>
+<?php endif; ?>
