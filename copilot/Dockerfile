@@ -14,11 +14,11 @@ WORKDIR /srv
 COPY --from=builder /install /usr/local
 COPY app ./app
 
-# /data holds the conversation-history SQLite file. Mounted as a Railway
-# volume in production so it survives container restarts. The app creates
-# the file with mode 0600 on first init.
+# /data holds the conversation-history SQLite file. The Railway volume is
+# attached to /data via service config (railway.toml + dashboard) — Railway
+# rejects the Docker VOLUME instruction at build time, so we only ensure
+# the directory exists with the right perms here.
 RUN mkdir -p /data && chmod 700 /data
-VOLUME ["/data"]
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
