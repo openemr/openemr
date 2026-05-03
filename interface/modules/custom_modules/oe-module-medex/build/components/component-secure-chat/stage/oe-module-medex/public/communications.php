@@ -723,6 +723,12 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
 
             <!-- Pnotes by user breakdown -->
             <div class="p-3">
+                <?php if (!$portalSyncTableExists): ?>
+                <div class="alert alert-info py-2 mb-3" style="font-size:0.85rem;">
+                    <strong><?php echo xlt('Portal Sync not active'); ?></strong> —
+                    <?php echo xlt('The Portal Messages tab is hidden from all users until portal sync is enabled for this tenant. To enable it, provision the medex_chat_sync table on this OpenEMR instance.'); ?>
+                </div>
+                <?php endif; ?>
                 <h6><?php echo xlt('Messages by User'); ?></h6>
                 <div class="table-responsive">
                 <table class="table table-sm table-bordered admin-stat-table mb-4">
